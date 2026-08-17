@@ -1,352 +1,760 @@
 {
-  "app_id": "alirocumab-lipid",
-  "schema_version": 2,
-  "title": "Alirocumab versus placebo: percent change in calculated LDL cholesterol at week 24",
-  "question": "In adults treated for hypercholesterolaemia, how much does alirocumab change calculated LDL cholesterol from baseline to week 24 compared with placebo?",
-  "built": "2026-08-04",
-  "_prose_rule": "Every text field is PROSE unless it is on the numeric-text allowlist. Prose may not contain a bare numeral: any number it needs is a braced reference resolved at build time.",
-  "_sourcing_rule": "Every MEASURED input names the source layer it came from via source_id. Values DERIVED by this build - the pooled estimate, heterogeneity, k, and any superseded figure - carry no source layer because they have no source: they are computed here, and the validator recomputes them rather than trusting them. Where two layers disagree on an input, both are recorded.",
-  "build_mode": "build-to-core",
-  "sources": {
-    "REGISTRY_CTGOV": {
-      "layer": "Registry",
-      "layer_rank": 5,
-      "name": "ClinicalTrials.gov posted results: primary outcome measures and their statistical analyses",
-      "url": "https://clinicaltrials.gov/",
-      "access_note": "Every included trial's posted results were retrieved from the registry API and read field by field. Each contributes a least-squares mean difference with a 95 per cent interval from the trial's own analysis; no effect was reconstructed."
-    }
-  },
-  "removed_citations": {
-    "total_cited": 12,
-    "removed": 6,
-    "retained": 6,
-    "contributing_to_this_outcome": 6,
-    "categories": [
-      {
-        "reason": "placeholder registration",
-        "count": 1,
-        "detail": "NCT12345678 is not a registration number. It resolves to nothing."
-      },
-      {
-        "reason": "wrong disease area",
-        "count": 5,
-        "detail": "NCT01035255, NCT01920711, NCT02924727, NCT03988634 and NCT05901831 are heart-failure and chronic-kidney-disease trials. Four of them are the sacubitril/valsartan programme. The SAME five appear in an unrelated paediatric pneumococcal vaccine review in this corpus, which identifies them as one donor template rather than two independent mistakes."
-      }
-    ],
-    "disclosure_note": "This app was rebuilt on its sourceable core. Of {rm.total_cited} citations in the source app, {rm.removed} were removed and {rm.retained} retained, of which {rm.contributing_to_this_outcome} contribute data to the outcome analysed here. A reduced evidence base that is not disclosed is a worse defect than the contamination it replaces, so the reduction is shown rather than absorbed."
-  },
-  "outcomes": [
-    {
-      "id": "ldlc_pct_change_wk24",
-      "name": "Percent change from baseline in calculated LDL cholesterol at week 24",
-      "type": "primary",
-      "measure": "MD",
-      "null_value": 0,
-      "direction_of_benefit": "lower",
-      "definition": "Least-squares mean percent change from baseline in calculated LDL cholesterol at week 24, intention-to-treat, as analysed by each trial.",
-      "definition_note": "Every contributing trial analysed this endpoint with a least-squares mean from its own model. The values combined here are those model-based differences, not raw arm means, so the synthesis inherits each trial's modelling choices."
-    }
+ "app_id": "alirocumab-lipid",
+ "schema_version": 2,
+ "title": "Alirocumab versus placebo: percent change in calculated LDL cholesterol at week 24",
+ "question": "In adults treated for hypercholesterolaemia, how much does alirocumab change calculated LDL cholesterol from baseline to week 24 compared with placebo?",
+ "built": "2026-08-04",
+ "_prose_rule": "Every text field is PROSE unless it is on the numeric-text allowlist. Prose may not contain a bare numeral: any number it needs is a braced reference resolved at build time.",
+ "_sourcing_rule": "Every MEASURED input names the source layer it came from via source_id. Values DERIVED by this build - the pooled estimate, heterogeneity, k, and any superseded figure - carry no source layer because they have no source: they are computed here, and the validator recomputes them rather than trusting them. Where two layers disagree on an input, both are recorded.",
+ "build_mode": "REBUILT_FROM_SOURCE",
+ "sources": {
+  "REGISTRY_CTGOV": {
+   "layer": "Registry",
+   "layer_rank": 5,
+   "name": "ClinicalTrials.gov posted results: primary outcome measures and their statistical analyses",
+   "url": "https://clinicaltrials.gov/",
+   "access_note": "Every included trial's posted results were retrieved from the registry API and read field by field. Each contributes a least-squares mean difference with a 95 per cent interval from the trial's own analysis; no effect was reconstructed."
+  }
+ },
+ "removed_citations": {
+  "total_cited": 12,
+  "removed": 6,
+  "retained": 6,
+  "contributing_to_this_outcome": 6,
+  "categories": [
+   {
+    "reason": "placeholder registration",
+    "count": 1,
+    "detail": "NCT12345678 is not a registration number. It resolves to nothing."
+   },
+   {
+    "reason": "wrong disease area",
+    "count": 5,
+    "detail": "NCT01035255, NCT01920711, NCT02924727, NCT03988634 and NCT05901831 are heart-failure and chronic-kidney-disease trials. Four of them are the sacubitril/valsartan programme. The SAME five appear in an unrelated paediatric pneumococcal vaccine review in this corpus, which identifies them as one donor template rather than two independent mistakes."
+   }
   ],
-  "inputs": {
-    "trials": [
-      {
-        "id": "NCT01507831",
-        "name": "Long-term alirocumab versus placebo added to stable lipid-modifying therapy in high cardiovascular risk",
-        "nct": "NCT01507831",
-        "year": 2015,
-        "design": "randomised, double-blind, placebo-controlled",
-        "registry_arm_order": "control first",
-        "arms": [
-          {
-            "label": "Alirocumab 150 mg Q2W",
-            "role": "treatment"
-          },
-          {
-            "label": "Placebo Q2W",
-            "role": "control"
-          }
-        ],
-        "by_outcome": {
-          "ldlc_pct_change_wk24": {
-            "effect": {
-              "measure": "MD",
-              "point": -61.9,
-              "ci_low": -64.3,
-              "ci_high": -59.4,
-              "ci_level": 95
-            },
-            "outcome_role_in_trial": "secondary",
-            "analysed": {
-              "treatment": 1530,
-              "control": 780
-            },
-            "provenance": {
-              "tag": "MEASURED",
-              "source_id": "REGISTRY_CTGOV",
-              "source": "posted SECONDARY outcome measure, percent change from baseline in calculated LDL cholesterol at week 24, intention-to-treat",
-              "note": "This trial's only PRIMARY outcome is the percentage of participants experiencing adverse events. The LDL cholesterol result is posted as a SECONDARY outcome. An earlier build excluded the trial on the grounds that it posted no LDL result, which was wrong: the exclusion came from reading primary outcomes only. It is the largest trial in this set.",
-              "source_outcome_title": "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-to-Treat (ITT) Analysis"
-            }
-          }
-        },
-        "enrolled": 2341
-      },
-      {
-        "id": "NCT01617655",
-        "name": "Alirocumab versus placebo on top of stable lipid-modifying therapy in heterozygous familial hypercholesterolaemia",
-        "nct": "NCT01617655",
-        "year": 2014,
-        "design": "randomised, double-blind, placebo-controlled",
-        "arms": [
-          {
-            "label": "Alirocumab 150 mg Q2W",
-            "role": "treatment"
-          },
-          {
-            "label": "Placebo Q2W",
-            "role": "control"
-          }
-        ],
-        "by_outcome": {
-          "ldlc_pct_change_wk24": {
-            "effect": {
-              "measure": "MD",
-              "point": -39.1,
-              "ci_low": -51.1,
-              "ci_high": -27.1,
-              "ci_level": 95
-            },
-            "provenance": {
-              "tag": "MEASURED",
-              "source_id": "REGISTRY_CTGOV",
-              "source": "posted primary outcome analysis, least-squares mean difference with its interval",
-              "note": "Effect, interval and both analysis denominators read from the posted primary outcome measure. Registry group order for this trial: control first.",
-              "source_outcome_title": "Percent Change From Baseline in Calculated LDL-C at Week 24 - ITT Analysis"
-            },
-            "analysed": {
-              "treatment": 71,
-              "control": 35
-            },
-            "outcome_role_in_trial": "primary"
-          }
-        },
-        "registry_arm_order": "control first",
-        "enrolled": 107
-      },
-      {
-        "id": "NCT01623115",
-        "name": "Alirocumab versus placebo on top of stable lipid-modifying therapy",
-        "nct": "NCT01623115",
-        "year": 2014,
-        "design": "randomised, double-blind, placebo-controlled",
-        "arms": [
-          {
-            "label": "Alirocumab 75 mg/Up to 150 mg Q2W",
-            "role": "treatment"
-          },
-          {
-            "label": "Placebo",
-            "role": "control"
-          }
-        ],
-        "by_outcome": {
-          "ldlc_pct_change_wk24": {
-            "effect": {
-              "measure": "MD",
-              "point": -57.9,
-              "ci_low": -63.3,
-              "ci_high": -52.6,
-              "ci_level": 95
-            },
-            "provenance": {
-              "tag": "MEASURED",
-              "source_id": "REGISTRY_CTGOV",
-              "source": "posted primary outcome analysis, least-squares mean difference with its interval",
-              "note": "Effect, interval and both analysis denominators read from the posted primary outcome measure. Registry group order for this trial: control first.",
-              "source_outcome_title": "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-to-Treat (ITT) Analysis"
-            },
-            "analysed": {
-              "treatment": 322,
-              "control": 163
-            },
-            "outcome_role_in_trial": "primary"
-          }
-        },
-        "registry_arm_order": "control first",
-        "enrolled": 486
-      },
-      {
-        "id": "NCT01644175",
-        "name": "Alirocumab versus placebo on top of stable lipid-modifying therapy in high cardiovascular risk",
-        "nct": "NCT01644175",
-        "year": 2015,
-        "design": "randomised, double-blind, placebo-controlled",
-        "arms": [
-          {
-            "label": "Alirocumab 75/150 mg Q2W",
-            "role": "treatment"
-          },
-          {
-            "label": "Placebo Q2W",
-            "role": "control"
-          }
-        ],
-        "by_outcome": {
-          "ldlc_pct_change_wk24": {
-            "effect": {
-              "measure": "MD",
-              "point": -45.9,
-              "ci_low": -52.5,
-              "ci_high": -39.3,
-              "ci_level": 95
-            },
-            "provenance": {
-              "tag": "MEASURED",
-              "source_id": "REGISTRY_CTGOV",
-              "source": "posted primary outcome analysis, least-squares mean difference with its interval",
-              "note": "Effect, interval and both analysis denominators read from the posted primary outcome measure. Registry group order for this trial: control first.",
-              "source_outcome_title": "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-to-Treat (ITT) Analysis"
-            },
-            "analysed": {
-              "treatment": 205,
-              "control": 106
-            },
-            "outcome_role_in_trial": "primary"
-          }
-        },
-        "registry_arm_order": "control first",
-        "enrolled": 316
-      },
-      {
-        "id": "NCT01709500",
-        "name": "Alirocumab in heterozygous familial hypercholesterolaemia",
-        "nct": "NCT01709500",
-        "year": 2015,
-        "design": "randomised, double-blind, placebo-controlled",
-        "arms": [
-          {
-            "label": "Alirocumab 75 mg/up to 150 mg",
-            "role": "treatment"
-          },
-          {
-            "label": "Placebo",
-            "role": "control"
-          }
-        ],
-        "by_outcome": {
-          "ldlc_pct_change_wk24": {
-            "effect": {
-              "measure": "MD",
-              "point": -51.4,
-              "ci_low": -58.1,
-              "ci_high": -44.8,
-              "ci_level": 95
-            },
-            "provenance": {
-              "tag": "MEASURED",
-              "source_id": "REGISTRY_CTGOV",
-              "source": "posted primary outcome analysis, least-squares mean difference with its interval",
-              "note": "Effect, interval and both analysis denominators read from the posted primary outcome measure. Registry group order for this trial: TREATMENT FIRST.",
-              "source_outcome_title": "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent--to--Treat (ITT) Analysis"
-            },
-            "analysed": {
-              "treatment": 166,
-              "control": 81
-            },
-            "outcome_role_in_trial": "primary"
-          }
-        },
-        "registry_arm_order": "TREATMENT FIRST",
-        "enrolled": 249
-      },
-      {
-        "id": "NCT02107898",
-        "name": "Alirocumab in heterozygous familial hypercholesterolaemia, Japan",
-        "nct": "NCT02107898",
-        "year": 2016,
-        "design": "randomised, double-blind, placebo-controlled",
-        "arms": [
-          {
-            "label": "Alirocumab 75 mg/Up to 150 mg Q2W",
-            "role": "treatment"
-          },
-          {
-            "label": "Placebo Q2W",
-            "role": "control"
-          }
-        ],
-        "by_outcome": {
-          "ldlc_pct_change_wk24": {
-            "effect": {
-              "measure": "MD",
-              "point": -64.1,
-              "ci_low": -68.5,
-              "ci_high": -59.8,
-              "ci_level": 95
-            },
-            "provenance": {
-              "tag": "MEASURED",
-              "source_id": "REGISTRY_CTGOV",
-              "source": "posted primary outcome analysis, least-squares mean difference with its interval",
-              "note": "Effect, interval and both analysis denominators read from the posted primary outcome measure. Registry group order for this trial: control first.",
-              "source_outcome_title": "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-to-Treat (ITT Analysis)"
-            },
-            "analysed": {
-              "treatment": 143,
-              "control": 72
-            },
-            "outcome_role_in_trial": "primary"
-          }
-        },
-        "registry_arm_order": "control first",
-        "enrolled": 216
-      }
-    ]
-  },
-  "config": {
-    "confidence_level": 95
-  },
-  "results": {
+  "disclosure_note": "This app was rebuilt on its sourceable core. Of {rm.total_cited} citations in the source app, {rm.removed} were removed and {rm.retained} retained, of which {rm.contributing_to_this_outcome} contribute data to the outcome analysed here. A reduced evidence base that is not disclosed is a worse defect than the contamination it replaces, so the reduction is shown rather than absorbed."
+ },
+ "outcomes": [
+  {
+   "id": "ldlc_pct_change_wk24",
+   "name": "Percent change from baseline in calculated LDL cholesterol at week 24",
+   "type": "primary",
+   "measure": "MD",
+   "null_value": 0,
+   "direction_of_benefit": "lower",
+   "definition": "Least-squares mean percent change from baseline in calculated LDL cholesterol at week 24, intention-to-treat, as analysed by each trial.",
+   "definition_note": "Every contributing trial analysed this endpoint with a least-squares mean from its own model. The values combined here are those model-based differences, not raw arm means, so the synthesis inherits each trial's modelling choices."
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT01507831",
+    "name": "Long-term alirocumab versus placebo added to stable lipid-modifying therapy in high cardiovascular risk",
+    "nct": "NCT01507831",
+    "year": 2015,
+    "design": "randomised, double-blind, placebo-controlled",
+    "registry_arm_order": "control first",
+    "arms": [
+     {
+      "label": "Alirocumab 150 mg Q2W",
+      "role": "treatment"
+     },
+     {
+      "label": "Placebo Q2W",
+      "role": "control"
+     }
+    ],
     "by_outcome": {
-      "ldlc_pct_change_wk24": {
-        "k": 6,
-        "poolable": true,
-        "poolable_reason": "Every included trial reports this outcome with an effect estimate and an interval.",
-        "model": "random",
-        "estimator": "DerSimonian-Laird",
-        "estimator_used": "DerSimonian-Laird",
-        "pooled": {
-          "measure": "MD",
-          "point": -54.66,
-          "ci_low": -60.75,
-          "ci_high": -48.56,
-          "ci_level": 95
-        },
-        "heterogeneity": {
-          "tau2": 47.42,
-          "i2": 87.9,
-          "q": 41.41,
-          "df": 5
-        },
-        "heterogeneity_status": "high",
-        "interpretation_caveat": "Between-trial variation is high: I-squared is {res.by_outcome.ldlc_pct_change_wk24.heterogeneity.i2} per cent. The trials differ in background statin therapy, in population, and in dose regimen, so the pooled figure summarises a range of settings rather than estimating one common effect. A fixed-effect summary of the same data gives a narrower interval and would overstate what is known.",
-        "k_history_note": "An earlier build of this object pooled {res.by_outcome.ldlc_pct_change_wk24.superseded.k} trials and recorded {res.by_outcome.ldlc_pct_change_wk24.superseded.point} ({res.by_outcome.ldlc_pct_change_wk24.superseded.ci_low} to {res.by_outcome.ldlc_pct_change_wk24.superseded.ci_high}). A further trial was recovered after it was found to post its LDL result as a secondary rather than a primary outcome, so k rose to {res.by_outcome.ldlc_pct_change_wk24.k}. The change is recorded rather than overwritten.",
-        "superseded": {
-          "k": 5,
-          "point": -52.58,
-          "ci_low": -60.61,
-          "ci_high": -44.56,
-          "trial_ids": [
-            "NCT01617655",
-            "NCT01623115",
-            "NCT01644175",
-            "NCT01709500",
-            "NCT02107898"
-          ]
-        },
-        "favours": "treatment"
+     "ldlc_pct_change_wk24": {
+      "effect": {
+       "measure": "MD",
+       "point": -61.9,
+       "ci_low": -64.3,
+       "ci_high": -59.4,
+       "ci_level": 95,
+       "scale": "linear",
+       "derived_from": "registry_posted_least_squares_mean_difference",
+       "derivation_note": "The value is the LEAST-SQUARES MEAN DIFFERENCE the registry posts for this outcome, from the trial's own mixed model. It is read as printed. It is NOT computed from the two arm means shown beside it, and it is not a raw difference of observed means: the model's handling of missing data is inside the number and cannot be separated from it here."
+      },
+      "outcome_role_in_trial": "SECONDARY -- this trial's only primary outcome is the proportion of participants with adverse events, because it was designed as a long-term safety study",
+      "analysed": {
+       "treatment": 1530,
+       "control": 780
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "NCT01507831",
+       "source": "the registry's own posted outcome-measure record for this trial",
+       "note": "This trial's only PRIMARY outcome is the percentage of participants experiencing adverse events. The LDL cholesterol result is posted as a SECONDARY outcome. An earlier build excluded the trial on the grounds that it posted no LDL result, which was wrong: the exclusion came from reading primary outcomes only. It is the largest trial in this set.",
+       "source_outcome_title": "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-to-Treat (ITT) Analysis",
+       "source_quotes": [
+        "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-to-Treat (ITT) Analysis",
+        "LS Mean Difference -61.9, 95% CI -64.3 to -59.4, Mixed Models Analysis",
+        "Placebo Q2W 0.8; Alirocumab 150 mg Q2W -61.0 (percent change)"
+       ],
+       "quote_note": "Three quotes, because they answer three different questions. The first is the outcome's TITLE as the registry states it -- what was counted. The second is the posted ANALYSIS -- the number this object stores, with the model that produced it. The third is the two arm means, so a reader can see that the difference has the sign and the magnitude the arms imply. A quote that says what happened is not a quote that says what was counted, and this cell carries both kinds on purpose."
+      },
+      "source_tier": "registry",
+      "source_url": "https://clinicaltrials.gov/study/NCT01507831",
+      "outcome_definition": "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-to-Treat (ITT) Analysis",
+      "outcome_definition_source": {
+       "time_frame": "From Baseline to Week 52",
+       "endpoint_rank": "SECONDARY -- this trial's only PRIMARY outcome is the proportion of participants with adverse events, because it was designed as a long-term safety study. An earlier build EXCLUDED this trial for posting no LDL result, which came from reading primary outcomes only; it is the largest trial in the set.",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+       "source_url": "https://clinicaltrials.gov/study/NCT01507831",
+       "read_utc": "2026-08-17"
       }
+     }
+    },
+    "enrolled": 2341,
+    "comparator_type": "placebo",
+    "comparator_type_basis": "The registry types this trial's control arm PLACEBO_COMPARATOR and gives its label; both are stored on the trial. Read from the arm record rather than assumed -- 'placebo' would be right most of the time in this therapeutic area, which is the reason not to guess it."
+   },
+   {
+    "id": "NCT01617655",
+    "name": "Alirocumab versus placebo on top of stable lipid-modifying therapy in heterozygous familial hypercholesterolaemia",
+    "nct": "NCT01617655",
+    "year": 2014,
+    "design": "randomised, double-blind, placebo-controlled",
+    "arms": [
+     {
+      "label": "Alirocumab 150 mg Q2W",
+      "role": "treatment"
+     },
+     {
+      "label": "Placebo Q2W",
+      "role": "control"
+     }
+    ],
+    "by_outcome": {
+     "ldlc_pct_change_wk24": {
+      "effect": {
+       "measure": "MD",
+       "point": -39.1,
+       "ci_low": -51.1,
+       "ci_high": -27.1,
+       "ci_level": 95,
+       "scale": "linear",
+       "derived_from": "registry_posted_least_squares_mean_difference",
+       "derivation_note": "The value is the LEAST-SQUARES MEAN DIFFERENCE the registry posts for this outcome, from the trial's own mixed model. It is read as printed. It is NOT computed from the two arm means shown beside it, and it is not a raw difference of observed means: the model's handling of missing data is inside the number and cannot be separated from it here."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "NCT01617655",
+       "source": "the registry's own posted outcome-measure record for this trial",
+       "note": "Effect, interval and both analysis denominators read from the posted primary outcome measure. Registry group order for this trial: control first.",
+       "source_outcome_title": "Percent Change From Baseline in Calculated LDL-C at Week 24 - ITT Analysis",
+       "source_quotes": [
+        "Percent Change From Baseline in Calculated LDL-C at Week 24 - ITT Analysis",
+        "LS mean difference -39.1, 95% CI -51.1 to -27.1, Mixed Models Analysis",
+        "Placebo Q2W -6.6; Alirocumab 150 mg Q2W -45.7 (percent change)"
+       ],
+       "quote_note": "Three quotes, because they answer three different questions. The first is the outcome's TITLE as the registry states it -- what was counted. The second is the posted ANALYSIS -- the number this object stores, with the model that produced it. The third is the two arm means, so a reader can see that the difference has the sign and the magnitude the arms imply. A quote that says what happened is not a quote that says what was counted, and this cell carries both kinds on purpose."
+      },
+      "analysed": {
+       "treatment": 71,
+       "control": 35
+      },
+      "outcome_role_in_trial": "PRIMARY",
+      "source_tier": "registry",
+      "source_url": "https://clinicaltrials.gov/study/NCT01617655",
+      "outcome_definition": "Percent Change From Baseline in Calculated LDL-C at Week 24 - ITT Analysis",
+      "outcome_definition_source": {
+       "time_frame": "From Baseline to Week 52",
+       "endpoint_rank": "PRIMARY",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+       "source_url": "https://clinicaltrials.gov/study/NCT01617655",
+       "read_utc": "2026-08-17"
+      }
+     }
+    },
+    "registry_arm_order": "control first",
+    "enrolled": 107,
+    "comparator_type": "placebo",
+    "comparator_type_basis": "The registry types this trial's control arm PLACEBO_COMPARATOR and gives its label; both are stored on the trial. Read from the arm record rather than assumed -- 'placebo' would be right most of the time in this therapeutic area, which is the reason not to guess it."
+   },
+   {
+    "id": "NCT01623115",
+    "name": "Alirocumab versus placebo on top of stable lipid-modifying therapy",
+    "nct": "NCT01623115",
+    "year": 2014,
+    "design": "randomised, double-blind, placebo-controlled",
+    "arms": [
+     {
+      "label": "Alirocumab 75 mg/Up to 150 mg Q2W",
+      "role": "treatment"
+     },
+     {
+      "label": "Placebo",
+      "role": "control"
+     }
+    ],
+    "by_outcome": {
+     "ldlc_pct_change_wk24": {
+      "effect": {
+       "measure": "MD",
+       "point": -57.9,
+       "ci_low": -63.3,
+       "ci_high": -52.6,
+       "ci_level": 95,
+       "scale": "linear",
+       "derived_from": "registry_posted_least_squares_mean_difference",
+       "derivation_note": "The value is the LEAST-SQUARES MEAN DIFFERENCE the registry posts for this outcome, from the trial's own mixed model. It is read as printed. It is NOT computed from the two arm means shown beside it, and it is not a raw difference of observed means: the model's handling of missing data is inside the number and cannot be separated from it here."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "NCT01623115",
+       "source": "the registry's own posted outcome-measure record for this trial",
+       "note": "Effect, interval and both analysis denominators read from the posted primary outcome measure. Registry group order for this trial: control first.",
+       "source_outcome_title": "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-to-Treat (ITT) Analysis",
+       "source_quotes": [
+        "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-to-Treat (ITT) Analysis",
+        "LS mean difference -57.9, 95% CI -63.3 to -52.6, Mixed Models Analysis",
+        "Placebo 9.1; Alirocumab 75 mg/Up to 150 mg Q2W -48.8 (percent change)"
+       ],
+       "quote_note": "Three quotes, because they answer three different questions. The first is the outcome's TITLE as the registry states it -- what was counted. The second is the posted ANALYSIS -- the number this object stores, with the model that produced it. The third is the two arm means, so a reader can see that the difference has the sign and the magnitude the arms imply. A quote that says what happened is not a quote that says what was counted, and this cell carries both kinds on purpose."
+      },
+      "analysed": {
+       "treatment": 322,
+       "control": 163
+      },
+      "outcome_role_in_trial": "PRIMARY",
+      "source_tier": "registry",
+      "source_url": "https://clinicaltrials.gov/study/NCT01623115",
+      "outcome_definition": "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-to-Treat (ITT) Analysis",
+      "outcome_definition_source": {
+       "time_frame": "From Baseline to Week 52",
+       "endpoint_rank": "PRIMARY",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+       "source_url": "https://clinicaltrials.gov/study/NCT01623115",
+       "read_utc": "2026-08-17"
+      }
+     }
+    },
+    "registry_arm_order": "control first",
+    "enrolled": 486,
+    "comparator_type": "placebo",
+    "comparator_type_basis": "The registry types this trial's control arm PLACEBO_COMPARATOR and gives its label; both are stored on the trial. Read from the arm record rather than assumed -- 'placebo' would be right most of the time in this therapeutic area, which is the reason not to guess it."
+   },
+   {
+    "id": "NCT01644175",
+    "name": "Alirocumab versus placebo on top of stable lipid-modifying therapy in high cardiovascular risk",
+    "nct": "NCT01644175",
+    "year": 2015,
+    "design": "randomised, double-blind, placebo-controlled",
+    "arms": [
+     {
+      "label": "Alirocumab 75/150 mg Q2W",
+      "role": "treatment"
+     },
+     {
+      "label": "Placebo Q2W",
+      "role": "control"
+     }
+    ],
+    "by_outcome": {
+     "ldlc_pct_change_wk24": {
+      "effect": {
+       "measure": "MD",
+       "point": -45.9,
+       "ci_low": -52.5,
+       "ci_high": -39.3,
+       "ci_level": 95,
+       "scale": "linear",
+       "derived_from": "registry_posted_least_squares_mean_difference",
+       "derivation_note": "The value is the LEAST-SQUARES MEAN DIFFERENCE the registry posts for this outcome, from the trial's own mixed model. It is read as printed. It is NOT computed from the two arm means shown beside it, and it is not a raw difference of observed means: the model's handling of missing data is inside the number and cannot be separated from it here."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "NCT01644175",
+       "source": "the registry's own posted outcome-measure record for this trial",
+       "note": "Effect, interval and both analysis denominators read from the posted primary outcome measure. Registry group order for this trial: control first.",
+       "source_outcome_title": "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-to-Treat (ITT) Analysis",
+       "source_quotes": [
+        "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-to-Treat (ITT) Analysis",
+        "LS Mean Difference -45.9, 95% CI -52.5 to -39.3, Mixed Models Analysis",
+        "Placebo Q2W -2.3; Alirocumab 75/150 mg Q2W -48.2 (percent change)"
+       ],
+       "quote_note": "Three quotes, because they answer three different questions. The first is the outcome's TITLE as the registry states it -- what was counted. The second is the posted ANALYSIS -- the number this object stores, with the model that produced it. The third is the two arm means, so a reader can see that the difference has the sign and the magnitude the arms imply. A quote that says what happened is not a quote that says what was counted, and this cell carries both kinds on purpose."
+      },
+      "analysed": {
+       "treatment": 205,
+       "control": 106
+      },
+      "outcome_role_in_trial": "PRIMARY",
+      "source_tier": "registry",
+      "source_url": "https://clinicaltrials.gov/study/NCT01644175",
+      "outcome_definition": "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-to-Treat (ITT) Analysis",
+      "outcome_definition_source": {
+       "time_frame": "From Baseline to Week 52",
+       "endpoint_rank": "PRIMARY",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+       "source_url": "https://clinicaltrials.gov/study/NCT01644175",
+       "read_utc": "2026-08-17"
+      }
+     }
+    },
+    "registry_arm_order": "control first",
+    "enrolled": 316,
+    "comparator_type": "placebo",
+    "comparator_type_basis": "The registry types this trial's control arm PLACEBO_COMPARATOR and gives its label; both are stored on the trial. Read from the arm record rather than assumed -- 'placebo' would be right most of the time in this therapeutic area, which is the reason not to guess it."
+   },
+   {
+    "id": "NCT01709500",
+    "name": "Alirocumab in heterozygous familial hypercholesterolaemia",
+    "nct": "NCT01709500",
+    "year": 2015,
+    "design": "randomised, double-blind, placebo-controlled",
+    "arms": [
+     {
+      "label": "Alirocumab 75 mg/up to 150 mg",
+      "role": "treatment"
+     },
+     {
+      "label": "Placebo",
+      "role": "control"
+     }
+    ],
+    "by_outcome": {
+     "ldlc_pct_change_wk24": {
+      "effect": {
+       "measure": "MD",
+       "point": -51.4,
+       "ci_low": -58.1,
+       "ci_high": -44.8,
+       "ci_level": 95,
+       "scale": "linear",
+       "derived_from": "registry_posted_least_squares_mean_difference",
+       "derivation_note": "The value is the LEAST-SQUARES MEAN DIFFERENCE the registry posts for this outcome, from the trial's own mixed model. It is read as printed. It is NOT computed from the two arm means shown beside it, and it is not a raw difference of observed means: the model's handling of missing data is inside the number and cannot be separated from it here."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "NCT01709500",
+       "source": "the registry's own posted outcome-measure record for this trial",
+       "note": "Effect, interval and both analysis denominators read from the posted primary outcome measure. Registry group order for this trial: TREATMENT FIRST.",
+       "source_outcome_title": "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent--to--Treat (ITT) Analysis",
+       "source_quotes": [
+        "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent--to--Treat (ITT) Analysis",
+        "LS Mean Difference -51.4, 95% CI -58.1 to -44.8, Mixed Models Analysis",
+        "Alirocumab 75 mg/up to 150 mg -48.7; Placebo 2.8 (percent change). NOTE the registry lists the ALIROCUMAB arm FIRST on this record and the placebo arm second, the reverse of the other five. The posted difference is still alirocumab minus placebo and still negative; the order is recorded so a reader comparing rows does not read a sign error into it."
+       ],
+       "quote_note": "Three quotes, because they answer three different questions. The first is the outcome's TITLE as the registry states it -- what was counted. The second is the posted ANALYSIS -- the number this object stores, with the model that produced it. The third is the two arm means, so a reader can see that the difference has the sign and the magnitude the arms imply. A quote that says what happened is not a quote that says what was counted, and this cell carries both kinds on purpose."
+      },
+      "analysed": {
+       "treatment": 166,
+       "control": 81
+      },
+      "outcome_role_in_trial": "PRIMARY",
+      "source_tier": "registry",
+      "source_url": "https://clinicaltrials.gov/study/NCT01709500",
+      "outcome_definition": "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent--to--Treat (ITT) Analysis",
+      "outcome_definition_source": {
+       "time_frame": "From Baseline to Week 52",
+       "endpoint_rank": "PRIMARY",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+       "source_url": "https://clinicaltrials.gov/study/NCT01709500",
+       "orthography_note": "The double hyphens in 'Intent--to--Treat' are the registry's own. Quoted as posted rather than tidied: a definition compared whole must be recorded whole.",
+       "read_utc": "2026-08-17"
+      }
+     }
+    },
+    "registry_arm_order": "intervention first",
+    "enrolled": 249,
+    "comparator_type": "placebo",
+    "comparator_type_basis": "The registry types this trial's control arm PLACEBO_COMPARATOR and gives its label; both are stored on the trial. Read from the arm record rather than assumed -- 'placebo' would be right most of the time in this therapeutic area, which is the reason not to guess it."
+   },
+   {
+    "id": "NCT02107898",
+    "name": "Alirocumab in heterozygous familial hypercholesterolaemia, Japan",
+    "nct": "NCT02107898",
+    "year": 2016,
+    "design": "randomised, double-blind, placebo-controlled",
+    "arms": [
+     {
+      "label": "Alirocumab 75 mg/Up to 150 mg Q2W",
+      "role": "treatment"
+     },
+     {
+      "label": "Placebo Q2W",
+      "role": "control"
+     }
+    ],
+    "by_outcome": {
+     "ldlc_pct_change_wk24": {
+      "effect": {
+       "measure": "MD",
+       "point": -64.1,
+       "ci_low": -68.5,
+       "ci_high": -59.8,
+       "ci_level": 95,
+       "scale": "linear",
+       "derived_from": "registry_posted_least_squares_mean_difference",
+       "derivation_note": "The value is the LEAST-SQUARES MEAN DIFFERENCE the registry posts for this outcome, from the trial's own mixed model. It is read as printed. It is NOT computed from the two arm means shown beside it, and it is not a raw difference of observed means: the model's handling of missing data is inside the number and cannot be separated from it here."
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "NCT02107898",
+       "source": "the registry's own posted outcome-measure record for this trial",
+       "note": "Effect, interval and both analysis denominators read from the posted primary outcome measure. Registry group order for this trial: control first.",
+       "source_outcome_title": "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-to-Treat (ITT Analysis)",
+       "source_quotes": [
+        "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-to-Treat (ITT Analysis)",
+        "LS Mean Difference -64.1, 95% CI -68.5 to -59.8, Mixed Models Analysis",
+        "Placebo Q2W 1.6; Alirocumab 75 mg/Up to 150 mg Q2W -62.5 (percent change)"
+       ],
+       "quote_note": "Three quotes, because they answer three different questions. The first is the outcome's TITLE as the registry states it -- what was counted. The second is the posted ANALYSIS -- the number this object stores, with the model that produced it. The third is the two arm means, so a reader can see that the difference has the sign and the magnitude the arms imply. A quote that says what happened is not a quote that says what was counted, and this cell carries both kinds on purpose."
+      },
+      "analysed": {
+       "treatment": 143,
+       "control": 72
+      },
+      "outcome_role_in_trial": "PRIMARY",
+      "source_tier": "registry",
+      "source_url": "https://clinicaltrials.gov/study/NCT02107898",
+      "outcome_definition": "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-to-Treat (ITT Analysis)",
+      "outcome_definition_source": {
+       "time_frame": "From Baseline to Week 52",
+       "endpoint_rank": "PRIMARY",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+       "source_url": "https://clinicaltrials.gov/study/NCT02107898",
+       "read_utc": "2026-08-17"
+      }
+     }
+    },
+    "registry_arm_order": "control first",
+    "enrolled": 216,
+    "comparator_type": "placebo",
+    "comparator_type_basis": "The registry types this trial's control arm PLACEBO_COMPARATOR and gives its label; both are stored on the trial. Read from the arm record rather than assumed -- 'placebo' would be right most of the time in this therapeutic area, which is the reason not to guess it."
+   }
+  ]
+ },
+ "config": {
+  "confidence_level": 95
+ },
+ "results": {
+  "by_outcome": {
+   "ldlc_pct_change_wk24": {
+    "k": 6,
+    "poolable": true,
+    "poolable_reason": "Every included trial reports this outcome with an effect estimate and an interval.",
+    "model": "random",
+    "estimator": "DerSimonian-Laird",
+    "estimator_used": "DerSimonian-Laird",
+    "pooled": {
+     "measure": "MD",
+     "point": -54.66,
+     "ci_low": -60.75,
+     "ci_high": -48.56,
+     "ci_level": 95
+    },
+    "heterogeneity": {
+     "tau2": 47.42,
+     "i2": 87.9,
+     "q": 41.41,
+     "df": 5
+    },
+    "heterogeneity_status": "high",
+    "interpretation_caveat": "Between-trial variation is high: I-squared is {res.by_outcome.ldlc_pct_change_wk24.heterogeneity.i2} per cent. The trials differ in background statin therapy, in population, and in dose regimen, so the pooled figure summarises a range of settings rather than estimating one common effect. A fixed-effect summary of the same data gives a narrower interval and would overstate what is known.",
+    "k_history_note": "An earlier build of this object pooled {res.by_outcome.ldlc_pct_change_wk24.superseded.k} trials and recorded {res.by_outcome.ldlc_pct_change_wk24.superseded.point} ({res.by_outcome.ldlc_pct_change_wk24.superseded.ci_low} to {res.by_outcome.ldlc_pct_change_wk24.superseded.ci_high}). A further trial was recovered after it was found to post its LDL result as a secondary rather than a primary outcome, so k rose to {res.by_outcome.ldlc_pct_change_wk24.k}. The change is recorded rather than overwritten.",
+    "superseded": {
+     "k": 5,
+     "point": -52.58,
+     "ci_low": -60.61,
+     "ci_high": -44.56,
+     "trial_ids": [
+      "NCT01617655",
+      "NCT01623115",
+      "NCT01644175",
+      "NCT01709500",
+      "NCT02107898"
+     ]
+    },
+    "favours": "treatment",
+    "per_trial": [
+     {
+      "trial_id": "NCT01507831",
+      "nct": "NCT01507831",
+      "measure": "MD",
+      "point": -61.9,
+      "ci_low": -64.3,
+      "ci_high": -59.4,
+      "ci_level": 95,
+      "estimand_id": "ldlc_pct_change_wk24-estimand",
+      "endpoint_rank_in_its_own_trial": "SECONDARY -- this trial's only primary outcome is the proportion of participants with adverse events, because it was designed as a long-term safety study",
+      "derivation": "the least-squares mean difference the registry posts, read as printed"
+     },
+     {
+      "trial_id": "NCT01617655",
+      "nct": "NCT01617655",
+      "measure": "MD",
+      "point": -39.1,
+      "ci_low": -51.1,
+      "ci_high": -27.1,
+      "ci_level": 95,
+      "estimand_id": "ldlc_pct_change_wk24-estimand",
+      "endpoint_rank_in_its_own_trial": "PRIMARY",
+      "derivation": "the least-squares mean difference the registry posts, read as printed"
+     },
+     {
+      "trial_id": "NCT01623115",
+      "nct": "NCT01623115",
+      "measure": "MD",
+      "point": -57.9,
+      "ci_low": -63.3,
+      "ci_high": -52.6,
+      "ci_level": 95,
+      "estimand_id": "ldlc_pct_change_wk24-estimand",
+      "endpoint_rank_in_its_own_trial": "PRIMARY",
+      "derivation": "the least-squares mean difference the registry posts, read as printed"
+     },
+     {
+      "trial_id": "NCT01644175",
+      "nct": "NCT01644175",
+      "measure": "MD",
+      "point": -45.9,
+      "ci_low": -52.5,
+      "ci_high": -39.3,
+      "ci_level": 95,
+      "estimand_id": "ldlc_pct_change_wk24-estimand",
+      "endpoint_rank_in_its_own_trial": "PRIMARY",
+      "derivation": "the least-squares mean difference the registry posts, read as printed"
+     },
+     {
+      "trial_id": "NCT01709500",
+      "nct": "NCT01709500",
+      "measure": "MD",
+      "point": -51.4,
+      "ci_low": -58.1,
+      "ci_high": -44.8,
+      "ci_level": 95,
+      "estimand_id": "ldlc_pct_change_wk24-estimand",
+      "endpoint_rank_in_its_own_trial": "PRIMARY",
+      "derivation": "the least-squares mean difference the registry posts, read as printed"
+     },
+     {
+      "trial_id": "NCT02107898",
+      "nct": "NCT02107898",
+      "measure": "MD",
+      "point": -64.1,
+      "ci_low": -68.5,
+      "ci_high": -59.8,
+      "ci_level": 95,
+      "estimand_id": "ldlc_pct_change_wk24-estimand",
+      "endpoint_rank_in_its_own_trial": "PRIMARY",
+      "derivation": "the least-squares mean difference the registry posts, read as printed"
+     }
+    ],
+    "estimator_note": "THE ESTIMATOR IS DERSIMONIAN-LAIRD AND THIS REVIEW'S OWN STATISTICAL RULES SAY NOT TO USE IT BELOW ABOUT TEN STUDIES. There are six. DerSimonian-Laird underestimates the between-trial variance when the trials genuinely differ, which narrows the interval around the average. The headline has NOT been re-estimated in this pass, and the reason is that the same estimator is used across this corpus INCLUDING the flagship: changing it here alone would make one page inconsistent with its neighbours without fixing anything. It is recorded here, in the open, rather than quietly left or quietly changed.",
+    "estimator_sensitivity": {
+     "_why": "What the alternative estimators give on exactly these six values. Computed from the six registry-posted intervals; the DerSimonian-Laird row reproduces the stored headline to four decimals, which is what licenses printing the others beside it.",
+     "rows": [
+      {
+       "estimator": "DerSimonian-Laird (as displayed)",
+       "tau2": 47.42,
+       "i2_pct": 87.9,
+       "point": -54.6554,
+       "ci_low": -60.7476,
+       "ci_high": -48.5632
+      },
+      {
+       "estimator": "REML",
+       "tau2": 71.22,
+       "i2_pct": 91.6,
+       "point": -54.3309,
+       "ci_low": -61.586,
+       "ci_high": -47.0759
+      },
+      {
+       "estimator": "REML with Hartung-Knapp-Sidik-Jonkman",
+       "tau2": 71.22,
+       "i2_pct": 91.6,
+       "point": -54.3309,
+       "ci_low": -64.1286,
+       "ci_high": -44.5332,
+       "note": "t_5 = 2.5706, not a normal quantile"
+      }
+     ],
+     "what_moves": "The point estimate barely moves -- 54.7 against 54.3 percent -- and no reading of the direction or the magnitude changes. THE INTERVAL MOVES A LOT: 12.2 points wide under DerSimonian-Laird, 14.5 under REML, 19.6 under REML with Hartung-Knapp. A reader who wants the most conservative statement of what six trials establish should take the last of those.",
+     "the_one_that_matters": "I-SQUARED CROSSES THE THRESHOLD DEPENDING ON THE ESTIMATOR. 87.9 per cent under DerSimonian-Laird; 91.6 under REML. This project's poolability screen treats 90 per cent as the point at which an average conceals more than it conveys, so the verdict on whether these six trials should be averaged at all is decided by the estimator choice -- and the estimator in use is the one the rules advise against at this number of studies. That is not a reason to withdraw the estimate: the six trials measure ONE registry-verified endpoint against ONE comparator for ONE drug, and every value is confirmed against its registry record. It is a reason to read the prediction interval rather than the confidence interval."
+    },
+    "prediction_interval": {
+     "low": -74.08,
+     "high": -35.23,
+     "basis": "t_5, DerSimonian-Laird tau-squared, per this project's resolved convention (Cochrane Handbook v6.5, matching metafor's predict)",
+     "what_it_says": "THIS IS THE NUMBER TO QUOTE, and it is not the headline. The confidence interval -60.7 to -48.6 is about where the AVERAGE lies. The prediction interval -74.1 to -35.2 is about where the effect in a NEW trial of this drug would lie, and it is three times wider. The six trials range from -39.1 to -64.1 with tight intervals of their own, so the spread is real and not sampling noise: dose regimen differs (150 mg fixed in two trials, 75 mg up-titrated in four), as do population and background statin therapy. A single number for 'how much does alirocumab lower LDL' conceals a 25-point range."
     }
+   }
+  }
+ },
+ "quarantine": null,
+ "published_comparison": {
+  "_why": "Six trials, one endpoint, and every value posted by the registry -- so the trial-by-trial check here is complete in a way it cannot be where trials post no results. It is also the topic where the error found is OURS, and it is in the table below with the same weight as anything found in the literature.",
+  "_how_identified": "PubMed E-utilities; query, counts and a per-record decision in ssot/alirocumab-lipid/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json. 101 records matched and all 101 were read at abstract level.",
+  "reviews": [
+   {
+    "id": "PM_FH_PCSK9_2022",
+    "pmid": "34754882",
+    "citation": "A Systematic Review and Meta-Analysis of Therapeutic Efficacy and Safety of Alirocumab and Evolocumab on Familial Hypercholesterolemia. Biomed Res Int 2022.",
+    "their_k": 7,
+    "their_n": 926,
+    "scope": "PCSK9 monoclonal antibodies in familial hypercholesterolaemia",
+    "how_it_differs_from_ours": "It pools BOTH drugs and restricts to familial hypercholesterolaemia; we pool one drug across a mixed population. Its weighted mean difference -49.14% (-55.81 to -42.47) is a different set of trials answering a narrower question, and it overlaps ours."
+   },
+   {
+    "id": "PM_ALIRO_NMA_2019",
+    "pmid": "30782243",
+    "citation": "Efficacy and safety of different doses of alirocumab in reducing low-density lipoprotein cholesterol levels: a network meta-analysis. Pharmazie 2019.",
+    "their_k": 16,
+    "scope": "alirocumab at three dose strategies against placebo and ezetimibe, network meta-analysis",
+    "how_it_differs_from_ours": "A NETWORK estimate over sixteen studies rather than a direct pool over six, and its intervals are about forty points wide. Its alirocumab-versus-placebo relative effects run from -71 to -77, further from zero than our -54.7, and the abstract does not state the unit or the model well enough to say why."
+   },
+   {
+    "id": "PM_ALIRO12_2019",
+    "pmid": "31463238",
+    "citation": "Safety and efficacy of alirocumab: A meta analysis of 12 randomized controlled trials. J Family Med Prim Care 2019.",
+    "their_k": 12,
+    "their_n": 6019,
+    "scope": "phase 3 alirocumab trials in hypercholesterolaemia and familial hypercholesterolaemia",
+    "how_it_differs_from_ours": "It reports 'over 50%' LDL-C reduction without a pooled interval in its abstract, so it supplies a direction and a rough magnitude and no number to reconcile against."
+   },
+   {
+    "id": "PM_CKD_PCSK9_2019",
+    "pmid": "29299849",
+    "citation": "Lipid Management in Chronic Kidney Disease: Systematic Review of PCSK9 Targeting. Drugs 2019.",
+    "scope": "narrative review of PCSK9 inhibition in chronic kidney disease",
+    "how_it_differs_from_ours": "It reports no pooled estimate, but it is the record that independently confirms which ODYSSEY COMBO trial used which comparator -- see the comparator check."
+   }
+  ],
+  "checks": [
+   {
+    "id": "ldl-values-vs-registry-1",
+    "what": "NCT01507831, the largest trial, against the registry's posted analysis",
+    "verdict": "CONFIRMED",
+    "detail": "Registry: LS Mean Difference -61.9, 95% CI -64.3 to -59.4, Mixed Models Analysis, over 1530 against 780. This object stores -61.9 (-64.3 to -59.4). Identical. NOTE this trial's LDL result is a SECONDARY outcome -- its only primary is the adverse-event proportion, because it was designed as a long-term safety study -- and an earlier build EXCLUDED it for posting no LDL result, which came from reading primary outcomes only.",
+    "quote": "LS Mean Difference -61.9 (-64.3 to -59.4), Mixed Models Analysis",
+    "location": "ClinicalTrials.gov NCT01507831, resultsSection"
+   },
+   {
+    "id": "ldl-values-vs-registry-2",
+    "what": "NCT01617655 against the registry's posted analysis",
+    "verdict": "CONFIRMED",
+    "detail": "Registry: LS mean difference -39.1 (-51.1 to -27.1) over 71 against 35. Object: -39.1 (-51.1 to -27.1). Identical. This is the smallest and least precise of the six and the furthest from the pooled value.",
+    "quote": "LS mean difference -39.1 (-51.1 to -27.1), Mixed Models Analysis",
+    "location": "ClinicalTrials.gov NCT01617655, resultsSection"
+   },
+   {
+    "id": "ldl-values-vs-registry-3",
+    "what": "NCT01623115 against the registry's posted analysis",
+    "verdict": "CONFIRMED",
+    "detail": "Registry: LS mean difference -57.9 (-63.3 to -52.6) over 322 against 163. Object: -57.9 (-63.3 to -52.6). Identical.",
+    "quote": "LS mean difference -57.9 (-63.3 to -52.6), Mixed Models Analysis",
+    "location": "ClinicalTrials.gov NCT01623115, resultsSection"
+   },
+   {
+    "id": "ldl-values-vs-registry-4",
+    "what": "NCT01644175 against the registry's posted analysis",
+    "verdict": "CONFIRMED",
+    "detail": "Registry: LS Mean Difference -45.9 (-52.5 to -39.3) over 205 against 106. Object: -45.9 (-52.5 to -39.3). Identical.",
+    "quote": "LS Mean Difference -45.9 (-52.5 to -39.3), Mixed Models Analysis",
+    "location": "ClinicalTrials.gov NCT01644175, resultsSection"
+   },
+   {
+    "id": "ldl-values-vs-registry-5",
+    "what": "NCT01709500 against the registry's posted analysis, and its arm ORDER",
+    "verdict": "CONFIRMED",
+    "detail": "Registry: LS Mean Difference -51.4 (-58.1 to -44.8) over 166 against 81. Object: -51.4 (-58.1 to -44.8). Identical. AND THE ARM ORDER IS REVERSED ON THIS RECORD ALONE: the registry lists alirocumab first and placebo second, the opposite of the other five. The posted difference is still alirocumab minus placebo, still negative, and the arm means (-48.7 against 2.8) confirm the sign independently. Checked because a silently reversed contrast is a defect class this repository has shipped before.",
+    "quote": "Alirocumab 75 mg/up to 150 mg -48.7; Placebo 2.8; LS Mean Difference -51.4 (-58.1 to -44.8)",
+    "location": "ClinicalTrials.gov NCT01709500, resultsSection, group order"
+   },
+   {
+    "id": "ldl-values-vs-registry-6",
+    "what": "NCT02107898 against the registry's posted analysis",
+    "verdict": "CONFIRMED",
+    "detail": "Registry: LS Mean Difference -64.1 (-68.5 to -59.8) over 143 against 72. Object: -64.1 (-68.5 to -59.8). Identical. SIX OF SIX CONTRIBUTING VALUES ARE THEREFORE CONFIRMED AGAINST THEIR REGISTRY RECORDS -- the only topic in this lane where the trial-by-trial check is complete.",
+    "quote": "LS Mean Difference -64.1 (-68.5 to -59.8), Mixed Models Analysis",
+    "location": "ClinicalTrials.gov NCT02107898, resultsSection"
+   },
+   {
+    "id": "endpoint-definitions-identical",
+    "what": "Whether the six trials measured the same thing",
+    "verdict": "CONFIRMED",
+    "detail": "All six registry records give the outcome as 'Percent Change From Baseline in Calculated LDL-C at Week 24' on the intention-to-treat analysis. The only differences are orthographic -- one record writes 'Intent--to--Treat' with doubled hyphens, another closes the bracket after 'ITT Analysis' rather than before it. Compared as whole normalised fields, which is the rule this repository once broke inside its own auditor by testing a fragment.",
+    "quote": "Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-to-Treat (ITT) Analysis",
+    "location": "ClinicalTrials.gov, all six records, outcome measure title"
+   },
+   {
+    "id": "comparator-is-placebo-on-all-six",
+    "what": "Whether any of the six is actually an ACTIVE-comparator trial",
+    "verdict": "CONFIRMED",
+    "detail": "None is. All six registry records type the control arm PLACEBO_COMPARATOR. This was checked rather than assumed because the ODYSSEY programme contains sibling trials with different comparators, and a published review states it independently: 'ODYSSEY COMBO I and ODYSSEY COMBO II studies demonstrated significant superiority of alirocumab ... in comparison to placebo and ezetimibe, respectively'. NCT01644175 is COMBO I, the placebo-controlled one, and COMBO II is not in this set. A pool silently mixing a placebo contrast with an ezetimibe contrast would have been an average over two different questions.",
+    "quote": "ODYSSEY COMBO I and ODYSSEY COMBO II studies demonstrated significant superiority of alirocumab on LDL-cholesterol lowering in comparison to placebo and ezetimibe, respectively",
+    "location": "PMID 29299849, abstract; and the armGroups type on all six records"
+   },
+   {
+    "id": "our-estimator-breaks-our-own-rule",
+    "what": "The between-study variance estimator used for the headline",
+    "verdict": "ERROR",
+    "severity": "material",
+    "whose": "ours",
+    "detail": "THIS ONE IS OURS. The pool is DerSimonian-Laird at k=6, and this project's own statistical rules say not to use DerSimonian-Laird below about ten studies because it underestimates the between-trial variance and narrows the interval. Recomputed on exactly these six values: REML gives tau-squared 71.2 against 47.4, and I-squared 91.6 per cent against 87.9. THE VERDICT ON WHETHER THESE TRIALS SHOULD BE AVERAGED AT ALL TURNS ON THAT, because this project's own poolability screen treats 90 per cent as the point where an average conceals more than it conveys -- so the estimator that the rules advise against is the one that keeps the pool on the acceptable side of the threshold. The headline is NOT re-estimated in this pass: the same estimator is used across this corpus including the flagship, and changing one page alone would make it inconsistent with its neighbours without fixing anything. It is recorded in the open, with the alternatives printed beside it, rather than quietly left or quietly changed.",
+    "quote": null,
+    "location": "this object, results.ldlc_pct_change_wk24.estimator and estimator_sensitivity"
+   },
+   {
+    "id": "no-synthesis-reports-this-estimand",
+    "what": "Whether any published synthesis pools these six trials on this endpoint",
+    "verdict": "ABSENT",
+    "detail": "None located. The closest are a familial-hypercholesterolaemia pool of seven trials across BOTH PCSK9 antibodies, weighted mean difference -49.14% (-55.81 to -42.47), and a twelve-trial alirocumab review reporting 'over 50%' with no interval. Both overlap our -54.66% and neither answers the same question. So this pooled value cannot be checked against an external number, which is a statement about the literature rather than a claim of novelty.",
+    "quote": "PCSK9-mAbs reduced the LDL-C level by the greatest margin, WMD -49.14%, 95% CI: -55.81 to -42.47%, on FH versus control groups",
+    "location": "PMID 34754882, abstract"
+   },
+   {
+    "id": "network-estimates-further-from-zero",
+    "what": "A network meta-analysis reporting a much larger reduction",
+    "verdict": "UNRESOLVED",
+    "detail": "It reports alirocumab-versus-placebo relative effects of -71.45 (-91.16 to -50.44), -74.32 (-90.40 to -58.63) and -77.28 (-92.21 to -61.90) by dose strategy -- all further from zero than our -54.66, and all with intervals around forty points wide. It cannot be settled from the abstract whether those are percent changes on the same basis, and an interval that wide is compatible with a wide range of truths. Recorded for a reader rather than asserted as a discrepancy in either direction.",
+    "quote": "alirocumab could significantly reduce LDL-c levels, compared with placebo (relative effect 95 % CI: -71.45 [-91.16, -50.44], -74.32 [-90.40, -58.63] and -77.28 [-92.21, -61.90])",
+    "location": "PMID 30782243, abstract"
+   },
+   {
+    "id": "what-the-abstract-layer-cannot-settle",
+    "what": "Whether the 97 syntheses that name no trial included ours",
+    "verdict": "UNRESOLVED",
+    "detail": "97 of 101 records name none of our six trials in the abstract and two carry no indexed abstract. Alirocumab LDL-lowering is a crowded literature and many of those certainly do include these trials; which ones, and on what endpoint, cannot be decided from an abstract.",
+    "quote": null,
+    "location": "PUBLISHED_SYNTHESIS_SCREEN.json, tally"
+   }
+  ],
+  "divergence_decomposed": {
+   "ours": "Mean difference -54.66 percent (-60.75 to -48.56) in calculated LDL cholesterol at week 24, k=6, random effects, DerSimonian-Laird. PREDICTION INTERVAL -74.1 to -35.2, which is the number to quote.",
+   "theirs": "-49.14% (-55.81 to -42.47) over seven familial-hypercholesterolaemia trials of both PCSK9 antibodies; 'over 50%' over twelve alirocumab trials; -71 to -77 by dose in a sixteen-study network analysis.",
+   "why_they_differ": "Different eligible sets and different questions -- one drug or two, one population or several, direct pool or network. Nothing here shows either side in error on the numbers. THE SUBSTANTIVE POINT IS NOT THE DIFFERENCE BETWEEN REVIEWS, IT IS THE SPREAD WITHIN OURS: six trials running from -39.1 to -64.1, each with a tight interval of its own, I-squared near 90 per cent. A single number for 'how much does alirocumab lower LDL' conceals a twenty-five point range, and the prediction interval is the only honest summary of it."
   },
-  "quarantine": null
+  "denominator": {
+   "rows_checked": 12,
+   "confirmed": 8,
+   "errors": 1,
+   "errors_in_the_literature": 0,
+   "errors_in_this_review": 1,
+   "absent": 1,
+   "unresolved": 2,
+   "statement": "12 checks were applied and 8 came back clean, 1 found an error, 1 found something absent and 2 could not be settled at the layer available. The denominator is stated because a list of only the failures is not a finding, it is a selection.",
+   "symmetry": "Confirmations are listed in the same table, in the same detail, as errors. Across the cardiology topics reconciled so far the published literature has been implicated in none of them: where a defect existed it was ours. A comparison with room only for their errors could not have found that out."
+  }
+ },
+ "build_mode_history": [
+  {
+   "was": "build-to-core",
+   "changed_utc": "2026-08-17",
+   "why": "'build-to-core' was a label no checker recognised, so the no-synthesised-absence gate returned UNCHECKABLE on this page -- a v1 property unmeasured because of a vocabulary, not because of anything about the page. The label is now REBUILT_FROM_SOURCE, which is what this object is: every contributing value, every endpoint definition and every comparator on it was read from the trial's own registry record on 2026-08-17. NOTHING A READER SEES CHANGES. The absent-state vocabulary a page renders is selected by whether the mode is CONVERTED, and this object was not CONVERTED under either label, so the same sentences render before and after. The change makes the property checkable; it does not make the page different."
+  }
+ ]
 }
