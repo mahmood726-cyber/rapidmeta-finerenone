@@ -154,6 +154,77 @@ def _components(s):
     return frozenset(out)
 
 
+# ---------------------------------------------------------------------------
+# THE HUNTING LIST -- and why this gate needed a SECOND list rather than a
+# LONGER first one.
+#
+# COMPONENT and _CANON are entirely CARDIOLOGICAL: hospitalisation, CV death,
+# stroke, MI, bleeding, cardiac arrest, ACS, worsening heart failure. There is
+# nothing renal in them, nothing infectious, nothing oncological.
+#
+# On 2026-08-18 this gate was run on SGLT2_CKD, whose three trials record three
+# DIFFERENT primary composites in their own registry records:
+#
+#   CREDENCE     doubling of serum creatinine, ESKD, renal or CV death
+#   DAPA-CKD     >=50% sustained decline in eGFR, ESRD, CV death, renal death
+#   EMPA-KIDNEY  kidney disease progression (ESKD, eGFR to <10, renal death,
+#                >=40% sustained decline in eGFR) or CV death
+#
+# ALL THREE REDUCED TO {cv_death}. Every renal component of every composite was
+# invisible, and the gate reported "every pooled outcome has a recorded endpoint
+# definition and THEY AGREE" -- a PASS, on three composites that differ on the
+# threshold at which kidney-function decline is counted at all.
+#
+# THIS IS THE CABANA DEFECT AND IT FAILS TOWARD COMFORT. CABANA's four-component
+# endpoint was read as "stroke", and that argued for pooling it with a
+# stroke-only trial. Here five components are read as one, and it argues for
+# pooling three composites that are not the same. Every other under-read in the
+# ledger failed toward ALARM; this one manufactures an AGREEMENT, which is the
+# direction that survives, because nobody investigates a green.
+#
+# LENGTHENING _CANON DOES NOT FIX IT. A recognition list over an open domain is
+# wrong again the first time this gate meets a specialty nobody added -- and the
+# whole infectious-disease set is next. So the fix is structural:
+#
+#     THE RECOGNITION LIST DECIDES PASS.
+#     THIS LIST DECIDES WHETHER THE GATE MAY DECIDE AT ALL.
+#
+# EVENT_LIKE is deliberately over-broad. Its failure mode is flagging a term the
+# recognition list actually handles, which yields UNCHECKABLE -- an alarm, and a
+# cheap one to investigate. A gap in THIS list is one level further back than a
+# gap in _CANON, and it is the only comfortable failure left in the design.
+EVENT_LIKE = re.compile(
+    r"\b(?:"
+    # renal -- the set that was invisible
+    r"creatinine|egfr|glomerular filtration|dialysis|transplantation|transplant|"
+    r"end[- ]stage|eskd|esrd|kidney disease progression|kidney failure|"
+    r"renal death|renal failure|renal replacement|albuminuria|proteinuria|"
+    r"nephropathy|"
+    # progression / decline language that names a counted event
+    r"doubling|sustained decline|disease progression|progression-free|"
+    # other specialties, so this is not merely cardiology-plus-renal
+    r"relapse|remission|recurrence|exacerbation|infection|bacteraemia|"
+    r"bacteremia|seroconversion|viral load|virologic failure|virological "
+    r"failure|treatment failure|fracture|amputation|blindness|visual acuity|"
+    r"overall survival|readmission|intubation|ventilation|transfusion|"
+    r"revascularisation|revascularization|graft loss|rejection"
+    r")\b", re.I)
+
+
+def unrecognised_terms(s):
+    """Event-like phrases in a definition that the recognition list cannot see.
+
+    A NON-EMPTY RESULT MEANS THE GATE MUST NOT COMPARE THIS DEFINITION. It has
+    read part of a composite and has no way to know whether the part it could
+    not read is the part that differs.
+    """
+    if not s:
+        return frozenset()
+    covered = " ".join(m.group(0) for m in COMPONENT.finditer(s)).lower()
+    return frozenset(m.group(0).lower() for m in EVENT_LIKE.finditer(s)
+                     if m.group(0).lower() not in covered)
+
+
 def definition_for(bo):
     """The endpoint definition recorded on ONE trial-outcome cell, or "".
 
@@ -198,6 +269,7 @@ def check(obj):
         return "UNCHECKABLE", ["object carries no trials or no pooled outcome"]
 
     notes, bad, withdrawn_for_this = [], False, False
+    unreadable_for_this = False
     for oid, res in results.items():
         if (res.get("k") or 0) < 2:
             notes.append("%s: k<2, nothing to compare" % oid)
@@ -251,6 +323,28 @@ def check(obj):
                              "%d of them: %s -- what happened, never what was counted"
                              % (len(resultish), ", ".join(resultish[:6])))
         if len(defs) > 1:
+            # BEFORE COMPARING ANYTHING: can this reader read these definitions?
+            # A comparison of two partial readings is not a comparison of two
+            # definitions. If the recognition vocabulary cannot see event-like
+            # terms that are present in the text, the honest verdict is that the
+            # gate could not read them -- NOT that they agree.
+            blind = {n: unrecognised_terms(d) for n, d in defs.items()}
+            unread = {n: t for n, t in blind.items() if t}
+            if unread:
+                unreadable_for_this = True
+                notes.append(
+                    "%s: THIS GATE CANNOT READ %d of %d definitions. Its component "
+                    "vocabulary is cardiological and these name events it does not "
+                    "recognise, so any agreement it reported would be an agreement "
+                    "between two PARTIAL READINGS:" % (oid, len(unread), len(defs)))
+                for n in sorted(unread):
+                    notes.append("    %-22s unrecognised: {%s}   recognised: {%s}"
+                                 % (n, ", ".join(sorted(unread[n])[:8]),
+                                    ", ".join(sorted(_components(defs[n]))) or "-"))
+                notes.append("    Read these by hand against the registry. A PASS "
+                             "here would be the CABANA under-read failing toward "
+                             "comfort instead of toward alarm.")
+                continue
             comp = {n: _components(d) for n, d in defs.items()}
             if len(set(comp.values())) > 1:
                 if _withdrawn:
@@ -267,6 +361,16 @@ def check(obj):
         notes = ["every pooled outcome has a recorded endpoint definition and they agree"]
     if bad:
         return "FAIL", notes
+    # UNCHECKABLE OUTRANKS WITHDRAWN AND PASS. If the gate could not read the
+    # definitions it cannot certify that a withdrawal was for the right reason
+    # either -- and a withdrawal made on an unread definition is exactly the
+    # destructive error this whole apparatus exists to prevent.
+    if unreadable_for_this:
+        notes.append("-> UNCHECKABLE. The gate found event terms it does not "
+                     "recognise and refuses to report agreement or disagreement "
+                     "from a partial reading. This is NOT a pass and NOT a "
+                     "failure of the object.")
+        return "UNCHECKABLE", notes
     if withdrawn_for_this:
         notes.append("-> the definitions do not agree and NO ESTIMATE IS DISPLAYED. "
                      "The property is met by the withholding, not by agreement, and "
@@ -410,6 +514,51 @@ def selftest():
     ok &= v5 == "UNCHECKABLE"
     print("  NEGATIVE an empty object                            -> %-5s %s (not a pass)"
           % (v5, "correct" if v5 == "UNCHECKABLE" else "WRONG"))
+
+    # ---- THE REPLAY: three CKD composites this gate reported as AGREEING ----
+    # Real registry text, read 2026-08-18 from the ClinicalTrials.gov protocol
+    # records. Before the hunting list, all three reduced to {cv_death} and the
+    # gate returned PASS with "they agree".
+    print("")
+    ckd = {
+        "CREDENCE": ("Primary Composite Endpoint of Doubling of Serum Creatinine "
+                     "(DoSC), End-stage Kidney Disease (ESKD), and Renal or "
+                     "Cardiovascular (CV) Death"),
+        "DAPA-CKD": ("Time to the First Occurrence of Any of the Components of the "
+                     "Composite: >=50% Sustained Decline in eGFR or Reaching ESRD "
+                     "or CV Death or Renal Death."),
+        "EMPA-KIDNEY": ("Interventional Part: Time to First Occurrence of Kidney "
+                        "Disease Progression or Cardiovascular Death "
+                        "('as Adjudicated')"),
+    }
+    same = len({_components(v) for v in ckd.values()}) == 1
+    unread = {n: unrecognised_terms(v) for n, v in ckd.items()}
+    all_flagged = all(unread.values())
+    ok &= same and all_flagged
+    print("  REPLAY SGLT2_CKD: three DIFFERENT composites, recognition list sees")
+    for n, v in ckd.items():
+        print("        %-12s recognised={%s}  unrecognised={%s}"
+              % (n, ", ".join(sorted(_components(v))) or "-",
+                 ", ".join(sorted(unread[n])[:5])))
+    print("        all three reduce to one component set: %s  (that is the false "
+          "agreement)" % same)
+    print("        every one flagged as unreadable: %-5s %s"
+          % (all_flagged, "correct" if (same and all_flagged) else "WRONG"))
+    print("        the version this replaces returned PASS -- 'every pooled outcome "
+          "has a recorded")
+    print("        endpoint definition and they agree' -- on these exact strings.")
+
+    # AND THE HUNTING LIST MUST NOT FLAG A CARDIOLOGY DEFINITION IT CAN READ.
+    # A gate that returns UNCHECKABLE on everything is worth nothing; this is
+    # the negative control for the new branch.
+    card = ("Cardiovascular death or hospitalization for heart failure",
+            "cardiovascular (CV) death or heart failure (HF) hospitalization",
+            "Total Mortality, Disabling Stroke, Serious Bleeding, or Cardiac Arrest")
+    clean = all(not unrecognised_terms(c) for c in card)
+    ok &= clean
+    print("\n  NEGATIVE CONTROL cardiology definitions stay readable -> %-5s %s"
+          % (clean, "correct" if clean else
+             "WRONG: %s" % [sorted(unrecognised_terms(c)) for c in card]))
 
     print("\nWHAT A FAILURE WOULD LOOK LIKE: SGLT2_HF passing -- which it did on "
           "every other check in this repository while pooling two different "
