@@ -188,3 +188,52 @@ will not.
 numbers against published work before today, the literature was right and we were wrong.
 Today it is right three times and wrong once. **A project that reported only the
 comparison it won would have published a finding four times stronger than the evidence.**
+
+
+---
+
+## The olmesartan discrepancy, decomposed — **reproduce before explaining**
+
+Our k=2 pool gives **MD −5.69 mmHg (−7.30, −4.08)** on systolic. The published review
+reports **no significant systolic difference**. "Different trial sets" was the explanation
+*offered*; here is the explanation *established*.
+
+**Their result, verbatim:** systolic **"WMD −2.95 [−6.64, 0.73]; P = 0.12; I² = 100%"**;
+diastolic **"WMD −2.64 (−2.78, −2.51), P = 0.00001, and I² = 1%"**.
+
+**Their four studies:** Cushman 2012 (n=1,071), Neutel 2017 (n=837), Cushman 2018
+(n=1,085), Bakris 2018 (n=153). Two of those correspond to the trials we pooled; **Neutel
+2017 and Bakris 2018 are additional and are not in our seeded set.**
+
+### Three differences, and the trial set is the least of them
+
+**1. A different estimand.** Their tables present *"Mean SBP (SD)"* at study conclusion —
+**final values**, not change from baseline. Our values are the registered primary,
+*"Change From Baseline to Week 8 in Trough, Sitting, Clinic Systolic Blood Pressure"*,
+read from each registry's posted ANCOVA analysis. **A final-value pool and a
+change-from-baseline pool are not two estimates of one quantity**, and comparing them as
+if they were is the reference error this project screens for — committed by us, against
+them, if we had let the "different trial sets" explanation stand.
+
+**2. Their own heterogeneity statistic says the systolic pool is not interpretable.**
+**I² = 100%** on the systolic outcome. That is not a caveat on the result; at that value
+the pooled point is an average of quantities the statistic says have nothing in common.
+They report it and interpret the result anyway.
+
+**3. And it is internally odd in a way worth flagging neutrally:** the *same four
+studies* give **I² = 1%** on diastolic and **I² = 100%** on systolic. Two outcomes from
+one trial set do not usually behave that differently, and it is the kind of thing a
+reader is entitled to see raised.
+
+### What this changes
+
+**Our number is not in disagreement with theirs, because they are not estimates of the
+same thing.** The honest statement on our page is that it pools the registered
+change-from-baseline primary across the two trials sharing both arms, and that a
+published review pooling final values across four trials reports no significant systolic
+difference with I² = 100%.
+
+**And the discipline held:** reproducing their result first is what revealed that the
+disagreement was not about trials at all. Had we gone straight to explaining our
+difference, "they included two trials we did not" would have been written down as the
+answer, and it would have been wrong.
