@@ -38,8 +38,18 @@
  },
  "screening_names_unresolved": [],
  "eligible_but_not_contributing": {
-  "note": "All included registrations carry a row in this object.",
-  "studies": []
+  "note": "STEP-HFpEF DM IS EXCLUDED FROM THE REPLACEMENT FOR A PROVENANCE REASON, NOT A CLINICAL ONE. Its ClinicalTrials.gov record carries NO RESULTS SECTION, so no registry-sourced KCCQ difference exists for it. Its published value exists in the literature and is deliberately NOT imported: every number on this page is read from a registry results record, and breaking that for one extra data point would cost the guarantee that makes the rest checkable.",
+  "studies": [
+   {
+    "id": "NCT04916470",
+    "name": "STEP-HFpEF DM",
+    "why_not_contributing": "the registration carries no results section, so no registry-sourced value exists",
+    "registered_primary_measure": "Change in KCCQ (Kansas City Cardiomyopathy Questionnaire) clinical summary score",
+    "source_url": "https://clinicaltrials.gov/study/NCT04916470",
+    "read_utc": "2026-08-18",
+    "what_the_registry_holds_that_the_page_does_not": "nothing -- the registration has protocol data only"
+   }
+  ]
  },
  "reconciliation": {
   "why_this_step_exists": "not recorded on the page this object was built from",
@@ -81,6 +91,24 @@
    "comparator_type": "placebo",
    "direction_of_benefit": "lower is better",
    "null_value": 1
+  },
+  {
+   "id": "kccq_css_change",
+   "name": "Change in KCCQ clinical summary score",
+   "definition": "Change in Kansas City Cardiomyopathy Questionnaire Clinical Summary Score -- registered by all three included trials as a primary or co-primary outcome.",
+   "definition_note": "The REPLACEMENT outcome. The withdrawn odds-ratio outcome is kept on this object so a reader can see what was retracted.",
+   "measure": "MD",
+   "effect_scale": "natural",
+   "type": "primary",
+   "estimand": {
+    "id": "kccq_css_change",
+    "family": "mean change from baseline",
+    "model": "random-effects"
+   },
+   "comparator": "placebo",
+   "comparator_type": "placebo",
+   "direction_of_benefit": "higher is better",
+   "null_value": 0
   }
  ],
  "inputs": {
@@ -196,6 +224,41 @@
        "components_as_the_registry_states_them": "a continuous KCCQ primary AND 'First Occurrence of the Composite Endpoint of Heart Failure (HF) Outcomes'. The 29 and 52 stored here DO correspond to that event co-primary.",
        "analysis_set_as_the_registry_states_it": "The event co-primary is a first-occurrence composite."
       }
+     },
+     "kccq_css_change": {
+      "effect": {
+       "measure": "MD",
+       "scale": "natural",
+       "point": 6.9,
+       "ci_low": 3.3,
+       "ci_high": 10.6,
+       "ci_level": 95,
+       "derived_from": "the trial's own ClinicalTrials.gov results record",
+       "derivation_note": "READ, not derived: this is the registry's own between-arm difference for the registered primary outcome."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "definition and value both from the registry results record"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT04847557",
+      "analysed": {
+       "treatment": 301,
+       "control": 313
+      },
+      "outcome_definition": "Change in Kansas City Cardiomyopathy Questionnaire Clinical Summary Score (KCCQ-CSS)",
+      "outcome_definition_source": {
+       "time_frame": "As registered by each trial. STEP-HFpEF reports an 'Estimated Treatment Difference'; SUMMIT's registry record labels its contrast 'Median Difference (Net)' while its arm values are least-squares means (19.51 against 12.68, a difference of 6.83) -- the label and the quantity do not match in that record, and the value used here is the one the registry reports.",
+       "description_verbatim": "The registry reports this as the between-arm difference in change from baseline in the KCCQ clinical summary score.",
+       "endpoint_rank": "PRIMARY",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes + resultsSection",
+       "source_url": "https://clinicaltrials.gov/study/NCT04847557",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "KCCQ clinical summary score, change from baseline. A CONTINUOUS symptom measure, higher is better.",
+       "analysis_set_as_the_registry_states_it": "As registered by each trial. STEP-HFpEF reports an 'Estimated Treatment Difference'; SUMMIT's registry record labels its contrast 'Median Difference (Net)' while its arm values are least-squares means (19.51 against 12.68, a difference of 6.83) -- the label and the quantity do not match in that record, and the value used here is the one the registry reports.",
+       "value_checked_against_registry": "The value here IS the registry's own reported between-arm difference: 6.9 (3.3 to 10.6), over 301 against 313 participants."
+      }
      }
     }
    }
@@ -249,8 +312,93 @@
      "reverification": "AUTHORED AND WITHDRAWN 2026-08-18. THE PAGE WAS NOT UNCARDED -- IT WAS INVISIBLE. Its card existed and published 'HR 0.41 (0.22-0.79), k=3'. Both cardio_program_status and project_index_cards matched card links with [A-Z0-9_]+\\.html, which cannot match the lowercase 'p' in HFpEF, so for as long as those tools have run this topic has been reported as having NO CARD and its card has never been compared with its page. The card said k=3 and HR 0.41; the object held k=2 and OR 0.4846. Both regexes are fixed in this commit.",
      "card_note": "WITHDRAWN. STEP-HFpEF and STEP-HFpEF DM register only CONTINUOUS co-primaries (KCCQ change and body-weight change), and the counts stored for STEP-HFpEF DM match no registered primary of that trial. The card here published HR 0.41 (0.22-0.79) k=3 while the object held OR 0.4846 (0.3178-0.7389) k=2 -- and NEITHER our status scanner nor our card projector could see this card at all, because their regex required an uppercase page name and this page is HFpEF. A KCCQ mean-difference synthesis across all three is available and is parked"
     }
+   },
+   "kccq_css_change": {
+    "k": 1,
+    "estimand_id": "kccq_css_change",
+    "model": "random-effects",
+    "estimator": "REML random-effects, inverse-variance (tau-squared estimated as zero)",
+    "estimator_used": "REML random-effects, inverse-variance (tau-squared estimated as zero)",
+    "handbook": {
+     "decision": "Cochrane Handbook 6.5.1 s10.10.4.4: REML is preferred to DerSimonian-Laird for the between-study variance, and is the RevMan default.",
+     "sections": [
+      "10.10.4.4"
+     ],
+     "conformance": "followed"
+    },
+    "comparator_type": "placebo",
+    "favours": "treatment",
+    "poolable": true,
+    "poolable_reason": "THIS IS A REPLACEMENT, NOT A CORRECTION. The withdrawn estimate on this page was an ODDS RATIO over event counts, and two of the three included trials register ONLY CONTINUOUS co-primaries. But ALL THREE register the SAME continuous outcome -- change in the KCCQ clinical summary score -- so a symptom-benefit analysis needs no estimand judgement at all. IT IS POOLED AT k=2, NOT k=3, AND THAT IS THE HONEST NUMBER. STEP-HFpEF DM's ClinicalTrials.gov record carries NO RESULTS SECTION, so this project has no registry-sourced value for it. Its published KCCQ difference exists in the literature and is NOT USED HERE, because every value on this page is read from a registry results record and importing one from elsewhere would break that guarantee for the sake of a third data point. THE TWO VALUES ARE THE REGISTRY'S OWN: STEP-HFpEF 7.8 (4.8 to 10.9) over 243 against 237, and SUMMIT 6.9 (3.3 to 10.6) over 301 against 313. POOLED: MD 7.43 (5.09 to 9.77) points on the KCCQ clinical summary score, k=2, 1,094 participants. Q = 0.14 on 1 degree of freedom, I-squared 0 per cent -- the two trials agree almost exactly.",
+    "pool_uniformity": {
+     "effect_measure": [
+      "ESTABLISHED",
+      "both are the registry's own between-arm differences on the KCCQ clinical summary score"
+     ],
+     "estimand": [
+      "ESTABLISHED",
+      "all three included trials register the KCCQ clinical summary score; the two pooled here have registry results"
+     ]
+    },
+    "heterogeneity": {
+     "i2": 0.0,
+     "q": 0.1375,
+     "df": 1
+    },
+    "heterogeneity_status": "Q = 0.1375 on 1 df, I-squared 0 per cent. At k=2 that means the two trials agree, not that the finding generalises.",
+    "grade": null,
+    "cross_engine": null,
+    "sensitivity": null,
+    "single_study_ref": null,
+    "per_trial": [
+     {
+      "trial_id": "NCT04788511",
+      "nct": "NCT04788511",
+      "measure": "MD",
+      "point": 7.8,
+      "ci_low": 4.8,
+      "ci_high": 10.9,
+      "ci_level": 95,
+      "estimand_id": "kccq_css_change"
+     },
+     {
+      "trial_id": "NCT04847557",
+      "nct": "NCT04847557",
+      "measure": "MD",
+      "point": 6.9,
+      "ci_low": 3.3,
+      "ci_high": 10.6,
+      "ci_level": 95,
+      "estimand_id": "kccq_css_change"
+     }
+    ],
+    "pooled": {
+     "measure": "MD",
+     "point": 7.43,
+     "ci_low": 5.0895,
+     "ci_high": 9.7704,
+     "ci_level": 95,
+     "scale": "natural",
+     "stands_because": "THIS IS A REPLACEMENT, NOT A CORRECTION. The withdrawn estimate on this page was an ODDS RATIO over event counts, and two of the three included trials register ONLY CONTINUOUS co-primaries. But ALL THREE register the SAME continuous outcome -- change in the KCCQ clinical summary score -- so a symptom-benefit analysis needs no estimand judgement at all. IT IS POOLED AT k=2, NOT k=3, AND THAT IS THE HONEST NUMBER. STEP-HFpEF DM's ClinicalTrials.gov record carries NO RESULTS SECTION, so this project has no registry-sourced value for it. Its published KCCQ difference exists in the literature and is NOT USED HERE, because every value on this page is read from a registry results record and importing one from elsewhere would break that guarantee for the sake of a third data point. THE TWO VALUES ARE THE REGISTRY'S OWN: STEP-HFpEF 7.8 (4.8 to 10.9) over 243 against 237, and SUMMIT 6.9 (3.3 to 10.6) over 301 against 313. POOLED: MD 7.43 (5.09 to 9.77) points on the KCCQ clinical summary score, k=2, 1,094 participants. Q = 0.14 on 1 degree of freedom, I-squared 0 per cent -- the two trials agree almost exactly.",
+     "caveats": "WHAT A READER SHOULD KNOW. (1) k=2 AND THE INTERVAL SHOWN IS THE WALD ONE. At two studies a Hartung-Knapp interval uses a t-distribution on ONE degree of freedom and gives 1.80 to 13.06 -- far wider, and arguably the honest interval at this k. It still excludes no effect. Both are recorded. (2) HETEROGENEITY IS ZERO HERE, which at k=2 means the two trials agree, not that the finding is general. (3) THE THIRD TRIAL IS MISSING FOR A PROVENANCE REASON, NOT A CLINICAL ONE. STEP-HFpEF DM would very likely move this estimate very little; it is left out because its registry record has no results, and that is a rule about where numbers may come from rather than a judgement about the trial. (4) SUMMIT'S REGISTRY RECORD LABELS ITS CONTRAST 'Median Difference (Net)' while its arm values are least-squares means whose difference is 6.83. The label and the quantity disagree IN THE REGISTRY. The reported value is used and the discrepancy is stated rather than resolved. (5) A SEVEN-POINT KCCQ DIFFERENCE IS A SYMPTOM BENEFIT, NOT AN EVENT REDUCTION. Five points is the usual threshold for a clinically meaningful within-patient change. Nothing here estimates an effect on death or hospitalisation -- SUMMIT registers a heart-failure event co-primary and this analysis does not use it.",
+     "verified_on": "2026-08-18",
+     "card_note": "REPLACEMENT ANALYSIS: all three trials register the KCCQ clinical summary score, so a symptom-benefit synthesis needed no estimand judgement. MD 7.43 (5.09 to 9.77) KCCQ points, k=2, n=1,094, I-squared 0%. k=2 not 3 because STEP-HFpEF DM's registry record has NO RESULTS SECTION and this page uses only registry-sourced values. A symptom benefit, NOT an event reduction",
+     "replaces": {
+      "withdrawn_outcome": "primary",
+      "withdrawn_value": {
+       "measure": "OR",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null
+      },
+      "value_the_index_published": null,
+      "why_that_one_could_not_stand": "TWO OF THE THREE TRIALS ON THIS PAGE REGISTER ONLY CONTINUOUS PRIMARY OUTCOMES, AND THIS PAGE POOLED EVENT COUNTS. Verbatim: STEP-HFpEF and STEP-HFpEF DM each register two co-primaries, 'Change in Kansas City Cardiomyopathy Questionnaire Clinical Summary Score' and 'Change in Body Weight'. Both are CONTINUOUS CHANGE SCORES. Neither is an event count and neither can produce a 2x2 table. The counts stored for STEP-HFpEF DM, 7 of 310 against 18 of 306, CORRESPOND TO NO REGISTERED PRIMARY OUTCOME OF THAT TRIAL. SUMMIT is different and is the only row here with a defensible source: it registers a continuous KCCQ primary AND 'First Occurrence of the Composite Endpoint of Heart Failure (HF) Outcomes', and its stored 29 of 364 against 52 of 367 do correspond to that event co-primary. So the pool joins one trial's registered event composite to another trial's unregistered counts. SEPARATELY: THE "
+     }
+    }
    }
-  }
+  },
+  "headline_outcome": "kccq_css_change",
+  "headline_outcome_because": "This object now carries TWO outcomes: the withdrawn one, kept in full so a reader can see what was retracted and why, and the REPLACEMENT analysis, which is what the card should lead with. Declared explicitly because a projector that picked by sort order could put the retracted outcome on the reader's first surface."
  },
  "manuscript": null,
  "risk_of_bias_verdict": null,
