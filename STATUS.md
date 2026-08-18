@@ -52,14 +52,30 @@ SGLT2_HF state, corpus-wide.
 
 ## Findings logged but not yet acted on
 
-**The 26 audit-first cards contradict themselves in public.** Every one reads
-`Audit-first build · N trials · AACT-verified · k>=3`, and on 13 of the 26 that
-same string says `2 trials` and `k>=3` in the same breath. Either the k>=3 is a
-selection criterion mislabelled as a property of the topic, or the trial count is
-wrong. `card_alignment_gate` cannot see this: an audit-first card is UNCHECKABLE
-by construction, so the one surface a reader meets first has an unchecked
-self-contradiction on 26 cardiology pages. Not yet diagnosed — logged so the next
-lane does not rediscover it.
+**RESOLVED 2026-08-18 — and it was 212 cards, not 13.** Every audit-first card
+read `Audit-first build · N trials · AACT-verified · k>=3`. Measured corpus-wide:
+**416 cards carried it, and 212 of them — 51% — say `2 trials` and `k>=3` in one
+sentence.** The cardiology slice was 13 of 26; the corpus figure is eight times
+larger.
+
+`integrate_new_topics.py` writes only `Audit-first build · {n_trials} trials ·
+AACT-verified`, with the count measured from `len(real_data)`. The `· k>=3` was
+appended later by a different edit: **a portfolio selection rule pasted into a
+slot that reads as a property of the topic.**
+
+`card_alignment_gate` returns UNCHECKABLE on any audit-first card by
+construction — so the surface a reader meets first carried an unchecked
+self-contradiction on 212 pages, *inside an exemption that exists for a good
+reason*. **An exemption is only not a blind spot if something else watches what
+it excuses.** Nothing did.
+
+The claim is removed from all 416, including the 204 where it is true, because on
+those the real count is already stated immediately before it. Trial counts are
+untouched and byte-identical.
+
+**Still open:** 212 topics really do pool 2 trials under a rule that says 3.
+Whether those topics should exist is a portfolio question and is not answered by
+deleting the label.
 
 ---
 
