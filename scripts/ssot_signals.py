@@ -97,12 +97,53 @@ def sig_constant_verdict(html, text):
     return None
 
 
+# A DECLARED ABSENCE IS NOT AN EMPTY PANEL, and the difference is the whole of
+# what the standard asks for. Property 1 reads: "Eight-tab shell, NO EMPTY TAB;
+# ABSENT SECTIONS RENDER AN HONEST STATE NAMING WHAT IS MISSING AND WHY."
+#
+# The check below could not tell those two apart. It measured length and counted
+# tables, so a panel reading "Not held in this object. No search strategy was
+# recoverable from the published page this object was extracted from, so no
+# query, date or yield can be shown" scored 156 characters and zero tables and
+# was reported as a stub -- the same verdict as a heading over an empty textarea,
+# which is the defect it was built for.
+#
+# That is a check reporting something other than what it measures, and it fails
+# toward ALARM: it convicts the pages that did the honest thing. Left alone it
+# teaches whoever meets it to pad honest states with filler until they clear 600
+# characters, which is strictly worse for a reader than the terse truth.
+#
+# THE COMFORTABLE DIRECTION IS AVAILABLE HERE AND IS CLOSED DELIBERATELY. If the
+# mere PRESENCE of an absent-state element excused a panel, any hollow tab could
+# be silenced by emitting an empty one. So the exemption requires the absent
+# state to CARRY ITS REASON: at least MIN_REASON characters of text inside the
+# absent-state element itself. An empty or one-word absent-state does not exempt
+# anything and the panel is still reported.
+MIN_REASON = 60
+ABSENT_STATE = re.compile(
+    r"<(\w+)[^>]*class=['\"][^'\"]*absent-state[^'\"]*['\"][^>]*>(.*?)</\1\s*>",
+    re.S | re.I)
+
+
+def _declared_absent(body):
+    """(True, chars) when this panel states its own absence and says why."""
+    best = 0
+    for m in ABSENT_STATE.finditer(body):
+        t = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", m.group(2))).strip()
+        best = max(best, len(t))
+    return best >= MIN_REASON, best
+
+
 def sig_empty_panel(html, text):
     """No tab may render empty. D12, as a gate signal.
 
     A section that exists is a claim that the section is populated; the Paper
     Studio shipped once as a heading over an empty textarea and a reader read the
     whole page as hollow because of it.
+
+    A panel that DECLARES its absence and gives the reason is not that defect --
+    it is the property being met. See MIN_REASON above for the bar it must clear
+    and why the bar exists.
     """
     bad = []
     # Attribute order. `<section id=... class="panel">` is the same element and
@@ -115,7 +156,10 @@ def sig_empty_panel(html, text):
         t = re.sub(r"\s+", " ", t).strip()
         data = len(re.findall(r"<(?:table|svg|li)[ >/]", body))
         if len(t) < 600 or data < 1:
-            bad.append("%s(%dc,%dd)" % (pid, len(t), data))
+            declared, n = _declared_absent(body)
+            if declared:
+                continue
+            bad.append("%s(%dc,%dd,absent-state reason %dc)" % (pid, len(t), data, n))
     return ("empty or stub panel: " + ", ".join(bad)) if bad else None
 
 
