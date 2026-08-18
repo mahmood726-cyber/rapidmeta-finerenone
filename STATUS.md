@@ -6,7 +6,7 @@ section of `index.html` carries 54 page links, one of which
 consolidated at `ce1e9dc0e`. 54 − 1 = 53. Re-derive with
 `python scripts/cardio_program_status.py` rather than quoting this line.
 
-**DONE: 6 of 53.**
+**DONE: 7 of 53.**
 
 A topic is DONE when it has an SSOT object, is built through the tabbed
 projector to the written standard (`scripts/standard_manifest.py`, v1), its
@@ -17,12 +17,13 @@ endpoint does not, whatever the page looks like.
 
 | # | topic | state | note |
 |---|---|---|---|
-| 1 | ARNI_HF | v1, pooled | one open measure question — see PARKED |
+| 1 | ARNI_HF | v1, pooled | measure question **RESOLVED 2026-08-18**; k=4 stands |
 | 2 | ALIROCUMAB_LIPID | v1, pooled | six endpoint definitions read, six values confirmed |
 | 3 | IV_IRON_HF | v1, pooled | five registries read, four pools stand |
 | 4 | SOTAGLIFLOZIN_HF | v1, pooled | endpoints read, pool stands |
 | 5 | SGLT2_HF | v1, **withheld** | four trials, two endpoint definitions |
 | 6 | ABLATION_AF | v1, **withheld** | four trials, four different primary composites |
+| 7 | PCSK9 | **withdrawn** | one composite counts revascularization, the other does not |
 
 `FINERENONE_CV` is also at v1 and is NOT counted here: it does not sit in the
 cardiology section of the index. Counting it would be the denominator drift this
@@ -30,7 +31,7 @@ file exists to prevent.
 
 ---
 
-## The remaining 47, by what is actually on them today
+## The remaining 46, by what is actually on them today
 
 Measured from the index cards, not assumed:
 
@@ -38,7 +39,7 @@ Measured from the index cards, not assumed:
 |---|---|---|
 | **Audit-first build** | 26 | no estimate ever published; the topic has never been taken through |
 | **live estimate, no v1 object** | 11 | a number is published that nothing in the current standard has checked |
-| **withdrawn** | 8 | an estimate was retracted; the reason on the page has NOT been re-verified |
+| **withdrawn** | 7 | an estimate was retracted; the reason on the page has NOT been re-verified |
 | **not poolable** | 1 | MITRAL_FUNCMR — COAPT vs MITRA-FR, stated per-trial |
 | **no card at all** | 1 | INCRETIN_HFpEF is linked from the table and has no card |
 
@@ -246,3 +247,41 @@ FINERENONE_CV. Counting it would be denominator drift.
    had polluted the anchor ids (`#screen-paragon-hf-nct01920711-middot-pmid-314757`).
    Latent everywhere; it fires only on a heading containing an apostrophe,
    ampersand, quote or angle bracket.
+
+### 2026-08-18 (continued) — PCSK9 withdrawn, and five gate defects in one night
+
+**PCSK9: estimate WITHDRAWN on three independent grounds.** FOURIER's primary
+composite counts **coronary revascularization** and ODYSSEY OUTCOMES' does not —
+one whole component present in one trial and absent from the other, and
+revascularization is the most frequent component of FOURIER's composite. Three
+further differences: CV death vs coronary-heart-disease death; any stroke vs
+ischaemic stroke only; any MI vs non-fatal MI only. Separately: the stored values
+were derived odds ratios while both trials report hazard ratios. And separately
+again: **the index published `HR 0.85 (0.79–0.92)` — a number that appears
+nowhere in the object**, whose own pooled value was OR 0.8440.
+
+PCSK9 **is** one of the 53 — it sits in `#sp-cardiology` — and it is finished as
+a withdrawal, so the count moves to **7 of 53**. SGLT2_CKD does not count: it is
+in the CKD section, like FINERENONE_CV.
+
+**Arm labels are inverted on seven trials across four objects.** The arm carrying
+role INTERVENTION is labelled "Placebo"; the drug arm carries role CONTROL. All
+four are converter output, so this is the converter's arm ordering. **Which half
+is wrong — the label or the role — is left open**, because deciding it needs each
+trial's arm sizes and event counts from source. **PARKED.**
+
+#### The five gate defects, all found by running the gates rather than by an incident
+
+| gate | defect | direction |
+|---|---|---|
+| `card_alignment_gate` | a withheld card stopped it reading the page | comfort |
+| `card_alignment_gate` | a constant named `WITHHELD` did not match "withheld" | comfort |
+| `v1_coverage_audit` | grepped prose before reading the exit code (3rd instance) | comfort |
+| `estimand_definition_gate` | vocabulary one specialty wide; three different CKD composites reported as agreeing | **comfort** |
+| `arm_identity_gate` | regex carried literal 0x08 bytes — dead since written; and the branch never checked direction | comfort |
+
+Plus two escaping defects in the projectors, one in each direction: heading text
+escaped twice, and an em-dash fallback escaped when it should not have been.
+
+**Every one of them failed toward comfort.** That is the ledger's selection
+argument reproducing itself inside a single night's work.
