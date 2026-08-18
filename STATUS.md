@@ -1096,6 +1096,33 @@ much it mattered was wrong in the alarming direction.** A sweep that finds a
 pattern in eight files invites the inference that eight files' worth of numbers
 are wrong; measuring showed one. **The inference was mine, not the measurement's.**
 
+### 2026-08-18 — queue item 18 worked: 15 rows closed, and 4 FAILs that corroborate
+
+**Ran `--fetch` across every object to close the mechanical backlog.** Rows needing
+registry counts fell **30 — 15**; PASS rose **2 — 16**.
+
+**And four FAILs appeared where there had been none — all four on topics ALREADY
+WITHDRAWN, so no live number is affected.** They corroborate three withdrawals on
+a ground I had not established:
+
+| topic | trial | what the gate found |
+|---|---|---|
+| APIXABAN_AF | RENAL-AF | numerators 21/13 are not its primary's, over denominators that are |
+| DABIGATRAN_VTE | NCT02913326 | numerators 1/2 are not its primary's |
+| DABIGATRAN_VTE | NCT00168805 | counts 1/1 are that trial's **"Number of Participants With Pulmonary Embolism"**, not the primary the row claims |
+| RIVAROXABAN_ACS | ATLAS ACS TIMI 46 | numerators 18/11 are not its primary's |
+
+**This is the count-provenance class — the CANGRELOR shape — appearing on three
+further topics, and it is the first time a detector built in this programme has
+independently corroborated withdrawals reached by hand.** Each of those
+withdrawals already stood on endpoint grounds; each now has a second, independent
+one, and the last row even names the outcome the numbers really came from.
+
+**Current state: 16 PASS, 15 REVIEW, 4 FAIL, 119 UNCHECKABLE across 154 rows.**
+The UNCHECKABLE split is unchanged in character — 65 continuous-outcome rows this
+gate should not be asked about, 39 needing a registry read, 15 needing a fetch that
+some objects reject because they carry no complete 2x2 to fetch against.
+
 ## Where the next lane picks up
 
 **HANDOVER, written 2026-08-18 while there was still room to write it properly
