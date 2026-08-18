@@ -472,7 +472,10 @@ def _standard_version():
         m = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(m)
         return m.STANDARD_VERSION
-    except Exception:
+    # NARROWED. "UNKNOWN" is printed on the page, so a bug here becomes a published
+    # statement about the standard this build claims to meet. Absent or unreadable
+    # manifest is expected and still yields UNKNOWN honestly; anything else is ours.
+    except (OSError, ImportError, AttributeError):
         return "UNKNOWN"
 
 

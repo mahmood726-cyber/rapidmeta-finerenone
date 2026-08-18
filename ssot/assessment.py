@@ -306,6 +306,45 @@ def read_scalar(element, key):
     return read(element, key, treat_declared_absent=False)
 
 
+# ---------------------------------------------------------------------------
+# A SEARCH THAT DOES NOT NAME ITS INTERVENTION IS NOT A NARROW SEARCH. IT IS NOT A SEARCH.
+# ---------------------------------------------------------------------------
+#
+# `attr-cm-review` was queried by CONDITION ONLY. It returned 18 records spanning
+# tafamidis, patisiran, vutrisiran, acoramidis, revusiran, diflunisal, doxycycline,
+# empagliflozin, trimetazidine and a beta-blocker -- an entire therapeutic area, not one
+# drug's evidence base. Worse, with no topic drug named there was nothing for the arm-role
+# split to classify AGAINST, so the split returned a result-shaped answer instead of
+# refusing.
+#
+# That is this session's law one layer up: a malformed QUERY produced a RESULT rather than
+# an error. The same fix applies as to the assessors -- the query names what it asks
+# about, and one that cannot name it does not run.
+#
+# NOTE ON WHAT THIS DOES **NOT** DO. It does not filter results to the topic population.
+# `attr-cm-review`'s search surfaced NCT00925002, which is ATTR POLYNEUROPATHY rather than
+# cardiomyopathy. That is a population mismatch and it is exactly what the population
+# precondition exists to catch, so it must FLOW THROUGH to be judged rather than be
+# silently excluded at the query. Narrowing a query to hide a mismatch destroys the
+# evidence that the mismatch existed.
+
+class QueryNotRunnable(ValueError):
+    """Raised instead of returning results for a query that cannot name its topic."""
+
+
+def require_named_intervention(topic, intervention=None, condition=None):
+    """Fail closed before any registry call. Returns the intervention when runnable."""
+    named = (intervention or "").strip()
+    if not named:
+        raise QueryNotRunnable(
+            f"{topic}: no intervention named. A condition-only query ({condition!r}) "
+            f"returns a therapeutic area, and leaves the arm-role split with nothing to "
+            f"classify against. Name the topic intervention or do not run the search.")
+    if condition is not None and not str(condition).strip():
+        raise QueryNotRunnable(f"{topic}: condition given but empty")
+    return named
+
+
 def tally(verdicts):
     """Count states without collapsing any of them. Every sweep reports all three."""
     out = {PASS: 0, FAIL: 0, NOT_ASSESSABLE: 0}

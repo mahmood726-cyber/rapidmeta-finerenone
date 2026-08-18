@@ -96,9 +96,15 @@ def rasterise(svg, browser, workdir, stem):
            "--default-background-color=FFFFFFFF",
            "--window-size=%d,%d" % (int(w), int(h)),
            "--screenshot=" + pp, "file:///" + hp.replace("\\", "/")]
+    # NARROWED FROM `except Exception`. The expected failures here are environmental --
+    # the browser is not installed, or it hung. A TypeError or AttributeError in this
+    # function is OUR bug, and swallowing it published "this topic has no figure", which
+    # is a claim the page makes to a reader. A broken renderer must not be able to
+    # impersonate a topic that legitimately has nothing to draw.
     try:
         r = subprocess.run(cmd, capture_output=True, timeout=90)
-    except Exception:                                    # noqa: BLE001
+    except (FileNotFoundError, PermissionError, OSError,
+            subprocess.TimeoutExpired):
         return None
     if r.returncode != 0:                 # was ignored entirely
         return None
@@ -114,8 +120,14 @@ def rasterise(svg, browser, workdir, stem):
             return None
     except ImportError:
         pass
-    except Exception:                                    # noqa: BLE001
+    except (OSError, ValueError):
+        # Pillow could not decode the raster we just wrote. That is a real failure of
+        # THIS png, so returning None is honest.
         return None
+    # NOTE: no bare `except` here on purpose. This block decides whether a SUCCESSFULLY
+    # RENDERED figure is blank. A bug in the blankness test previously discarded a good
+    # figure and the page then told the reader the topic had none. Any other exception
+    # is ours and must be loud.
     return pp
 
 
@@ -141,7 +153,7 @@ def to_eps(svg, stem, outdir):
         if drawing is None:
             return None
         renderPS.drawToFile(drawing, ep)
-    except Exception:                                    # noqa: BLE001
+    except (OSError, ValueError):                        # unwritable path / unconvertible SVG
         return None
     return ep if os.path.exists(ep) and os.path.getsize(ep) > 0 else None
 
@@ -166,7 +178,7 @@ def convert(png_path, stem, outdir):
         im.convert("RGB").save(tp, format="TIFF", compression=None,
                                dpi=(DPI, DPI))
         out["tiff"] = tp
-    except Exception:                                    # noqa: BLE001
+    except (OSError, ValueError):                        # unreadable png / unwritable tiff
         pass
     return out
 
@@ -196,7 +208,7 @@ def figure_downloads(svg, stem, browser, workdir, outdir):
             from PIL import Image
             with Image.open(png) as im:
                 w, h = im.size
-        except Exception:                                # noqa: BLE001
+        except (OSError, ValueError):                    # size is cosmetic; a bug is not
             pass
         items.append(("PNG %s" % (("%dx%d" % (w, h)) if w else ""),
                       stem + ".png", _uri(png, "image/png"),
