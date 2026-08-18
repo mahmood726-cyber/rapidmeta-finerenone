@@ -1,0 +1,17 @@
+#!/bin/sh
+# CLASS 3 RULE MADE MECHANICAL: stage by path, never `git add -A`.
+# Prose did not hold it -- the rule was broken in the commit immediately after
+# it was written. This refuses a commit that stages files outside ssot/,
+# scripts/, .githooks/, or a top-level markdown/config file, unless
+# STAGING_WIDE=1 is set deliberately.
+changed=$(git diff --cached --name-only)
+bad=$(printf '%s\n' "$changed" | grep -vE '^(ssot/|scripts/|\.githooks/|[A-Za-z0-9_.-]+\.(md|json|txt|yml|yaml)$|\.gitignore$)' | head -20)
+if [ -n "$bad" ] && [ "$STAGING_WIDE" != "1" ]; then
+  echo "REFUSED: staged paths outside the declared set." >&2
+  echo "$bad" >&2
+  echo "" >&2
+  echo "This is the 'git add -A' guard. If these files are genuinely yours and" >&2
+  echo "belong in this commit, re-run with STAGING_WIDE=1 -- deliberately." >&2
+  exit 1
+fi
+exit 0

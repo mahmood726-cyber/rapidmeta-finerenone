@@ -9,3 +9,6 @@
 # Override with a reason on the record:
 #   SSOT_ALLOW_NET_DELETION="why" git commit ...
 python "$(git rev-parse --show-toplevel)/scripts/ssot_net_deletion_check.py" || exit 1
+
+# class-3 staging guard
+sh "$(git rev-parse --show-toplevel)/.githooks/pre-commit-staging" || exit 1
