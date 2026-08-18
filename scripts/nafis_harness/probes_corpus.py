@@ -1035,13 +1035,22 @@ FIXTURE_STATUS = {
                 "it sits on the same instrument as the positive and could have "
                 "fired. Both SEs reproduce to 4 dp independently."},
     "CHK017_DUP1_BIT_EQUALITY": {
-        "positive": "[R]", "negative": "[F]",
-        "negative_strength": "WEAK",
-        "note": "FIDELIO/FIGARO are real and distinct, but no two independently "
-                "derived floats are ever bit-equal, so the negative cannot "
-                "plausibly fire. A near-miss negative -- two entries agreeing to "
-                "6+ dp but not at full precision -- would stress it and I do not "
-                "have one. THIS IS THE WEAKEST NEGATIVE OF THE TEN."},
+        "positive": "[R]", "negative": "[R]",
+        "negative_strength": "STRONG",
+        "note": "CORRECTED 2026-08-18, AND THE OLD NOTE IS THE MOST INSTRUCTIVE "
+                "THING IN THIS TABLE. It read: FIDELIO/FIGARO are real and "
+                "distinct, but no two independently derived floats are ever "
+                "bit-equal, so the negative cannot plausibly fire. A near-miss "
+                "negative -- two entries agreeing to 6+ dp but not at full "
+                "precision -- would stress it and I DO NOT HAVE ONE. THIS IS THE "
+                "WEAKEST NEGATIVE OF THE TEN. Every clause of that was right "
+                "except the last four words. THE FIXTURE WAS IN THE CORPUS THE "
+                "WHOLE TIME: sglt2-hf holds DAPA-HF at 0.75 (0.65-0.85) and "
+                "EMPEROR-Reduced at 0.75 (0.65-0.86), two trials agreeing exactly "
+                "at published precision. It is now the second negative, and it is "
+                "load-bearing: it FAILED under the old check, which is how the "
+                "false premise was found. The author named the gap, named what "
+                "would close it, and did not go looking."},
     "CHK018_MIXED_POOLING": {
         "positive": "[R]", "negative": "[R]",
         "negative_strength": "STRONG",
