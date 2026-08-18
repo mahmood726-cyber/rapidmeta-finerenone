@@ -1194,3 +1194,24 @@ All three had the same shape: **a measurement whose failure mode is to look like
 four cases you already know the answer to. Not a sample — the ones you can independently
 verify. A screen that agrees with you on known cases has earned the unknown ones; a screen
 that has never been checked against a known answer has produced a number, not a finding.
+
+---
+
+## The selection effect on the MEASURING side (2026-08-18)
+
+Three instrument artefacts in this programme: the PAGE_MAP screen claiming **0 of 28
+reproducible**, the Class 4 screen showing **18 flags**, the pending classifier reporting
+**31 pending**. All three were caught. **But note what they have in common: every one of
+them looked like a finding.**
+
+A measurement error that produced a boring result — "27 of 28 reproducible", "1 flag", "2
+pending" — would have been shrugged at and investigated later, or never. **These three
+nearly shipped precisely because they were interesting.** The same selection effect that
+makes a striking trial result more likely to be published operates on our own instruments,
+and in the same direction.
+
+**How to apply:** an unexpectedly strong result from a NEW measurement is not evidence that
+the measurement works. It is the case where checking is most urgent, because the
+interestingness that makes it worth reporting is also what suppresses the instinct to
+verify. Hand-check the cases you already know the answer to — **not a sample, the ones you
+can independently verify** — and do it BEFORE the number is in a sentence.
