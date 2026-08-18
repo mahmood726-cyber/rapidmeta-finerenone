@@ -34,6 +34,33 @@ What is still owed:
    and this repository has done exactly that twice. Renal first (ESKD, dialysis,
    transplant, eGFR-decline thresholds, doubling of creatinine, renal death),
    then infectious disease, which is the next programme.
+
+   **2026-08-18 — THE SAFETY NET HAD THE SAME HOLES AS THE NET. Embolism added to
+   all three lists.** On DOAC_AF, four registry composites each reading *stroke OR
+   systemic embolism* all reduced to `{stroke}` and the gate returned **PASS —
+   they agree**. Half of every composite in the topic was unread.
+
+   The part that matters is not the miss, it is **which mechanism missed it**.
+   The paragraph immediately below this one promised that `EVENT_LIKE` — the
+   deliberately over-broad hunting list — makes any definition containing an
+   unrecognised term UNCHECKABLE, so that *"the gate can no longer report
+   agreement from a partial reading"*. `EVENT_LIKE` carried renal, oncological,
+   infectious and ophthalmic terms and **no embolism**, so the promise was not
+   kept and nothing said so. Its own comment predicted exactly this: *"A gap in
+   THIS list is one level further back than a gap in `_CANON`, and it is the only
+   comfortable failure left in the design."*
+
+   Fixed in `COMPONENT`, `_CANON` and `EVENT_LIKE` in one commit. **Zero verdicts
+   move across all 34 objects** — DOAC_AF was PASS before and after, because its
+   composites really do agree — so the fix is carried by a constructible failing
+   input in the selftest instead: `"Stroke or systemic embolism"` against
+   `"Stroke"`, old gate PASS, new gate FAIL.
+
+   **The general lesson, and the reason this is not closed: a hunting list is
+   only a safety net for the specialties whose words are in it.** Every new
+   programme needs BOTH lists extended before its first topic, not after. Sweep
+   the remaining cardiology vocabulary the same way before topic 9 — this one was
+   found by a topic, not by an audit, which means the audit is still owed.
 2. **Thresholds are not components.** Even with renal terms recognised, a
    doubling of creatinine, a ≥50% decline and a ≥40% decline would all map to one
    key and the gate would report agreement again. The comparison needs to carry
@@ -157,19 +184,91 @@ different claim and the exact substitution this project keeps making.
 
 ---
 
-## 8. Untracked SSOT objects — 20 of them exist in no clone
+## 8. Untracked SSOT objects — CLOSED 2026-08-18
 
-Twenty objects under `ssot/*/` were written on 17 Aug and never added. They are
-ledger failure mode #4: a register written into a place git does not carry.
-`durable_artefact_gate` runs unscoped on every push for precisely this class but
-does not know about these paths.
+Committed at `77ec67ad6`. Verified rather than assumed: `git status
+--untracked-files=all ssot/` now reports **only 16 PNGs under `ssot/figs/`** and
+no `.json` object. The gate's watch list was never extended, so the *class* is
+still unguarded — that part moves to item 11.
 
-Either commit them or add them to the gate's watch list. Writing a file is not
-preserving it.
+---
+
+## 9. Object fields that gates read and no projector renders
+
+`estimand_definition_read` is v1's twelfth property. Four topics were taken
+through it. **Not one of their pages rendered a single endpoint definition.**
+`PCSK9_REVIEW.html` contains "Clinical Events Committee" zero times while its
+object holds FOURIER's registry description verbatim.
+
+The definition lives in the object; `estimand_definition_gate` reads it *there*;
+the gate passes; the property is reported established — and a reader gets prose
+and has to take the reading on trust. Same for `eligible_but_not_contributing`,
+which `subject_match_gate` reads and nothing projected, so DOAC_AF listed four
+registrations and pooled three with no surface saying so.
+
+Two cards added 2026-08-18 and live on DOAC_AF. **Owed:**
+
+1. **Rebuild the four earlier topics** — ARNI, ALIROCUMAB, IV_IRON,
+   SOTAGLIFLOZIN — plus PCSK9, SGLT2_HF, SGLT2_CKD and ABLATION_AF, so their
+   definitions become visible. They were read; they are invisible.
+2. **Sweep the class.** Every object key a gate reads should be checked against
+   whether any projector emits it. A property established only in the object is a
+   property the reader must take on trust, and that is this project's recurring
+   substitution in its purest form.
+
+---
+
+## 10. The index TABLE ROW has no checker, and it carries its own numbers
+
+Every topic has THREE index surfaces: the card, the page, and a table row about
+eleven screens below the card carrying its **own trial count and its own
+estimate**. `card_alignment_gate` reads the card. **Nothing reads the row.**
+
+It was missed on ABLATION_AF. It was edited by hand on PCSK9, SGLT2_CKD and now
+DOAC_AF (4 trials → 3, `HR 0.81 (0.73–0.91)` → withdrawn). Hand-editing a surface
+three times in three topics is the definition of a checker's absence.
+
+Constructible failing input already exists in history: the ABLATION_AF commit
+where the card was corrected and the row was not.
+
+---
+
+## 11. `arm_identity_gate` reads its fixtures from a hardcoded absolute path
+
+`OBJ = r"F:\E156\outputs\codex-corpus-scan\extract\full_run"`. This is the
+same shape as the wrong-tree defect closed in `card_alignment_gate` on
+2026-08-18, still live in a second gate. It fails toward **alarm** — a missing
+directory prints "object absent -- NOT PROVEN" and returns 1 — which is why it is
+item 11 and not item 1. The eleven label-level selftest cases added 2026-08-18
+need no fixture on disk and run anywhere, so a clone without that directory now
+still exercises the logic.
+
+Also owed here: `received_label()` reads the word after "placebo" as a drug name
+with no dictionary to check it against. That over-broadness destroyed eight
+correct detections in an earlier cut of the fix; it is now reachable only inside
+a *symmetric* double-dummy label. **Narrowed, not solved.**
 
 ---
 
 ## Closed
+
+- **2026-08-18 — systemic embolism was invisible to `COMPONENT`, `_CANON` AND
+  `EVENT_LIKE`.** Four registry composites reading "stroke or systemic embolism"
+  all reduced to `{stroke}` and the gate reported agreement. The hunting list
+  that exists to prevent exactly that had the same specialty-shaped hole. Fixed
+  in all three; zero verdicts move on 34 objects, so it is carried by a
+  constructible failing input in the selftest.
+- **2026-08-18 — a double-dummy arm label defeated the inverted-roles check.**
+  Both labels name a placebo, so both direction branches were skipped and the
+  token fallback returned a bare PASS. Proved by swapping ENGAGE AF-TIMI 48's two
+  registry arm titles: the gate passed the inverted arrangement. Fixed by
+  resolving each label to what the arm RECEIVED, but **only when both labels name
+  a placebo** — the two earlier cuts of that fix each destroyed correct
+  detections, and both failed toward comfort.
+- **2026-08-18 — the arm LABEL-versus-ROLE question is answerable from the
+  registry's RESULTS section**, which returns the arm sizes the parked note said
+  were unavailable. Three trials decided on DOAC_AF: label wrong, role right,
+  magnitude unaffected, every time.
 
 - **2026-08-18 — the estimand gate reported three different CKD composites as
   agreeing.** Structural fix: recognition list decides PASS, hunting list decides

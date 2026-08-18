@@ -6,7 +6,7 @@ section of `index.html` carries 54 page links, one of which
 consolidated at `ce1e9dc0e`. 54 − 1 = 53. Re-derive with
 `python scripts/cardio_program_status.py` rather than quoting this line.
 
-**DONE: 7 of 53.**
+**DONE: 8 of 53.**
 
 A topic is DONE when it has an SSOT object, is built through the tabbed
 projector to the written standard (`scripts/standard_manifest.py`, v1), its
@@ -24,6 +24,7 @@ endpoint does not, whatever the page looks like.
 | 5 | SGLT2_HF | v1, **withheld** | four trials, two endpoint definitions |
 | 6 | ABLATION_AF | v1, **withheld** | four trials, four different primary composites |
 | 7 | PCSK9 | **withdrawn** | one composite counts revascularization, the other does not |
+| 8 | DOAC_AF | **withdrawn** | the headline was this page's own Ruff 2014 comparator; k said 4, the pool had 3 |
 
 `FINERENONE_CV` is also at v1 and is NOT counted here: it does not sit in the
 cardiology section of the index. Counting it would be the denominator drift this
@@ -31,14 +32,14 @@ file exists to prevent.
 
 ---
 
-## The remaining 46, by what is actually on them today
+## The remaining 45, by what is actually on them today
 
 Measured from the index cards, not assumed:
 
 | state | n | what it means |
 |---|---|---|
 | **Audit-first build** | 26 | no estimate ever published; the topic has never been taken through |
-| **live estimate, no v1 object** | 11 | a number is published that nothing in the current standard has checked |
+| **live estimate, no v1 object** | 9 | a number is published that nothing in the current standard has checked |
 | **withdrawn** | 7 | an estimate was retracted; the reason on the page has NOT been re-verified |
 | **not poolable** | 1 | MITRAL_FUNCMR — COAPT vs MITRA-FR, stated per-trial |
 | **no card at all** | 1 | INCRETIN_HFpEF is linked from the table and has no card |
@@ -134,16 +135,32 @@ none of them blocks the rest of the programme.
    before its answer is known and this comparison already knows what the
    components give. **Someone who has not seen those numbers should choose.**
 
-3. **PCSK9 and three other objects: are the arm LABELS wrong, or the ROLES?**
-   Seven trials across four objects record the intervention arm labelled
-   "Placebo" and the drug arm as the control — FOURIER and ODYSSEY OUTCOMES (in
-   both `pcsk9-review` and `pcsk9-inhibitors-cv-review`), MARINE and ANCHOR in
-   `icosapent-lipid`, HUA TUO in `evolocumab-mixed-dyslipidemia`. All four are
-   converter output, so it is the converter's arm ordering. The pooled estimate
-   can be right in magnitude while every label is on the wrong arm — that is how
-   EAST-AFNET 4's swap survived. **Deciding it needs each trial's own arm sizes
-   and event counts from source**, which the protocol-only registry endpoint does
-   not return. Left as a recorded contradiction rather than guessed.
+3. **The arm LABELS are wrong and the ROLES are right — METHOD DEMONSTRATED
+   2026-08-18, three of seven trials decided, four still parked.** The parked
+   note said deciding it needs each trial's own arm sizes and event counts from
+   source, "which the protocol-only registry endpoint does not return". **The
+   registry's RESULTS section returns them**, and on DOAC_AF they decide it with
+   no ambiguity at all:
+
+   | trial | the object's label | what the arm size proves it is |
+   |---|---|---|
+   | RE-LY | "Dabigatran dose 1" (control) | N=6022 is **warfarin**; the 110 mg arm has 6015 |
+   | ARISTOTLE | "1" (treatment) | N=9120 is **apixaban**; events 159+38+15 = 212 exactly |
+   | ENGAGE | "Warfarin/placebo edoxaban" (treatment) | 296/7035 is **high-dose edoxaban** |
+
+   Cause, confirmed from the registry arm lists: the converter took protocol arms
+   **positionally, first and last**, skipping the middle arm — warfarin in RE-LY,
+   high-dose edoxaban in ENGAGE. **Not one role was wrong on any of the three.**
+
+   **Still parked, and still needing his judgement:** FOURIER and ODYSSEY
+   OUTCOMES (in both `pcsk9-review` and `pcsk9-inhibitors-cv-review`), MARINE and
+   ANCHOR in `icosapent-lipid`, HUA TUO in `evolocumab-mixed-dyslipidemia`. The
+   method above will decide them — fetch each registry results section and match
+   the denominators — but those objects are **withdrawn or live-published**, so
+   editing their labels changes a published surface, and the decision to do that
+   on four objects at once is his. **What is now known is that on every trial
+   tested so far the answer was the same: label wrong, role right, magnitude
+   unaffected.** That is the pattern to expect, not a result to assume.
 
 4. **SGLT2_CKD's replacement question.** ESKD as dialysis-or-transplant, and
    cardiovascular death, are defined identically across CREDENCE, DAPA-CKD and
@@ -353,6 +370,112 @@ escaped twice, and an em-dash fallback escaped when it should not have been.
 **Every one of them failed toward comfort.** That is the ledger's selection
 argument reproducing itself inside a single night's work.
 
+### 2026-08-18 (continued) — DOAC_AF withdrawn, and the headline was the comparator
+
+**Topic 8 of 53. DONE, live-verified byte-identical by SHA-256 on both surfaces.**
+
+**The mechanism is new and it is the sharpest one found so far.** The card served
+`Published: HR 0.81 (0.73–0.91), k=4`. The page's own bytes embed
+
+```
+PUBLISHED_META_BENCHMARKS={MACE:[{label:"Ruff pooled DOAC vs warfarin MA (stroke/SE)",
+citation:"Ruff 2014",year:2014,measure:"RR",estimate:.81,lci:.73,uci:.91,k:4,...}]}
+```
+
+— the locked local database of published syntheses this review is meant to be
+**measured against**. All four numbers on the card are those four numbers, and
+the measure was relabelled RR to HR on the way. The object's own pooled value is
+OR 0.7817 (0.6710–0.9108) at k=3 and shares no digit with the card. **PCSK9
+published a number that was in no object. This published the object's own
+comparator.** A page that carries a benchmark table can serve the benchmark as
+the finding, and every internal consistency check stays silent because both
+numbers are genuinely on the page.
+
+Two further independent grounds: **k was overstated** (card and
+`AUTO_INCLUDE_TRIAL_IDS` say four, the pool holds three — ROCKET AF carries
+`tE:null, cE:null` so a count-derived pool drops it in silence, and it is the
+trial whose registered result is closest to no effect); and **the measure is
+misnamed** (every stored value is an OR we derived from counts, while all four
+registry records register a Cox analysis of time to first event).
+
+**Stated as prominently, because it is the direction that gets under-reported:
+the four endpoint definitions AGREE.** All four registry records count the first
+occurrence of stroke or systemic embolism. ARISTOTLE's per-trial value on the
+page is the registry's own Cox HR **digit for digit**, and its counts reconcile
+exactly (212 = 159+38+15, 265 = 173+76+16). Every comparison points the right
+way. **This withdrawal does NOT establish that the four trials cannot be
+pooled** — it establishes that THIS pool cannot stand.
+
+**Replacement question identified and deliberately not taken:** pool the four
+REGISTERED hazard ratios. Not taken because establishing the above meant reading
+them, so their answer is already known — the ABLATION_AF/SGLT2_CKD rule. It also
+needs a human choice: ENGAGE registers **five** primary analyses of one composite
+whose HRs run 0.79, 0.86 and 0.87, and ROCKET AF's are both "while on treatment"
+where ARISTOTLE's is an intended-treatment period. **PARKED.**
+
+#### Three instrument defects, and two of them were mine
+
+| where | defect | direction |
+|---|---|---|
+| `arm_identity_gate` | a double-dummy label names both drugs, so the inverted-roles branch was skipped entirely | comfort |
+| my first fix to it | deleted the control word from a *pure* placebo arm | **comfort** |
+| my second fix to it | read the word after "placebo" as a drug — nine objects went FAIL→PASS, eight of them correct detections destroyed | **comfort** |
+| `estimand_definition_gate` | **systemic embolism was invisible to all three lists**, including EVENT_LIKE, the one that exists to force UNCHECKABLE on exactly this | comfort |
+
+The estimand one is worth reading twice. `TOOLING-QUEUE.md` records the
+structural half of the CKD fix as done, and what it promised was that "the gate
+can no longer report agreement from a partial reading". The mechanism for that
+promise is the over-broad `EVENT_LIKE` hunting list. **It has renal, oncological,
+infectious and ophthalmic terms and no embolism.** The net has the same
+specialty-shaped holes as the thing it is netting, so the promise was not kept
+and nothing said so. Its own comment had predicted it: *"a gap in THIS list … is
+the only comfortable failure left in the design."*
+
+Four registry composites, every one "stroke OR systemic embolism", all four
+reduced to `{stroke}`, and the gate answered **PASS — they agree**. The verdict
+was right; the reading was half. Fixed in all three lists in one commit, with a
+constructible failing input in the selftest (`"Stroke or systemic embolism"` vs
+`"Stroke"`: old PASS, new FAIL), because the widening moves **no verdict on any
+of the 34 objects** and nothing in a routine run would ever show it mattered.
+
+**And the two bad cuts of my own arm-gate fix are the point of that whole
+episode.** Both failed toward comfort, while fixing a defect that failed toward
+comfort. Only the corpus sweep caught the second — 1243 objects, old gate against
+new, nine moved FAIL→PASS and none the other way. **A fix that only ever turns
+red to green needs every conversion read individually.** After narrowing to the
+one structure that licenses the rewrite (a double dummy is *symmetric*: both arms
+name a placebo), exactly one object moves, and it is a false alarm correctly
+removed.
+
+#### The projector defect: four topics read their endpoint definitions and no page showed one
+
+v1's twelfth property is `estimand_definition_read`. Four topics have been
+through that step. **Not one of their pages rendered a single definition.**
+`PCSK9_REVIEW.html` contains "Clinical Events Committee" zero times while its
+object holds FOURIER's registry description verbatim.
+
+The definition sits in the object, the gate reads it *there*, the gate passes,
+the property is reported established — and the reader gets prose and has to take
+the reading on trust. **If it isn't on the page, it didn't happen.** Two cards
+now project from the object: *Endpoint definitions, read from the registry*
+(measure, verbatim description, analysis set, registration link, read date, per
+trial — and a row saying so when a trial has none) and *Named on this review,
+contributing nothing to its pool*. Every page built from now on carries them;
+**the four already-done topics do not, and rebuilding them is owed.**
+
+#### Smaller things worth not rediscovering
+
+- **This shell eats one backslash level in heredocs.** A patch written that way
+  put `\x08` where `\b` belonged — which is *exactly* how `arm_identity_gate`
+  got its literal 0x08 bytes in the first place, per DEFECT ONE in that file.
+  Write patch scripts to a file instead.
+- **Reading a CRLF file in text mode and comparing it to network bytes always
+  mismatches.** It made a successful deploy look like a failed one for two
+  polling rounds. Compare bytes, and hash them.
+- **`k_consistency_gate` caught my own note** — a sentence written to *explain* a
+  k mismatch still reads as a k claim. It was right; the note was reworded rather
+  than declared `_STALE`.
+
 ---
 
 ## Where the next lane picks up
@@ -361,16 +484,23 @@ argument reproducing itself inside a single night's work.
 page below is verified live, cache-busted, against the bytes on disk.
 
 Live-verified this session: **ARNI, SGLT2_HF, IV_IRON, SOTAGLIFLOZIN, PCSK9,
-SGLT2_CKD.** ALIROCUMAB, FINERENONE_CV and ABLATION_AF were unchanged and needed
+SGLT2_CKD, DOAC_AF.** DOAC_AF and the index were confirmed byte-identical by
+SHA-256 against the served bytes, cache-busted. ALIROCUMAB, FINERENONE_CV and ABLATION_AF were unchanged and needed
 no rebuild.
 
 **Start here, in this order:**
 
-1. **The 26 audit-first cardiology topics.** They publish no estimate, so there
+1. **The 9 remaining topics with a live estimate and no object.** These are the
+   dangerous ones and every one examined so far has been withdrawable:
+   BEMPEDOIC_ACID (k=1 — a "pool" over one trial), CANGRELOR_PCI, COLCHICINE_CVD,
+   DOAC_CANCER_VTE, EVOLOCUMAB_MIXED_DYSLIPIDEMIA, HFREF_NMA,
+   INCLISIRAN_LIPID_KIDNEY, INTENSIVE_BP, RIVAROXABAN_VASC. Objects already exist
+   under `ssot/` for several of them.
+2. **Rebuild the four earlier topics** so their endpoint definitions are on the
+   page. They were read and are invisible; see the projector defect above.
+3. **The 26 audit-first cardiology topics.** They publish no estimate, so there
    is no live claim to defend — only identity, endpoint definitions, and a build.
-   They should be the cheapest topics in the programme. Start by resolving the
-   self-contradiction logged above: 13 of those 26 cards say `2 trials` and
-   `k>=3` in the same string.
+   The `k>=3` self-contradiction on them was resolved corpus-wide at `abfa6b999`.
 2. **The 11 with a live estimate and no object.** These are the dangerous ones —
    a published pooled number that nothing in the current standard has checked.
    Every one that has been looked at so far turned out to be withdrawable.
