@@ -1,0 +1,257 @@
+{
+ "app_id": "evolocumab-dyslipidemia-review",
+ "schema_version": "2-authored-from-source",
+ "title": "Evolocumab in dyslipidaemia",
+ "question": "What did these two trials measure? One registers a cardiovascular composite and the other registers adverse events.",
+ "built": "2026-08-18T00:00Z",
+ "build_mode": "AUTHORED",
+ "_estimand_rule": "Every endpoint definition below was READ FROM THE REGISTRY, word for word, when this withdrawal was RE-VERIFIED on 2026-08-18.",
+ "source_links_enforced": true,
+ "source_links_enforced_means": "every trial row carries its registration link",
+ "cited_total": null,
+ "completeness_statement": "not recorded on the page this object was built from",
+ "verification_basis": {
+  "what_verifies_this_object": "ClinicalTrials.gov protocol records, read 2026-08-18",
+  "what_is_not_claimed": "that any per-trial count was checked against a results record",
+  "families": [],
+  "bar": "not recorded on the page this object was built from"
+ },
+ "methodological_authority": {
+  "reference": "not recorded on the page this object was built from",
+  "version": "not recorded on the page this object was built from",
+  "version_checked_on": "not recorded on the page this object was built from",
+  "version_checked_how": "not recorded on the page this object was built from",
+  "version_note": "not recorded on the page this object was built from",
+  "scope_of_this_rule": "not recorded on the page this object was built from",
+  "url": "not recorded on the page this object was built from",
+  "note": "not recorded on the page this object was built from"
+ },
+ "config": {
+  "model": "random-effects",
+  "method": "not pooled -- withdrawn",
+  "scale": "log"
+ },
+ "screening": {
+  "search_note": "not recorded on the page this object was built from",
+  "eligibility": "not recorded on the page this object was built from",
+  "known_limitation": "not recorded on the page this object was built from"
+ },
+ "screening_names_unresolved": [],
+ "eligible_but_not_contributing": {
+  "note": "All included registrations carry a row in this object.",
+  "studies": []
+ },
+ "reconciliation": {
+  "why_this_step_exists": "not recorded on the page this object was built from",
+  "clean": null,
+  "clean_because": "not recorded on the page this object was built from",
+  "trial_list_diffs": [],
+  "matches": [],
+  "corrections": [],
+  "unresolved": []
+ },
+ "claims_corrected": [],
+ "scope_decisions": {},
+ "conversion_note": "AUTHORED, not converted. This topic's estimate was withdrawn BEFORE the current detector set existed; the withdrawal was re-verified against the registry on 2026-08-18.",
+ "sources": {},
+ "outcomes": [
+  {
+   "id": "primary",
+   "name": "A cardiovascular composite in one trial and ADVERSE EVENTS in the other",
+   "definition": "NOT ONE DEFINITION. FOURIER registers a five-component cardiovascular composite. OSLER-2 registers 'Number of Participants With Adverse Events'.",
+   "definition_note": "Authored on re-verification of a withdrawal made before the current detectors existed.",
+   "measure": "OR",
+   "effect_scale": "log",
+   "type": "primary",
+   "estimand": {
+    "id": "primary",
+    "family": "first event",
+    "model": "random-effects"
+   },
+   "comparator": "placebo",
+   "comparator_type": "placebo",
+   "direction_of_benefit": "lower is better",
+   "null_value": 1
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT01764633",
+    "name": "FOURIER",
+    "nct": "NCT01764633",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "Placebo",
+      "role": "treatment",
+      "events": 429,
+      "participants": 13780
+     },
+     {
+      "label": "Evolocumab",
+      "role": "control",
+      "events": 378,
+      "participants": 13784
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'Placebo', 'Evolocumab'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT01764633",
+      "analysed": {
+       "treatment": 13780,
+       "control": 13784
+      },
+      "outcome_definition": "Time to Cardiovascular Death, Myocardial Infarction, Hospitalization for Unstable Angina, Stroke, or Coronary Revascularization",
+      "outcome_definition_source": {
+       "time_frame": "Events that occurred from randomization to the last confirmed survival status date; the median duration of follow-up was 26 months. KM estimates at 6, 12, 18, 24, 30 and 36 months are reported.",
+       "description_verbatim": "All deaths and potential endpoint events were adjudicated by an independent external Clinical Events Committee (CEC) led by the Thrombolysis in Myocardial Infarction (TIMI) Study Group, using standardized definitions based on the \"Standardized Definitions for Cardiovascular and Stroke End Point Events in Clinical Trials and the Third Universal Definition of Myocardial Infarction\".\n\nTime to cardiovascular death, myocardial infarction, stroke, hospitalization for unstable angina, or coronary revascularization was defined as the time from randomization to the first occurrence of any component of the composite endpoint and was analyzed using Kaplan-Meier (KM) survival analysis. KM estimates of the percentage of participants with an event are reported. Participants with no event were censored based on last non-fatal potential endpoint collection date.",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT01764633",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "cardiovascular death; myocardial infarction; stroke; hospitalisation for unstable angina; CORONARY REVASCULARIZATION. An EFFICACY composite.",
+       "analysis_set_as_the_registry_states_it": "Time to first occurrence, median follow-up 26 months. NOTE: the counts stored on this page, 429 and 378, are NOT this trial's primary-composite counts, which are 1,344 and 1,563. And the arm sizes are the wrong way round: 13,784 is the evolocumab arm and 13,780 the placebo arm."
+      }
+     }
+    }
+   },
+   {
+    "id": "NCT01854918",
+    "name": "OSLER-2",
+    "nct": "NCT01854918",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "Standard of Care",
+      "role": "treatment",
+      "events": 519,
+      "participants": 1227
+     },
+     {
+      "label": "Evolocumab + Standard of Care",
+      "role": "control",
+      "events": 1070,
+      "participants": 2454
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'Standard of Care', 'Evolocumab + Standard of Care'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT01854918",
+      "analysed": {
+       "treatment": 1227,
+       "control": 2454
+      },
+      "outcome_definition": "Number of Participants With Adverse Events",
+      "outcome_definition_source": {
+       "time_frame": "48 weeks in the SOC-controlled period and up to 2 years in the All-IP period",
+       "description_verbatim": "Adverse event (AE) severity assessments were made using National Cancer Institute Common Terminology Criteria for Adverse Events (CTCAE) grading, version 4.0, where grade 1 = mild AE, grade 2 = moderate AE, Grade 3 = severe AE, grade 4 = life-threatening AE and Grade 5 = death due to AE.",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT01854918",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "NUMBER OF PARTICIPANTS WITH ADVERSE EVENTS. That is the whole of the registered primary. There is no cardiovascular component, no efficacy component, and no composite.",
+       "analysis_set_as_the_registry_states_it": "An open-label extension study. Its arm sizes here, 1,227 against 2,454, are a 1:2 allocation, not the 1:1 the other trial has."
+      }
+     }
+    }
+   }
+  ]
+ },
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 2,
+    "estimand_id": "primary",
+    "model": "random-effects",
+    "estimator": "not pooled -- the estimate is withdrawn",
+    "estimator_used": "none",
+    "handbook": {
+     "decision": "not recorded on the page this object was built from",
+     "sections": [],
+     "conformance": "not recorded on the page this object was built from"
+    },
+    "comparator_type": "placebo",
+    "favours": null,
+    "poolable": false,
+    "poolable_reason": "ONE TRIAL REGISTERS A CARDIOVASCULAR COMPOSITE AND THE OTHER REGISTERS ADVERSE EVENTS, AND THE REGISTRY SAYS SO IN FOUR WORDS. OSLER-2's registered primary outcome is, verbatim and in its entirety, 'Number of Participants With Adverse Events'. FOURIER's is a five-component composite of cardiovascular death, myocardial infarction, stroke, hospitalisation for unstable angina and coronary revascularization. An adverse-event tally and an efficacy composite are not the same event, they are not measured for the same purpose, and for a lipid-lowering drug they do not move together. SEPARATELY, AND IT SHARPENS THE ORIGINAL REASON: the counts this page holds for FOURIER, 429 and 378, ARE NOT ITS PRIMARY-COMPOSITE COUNTS, which are 1,344 and 1,563. AND THE ARM SIZES ARE INVERTED -- 13,784 is FOURIER's evolocumab arm and 13,780 its placebo arm, and this page has them the other way round. So the row is wrong in its numerator, its denominator assignment and its endpoint at once.",
+    "pool_uniformity": {
+     "effect_measure": [
+      "NOT ESTABLISHED",
+      "an odds ratio derived from counts, on a page pooling an efficacy composite with an adverse-event tally"
+     ],
+     "estimand": [
+      "REFUTED",
+      "one trial registers a cardiovascular composite and the other registers adverse events"
+     ]
+    },
+    "heterogeneity": null,
+    "heterogeneity_status": "not recorded on the page this object was built from",
+    "grade": null,
+    "cross_engine": null,
+    "sensitivity": null,
+    "single_study_ref": null,
+    "per_trial": [],
+    "pooled": {
+     "measure": "OR",
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "ci_level": 95,
+     "scale": "log",
+     "withdrawn": true,
+     "withdrawn_reason": "ONE TRIAL REGISTERS A CARDIOVASCULAR COMPOSITE AND THE OTHER REGISTERS ADVERSE EVENTS, AND THE REGISTRY SAYS SO IN FOUR WORDS. OSLER-2's registered primary outcome is, verbatim and in its entirety, 'Number of Participants With Adverse Events'. FOURIER's is a five-component composite of cardiovascular death, myocardial infarction, stroke, hospitalisation for unstable angina and coronary revascularization. An adverse-event tally and an efficacy composite are not the same event, they are not measured for the same purpose, and for a lipid-lowering drug they do not move together. SEPARATELY, AND IT SHARPENS THE ORIGINAL REASON: the counts this page holds for FOURIER, 429 and 378, ARE NOT ITS PRIMARY-COMPOSITE COUNTS, which are 1,344 and 1,563. AND THE ARM SIZES ARE INVERTED -- 13,784 is FOURIER's evolocumab arm and 13,780 its placebo arm, and this page has them the other way round. So the row is wrong in its numerator, its denominator assignment and its endpoint at once.",
+     "withdrawn_note": "WHAT THIS DOES NOT ESTABLISH: NOT that evolocumab is unsafe, and NOT that it is ineffective. The trials here measure a cardiovascular composite in one case and any adverse event in the other, and nothing on this page estimates the question its title implies. WHAT IS CONFIRMED: the original withdrawal was RIGHT and its stated reason -- 'adverse-event and efficacy endpoints pooled' -- is exactly what the two registrations say. Both identities are correct. FOURIER's own primary result is established elsewhere in this corpus and is not in question here. THE REPLACEMENT QUESTION IS PARKED: FOURIER alone carries a defensible cardiovascular estimate, and reporting one trial as a synthesis is a decision about what this page is for.",
+     "withdrawn_on": "2026-08-18",
+     "reverification": "RE-VERIFIED 2026-08-18. VERDICT: CONFIRMED and SHARPENED. The stated reason survives -- OSLER-2's registered primary is literally an adverse-event count -- and re-verification added two faults the original reason did not name: FOURIER's stored counts are not its primary-composite counts, and its arm sizes are inverted.",
+     "card_note": "CONFIRMED and sharpened: OSLER-2's registered primary is, in full, 'Number of Participants With Adverse Events'; FOURIER's is a five-component cardiovascular composite. Re-verification also found FOURIER's stored counts are not its primary's, and its arm sizes are inverted"
+    }
+   }
+  }
+ },
+ "manuscript": null,
+ "risk_of_bias_verdict": null,
+ "carried_contrasts": [],
+ "absent_from_source": {
+  "protocol": "No protocol record was recoverable from the page.",
+  "search": "No search strategy was recoverable from the page.",
+  "screening": "No screening log was recoverable from the page.",
+  "rob2": "No risk-of-bias assessment was recoverable from the page.",
+  "grade": "No certainty rating was recoverable from the page.",
+  "sources": "Every ENDPOINT DEFINITION on this page is verbatim from the trial's own ClinicalTrials.gov record and carries a resolvable link. The per-trial counts are the page's own and carry no quoted source sentence."
+ }
+}

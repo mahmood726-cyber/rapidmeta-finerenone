@@ -1,0 +1,371 @@
+{
+ "app_id": "dabigatran-vte-review",
+ "schema_version": "2-authored-from-source",
+ "title": "Dabigatran in venous thromboembolism",
+ "question": "Four trials, four different registered primaries -- one of them any adverse event.",
+ "built": "2026-08-18T00:00Z",
+ "build_mode": "AUTHORED",
+ "_estimand_rule": "Every endpoint definition below was READ FROM THE REGISTRY, word for word, when this withdrawal was RE-VERIFIED on 2026-08-18.",
+ "source_links_enforced": true,
+ "source_links_enforced_means": "every trial row carries its registration link",
+ "cited_total": null,
+ "completeness_statement": "not recorded on the page this object was built from",
+ "verification_basis": {
+  "what_verifies_this_object": "ClinicalTrials.gov protocol records, read 2026-08-18",
+  "what_is_not_claimed": "that any per-trial count was checked against a results record",
+  "families": [],
+  "bar": "not recorded on the page this object was built from"
+ },
+ "methodological_authority": {
+  "reference": "not recorded on the page this object was built from",
+  "version": "not recorded on the page this object was built from",
+  "version_checked_on": "not recorded on the page this object was built from",
+  "version_checked_how": "not recorded on the page this object was built from",
+  "version_note": "not recorded on the page this object was built from",
+  "scope_of_this_rule": "not recorded on the page this object was built from",
+  "url": "not recorded on the page this object was built from",
+  "note": "not recorded on the page this object was built from"
+ },
+ "config": {
+  "model": "random-effects",
+  "method": "not pooled -- withdrawn",
+  "scale": "log"
+ },
+ "screening": {
+  "search_note": "not recorded on the page this object was built from",
+  "eligibility": "not recorded on the page this object was built from",
+  "known_limitation": "not recorded on the page this object was built from"
+ },
+ "screening_names_unresolved": [],
+ "eligible_but_not_contributing": {
+  "note": "All included registrations carry a row in this object.",
+  "studies": []
+ },
+ "reconciliation": {
+  "why_this_step_exists": "not recorded on the page this object was built from",
+  "clean": null,
+  "clean_because": "not recorded on the page this object was built from",
+  "trial_list_diffs": [],
+  "matches": [],
+  "corrections": [],
+  "unresolved": []
+ },
+ "claims_corrected": [],
+ "scope_decisions": {},
+ "conversion_note": "AUTHORED, not converted. This topic's estimate was withdrawn BEFORE the current detector set existed; the withdrawal was re-verified against the registry on 2026-08-18.",
+ "sources": {},
+ "outcomes": [
+  {
+   "id": "primary",
+   "name": "Four different registered primaries, one of them ANY ADVERSE EVENT",
+   "definition": "NOT ONE DEFINITION. Recurrent VTE or VTE death; any adverse event; VTE or major bleeding as one composite; and VTE with all-cause mortality.",
+   "definition_note": "Authored on re-verification.",
+   "measure": "OR",
+   "effect_scale": "log",
+   "type": "primary",
+   "estimand": {
+    "id": "primary",
+    "family": "first event",
+    "model": "random-effects"
+   },
+   "comparator": "warfarin or placebo",
+   "comparator_type": "mixed",
+   "direction_of_benefit": "lower is better",
+   "null_value": 1
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT00329238",
+    "name": "RE-MEDY",
+    "nct": "NCT00329238",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "Dabigatran",
+      "role": "treatment",
+      "events": 1404,
+      "participants": 1430
+     },
+     {
+      "label": "Warfarin (INR of 2.0-3.0)",
+      "role": "control",
+      "events": 18,
+      "participants": 1426
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'Dabigatran', 'Warfarin (INR of 2.0-3.0)'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT00329238",
+      "analysed": {
+       "treatment": 1430,
+       "control": 1426
+      },
+      "outcome_definition": "Composite of Recurrent VTE or VTE Death at 36 Months",
+      "outcome_definition_source": {
+       "time_frame": "36 months",
+       "description_verbatim": "Endpoint is a composite of recurrent Venous Thromboembolic Event (VTE) and death related to VTE. VTE was defined as the composite of symptomatic Deep Vein Thrombosis (DVT) of the leg and Pulmonary embolism (PE). All recurrent VTEs required objective verification by definitive diagnostic evaluation. In case of death, autopsy was an additional way to confirm VTE.",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT00329238",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "recurrent VTE or VTE DEATH. An EFFICACY composite.",
+       "analysis_set_as_the_registry_states_it": "At 36 months. NOTE: the count stored on this page for the treatment arm is 1,404 of 1,430 -- 98 per cent. Recurrent VTE did not occur in 98 per cent of this arm; that number cannot be the registered primary's event count and is most likely its complement."
+      }
+     }
+    }
+   },
+   {
+    "id": "NCT01505881",
+    "name": "NCT01505881",
+    "nct": "NCT01505881",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "Dabigatran etexilate",
+      "role": "treatment",
+      "events": 2,
+      "participants": 99
+     },
+     {
+      "label": "warfarin",
+      "role": "control",
+      "events": 0,
+      "participants": 59
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'Dabigatran etexilate', 'warfarin'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT01505881",
+      "analysed": {
+       "treatment": 99,
+       "control": 59
+      },
+      "outcome_definition": "Percentage of Patients With Any Adverse Event (AE)",
+      "outcome_definition_source": {
+       "time_frame": "From first intake of study drug until last intake of study drug plus 6 days (Up to 272 days)",
+       "description_verbatim": "Percentage of patients with Adverse Events. Prespecified clinical outcome events were not recorded as Adverse Events.",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT01505881",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "PERCENTAGE OF PATIENTS WITH ANY ADVERSE EVENT. That is the whole registered primary -- a safety tally with no thrombotic component at all.",
+       "analysis_set_as_the_registry_states_it": "A small trial, 99 against 59."
+      }
+     }
+    }
+   },
+   {
+    "id": "NCT02913326",
+    "name": "NCT02913326",
+    "nct": "NCT02913326",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "Dabigatran etexilate",
+      "role": "treatment",
+      "events": 1,
+      "participants": 60
+     },
+     {
+      "label": "Warfarin",
+      "role": "control",
+      "events": 2,
+      "participants": 60
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'Dabigatran etexilate', 'Warfarin'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT02913326",
+      "analysed": {
+       "treatment": 60,
+       "control": 60
+      },
+      "outcome_definition": "Percentage of Participants With Composite of Venous Thrombotic Event (VTE) or Major Bleeding Event (MBE) According to International Society on Thrombosis and Haemostasis (ISTH) Criteria in Full Observation Period.",
+      "outcome_definition_source": {
+       "time_frame": "From first administration of trial medication until 6 days after last administration of trial medication, up to 25 weeks.",
+       "description_verbatim": "Composite of the percentage of participants with MBE according to ISTH criteria and VTE (recurring cerebral venous thrombosis (CVT); deep venous thrombosis (DVT) of any limb, pulmonary embolism (PE), splanchnic vein thrombosis) in full observation period. All components were adjudicated in a blinded manner.\n\nMajor bleeds were defined according to the ISTH definition of a major bleed, as follows:\n\n* Symptomatic bleeding in a critical area or organ, such as intracranial, intraspinal, intraocular, retroperitoneal, intra-articular or pericardial, or intramuscular with compartment syndrome and/or\n* Bleeding associated with a reduction in haemoglobin of at least 2 grams/deciLitre (1.24 millimole/Litre) within 24 h, or leading to transfusion of 2 or more units of blood or packed cells and/or\n* Fatal bleed",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT02913326",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "a composite of VENOUS THROMBOTIC EVENT **or** MAJOR BLEEDING -- efficacy and safety combined INSIDE one endpoint, which is a third distinct quantity again.",
+       "analysis_set_as_the_registry_states_it": "Full observation period. 60 against 60."
+      }
+     }
+    }
+   },
+   {
+    "id": "NCT00168805",
+    "name": "NCT00168805",
+    "nct": "NCT00168805",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "dabigatran etexilate 220 mg",
+      "role": "treatment",
+      "events": 1,
+      "participants": 679
+     },
+     {
+      "label": "enoxaparin",
+      "role": "control",
+      "events": 1,
+      "participants": 703
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'dabigatran etexilate 220 mg', 'dabigatran etexilate 150 mg', 'enoxaparin'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT00168805",
+      "analysed": {
+       "treatment": 679,
+       "control": 703
+      },
+      "outcome_definition": "Number of Participants With Total Venous Thromboembolic Event and All-cause Mortality During Treatment Period",
+      "outcome_definition_source": {
+       "time_frame": "First administration until 6-10 days",
+       "description_verbatim": "Total Venous Thromboembolic Event (VTE) includes both proximal and distal deep vein thrombosis (DVT) (detected by routine bilateral venography), symptomatic DVT (confirmed by venous compression ultrasound, venography or autopsy) and pulmonary embolism (PE) (confirmed by pulmonary V-Q scintigraphy, chest x-ray, pulmonary angiography, spiral CT or autopsy).\n\nAll of these components and all deaths were centrally adjudicated by the VTE events committee, which was not aware of the treatment allocation of the patients.",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT00168805",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "total venous thromboembolic event AND ALL-CAUSE MORTALITY during the treatment period.",
+       "analysis_set_as_the_registry_states_it": "During treatment. 679 against 703."
+      }
+     }
+    }
+   }
+  ]
+ },
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 4,
+    "estimand_id": "primary",
+    "model": "random-effects",
+    "estimator": "not pooled -- the estimate is withdrawn",
+    "estimator_used": "none",
+    "handbook": {
+     "decision": "not recorded on the page this object was built from",
+     "sections": [],
+     "conformance": "not recorded on the page this object was built from"
+    },
+    "comparator_type": "mixed",
+    "favours": null,
+    "poolable": false,
+    "poolable_reason": "FOUR TRIALS, FOUR DIFFERENT REGISTERED PRIMARIES, AND THEY ARE NOT EVEN THE SAME KIND OF QUANTITY. Verbatim: RE-MEDY registers 'Composite of Recurrent VTE or VTE Death'; NCT01505881 registers 'Percentage of Patients With Any Adverse Event (AE)'; NCT02913326 registers a 'Composite of Venous Thrombotic Event (VTE) or Major Bleeding Event (MBE)'; NCT00168805 registers 'Total Venous Thromboembolic Event and All-cause Mortality'. ONE IS AN EFFICACY COMPOSITE, ONE IS A PURE SAFETY TALLY, ONE COMBINES EFFICACY AND SAFETY INSIDE A SINGLE ENDPOINT, AND ONE ADDS ALL-CAUSE DEATH TO A THROMBOTIC OUTCOME. Averaging them produces a number none of the four measured. AND ONE STORED COUNT IS IMPOSSIBLE ON ITS FACE: RE-MEDY's treatment arm is recorded as 1,404 events in 1,430 participants -- 98 per cent. Recurrent venous thromboembolism did not occur in 98 per cent of a dabigatran arm. That figure cannot be the registered primary's event count and is most likely its complement, which would invert the trial's contribution entirely.",
+    "pool_uniformity": {
+     "effect_measure": [
+      "NOT ESTABLISHED",
+      "count-derived odds ratios across four endpoints of three different kinds"
+     ],
+     "estimand": [
+      "REFUTED",
+      "four trials, four different registered primaries, one of which is any adverse event"
+     ]
+    },
+    "heterogeneity": null,
+    "heterogeneity_status": "not recorded on the page this object was built from",
+    "grade": null,
+    "cross_engine": null,
+    "sensitivity": null,
+    "single_study_ref": null,
+    "per_trial": [],
+    "pooled": {
+     "measure": "OR",
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "ci_level": 95,
+     "scale": "log",
+     "withdrawn": true,
+     "withdrawn_reason": "FOUR TRIALS, FOUR DIFFERENT REGISTERED PRIMARIES, AND THEY ARE NOT EVEN THE SAME KIND OF QUANTITY. Verbatim: RE-MEDY registers 'Composite of Recurrent VTE or VTE Death'; NCT01505881 registers 'Percentage of Patients With Any Adverse Event (AE)'; NCT02913326 registers a 'Composite of Venous Thrombotic Event (VTE) or Major Bleeding Event (MBE)'; NCT00168805 registers 'Total Venous Thromboembolic Event and All-cause Mortality'. ONE IS AN EFFICACY COMPOSITE, ONE IS A PURE SAFETY TALLY, ONE COMBINES EFFICACY AND SAFETY INSIDE A SINGLE ENDPOINT, AND ONE ADDS ALL-CAUSE DEATH TO A THROMBOTIC OUTCOME. Averaging them produces a number none of the four measured. AND ONE STORED COUNT IS IMPOSSIBLE ON ITS FACE: RE-MEDY's treatment arm is recorded as 1,404 events in 1,430 participants -- 98 per cent. Recurrent venous thromboembolism did not occur in 98 per cent of a dabigatran arm. That figure cannot be the registered primary's event count and is most likely its complement, which would invert the trial's contribution entirely.",
+     "withdrawn_note": "WHAT THIS DOES NOT ESTABLISH: NOT that dabigatran fails to prevent recurrent venous thromboembolism. The trials here measure recurrence in one trial, adverse events in another, and a mixture in a third, and nothing on this page estimates the question its title implies. WHAT IS CONFIRMED: the original withdrawal was RIGHT, and its stated reason -- 'adverse-event and efficacy endpoints pooled' -- is exactly what NCT01505881's registration says. Re-verification added the impossible 98-per-cent count and the third and fourth endpoint types the original reason did not name. THE REPLACEMENT QUESTION IS PARKED: RE-MEDY and NCT00168805 are closest to a shared thrombotic estimand, but one adds all-cause death and the other does not, and RE-MEDY's counts must be resolved from source first.",
+     "withdrawn_on": "2026-08-18",
+     "reverification": "RE-VERIFIED 2026-08-18. VERDICT: CONFIRMED and SHARPENED. The stated reason survives and understates the problem: not two endpoint types but four, plus a stored count of 1,404 in 1,430 that cannot be a recurrent-VTE event total.",
+     "card_note": "CONFIRMED and sharpened: FOUR different registered primaries -- an efficacy composite, a pure ANY-ADVERSE-EVENT tally, a VTE-or-major-bleeding composite, and VTE with all-cause death. RE-MEDY's stored count of 1,404 in 1,430 (98%) cannot be a recurrent-VTE total"
+    }
+   }
+  }
+ },
+ "manuscript": null,
+ "risk_of_bias_verdict": null,
+ "carried_contrasts": [],
+ "absent_from_source": {
+  "protocol": "No protocol record was recoverable from the page.",
+  "search": "No search strategy was recoverable from the page.",
+  "screening": "No screening log was recoverable from the page.",
+  "rob2": "No risk-of-bias assessment was recoverable from the page.",
+  "grade": "No certainty rating was recoverable from the page.",
+  "sources": "Every ENDPOINT DEFINITION on this page is verbatim from the trial's own ClinicalTrials.gov record and carries a resolvable link. The per-trial counts are the page's own and carry no quoted source sentence."
+ }
+}

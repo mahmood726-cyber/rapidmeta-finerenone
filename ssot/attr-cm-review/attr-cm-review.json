@@ -1,0 +1,257 @@
+{
+ "app_id": "attr-cm-review",
+ "schema_version": "2-authored-from-source",
+ "title": "Transthyretin amyloid cardiomyopathy",
+ "question": "Both trials register HIERARCHICAL endpoints analysed by win ratio, and the two hierarchies are not the same hierarchy.",
+ "built": "2026-08-18T00:00Z",
+ "build_mode": "AUTHORED",
+ "_estimand_rule": "Every endpoint definition below was READ FROM THE REGISTRY, word for word, when this withdrawal was RE-VERIFIED on 2026-08-18.",
+ "source_links_enforced": true,
+ "source_links_enforced_means": "every trial row carries its registration link",
+ "cited_total": null,
+ "completeness_statement": "not recorded on the page this object was built from",
+ "verification_basis": {
+  "what_verifies_this_object": "ClinicalTrials.gov protocol records, read 2026-08-18",
+  "what_is_not_claimed": "that any per-trial count was checked against a results record",
+  "families": [],
+  "bar": "not recorded on the page this object was built from"
+ },
+ "methodological_authority": {
+  "reference": "not recorded on the page this object was built from",
+  "version": "not recorded on the page this object was built from",
+  "version_checked_on": "not recorded on the page this object was built from",
+  "version_checked_how": "not recorded on the page this object was built from",
+  "version_note": "not recorded on the page this object was built from",
+  "scope_of_this_rule": "not recorded on the page this object was built from",
+  "url": "not recorded on the page this object was built from",
+  "note": "not recorded on the page this object was built from"
+ },
+ "config": {
+  "model": "random-effects",
+  "method": "not pooled -- withdrawn",
+  "scale": "log"
+ },
+ "screening": {
+  "search_note": "not recorded on the page this object was built from",
+  "eligibility": "not recorded on the page this object was built from",
+  "known_limitation": "not recorded on the page this object was built from"
+ },
+ "screening_names_unresolved": [],
+ "eligible_but_not_contributing": {
+  "note": "All included registrations carry a row in this object.",
+  "studies": []
+ },
+ "reconciliation": {
+  "why_this_step_exists": "not recorded on the page this object was built from",
+  "clean": null,
+  "clean_because": "not recorded on the page this object was built from",
+  "trial_list_diffs": [],
+  "matches": [],
+  "corrections": [],
+  "unresolved": []
+ },
+ "claims_corrected": [],
+ "scope_decisions": {},
+ "conversion_note": "AUTHORED, not converted. This topic's estimate was withdrawn BEFORE the current detector set existed; the withdrawal was re-verified against the registry on 2026-08-18.",
+ "sources": {},
+ "outcomes": [
+  {
+   "id": "primary",
+   "name": "Hierarchical composites, analysed by win ratio -- and the two hierarchies differ",
+   "definition": "ATTR-ACT registers a TWO-level hierarchy. ATTRibute-CM registers a FOUR-level hierarchy whose lower levels are CONTINUOUS change scores. Neither is a 2x2 table.",
+   "definition_note": "Authored on re-verification.",
+   "measure": "OR",
+   "effect_scale": "log",
+   "type": "primary",
+   "estimand": {
+    "id": "primary",
+    "family": "hierarchical composite",
+    "model": "random-effects"
+   },
+   "comparator": "placebo",
+   "comparator_type": "placebo",
+   "direction_of_benefit": "lower is better",
+   "null_value": 1
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT01994889",
+    "name": "ATTR-ACT",
+    "nct": "NCT01994889",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "Tafamidis - 20 mg",
+      "role": "treatment",
+      "events": 78,
+      "participants": 264
+     },
+     {
+      "label": "Placebo",
+      "role": "control",
+      "events": 76,
+      "participants": 177
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'Tafamidis - 20 mg', 'Tafamidis - 80 mg', 'Placebo'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT01994889",
+      "analysed": {
+       "treatment": 264,
+       "control": 177
+      },
+      "outcome_definition": "Hierarchical Combination of All-Cause Mortality and Frequency of Cardiovascular-Related Hospitalizations",
+      "outcome_definition_source": {
+       "time_frame": "Baseline up to Month 30",
+       "description_verbatim": "All-cause mortality and frequency of cardiovascular hospitalization were analyzed using Finkelstein-Schoenfeld method. The method combines all-cause mortality and frequency of CV-related hospitalizations in a hierarchical fashion using all-cause mortality first. The method compares every participant with every other participant within strata, assigning a +1 to the \"better\" participant and a -1 to the \"worse\" participant and 0 if they are \"tied\". Participants who discontinued for transplantation (heart transplantation and combined heart and liver transplantation) or for implantation of a cardiac mechanical assist device, were handled in the same manner as death. 'Win' represents a participant doing better based on hierarchical comparison. The reported unit is the total \"wins\" for each treatment group from performing such a hierarchical comparison across all 4 strata in the study.",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT01994889",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "a HIERARCHICAL COMBINATION of ALL-CAUSE MORTALITY and FREQUENCY OF CARDIOVASCULAR-RELATED HOSPITALIZATIONS. Two levels, analysed by win ratio -- every patient is compared with every other and the result is a ratio of wins to losses, not a count of events over a denominator.",
+       "analysis_set_as_the_registry_states_it": "30 months. Arm sizes here are 264 against 177, which is the pooled tafamidis doses against placebo."
+      }
+     }
+    }
+   },
+   {
+    "id": "NCT03860935",
+    "name": "ATTRibute-CM",
+    "nct": "NCT03860935",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "acoramidis HCl 800 mg",
+      "role": "treatment",
+      "events": 79,
+      "participants": 409
+     },
+     {
+      "label": "Placebo",
+      "role": "control",
+      "events": 52,
+      "participants": 202
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'acoramidis HCl 800 mg', 'Placebo'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT03860935",
+      "analysed": {
+       "treatment": 409,
+       "control": 202
+      },
+      "outcome_definition": "A Hierarchical Combination of All-Cause Mortality, Cumulative Frequency of CV-related Hospitalization, Change From Baseline in NT-proBNP and Change From Baseline in 6MWT at the Last Available Visit Where Both Subjects Had Non-missing Assessments.",
+      "outcome_definition_source": {
+       "time_frame": "Baseline up to Month 30",
+       "description_verbatim": "The endpoint was analyzed using Finkelstein-Schoenfeld method. The method combines all-cause mortality, cumulative frequency of CV-related hospitalizations, change from baseline in NT-proBNP and change from baseline in 6MWT in a hierarchical fashion. The method compares every participant with every other participant within strata, assigning a +1 to the \"better\" participant and a -1 to the \"worse\" participant and 0 if they are \"tied\". Participants who had heart transplantation or implantation of a cardiac mechanical assist device were handled in the same manner as death. 'Win' represents a participant doing better based on hierarchical comparison. The reported unit is the total percent of \"wins\" for each treatment group from performing such a hierarchical comparison across stratification factors in the study.",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT03860935",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "a HIERARCHICAL COMBINATION of ALL-CAUSE MORTALITY, CUMULATIVE FREQUENCY OF CV-RELATED HOSPITALIZATION, CHANGE FROM BASELINE IN NT-proBNP and CHANGE FROM BASELINE IN 6-MINUTE WALK TEST. FOUR levels, and the lower two are CONTINUOUS change scores, not events at all.",
+       "analysis_set_as_the_registry_states_it": "At the last available visit where both compared subjects had non-missing assessments."
+      }
+     }
+    }
+   }
+  ]
+ },
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 2,
+    "estimand_id": "primary",
+    "model": "random-effects",
+    "estimator": "not pooled -- the estimate is withdrawn",
+    "estimator_used": "none",
+    "handbook": {
+     "decision": "not recorded on the page this object was built from",
+     "sections": [],
+     "conformance": "not recorded on the page this object was built from"
+    },
+    "comparator_type": "placebo",
+    "favours": null,
+    "poolable": false,
+    "poolable_reason": "BOTH TRIALS REGISTER HIERARCHICAL ENDPOINTS ANALYSED BY WIN RATIO, AND A WIN RATIO CANNOT BE RECOVERED FROM A 2x2 TABLE. ATTR-ACT's registered primary, verbatim, is a 'Hierarchical Combination of All-Cause Mortality and Frequency of Cardiovascular-Related Hospitalizations'. In such an analysis every patient in one arm is compared with every patient in the other and the result is a ratio of wins to losses; there is no numerator over a denominator to extract, and reducing it to counts of participants discards the hierarchy that defines it. AND THE TWO HIERARCHIES ARE NOT THE SAME HIERARCHY. ATTRibute-CM's registered primary is a 'Hierarchical Combination of All-Cause Mortality, Cumulative Frequency of CV-related Hospitalization, CHANGE FROM BASELINE IN NT-proBNP and CHANGE FROM BASELINE IN 6MWT'. That is FOUR levels to ATTR-ACT's two, and its lower two levels are CONTINUOUS CHANGE SCORES rather than events. Two hierarchies of different depth, whose tie-breaking rules differ and whose lower levels are not even the same kind of quantity, do not estimate one thing.",
+    "pool_uniformity": {
+     "effect_measure": [
+      "NOT ESTABLISHED",
+      "an odds ratio from 2x2 counts, applied to endpoints whose registered analysis is a win ratio"
+     ],
+     "estimand": [
+      "REFUTED",
+      "both are hierarchical win-ratio endpoints and the two hierarchies differ in depth and in kind"
+     ]
+    },
+    "heterogeneity": null,
+    "heterogeneity_status": "not recorded on the page this object was built from",
+    "grade": null,
+    "cross_engine": null,
+    "sensitivity": null,
+    "single_study_ref": null,
+    "per_trial": [],
+    "pooled": {
+     "measure": "OR",
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "ci_level": 95,
+     "scale": "log",
+     "withdrawn": true,
+     "withdrawn_reason": "BOTH TRIALS REGISTER HIERARCHICAL ENDPOINTS ANALYSED BY WIN RATIO, AND A WIN RATIO CANNOT BE RECOVERED FROM A 2x2 TABLE. ATTR-ACT's registered primary, verbatim, is a 'Hierarchical Combination of All-Cause Mortality and Frequency of Cardiovascular-Related Hospitalizations'. In such an analysis every patient in one arm is compared with every patient in the other and the result is a ratio of wins to losses; there is no numerator over a denominator to extract, and reducing it to counts of participants discards the hierarchy that defines it. AND THE TWO HIERARCHIES ARE NOT THE SAME HIERARCHY. ATTRibute-CM's registered primary is a 'Hierarchical Combination of All-Cause Mortality, Cumulative Frequency of CV-related Hospitalization, CHANGE FROM BASELINE IN NT-proBNP and CHANGE FROM BASELINE IN 6MWT'. That is FOUR levels to ATTR-ACT's two, and its lower two levels are CONTINUOUS CHANGE SCORES rather than events. Two hierarchies of different depth, whose tie-breaking rules differ and whose lower levels are not even the same kind of quantity, do not estimate one thing.",
+     "withdrawn_note": "WHAT THIS DOES NOT ESTABLISH: NOT that tafamidis or acoramidis is ineffective in transthyretin amyloid cardiomyopathy. The trials here measure hierarchical win-ratio composites of death, hospitalisation and functional change, and nothing on this page estimates the question its title implies. WHAT IS CONFIRMED: the original withdrawal was RIGHT and its one-line reason -- 'win-ratio composite reduced to 2x2 counts' -- is exactly the defect, now sourced from both registrations. Both identities are correct. RE-VERIFICATION ADDED the second, independent ground the original did not name: the two hierarchies differ in depth and in kind. THE REPLACEMENT QUESTION IS PARKED: a synthesis of win ratios is possible in principle but requires each trial's own win-ratio estimate and its variance, which the registry's protocol record does not carry.",
+     "withdrawn_on": "2026-08-18",
+     "reverification": "RE-VERIFIED 2026-08-18. VERDICT: CONFIRMED and SHARPENED. The stated reason survives verbatim; re-verification added that ATTRibute-CM's hierarchy has four levels to ATTR-ACT's two, and that its lower two are continuous change scores -- so even a correct win-ratio synthesis would not be comparing like with like.",
+     "card_note": "CONFIRMED and sharpened: both register HIERARCHICAL win-ratio endpoints, which have no 2x2 table to reduce to -- and the hierarchies differ, ATTRibute-CM's having FOUR levels to ATTR-ACT's two, its lower two being CONTINUOUS change scores in NT-proBNP and 6-minute walk"
+    }
+   }
+  }
+ },
+ "manuscript": null,
+ "risk_of_bias_verdict": null,
+ "carried_contrasts": [],
+ "absent_from_source": {
+  "protocol": "No protocol record was recoverable from the page.",
+  "search": "No search strategy was recoverable from the page.",
+  "screening": "No screening log was recoverable from the page.",
+  "rob2": "No risk-of-bias assessment was recoverable from the page.",
+  "grade": "No certainty rating was recoverable from the page.",
+  "sources": "Every ENDPOINT DEFINITION on this page is verbatim from the trial's own ClinicalTrials.gov record and carries a resolvable link. The per-trial counts are the page's own and carry no quoted source sentence."
+ }
+}

@@ -1,0 +1,314 @@
+{
+ "app_id": "bococizumab-lipid-review",
+ "schema_version": "2-authored-from-source",
+ "title": "Bococizumab and LDL cholesterol",
+ "question": "Every trial here registers a CONTINUOUS percent change in LDL-C, and this page derived an odds ratio from counts.",
+ "built": "2026-08-18T00:00Z",
+ "build_mode": "AUTHORED",
+ "_estimand_rule": "Every endpoint definition below was READ FROM THE REGISTRY, word for word, when this withdrawal was RE-VERIFIED on 2026-08-18.",
+ "source_links_enforced": true,
+ "source_links_enforced_means": "every trial row carries its registration link",
+ "cited_total": null,
+ "completeness_statement": "not recorded on the page this object was built from",
+ "verification_basis": {
+  "what_verifies_this_object": "ClinicalTrials.gov protocol records, read 2026-08-18",
+  "what_is_not_claimed": "that any per-trial count was checked against a results record",
+  "families": [],
+  "bar": "not recorded on the page this object was built from"
+ },
+ "methodological_authority": {
+  "reference": "not recorded on the page this object was built from",
+  "version": "not recorded on the page this object was built from",
+  "version_checked_on": "not recorded on the page this object was built from",
+  "version_checked_how": "not recorded on the page this object was built from",
+  "version_note": "not recorded on the page this object was built from",
+  "scope_of_this_rule": "not recorded on the page this object was built from",
+  "url": "not recorded on the page this object was built from",
+  "note": "not recorded on the page this object was built from"
+ },
+ "config": {
+  "model": "random-effects",
+  "method": "not pooled -- withdrawn",
+  "scale": "log"
+ },
+ "screening": {
+  "search_note": "not recorded on the page this object was built from",
+  "eligibility": "not recorded on the page this object was built from",
+  "known_limitation": "not recorded on the page this object was built from"
+ },
+ "screening_names_unresolved": [],
+ "eligible_but_not_contributing": {
+  "note": "All included registrations carry a row in this object.",
+  "studies": []
+ },
+ "reconciliation": {
+  "why_this_step_exists": "not recorded on the page this object was built from",
+  "clean": null,
+  "clean_because": "not recorded on the page this object was built from",
+  "trial_list_diffs": [],
+  "matches": [],
+  "corrections": [],
+  "unresolved": []
+ },
+ "claims_corrected": [],
+ "scope_decisions": {},
+ "conversion_note": "AUTHORED, not converted. This topic's estimate was withdrawn BEFORE the current detector set existed; the withdrawal was re-verified against the registry on 2026-08-18.",
+ "sources": {},
+ "outcomes": [
+  {
+   "id": "primary",
+   "name": "Percent change from baseline in LDL-C at week 12 -- a CONTINUOUS outcome",
+   "definition": "All of these registrations declare the SAME continuous primary: percent change from baseline in fasting LDL-C at week 12. The estimand is shared; the MEASURE this page applied to it is not one a continuous endpoint can carry.",
+   "definition_note": "Authored on re-verification. Here the endpoints AGREE and the measure is the defect -- the opposite of most topics in this pass.",
+   "measure": "OR",
+   "effect_scale": "log",
+   "type": "primary",
+   "estimand": {
+    "id": "primary",
+    "family": "percent change from baseline",
+    "model": "random-effects"
+   },
+   "comparator": "placebo",
+   "comparator_type": "placebo",
+   "direction_of_benefit": "lower is better",
+   "null_value": 1
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT01968967",
+    "name": "SPIRE-LDL",
+    "nct": "NCT01968967",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "Bococizumab (PF-04950615; RN316)",
+      "role": "treatment",
+      "events": 485,
+      "participants": 1071
+     },
+     {
+      "label": "Placebo",
+      "role": "control",
+      "events": 971,
+      "participants": 1068
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'Bococizumab (PF-04950615; RN316)', 'Placebo'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT01968967",
+      "analysed": {
+       "treatment": 1071,
+       "control": 1068
+      },
+      "outcome_definition": "Percent Change From Baseline in Fasting Low Density Lipoprotein Cholesterol (LDL-C) at Week 12",
+      "outcome_definition_source": {
+       "time_frame": "Baseline, Week 12",
+       "description_verbatim": "no description registered",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT01968967",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "PERCENT CHANGE FROM BASELINE IN FASTING LDL-C AT WEEK 12. A CONTINUOUS quantity. There are no events to count.",
+       "analysis_set_as_the_registry_states_it": "Week 12. NOTE: the counts stored here imply 971 'events' in 1,068 placebo participants -- 91 per cent -- which is not an event rate but a threshold or responder flag, applied to an endpoint that has no events."
+      }
+     }
+    }
+   },
+   {
+    "id": "NCT02100514",
+    "name": "SPIRE-LL",
+    "nct": "NCT02100514",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "Bococizumab (PF-04950615; RN316)",
+      "role": "treatment",
+      "events": 25,
+      "participants": 247
+     },
+     {
+      "label": "placebo",
+      "role": "control",
+      "events": 363,
+      "participants": 499
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'Bococizumab (PF-04950615; RN316)', 'placebo'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT02100514",
+      "analysed": {
+       "treatment": 247,
+       "control": 499
+      },
+      "outcome_definition": "Percent Change From Baseline in Fasting Low Density Lipoprotein Cholesterol (LDL-C) at Week 12",
+      "outcome_definition_source": {
+       "time_frame": "Baseline, Week 12",
+       "description_verbatim": "no description registered",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT02100514",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "PERCENT CHANGE FROM BASELINE IN FASTING LDL-C AT WEEK 12. CONTINUOUS.",
+       "analysis_set_as_the_registry_states_it": "Week 12."
+      }
+     }
+    }
+   },
+   {
+    "id": "NCT01968954",
+    "name": "SPIRE-HR",
+    "nct": "NCT01968954",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "Bococizumab (PF-04950615;RN316)",
+      "role": "treatment",
+      "events": 147,
+      "participants": 354
+     },
+     {
+      "label": "Placebo",
+      "role": "control",
+      "events": 293,
+      "participants": 357
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'Bococizumab (PF-04950615;RN316)', 'Placebo'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT01968954",
+      "analysed": {
+       "treatment": 354,
+       "control": 357
+      },
+      "outcome_definition": "Percent Change From Baseline in Low Density Lipoprotein-Cholesterol (LDL-C) at Week 12",
+      "outcome_definition_source": {
+       "time_frame": "Baseline, Week 12",
+       "description_verbatim": "no description registered",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT01968954",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "PERCENT CHANGE FROM BASELINE IN LDL-C AT WEEK 12. CONTINUOUS.",
+       "analysis_set_as_the_registry_states_it": "Week 12."
+      }
+     }
+    }
+   }
+  ]
+ },
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 3,
+    "estimand_id": "primary",
+    "model": "random-effects",
+    "estimator": "not pooled -- the estimate is withdrawn",
+    "estimator_used": "none",
+    "handbook": {
+     "decision": "not recorded on the page this object was built from",
+     "sections": [],
+     "conformance": "not recorded on the page this object was built from"
+    },
+    "comparator_type": "placebo",
+    "favours": null,
+    "poolable": false,
+    "poolable_reason": "THE ENDPOINTS AGREE AND THE MEASURE IS THE DEFECT -- WHICH MAKES THIS THE OPPOSITE OF EVERY OTHER TOPIC IN THIS PASS. All three registrations read declare the same primary, verbatim: 'Percent Change From Baseline in Fasting Low Density Lipoprotein Cholesterol (LDL-C) at Week 12'. THAT IS A CONTINUOUS QUANTITY. IT HAS NO EVENTS. An odds ratio requires a 2x2 table of participants who did and did not experience something, and a percent change in a laboratory value produces no such table. This page derived one anyway. WHAT THE COUNTS ACTUALLY ARE IS NOT RECORDED, AND THEIR MAGNITUDE SHOWS THEY ARE NOT EVENTS: SPIRE-LDL is stored as 971 in 1,068 placebo participants -- 91 per cent -- which is a threshold or responder flag of some kind, applied to an endpoint whose registered form is a mean change. Deriving an odds ratio from an undocumented dichotomisation of a continuous outcome discards the effect size the trials were designed to estimate and replaces it with a quantity that depends entirely on where the unrecorded threshold was placed.",
+    "pool_uniformity": {
+     "effect_measure": [
+      "NOT ESTABLISHED",
+      "an ODDS RATIO derived from 2x2 counts, applied to a continuous percent-change endpoint"
+     ],
+     "estimand": [
+      "REFUTED",
+      "the estimand is shared and correct; the measure applied to it is not one a continuous endpoint can carry"
+     ]
+    },
+    "heterogeneity": null,
+    "heterogeneity_status": "not recorded on the page this object was built from",
+    "grade": null,
+    "cross_engine": null,
+    "sensitivity": null,
+    "single_study_ref": null,
+    "per_trial": [],
+    "pooled": {
+     "measure": "OR",
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "ci_level": 95,
+     "scale": "log",
+     "withdrawn": true,
+     "withdrawn_reason": "THE ENDPOINTS AGREE AND THE MEASURE IS THE DEFECT -- WHICH MAKES THIS THE OPPOSITE OF EVERY OTHER TOPIC IN THIS PASS. All three registrations read declare the same primary, verbatim: 'Percent Change From Baseline in Fasting Low Density Lipoprotein Cholesterol (LDL-C) at Week 12'. THAT IS A CONTINUOUS QUANTITY. IT HAS NO EVENTS. An odds ratio requires a 2x2 table of participants who did and did not experience something, and a percent change in a laboratory value produces no such table. This page derived one anyway. WHAT THE COUNTS ACTUALLY ARE IS NOT RECORDED, AND THEIR MAGNITUDE SHOWS THEY ARE NOT EVENTS: SPIRE-LDL is stored as 971 in 1,068 placebo participants -- 91 per cent -- which is a threshold or responder flag of some kind, applied to an endpoint whose registered form is a mean change. Deriving an odds ratio from an undocumented dichotomisation of a continuous outcome discards the effect size the trials were designed to estimate and replaces it with a quantity that depends entirely on where the unrecorded threshold was placed.",
+     "withdrawn_note": "WHAT THIS DOES NOT ESTABLISH: NOT that bococizumab does not lower LDL cholesterol -- it does, substantially, and these trials were designed to measure by how much. The trials here measure a mean percent change in LDL-C, a continuous quantity, and nothing on this page estimates the question its title implies. WHAT IS CONFIRMED: the original withdrawal was RIGHT and its one-line reason -- 'odds ratio on a continuous LDL-C endpoint' -- is precisely correct, which re-verification establishes rather than assumes. All trial identities are correct and all three registered primaries are the same endpoint. THE REPLACEMENT QUESTION IS AVAILABLE AND PARKED: these trials share an estimand exactly, so a MEAN DIFFERENCE synthesis is genuinely defensible -- it needs each trial's least-squares mean difference read from its results record, which is a source-document step this pass did not take.",
+     "withdrawn_on": "2026-08-18",
+     "reverification": "RE-VERIFIED 2026-08-18. VERDICT: CONFIRMED. The stated reason is exactly right and is now sourced: three registrations, one shared continuous primary, quoted verbatim. Re-verification added that the stored counts imply a 91-per-cent 'event' rate, showing they are an undocumented dichotomisation rather than events.",
+     "card_note": "CONFIRMED: all three registrations declare the SAME continuous primary -- percent change from baseline in LDL-C at week 12 -- and a continuous endpoint has no events for an odds ratio to be built from. The stored counts imply a 91% 'event' rate in placebo, so they are an undocumented dichotomisation. A MEAN DIFFERENCE synthesis here is defensible and is the parked replacement"
+    }
+   }
+  }
+ },
+ "manuscript": null,
+ "risk_of_bias_verdict": null,
+ "carried_contrasts": [],
+ "absent_from_source": {
+  "protocol": "No protocol record was recoverable from the page.",
+  "search": "No search strategy was recoverable from the page.",
+  "screening": "No screening log was recoverable from the page.",
+  "rob2": "No risk-of-bias assessment was recoverable from the page.",
+  "grade": "No certainty rating was recoverable from the page.",
+  "sources": "Every ENDPOINT DEFINITION on this page is verbatim from the trial's own ClinicalTrials.gov record and carries a resolvable link. The per-trial counts are the page's own and carry no quoted source sentence."
+ }
+}

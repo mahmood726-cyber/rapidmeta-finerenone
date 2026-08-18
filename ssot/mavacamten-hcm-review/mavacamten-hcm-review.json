@@ -1,0 +1,314 @@
+{
+ "app_id": "mavacamten-hcm-review",
+ "schema_version": "2-authored-from-source",
+ "title": "Mavacamten in hypertrophic cardiomyopathy",
+ "question": "Three trials, three unrelated registered primaries: a responder composite, a septal-reduction-therapy decision, and a continuous pressure gradient.",
+ "built": "2026-08-18T00:00Z",
+ "build_mode": "AUTHORED",
+ "_estimand_rule": "Every endpoint definition below was READ FROM THE REGISTRY, word for word, when this withdrawal was RE-VERIFIED on 2026-08-18.",
+ "source_links_enforced": true,
+ "source_links_enforced_means": "every trial row carries its registration link",
+ "cited_total": null,
+ "completeness_statement": "not recorded on the page this object was built from",
+ "verification_basis": {
+  "what_verifies_this_object": "ClinicalTrials.gov protocol records, read 2026-08-18",
+  "what_is_not_claimed": "that any per-trial count was checked against a results record",
+  "families": [],
+  "bar": "not recorded on the page this object was built from"
+ },
+ "methodological_authority": {
+  "reference": "not recorded on the page this object was built from",
+  "version": "not recorded on the page this object was built from",
+  "version_checked_on": "not recorded on the page this object was built from",
+  "version_checked_how": "not recorded on the page this object was built from",
+  "version_note": "not recorded on the page this object was built from",
+  "scope_of_this_rule": "not recorded on the page this object was built from",
+  "url": "not recorded on the page this object was built from",
+  "note": "not recorded on the page this object was built from"
+ },
+ "config": {
+  "model": "random-effects",
+  "method": "not pooled -- withdrawn",
+  "scale": "log"
+ },
+ "screening": {
+  "search_note": "not recorded on the page this object was built from",
+  "eligibility": "not recorded on the page this object was built from",
+  "known_limitation": "not recorded on the page this object was built from"
+ },
+ "screening_names_unresolved": [],
+ "eligible_but_not_contributing": {
+  "note": "All included registrations carry a row in this object.",
+  "studies": []
+ },
+ "reconciliation": {
+  "why_this_step_exists": "not recorded on the page this object was built from",
+  "clean": null,
+  "clean_because": "not recorded on the page this object was built from",
+  "trial_list_diffs": [],
+  "matches": [],
+  "corrections": [],
+  "unresolved": []
+ },
+ "claims_corrected": [],
+ "scope_decisions": {},
+ "conversion_note": "AUTHORED, not converted. This topic's estimate was withdrawn BEFORE the current detector set existed; the withdrawal was re-verified against the registry on 2026-08-18.",
+ "sources": {},
+ "outcomes": [
+  {
+   "id": "primary",
+   "name": "Three unrelated registered primaries",
+   "definition": "EXPLORER-HCM registers a composite responder definition. VALOR-HCM registers a decision to proceed with septal reduction therapy. The Chinese phase 3 registers a CONTINUOUS pressure gradient.",
+   "definition_note": "Authored on re-verification.",
+   "measure": "OR",
+   "effect_scale": "log",
+   "type": "primary",
+   "estimand": {
+    "id": "primary",
+    "family": "mixed",
+    "model": "random-effects"
+   },
+   "comparator": "placebo",
+   "comparator_type": "placebo",
+   "direction_of_benefit": "lower is better",
+   "null_value": 1
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT03470545",
+    "name": "EXPLORER-HCM",
+    "nct": "NCT03470545",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "mavacamten (MYK-461)",
+      "role": "treatment",
+      "events": 45,
+      "participants": 123
+     },
+     {
+      "label": "Placebo",
+      "role": "control",
+      "events": 22,
+      "participants": 128
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'mavacamten (MYK-461)', 'Placebo'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT03470545",
+      "analysed": {
+       "treatment": 123,
+       "control": 128
+      },
+      "outcome_definition": "Percentage of Participants Achieving A Clinical Response",
+      "outcome_definition_source": {
+       "time_frame": "30 weeks",
+       "description_verbatim": "A positive clinical response (value=\"YES\") is defined as having achieved either an improvement of at least 1.5 mL/kg/min in peak oxygen consumption (pVO2) as determined by cardiopulmonary exercise testing (CPET) and a reduction of one or more class in New York Heart Association (NYHA) functional classification (e.g.I, II, III, or IV) -OR- an improvement of 3.0 mL/kg/min or more in pVO2 with no worsening in NYHA Functional Class.",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT03470545",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "a COMPOSITE RESPONDER definition: (pVO2 improvement of at least 1.5 mL/kg/min AND at least one NYHA class improvement) OR (pVO2 improvement of at least 3.0 mL/kg/min with no NYHA worsening).",
+       "analysis_set_as_the_registry_states_it": "30 weeks. The stored counts 45 of 123 against 22 of 128 ARE this trial's responder counts."
+      }
+     }
+    }
+   },
+   {
+    "id": "NCT04349072",
+    "name": "VALOR-HCM",
+    "nct": "NCT04349072",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "Drug: Mavacamten",
+      "role": "treatment",
+      "events": null,
+      "participants": 56
+     },
+     {
+      "label": "Drug: Placebo",
+      "role": "control",
+      "events": null,
+      "participants": 56
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'Drug: Mavacamten', 'Drug: Placebo'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT04349072",
+      "analysed": {
+       "treatment": 56,
+       "control": 56
+      },
+      "outcome_definition": "Composite of Decision to Proceed With Septal Reduction Therapy (SRT) and SRT Guideline Eligible at Week 16",
+      "outcome_definition_source": {
+       "time_frame": "Week 16",
+       "description_verbatim": "Participants who decided to proceed with SRT or were eligible for SRT at week 16. Participants with missing assessments were classified as meeting the primary endpoint (did not improve).\n\nSRT eligibility using the New York Heart Association Functional Class (NYHA) and left ventricular outflow tract (LVOT) assessments per the 2011 ACCF/AHA guideline clinical and hemodynamic criterion are below:\n\n* NYHA Class III or IV/ NYHA Class II with exertion-induced syncope/near syncope, AND\n* Dynamic LVOT gradient at rest or with provocation \\>= 50 mmHg.\n\nNYHA Class II at week 16, the following rules will be applied:\n\n* NYHA Class II with history of exertional syncope/ syncope at baseline and at W16 is still NYHA Class II, they remain SRT eligible IF their maximal LVOT gradient is ≥ 50mmHg\n* NYHA Class III/IV at baseline and at W16 has improved to Class II, they are no longer SRT eligible UNLESS they have AE of exertional syncope or pre-syncope during the 16 weeks.",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT04349072",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "a COMPOSITE OF THE DECISION TO PROCEED WITH SEPTAL REDUCTION THERAPY AND BEING SRT GUIDELINE ELIGIBLE at week 16. That is a TREATMENT-DECISION endpoint, not a symptom, not a physiological measure and not a clinical event.",
+       "analysis_set_as_the_registry_states_it": "Week 16. This page holds NO counts for it."
+      }
+     }
+    }
+   },
+   {
+    "id": "NCT05174416",
+    "name": "Chinese phase 3",
+    "nct": "NCT05174416",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "Mavacamten",
+      "role": "treatment",
+      "events": null,
+      "participants": 54
+     },
+     {
+      "label": "placebo",
+      "role": "control",
+      "events": null,
+      "participants": 27
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'Mavacamten', 'placebo'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT05174416",
+      "analysed": {
+       "treatment": 54,
+       "control": 27
+      },
+      "outcome_definition": "Change From Baseline to Week 30 in Valsalva Left Ventricular Outflow Tract (LVOT) Peak Gradient",
+      "outcome_definition_source": {
+       "time_frame": "30 weeks",
+       "description_verbatim": "To compare the effect of a 30-week course of mavacamten with placebo on Valsalva LVOT peak gradient as determined by Doppler echocardiography",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT05174416",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "CHANGE FROM BASELINE TO WEEK 30 IN VALSALVA LEFT VENTRICULAR OUTFLOW TRACT PEAK GRADIENT. A CONTINUOUS haemodynamic measurement with no events.",
+       "analysis_set_as_the_registry_states_it": "Week 30. This page holds NO counts for it."
+      }
+     }
+    }
+   }
+  ]
+ },
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 3,
+    "estimand_id": "primary",
+    "model": "random-effects",
+    "estimator": "not pooled -- the estimate is withdrawn",
+    "estimator_used": "none",
+    "handbook": {
+     "decision": "not recorded on the page this object was built from",
+     "sections": [],
+     "conformance": "not recorded on the page this object was built from"
+    },
+    "comparator_type": "placebo",
+    "favours": null,
+    "poolable": false,
+    "poolable_reason": "THREE TRIALS, THREE UNRELATED REGISTERED PRIMARIES. Verbatim: EXPLORER-HCM registers a composite responder definition built from peak oxygen consumption and NYHA class. VALOR-HCM registers a 'Composite of Decision to Proceed With Septal Reduction Therapy (SRT) and SRT Guideline Eligible at Week 16' -- A TREATMENT-DECISION ENDPOINT, which measures what clinicians decided rather than what happened to patients. The Chinese phase 3 registers 'Change From Baseline to Week 30 in Valsalva Left Ventricular Outflow Tract (LVOT) Peak Gradient' -- A CONTINUOUS HAEMODYNAMIC MEASUREMENT with no events at all. A responder proportion, a decision, and a pressure gradient are three different kinds of quantity, and no single odds ratio can carry them. THE ORIGINAL WITHDRAWAL REASON WAS A NUMERIC ONE AND IT IS RETAINED BELOW, BUT IT WAS NOT THE DEEPEST FAULT: the page's stated ground was that a value of 6.67 implied a much smaller table than these arms. That is true and it is a symptom. The cause is that only ONE of the three trials has any counts on this page at all, and the other two register endpoints that could not have produced counts to begin with.",
+    "pool_uniformity": {
+     "effect_measure": [
+      "NOT ESTABLISHED",
+      "an odds ratio across a responder composite, a treatment-decision endpoint and a continuous gradient"
+     ],
+     "estimand": [
+      "REFUTED",
+      "three registrations, three unrelated primaries, one continuous and one a treatment decision"
+     ]
+    },
+    "heterogeneity": null,
+    "heterogeneity_status": "not recorded on the page this object was built from",
+    "grade": null,
+    "cross_engine": null,
+    "sensitivity": null,
+    "single_study_ref": null,
+    "per_trial": [],
+    "pooled": {
+     "measure": "OR",
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "ci_level": 95,
+     "scale": "log",
+     "withdrawn": true,
+     "withdrawn_reason": "THREE TRIALS, THREE UNRELATED REGISTERED PRIMARIES. Verbatim: EXPLORER-HCM registers a composite responder definition built from peak oxygen consumption and NYHA class. VALOR-HCM registers a 'Composite of Decision to Proceed With Septal Reduction Therapy (SRT) and SRT Guideline Eligible at Week 16' -- A TREATMENT-DECISION ENDPOINT, which measures what clinicians decided rather than what happened to patients. The Chinese phase 3 registers 'Change From Baseline to Week 30 in Valsalva Left Ventricular Outflow Tract (LVOT) Peak Gradient' -- A CONTINUOUS HAEMODYNAMIC MEASUREMENT with no events at all. A responder proportion, a decision, and a pressure gradient are three different kinds of quantity, and no single odds ratio can carry them. THE ORIGINAL WITHDRAWAL REASON WAS A NUMERIC ONE AND IT IS RETAINED BELOW, BUT IT WAS NOT THE DEEPEST FAULT: the page's stated ground was that a value of 6.67 implied a much smaller table than these arms. That is true and it is a symptom. The cause is that only ONE of the three trials has any counts on this page at all, and the other two register endpoints that could not have produced counts to begin with.",
+     "withdrawn_note": "WHAT THIS DOES NOT ESTABLISH: NOT that mavacamten does not work in obstructive hypertrophic cardiomyopathy. The trials here measure a responder composite, a treatment decision, and a pressure gradient, and nothing on this page estimates the question its title implies. WHAT IS CONFIRMED: EXPLORER-HCM's stored counts, 45 of 123 against 22 of 128, ARE its registered responder counts -- the one row here that is right. All three identities are correct. THE ORIGINAL REASON IS UPHELD AS FAR AS IT WENT and is superseded by a structural one that the registry supplies. THE REPLACEMENT QUESTION IS PARKED: EXPLORER-HCM alone carries a defensible responder estimate, and whether a single trial should be presented as this topic's result is a decision about what the page is for -- the same question BEMPEDOIC_ACID answered by saying k=1 on its card.",
+     "withdrawn_on": "2026-08-18",
+     "reverification": "RE-VERIFIED 2026-08-18. VERDICT: CONFIRMED, REASON DEEPENED. The original numeric reason is true but is a symptom. The cause is structural: three registrations declare three unrelated primaries, one of them a treatment decision and one a continuous gradient, and only one trial has counts on the page at all.",
+     "card_note": "CONFIRMED and deepened: three registrations, three UNRELATED primaries -- a responder composite, a DECISION to proceed with septal reduction therapy, and a CONTINUOUS LVOT pressure gradient. Only EXPLORER-HCM has counts here, and its 45/123 against 22/128 are correct"
+    }
+   }
+  }
+ },
+ "manuscript": null,
+ "risk_of_bias_verdict": null,
+ "carried_contrasts": [],
+ "absent_from_source": {
+  "protocol": "No protocol record was recoverable from the page.",
+  "search": "No search strategy was recoverable from the page.",
+  "screening": "No screening log was recoverable from the page.",
+  "rob2": "No risk-of-bias assessment was recoverable from the page.",
+  "grade": "No certainty rating was recoverable from the page.",
+  "sources": "Every ENDPOINT DEFINITION on this page is verbatim from the trial's own ClinicalTrials.gov record and carries a resolvable link. The per-trial counts are the page's own and carry no quoted source sentence."
+ }
+}
