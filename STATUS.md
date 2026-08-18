@@ -6,7 +6,7 @@ section of `index.html` carries 54 page links, one of which
 consolidated at `ce1e9dc0e`. 54 − 1 = 53. Re-derive with
 `python scripts/cardio_program_status.py` rather than quoting this line.
 
-**DONE: 18 of 53.**
+**DONE: 24 of 53.**
 
 A topic is DONE when it has an SSOT object, is built through the tabbed
 projector to the written standard (`scripts/standard_manifest.py`, v1), its
@@ -35,6 +35,12 @@ endpoint does not, whatever the page looks like.
 | 16 | INTENSIVE_BP | **withdrawn** | six trials, six different composites; STEP counts atrial fibrillation, SPS3 counts stroke alone; page holds 1 effect, card said k=5 |
 | 17 | APIXABAN_AF | **withdrawn, re-verified** | CONFIRMED: ARISTOTLE/AVERROES register stroke-SE, PACIFIC-AF/RENAL-AF register bleeding |
 | 18 | APIXABAN_ACS | **withdrawn, reason REPLACED** | the card's reason was FALSE — both trials register bleeding; withdrawn instead on rate-vs-percentage, a dose subset, and scope |
+| 19 | EVOLOCUMAB_DYSLIP | **withdrawn, re-verified** | CONFIRMED+sharpened: OSLER-2's primary is 'Number of Participants With Adverse Events'; FOURIER's counts and arm order are also wrong |
+| 20 | RIVAROXABAN_ACS | **withdrawn, re-verified** | CONFIRMED+sharpened: ATLAS ACS TIMI 46 registers BOTH a bleeding and an efficacy primary, and no choice is recorded |
+| 21 | DABIGATRAN_VTE | **withdrawn, re-verified** | CONFIRMED+sharpened: FOUR endpoint types; RE-MEDY's stored count is 1,404 of 1,430 — 98%, impossible |
+| 22 | BOCOCIZUMAB_LIPID | **withdrawn, re-verified** | CONFIRMED: endpoints AGREE and the MEASURE is the defect — an OR on a continuous percent-change endpoint |
+| 23 | ATTR_CM | **withdrawn, re-verified** | CONFIRMED+sharpened: hierarchical win-ratio endpoints, and the two hierarchies differ (4 levels vs 2) |
+| 24 | MAVACAMTEN_HCM | **withdrawn, re-verified** | CONFIRMED+deepened: three UNRELATED primaries — a responder composite, an SRT decision, a continuous gradient |
 
 `FINERENONE_CV` is also at v1 and is NOT counted here: it does not sit in the
 cardiology section of the index. Counting it would be the denominator drift this
@@ -42,7 +48,7 @@ file exists to prevent.
 
 ---
 
-## The remaining 35, by what is actually on them today
+## The remaining 29, by what is actually on them today
 
 Measured from the index cards, not assumed:
 
@@ -50,7 +56,7 @@ Measured from the index cards, not assumed:
 |---|---|---|
 | **Audit-first build** | 26 | no estimate ever published; the topic has never been taken through |
 | **live estimate, no v1 object** | 1 | a number is published that nothing in the current standard has checked |
-| **withdrawn** | 6 | an estimate was retracted; the reason on the page has NOT been re-verified |
+| **withdrawn** | 0 | all eight have now been re-verified against the registry |
 | **not poolable** | 1 | MITRAL_FUNCMR — COAPT vs MITRA-FR, stated per-trial |
 | **no card at all** | 1 | INCRETIN_HFpEF is linked from the table and has no card |
 
@@ -925,6 +931,45 @@ promises an ischaemic-outcome question answering a bleeding one.
 pass exists to catch: a withdrawal whose published reason is false.** A reader who
 accepted that card was told something the source records contradict. Six
 withdrawn topics remain unre-verified.
+
+### 2026-08-18 — all eight withdrawn topics re-verified. One reason in eight was FALSE.
+
+**The denominator, which is the point of having done this:**
+
+| verdict | n |
+|---|---|
+| reason survived re-verification **unchanged** | **1** (APIXABAN_AF) |
+| reason **confirmed and sharpened** — survived, and the registry supplied more | **6** |
+| reason **FALSE** — refuted by the registrations, withdrawal upheld on other grounds | **1** (APIXABAN_ACS) |
+| withdrawal **reversed**, estimate restored | **0** |
+
+**Eight of eight withdrawals were correct as decisions. One of eight was wrong in
+its published explanation.** That is the number worth carrying: **we had treated
+withdrawal as the safe outcome — the thing you do when unsure — and APIXABAN_ACS
+shows a withdrawal is a published claim that can be wrong on its own terms.** Its
+card said "bleeding and efficacy endpoints pooled" and **both** trials register
+bleeding. A reader who accepted that explanation was misled just as surely as by a
+bad estimate, and by the old rule that topic was already "done".
+
+**The counter-case matters as much:** RIVAROXABAN_ACS carries *identical card
+wording* and the wording is **true** there — ATLAS ACS TIMI 46 really does
+register both a bleeding and an efficacy primary. The same sentence was right on
+one page and false on another, and only reading the registrations distinguishes
+them.
+
+**What re-verification added beyond confirming:** FOURIER's stored counts are not
+its primary's and its arms are inverted; RE-MEDY is recorded as 1,404 events in
+1,430 participants (98%, impossible for recurrent VTE); ATTRibute-CM's hierarchy
+has four levels to ATTR-ACT's two, its lower two being continuous change scores;
+DABIGATRAN_VTE has four endpoint types, not two; MAVACAMTEN_HCM's three trials
+register three unrelated primaries, one of them a treatment *decision*.
+
+**And one topic inverts the whole pattern.** BOCOCIZUMAB_LIPID's three
+registrations declare **the same** continuous primary — the endpoints agree
+perfectly and **the measure** is the defect: an odds ratio built from an
+undocumented dichotomisation of a mean percent change. **A mean-difference
+synthesis there is genuinely defensible**, and is the one parked replacement in
+this set that is squarely available.
 
 ---
 

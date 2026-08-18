@@ -463,7 +463,35 @@ declaration.
 
 ---
 
+## 19. A withdrawal reason that names an endpoint type no included trial registers
+
+**APIXABAN_ACS's card said "bleeding and efficacy endpoints pooled" and BOTH of its
+trials register bleeding.** There was no efficacy endpoint in the pool to mix with
+a safety one. The withdrawal was right; its published explanation was false.
+
+**This is checkable offline and cheaply, from data the objects already hold.** Each
+trial now carries `outcome_definition` read from the registry. A stated withdrawal
+reason claiming an efficacy/safety mixture can be tested against them: does ANY
+included trial register an efficacy endpoint? Does any register a safety one? If
+the reason names a type no trial has, the reason is wrong even where the
+withdrawal is right.
+
+**The counter-case is why it needs to be a check rather than a rule of thumb:**
+RIVAROXABAN_ACS carries the identical card wording and there it is TRUE. The same
+sentence is right on one page and false on another, and only the registrations
+separate them.
+
+**Why it matters:** a withdrawal is a published claim. Nothing in this repository
+was checking whether the reason given for one was true, and by the old rule a
+topic with a false reason still counted as done.
+
+---
+
 ## Closed
+
+- **2026-08-18 — all eight withdrawn cardiology topics re-verified against the
+  registry.** 1 unchanged, 6 confirmed-and-sharpened, 1 reason FALSE, 0 reversed.
+  Every reason is now quoted from the registrations rather than asserted on a card.
 
 - **2026-08-18 — mismatched numerator and denominator has a detector.**
   `count_provenance_gate`, replayed against CANGRELOR's three CHAMPION rows as
