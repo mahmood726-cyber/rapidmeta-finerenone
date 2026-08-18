@@ -407,7 +407,53 @@ comparison — 35 per cent.**
 
 ---
 
+## 17. A benchmark that shares a registration with an included trial is not an independent comparison
+
+BEMPEDOIC_ACID's published-meta step compared its estimate **against itself**. The
+page's benchmark database holds exactly one entry for that outcome — "CLEAR
+Outcomes bempedoic acid vs placebo", Nissen 2023, HR 0.87 (0.79—0.96) — and CLEAR
+Outcomes IS the trial on the card. The comparison agreed perfectly and established
+nothing.
+
+**Detectable, and cheaply:** a benchmark entry whose registration, trial name or
+citation matches an INCLUDED trial is self-referential. It should render as
+"no independent synthesis records this estimand" rather than as agreement.
+
+**Why it matters more than it looks:** perfect agreement is the most reassuring
+output a comparison step can produce, and this is the configuration that
+guarantees it. It fails toward comfort by construction.
+
+---
+
+## 18. `count_provenance_gate` — what it still cannot do
+
+Built 2026-08-18 after CANGRELOR_PCI. Corpus screen over 37 objects: 4 FAIL, 2
+PASS, 13 REVIEW, 18 UNCHECKABLE.
+
+**Owed:**
+
+1. **A better outcome-title match.** The gate compares a row against the registry
+   outcome the row NAMES, by normalised title. When the object's recorded
+   definition and the registry title differ in wording it falls back to the
+   primary and can disagree with a correct row — FIDELIO-DKD in `finerenone-cv` is
+   the worked example, and its FAIL is a false alarm. **Do not fix this by
+   loosening the verdict.**
+2. **The 18 UNCHECKABLE.** Mostly objects with no complete 2x2 — continuous
+   outcomes, or rows carrying only an effect estimate. A different signal is
+   needed for those and this gate should keep saying it cannot see them.
+3. **Wire it into `run_all_checks.py`.** It runs standalone, which means it runs
+   when somebody remembers.
+
+---
+
 ## Closed
+
+- **2026-08-18 — mismatched numerator and denominator has a detector.**
+  `count_provenance_gate`, replayed against CANGRELOR's three CHAMPION rows as
+  published (FAIL, naming all-cause mortality as the numerators' true source) and
+  against the registry's own counts (PASS). Three parser faults were fixed before
+  it was trusted: arm order, rate-valued outcomes, and multi-category outcomes
+  summed per arm.
 
 - **2026-08-18 — the escaping class is swept and has a checker.**
   `double_escape_gate`, 1450 pages: found 7, including the FLAGSHIP, via numeric
