@@ -351,6 +351,37 @@ returned a clean bill of health over 818 missing trials.
 
 ---
 
+## A page invisible to the tool that counts pages
+
+`INCRETIN_HFpEF_REVIEW.html` was reported as having **no index card** by
+`cardio_program_status`, and was silently skipped by `project_index_cards`. It has
+a card. That card published **`HR 0.41 (0.22—0.79), k=3`** while its object held
+**OR 0.4846 (0.3178—0.7389) at k=2** — a different measure, a different value and
+a different trial count.
+
+Both tools matched card links with `[A-Z0-9_]+.html`. **HFpEF has a lowercase
+`p`.** For as long as those tools have run, the topic was classified as uncarded,
+its card was never compared against its page, and it escaped card-alignment
+checking entirely.
+
+**The general form, and it is worse than an omission:**
+
+> A record invisible to the instrument that counts records is not merely
+> uncounted. It is counted as a DIFFERENT THING — and every rate computed over
+> that denominator is wrong in a direction nobody can see.
+
+This is the `no_studies_rendered` lesson one level up. That one taught us to
+distinguish "observed zero" from "could not observe". This one is narrower and
+nastier: the instrument observed confidently, reported a definite category, and
+the category was an artefact of a character class.
+
+**Practical consequence:** any pattern that enumerates the corpus — page names,
+registration ids, section headings — should be tested against the *actual* set it
+claims to cover, not assumed from the naming convention. The convention here was
+uppercase page names, held for over 1,400 pages, and broke on one.
+
+---
+
 ## An instrument that fails in the way it was built to detect
 
 Four instances on 2026-08-18, which is the point: this is a **pattern**, not four
@@ -388,6 +419,29 @@ their enrolment. The signature, not the value, was the tell.**
 
 ## Logged saves — design choices that prevented a failure
 
+- **Asserting an unmade judgement, caught and corrected, 2026-08-18.**
+  MAVACAMTEN_OHCM's object claimed `poolable: false`. That asserts *these cannot
+  legitimately be pooled* — an assessment that build never made: the topic has one
+  trial and publishes no estimate, so the question was never reached. `None` is the
+  honest state. **Asserting an unmade judgement is the same defect as a synthesised
+  absence reason, and it fails toward confidence** — a reader sees a verdict where
+  there was only silence.
+- **The harness ceiling refusing a vacuous green, twice, 2026-08-18.** The same
+  topic was blocked from pushing because its only executing checks could pass but
+  could not FAIL — no displayed pool for `CHK020`, no network for `CHK024`. One
+  check ran, it was INVALID, and 100% INVALID is above the 50% ceiling. **The page
+  build was reverted rather than forced through.** This is the strongest evidence
+  yet that the ceiling rule works: it is the one mechanism here that has refused a
+  green produced by measuring nothing, on an artefact where every individual number
+  was correct.
+- **A page that discloses what it has NOT done, 2026-08-18.** Credit where it is
+  due and it is rare: `HFREF_NMA_AUTO_FULL_REVIEW` states on its own face that its
+  per-trial integrity gates have **not** been run and that *"absence of findings
+  here is absence of testing, not a clean bill"*; that its network fit reproduces
+  its anchor **to 8 decimal places in R 4.6.0 / netmeta 3.6.1**; that **no
+  inconsistency test is fitted**, with the reason; and that its **AMSTAR-2
+  confidence is CRITICALLY LOW**. That is the thing this whole apparatus asks of
+  everyone else, done voluntarily by a page nobody was auditing.
 - **Naming momentum before it acted, 2026-08-18.** Three cardiology topics had
   been withdrawn in a row when the fourth came up. It was recorded, in advance of
   reading it, that *"after three withdrawals this was the verdict most in need of

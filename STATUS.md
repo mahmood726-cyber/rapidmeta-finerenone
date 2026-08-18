@@ -6,7 +6,7 @@ section of `index.html` carries 54 page links, one of which
 consolidated at `ce1e9dc0e`. 54 − 1 = 53. Re-derive with
 `python scripts/cardio_program_status.py` rather than quoting this line.
 
-**DONE: 24 of 53.**
+**DONE: 26 of 53.**
 
 A topic is DONE when it has an SSOT object, is built through the tabbed
 projector to the written standard (`scripts/standard_manifest.py`, v1), its
@@ -41,6 +41,8 @@ endpoint does not, whatever the page looks like.
 | 22 | BOCOCIZUMAB_LIPID | **withdrawn, re-verified** | CONFIRMED: endpoints AGREE and the MEASURE is the defect — an OR on a continuous percent-change endpoint |
 | 23 | ATTR_CM | **withdrawn, re-verified** | CONFIRMED+sharpened: hierarchical win-ratio endpoints, and the two hierarchies differ (4 levels vs 2) |
 | 24 | MAVACAMTEN_HCM | **withdrawn, re-verified** | CONFIRMED+deepened: three UNRELATED primaries — a responder composite, an SRT decision, a continuous gradient |
+| 25 | MITRAL_FUNCMR | **not poolable, re-verified** | CONFIRMED+sharpened: 12m vs 24m, all-cause vs CV death, FIRST vs RECURRENT events; old card named 2 of 3 trials |
+| 26 | INCRETIN_HFpEF | **withdrawn** | two of three trials register ONLY continuous co-primaries; and its card was INVISIBLE to our own regex |
 
 `FINERENONE_CV` is also at v1 and is NOT counted here: it does not sit in the
 cardiology section of the index. Counting it would be the denominator drift this
@@ -48,7 +50,7 @@ file exists to prevent.
 
 ---
 
-## The remaining 29, by what is actually on them today
+## The remaining 27, by what is actually on them today
 
 Measured from the index cards, not assumed:
 
@@ -970,6 +972,48 @@ perfectly and **the measure** is the defect: an odds ratio built from an
 undocumented dichotomisation of a mean percent change. **A mean-difference
 synthesis there is genuinely defensible**, and is the one parked replacement in
 this set that is squarely available.
+
+### 2026-08-18 — the two odd topics, and a card our own tools could not see
+
+**Topic 25 — MITRAL_FUNCMR: NOT POOLABLE, confirmed and sharpened.** The one
+cardiology topic that reached the right answer **without a detector**, by a human
+noticing two headline numbers were not comparable. The registry supplies the
+evidence now: MITRA-FR counts all-cause death + HF hospitalisation at **12
+months**; RESHAPE-HF2 counts **recurrent** HF hospitalisation + **cardiovascular**
+death within **24 months**; COAPT registers an effectiveness primary at 24 months
+*and* a device-safety primary at 12. **The old card named two of the three trials**
+— RESHAPE-HF2 is on the page and supplies the third composite and a continuous
+KCCQ primary.
+
+**Topic 26 — INCRETIN_HFpEF: WITHDRAWN, and why it was never caught is the
+finding.** STEP-HFpEF and STEP-HFpEF DM register **only continuous co-primaries**
+— KCCQ change and body-weight change. Neither can produce a 2×2, and the counts
+stored for STEP-HFpEF DM (7/310, 18/306) **match no registered primary of that
+trial**. SUMMIT's 29/364 and 52/367 are its registered event co-primary and are
+the only defensible row.
+
+**Its card was invisible to our own tooling.** It was reported as having *no card*.
+It has one, publishing `HR 0.41 (0.22–0.79), k=3` — a different **measure**, a
+different **value** and a different **trial count** from the object's OR 0.4846
+(0.3178–0.7389) at k=2. Both `cardio_program_status` and `project_index_cards`
+matched card links with `[A-Z0-9_]+\.html`, **which cannot match the lowercase
+`p` in HFpEF**. For as long as those tools have run, this topic was reported
+uncarded, its card was never compared with its page, and the projector skipped it.
+**A page invisible to the tool that counts pages is worse than an uncounted page:
+it is counted as a different thing.** Both regexes fixed.
+
+**Two replacement analyses are now squarely available and need no estimand
+judgement** — and they are the first cases in this programme where we can hand a
+reader a correct number rather than a withdrawal:
+
+1. **BOCOCIZUMAB_LIPID** — all three registrations declare the same continuous
+   primary; a **mean-difference** synthesis of percent change in LDL-C.
+2. **INCRETIN_HFpEF** — all three trials share a KCCQ clinical-summary-score
+   primary; a **mean-difference** synthesis of symptom benefit.
+
+Both need each trial's least-squares mean difference read from its results record.
+**They should be done before more withdrawals**: a project that only removes
+numbers is easy to dismiss.
 
 ---
 
