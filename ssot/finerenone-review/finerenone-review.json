@@ -520,7 +520,7 @@
  "results": {
   "by_outcome": {
    "primary": {
-    "k": 4,
+    "k": 3,
     "estimand_id": "primary",
     "estimand_id_means": "not recorded on the page this object was extracted from",
     "model": "random-effects",
@@ -533,8 +533,8 @@
     },
     "comparator_type": "not recorded on the page this object was extracted from",
     "favours": "treatment",
-    "poolable": true,
-    "poolable_reason": "The extractor recovered a pooled result from this page, so the page pooled these trials. Whether they SHOULD have been pooled is not established by conversion - several pages in this corpus pooled harm with efficacy, or distinct agents, and their estimates were withdrawn for that reason.",
+    "poolable": false,
+    "poolable_reason": "WITHDRAWN 2026-08-18. THE FOUR TRIALS DO NOT MEASURE THE SAME THING, AND ONE OF THEM DOES NOT MEASURE AN EVENT AT ALL. Registered primaries read from ClinicalTrials.gov on 2026-08-18: FIDELIO-DKD (NCT02540993) a KIDNEY-FAILURE composite; FIGARO-DKD (NCT02545049) a composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke and heart-failure hospitalisation; FINEARTS-HF (NCT04435626) cardiovascular death and total heart-failure events; ARTS-DN (NCT01874431) 'RATIO OF UACR AT DAY 90 TO UACR AT BASELINE'. THREE DIFFERENT EVENT COMPOSITES AND A CONTINUOUS ALBUMINURIA RATIO were pooled as a single odds ratio. ARTS-DN's 0.385 is not an odds ratio; it is a ratio of a continuous biomarker, and it entered a pool of event risks. NO HARMONISED OUTCOME EXISTS at any rank -- checked before withdrawing, per the SGLT2 lesson -- because ARTS-DN is a phase 2b biomarker trial with no cardiovascular outcome data. There is no replacement pool and that is the honest position.",
     "estimand_homogeneous_across_cohorts": null,
     "pool_uniformity": {
      "effect_measure": [
@@ -618,12 +618,25 @@
      }
     ],
     "pooled": {
-     "measure": "OR",
-     "point": 0.8470425218832857,
-     "ci_low": 0.7839046940949019,
-     "ci_high": 0.9152656429832987,
-     "ci_level": 95
-    }
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "measure": null,
+     "withdrawn": true,
+     "withdrawn_reason": "WITHDRAWN 2026-08-18. THE FOUR TRIALS DO NOT MEASURE THE SAME THING, AND ONE OF THEM DOES NOT MEASURE AN EVENT AT ALL. Registered primaries read from ClinicalTrials.gov on 2026-08-18: FIDELIO-DKD (NCT02540993) a KIDNEY-FAILURE composite; FIGARO-DKD (NCT02545049) a composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke and heart-failure hospitalisation; FINEARTS-HF (NCT04435626) cardiovascular death and total heart-failure events; ARTS-DN (NCT01874431) 'RATIO OF UACR AT DAY 90 TO UACR AT BASELINE'. THREE DIFFERENT EVENT COMPOSITES AND A CONTINUOUS ALBUMINURIA RATIO were pooled as a single odds ratio. ARTS-DN's 0.385 is not an odds ratio; it is a ratio of a continuous biomarker, and it entered a pool of event risks. NO HARMONISED OUTCOME EXISTS at any rank -- checked before withdrawing, per the SGLT2 lesson -- because ARTS-DN is a phase 2b biomarker trial with no cardiovascular outcome data. There is no replacement pool and that is the honest position.",
+     "withdrawn_utc": "2026-08-18",
+     "superseded_value": {
+      "point": 0.8470425218832857,
+      "measure": "OR",
+      "k": 4,
+      "note": "Kept, not deleted. This is what the page displayed until 2026-08-18."
+     }
+    },
+    "authoritative_reason_field": "pooled.withdrawn_reason",
+    "the_nulled_prefix_was_not_honoured": "The fourth row is `trial_id: 'NULLED:NCT01874431'`. RE-DERIVED: k=4 INCLUDING IT GIVES 0.8470425219, WHICH MATCHES THE PUBLISHED VALUE TO TEN DECIMAL PLACES; dropping it gives 0.8478182774. The prefix was intended to exclude the trial and THE POOLING STEP IGNORED IT. A MARKER THAT THE CONSUMER DOES NOT READ IS NOT AN EXCLUSION -- the same law as a field the consumer cannot find and a shape it cannot read.",
+    "found_by": "Found by an EXTERNAL VALIDATOR -- rct-extractor-v2's outcome-grouping guard, written independently by people who hit these defect classes separately. Verified here against every registration before acting. FOURTH INSTANCE THIS WEEK of an outside check finding what our own passes missed, after Codex on ARNI's internal contradiction, Gemini on the SGLT2 disproportion, and a blinded comparator on the PARACHUTE-HF adverse-event discrepancy.",
+    "what_this_does_not_establish": "NOT that finerenone is ineffective, and NOT that any of these trials is poor -- each reports its own registered primary correctly. NOT that no finerenone synthesis is possible: FIDELIO-DKD and FIGARO-DKD share enough structure that a pooled analysis of them exists in the literature. ONLY that THIS pool combined quantities that are not the same quantity.",
+    "k_corrected_2026_08_18": "k was 4 and only THREE rows are unmarked. The fourth carries trial_id NULLED:NCT01874431 and was counted anyway -- the published 0.8470425219 re-derives EXACTLY with it in and NOT without it. k now counts the rows that may contribute. The marked row is KEPT, because an exclusion record is evidence; what does not survive is its CONTRIBUTION. This topic is withdrawn regardless, on the separate and sufficient ground that its trials measure incommensurable constructs."
    }
   }
  },
@@ -648,5 +661,6 @@
    "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
   }
  ],
- "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed."
+ "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",
+ "topic_state": "WITHDRAWN -- pooled incommensurable constructs; no replacement possible"
 }

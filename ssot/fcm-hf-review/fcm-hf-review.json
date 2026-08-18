@@ -441,8 +441,8 @@
     },
     "comparator_type": "not recorded on the page this object was extracted from",
     "favours": "treatment",
-    "poolable": true,
-    "poolable_reason": "The extractor recovered a pooled result from this page, so the page pooled these trials. Whether they SHOULD have been pooled is not established by conversion - several pages in this corpus pooled harm with efficacy, or distinct agents, and their estimates were withdrawn for that reason.",
+    "poolable": false,
+    "poolable_reason": "WITHDRAWN 2026-08-18. A COMPOSITE POOLED WITH TRIALS THAT REGISTERED FUNCTIONAL ENDPOINTS. Registered primaries read from ClinicalTrials.gov on 2026-08-18: AFFIRM-AHF (NCT02937454) 'HF Hospitalizations and CV Death'; IRONMAN (NCT02642562) 'CV mortality or hospitalisation for worsening heart failure'; CONFIRM-HF (NCT01453608) 'CHANGE IN SIX MINUTE WALK TEST from baseline to week 24'; FAIR-HF (NCT00520780) 'SELF-REPORTED PATIENT GLOBAL ASSESSMENT and NYHA functional status'. Two trials contribute an event composite; the other two registered FUNCTIONAL endpoints, and this object carried event counts for them (33/152 and 17/304) that are not their registered primaries. A composite pooled with something else entirely. REPLACED, NOT MERELY WITHDRAWN -- see the harmonised k=2 block.",
     "estimand_homogeneous_across_cohorts": null,
     "pool_uniformity": {
      "effect_measure": [
@@ -526,12 +526,112 @@
      }
     ],
     "pooled": {
-     "measure": "OR",
-     "point": 0.5365806185242722,
-     "ci_low": 0.45710261177119504,
-     "ci_high": 0.6298777402742335,
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "measure": null,
+     "withdrawn": true,
+     "withdrawn_reason": "WITHDRAWN 2026-08-18. A COMPOSITE POOLED WITH TRIALS THAT REGISTERED FUNCTIONAL ENDPOINTS. Registered primaries read from ClinicalTrials.gov on 2026-08-18: AFFIRM-AHF (NCT02937454) 'HF Hospitalizations and CV Death'; IRONMAN (NCT02642562) 'CV mortality or hospitalisation for worsening heart failure'; CONFIRM-HF (NCT01453608) 'CHANGE IN SIX MINUTE WALK TEST from baseline to week 24'; FAIR-HF (NCT00520780) 'SELF-REPORTED PATIENT GLOBAL ASSESSMENT and NYHA functional status'. Two trials contribute an event composite; the other two registered FUNCTIONAL endpoints, and this object carried event counts for them (33/152 and 17/304) that are not their registered primaries. A composite pooled with something else entirely. REPLACED, NOT MERELY WITHDRAWN -- see the harmonised k=2 block.",
+     "withdrawn_utc": "2026-08-18",
+     "superseded_value": {
+      "point": 0.5365806185242722,
+      "k": 4,
+      "note": "Kept, not deleted."
+     }
+    },
+    "authoritative_reason_field": "pooled.withdrawn_reason",
+    "found_by": "Found by an EXTERNAL VALIDATOR -- rct-extractor-v2's outcome-grouping guard, written independently by people who hit these defect classes separately. Verified here against every registration before acting. FOURTH INSTANCE THIS WEEK of an outside check finding what our own passes missed, after Codex on ARNI's internal contradiction, Gemini on the SGLT2 disproportion, and a blinded comparator on the PARACHUTE-HF adverse-event discrepancy."
+   },
+   "harmonised_cvdeath_or_hfh": {
+    "measure": "RR",
+    "k": 2,
+    "model": "random-effects",
+    "estimator": "REML",
+    "pooled": {
+     "point": 0.7987,
+     "ci_low": 0.749,
+     "ci_high": 0.8517,
      "ci_level": 95
-    }
+    },
+    "pooled_hartung_knapp": {
+     "point": 0.7987,
+     "ci_low": 0.5266,
+     "ci_high": 1.2114,
+     "df": 1,
+     "t_critical": 12.7062047,
+     "variance_inflation_applied": 1.0,
+     "why_it_is_shown": "Handbook 6.5 section 10.10.4.5 recommends Hartung-Knapp where k is small. Shown ALONGSIDE the unadjusted interval, not instead of it. A FLOOR OF 1 is applied to the variance-inflation factor so the adjustment can never NARROW the interval below the unadjusted one."
+    },
+    "heterogeneity": {
+     "tau2": 0.0,
+     "q": 0.5687,
+     "df": 1,
+     "i2_percent": 0.0,
+     "DIRECTION_TEST": "NOT APPLICABLE -- I-squared is 0.0%, below the threshold at which the direction test is informative. The trials are consistent with a common effect and no heterogeneity caution is warranted. Applying one here would manufacture doubt the data do not support, which is the mirror failure of ignoring heterogeneity that matters.",
+     "how_to_read_this_at_low_k": "At k=2 or k=3 these statistics are weak evidence about consistency in EITHER direction. A low value means the estimates are CONSISTENT WITH a common effect, not that one is demonstrated."
+    },
+    "per_trial": [
+     {
+      "trial_id": "NCT02937454",
+      "nct": "NCT02937454",
+      "label": "AFFIRM-AHF",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT02937454",
+      "read_utc": "2026-08-18",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "as_posted": {
+       "iv_iron_events": 293,
+       "iv_iron_n": 558,
+       "control_events": 372,
+       "control_n": 550
+      },
+      "measure": "RR",
+      "point": 0.7763,
+      "ci_low": 0.704,
+      "ci_high": 0.8561,
+      "se_log_rr": 0.049908,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. Counts read from the registry; only the arithmetic is ours and the formula is shown."
+     },
+     {
+      "trial_id": "NCT02642562",
+      "nct": "NCT02642562",
+      "label": "IRONMAN",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT02642562",
+      "read_utc": "2026-08-18",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "as_posted": {
+       "iv_iron_events": 336,
+       "iv_iron_n": 569,
+       "control_events": 411,
+       "control_n": 568
+      },
+      "measure": "RR",
+      "point": 0.8161,
+      "ci_low": 0.7494,
+      "ci_high": 0.8887,
+      "se_log_rr": 0.043488,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. Counts read from the registry; only the arithmetic is ours and the formula is shown."
+     }
+    ],
+    "comparator": "placebo or standard care",
+    "outcome": "cardiovascular death or hospitalisation for heart failure",
+    "estimator_used": "REML",
+    "analysis_code": "scripts/ctg_binary_pool.py::pool_rr",
+    "WHY_THIS_REPLACES_A_WITHDRAWAL": "HARMONISED DATA WAS CHECKED FOR BEFORE WITHDRAWING, which is the SGLT2 lesson. AFFIRM-AHF and IRONMAN both register a CV-death-or-HF-hospitalisation composite and both post arm-level counts. CONFIRM-HF and FAIR-HF registered FUNCTIONAL primaries -- six-minute walk distance and patient global assessment -- and have no comparable event endpoint, so they are excluded rather than converted.",
+    "pool_uniformity": {
+     "effect_measure": [
+      "ESTABLISHED",
+      "risk ratio from arm-level counts"
+     ],
+     "estimand": [
+      "ESTABLISHED",
+      "first occurrence of cardiovascular death or hospitalisation for heart failure, both trials"
+     ]
+    },
+    "what_this_does_not_establish": "NOT that either trial is free of bias -- no risk-of-bias assessment is recorded. NOT a result for CONFIRM-HF's or FAIR-HF's populations, which are absent here. NOT that intravenous iron does not improve functional capacity: that is what those two trials measured and it is a different question."
    }
   }
  },
@@ -556,5 +656,7 @@
    "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
   }
  ],
- "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed."
+ "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",
+ "headline_outcome": "harmonised_cvdeath_or_hfh",
+ "topic_state": "WITHDRAWAL SUPERSEDED -- harmonised pool built, k=2, registry-sourced; the k=4 pool remains withdrawn with its reason"
 }
