@@ -333,21 +333,41 @@ def _endpoint_definitions(canon, oid, p, e):
             # declare, and the whole point of the table is that the reader can
             # see which trials were actually read.
             rows += ("    <tr><td><strong>%s</strong><br><small>%s</small></td>"
-                     "<td colspan='3'><em>No endpoint definition is recorded for "
+                     "<td colspan='4'><em>No endpoint definition is recorded for "
                      "this trial. Its effect was pooled without one.</em></td></tr>\n"
                      % (e(name), e(reg)))
             continue
         link = src.get("source_url") or ""
         linkhtml = ('<a href="%s" rel="noopener">%s</a>' % (e(link), e(reg or link))
                     if link else e(reg) or "—")
+        # THE RANK IS THE AXIS AN UNREGISTERED ENDPOINT LIVES ON, and it was held
+        # in the object and rendered nowhere. ARNI_HF pools four trials; three
+        # register this composite (two as primary, one as first secondary) and
+        # ANSWER-HF registers it at no rank at all, which is a stronger statement
+        # than any of the others and had no column to appear in. A row whose rank
+        # is an absence is marked so the reader meets it as a state and not as a
+        # long sentence in a definition cell.
+        rank = str(src.get("endpoint_rank") or "").strip()
+        unregistered = "not registered" in rank.lower()
         rows += (
-            "    <tr><td><strong>%s</strong><br><small>%s</small></td>"
-            "<td>%s</td><td>%s</td><td>%s</td></tr>\n"
-            % (e(name), linkhtml, p(d),
+            "    <tr%s><td><strong>%s</strong><br><small>%s</small></td>"
+            "<td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>\n"
+            % (" class='absent-state'" if unregistered else "",
+               e(name), linkhtml,
+               ("<strong>%s</strong>" % e(rank)) if unregistered
+               else (e(rank) or "&mdash;"),
+               p(d),
                p(src.get("description_verbatim") or
                  "no description is recorded in this registry field"),
                p(src.get("analysis_set_as_the_registry_states_it")
                  or src.get("time_frame") or "—")))
+        if unregistered:
+            rows += ("    <tr><td colspan='5' class='absent-state' role='note'>"
+                     "<strong>This trial's registration declares no such endpoint.</strong> "
+                     "%s</td></tr>\n"
+                     % p(src.get("what_this_costs_the_pool")
+                         or "The quantity pooled from this trial appears only in "
+                            "its publication."))
         # A CONFLICT ABOUT A TRIAL BELONGS BESIDE THAT TRIAL. On DOAC_CANCER_VTE
         # the fact that NCT02583191 names a different study from the one whose
         # data sits on the row reached the page ONLY inside the withdrawal prose,
@@ -355,7 +375,7 @@ def _endpoint_definitions(canon, oid, p, e):
         # link is looking at the ROW.
         conflict = t.get("identity_conflict")
         if conflict:
-            rows += ("    <tr><td colspan='4' class='absent-state' role='note'>"
+            rows += ("    <tr><td colspan='5' class='absent-state' role='note'>"
                      "<strong>Identity conflict on this row.</strong> %s</td></tr>\n"
                      % p(conflict))
     if not rows:
@@ -371,7 +391,8 @@ def _endpoint_definitions(canon, oid, p, e):
   saying what was COUNTED, and only the second one licenses a pool.%s Follow the
   registration link to disagree with any row.</small></p>
   <table>
-    <tr><th>Trial</th><th>Registered primary outcome measure</th>
+    <tr><th>Trial</th><th>Rank in its own trial</th>
+        <th>Registered outcome measure</th>
         <th>Description, verbatim</th><th>Analysis set / window</th></tr>
 %s  </table>
 </div>

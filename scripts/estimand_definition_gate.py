@@ -334,12 +334,36 @@ def check(obj):
         _p = res.get("pooled") or {}
         _withdrawn = (_p.get("point") is None and _p.get("withdrawn")
                       and (_p.get("withdrawn_reason") or "").strip())
-        defs, missing, resultish = {}, [], []
+        defs, missing, resultish, unregistered = {}, [], [], []
         for t in trials:
             bo = (t.get("by_outcome") or {}).get(oid)
             if not bo:
                 continue
             name = t.get("name") or t.get("nct") or "?"
+            # AN ENDPOINT THAT IS NOT REGISTERED AT ALL IS A FOURTH STATE, and
+            # until 2026-08-18 this gate had no way to hold it. ARNI_HF pools
+            # ANSWER-HF's composite of cardiovascular death and heart-failure
+            # hospitalisation; NCT04853758 declares TWO primary outcome measures
+            # and EIGHTEEN secondary ones and none of the twenty is that
+            # composite. The quantity exists only in the publication.
+            #
+            # Recording that truthfully put the registry's ENUMERATION -- which
+            # is the proof of the absence -- into the definition field, where the
+            # vocabulary scanner met the word "creatinine", declared itself
+            # unable to read a definition, and returned UNCHECKABLE. The gate
+            # answered the strongest finding available to it with "I could not
+            # read this", which is the comfortable direction.
+            #
+            # The state is DECLARED by the object rather than inferred from its
+            # prose: a declared field beats an inferred one, the same precedence
+            # v1_coverage_audit had to learn three times. It is a FAIL and not an
+            # UNCHECKABLE, because nothing here is unreadable -- the registry was
+            # read in full and what it says is that the endpoint is absent.
+            _rank = ((bo.get("outcome_definition_source") or {})
+                     .get("endpoint_rank") or "")
+            if "not registered" in str(_rank).lower():
+                unregistered.append(name)
+                continue
             # A QUOTE CAN BE THE DEFINITION -- that is the whole distinction, and
             # it is resolved in definition_for() so poolability cannot drift from
             # it. FINERENONE_CV stores each trial's endpoint TITLE, read word for
@@ -355,6 +379,21 @@ def check(obj):
                     resultish.append(name)
             else:
                 defs[name] = d
+        if unregistered:
+            if _withdrawn:
+                withdrawn_for_this = True
+            else:
+                bad = True
+            notes.append(
+                "%s: %d of %d contributing trial(s) REGISTER NO SUCH ENDPOINT, at "
+                "any rank: %s. This is not a definition that disagrees and not a "
+                "definition that is missing from the object -- it is a definition "
+                "that is missing from the REGISTRATION, so for this trial there is "
+                "no pre-specified statement of what was counted for the pool to "
+                "rest on. The remaining rows are compared to each other below and "
+                "their agreement, if any, is agreement among them alone."
+                % (oid, len(unregistered), len(unregistered) + len(defs) + len(missing),
+                   ", ".join(unregistered[:6])))
         if missing:
             if _withdrawn:
                 withdrawn_for_this = True
@@ -390,6 +429,18 @@ def check(obj):
                              "comfort instead of toward alarm.")
                 continue
             comp = {n: _components(d) for n, d in defs.items()}
+            # A NOTE THAT PROMISES A COMPARISON MUST SHOW IT. The unregistered
+            # branch above says "the remaining rows are compared to each other
+            # below", and when they agree nothing was printed, because agreement
+            # is the silent path. A reader then sees an accusation and no
+            # acquittal -- confirmations have to be as visible as errors.
+            if unregistered and len(set(comp.values())) == 1:
+                notes.append(
+                    "    and the %d trial(s) that DO register it agree with each "
+                    "other exactly -- %s all count {%s}. The defect is confined to "
+                    "the unregistered row."
+                    % (len(comp), ", ".join(sorted(comp)),
+                       ", ".join(sorted(next(iter(comp.values())))) or "-"))
             if len(set(comp.values())) > 1:
                 if _withdrawn:
                     withdrawn_for_this = True
@@ -469,6 +520,33 @@ def selftest():
     ok &= v2 == "PASS"
     print("  NEGATIVE same definition, spelling aside            -> %-5s %s"
           % (v2, "correct" if v2 == "PASS" else "WRONG"))
+
+    # THE UNREGISTERED-ENDPOINT BRANCH, WITH BOTH SIGNS. Its founding artefact is
+    # ARNI_HF's ANSWER-HF row. The pair matters more than either half: the two
+    # inputs differ ONLY in whether the third trial's registration declares the
+    # endpoint, and the definitions AGREE in both, so a gate that could not tell
+    # them apart would report PASS on a pool a quarter of which rests on nothing
+    # pre-specified.
+    unreg = json.loads(json.dumps(clean))
+    unreg["inputs"]["trials"].append(
+        {"name": "C", "by_outcome": {"o": {
+            "outcome_definition": "cardiovascular death or hospitalisation for "
+                                  "heart failure",
+            "outcome_definition_source": {"endpoint_rank": "SECONDARY"}}}})
+    unreg["results"]["by_outcome"]["o"]["k"] = 3
+    v3a, _ = check(unreg)
+    ok &= v3a == "PASS"
+    print("  NEGATIVE third trial registers it as a secondary    -> %-5s %s"
+          % (v3a, "correct" if v3a == "PASS" else "WRONG"))
+
+    unreg2 = json.loads(json.dumps(unreg))
+    (unreg2["inputs"]["trials"][2]["by_outcome"]["o"]["outcome_definition_source"]
+     ["endpoint_rank"]) = "NOT REGISTERED AT ANY RANK"
+    v3b, n3b = check(unreg2)
+    ok &= v3b == "FAIL"
+    print("  POSITIVE same definition, registered at NO rank     -> %-5s %s"
+          % (v3b, "correct" if v3b == "FAIL" else "WRONG"))
+    print("        %s" % n3b[0][:112])
 
     mixed = json.loads(json.dumps(clean))
     mixed["inputs"]["trials"][1]["by_outcome"]["o"]["outcome_definition"] = (
