@@ -245,6 +245,55 @@ def judge_one_comparison(trial, is_topic_arm, label_of, arms_path="arms"):
                   f"which one it asks about ({named})")
 
 
+# ---------------------------------------------------------------------------
+# TWO PRECONDITIONS, TWO NAMES. They were one word, and the word hid the difference.
+# ---------------------------------------------------------------------------
+#
+# A cross-family review (Gemini 3.1 Pro, 2026-08-18) argued that a `screening.eligibility`
+# reading "not recorded on the page this object was built from" must be NOT_ASSESSABLE,
+# because it describes the DOCUMENT'S EXTRACTION STATE and not the trial's clinical
+# reality. That is correct -- for the question it was answering. We had committed to FAIL,
+# which is also correct -- for the question WE were answering. Both verdicts were right
+# and they disagreed, which is the signature of one name carrying two questions.
+#
+#   INCLUSION_CRITERIA_AUDITABLE -- "can this OBJECT state the criteria by which its
+#       included set was chosen, so a reader can audit that set?"
+#       A declared "not recorded" is a definite, readable NO. FAIL is correct.
+#       An object with no `screening` key at all is silent. NOT_ASSESSABLE is correct.
+#
+#   ELIGIBILITY_MET -- "did THIS TRIAL meet the stated criteria?"
+#       Unanswerable while the criteria are unstated, and unanswerable from JSON alone
+#       even when they are, because inclusion logic is conditional clinical prose
+#       ("exclude if X unless Y within 30 days") that a flattened record drops.
+#       NOT_ASSESSABLE until a full-text read, and it is never inferred from the other.
+#
+# THE TWO ARE NOT ORDERED AND NEITHER IMPLIES THE OTHER. Passing auditability says
+# nothing about whether any trial met the criteria; passing eligibility for one trial says
+# nothing about whether the set can be audited. Run them independently and report both.
+
+INCLUSION_CRITERIA_AUDITABLE = "inclusion_criteria_auditable"
+ELIGIBILITY_MET = "eligibility_met"
+
+
+def inclusion_criteria_auditable(canon, path="screening.eligibility"):
+    """Can the OBJECT state the criteria its included set was chosen by? Declared no = FAIL."""
+    return judge(read(canon, path), declared_absence_is_failure=True)
+
+
+def eligibility_met(canon, full_text_read=False, path="screening.eligibility"):
+    """Did each trial MEET the criteria? Not answerable from JSON, and never inferred."""
+    r = read(canon, path)
+    if not r.readable:
+        return NOT_ASSESSABLE, (f"cannot assess: criteria are not stated ({r.detail}), so "
+                                f"whether any trial met them cannot be decided")
+    if not full_text_read:
+        return NOT_ASSESSABLE, (f"cannot assess: {r.path} is stated, but inclusion logic is "
+                                f"conditional prose and no full text was read this pass")
+    raise NotImplementedError(
+        "eligibility_met over full texts is not implemented; it must not silently degrade "
+        "to an auditability check -- that conflation is what the rename removed")
+
+
 def read_scalar(element, key):
     """Read a required scalar off ONE collection element, three-state aware.
 
