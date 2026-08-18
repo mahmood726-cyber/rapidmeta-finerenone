@@ -28,6 +28,26 @@ WHAT THIS CHECKS
     arm whose type is EXPERIMENTAL? A topic needs at least two such trials to support a
     pool about its own subject.
 
+THIS IS A TRIAGE. IT IS NOT A VERDICT, AND A PASS IS NOT CLEARANCE.
+    Demonstrated 2026-08-18, the day after it was built: it returned FAIL on
+    DABIGATRAN_AF, and reading the registrations showed the FAIL was WRONG. RE-LY
+    (NCT00262600) types ALL THREE of its arms ACTIVE_COMPARATOR -- including both
+    dabigatran arms -- so the drug that trial exists to test reads as a comparator.
+    Retiring that topic on this gate's word would have removed it for a false reason.
+
+    THREE FALSE-NEGATIVE MODES ARE NOW DEMONSTRATED, all of which make a genuine
+    intervention read as a comparator or as absent:
+      1. the registration types NO arm EXPERIMENTAL, though one plainly is
+         (RE-LY; and NCT00789399, "Fondaparinux Sodium Versus Placebo", whose
+         fondaparinux arm is typed ACTIVE_COMPARATOR against a PLACEBO_COMPARATOR)
+      2. the drug is named by DEVELOPMENT CODE, not generic name -- NCT01035255
+         labels its arm "LCZ696", so the token "sacubitril" never matches
+      3. no arm type is recorded at all (NCT04532528, both arms blank)
+
+    So: USE IT TO DECIDE WHERE TO READ, NEVER TO DECIDE WHAT IS TRUE. Every FAIL
+    must be confirmed by reading the registrations, and OLMESARTAN_HTN -- the only
+    topic retired on this defect -- was confirmed that way and not by this gate.
+
 WHAT A FULL PASS DOES NOT ESTABLISH -- written in advance
     - NOT that a pool is warranted. Comparator, population and outcome are other limbs
       and this gate says nothing about them. RIOCIGUAT_PAH passes this gate and is still

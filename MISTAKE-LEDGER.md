@@ -979,3 +979,58 @@ comparison that matters most** — not as a check on our arithmetic, which agree
 evidence about whether the field has made the same reference error. **This is owed work
 and is not done:** none of the four has been checked against the published literature for
 a synthesis combining the same trials.
+
+
+---
+
+## A rebuild destroys exactly the material that makes a page checkable
+
+Found 2026-08-18. A rebuild of `bococizumab-lipid-review` wrote **152 lines over 1,626**.
+It destroyed the withdrawn `primary` outcome **with its reason**, the sources block, the
+screening record and the risk-of-bias verdict — and produced a **perfectly valid object
+that every gate would have passed**, because everything it kept was internally
+consistent.
+
+> **The material a rebuild destroys is exactly the material that makes a page checkable.**
+> A withdrawal reason, a source list, a RoB verdict and a screening record are not
+> outputs — they are the evidence that the outputs were earned. An object stripped of
+> them still validates.
+
+Same family as the idempotency failure already in this file, and the same defence:
+**validity and delta are different questions**, and every gate here asks the first one.
+It was caught by reading the diff stat — 1,626 deletions for a change that should only
+have added — and by nothing else.
+
+**It is now mechanical rather than remembered.** `scripts/rebuild_guard.py`: a write that
+removes more lines than it adds **refuses by default**, and an override must name its
+reason out loud. Selftest carries the failing input — the halving case, which is the
+bococizumab shape exactly.
+
+**What the guard does NOT do, written in advance:** it is a line count, not a reading. A
+patch that adds a hundred lines and quietly changes one value passes it, and a genuine
+consolidation trips it — which is intended, so that the person consolidating says so.
+
+---
+
+## An identifier is not noise or signal — it is noise or signal **per topic**
+
+`NCT01035255` was on a global "shared runtime residue" list, because it appears on page
+after page of unrelated topics as build contamination. Two screens excluded it by name
+everywhere.
+
+**On a sacubitril page it is PARADIGM-HF — the trial the page is about.**
+
+So both sacubitril pages, and `HFREF_NMA`, were reported as **"seed no registration at
+all"** when each seeds exactly one, and it is the right one. I relayed that to Mahmood as
+an alarming defect. It was an artefact of my own exclusion list.
+
+> **A global denylist of identifiers cannot be right, because the same id is
+> contamination in one context and the subject in another. Residue must be judged per
+> topic.**
+
+**Blast radius, measured rather than estimated: 3 of the cardiology pages** seed a residue
+id — `SACUBITRIL_HEARTFAIL`, `SACUBITRIL_VALSARTAN_HF`, `HFREF_NMA` — and on all three
+`NCT01035255` is plausibly genuine, because all three are heart-failure topics and
+PARADIGM-HF is a heart-failure trial. **Every count derived from that list is suspect
+until the exclusion is made conditional**, and the two "unidentifiable" verdicts are
+withdrawn.
