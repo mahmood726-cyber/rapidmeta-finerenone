@@ -1,0 +1,138 @@
+{
+ "app_id": "agyw-hiv-prep-review",
+ "schema_version": 2,
+ "title": "Dapivirine vaginal ring versus placebo ring for HIV prevention in women",
+ "built": "2026-08-18",
+ "build_mode": "full",
+ "topic_state": "POOLED -- risk ratio, k=2 (dapivirine ring subset); 3 seeded trials excluded and stated",
+ "provenance": "REGISTRY THROUGHOUT. Counts and denominators read from ClinicalTrials.gov posted results.",
+ "verification_basis": "All FIVE seeded registrations read on 2026-08-18; two pooled, three excluded on the grounds stated.",
+ "inputs": {
+  "trials": [
+   {
+    "trial_id": "NCT01539226",
+    "nct": "NCT01539226",
+    "label": "ASPIRE / MTN-020",
+    "registry": "ClinicalTrials.gov",
+    "source_url": "https://clinicaltrials.gov/study/NCT01539226",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "trial_id": "NCT01617096",
+    "nct": "NCT01617096",
+    "label": "The Ring Study",
+    "registry": "ClinicalTrials.gov",
+    "source_url": "https://clinicaltrials.gov/study/NCT01617096",
+    "read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "measure": "RR",
+    "k": 2,
+    "model": "random-effects",
+    "estimator": "REML",
+    "pooled": {
+     "point": 0.703,
+     "ci_low": 0.566,
+     "ci_high": 0.8731,
+     "ci_level": 95
+    },
+    "pooled_hartung_knapp": {
+     "point": 0.703,
+     "ci_low": 0.1725,
+     "ci_high": 2.8653,
+     "df": 1,
+     "t_critical": 12.7062047,
+     "variance_inflation_applied": 1.0,
+     "why_it_is_shown": "Handbook 6.5 section 10.10.4.5 recommends Hartung-Knapp where k is small. Shown ALONGSIDE the unadjusted interval, not instead of it. A FLOOR OF 1 is applied to the variance-inflation factor so the adjustment can never NARROW the interval below the unadjusted one."
+    },
+    "heterogeneity": {
+     "tau2": 0.0,
+     "q": 0.1533,
+     "df": 1,
+     "i2_percent": 0.0,
+     "DIRECTION_TEST": "NOT APPLICABLE -- I-squared is 0.0%, below the threshold at which the direction test is informative. The trials are consistent with a common effect and no heterogeneity caution is warranted. Applying one here would manufacture doubt the data do not support, which is the mirror failure of ignoring heterogeneity that matters.",
+     "how_to_read_this_at_low_k": "At k=2 or k=3 these statistics are weak evidence about consistency in EITHER direction. A low value means the estimates are CONSISTENT WITH a common effect, not that one is demonstrated.",
+     "tau2_estimator": "REML -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
+     "i2_definition": "UNDECIDABLE from this object. I-squared is 0 and Q is below the degrees of freedom, where the Higgins form is negative-and-clamped and the REML/metafor form is exactly zero -- BOTH DEFINITIONS GIVE 0 and nothing here distinguishes them. Recorded as undecidable rather than guessed."
+    },
+    "per_trial": [
+     {
+      "trial_id": "NCT01539226",
+      "nct": "NCT01539226",
+      "label": "ASPIRE / MTN-020",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT01539226",
+      "read_utc": "2026-08-18",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "as_posted": {
+       "dapivirine_ring_events": 82,
+       "dapivirine_ring_n": 1302,
+       "placebo_ring_events": 61,
+       "placebo_ring_n": 650
+      },
+      "measure": "RR",
+      "point": 0.6711,
+      "ci_low": 0.4884,
+      "ci_high": 0.9221,
+      "se_log_rr": 0.162117,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. Counts read from the registry; only the arithmetic is ours and the formula is shown."
+     },
+     {
+      "trial_id": "NCT01617096",
+      "nct": "NCT01617096",
+      "label": "The Ring Study",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT01617096",
+      "read_utc": "2026-08-18",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "as_posted": {
+       "dapivirine_ring_events": 71,
+       "dapivirine_ring_n": 1313,
+       "placebo_ring_events": 97,
+       "placebo_ring_n": 1313
+      },
+      "measure": "RR",
+      "point": 0.732,
+      "ci_low": 0.5442,
+      "ci_high": 0.9845,
+      "se_log_rr": 0.15123,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. Counts read from the registry; only the arithmetic is ours and the formula is shown."
+     }
+    ],
+    "comparator": "placebo vaginal ring",
+    "outcome": "HIV-1 seroconversion",
+    "WHAT_THIS_POOL_IS_AND_IS_NOT": "THIS IS NOT A POOL OF THE FIVE TRIALS THIS PAGE SEEDS. It is the DAPIVIRINE VAGINAL RING pair, which is the only subset sharing an intervention and a comparator. The page seeds five trials testing FOUR DIFFERENT THINGS: oral Truvada against placebo (NCT00625404, 33/1024 vs 35/1032), tenofovir 1% VAGINAL GEL against placebo gel (NCT00705679, 61/996 vs 70/996), the dapivirine ring against a placebo ring (the two pooled here), and NCT01386294 which posts NO RESULTS. Oral tablet, microbicide gel and vaginal ring are different interventions with different delivery, adherence and mechanism. POOLING ALL FIVE WOULD BE A CLASS CLAIM THE PAGE'S DATA CANNOT SUPPORT.",
+    "the_person_years_primary_CHECKED": "NCT00705679's registered primary 'Person-years of Follow-up' is NOT an effect measure, and that was flagged before reading. IT IS ONE OF TWO PRIMARIES: the same trial also registers 'Number of HIV-1 Infections' and posts 61/996 against 70/996. So the concern was real but not disqualifying -- the trial does register a usable endpoint. IT IS STILL NOT IN THIS POOL, because its INTERVENTION is a vaginal gel and not the ring.",
+    "published_synthesis_comparison": {
+     "status": "NOT DONE -- owed, not claimed",
+     "what_is_owed": "No published synthesis of the two dapivirine ring trials has been read."
+    },
+    "what_this_does_not_establish": "NOT that dapivirine ring PrEP works or does not work in this population -- NO RISK-OF-BIAS ASSESSMENT IS RECORDED and adherence, which dominates ring effectiveness, is not an outcome here. NOT anything about oral or gel PrEP, which are excluded above. NOT that the three excluded trials are poor: they answer different questions. NOT reliability at k=2 -- see Hartung-Knapp.",
+    "handbook_authority": {
+     "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+     "version": "Version 6.5, 2024",
+     "verified_on": "2026-08-18",
+     "sections": "6.4.1; 10.10.3; 10.10.4.4-5; MECIR Box 10.10.a (C62)",
+     "c62": "'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.'"
+    },
+    "analysis_code": "scripts/ctg_binary_pool.py::pool_rr -- shared, so the arithmetic is one implementation checked once rather than N hand copies."
+   }
+  }
+ },
+ "display_change_announced": [
+  {
+   "date": "2026-08-18",
+   "change": "definition declared on ambiguous fields",
+   "values_moved": "NONE",
+   "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
+   "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  }
+ ],
+ "renamed_2026_08_18": "Renamed from agyw-hiv-prep-auto-full-review. THE READER LANDS ON agyw-hiv-prep_REVIEW.html and the object now says so. Leaving the mismatch would have made PAGE_MAP the only place that truth lived -- one more route, and every multi-route value in this corpus has diverged. Done as a git mv, not a delete-and-write."
+}

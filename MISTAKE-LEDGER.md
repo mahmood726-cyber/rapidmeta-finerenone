@@ -1370,3 +1370,28 @@ lint's ratchet design: **a guard that stops the work gets bypassed, so it must b
 today and unbreachable tomorrow.** The ratchet-at-baseline is that shape — 28 sites are
 tolerated, a 29th is refused. `guard_write` is the counter-example in both directions: it
 had to be remembered, and when it was inconvenient it was simply not called.
+
+---
+
+## The naming variance was the same defect at the filename layer (2026-08-18)
+
+Within one section, six topics landed on `*_REVIEW.html` and seven on
+`*_AUTO_FULL_REVIEW.html`. **Nothing generated those names from a single rule, so they
+drifted** — and thirteen canonical objects were then named after the convention that felt
+right rather than the page a reader reaches, producing six objects whose names described a
+surface that did not exist.
+
+**This is not a tidiness problem.** It is the absent straight path showing up at the
+filename layer: a value (which page this analysis belongs to) with **no single generating
+source**, so every author supplied their own and they diverged. Exactly the shape of the
+card, jump-list and seed defects, one level down.
+
+**And the fix had to be a rename, not a lookup entry.** Leaving the mismatch and letting
+`PAGE_MAP` carry it would have made the table the only place the truth lived — **one more
+route, and every multi-route value in this corpus has diverged.** Renaming makes the object
+self-describing: the artefact carries its own truth rather than pointing at a table that
+has to stay in step.
+
+**How to apply:** when a name and the thing it names disagree, fix the name — do not record
+the disagreement in a mapping. A mapping that exists to reconcile two descriptions of one
+value is a divergence waiting to happen, and the corpus has no counter-example.
