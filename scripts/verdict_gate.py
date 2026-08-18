@@ -1,0 +1,116 @@
+"""VERDICT GATE: does the LIVE page carry the verdict its object records?
+
+THE CONTENT KIND'S SECOND MEMBER, and it covers the half of the corpus the first one
+cannot. `content_gate.py` asserts that a page displays its object's pooled estimate. A
+VERDICT-ONLY topic has no estimate -- it records why no pool exists -- so the content gate
+REFUSES it by design, reporting "needs the VERDICT checked, not an estimate" rather than
+skipping. That refusal is correct and it leaves a hole this fills.
+
+Roughly half the corpus is verdict-only. Confirming those by hand worked for six pages and
+does not work for fifty-seven, which is the third occurrence of the same manual check and
+therefore the point at which it becomes a script.
+
+WHAT IT ASSERTS, against the SERVED bytes and never the local file:
+  1. the served byte count matches the built file -- a stale deploy cannot pass, and it is
+     reported as STALE (wait) rather than MISSING (stop), because those look identical from
+     outside and need opposite responses
+  2. the V2 application markers are absent -- a page computing client-side is showing the
+     visitor's derivation, not the object's verdict
+  3. THE VERDICT'S OWN REASON TEXT appears as literal content. Not a generic "withdrawn"
+     banner: a distinctive run of words taken from the object's `poolable_reason`, so a
+     page carrying SOME OTHER topic's verdict fails.
+
+That third assertion is the one that matters. Two verdict pages built minutes apart came
+out at byte-identical length; checking they differed took one command and would have caught
+a generator ignoring its input. This makes that check permanent.
+
+NO OVERRIDE AND FAILS CLOSED, for the reason every guard in this repository now carries:
+the only ones that have stopped a real defect are the ones that cannot be bypassed.
+"""
+from __future__ import annotations
+import io
+import json
+import os
+import re
+import sys
+import urllib.request
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE = "https://mahmood726-cyber.github.io/rapidmeta-finerenone/"
+V2 = ("localStorage", "updateStatCards")
+STRIP = re.compile(r"<[^>]+>")
+
+
+def phrase(obj):
+    """A distinctive run of words from the object's own recorded reason."""
+    bo = (obj.get("results") or {}).get("by_outcome") or {}
+    oid = "primary" if "primary" in bo else (list(bo)[0] if bo else None)
+    if not oid:
+        return None, "object has no outcome block"
+    blk = bo[oid]
+    if (blk.get("pooled") or {}).get("point") is not None:
+        return None, ("this object PUBLISHES AN ESTIMATE -- use content_gate.py. Reported "
+                      "rather than passed, because the wrong gate silently succeeding is "
+                      "how a page goes live unchecked.")
+    reason = blk.get("poolable_reason") or (blk.get("pooled") or {}).get("withdrawn_reason")
+    if not reason:
+        return None, "object records no poolable_reason -- nothing to assert"
+    words = re.sub(r"\s+", " ", reason).strip()
+    # first substantial clause, long enough to be topic-specific
+    return words[:70], None
+
+
+def check(page, obj_rel, bust="vg"):
+    p = os.path.join(REPO, obj_rel)
+    if not os.path.exists(p):
+        return False, ["object not found: %s" % obj_rel]
+    obj = json.load(io.open(p, encoding="utf-8"))
+    want, err = phrase(obj)
+    if err:
+        return False, [err]
+    try:
+        req = urllib.request.Request(
+            "%s%s?v=%s" % (BASE, page, bust),
+            headers={"User-Agent": "rm-verdict-gate", "Cache-Control": "no-cache"})
+        with urllib.request.urlopen(req, timeout=90) as r:
+            served = r.read().decode("utf-8", "replace")
+    except Exception as e:
+        return False, ["fetch failed: %s" % str(e)[:70]]
+
+    fails = []
+    local = os.path.join(REPO, page)
+    if os.path.exists(local):
+        nb, lb = len(served.encode("utf-8")), os.path.getsize(local)
+        if nb != lb:
+            fails.append("STALE DEPLOY -- served %d bytes, built file is %d. This is WAIT, "
+                         "not STOP." % (nb, lb))
+    for m in V2:
+        if served.count(m):
+            fails.append("V2 marker %r present -- the page computes client-side" % m)
+    flat = re.sub(r"\s+", " ", STRIP.sub("", served))
+    if want not in flat:
+        fails.append("THE OBJECT'S OWN VERDICT TEXT IS NOT ON THE PAGE. Looked for: %r"
+                     % want)
+    return (not fails), fails
+
+
+def main() -> int:
+    a = sys.argv[1:]
+    if len(a) < 2:
+        print("usage: verdict_gate.py <PAGE.html> <ssot/x/x.json> [bust]")
+        return 2
+    ok, fails = check(a[0], a[1], a[2] if len(a) > 2 else "vg")
+    print("%-52s %s" % (a[0][:51], "PASS" if ok else "FAIL"))
+    for f in fails:
+        print("    %s" % f)
+    if not ok:
+        print("    VERDICT GATE FAILED. No override. A page that does not carry its "
+              "object's verdict is not delivered, whatever else passed.")
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())
