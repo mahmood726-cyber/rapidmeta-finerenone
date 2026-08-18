@@ -451,7 +451,19 @@
       ]
      }
     ],
-    "registration_counts_read_utc": "2026-08-18"
+    "registration_counts_read_utc": "2026-08-18",
+    "registered_primaries": [
+     "Subjects Included in the Composite Endpoint of CV Death, Hospitalization Due to Heart Failure or Urgent Visit Due to Heart Failure."
+    ],
+    "registered_secondaries": [
+     "Subjects Included in the Composite Endpoint of CV Death or Hospitalization Due to Heart Failure.",
+     "Events Included in the Composite Endpoint of Recurrent Hospitalizations Due to Heart Failure and CV Death.",
+     "Change From Baseline in the KCCQ Total Symptom Score",
+     "Subjects Included in the Composite Endpoint of ≥50% Sustained Decline in eGFR, ESRD or Renal Death.",
+     "Subjects Included in the Endpoint of All-cause Mortality."
+    ],
+    "registered_other_outcomes": [],
+    "all_ranks_read_utc": "2026-08-18"
    },
    {
     "id": "emperor-reduced",
@@ -667,7 +679,23 @@
       ]
      }
     ],
-    "registration_counts_read_utc": "2026-08-18"
+    "registration_counts_read_utc": "2026-08-18",
+    "registered_primaries": [
+     "Time to the First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF)"
+    ],
+    "registered_secondaries": [
+     "Occurrence of Adjudicated Hospitalisation for Heart Failure (HHF) (First and Recurrent)",
+     "eGFR (CKD-EPI) cr Slope of Change From Baseline",
+     "Time to First Event in Composite Renal Endpoint: Chronic Dialysis, Renal Transplant or Sustained Reduction of eGFR(CKD-EPI)cr",
+     "Time to First Adjudicated Hospitalisation for Heart Failure (HHF)",
+     "Time to Adjudicated Cardiovascular (CV) Death",
+     "Time to All-cause Mortality",
+     "Time to Onset of Diabetes Mellitus (DM)",
+     "Change From Baseline in KCCQ (Kansas City Cardiomyopathy Questionnaire) Clinical Summary Score at Week 52",
+     "Number of All-cause Hospitalizations (First and Recurrent)"
+    ],
+    "registered_other_outcomes": [],
+    "all_ranks_read_utc": "2026-08-18"
    },
    {
     "id": "emperor-preserved",
@@ -883,7 +911,23 @@
       ]
      }
     ],
-    "registration_counts_read_utc": "2026-08-18"
+    "registration_counts_read_utc": "2026-08-18",
+    "registered_primaries": [
+     "Time to First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF)"
+    ],
+    "registered_secondaries": [
+     "Occurrence of Adjudicated Hospitalisation for Heart Failure (HHF) (First and Recurrent)",
+     "eGFR (CKD-EPI) cr Slope of Change From Baseline",
+     "Time to the First Event in the Composite Renal Endpoint: Chronic Dialysis, Renal Transplant, or Sustained Reduction in eGFR (CKD-EPI)cr",
+     "Time to First Adjudicated Hospitalisation for Heart Failure (HHF)",
+     "Time to Adjudicated Cardiovascular (CV) Death",
+     "Time to All-cause Mortality",
+     "Time to Onset of Diabetes Mellitus (DM) in Patients With Pre-DM",
+     "Change From Baseline in Kansas City Cardiomyopathy Questionaire (KCCQ) Clinical Summary Score at Week 52",
+     "Occurrence of All-cause Hospitalisation (First and Recurrent)"
+    ],
+    "registered_other_outcomes": [],
+    "all_ranks_read_utc": "2026-08-18"
    },
    {
     "id": "deliver",
@@ -1075,7 +1119,20 @@
       ]
      }
     ],
-    "registration_counts_read_utc": "2026-08-18"
+    "registration_counts_read_utc": "2026-08-18",
+    "registered_primaries": [
+     "Subjects Included in the Composite Endpoint of CV Death, Hospitalization Due to Heart Failure or Urgent Visit Due to Heart Failure.",
+     "Subjects Included in the Composite Endpoint of CV Death, Hospitalization Due to Heart Failure or Urgent Visit Due to Heart Failure for LVEF <60% Subpopulation"
+    ],
+    "registered_secondaries": [
+     "Events Included in the Composite Endpoint of CV Death or Recurrent Heart Failure Event (Hospitalization Due to Heart Failure or Urgent Heart Failure Visit)",
+     "Events Included in the Composite Endpoint of CV Death or Recurrent Heart Failure Event (Hospitalization Due to Heart Failure or Urgent Heart Failure Visit) for LVEF <60% Subpopulation",
+     "Change From Baseline in the KCCQ Total Symptom Score at 8 Months",
+     "Subjects Included in the Endpoint of Cardiovascular Death",
+     "Subjects Included in the Endpoint of All-cause Mortality"
+    ],
+    "registered_other_outcomes": [],
+    "all_ranks_read_utc": "2026-08-18"
    }
   ]
  },
@@ -1417,6 +1474,93 @@
      ],
      "what_this_certainty_is_about": "It is the certainty of the POOLED class average across four trials of two molecules, spanning the ejection-fraction spectrum. It is not a rating of either molecule on its own and not a rating for any one ejection-fraction band. It is also not a rating of the strictly harmonized composite that the published syntheses in the reconciliation block estimate, because that is a different quantity computed from patient-level or trial-level data this object does not hold. Reading this rating as a verdict on one drug in one population would be a misreading, and the sentence is here because that misreading is the easy one."
     }
+   },
+   "harmonised_cvdeath_or_hhf": {
+    "measure": "HR",
+    "k": 3,
+    "model": "random-effects",
+    "estimator": "REML",
+    "estimator_used": "REML",
+    "outcome": "cardiovascular death or hospitalisation for heart failure, first event",
+    "comparator": "placebo",
+    "pooled": {
+     "measure": "HR",
+     "point": 0.7636,
+     "ci_low": 0.7062,
+     "ci_high": 0.8258,
+     "ci_level": 95
+    },
+    "heterogeneity": {
+     "tau2": 0.0,
+     "q": 0.3837,
+     "df": 2,
+     "i2": 0.0,
+     "i2_pct": 0.0,
+     "i2_percent": 0.0,
+     "i2_definition": "Higgins I-squared = (Q - df) / Q, clamped at 0."
+    },
+    "per_trial": [
+     {
+      "trial_id": "NCT03036124",
+      "nct": "NCT03036124",
+      "label": "DAPA-HF",
+      "measure": "HR",
+      "point": 0.75,
+      "ci_low": 0.65,
+      "ci_high": 0.85,
+      "ci_level": 95,
+      "log_point": -0.287682,
+      "log_se": 0.068436,
+      "endpoint_rank_in_its_own_trial": "SECONDARY",
+      "registered_outcome_title_verbatim": "Subjects Included in the Composite Endpoint of CV Death or Hospitalization Due to Heart Failure.",
+      "registry": "ClinicalTrials.gov",
+      "read_utc": "2026-08-18",
+      "source_url": "https://clinicaltrials.gov/study/NCT03036124",
+      "provenance": "REGISTRY -- posted results, read 2026-08-18"
+     },
+     {
+      "trial_id": "NCT03057977",
+      "nct": "NCT03057977",
+      "label": "EMPEROR-Reduced",
+      "measure": "HR",
+      "point": 0.75,
+      "ci_low": 0.65,
+      "ci_high": 0.86,
+      "ci_level": 95,
+      "log_point": -0.287682,
+      "log_se": 0.07142,
+      "endpoint_rank_in_its_own_trial": "PRIMARY",
+      "registered_outcome_title_verbatim": "Time to the First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF)",
+      "registry": "ClinicalTrials.gov",
+      "read_utc": "2026-08-18",
+      "source_url": "https://clinicaltrials.gov/study/NCT03057977",
+      "provenance": "REGISTRY -- posted results, read 2026-08-18"
+     },
+     {
+      "trial_id": "NCT03057951",
+      "nct": "NCT03057951",
+      "label": "EMPEROR-Preserved",
+      "measure": "HR",
+      "point": 0.79,
+      "ci_low": 0.69,
+      "ci_high": 0.9,
+      "ci_level": 95,
+      "log_point": -0.235722,
+      "log_se": 0.067783,
+      "endpoint_rank_in_its_own_trial": "PRIMARY",
+      "registered_outcome_title_verbatim": "Time to First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF)",
+      "registry": "ClinicalTrials.gov",
+      "read_utc": "2026-08-18",
+      "source_url": "https://clinicaltrials.gov/study/NCT03057951",
+      "provenance": "REGISTRY -- posted results, read 2026-08-18"
+     }
+    ],
+    "WHY_THIS_REPLACES_A_WITHDRAWAL": "THE ORIGINAL WITHDRAWAL WAS DISPROPORTIONATE AND THIS PAGE SAYS SO. The four trials genuinely do not share a primary endpoint -- DAPA-HF and DELIVER count an urgent heart-failure visit that the EMPEROR trials do not -- and that observation was correct. THE REMEDY WAS NOT. A harmonised two-component endpoint was available: it is the EMPEROR trials' own primary, and DAPA-HF posts it as a SECONDARY in the same registration we had already read. WE WITHHELD AN ESTIMATE A READER NEEDED AND THE DATA TO GIVE IT WAS ONE RANK DOWN.",
+    "found_by_independent_review": "Identified by Gemini 3.1 Pro (Google), given the four registry primaries and our withdrawal reasoning SEPARATELY and asked whether the conclusion followed. It answered that the observation was right and the response disproportionate, and named the harmonised secondary as the fix. ATTRIBUTED BECAUSE THAT IS THE STANDARD WE APPLY TO EVERY PUBLISHED SYNTHESIS WE EXAMINE.",
+    "the_three_values_are_concordant": "0.75, 0.75 and 0.79. The estimate was recoverable AND consistent. That makes the disproportion the finding rather than a footnote.",
+    "why_k_equals_3_and_not_4": "DELIVER (NCT03619213) does NOT post the first-event two-component outcome. Its registry secondaries are RECURRENT-EVENT composites (HR 0.77), which is a different quantity again. Its harmonised value exists in the publication, not the registration. A k=3 POOL WE CAN FULLY VOUCH FOR BEATS A k=4 WITH ONE INPUT WE CANNOT -- the same call made for INCRETIN_HFpEF.",
+    "owed_retrieval": "OWED, NOT A PERMANENT GAP: the DELIVER publication's first-event CV death or HF hospitalisation hazard ratio with its interval. One trial, one number, one table. Adding it makes this k=4 and requires the mixed-provenance declaration this corpus gives INCRETIN_HFpEF.",
+    "what_this_does_not_establish": "NOT that the original four-trial pool was acceptable -- it combined quantities that were not the same quantity, and that withdrawal stands on this page with its reason. NOT that these three trials are free of bias; no risk-of-bias assessment is recorded. NOT a result for DELIVER's population, which is absent here."
    }
   }
  },
@@ -1727,5 +1871,7 @@
    ],
    "conformance": "The molecule is a documented crossed dimension in the uniformity table under section 10.10.1, and the leave-one-out analysis run under section 10.14 is what lets a reader see how little the average moves when any one trial is removed. Both are reported; neither is offered as a subgroup analysis, because this object holds no test for a difference between the molecules and does not imply one."
   }
- }
+ },
+ "topic_state": "WITHDRAWAL SUPERSEDED -- harmonised pool built, k=3, registry-sourced; the original mismatched pool remains withdrawn with its reason",
+ "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over."
 }

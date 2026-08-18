@@ -38,8 +38,16 @@
        "registry_statistical_method": "ANCOVA",
        "derived_here": false,
        "read_not_derived": "This is the registry's own posted analysis value. The standard error is recovered from the posted interval."
+      },
+      "provenance": {
+       "source": "ClinicalTrials.gov registration, read 2026-08-18",
+       "source_outcome_title": "registered primary outcome measure, read from the registration"
       }
      }
+    },
+    "provenance": {
+     "source": "ClinicalTrials.gov registration, read 2026-08-18",
+     "source_outcome_title": "registered primary outcome measure, read from the registration"
     }
    },
    {
@@ -72,8 +80,16 @@
        "registry_statistical_method": "ANCOVA",
        "derived_here": false,
        "read_not_derived": "This is the registry's own posted analysis value. The standard error is recovered from the posted interval."
+      },
+      "provenance": {
+       "source": "ClinicalTrials.gov registration, read 2026-08-18",
+       "source_outcome_title": "registered primary outcome measure, read from the registration"
       }
      }
+    },
+    "provenance": {
+     "source": "ClinicalTrials.gov registration, read 2026-08-18",
+     "source_outcome_title": "registered primary outcome measure, read from the registration"
     }
    }
   ]
@@ -130,7 +146,11 @@
       "se": 1.17349,
       "registry_paramType": "Mean Difference (Final Values)",
       "registry_statistical_method": "ANCOVA",
-      "derived_here": false
+      "derived_here": false,
+      "provenance": {
+       "source": "ClinicalTrials.gov registration, read 2026-08-18",
+       "note": "The generator reads per-trial provenance from the RESULTS block, not from the object root. This object carried it at root only, which is why the page could not build. Same value, placed where the consumer looks."
+      }
      },
      {
       "trial_id": "NCT01033071",
@@ -142,7 +162,11 @@
       "se": 1.14798,
       "registry_paramType": "Mean Difference (Final Values)",
       "registry_statistical_method": "ANCOVA",
-      "derived_here": false
+      "derived_here": false,
+      "provenance": {
+       "source": "ClinicalTrials.gov registration, read 2026-08-18",
+       "note": "The generator reads per-trial provenance from the RESULTS block, not from the object root. This object carried it at root only, which is why the page could not build. Same value, placed where the consumer looks."
+      }
      }
     ],
     "poolable_reason": "BOTH VALUES ARE READ from the registries' own posted ANCOVA analyses. THE TOPIC IS RENAMED, and the rename is the point. The page it replaces was titled 'azilsartan in hypertension' over FOUR trials with THREE different comparators -- one of which compared azilsartan against ITSELF on a different partner diuretic. Four trials, three questions. These two share BOTH arms and are the only coherent contrast in that set, so the page is named for the contrast it actually answers. MULTI-ARM HANDLING, stated because it changes the number: each trial randomised TWO azilsartan dose ranges against ONE olmesartan arm. Taking both contrasts would double-count the shared control. ONE contrast per trial is used -- the 20-40 mg range, which is the dose range both trials share -- and the higher range (-6.7 and -6.9) is recorded but not pooled.",
@@ -173,16 +197,19 @@
   "verified_on": "2026-08-18",
   "sections": "10.10.3 and MECIR Box 10.10.a C62 (poolability); 10.10.4.4 (estimator)"
  },
- "eligible_but_not_contributing": [
-  {
-   "nct": "NCT00591578",
-   "reason": "Azilsartan medoxomil against VALSARTAN -- a different comparator, so not the contrast this page answers."
-  },
-  {
-   "nct": "NCT00818883",
-   "reason": "Azilsartan + chlorthalidone against azilsartan + hydrochlorothiazide -- the drug against ITSELF on a different partner diuretic. A within-drug question, not a comparison against another agent."
-  }
- ],
+ "eligible_but_not_contributing": {
+  "studies": [
+   {
+    "nct": "NCT00591578",
+    "reason": "Azilsartan medoxomil against VALSARTAN -- a different comparator, so not the contrast this page answers."
+   },
+   {
+    "nct": "NCT00818883",
+    "reason": "Azilsartan + chlorthalidone against azilsartan + hydrochlorothiazide -- the drug against ITSELF on a different partner diuretic. A within-drug question, not a comparison against another agent."
+   }
+  ],
+  "converted_note": "Held a LIST where the generator reads blk.get(\"studies\") -- a mapping with a studies sequence. Entries preserved unchanged under studies. A SHAPE THE CONSUMER CANNOT READ IS THE SAME DEFECT AS A FIELD IT CANNOT FIND."
+ },
  "display_change_announced": [
   {
    "date": "2026-08-18",

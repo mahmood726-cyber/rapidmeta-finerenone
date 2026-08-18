@@ -294,7 +294,30 @@
       ]
      }
     ],
-    "registration_counts_read_utc": "2026-08-18"
+    "registration_counts_read_utc": "2026-08-18",
+    "registered_primaries": [
+     "Incidence of All-cause Mortality, Myocardial Infarction (MI), and Ischemia-driven Revascularization (IDR)"
+    ],
+    "registered_secondaries": [
+     "Incidence of All-cause Mortality and MI",
+     "Individual Incidence of All-cause Mortality",
+     "Individual Incidence of IDR",
+     "Incidence of Stroke",
+     "Incidence of Abrupt Closure, Threatened Abrupt Closure, Need for Urgent Coronary Artery Bypass Graft (CABG) Surgery, or Unsuccessful Procedure During the Index PCI",
+     "Incidence of All-cause Mortality, MI or IDR",
+     "Incidence of All-cause Mortality or MI",
+     "Incidence of All-cause Mortality",
+     "Incidence of MI",
+     "Incidence of IDR",
+     "Incidence of Stroke",
+     "Incidence of All Cause Mortality",
+     "Incidence of GUSTO Severe / Life-threatening Bleeding",
+     "Incidence of Thrombolysis in Myocardial Infarction (TIMI) Major Bleeding",
+     "Incidence of ACUITY Major Bleeding",
+     "Incidence of ACUITY Major Bleeding (Without Hematoma >/= 5 cm)"
+    ],
+    "registered_other_outcomes": [],
+    "all_ranks_read_utc": "2026-08-18"
    },
    {
     "id": "NCT00385138",
@@ -529,7 +552,33 @@
       ]
      }
     ],
-    "registration_counts_read_utc": "2026-08-18"
+    "registration_counts_read_utc": "2026-08-18",
+    "registered_primaries": [
+     "Incidence of All-cause Mortality, Myocardial Infarction (MI), and Ischemia-driven Revascularization (IDR)"
+    ],
+    "registered_secondaries": [
+     "Incidence of All-cause Mortality or MI",
+     "Incidence of All-cause Mortality",
+     "Incidence of MI",
+     "Incidence of IDR",
+     "Incidence of Stent Thrombosis",
+     "Incidence of Stroke",
+     "Incidence of All-cause Mortality",
+     "Incidence of Procedure Events [Abrupt Closure, Threatened Abrupt Closure, Need for Urgent Coronary Artery Bypass Graft (CABG) Surgery, Unsuccessful Procedure, New Thrombus or Suspected Thrombus, and/or Acute Stent Thrombosis]",
+     "Incidence of GUSTO Severe / Life-threatening",
+     "Incidence of Thrombolysis in Myocardial Infarction (TIMI) Major",
+     "Incidence of ACUITY Major Bleeding",
+     "Incidence of ACUITY Major Bleeding Without Hematoma >/= 5 cm",
+     "Incidence of All-cause Mortality, MI, or IDR",
+     "Incidence of All-cause Mortality or MI",
+     "Incidence of All-cause Mortality",
+     "Incidence of MI",
+     "Incidence of IDR",
+     "Incidence of Stent Thrombosis",
+     "Incidence of Stroke"
+    ],
+    "registered_other_outcomes": [],
+    "all_ranks_read_utc": "2026-08-18"
    },
    {
     "id": "NCT01156571",
@@ -628,7 +677,16 @@
       ]
      }
     ],
-    "registration_counts_read_utc": "2026-08-18"
+    "registration_counts_read_utc": "2026-08-18",
+    "registered_primaries": [
+     "The Composite Incidence of All-cause Mortality, Myocardial Infarction (MI), Ischemia-driven Revascularization (IDR) and Stent Thrombosis (ST)"
+    ],
+    "registered_secondaries": [
+     "Individual Incidence of Stent Thrombosis (ST), Death, Myocardial Infarction (MI) and Ischemia-driven Revascularization (IDR)",
+     "Incidence of Major/Minor Non-coronary Artery Bypass Graft (CABG)-Related Hemorrhage by Clinical Relevant Criteria - GUSTO Severe/Life-threatening, Moderate and Mild"
+    ],
+    "registered_other_outcomes": [],
+    "all_ranks_read_utc": "2026-08-18"
    }
   ]
  },
@@ -722,6 +780,89 @@
      },
      "card_note": "the page put ALL-CAUSE MORTALITY numerators over the PRIMARY COMPOSITE's denominators on all three trials -- 8/3889 where the registry says 290/3889. Correcting it gives OR 0.8955 (0.7526 to 1.0656), which crosses no effect; the published 0.81 (0.71-0.91) did not"
     }
+   },
+   "corrected_composite_3component": {
+    "measure": "RR",
+    "k": 2,
+    "model": "random-effects",
+    "estimator": "REML",
+    "pooled": {
+     "point": 0.9646,
+     "ci_low": 0.8132,
+     "ci_high": 1.1442,
+     "ci_level": 95
+    },
+    "pooled_hartung_knapp": {
+     "point": 0.9646,
+     "ci_low": 0.319,
+     "ci_high": 2.9172,
+     "df": 1,
+     "t_critical": 12.7062047,
+     "variance_inflation_applied": 1.0,
+     "why_it_is_shown": "Handbook 6.5 section 10.10.4.5 recommends Hartung-Knapp where k is small. Shown ALONGSIDE the unadjusted interval, not instead of it. A FLOOR OF 1 is applied to the variance-inflation factor so the adjustment can never NARROW the interval below the unadjusted one."
+    },
+    "heterogeneity": {
+     "tau2": 0.00732,
+     "q": 1.9169,
+     "df": 1,
+     "i2_percent": 47.8,
+     "DIRECTION_TEST": "NOT APPLICABLE -- I-squared is 47.8%, below the threshold at which the direction test is informative. The trials are consistent with a common effect and no heterogeneity caution is warranted. Applying one here would manufacture doubt the data do not support, which is the mirror failure of ignoring heterogeneity that matters.",
+     "how_to_read_this_at_low_k": "At k=2 or k=3 these statistics are weak evidence about consistency in EITHER direction. A low value means the estimates are CONSISTENT WITH a common effect, not that one is demonstrated."
+    },
+    "per_trial": [
+     {
+      "trial_id": "NCT00305162",
+      "nct": "NCT00305162",
+      "label": "CHAMPION PCI",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT00305162",
+      "read_utc": "2026-08-18",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "as_posted": {
+       "cangrelor_events": 290,
+       "cangrelor_n": 3889,
+       "clopidogrel_events": 276,
+       "clopidogrel_n": 3865
+      },
+      "measure": "RR",
+      "point": 1.0442,
+      "ci_low": 0.891,
+      "ci_high": 1.2238,
+      "se_log_rr": 0.080967,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. Counts read from the registry; only the arithmetic is ours and the formula is shown."
+     },
+     {
+      "trial_id": "NCT00385138",
+      "nct": "NCT00385138",
+      "label": "CHAMPION PLATFORM",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT00385138",
+      "read_utc": "2026-08-18",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "as_posted": {
+       "cangrelor_events": 185,
+       "cangrelor_n": 2654,
+       "clopidogrel_events": 210,
+       "clopidogrel_n": 2641
+      },
+      "measure": "RR",
+      "point": 0.8766,
+      "ci_low": 0.7248,
+      "ci_high": 1.0602,
+      "se_log_rr": 0.097015,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. Counts read from the registry; only the arithmetic is ours and the formula is shown."
+     }
+    ],
+    "comparator": "clopidogrel",
+    "estimator_used": "REML",
+    "outcome": "all-cause mortality, myocardial infarction, or ischaemia-driven revascularisation",
+    "analysis_code": "scripts/ctg_binary_pool.py::pool_rr",
+    "WHY_THIS_REPLACES_A_WITHDRAWAL": "THE WITHDRAWAL WAS FOR A DATA-INTEGRITY ERROR, NOT AN ENDPOINT MISMATCH. The page had carried numerators from one outcome against denominators from another. THE ENDPOINTS AGREE: CHAMPION PCI and CHAMPION PLATFORM register the IDENTICAL primary, verbatim -- \"Incidence of All-cause Mortality, Myocardial Infarction (MI), and Ischemia-driven Revascularization (IDR)\". Counts and denominators are re-read from each registrations posted results on 2026-08-18 and now come from the same outcome.",
+    "the_third_trial_EXCLUDED_and_why": "CHAMPION PHOENIX (NCT01156571) registers a FOUR-component composite -- it adds STENT THROMBOSIS to the same three. That is a different quantity, and its counts are recorded here so the exclusion is checkable: 257/5470 against 322/5469. Pooling it would repeat the error this page was withdrawn for.",
+    "recoverable_by_correcting_the_data_not_by_harmonising": "A CATEGORY THE PROPORTIONALITY SWEEP CANNOT SEE. That sweep never reads our verdicts -- the design choice that keeps it honest -- so it flagged this topic on shared outcome concepts and could not tell that the withdrawal was about mis-transcribed data. THE SWEEP IS NOT EXHAUSTIVE and this class will always be invisible to it.",
+    "what_this_does_not_establish": "NOT that either trial is free of bias; no risk-of-bias assessment is recorded. NOT a result including CHAMPION PHOENIX, whose composite differs. NOT that the original withdrawal was wrong -- the data on the page WAS mismatched and that withdrawal was correct; what was missing was the corrected pool."
    }
   }
  },
@@ -735,5 +876,7 @@
   "rob2": "No risk-of-bias assessment was recoverable from the page.",
   "grade": "No certainty rating was recoverable from the page.",
   "sources": "Every endpoint definition AND every event count on this page is read from the trial's own ClinicalTrials.gov results record and carries a resolvable link. No journal sentence is quoted."
- }
+ },
+ "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over.",
+ "topic_state": "WITHDRAWAL SUPERSEDED -- corrected pool built, k=2, registry-sourced"
 }
