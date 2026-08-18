@@ -2100,7 +2100,50 @@
      }
     ],
     "poolable_reason": "NOT ONE OF THE SEVEN TRIALS REGISTERS THIS SYMPTOM AS AN OUTCOME MEASURE. Each registers a SINGLE solicited injection-site endpoint -- 'Percentage of Participants With a Solicited Injection-site Adverse Event' or its close variant -- and the individual symptoms appear only as CLASSES inside that measure's posted results. So the quantity is registry-sourced and real, but the four outcomes this page separates were never separated by the trials: they are components of one registered composite, reported alongside each other and never pre-specified as endpoints in their own right. A synthesis of them carries no pre-specification and cannot be protected against selective reporting by the registrations, because the registrations do not name them. SECOND, INDEPENDENT REASON -- THE OBSERVATION WINDOWS DO NOT MATCH: two trials solicit over FIVE days and five over FOURTEEN. A fourteen-day window will record symptoms a five-day window cannot, so the same symptom is not the same measurement across these trials. Registered windows, verbatim: Up to 14 days after vaccination (NCT02547649); Up to 5 days after Vaccination 1 (NCT03547167); Up to Day 5 postvaccination (NCT03950622); Up to ~14 days after each vaccination (NCT03620162); Up to Day 14 after each study vaccination (NCT03692871); Day 1 to Day 14 post each vaccination (NCT03848065); Through 14 Days after Vaccination 1 (NCT03921424). No estimate was ever displayed for these outcomes and none is created here; this records WHY the object's existing poolable=False is correct, which it previously asserted with no reason recorded.",
-    "poolable_reason_recorded_utc": "2026-08-18"
+    "poolable_reason_recorded_utc": "2026-08-18",
+    "unregistered_endpoint_handbook_ruling": {
+     "instance": "all SEVEN V114 trials",
+     "what_the_registry_declares": "Each of the seven registers ONE solicited injection-site endpoint -- 'Percentage of Participants With a Solicited Injection-site Adverse Event' or its close variant. The four individual symptoms this page separates appear only as CLASSES inside that composite's posted results. The page separates four endpoints the trials never separated.",
+     "rob2_domain_5_bias_in_selection_of_the_reported_result": "HIGH RISK for every contributing trial on every one of the four outcomes",
+     "consequence": "NO ESTIMATE IS AFFECTED, because none is displayed: all four outcomes carry poolable=false and no pooled value. The citation is recorded so the reason is the Handbook's and not ours.",
+     "ruled_by": null,
+     "authority": {
+      "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+      "version": "Version 6.5, 2024",
+      "version_verified_on": "2026-08-18",
+      "version_verified_at": "https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current",
+      "sections": "8.7 (it is risk of bias); 3.1, 3.2.4.1 and MECIR 3.2.d (it is NOT eligibility); chapter 13 (exclusion is not required); 10.14 (sensitivity analysis)",
+      "question": "A contributing trial's registration does not declare the endpoint this synthesis takes from it. Is that an ELIGIBILITY question or a RISK OF BIAS question, and must the result be excluded from the primary synthesis?",
+      "answer": "RISK OF BIAS, not eligibility. The result STAYS in the primary synthesis, the trial is graded at high risk of bias in the domain covering selection of the reported result, and any analysis excluding it is reported as a SENSITIVITY analysis.",
+      "it_is_a_risk_of_bias_question": {
+       "section": "8.7",
+       "what": "RoB 2 domain 5, 'bias in selection of the reported result'.",
+       "verbatim_scope": "Covers bias arising when 'the reported result is selected (based on its direction, magnitude or statistical significance) from among multiple intervention effect estimates that were calculated by the trial authors'.",
+       "verbatim_method": "'attempt to retrieve the pre-specified analysis intentions for each trial ... allows for the identification of any outcome measures or analyses that have been omitted from, or added to, the results report, post hoc'.",
+       "why_it_fits": "An outcome ADDED post hoc is precisely what this domain exists to grade. Our three instances are all of that kind -- the quantity exists in the publication and not in the registration."
+      },
+      "it_is_NOT_an_eligibility_question": {
+       "sections": "3.1, 3.2.4.1, and MECIR Box 3.2.d",
+       "verbatim_3_1": "'Outcomes usually are not part of the criteria for including studies, and a Cochrane review would typically seek all sufficiently rigorous studies (most commonly randomized trials) of a particular comparison of interventions in a particular population of participants, irrespective of the outcomes measured or reported.'",
+       "verbatim_3_2_4_1": "'Reporting of outcomes should rarely determine study eligibility for a review. In particular, studies should not be excluded because they do not report results of an outcome they may have measured, or provide \"no usable data\".'",
+       "verbatim_mecir_3_2_d": "'Outcome measures should not always form part of the criteria for including studies in a review.'",
+       "so": "The Handbook does not merely permit inclusion -- it DISCOURAGES using outcome reporting as an eligibility criterion at all. Eligibility rests on the PICO elements and study design. Registration status is not among them."
+      },
+      "the_handbook_does_not_require_exclusion": {
+       "chapter": "13 (bias due to missing results in a synthesis)",
+       "sections": "13.3.1.3, 13.3.4.6, 13.3.5",
+       "finding": "Chapter 13 nowhere recommends excluding a non-pre-specified result from the primary synthesis. Its recommended handling is DETECTION (13.3.1.3, comparing study plans against available results), a RISK OF BIAS JUDGEMENT using the ROB-ME tool (13.3.5), and SENSITIVITY ANALYSIS (13.3.4.6) -- not exclusion.",
+       "and_a_distinction_that_matters": "Chapter 13 and ROB-ME address results MISSING from a synthesis. Our case is the opposite direction -- a result PRESENT that was never pre-specified -- which is why section 8.7 is the correct instrument and Chapter 13 is the adjacent one. Section 8.7 says so itself: it 'does not address bias due to selective non-reporting (or incomplete reporting) of outcome domains that were measured and analysed by the trial authors'."
+      },
+      "sensitivity_analysis_authority": {
+       "section": "10.14",
+       "verbatim": "'Sensitivity analyses should be used to examine whether overall findings are robust to potentially influential decisions.'"
+      },
+      "the_conservative_principle": "WHERE THE HANDBOOK LEAVES A CHOICE, TAKE THE OPTION THAT DOES NOT MOVE A RESULT TOWARD SIGNIFICANCE BY OUR OWN DECISION. An analytic choice of ours that STRENGTHENS our own conclusion needs a stronger justification than one that weakens it. Here the direction decides on its own: a wrong inclusion leaves a null intact, while a wrong exclusion publishes a positive result we created.",
+      "how_this_was_verified": "The ruling to adopt this reading came from the author. An author's agreement is not a source, so both propositions that would OVERTURN it were tested before it was applied: (1) does the Handbook place a non-pre-specified outcome under ELIGIBILITY? Chapter 3 says the opposite and discourages outcome-based exclusion. (2) is it explicit that such results should be EXCLUDED from primary synthesis? Chapter 13 recommends detection, a risk-of-bias judgement and sensitivity analysis instead. Both fail; the Handbook is more emphatic than the ruling."
+     },
+     "citation_is_shared": "This block is quoted from scripts/handbook_citations.py, which holds the single verified copy. Three objects carry the same finding and a citation retyped three times is a citation that will differ in three places."
+    }
    },
    "injection_site_swelling": {
     "k": 7,
@@ -2168,7 +2211,50 @@
      }
     ],
     "poolable_reason": "NOT ONE OF THE SEVEN TRIALS REGISTERS THIS SYMPTOM AS AN OUTCOME MEASURE. Each registers a SINGLE solicited injection-site endpoint -- 'Percentage of Participants With a Solicited Injection-site Adverse Event' or its close variant -- and the individual symptoms appear only as CLASSES inside that measure's posted results. So the quantity is registry-sourced and real, but the four outcomes this page separates were never separated by the trials: they are components of one registered composite, reported alongside each other and never pre-specified as endpoints in their own right. A synthesis of them carries no pre-specification and cannot be protected against selective reporting by the registrations, because the registrations do not name them. SECOND, INDEPENDENT REASON -- THE OBSERVATION WINDOWS DO NOT MATCH: two trials solicit over FIVE days and five over FOURTEEN. A fourteen-day window will record symptoms a five-day window cannot, so the same symptom is not the same measurement across these trials. Registered windows, verbatim: Up to 14 days after vaccination (NCT02547649); Up to 5 days after Vaccination 1 (NCT03547167); Up to Day 5 postvaccination (NCT03950622); Up to ~14 days after each vaccination (NCT03620162); Up to Day 14 after each study vaccination (NCT03692871); Day 1 to Day 14 post each vaccination (NCT03848065); Through 14 Days after Vaccination 1 (NCT03921424). No estimate was ever displayed for these outcomes and none is created here; this records WHY the object's existing poolable=False is correct, which it previously asserted with no reason recorded.",
-    "poolable_reason_recorded_utc": "2026-08-18"
+    "poolable_reason_recorded_utc": "2026-08-18",
+    "unregistered_endpoint_handbook_ruling": {
+     "instance": "all SEVEN V114 trials",
+     "what_the_registry_declares": "Each of the seven registers ONE solicited injection-site endpoint -- 'Percentage of Participants With a Solicited Injection-site Adverse Event' or its close variant. The four individual symptoms this page separates appear only as CLASSES inside that composite's posted results. The page separates four endpoints the trials never separated.",
+     "rob2_domain_5_bias_in_selection_of_the_reported_result": "HIGH RISK for every contributing trial on every one of the four outcomes",
+     "consequence": "NO ESTIMATE IS AFFECTED, because none is displayed: all four outcomes carry poolable=false and no pooled value. The citation is recorded so the reason is the Handbook's and not ours.",
+     "ruled_by": null,
+     "authority": {
+      "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+      "version": "Version 6.5, 2024",
+      "version_verified_on": "2026-08-18",
+      "version_verified_at": "https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current",
+      "sections": "8.7 (it is risk of bias); 3.1, 3.2.4.1 and MECIR 3.2.d (it is NOT eligibility); chapter 13 (exclusion is not required); 10.14 (sensitivity analysis)",
+      "question": "A contributing trial's registration does not declare the endpoint this synthesis takes from it. Is that an ELIGIBILITY question or a RISK OF BIAS question, and must the result be excluded from the primary synthesis?",
+      "answer": "RISK OF BIAS, not eligibility. The result STAYS in the primary synthesis, the trial is graded at high risk of bias in the domain covering selection of the reported result, and any analysis excluding it is reported as a SENSITIVITY analysis.",
+      "it_is_a_risk_of_bias_question": {
+       "section": "8.7",
+       "what": "RoB 2 domain 5, 'bias in selection of the reported result'.",
+       "verbatim_scope": "Covers bias arising when 'the reported result is selected (based on its direction, magnitude or statistical significance) from among multiple intervention effect estimates that were calculated by the trial authors'.",
+       "verbatim_method": "'attempt to retrieve the pre-specified analysis intentions for each trial ... allows for the identification of any outcome measures or analyses that have been omitted from, or added to, the results report, post hoc'.",
+       "why_it_fits": "An outcome ADDED post hoc is precisely what this domain exists to grade. Our three instances are all of that kind -- the quantity exists in the publication and not in the registration."
+      },
+      "it_is_NOT_an_eligibility_question": {
+       "sections": "3.1, 3.2.4.1, and MECIR Box 3.2.d",
+       "verbatim_3_1": "'Outcomes usually are not part of the criteria for including studies, and a Cochrane review would typically seek all sufficiently rigorous studies (most commonly randomized trials) of a particular comparison of interventions in a particular population of participants, irrespective of the outcomes measured or reported.'",
+       "verbatim_3_2_4_1": "'Reporting of outcomes should rarely determine study eligibility for a review. In particular, studies should not be excluded because they do not report results of an outcome they may have measured, or provide \"no usable data\".'",
+       "verbatim_mecir_3_2_d": "'Outcome measures should not always form part of the criteria for including studies in a review.'",
+       "so": "The Handbook does not merely permit inclusion -- it DISCOURAGES using outcome reporting as an eligibility criterion at all. Eligibility rests on the PICO elements and study design. Registration status is not among them."
+      },
+      "the_handbook_does_not_require_exclusion": {
+       "chapter": "13 (bias due to missing results in a synthesis)",
+       "sections": "13.3.1.3, 13.3.4.6, 13.3.5",
+       "finding": "Chapter 13 nowhere recommends excluding a non-pre-specified result from the primary synthesis. Its recommended handling is DETECTION (13.3.1.3, comparing study plans against available results), a RISK OF BIAS JUDGEMENT using the ROB-ME tool (13.3.5), and SENSITIVITY ANALYSIS (13.3.4.6) -- not exclusion.",
+       "and_a_distinction_that_matters": "Chapter 13 and ROB-ME address results MISSING from a synthesis. Our case is the opposite direction -- a result PRESENT that was never pre-specified -- which is why section 8.7 is the correct instrument and Chapter 13 is the adjacent one. Section 8.7 says so itself: it 'does not address bias due to selective non-reporting (or incomplete reporting) of outcome domains that were measured and analysed by the trial authors'."
+      },
+      "sensitivity_analysis_authority": {
+       "section": "10.14",
+       "verbatim": "'Sensitivity analyses should be used to examine whether overall findings are robust to potentially influential decisions.'"
+      },
+      "the_conservative_principle": "WHERE THE HANDBOOK LEAVES A CHOICE, TAKE THE OPTION THAT DOES NOT MOVE A RESULT TOWARD SIGNIFICANCE BY OUR OWN DECISION. An analytic choice of ours that STRENGTHENS our own conclusion needs a stronger justification than one that weakens it. Here the direction decides on its own: a wrong inclusion leaves a null intact, while a wrong exclusion publishes a positive result we created.",
+      "how_this_was_verified": "The ruling to adopt this reading came from the author. An author's agreement is not a source, so both propositions that would OVERTURN it were tested before it was applied: (1) does the Handbook place a non-pre-specified outcome under ELIGIBILITY? Chapter 3 says the opposite and discourages outcome-based exclusion. (2) is it explicit that such results should be EXCLUDED from primary synthesis? Chapter 13 recommends detection, a risk-of-bias judgement and sensitivity analysis instead. Both fail; the Handbook is more emphatic than the ruling."
+     },
+     "citation_is_shared": "This block is quoted from scripts/handbook_citations.py, which holds the single verified copy. Three objects carry the same finding and a citation retyped three times is a citation that will differ in three places."
+    }
    },
    "injection_site_erythema": {
     "k": 7,
@@ -2236,7 +2322,50 @@
      }
     ],
     "poolable_reason": "NOT ONE OF THE SEVEN TRIALS REGISTERS THIS SYMPTOM AS AN OUTCOME MEASURE. Each registers a SINGLE solicited injection-site endpoint -- 'Percentage of Participants With a Solicited Injection-site Adverse Event' or its close variant -- and the individual symptoms appear only as CLASSES inside that measure's posted results. So the quantity is registry-sourced and real, but the four outcomes this page separates were never separated by the trials: they are components of one registered composite, reported alongside each other and never pre-specified as endpoints in their own right. A synthesis of them carries no pre-specification and cannot be protected against selective reporting by the registrations, because the registrations do not name them. SECOND, INDEPENDENT REASON -- THE OBSERVATION WINDOWS DO NOT MATCH: two trials solicit over FIVE days and five over FOURTEEN. A fourteen-day window will record symptoms a five-day window cannot, so the same symptom is not the same measurement across these trials. Registered windows, verbatim: Up to 14 days after vaccination (NCT02547649); Up to 5 days after Vaccination 1 (NCT03547167); Up to Day 5 postvaccination (NCT03950622); Up to ~14 days after each vaccination (NCT03620162); Up to Day 14 after each study vaccination (NCT03692871); Day 1 to Day 14 post each vaccination (NCT03848065); Through 14 Days after Vaccination 1 (NCT03921424). No estimate was ever displayed for these outcomes and none is created here; this records WHY the object's existing poolable=False is correct, which it previously asserted with no reason recorded.",
-    "poolable_reason_recorded_utc": "2026-08-18"
+    "poolable_reason_recorded_utc": "2026-08-18",
+    "unregistered_endpoint_handbook_ruling": {
+     "instance": "all SEVEN V114 trials",
+     "what_the_registry_declares": "Each of the seven registers ONE solicited injection-site endpoint -- 'Percentage of Participants With a Solicited Injection-site Adverse Event' or its close variant. The four individual symptoms this page separates appear only as CLASSES inside that composite's posted results. The page separates four endpoints the trials never separated.",
+     "rob2_domain_5_bias_in_selection_of_the_reported_result": "HIGH RISK for every contributing trial on every one of the four outcomes",
+     "consequence": "NO ESTIMATE IS AFFECTED, because none is displayed: all four outcomes carry poolable=false and no pooled value. The citation is recorded so the reason is the Handbook's and not ours.",
+     "ruled_by": null,
+     "authority": {
+      "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+      "version": "Version 6.5, 2024",
+      "version_verified_on": "2026-08-18",
+      "version_verified_at": "https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current",
+      "sections": "8.7 (it is risk of bias); 3.1, 3.2.4.1 and MECIR 3.2.d (it is NOT eligibility); chapter 13 (exclusion is not required); 10.14 (sensitivity analysis)",
+      "question": "A contributing trial's registration does not declare the endpoint this synthesis takes from it. Is that an ELIGIBILITY question or a RISK OF BIAS question, and must the result be excluded from the primary synthesis?",
+      "answer": "RISK OF BIAS, not eligibility. The result STAYS in the primary synthesis, the trial is graded at high risk of bias in the domain covering selection of the reported result, and any analysis excluding it is reported as a SENSITIVITY analysis.",
+      "it_is_a_risk_of_bias_question": {
+       "section": "8.7",
+       "what": "RoB 2 domain 5, 'bias in selection of the reported result'.",
+       "verbatim_scope": "Covers bias arising when 'the reported result is selected (based on its direction, magnitude or statistical significance) from among multiple intervention effect estimates that were calculated by the trial authors'.",
+       "verbatim_method": "'attempt to retrieve the pre-specified analysis intentions for each trial ... allows for the identification of any outcome measures or analyses that have been omitted from, or added to, the results report, post hoc'.",
+       "why_it_fits": "An outcome ADDED post hoc is precisely what this domain exists to grade. Our three instances are all of that kind -- the quantity exists in the publication and not in the registration."
+      },
+      "it_is_NOT_an_eligibility_question": {
+       "sections": "3.1, 3.2.4.1, and MECIR Box 3.2.d",
+       "verbatim_3_1": "'Outcomes usually are not part of the criteria for including studies, and a Cochrane review would typically seek all sufficiently rigorous studies (most commonly randomized trials) of a particular comparison of interventions in a particular population of participants, irrespective of the outcomes measured or reported.'",
+       "verbatim_3_2_4_1": "'Reporting of outcomes should rarely determine study eligibility for a review. In particular, studies should not be excluded because they do not report results of an outcome they may have measured, or provide \"no usable data\".'",
+       "verbatim_mecir_3_2_d": "'Outcome measures should not always form part of the criteria for including studies in a review.'",
+       "so": "The Handbook does not merely permit inclusion -- it DISCOURAGES using outcome reporting as an eligibility criterion at all. Eligibility rests on the PICO elements and study design. Registration status is not among them."
+      },
+      "the_handbook_does_not_require_exclusion": {
+       "chapter": "13 (bias due to missing results in a synthesis)",
+       "sections": "13.3.1.3, 13.3.4.6, 13.3.5",
+       "finding": "Chapter 13 nowhere recommends excluding a non-pre-specified result from the primary synthesis. Its recommended handling is DETECTION (13.3.1.3, comparing study plans against available results), a RISK OF BIAS JUDGEMENT using the ROB-ME tool (13.3.5), and SENSITIVITY ANALYSIS (13.3.4.6) -- not exclusion.",
+       "and_a_distinction_that_matters": "Chapter 13 and ROB-ME address results MISSING from a synthesis. Our case is the opposite direction -- a result PRESENT that was never pre-specified -- which is why section 8.7 is the correct instrument and Chapter 13 is the adjacent one. Section 8.7 says so itself: it 'does not address bias due to selective non-reporting (or incomplete reporting) of outcome domains that were measured and analysed by the trial authors'."
+      },
+      "sensitivity_analysis_authority": {
+       "section": "10.14",
+       "verbatim": "'Sensitivity analyses should be used to examine whether overall findings are robust to potentially influential decisions.'"
+      },
+      "the_conservative_principle": "WHERE THE HANDBOOK LEAVES A CHOICE, TAKE THE OPTION THAT DOES NOT MOVE A RESULT TOWARD SIGNIFICANCE BY OUR OWN DECISION. An analytic choice of ours that STRENGTHENS our own conclusion needs a stronger justification than one that weakens it. Here the direction decides on its own: a wrong inclusion leaves a null intact, while a wrong exclusion publishes a positive result we created.",
+      "how_this_was_verified": "The ruling to adopt this reading came from the author. An author's agreement is not a source, so both propositions that would OVERTURN it were tested before it was applied: (1) does the Handbook place a non-pre-specified outcome under ELIGIBILITY? Chapter 3 says the opposite and discourages outcome-based exclusion. (2) is it explicit that such results should be EXCLUDED from primary synthesis? Chapter 13 recommends detection, a risk-of-bias judgement and sensitivity analysis instead. Both fail; the Handbook is more emphatic than the ruling."
+     },
+     "citation_is_shared": "This block is quoted from scripts/handbook_citations.py, which holds the single verified copy. Three objects carry the same finding and a citation retyped three times is a citation that will differ in three places."
+    }
    },
    "injection_site_induration": {
     "k": 4,
@@ -2280,7 +2409,50 @@
      }
     ],
     "poolable_reason": "NOT ONE OF THE SEVEN TRIALS REGISTERS THIS SYMPTOM AS AN OUTCOME MEASURE. Each registers a SINGLE solicited injection-site endpoint -- 'Percentage of Participants With a Solicited Injection-site Adverse Event' or its close variant -- and the individual symptoms appear only as CLASSES inside that measure's posted results. So the quantity is registry-sourced and real, but the four outcomes this page separates were never separated by the trials: they are components of one registered composite, reported alongside each other and never pre-specified as endpoints in their own right. A synthesis of them carries no pre-specification and cannot be protected against selective reporting by the registrations, because the registrations do not name them. SECOND, INDEPENDENT REASON -- THE OBSERVATION WINDOWS DO NOT MATCH: two trials solicit over FIVE days and five over FOURTEEN. A fourteen-day window will record symptoms a five-day window cannot, so the same symptom is not the same measurement across these trials. Registered windows, verbatim: Up to 14 days after vaccination (NCT02547649); Up to 5 days after Vaccination 1 (NCT03547167); Up to Day 5 postvaccination (NCT03950622); Up to ~14 days after each vaccination (NCT03620162); Up to Day 14 after each study vaccination (NCT03692871); Day 1 to Day 14 post each vaccination (NCT03848065); Through 14 Days after Vaccination 1 (NCT03921424). No estimate was ever displayed for these outcomes and none is created here; this records WHY the object's existing poolable=False is correct, which it previously asserted with no reason recorded.",
-    "poolable_reason_recorded_utc": "2026-08-18"
+    "poolable_reason_recorded_utc": "2026-08-18",
+    "unregistered_endpoint_handbook_ruling": {
+     "instance": "all SEVEN V114 trials",
+     "what_the_registry_declares": "Each of the seven registers ONE solicited injection-site endpoint -- 'Percentage of Participants With a Solicited Injection-site Adverse Event' or its close variant. The four individual symptoms this page separates appear only as CLASSES inside that composite's posted results. The page separates four endpoints the trials never separated.",
+     "rob2_domain_5_bias_in_selection_of_the_reported_result": "HIGH RISK for every contributing trial on every one of the four outcomes",
+     "consequence": "NO ESTIMATE IS AFFECTED, because none is displayed: all four outcomes carry poolable=false and no pooled value. The citation is recorded so the reason is the Handbook's and not ours.",
+     "ruled_by": null,
+     "authority": {
+      "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+      "version": "Version 6.5, 2024",
+      "version_verified_on": "2026-08-18",
+      "version_verified_at": "https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current",
+      "sections": "8.7 (it is risk of bias); 3.1, 3.2.4.1 and MECIR 3.2.d (it is NOT eligibility); chapter 13 (exclusion is not required); 10.14 (sensitivity analysis)",
+      "question": "A contributing trial's registration does not declare the endpoint this synthesis takes from it. Is that an ELIGIBILITY question or a RISK OF BIAS question, and must the result be excluded from the primary synthesis?",
+      "answer": "RISK OF BIAS, not eligibility. The result STAYS in the primary synthesis, the trial is graded at high risk of bias in the domain covering selection of the reported result, and any analysis excluding it is reported as a SENSITIVITY analysis.",
+      "it_is_a_risk_of_bias_question": {
+       "section": "8.7",
+       "what": "RoB 2 domain 5, 'bias in selection of the reported result'.",
+       "verbatim_scope": "Covers bias arising when 'the reported result is selected (based on its direction, magnitude or statistical significance) from among multiple intervention effect estimates that were calculated by the trial authors'.",
+       "verbatim_method": "'attempt to retrieve the pre-specified analysis intentions for each trial ... allows for the identification of any outcome measures or analyses that have been omitted from, or added to, the results report, post hoc'.",
+       "why_it_fits": "An outcome ADDED post hoc is precisely what this domain exists to grade. Our three instances are all of that kind -- the quantity exists in the publication and not in the registration."
+      },
+      "it_is_NOT_an_eligibility_question": {
+       "sections": "3.1, 3.2.4.1, and MECIR Box 3.2.d",
+       "verbatim_3_1": "'Outcomes usually are not part of the criteria for including studies, and a Cochrane review would typically seek all sufficiently rigorous studies (most commonly randomized trials) of a particular comparison of interventions in a particular population of participants, irrespective of the outcomes measured or reported.'",
+       "verbatim_3_2_4_1": "'Reporting of outcomes should rarely determine study eligibility for a review. In particular, studies should not be excluded because they do not report results of an outcome they may have measured, or provide \"no usable data\".'",
+       "verbatim_mecir_3_2_d": "'Outcome measures should not always form part of the criteria for including studies in a review.'",
+       "so": "The Handbook does not merely permit inclusion -- it DISCOURAGES using outcome reporting as an eligibility criterion at all. Eligibility rests on the PICO elements and study design. Registration status is not among them."
+      },
+      "the_handbook_does_not_require_exclusion": {
+       "chapter": "13 (bias due to missing results in a synthesis)",
+       "sections": "13.3.1.3, 13.3.4.6, 13.3.5",
+       "finding": "Chapter 13 nowhere recommends excluding a non-pre-specified result from the primary synthesis. Its recommended handling is DETECTION (13.3.1.3, comparing study plans against available results), a RISK OF BIAS JUDGEMENT using the ROB-ME tool (13.3.5), and SENSITIVITY ANALYSIS (13.3.4.6) -- not exclusion.",
+       "and_a_distinction_that_matters": "Chapter 13 and ROB-ME address results MISSING from a synthesis. Our case is the opposite direction -- a result PRESENT that was never pre-specified -- which is why section 8.7 is the correct instrument and Chapter 13 is the adjacent one. Section 8.7 says so itself: it 'does not address bias due to selective non-reporting (or incomplete reporting) of outcome domains that were measured and analysed by the trial authors'."
+      },
+      "sensitivity_analysis_authority": {
+       "section": "10.14",
+       "verbatim": "'Sensitivity analyses should be used to examine whether overall findings are robust to potentially influential decisions.'"
+      },
+      "the_conservative_principle": "WHERE THE HANDBOOK LEAVES A CHOICE, TAKE THE OPTION THAT DOES NOT MOVE A RESULT TOWARD SIGNIFICANCE BY OUR OWN DECISION. An analytic choice of ours that STRENGTHENS our own conclusion needs a stronger justification than one that weakens it. Here the direction decides on its own: a wrong inclusion leaves a null intact, while a wrong exclusion publishes a positive result we created.",
+      "how_this_was_verified": "The ruling to adopt this reading came from the author. An author's agreement is not a source, so both propositions that would OVERTURN it were tested before it was applied: (1) does the Handbook place a non-pre-specified outcome under ELIGIBILITY? Chapter 3 says the opposite and discourages outcome-based exclusion. (2) is it explicit that such results should be EXCLUDED from primary synthesis? Chapter 13 recommends detection, a risk-of-bias judgement and sensitivity analysis instead. Both fail; the Handbook is more emphatic than the ruling."
+     },
+     "citation_is_shared": "This block is quoted from scripts/handbook_citations.py, which holds the single verified copy. Three objects carry the same finding and a citation retyped three times is a citation that will differ in three places."
+    }
    }
   }
  },
