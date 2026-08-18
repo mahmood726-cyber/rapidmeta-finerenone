@@ -1,5 +1,23 @@
 # Add-on Arm Sweep
 
+> **THE HEADLINE IS 52% NOT_ASSESSABLE, NOT THE 9.**
+>
+> This is an OBJECT-SIDE LABEL TEST and it is known to be weaker than the method that found
+> the defect it was written to sweep for. sglt2-hf's seven add-on trials were caught by
+> READING THE REGISTRY -- arm types and intervention records from the raw ClinicalTrials.gov
+> v2 payload. **This sweep would have missed every one of them**, because those trials are not
+> in any object's `inputs.trials` at all; they were search results.
+>
+> So the result is: **9 suspected over the assessable half, by a method weaker than the one
+> that found the original seven.** 165 of 319 trial records (52%) carry no arm labels that
+> support the test and are NOT_ASSESSABLE -- not clean.
+>
+> What this mostly establishes is that **the object-side test is not the instrument for this
+> question.** A corpus-wide answer needs registry reads for every included trial, which is a
+> different job with a different cost, and it has not been done. The 9 must not be quoted as
+> a corpus count.
+
+
 Date: 2026-08-19
 
 Scope: object-side only; no network; read `inputs.trials[].arms[].label` and `inputs.trials[].arms[].role` from `ssot/<topic>/<topic>.json`.
