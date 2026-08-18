@@ -56,6 +56,24 @@ THE MECHANISM THIS DETECTS, WHICH IS OUR MOST RECURRENT ONE
                                because a partial reading that reports agreement is
                                the CKD false agreement.
 
+    A SECOND RULE OF THE SAME FAMILY, EARNED 2026-08-18:
+
+        A HEADLINE IS A POINT **AND** AN INTERVAL. A REPRODUCTION THAT MATCHES THE
+        POINT AND MISSES THE INTERVAL IS NOT A REPRODUCTION.
+
+    headline_reproducible_gate matched the point alone in its first cut and
+    reported COLCHICINE_CVD as REPRODUCED: fixed-effect over two of its trials
+    gives 0.7506 against a published 0.75, and THAT combination's interval is
+    0.6512 to 0.8652 against a published 0.61 to 0.91. Two digits agreeing is a
+    coincidence, not a derivation, and calling it a reproduction would have cleared
+    a page whose interval follows from nothing.
+
+    This is the same shape as agreement not authenticating anything: matching on
+    the cheap half of a claim says nothing about the half that carries the
+    uncertainty. Where a check compares a composite quantity, it must compare ALL
+    of it or name which part it compared. POINT_ONLY exists as a distinct verdict
+    for exactly that reason.
+
     THE TEST FOR WHETHER A VERDICT IS BEING MISCOUNTED: ask what the check would
     report over a corpus in which it can see NOTHING AT ALL. If the answer is
     anything other than "nothing was established", the not-a-pass verdicts are
