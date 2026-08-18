@@ -7,7 +7,7 @@ this file and know where everything stands.
 
 ## The number
 
-**98 of 101 mapped topics deliver.** Verified mechanically against the **served** bytes,
+**100 of 101 mapped topics deliver.** Verified mechanically against the **served** bytes,
 one topic at a time, by a gate that refuses input it cannot evaluate.
 
 **This morning the figure was 44 and nobody knew it.** Every count reported as progress
@@ -19,13 +19,18 @@ different number and was never equal to this one.
 | | n |
 |---|---|
 | publish a **pooled estimate**, values confirmed live | **15** |
-| publish a **sourced verdict**, reason text confirmed live | **83** |
-| **delivered** | **98** |
-| open | 3 |
+| publish a **sourced verdict**, reason text confirmed live | **85** |
+| **delivered** | **100** |
+| open | **1** |
 
 **Roughly one topic in seven publishes an estimate. Six in seven publish a reasoned
 account of why a synthesis is not possible**, with the registrations read, the ranks
 stated and the date recorded.
+
+**AND THE RATIO IS NOT A FAILURE RATE.** Eighty-five topics where the evidence genuinely
+cannot support a pooled estimate — each with the registrations read at every rank, the
+reason stated, and the date recorded — **is a finding about the evidence base, not about
+this corpus.** Anyone reading the ratio cold will assume the opposite.
 
 **That is the product.** Not a collection of meta-analyses with some gaps — **a
 well-evidenced account of what cannot be synthesised, with a minority of cases where it
@@ -33,13 +38,13 @@ can.** Unusual, defensible, and now measured rather than assumed.
 
 ---
 
-## The three open topics, each understood
+## The one open topic
 
 | topic | state |
 |---|---|
 | **`PREVNAR15_PNEUMO`** | **CONFIRMED CONTENT FAILURE.** Four outcome blocks; none of their reasons reaches the page after a clean rebuild. The generator is not rendering `poolable_reason` for this object's block shape. A generator question, not an object or deploy one — established by reading the **built** file, not the served one. |
-| `EVOLOCUMAB_MIXED_DYSLIPIDEMIA` | cleared earlier in the run; re-gate to confirm |
-| `MITRAL_FUNCMR` | cleared earlier in the run; re-gate to confirm |
+| `EVOLOCUMAB_MIXED_DYSLIPIDEMIA` | **PASS** — confirmed |
+| `MITRAL_FUNCMR` | **PASS** — confirmed |
 
 **No unknowns.** Every remaining item has a stated cause.
 
@@ -63,6 +68,22 @@ identical from outside and need opposite responses.
 
 **The individual pages will be rebuilt many times. The ability to tell whether they worked
 will not need building again.**
+
+---
+
+## One hazard worth carrying forward
+
+**The two-fields-one-decision defect was found by a grep, not by the gate — and the gate
+fix would have hidden it.** `sglt2-ckd-review` and `incretin-hfpef-review` each held
+`poolable_reason` and `pooled.withdrawn_reason` with different text. Teaching the gate to
+prefer the rendered field made both pass, and would have left two objects contradicting
+themselves.
+
+**Fixing the check that surfaced a symptom can conceal the cause.** The instinct when a
+gate misfires is to fix the gate; **twice today the misfire was pointing at something
+real** — this, and `PREVNAR15`'s first-block selection, which turned out to sit on top of a
+genuine content failure. **When a gate misfires, establish what it was pointing at before
+adjusting it.**
 
 ---
 
