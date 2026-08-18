@@ -310,6 +310,93 @@ def _previous_values_text(pooled):
     return html.escape(str(pv))
 
 
+def _endpoint_definitions(canon, oid, p, e):
+    """The registry endpoint definition for every trial that contributes, verbatim.
+
+    See the module note at the top of this patch's history: four topics had their
+    endpoint definitions read from the registry and not one page showed a reader
+    one of them. A property established only in the object is a property the
+    reader has to take on trust.
+    """
+    rows = ""
+    for t in canon["inputs"]["trials"]:
+        bo = (t.get("by_outcome") or {}).get(oid)
+        if not bo:
+            continue
+        d = bo.get("outcome_definition")
+        src = bo.get("outcome_definition_source") or {}
+        name = t.get("name") or t.get("nct") or "?"
+        reg = t.get("nct") or ""
+        if not d:
+            # AN ABSENT DEFINITION SAYS SO. It is not skipped: a trial silently
+            # missing from this table would read as a trial with nothing to
+            # declare, and the whole point of the table is that the reader can
+            # see which trials were actually read.
+            rows += ("    <tr><td><strong>%s</strong><br><small>%s</small></td>"
+                     "<td colspan='3'><em>No endpoint definition is recorded for "
+                     "this trial. Its effect was pooled without one.</em></td></tr>\n"
+                     % (e(name), e(reg)))
+            continue
+        link = src.get("source_url") or ""
+        linkhtml = ('<a href="%s" rel="noopener">%s</a>' % (e(link), e(reg or link))
+                    if link else e(reg) or "&mdash;")
+        rows += (
+            "    <tr><td><strong>%s</strong><br><small>%s</small></td>"
+            "<td>%s</td><td>%s</td><td>%s</td></tr>\n"
+            % (e(name), linkhtml, p(d),
+               p(src.get("description_verbatim") or
+                 "no description is recorded in this registry field"),
+               p(src.get("analysis_set_as_the_registry_states_it")
+                 or src.get("time_frame") or "&mdash;")))
+    if not rows:
+        return ""
+    read_on = sorted({(((t.get("by_outcome") or {}).get(oid) or {})
+                       .get("outcome_definition_source") or {}).get("read_utc")
+                      for t in canon["inputs"]["trials"]} - {None})
+    when = (" Read from the registry on %s." % e(", ".join(read_on))) if read_on else ""
+    return ("""<div class="card">
+  <h3>Endpoint definitions, read from the registry</h3>
+  <p><small>What each trial COUNTED, in its own registry record's words, before
+  anything here was pooled. A sentence saying what HAPPENED is not a sentence
+  saying what was COUNTED, and only the second one licenses a pool.%s Follow the
+  registration link to disagree with any row.</small></p>
+  <table>
+    <tr><th>Trial</th><th>Registered primary outcome measure</th>
+        <th>Description, verbatim</th><th>Analysis set / window</th></tr>
+%s  </table>
+</div>
+""" % (when, rows))
+
+
+def _not_contributing(canon, p, e):
+    """Trials on this review that contribute nothing to its pool."""
+    blk = canon.get("eligible_but_not_contributing") or {}
+    studies = [x for x in (blk.get("studies") or []) if isinstance(x, dict)]
+    if not studies:
+        return ""
+    rows = ""
+    for st in studies:
+        link = st.get("source_url")
+        reg = st.get("id") or ""
+        linkhtml = ('<a href="%s" rel="noopener">%s</a>' % (e(link), e(reg))
+                    if link else e(reg) or "&mdash;")
+        rows += ("    <tr><td><strong>%s</strong><br><small>%s</small></td>"
+                 "<td>%s</td><td>%s</td></tr>\n"
+                 % (e(st.get("name") or reg or "?"), linkhtml,
+                    p(st.get("why_not_contributing") or "not stated"),
+                    p(st.get("what_the_registry_holds_that_the_page_does_not")
+                      or st.get("registered_primary_measure") or "&mdash;")))
+    return ("""<div class="card">
+  <h3>Named on this review, contributing nothing to its pool</h3>
+  <p><small>%s</small></p>
+  <table>
+    <tr><th>Trial</th><th>Why it contributes nothing</th>
+        <th>What the registry holds</th></tr>
+%s  </table>
+</div>
+""" % (p(blk.get("note") or "No reason is recorded."), rows))
+
+
 def _outcome_section(canon, oid, p, e):
     outcome = next(o for o in canon["outcomes"] if o["id"] == oid)
     res = canon["results"]["by_outcome"][oid]
@@ -929,7 +1016,7 @@ def _outcome_section(canon, oid, p, e):
 {rows}  </table>
   <p><small>{p(outcome['definition_note'])}</small></p>
 </div>
-{hb}{sens}{dissent}{subgroups}{note}</section>
+{_endpoint_definitions(canon, oid, p, e)}{_not_contributing(canon, p, e)}{hb}{sens}{dissent}{subgroups}{note}</section>
 """
 
 
