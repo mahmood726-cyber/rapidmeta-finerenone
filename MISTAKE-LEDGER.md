@@ -1423,3 +1423,86 @@ synced — **find the code that performs it.** If no such code exists, the word 
 about a mechanism rather than a description of one, and it will propagate into headlines
 and into pages that promise it to readers. Commit messages that carry the wrong word are
 superseded, not rewritten; pushed history stays as the record.
+
+---
+
+## Two homes for executable code, and nothing said so (2026-08-18)
+
+**Four searches over four rounds concluded no page generator existed. The entire stack was
+in `ssot/`** — `build_tabbed.py`, `build_app_v2.py`, `projectors.py` and three more —
+filed with the data it projects rather than with the tools. Every search looked in
+`scripts/`.
+
+**The rule: search by NAME from the artefact's own record before searching by LOCATION
+from your expectations.** Three of our own records named it in plain text all week:
+`STATUS.md` said "the tabbed projector"; a CSS comment inside `ARNI_HF_REVIEW.html` named
+`projectors.py`; that page's build stamp named its commit. **The answer was readable at
+any point.**
+
+Fix: `scripts/WHERE-THE-GENERATORS-LIVE.md`. Not a move — paths are referenced. **It is
+the only artefact from this week that would have prevented the week.**
+
+---
+
+## Two artefacts wearing the same file extension (2026-08-18)
+
+`ARNI_HF_REVIEW.html` is a **published review**: its pooled value is static text in the
+served bytes and a reader sees it without running anything.
+`GEPOTIDACIN_URINARY_TRACT_AUTO_FULL_REVIEW.html` is an **analysis application**: it
+acquires, extracts and computes in the browser and persists per-visitor in `localStorage`.
+
+**Neither the extension, the directory, nor the index distinguishes them.** That produced
+the "852 empty templates" alarm — 852 un-run tools counted as failed reviews — and a
+projector written to patch values into an application that recomputes them by design.
+
+**The week's real finding is not the count.** It is that a published review and an
+analysis tool were indistinguishable **to us, for days, while we were the people auditing
+them, with the objects and the served bytes in front of us.** If we could not tell, no
+reader can.
+
+---
+
+## An overridable guard is a guard that will be overridden (2026-08-18)
+
+Every guard built this week has an environment-variable escape: `guard_write` (bypassed by
+a direct write), the staging guard (overridden twice, both disclosed), the decode lint
+(ratcheted at 28 rather than gated at zero). **Each override was individually justified.**
+
+**The only guard that has ever stopped a real defect is the one with no override** — the
+pre-push regression gate, whose own message reads *"this gate has no override"*. It caught
+a JavaScript syntax error that eight of my own checks passed.
+
+**A guard for something that genuinely must never happen should not have an escape hatch,
+and if it needs one, that is evidence it is checking the wrong thing.**
+
+---
+
+## EXECUTION is a gate kind, and CONTENT is a missing one (2026-08-18)
+
+Eight checks passed a page that no longer ran: CRLF count, script count, div balance,
+numerals preserved, and three projector invariants each tested with a real refusal. **All
+eight inspect the file.** The gate that caught it **executes the artefact** — runs a
+browser, waits 12 seconds, counts rendered studies, reads console errors.
+
+**EXECUTION is a whole kind missing from `gate_kinds.py`, and it has exactly one member.**
+
+**And it is still not enough.** That same gate then **passed** a page that ran perfectly
+and displayed none of its object's values. **CONTENT — does the rendered page display the
+values the object holds? — has zero members**, and it is the check that would have caught
+the projector delivering nothing.
+
+---
+
+## A day's work survived only as bytecode, by accident (2026-08-12, recorded 2026-08-18)
+
+From `ssot/projectors.py`'s own docstring:
+
+> *"REBUILT 2026-08-12 after `git reset --hard HEAD~1` destroyed a day of uncommitted
+> generator work. Recovered verbatim from `build_app_v2.cpython-313.pyc` — the only
+> surviving representation, which existed only because a probe had imported the module."*
+
+**This happened here before we arrived, and it is the strongest argument for the commit
+discipline this ledger has been accumulating.** A day of work survived because an
+unrelated probe happened to import the module and Python happened to cache the bytecode.
+**That is luck, not a backup.** The rule it earns is already written — *commit after each
+completed batch, not at session end* — and this is what the alternative costs.
