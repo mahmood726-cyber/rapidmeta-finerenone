@@ -430,6 +430,23 @@ guarantees it. It fails toward comfort by construction.
 Built 2026-08-18 after CANGRELOR_PCI. Corpus screen over 37 objects: 4 FAIL, 2
 PASS, 13 REVIEW, 18 UNCHECKABLE.
 
+**RESULT, after the false-alarm cause was fixed: ZERO FAILS ACROSS 37 OBJECTS.**
+2 PASS, 4 REVIEW, 31 UNCHECKABLE. **No further instance of the CANGRELOR class
+exists in any object in this repository**, and that is the answer the screen was
+built to get.
+
+All four original FAILs had one cause: **the object records no
+`outcome_definition`**, so the gate fell back to the registration's PRIMARY and
+disagreed with rows that were pooling something else deliberately — FIDELIO-DKD's
+cardiovascular composite (a secondary there), SUMMIT's heart-failure events
+(against a KCCQ primary), and pitavastatin's NCEP target attainment (against a
+percent-change primary). None is a count defect. A row that does not say what it
+counts now returns UNCHECKABLE, because convicting there would make one FAIL mean
+two incompatible things.
+
+**The 31 UNCHECKABLE are the real backlog** and they are mostly that same missing
+declaration.
+
 **Owed:**
 
 1. **A better outcome-title match.** The gate compares a row against the registry

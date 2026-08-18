@@ -106,6 +106,23 @@ def assess(trial, oid="primary"):
     # direction, and the one that kills a gate. The object records what the row
     # claims in outcome_definition; that is what gets compared.
     bo_def = (((trial.get("by_outcome") or {}).get(oid) or {}).get("outcome_definition") or "")
+    # WITHOUT A DECLARED OUTCOME THIS GATE CANNOT CONVICT, and must not.
+    # All four FAILs in the first corpus run were objects recording NO
+    # outcome_definition, so the comparison fell back to the registration's PRIMARY
+    # and disagreed with rows that were pooling something else on purpose:
+    #   FIDELIO-DKD    the CV composite, a SECONDARY there
+    #   SUMMIT         heart-failure events, where the primary compared is KCCQ score
+    #   Eriksson, Ose  NCEP LDL-C target attainment, where the primary is percent
+    #                  change in LDL-C
+    # None is a count-provenance defect. Each is an object that does not say which
+    # outcome it pooled -- a real gap, and a DIFFERENT one, which estimand_
+    # definition_gate already reports. Convicting here would blame the wrong thing
+    # and would make this gate's FAIL mean two incompatible things at once.
+    if not bo_def:
+        return ("UNCHECKABLE",
+                "this row records no outcome_definition, so what it CLAIMS to count is "
+                "not stated and its counts cannot be reconciled to it. Not a pass, and "
+                "not a count defect -- it is a missing declaration")
     def _norm(x):
         return "".join(ch for ch in str(x).lower() if ch.isalnum())[:90]
     prim = trial.get("registration_primary_counts")
@@ -210,7 +227,7 @@ def selftest() -> int:
         return {"name": "CHAMPION-PCI", "nct": "NCT00305162",
                 "arms": [{"role": "treatment", "label": "Cangrelor", "events": te, "participants": tn},
                          {"role": "control", "label": "Clopidogrel", "events": ce, "participants": cn}],
-                "by_outcome": {"primary": {}},
+                "by_outcome": {"primary": {"outcome_definition": "Incidence of All-cause Mortality, Myocardial Infarction (MI), and Ischemia-driven Revascularization (IDR)"}},
                 "registration_primary_counts": prim,
                 "registration_other_outcome_counts": others}
 
@@ -227,6 +244,13 @@ def selftest() -> int:
          row(288, 274, 3889, 3865, PRIM, others=[]), "REVIEW"),
         ("no registry counts stored is UNCHECKABLE, never a pass",
          row(8, 5, 3889, 3865, {}), "UNCHECKABLE"),
+        ("a row that does not say which outcome it counts cannot be convicted",
+         {"name": "X", "nct": "NCT1",
+          "arms": [{"role": "treatment", "events": 8, "participants": 3889},
+                   {"role": "control", "events": 5, "participants": 3865}],
+          "by_outcome": {"primary": {}},
+          "registration_primary_counts": PRIM,
+          "registration_other_outcome_counts": OTHERS}, "UNCHECKABLE"),
     ]
     for label, t, want in cases:
         v, why = assess(t)
