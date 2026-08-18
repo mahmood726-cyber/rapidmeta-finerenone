@@ -11,12 +11,20 @@ ledger rules sorted by which one each guards.
 |---|---|
 | HTML pages in the repo | **1,486** |
 | canonical objects | 146 |
-| pages projected from an object (`PAGE_MAP`) | **88** |
+| pages with an ASSOCIATED object (`PAGE_MAP`) | **88** |
 | pages carrying an `AUTO_INCLUDE_TRIAL_IDS` JavaScript seed | **854** |
 | pages carrying a hand-authored banner | 96 |
 | objects carrying `inputs.trials` | 120 |
 
-**88 of 1,486 pages are on the straight path — 5.9%.**
+> ### CORRECTED 2026-08-18, AND THE ORIGINAL WAS WRONG IN THE FLATTERING DIRECTION.
+> This first read **"88 of 1,486 pages are on the straight path — 5.9%"**. That implied a
+> working projection covering one page in seventeen. **No script in this repository reads
+> `PAGE_MAP` and writes a topic page.** `PAGE_MAP` is a REGISTRY of which object corresponds
+> to which page, not a generator.
+>
+> **The true statement: 88 pages have an associated object; 0 are generated from one.**
+> The straight path's final segment — object to surface — does not exist anywhere in this
+> corpus, for those 88 or for anything else.
 
 **And 854 pages carry a second, independent route for the same fact.** Trial identity
 reaches a page both through `inputs.trials` on the object and through a JavaScript
@@ -32,7 +40,7 @@ own.**
 
 ## Class 1 — the straight path: one route, source to reader
 
-`registry → canonical object → projected surface`
+`registry → canonical object → [MISSING: no generator] → surface`
 
 **Every defect found this week came from a departure from it.** Cards authored instead of
 projected. Jump lists hand-kept. Banners hand-authored. A manuscript renderer that never

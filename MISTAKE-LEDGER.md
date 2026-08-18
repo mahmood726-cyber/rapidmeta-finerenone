@@ -1395,3 +1395,31 @@ has to stay in step.
 **How to apply:** when a name and the thing it names disagree, fix the name — do not record
 the disagreement in a mapping. A mapping that exists to reconcile two descriptions of one
 value is a divergence waiting to happen, and the corpus has no counter-example.
+
+---
+
+## "Projected" was a word for something that never happened (2026-08-18)
+
+**No script in this repository reads `PAGE_MAP` and writes a topic page.** `PAGE_MAP` is a
+registry of which object corresponds to which page. It is not a generator, and nothing
+consumes it to build anything.
+
+I used "projected" throughout the architecture work — including in the headline **"88 of
+1,486 pages projected, 5.9%"**, which went to the user and onward to Mahmood. **The error
+ran in the flattering direction**: it implied a working straight path covering one page in
+seventeen. The true statement is **88 pages have an associated object; 0 are generated from
+one**, and the straight path's final segment does not exist anywhere in this corpus.
+
+**And 37 live pages tell their readers, in prose, that their numbers are "projected from a
+single canonical object."** Twenty-nine of those are mapped to an object. **Whether that
+sentence is false has NOT been established** — none of the 37 is an empty template, so they
+carry content, and the claim is false only if their displayed values diverge from their
+object's. That comparison has not been run. **What IS established is that no mechanism
+enforces the promise**: any agreement is coincidence maintained by hand, which is the
+definition of the multi-route defect.
+
+**How to apply:** before using an architectural verb — projected, generated, derived,
+synced — **find the code that performs it.** If no such code exists, the word is a claim
+about a mechanism rather than a description of one, and it will propagate into headlines
+and into pages that promise it to readers. Commit messages that carry the wrong word are
+superseded, not rewritten; pushed history stays as the record.
