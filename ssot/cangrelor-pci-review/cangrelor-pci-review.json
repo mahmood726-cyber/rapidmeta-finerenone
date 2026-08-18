@@ -1,0 +1,386 @@
+{
+ "app_id": "cangrelor-pci-review",
+ "schema_version": "2-authored-from-source",
+ "title": "Cangrelor versus clopidogrel at percutaneous coronary intervention",
+ "question": "Does cangrelor reduce ischaemic events at PCI? The three CHAMPION trials answer versions of this, and the numbers this page used were not the ones they answered it with.",
+ "built": "2026-08-18T00:00Z",
+ "build_mode": "AUTHORED",
+ "_estimand_rule": "Every endpoint definition and every count below was READ FROM THE REGISTRY before anything was pooled or withdrawn.",
+ "source_links_enforced": true,
+ "source_links_enforced_means": "every trial row carries its registration link",
+ "cited_total": null,
+ "completeness_statement": "not recorded on the page this object was built from",
+ "verification_basis": {
+  "what_verifies_this_object": "ClinicalTrials.gov protocol and results records, read 2026-08-18",
+  "what_is_not_claimed": "that the journal reports were consulted",
+  "families": [],
+  "bar": "not recorded on the page this object was built from"
+ },
+ "methodological_authority": {
+  "reference": "not recorded on the page this object was built from",
+  "version": "not recorded on the page this object was built from",
+  "version_checked_on": "not recorded on the page this object was built from",
+  "version_checked_how": "not recorded on the page this object was built from",
+  "version_note": "not recorded on the page this object was built from",
+  "scope_of_this_rule": "not recorded on the page this object was built from",
+  "url": "not recorded on the page this object was built from",
+  "note": "not recorded on the page this object was built from"
+ },
+ "config": {
+  "model": "random-effects",
+  "method": "not pooled -- withdrawn",
+  "scale": "log"
+ },
+ "screening": {
+  "search_note": "not recorded on the page this object was built from",
+  "eligibility": "not recorded on the page this object was built from",
+  "known_limitation": "not recorded on the page this object was built from"
+ },
+ "screening_names_unresolved": [],
+ "eligible_but_not_contributing": {
+  "note": "All three included registrations contribute to this review; none was dropped.",
+  "studies": []
+ },
+ "reconciliation": {
+  "why_this_step_exists": "not recorded on the page this object was built from",
+  "clean": null,
+  "clean_because": "not recorded on the page this object was built from",
+  "trial_list_diffs": [],
+  "matches": [],
+  "corrections": [],
+  "unresolved": []
+ },
+ "claims_corrected": [
+  {
+   "claim": "Published: OR 0.81 (0.71 to 0.91), k=3",
+   "where": "index.html card and summary table row",
+   "what_it_actually_is": "a pool built from ALL-CAUSE MORTALITY numerators placed over the PRIMARY COMPOSITE's denominators, on all three trials",
+   "evidence": "registry primary counts are 290/3889 vs 276/3865, 185/2654 vs 210/2641, 257/5470 vs 322/5469; the page used 8/3889 vs 5/3865, 6/2654 vs 18/2641, 18/5470 vs 18/5469, and each of those numerator pairs is a named SECONDARY outcome in the same registry record",
+   "corrected_to": "withdrawn, with the registry's own counts and per-trial odds ratios on the page",
+   "on": "2026-08-18"
+  }
+ ],
+ "scope_decisions": {},
+ "conversion_note": "AUTHORED, not converted. This topic had no SSOT object: the number on the index was published by a page nothing in the current standard had checked.",
+ "sources": {},
+ "outcomes": [
+  {
+   "id": "primary",
+   "name": "Death, myocardial infarction or ischaemia-driven revascularisation at 48 hours -- and stent thrombosis in one of the three trials",
+   "definition": "NOT ONE DEFINITION. CHAMPION-PHOENIX's registered composite adds STENT THROMBOSIS as a fourth component; CHAMPION-PCI's and CHAMPION-PLATFORM's have three. Each is recorded per trial below.",
+   "definition_note": "Authored rather than converted, so this name states the finding instead of concatenating trial titles.",
+   "measure": "OR",
+   "effect_scale": "log",
+   "type": "primary",
+   "estimand": {
+    "id": "primary",
+    "family": "incidence at 48 hours",
+    "model": "random-effects"
+   },
+   "comparator": "clopidogrel",
+   "comparator_type": "active comparator",
+   "direction_of_benefit": "lower is better",
+   "null_value": 1
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT00305162",
+    "name": "CHAMPION-PCI",
+    "nct": "NCT00305162",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "Cangrelor",
+      "role": "treatment",
+      "events": 290,
+      "participants": 3889
+     },
+     {
+      "label": "Clopidogrel",
+      "role": "control",
+      "events": 276,
+      "participants": 3865
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'Cangrelor', 'Clopidogrel'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- see numerator_defect",
+       "derivation_note": "No per-trial effect is stored here. The counts above are the REGISTRY'S OWN primary-outcome counts, recorded so a reader can see what the page should have used."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "counts and definition both from the registry results record"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT00305162",
+      "analysed": {
+       "treatment": 3889,
+       "control": 3865
+      },
+      "outcome_definition": "Incidence of All-cause Mortality, Myocardial Infarction (MI), and Ischemia-driven Revascularization (IDR)",
+      "outcome_definition_source": {
+       "time_frame": "randomization through 48 hours after randomization",
+       "description_verbatim": "(composite incidence)",
+       "endpoint_rank": "PRIMARY -- this registration's only primary outcome",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT00305162",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "all-cause mortality; myocardial infarction; ischaemia-driven revascularisation. THREE components.",
+       "analysis_set_as_the_registry_states_it": "48 hours after randomisation. Registry primary-outcome counts: cangrelor 290 of 3889 against clopidogrel 276 of 3865."
+      },
+      "NUMERATOR_DEFECT": "THE PAGE'S NUMERATORS FOR THIS TRIAL ARE A DIFFERENT OUTCOME FROM ITS DENOMINATORS. It carried 8 and 5 against 3889 and 3865 participants. The denominators ARE the primary composite's, exactly. The numerators are not: they are this trial's SECONDARY outcome 'Individual Incidence of All-cause Mortality'. The primary composite's own counts are 290 and 276."
+     }
+    },
+    "registration_enrolment": 8882,
+    "registration_arm_count": 2,
+    "registration_brief_title": "A Clinical Trial to Demonstrate the Efficacy of Cangrelor",
+    "registration_org_study_id": "TMC-CAN-05-02",
+    "registration_read_utc": "2026-08-18",
+    "registration_contrasts_read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT00385138",
+    "name": "CHAMPION-PLATFORM",
+    "nct": "NCT00385138",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "Cangrelor",
+      "role": "treatment",
+      "events": 185,
+      "participants": 2654
+     },
+     {
+      "label": "Clopidogrel",
+      "role": "control",
+      "events": 210,
+      "participants": 2641
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'Cangrelor', 'Clopidogrel'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- see numerator_defect",
+       "derivation_note": "No per-trial effect is stored here. The counts above are the REGISTRY'S OWN primary-outcome counts, recorded so a reader can see what the page should have used."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "counts and definition both from the registry results record"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT00385138",
+      "analysed": {
+       "treatment": 2654,
+       "control": 2641
+      },
+      "outcome_definition": "Incidence of All-cause Mortality, Myocardial Infarction (MI), and Ischemia-driven Revascularization (IDR)",
+      "outcome_definition_source": {
+       "time_frame": "randomization through 48 hours post randomization",
+       "description_verbatim": "mITT population; (composite incidence)",
+       "endpoint_rank": "PRIMARY -- this registration's only primary outcome",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT00385138",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "all-cause mortality; myocardial infarction; ischaemia-driven revascularisation. THREE components, mITT population.",
+       "analysis_set_as_the_registry_states_it": "48 hours after randomisation. Registry primary-outcome counts: cangrelor 185 of 2654 against clopidogrel 210 of 2641."
+      },
+      "NUMERATOR_DEFECT": "THE PAGE'S NUMERATORS FOR THIS TRIAL ARE A DIFFERENT OUTCOME FROM ITS DENOMINATORS. It carried 6 and 18 against 2654 and 2641 participants. The denominators ARE the primary composite's, exactly. The numerators are not: they are this trial's SECONDARY outcome 'Incidence of All-cause Mortality'. The primary composite's own counts are 185 and 210."
+     }
+    },
+    "registration_enrolment": 5364,
+    "registration_arm_count": 2,
+    "registration_brief_title": "Cangrelor Versus Standard Therapy to Achieve Optimal Management of Platelet Inhibition.",
+    "registration_org_study_id": "TMC-CAN-05-03",
+    "registration_read_utc": "2026-08-18",
+    "registration_contrasts_read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT01156571",
+    "name": "CHAMPION-PHOENIX",
+    "nct": "NCT01156571",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "Cangrelor",
+      "role": "treatment",
+      "events": 257,
+      "participants": 5470
+     },
+     {
+      "label": "Clopidogrel",
+      "role": "control",
+      "events": 322,
+      "participants": 5469
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'cangrelor', 'clopidogrel'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- see numerator_defect",
+       "derivation_note": "No per-trial effect is stored here. The counts above are the REGISTRY'S OWN primary-outcome counts, recorded so a reader can see what the page should have used."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "counts and definition both from the registry results record"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT01156571",
+      "analysed": {
+       "treatment": 5470,
+       "control": 5469
+      },
+      "outcome_definition": "The Composite Incidence of All-cause Mortality, Myocardial Infarction (MI), Ischemia-driven Revascularization (IDR) and Stent Thrombosis (ST)",
+      "outcome_definition_source": {
+       "time_frame": "48 hours after randomization",
+       "description_verbatim": "Clinical Events Committee (CEC)-adjudicated results (modified intent-to-treat \\[mITT\\] population)",
+       "endpoint_rank": "PRIMARY -- this registration's only primary outcome",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT01156571",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "all-cause mortality; myocardial infarction; ischaemia-driven revascularisation; STENT THROMBOSIS. FOUR components.",
+       "analysis_set_as_the_registry_states_it": "48 hours after randomisation. Registry primary-outcome counts: cangrelor 257 of 5470 against clopidogrel 322 of 5469."
+      },
+      "NUMERATOR_DEFECT": "THE PAGE'S NUMERATORS FOR THIS TRIAL ARE A DIFFERENT OUTCOME FROM ITS DENOMINATORS. It carried 18 and 18 against 5470 and 5469 participants. The denominators ARE the primary composite's, exactly. The numerators are not: they are this trial's SECONDARY outcome 'Individual Incidence of Stent Thrombosis (ST), Death, Myocardial Infarction (MI) -- the DEATH row of that breakdown'. The primary composite's own counts are 257 and 322."
+     }
+    },
+    "registration_enrolment": 11145,
+    "registration_arm_count": 2,
+    "registration_brief_title": "A Clinical Trial Comparing Cangrelor to Clopidogrel Standard Therapy in Subjects Who Require Percutaneous Coronary Intervention (PCI) (CHAMPION PHOENIX)",
+    "registration_org_study_id": "TMC-CAN-10-01",
+    "registration_read_utc": "2026-08-18",
+    "registration_contrasts_read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 3,
+    "estimand_id": "primary",
+    "model": "random-effects",
+    "estimator": "not pooled -- the estimate is withdrawn",
+    "estimator_used": "none",
+    "handbook": {
+     "decision": "not recorded on the page this object was built from",
+     "sections": [],
+     "conformance": "not recorded on the page this object was built from"
+    },
+    "comparator_type": "active comparator",
+    "favours": null,
+    "poolable": false,
+    "poolable_reason": "THE NUMERATORS AND THE DENOMINATORS ON THIS PAGE COME FROM DIFFERENT OUTCOMES, ON ALL THREE TRIALS. Each row carried the primary composite's participant denominators -- 3,889 and 3,865; 2,654 and 2,641; 5,470 and 5,469, all exactly right -- against event counts of 8 and 5, 6 and 18, and 18 and 18. Those counts are NOT the composite's. They are ALL-CAUSE MORTALITY, a SECONDARY outcome on every one of the three: CHAMPION-PCI's 'Individual Incidence of All-cause Mortality' is 8 against 5, CHAMPION-PLATFORM's 'Incidence of All-cause Mortality' is 6 against 18, and CHAMPION-PHOENIX's 18 against 18 is the DEATH row of its stent-thrombosis/death/MI breakdown. THE REGISTRY'S OWN PRIMARY-COMPOSITE COUNTS ARE 290 AND 276, 185 AND 210, AND 257 AND 322 -- between one and two ORDERS OF MAGNITUDE larger than what the page used. A mortality numerator over a composite denominator is not a small error in a rate; it is a quantity that corresponds to nothing. AND THE CORRECTION REVERSES THE CONCLUSION, WHICH IS WHY THIS MATTERS MORE THAN A TIDINESS COMPLAINT. Pooling the registry's own primary counts by DerSimonian-Laird gives OR 0.8955 (0.7526 to 1.0656), I-squared 64 per cent -- AN INTERVAL THAT CROSSES NO EFFECT. The card published OR 0.81 (0.71 to 0.91), which EXCLUDES it. The page reported a significant benefit where the trials' own primary outcomes do not establish one. SEPARATELY AND SUFFICIENT ON ITS OWN: THE COMPOSITES ARE NOT THE SAME. CHAMPION-PHOENIX's registered primary is 'The Composite Incidence of All-cause Mortality, Myocardial Infarction (MI), Ischemia-driven Revascularization (IDR) AND STENT THROMBOSIS (ST)' -- four components. CHAMPION-PCI's and CHAMPION-PLATFORM's are mortality, MI and IDR: three. One whole component is present in one trial and absent from the other two, so even with correct counts these three would not share one estimand.",
+    "pool_uniformity": {
+     "effect_measure": [
+      "NOT ESTABLISHED",
+      "the page's per-trial values were built from the wrong numerators"
+     ],
+     "estimand": [
+      "REFUTED",
+      "PHOENIX counts stent thrombosis; the other two do not"
+     ]
+    },
+    "heterogeneity": null,
+    "heterogeneity_status": "Computed on the REGISTRY's own primary counts, to show what the defect concealed: Q on 2 df with I-squared 64 per cent. The three trials disagree with one another.",
+    "grade": null,
+    "cross_engine": null,
+    "sensitivity": null,
+    "single_study_ref": null,
+    "per_trial": [
+     {
+      "trial_id": "NCT00305162",
+      "nct": "NCT00305162",
+      "measure": "OR",
+      "point": 1.0478,
+      "ci_low": 0.883,
+      "ci_high": 1.2434,
+      "ci_level": 95,
+      "estimand_id": "primary",
+      "note": "computed here from the REGISTRY's own primary counts, 290/3889 against 276/3865"
+     },
+     {
+      "trial_id": "NCT00385138",
+      "nct": "NCT00385138",
+      "measure": "OR",
+      "point": 0.8674,
+      "ci_low": 0.7063,
+      "ci_high": 1.0652,
+      "ci_level": 95,
+      "estimand_id": "primary",
+      "note": "computed here from the REGISTRY's own primary counts, 185/2654 against 210/2641"
+     },
+     {
+      "trial_id": "NCT01156571",
+      "nct": "NCT01156571",
+      "measure": "OR",
+      "point": 0.788,
+      "ci_low": 0.6659,
+      "ci_high": 0.9326,
+      "ci_level": 95,
+      "estimand_id": "primary",
+      "note": "computed here from the REGISTRY's own primary counts, 257/5470 against 322/5469"
+     }
+    ],
+    "pooled": {
+     "measure": "OR",
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "ci_level": 95,
+     "scale": "log",
+     "withdrawn": true,
+     "withdrawn_reason": "THE NUMERATORS AND THE DENOMINATORS ON THIS PAGE COME FROM DIFFERENT OUTCOMES, ON ALL THREE TRIALS. Each row carried the primary composite's participant denominators -- 3,889 and 3,865; 2,654 and 2,641; 5,470 and 5,469, all exactly right -- against event counts of 8 and 5, 6 and 18, and 18 and 18. Those counts are NOT the composite's. They are ALL-CAUSE MORTALITY, a SECONDARY outcome on every one of the three: CHAMPION-PCI's 'Individual Incidence of All-cause Mortality' is 8 against 5, CHAMPION-PLATFORM's 'Incidence of All-cause Mortality' is 6 against 18, and CHAMPION-PHOENIX's 18 against 18 is the DEATH row of its stent-thrombosis/death/MI breakdown. THE REGISTRY'S OWN PRIMARY-COMPOSITE COUNTS ARE 290 AND 276, 185 AND 210, AND 257 AND 322 -- between one and two ORDERS OF MAGNITUDE larger than what the page used. A mortality numerator over a composite denominator is not a small error in a rate; it is a quantity that corresponds to nothing. AND THE CORRECTION REVERSES THE CONCLUSION, WHICH IS WHY THIS MATTERS MORE THAN A TIDINESS COMPLAINT. Pooling the registry's own primary counts by DerSimonian-Laird gives OR 0.8955 (0.7526 to 1.0656), I-squared 64 per cent -- AN INTERVAL THAT CROSSES NO EFFECT. The card published OR 0.81 (0.71 to 0.91), which EXCLUDES it. The page reported a significant benefit where the trials' own primary outcomes do not establish one. SEPARATELY AND SUFFICIENT ON ITS OWN: THE COMPOSITES ARE NOT THE SAME. CHAMPION-PHOENIX's registered primary is 'The Composite Incidence of All-cause Mortality, Myocardial Infarction (MI), Ischemia-driven Revascularization (IDR) AND STENT THROMBOSIS (ST)' -- four components. CHAMPION-PCI's and CHAMPION-PLATFORM's are mortality, MI and IDR: three. One whole component is present in one trial and absent from the other two, so even with correct counts these three would not share one estimand.",
+     "withdrawn_note": "WHAT IS CONFIRMED, STATED AS PROMINENTLY AS WHAT IS WRONG. (1) THE TRIALS ARE THE RIGHT TRIALS AND THE IDENTITIES ARE CORRECT: NCT00305162, NCT00385138 and NCT01156571 are CHAMPION-PCI, CHAMPION-PLATFORM and CHAMPION-PHOENIX. (2) EVERY ARM SIZE IS EXACTLY RIGHT. All six denominators match the registry's primary-outcome record to the participant. That is what makes the defect so hard to see: five of the six numbers in each 2x2 are correct. (3) THE ARM ROLES AND LABELS ARE CORRECT on all three -- cangrelor against clopidogrel, matching each registration's own arm titles. WHAT THIS WITHDRAWAL DOES NOT ESTABLISH: NOT that cangrelor is ineffective. CHAMPION-PHOENIX's own primary result, 257 of 5,470 against 322 of 5,469, is OR 0.7880 (0.6659 to 0.9326) and favours cangrelor. CHAMPION-PLATFORM's is 0.8674 (0.7063 to 1.0652) and CHAMPION-PCI's is 1.0478 (0.8830 to 1.2434). All three are on this page. The trials disagree with each other, and a synthesis that reports them as agreeing significantly is the thing being withdrawn. THE REPLACEMENT QUESTION IS IDENTIFIED AND DELIBERATELY NOT TAKEN. Pooling the correct primary counts is arithmetic, not a new question -- but it still requires choosing whether a four-component composite may be averaged with two three-component ones, and that is an estimand decision whose answer is already visible above. The corrected pool is shown ONLY to demonstrate that the defect changes the conclusion, which cannot be shown without computing it. PARKED.",
+     "withdrawn_on": "2026-08-18",
+     "value_the_index_published": "OR 0.81 (0.71 to 0.91), k=3",
+     "what_the_registry_counts_give_instead": {
+      "measure": "OR",
+      "point": 0.8955,
+      "ci_low": 0.7526,
+      "ci_high": 1.0656,
+      "i2_percent": 64,
+      "note": "DerSimonian-Laird over the three registry primary counts. Shown ONLY to establish that the defect changes the conclusion: this interval crosses no effect and the published one does not."
+     },
+     "card_note": "the page put ALL-CAUSE MORTALITY numerators over the PRIMARY COMPOSITE's denominators on all three trials -- 8/3889 where the registry says 290/3889. Correcting it gives OR 0.8955 (0.7526 to 1.0656), which crosses no effect; the published 0.81 (0.71-0.91) did not"
+    }
+   }
+  }
+ },
+ "manuscript": null,
+ "risk_of_bias_verdict": null,
+ "carried_contrasts": [],
+ "absent_from_source": {
+  "protocol": "No protocol record was recoverable from the page.",
+  "search": "No search strategy was recoverable from the page.",
+  "screening": "No screening log was recoverable from the page.",
+  "rob2": "No risk-of-bias assessment was recoverable from the page.",
+  "grade": "No certainty rating was recoverable from the page.",
+  "sources": "Every endpoint definition AND every event count on this page is read from the trial's own ClinicalTrials.gov results record and carries a resolvable link. No journal sentence is quoted."
+ }
+}
