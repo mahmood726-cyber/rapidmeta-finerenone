@@ -6,7 +6,7 @@ section of `index.html` carries 54 page links, one of which
 consolidated at `ce1e9dc0e`. 54 − 1 = 53. Re-derive with
 `python scripts/cardio_program_status.py` rather than quoting this line.
 
-**DONE: 10 of 53.**
+**DONE: 11 of 53.**
 
 A topic is DONE when it has an SSOT object, is built through the tabbed
 projector to the written standard (`scripts/standard_manifest.py`, v1), its
@@ -27,6 +27,7 @@ endpoint does not, whatever the page looks like.
 | 8 | DOAC_AF | **withdrawn** | the headline was this page's own Ruff 2014 comparator; k said 4, the pool had 3 |
 | 9 | DOAC_CANCER_VTE | **withdrawn** | a bleeding endpoint averaged with two efficacy endpoints; one registration names a different trial |
 | 10 | INCLISIRAN_LIPID_KIDNEY | v1, **pooled** | estimand identical in all three registries; every value matches; **pool STANDS** |
+| 11 | EVOLOCUMAB_MIXED_DYSL | **withdrawn** | both trials 2×2; this pooled a fortnightly placebo against a monthly drug arm, and the values are in no source |
 
 `FINERENONE_CV` is also at v1 and is NOT counted here: it does not sit in the
 cardiology section of the index. Counting it would be the denominator drift this
@@ -34,14 +35,14 @@ file exists to prevent.
 
 ---
 
-## The remaining 43, by what is actually on them today
+## The remaining 42, by what is actually on them today
 
 Measured from the index cards, not assumed:
 
 | state | n | what it means |
 |---|---|---|
 | **Audit-first build** | 26 | no estimate ever published; the topic has never been taken through |
-| **live estimate, no v1 object** | 7 | a number is published that nothing in the current standard has checked |
+| **live estimate, no v1 object** | 6 | a number is published that nothing in the current standard has checked |
 | **withdrawn** | 7 | an estimate was retracted; the reason on the page has NOT been re-verified |
 | **not poolable** | 1 | MITRAL_FUNCMR — COAPT vs MITRA-FR, stated per-trial |
 | **no card at all** | 1 | INCRETIN_HFpEF is linked from the table and has no card |
@@ -156,7 +157,11 @@ none of them blocks the rest of the programme.
 
    **Still parked, and still needing his judgement:** FOURIER and ODYSSEY
    OUTCOMES (in both `pcsk9-review` and `pcsk9-inhibitors-cv-review`), MARINE and
-   ANCHOR in `icosapent-lipid`, HUA TUO in `evolocumab-mixed-dyslipidemia`. The
+   ANCHOR in `icosapent-lipid`. **HUA TUO and BERSON were resolved 2026-08-18 as
+   part of topic 11** — and they were WORSE than a label inversion: the arms were
+   also CROSS-PAIRED across dosing frequencies, which a pure label swap never is.
+   That is a reason to expect the remaining four to need the registry results
+   section read, not merely re-labelled. The
    method above will decide them — fetch each registry results section and match
    the denominators — but those objects are **withdrawn or live-published**, so
    editing their labels changes a published surface, and the decision to do that
@@ -659,6 +664,45 @@ object**: it announced "no resolvable link to a paper was recoverable" while the
 page now carries a registration link per trial. `no_synthesised_absence` cuts both
 ways — **an absence that has been filled must stop being announced.**
 
+### 2026-08-18 (continued) — EVOLOCUMAB_MIXED: withdrawn on provenance, and the finding survives
+
+**Topic 11 of 53. DONE, live-verified byte-identical on both surfaces.**
+
+**The estimand was not the problem and the page says so first.** Both
+registrations name percent change from baseline in LDL-C at the **mean of weeks
+10 and 12**, analysed as a least-squares mean from a repeated-measures linear
+model. Identity correct on both.
+
+**Both trials are four-arm 2×2 designs of dosing frequency**, and each registers
+**two** comparisons, both *within* a frequency:
+
+| | | |
+|---|---|---|
+| BERSON | Placebo Q2W vs Evolocumab Q2W | −70.29 (−75.43 to −65.16) |
+| BERSON | Placebo QM vs Evolocumab QM | −70.04 (−74.67 to −65.41) |
+| Hua Tuo | Placebo Q2W vs Evolocumab 140 mg Q2W | −70.73 (−77.98 to −63.48) |
+| Hua Tuo | Placebo QM vs Evolocumab 420 mg QM | −69.74 (−76.51 to −62.97) |
+
+**This object crossed the frequencies on both** — a fortnightly placebo against a
+monthly drug arm, a comparison neither trial ran. And the stored values (−71.8,
+−70.8) are **neither registered comparison and not the difference between any two
+of the four arm means either trial reports**, checked exhaustively.
+
+**What the withdrawal is NOT, stated on the page as prominently as the reason:**
+all four registered comparisons lie between **−69.74 and −70.73**, against a
+withdrawn pooled value of −71.31. **The ~70% LDL-C reduction is amply supported by
+the source records.** What cannot stand is *these numbers*. A reader checking us
+against the registry currently finds our conclusion and not our arithmetic, and
+the whole claim of this project is that those should be the same thing. **The
+registry's four comparisons are now on the page**, so a reader gets the real
+values and not only the news that ours were wrong.
+
+**Parked item 3 advances.** BERSON and HUA TUO are resolved — and they were
+**worse than a label inversion**: cross-paired arms change the magnitude, where a
+pure label swap leaves it intact. The remaining four trials in that parked item
+should be expected to need the registry *results* section read, not merely
+re-labelled.
+
 ---
 
 ## Where the next lane picks up
@@ -667,16 +711,16 @@ ways — **an absence that has been filled must stop being announced.**
 page below is verified live, cache-busted, against the bytes on disk.
 
 Live-verified this session: **ARNI, SGLT2_HF, IV_IRON, SOTAGLIFLOZIN, PCSK9,
-SGLT2_CKD, DOAC_AF, DOAC_CANCER_VTE, INCLISIRAN.** Each was confirmed byte-identical by
+SGLT2_CKD, DOAC_AF, DOAC_CANCER_VTE, INCLISIRAN, EVOLOCUMAB_MIXED.** Each was confirmed byte-identical by
 SHA-256 against the served bytes, cache-busted. ALIROCUMAB, FINERENONE_CV and ABLATION_AF were unchanged and needed
 no rebuild.
 
 **Start here, in this order:**
 
-1. **The 7 remaining topics with a live estimate and no object.** These are the
+1. **The 6 remaining topics with a live estimate and no object.** These are the
    dangerous ones and every one examined so far has been withdrawable:
    BEMPEDOIC_ACID (k=1 — a "pool" over one trial), CANGRELOR_PCI, COLCHICINE_CVD,
-   EVOLOCUMAB_MIXED_DYSLIPIDEMIA, HFREF_NMA, INTENSIVE_BP, RIVAROXABAN_VASC. Objects already exist
+   HFREF_NMA, INTENSIVE_BP, RIVAROXABAN_VASC. Objects already exist
    under `ssot/` for several of them.
 2. **Rebuild the four earlier topics** so their endpoint definitions are on the
    page. They were read and are invisible; see the projector defect above.
