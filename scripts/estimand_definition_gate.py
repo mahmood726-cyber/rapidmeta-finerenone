@@ -76,6 +76,13 @@ COMPONENT = re.compile(
     # Half of every composite in the topic was invisible, and the gate reported
     # PASS "they agree" from a reading of the other half. Same shape as CABANA
     # above and same shape as the CKD false agreement, in a third vocabulary.
+    # DOAC_CANCER_VTE, 2026-08-18. The hunting list correctly refused to decide
+    # here -- "venous thromboembolism" was unrecognised -- on a topic whose
+    # endpoints really do disagree: one trial counts VTE OR MAJOR BLEEDING and
+    # the others count VTE alone. The classifier half follows the finder half in
+    # the same commit, which is the rule this file has broken three times.
+    r"recurrent venous thromboembolism|venous thromboembolism|"
+    r"deep vein thrombosis|pulmonary embolism|\bvte\b|\bdvt\b|"
     r"non-?cns systemic embolism|systemic embolic events?|"
     r"systemic emboli[sz]ation|systemic embolism|systemic emboli|"
     r"myocardial infarction|stroke|worsening heart failure", re.I)
@@ -153,6 +160,21 @@ _CANON = (
     # SPLITTING THEM WOULD MANUFACTURE A DISAGREEMENT between four trials that
     # count the same thing -- the destructive direction, because it argues for
     # withdrawing a sound estimate.
+    # ONE KEY FOR THE WHOLE VTE FAMILY. CARAVAGGIO's registry description defines
+    # its primary as "the composite of: proximal DVT of the lower limbs
+    # (symptomatic or unsuspected), DVT of the upper limb (symptomatic), PE
+    # (symptomatic or unsuspected)" -- DVT and PE are THE CONTENTS OF THE UMBRELLA,
+    # not components beside it. Separate keys would read CARAVAGGIO as
+    # {vte, dvt, pe} against Hokusai's {vte, serious_bleeding} and manufacture a
+    # disagreement out of a trial spelling out what it means. That is the EMPEROR
+    # "hospitalisation for worsening heart failure" over-read, which this file has
+    # already had to fix twice.
+    # THIS ORDERS BEFORE systemic_embolism DELIBERATELY: "non-CNS systemic
+    # embolism" must not be swallowed by a VTE pattern, and it is not -- the two
+    # families share no matching text -- but the ordering is fixed so a later
+    # widening of either cannot silently reassign the other.
+    (re.compile(r"venous thromboembolism|deep vein thrombosis|"
+                r"pulmonary embolism|\bvte\b|\bdvt\b", re.I), "vte"),
     (re.compile(r"systemic embol", re.I), "systemic_embolism"),
     (re.compile(r"stroke", re.I), "stroke"),
     (re.compile(r"worsening heart failure", re.I), "worsening_hf"),
