@@ -6,7 +6,7 @@ section of `index.html` carries 54 page links, one of which
 consolidated at `ce1e9dc0e`. 54 − 1 = 53. Re-derive with
 `python scripts/cardio_program_status.py` rather than quoting this line.
 
-**DONE: 9 of 53.**
+**DONE: 10 of 53.**
 
 A topic is DONE when it has an SSOT object, is built through the tabbed
 projector to the written standard (`scripts/standard_manifest.py`, v1), its
@@ -26,6 +26,7 @@ endpoint does not, whatever the page looks like.
 | 7 | PCSK9 | **withdrawn** | one composite counts revascularization, the other does not |
 | 8 | DOAC_AF | **withdrawn** | the headline was this page's own Ruff 2014 comparator; k said 4, the pool had 3 |
 | 9 | DOAC_CANCER_VTE | **withdrawn** | a bleeding endpoint averaged with two efficacy endpoints; one registration names a different trial |
+| 10 | INCLISIRAN_LIPID_KIDNEY | v1, **pooled** | estimand identical in all three registries; every value matches; **pool STANDS** |
 
 `FINERENONE_CV` is also at v1 and is NOT counted here: it does not sit in the
 cardiology section of the index. Counting it would be the denominator drift this
@@ -33,14 +34,14 @@ file exists to prevent.
 
 ---
 
-## The remaining 44, by what is actually on them today
+## The remaining 43, by what is actually on them today
 
 Measured from the index cards, not assumed:
 
 | state | n | what it means |
 |---|---|---|
 | **Audit-first build** | 26 | no estimate ever published; the topic has never been taken through |
-| **live estimate, no v1 object** | 8 | a number is published that nothing in the current standard has checked |
+| **live estimate, no v1 object** | 7 | a number is published that nothing in the current standard has checked |
 | **withdrawn** | 7 | an estimate was retracted; the reason on the page has NOT been re-verified |
 | **not poolable** | 1 | MITRAL_FUNCMR — COAPT vs MITRA-FR, stated per-trial |
 | **no card at all** | 1 | INCRETIN_HFpEF is linked from the table and has no card |
@@ -583,6 +584,51 @@ more than the gate:**
 That is now four instrument defects of my own in two topics, every one caught by
 running the thing against real data rather than by reading it.
 
+### 2026-08-18 (continued) — INCLISIRAN: the first pool in this lane that STANDS
+
+**Topic 10 of 53. DONE, live-verified byte-identical on both surfaces.**
+
+**This is the one that matters most for whether the lane is applying a standard
+or a bias.** Three consecutive withdrawals is a pattern that should make anyone
+suspicious of the next verdict. This topic was checked in the same order and to
+the same depth and **came out the other way.**
+
+- **Estimand identical in all three registrations.** ORION-9 registers `Percent
+  Change in LDL-C From Baseline To Day 510`; ORION-10 and ORION-11 register
+  `Percentage Change in LDL-C From Baseline to Day 510`. Same quantity, anchor,
+  day, ANCOVA, and the registry reports all three as `Mean Difference (Final
+  Values)`. **The only difference between the strings is one word** — the
+  orthography trap, and it is not one here.
+- **Every per-trial value is the registry's own, digit for digit.** Arm labels
+  and roles correct. Arm sizes recorded from the registry and summing to each
+  registration's enrolment **exactly**: 482, 1561, 1617.
+- **The pooled value reproduces**: −54.0014 (−58.1652 to −49.8377), matching card
+  and object to four decimals.
+- **Robust in every direction tested**: six estimator × interval combinations
+  span −53.95 to −54.00 and all exclude no effect; leave-one-out gives −55.56,
+  −52.18, −53.90, all excluding no effect.
+
+**What IS wrong with it is the precision, not the estimate.** I² = 72% on three
+studies; the Hartung-Knapp interval is **−63.71 to −44.30**, about twice the width
+of the Wald interval on the card, and at this k it is the honest one. **The card
+now carries that caveat and its value is unchanged** — the number is correct and
+moving it would break a reader's record for nothing.
+
+#### The projector asymmetry this topic exposed
+
+**It rendered the reason for a RETRACTION and never the reason for a CLAIM.** The
+withdrawal branch has always printed `withdrawn_reason` first, with a comment
+saying "the reason is the deliverable". The standing branch had no equivalent.
+After three consecutive withdrawals that is not neutral: **it makes destruction
+legible and verification invisible**, on a page whose entire claim is that a
+reader can check us. Fixed — `stands_because` now has `withdrawn_reason`'s
+prominence.
+
+And the blanket absence disclosure was **true of the conversion and false of the
+object**: it announced "no resolvable link to a paper was recoverable" while the
+page now carries a registration link per trial. `no_synthesised_absence` cuts both
+ways — **an absence that has been filled must stop being announced.**
+
 ---
 
 ## Where the next lane picks up
@@ -591,17 +637,16 @@ running the thing against real data rather than by reading it.
 page below is verified live, cache-busted, against the bytes on disk.
 
 Live-verified this session: **ARNI, SGLT2_HF, IV_IRON, SOTAGLIFLOZIN, PCSK9,
-SGLT2_CKD, DOAC_AF, DOAC_CANCER_VTE.** Each was confirmed byte-identical by
+SGLT2_CKD, DOAC_AF, DOAC_CANCER_VTE, INCLISIRAN.** Each was confirmed byte-identical by
 SHA-256 against the served bytes, cache-busted. ALIROCUMAB, FINERENONE_CV and ABLATION_AF were unchanged and needed
 no rebuild.
 
 **Start here, in this order:**
 
-1. **The 8 remaining topics with a live estimate and no object.** These are the
+1. **The 7 remaining topics with a live estimate and no object.** These are the
    dangerous ones and every one examined so far has been withdrawable:
    BEMPEDOIC_ACID (k=1 — a "pool" over one trial), CANGRELOR_PCI, COLCHICINE_CVD,
-   EVOLOCUMAB_MIXED_DYSLIPIDEMIA, HFREF_NMA,
-   INCLISIRAN_LIPID_KIDNEY, INTENSIVE_BP, RIVAROXABAN_VASC. Objects already exist
+   EVOLOCUMAB_MIXED_DYSLIPIDEMIA, HFREF_NMA, INTENSIVE_BP, RIVAROXABAN_VASC. Objects already exist
    under `ssot/` for several of them.
 2. **Rebuild the four earlier topics** so their endpoint definitions are on the
    page. They were read and are invisible; see the projector defect above.
