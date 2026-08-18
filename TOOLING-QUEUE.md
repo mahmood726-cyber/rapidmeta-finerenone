@@ -77,6 +77,28 @@ name, wired per build. That is a constructible failing input (any of the four
 pre-fix v1 pages) and it fails toward alarm.
 
 ---
+## 2a. A concurrent git operation silently degrades the build stamp
+
+`_generator_stamp()` shells out to `git log` and `git status`. If another git
+process holds the index — a `push`, a `stash`, a `commit` in a neighbouring
+shell — those calls fail and the stamp is written as **UNKNOWN**.
+
+Observed 2026-08-18: SOTAGLIFLOZIN_HF_REVIEW was rebuilt while a `git push` was
+running in this session and came out stamped `UNKNOWN`, meaning *not reproducible
+from this stamp*. Two pages built minutes either side carry the correct commit.
+
+**The gate caught it** — `build_stamp_gate` FAILs on UNKNOWN by design, and it
+did, so nothing shipped. Logged as a save, not a defect: the stamp degraded
+toward *alarm*, which is the rare and correct direction, and it is the reason the
+UNKNOWN state exists at all rather than a silent fallback to the last known
+commit.
+
+Owed: either serialise builds against git operations, or retry the two git calls
+before conceding UNKNOWN. **Do not "fix" it by defaulting to HEAD** — a stamp
+that guesses is the failure the UNKNOWN state was introduced to prevent.
+
+---
+
 ## 3. `card_matches_page` corpus-wide — 507 of 514 unmeasured
 
 Fixed on 2026-08-18 so that a withheld card is checked rather than skipped
