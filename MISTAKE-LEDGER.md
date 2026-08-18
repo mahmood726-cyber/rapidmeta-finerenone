@@ -265,6 +265,50 @@ announced.**
 
 ---
 
+## A fabricated contrast — a comparison that was never run
+
+**Found 2026-08-18 on EVOLOCUMAB_MIXED, and it is worse than every arm defect
+already in this file.**
+
+The arm defects logged above — RE-LY entered as dabigatran-versus-dabigatran,
+TAF-versus-TAF, seven trials with the intervention arm labelled "Placebo" — are
+all **labelling** errors. The ledger already records why they survive: *"the
+derived odds ratio was unaffected in MAGNITUDE, which is exactly why nothing
+caught it."* The numbers stayed right.
+
+A **cross-pairing** is different in kind. BERSON and Hua Tuo are four-arm 2×2
+designs of dosing frequency, and each registered two comparisons, both *within* a
+frequency. This corpus paired a **fortnightly placebo arm against a monthly drug
+arm**, on both trials. That comparison was never registered, never analysed and
+never reported by anyone — and the numbers it produced, −71.8 and −70.8, are
+neither registered comparison **and not the difference between any two of the four
+arm means either trial reports.**
+
+> **The magnitude is not preserved. The contrast is invented, and so is the
+> number.**
+
+**Why no check we own could ever have found it.** Internally the row is perfectly
+coherent: two real arms, from one real trial, with a real difference between them.
+Every gate in this repository passed it, including the ones written specifically
+about arms. **Internal consistency is exactly the wrong instrument here, because
+the artefact is internally consistent by construction.** The only thing that can
+convict it is the registration's own list of comparisons — a fact that lives
+outside every file we control.
+
+**Scope, measured rather than guessed.** Across 34 objects and 109 trial rows,
+**26 rows (24%) sit on a multi-arm registration**, which is where the defect is
+possible at all. One is confirmed, six are cleared, and **nineteen cannot be
+cleared** — nine of those because the registration declares more than two arms and
+no between-arm analysis at all. So the honest statement is neither "one page" nor
+"a class": **one confirmed and nineteen unmeasured, over a quarter of the corpus.**
+
+**The general form, for the next family of artefacts:** wherever a source offers
+more than two things to compare, an extractor can silently choose a pair the
+source never compared. Ask of every extracted contrast: *does the source declare
+this comparison?* — not *are these two numbers real?*, which they always are.
+
+---
+
 ## An instrument that fails in the way it was built to detect
 
 Four instances on 2026-08-18, which is the point: this is a **pattern**, not four

@@ -331,7 +331,43 @@ says on the line).
 
 ---
 
+## 14. Nineteen multi-arm rows cannot be cleared of a fabricated contrast
+
+`declared_contrast_gate` screens whether an extracted contrast is one the
+registration declares. Corpus screen, 34 objects, 109 rows:
+
+| | |
+|---|---|
+| rows on a multi-arm registration — where the defect is possible | **26 (24%)** |
+| FAIL — confirmed fabricated contrast | **1** (Hua Tuo) |
+| PASS — contrast is declared | 6 |
+| **UNCHECKABLE — cannot be cleared** | **19** |
+
+**Nine of the nineteen are uncheckable for one specific reason: the registration
+declares more than two arms and NO between-arm analyses at all**, so there is no
+declared list to compare against. Those need a different signal, and the obvious
+one is arithmetic rather than nominal: **does the extracted pair's arm SIZES match
+two of the registration's reported arm-group denominators?** That is the same
+shape as the enrolment screen in `registration_identity_gate` and would reuse its
+data.
+
+The other ten are uncheckable because the object's arm labels are the registry's
+**protocol** arm titles while the declared comparisons are named with its
+**results** group titles — BERSON is the worked example, carrying
+`'Atorvastatin (Q2W)'` where the results groups say `'Placebo Q2W'`. Storing both
+title sets at fetch time would resolve most of them.
+
+**Do not close this by relaxing the matcher.** An UNCHECKABLE that becomes a PASS
+because the comparison got fuzzier is the comfortable direction, and this gate
+exists because the defect it hunts is invisible to every internal check.
+
+---
+
 ## Closed
+
+- **2026-08-18 — a fabricated contrast has a detector.** `declared_contrast_gate`,
+  replayed against Hua Tuo as extracted (FAIL) and the same trial paired as it was
+  actually run (PASS). Two-arm registrations return NOT_APPLICABLE, never PASS.
 
 - **2026-08-18 — venous thromboembolism recognised, classifier added with it.**
   The hunting list fired productively for the first time: it refused to compare
