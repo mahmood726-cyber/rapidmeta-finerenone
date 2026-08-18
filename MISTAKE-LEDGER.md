@@ -1274,3 +1274,32 @@ record being audited and is authoritative for the recomputation. Read the declar
 estimator, scale, correction and interval method from the object and use them. If the
 object declares no method, that is itself the finding — report the absence, do not
 substitute a default and call the difference an error.
+
+---
+
+## A hypothesis that passed its statistical test and failed its mechanism check (2026-08-18)
+
+**This is the class we accuse published work of, committed by us.**
+
+The re-derivation sweep reported four non-reproducing pooled estimates. **All four needed
+derived per-trial inputs; only two of the fifteen that reproduced did.** Four of four
+against two of fifteen is strong support, and the mechanism was plausible and specific:
+deriving a log point and log standard error from a stored effect and interval is exactly
+where the unicode-minus and exponentiated-mean-difference defects had lived before.
+
+**It was confounding.** Mean-difference and rate-ratio topics store bare effects **and** are
+the older cohort that used DerSimonian-Laird. The real cause was that the sweep pooled with
+REML while three of the four objects **declared DerSimonian-Laird**. The association was
+real; the causal reading was wrong.
+
+**What makes this its own entry rather than part of the instrument-artefact family:** the
+other artefacts were measurement bugs. This was a correct measurement supporting a wrong
+explanation — and the support was strong enough that the explanation felt established.
+**It was caught only because the mechanism was checked directly rather than the correlation
+trusted**, and the check took one read of one object.
+
+**How to apply:** a correlation between a candidate cause and a set of failures is a reason
+to test the mechanism, never a substitute for testing it. Open one instance and confirm the
+proposed mechanism is actually operating before the hypothesis is reported as a finding.
+**Where a cohort differs on the candidate variable, ask what else that cohort differs on** —
+here, age and estimator travelled together with input format.
