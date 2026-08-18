@@ -93,3 +93,92 @@ stopped being a measurement.**
 - [Riociguat therapy for pulmonary hypertension: a systematic review and meta-analysis — Wang et al., *Annals of Palliative Medicine*](https://apm.amegroups.org/article/view/81965/html)
 - [The Effect of Mipomersen in the Management of Patients with Familial Hypercholesterolemia: A Systematic Review and Meta-Analysis of Clinical Trials — *JCDD* 2021](https://doi.org/10.3390/jcdd8070082)
 - [Open Label Extension of ISIS 301012 (Mipomersen) — NCT00477594, ClinicalTrials.gov](https://clinicaltrials.gov/study/NCT00477594)
+
+
+---
+
+# DENOMINATOR COMPLETE: **4 of 4 checked. 1 affected, 3 handled correctly.**
+
+Updated 2026-08-18 after verifying the mipomersen trial list and checking the two that
+were outstanding. **The provisional verdict is now verified, and the headline is more
+modest than the first instalment suggested.**
+
+| topic | published synthesis found? | same combination? |
+|---|---|---|
+| **RIOCIGUAT_PAH** | yes | **YES — AFFECTED.** Pools PAH with CTEPH into one 6MWD estimate |
+| **MIPOMERSEN_HOFH** | yes | **no — verified correct** |
+| **EDOXABAN_VTE** | yes | **no — correct** |
+| **OLMESARTAN_HTN** | yes | **no — correct, and pointedly so** |
+
+---
+
+## MIPOMERSEN — upgraded from "appears correct" to **verified correct**
+
+The trial list was read, which is what the earlier entry said had not been done.
+[JCDD 2021](https://pmc.ncbi.nlm.nih.gov/articles/PMC8304130/) includes **5 RCTs, 549
+patients, all placebo-controlled and double-blind**, and **explicitly excluded open-label
+extensions and single-arm studies**. `NCT00477594` — the uncontrolled extension whose two
+arms are both mipomersen — **is not in it.**
+
+Its stated inclusion criterion, verbatim: *"Randomised controlled clinical trials
+comparing patients (adults or pediatric) with FH receiving subcutaneous injections of
+mipomersen as an add-on to previous pharmacologic cholesterol-lowering interventions **and
+a parallel group receiving a placebo or no intervention**."* The parallel-group
+requirement is exactly the rule that excludes the extension.
+
+It also scopes its title to **familial hypercholesterolaemia** and reports 4 heterozygous
+and 1 homozygous trial, so its population claim covers what it pooled. **Both errors we
+made on that page, it avoided.**
+
+---
+
+## EDOXABAN — correct: prophylaxis is pooled with prophylaxis
+
+The published pooled analysis combines **STARS E-3 and STARS J-V — both prophylaxis after
+knee or hip arthroplasty**. The Hokusai treatment trials and the paediatric Hokusai study
+are reported separately. **No synthesis pools prevention with treatment.** The distinction
+we drew is the one the field already draws.
+
+---
+
+## OLMESARTAN — correct, and it is the sharpest of the three
+
+There **is** a published meta-analysis of essentially these trials:
+[*"Comparison of safety and efficacy of combinations of Azilsartan-medoxomil/
+Chlorthalidone and Olmesartan-medoxomil/Hydrochlorothiazide among hypertensive
+patients"*](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10387287/) — 4 studies, 3,146
+patients.
+
+**It names the contrast correctly.** Azilsartan/chlorthalidone **versus**
+olmesartan/hydrochlorothiazide: both arms named, the intervention identified as the
+intervention. It does not title itself for the comparator. **That is precisely the
+discipline our page failed**, and the literature applied it without difficulty.
+
+**A discrepancy worth recording rather than glossing:** that review reports *"no
+significant differences ... in mean systolic blood pressure"* (with diastolic favouring
+azilsartan, WMD −2.64 mmHg), while our k=2 pool of the two trials sharing both arms gives
+**MD −5.69 mmHg (−7.30, −4.08)** on systolic. Different trial sets — theirs has four
+studies — and possibly different timepoints and endpoint definitions. **Not resolved
+here, and it is the next thing to look at on that topic.**
+
+---
+
+## What the completed denominator actually says
+
+**One affected of four.** The claim that this class is invisible to peer review is
+**supported by one verified instance and contradicted by three**. That is a much weaker
+result than the first instalment read like, and it is the honest one.
+
+**The mechanism survives even so, and it is the part worth publishing.** The riociguat
+pool is arithmetically impeccable — real randomised placebo-controlled trials, one
+instrument, effect sizes that combine, a computable heterogeneity statistic — and it
+combines two diseases. **Nothing in peer review recomputes, so nothing in peer review
+could have caught it.** One verified instance plus a demonstrated screening method is a
+stronger claim than a rate, because the rate will always be contested and the mechanism
+will not.
+
+**And the running score across every literature comparison this project has made is now
+3 right / 1 wrong in the literature's favour.** On the three occasions we checked our own
+numbers against published work before today, the literature was right and we were wrong.
+Today it is right three times and wrong once. **A project that reported only the
+comparison it won would have published a finding four times stronger than the evidence.**
