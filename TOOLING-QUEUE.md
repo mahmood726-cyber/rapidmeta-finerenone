@@ -250,6 +250,60 @@ a *symmetric* double-dummy label. **Narrowed, not solved.**
 
 ---
 
+## 12. `figs/`, `ssot/figs/` and `*.figaudit.json` are rewritten by every build and tracked by nothing
+
+Raised 2026-08-18. **Measured before writing it down, and the true scope is
+narrower than the first statement of it — which is why it is worth stating
+precisely rather than alarmingly.**
+
+The claim as first put was "the tabbed projector rewrites them on every build, so
+a figure change is invisible to git." Checked:
+
+| | tracked? | referenced by a page? |
+|---|---|---|
+| the figures a READER sees | **yes** — inline `<svg>` in the tracked HTML (ARNI 16, PCSK9 8, DOAC_AF 7) | n/a, they *are* the page |
+| `figs/` — 100 files, `.eps` `.tiff` `.png` `.html` `_src.svg` per figure | **no** | **no**: `git grep figs/ -- '*.html'` returns nothing |
+| `ssot/figs/` — 16 `.png` | **no** | no |
+| `*.figaudit.json`, one per built page | **no** | no |
+
+**So a figure change on a page IS recorded** — it lands in the tracked HTML diff,
+and that is how the ARNI rebuild's dropped numerals were caught. The exposure is
+not the reader's figure.
+
+**What is genuinely unrecorded is the EXPORT set.** `figs/*.eps` and `*.tiff` are
+the submission-grade artefacts a manuscript would carry to a journal. They are
+regenerated wholesale on every build of any topic, they belong to whichever topic
+was built last, and **nothing records which commit produced them.** A file named
+`forest.eps` cannot be attributed to a review, a version, or a value. If one is
+ever attached to a submission, the provenance chain that this entire repository
+exists to maintain stops at the directory listing.
+
+`*.figaudit.json` is the same shape one level up: it is the *evidence a gate ran*,
+written beside the page and preserved nowhere.
+
+This is the authored-cards family — a surface that changes without being
+recorded — and also ledger failure mode #4, a register written into a place git
+does not carry.
+
+**Owed, and none of it is decided here:**
+
+1. **Decide whether the export set is an artefact or a by-product.** If a
+   manuscript ever consumes `figs/*.eps`, it must be tracked, per topic, in a
+   per-topic directory rather than one shared one — `figs/forest.eps` is
+   currently a *shared mutable name* across 53 cardiology topics, which is the
+   hardcoded-path defect wearing a filename. If it is a by-product, it should be
+   `.gitignore`d and regenerated on demand, and **it is currently neither**:
+   untracked *and* unignored, so it sits in every `git status` making real
+   untracked work harder to see.
+2. **Stamp the exports.** Whatever is decided, an exported figure should carry
+   the generator commit and the object id the way the page's build stamp does.
+3. **Do not "fix" this by committing the current 116 files.** They belong to
+   whichever build ran last and nobody knows which that was — committing them
+   would record a provenance claim that is false, which is worse than recording
+   none.
+
+---
+
 ## Closed
 
 - **2026-08-18 — systemic embolism was invisible to `COMPONENT`, `_CANON` AND
