@@ -369,6 +369,76 @@
      "NCT00309777": "Percent Change From Baseline in Low Density Lipoprotein-cholesterol (LDL-C) at 12 Weeks",
      "read_utc": "2026-08-18",
      "source": "registry"
+    },
+    "replacement_analysis_2026_08_18": {
+     "measure": "MD",
+     "unit": "percent change in LDL-C from baseline at 12 weeks",
+     "comparator": "simvastatin 40 mg",
+     "k": 2,
+     "model": "random-effects",
+     "estimator": "REML",
+     "pooled": {
+      "point": -0.6394,
+      "ci_low": -2.9547,
+      "ci_high": 1.6759,
+      "ci_level": 95
+     },
+     "heterogeneity": {
+      "tau2": 0.0,
+      "q": 0.158,
+      "df": 1,
+      "i2_percent": 0.0
+     },
+     "per_trial": [
+      {
+       "trial_id": "NCT00309738",
+       "nct": "NCT00309738",
+       "measure": "MD",
+       "point": -0.19,
+       "se": 1.6351,
+       "ci_low": -3.3947,
+       "ci_high": 3.0147,
+       "pitavastatin_4mg": {
+        "mean": -43.96,
+        "sd": 12.77,
+        "n": 223
+       },
+       "simvastatin_40mg": {
+        "mean": -43.77,
+        "sd": 14.416,
+        "n": 107
+       },
+       "registered_primary": "Percent Change From Baseline in LDL-C",
+       "derived_here": true,
+       "how": "Mean difference from arm-level means, standard deviations and denominators posted in the registry's own results record. SE = sqrt(sd1^2/n1 + sd2^2/n2), the standard computation for a continuous outcome. The INPUTS are read; only the arithmetic is ours, and it is stated so it can be checked."
+      },
+      {
+       "trial_id": "NCT00309777",
+       "nct": "NCT00309777",
+       "measure": "MD",
+       "point": -1.13,
+       "se": 1.7085,
+       "ci_low": -4.4787,
+       "ci_high": 2.2187,
+       "pitavastatin_4mg": {
+        "mean": -43.97,
+        "sd": 14.494,
+        "n": 319
+       },
+       "simvastatin_40mg": {
+        "mean": -42.84,
+        "sd": 15.769,
+        "n": 110
+       },
+       "registered_primary": "Percent Change From Baseline in Low Density Lipoprotein-cholesterol (LDL-C) at 12 Weeks",
+       "derived_here": true,
+       "how": "Mean difference from arm-level means, standard deviations and denominators posted in the registry's own results record. SE = sqrt(sd1^2/n1 + sd2^2/n2), the standard computation for a continuous outcome. The INPUTS are read; only the arithmetic is ours, and it is stated so it can be checked."
+      }
+     ],
+     "what_was_blocked_and_why_it_no_longer_is": "This analysis was recorded as OWED and blocked on 'the registry posts no analysis block'. That was true and it was the wrong thing to need. The registry posts arm-level MEANS, STANDARD DEVIATIONS and DENOMINATORS, which is what a continuous-outcome mean difference is computed from -- Handbook 6.5 chapter 6. No publication and no institutional access were required.",
+     "multi_arm_handling": "The 4 mg against 40 mg contrast is used in both trials, because it is the dose pair they share. NCT00309777 also randomised 2 mg against 20 mg (-38.99 vs -34.97); pooling both contrasts from one trial would double-count its participants, so the second is recorded here and NOT pooled.",
+     "relationship_to_the_withdrawal": "The withdrawn value was an ODDS RATIO on this same continuous endpoint, with no source sentence behind it. It is not superseded quietly: the withdrawal and its reason stand in this object, and this is the analysis that replaces it.",
+     "what_this_does_not_establish": "NOT that the two trials are free of bias -- no RoB-2 assessment is recorded. NOT that the arithmetic reproduces a published pooled figure; no published synthesis of these two trials has been checked against it. The INPUTS are read from the registry; the mean difference and its standard error are computed here and the formula is stated so both can be checked."
     }
    }
   }
@@ -385,5 +455,5 @@
   "sources": "No source registry was recoverable from the page, so no value on this page carries a resolvable link or a quoted source sentence.",
   "manuscript": "No manuscript exists for this review."
  },
- "topic_state": "ESTIMATE WITHDRAWN on a measure defect; a mean-difference replacement analysis is identified and owed"
+ "topic_state": "REPLACEMENT ANALYSIS BUILT -- mean difference, k=2, from registry arm-level data"
 }
