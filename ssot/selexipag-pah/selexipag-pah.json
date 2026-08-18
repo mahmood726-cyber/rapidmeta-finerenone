@@ -37,7 +37,12 @@
    "id": "primary",
    "type": "primary",
    "name": "the trial's own registered primary outcome",
-   "definition": "Recorded per trial in inputs.trials[].registered_primaries, verbatim from the registration."
+   "definition": "Recorded per trial in inputs.trials[].registered_primaries, verbatim from the registration.",
+   "measure": "not applicable",
+   "measure_note": "THE GENERATOR'S OWN IDIOM FOR ABSENCE. This topic publishes no estimate, so there is no measure it was expressed in. Not a borrowed value: sibling objects whose estimate was WITHDRAWN legitimately carry the withdrawn measure, which is a different case.",
+   "comparator": null,
+   "comparator_type": "not applicable",
+   "definition_note": "Registered endpoint definitions are recorded per trial on this object."
   }
  ],
  "results": {
@@ -55,7 +60,9 @@
      "withdrawn_utc": "2026-08-18"
     },
     "per_trial": [],
-    "what_this_verdict_does_not_establish": "NOT that the seeded trial is poor. NOT that the drug is ineffective. NOT that no second trial exists in the world -- only that this page seeds one, and a page cannot pool trials it does not carry. If a second eligible trial is identified, this verdict should be revisited."
+    "what_this_verdict_does_not_establish": "NOT that the seeded trial is poor. NOT that the drug is ineffective. NOT that no second trial exists in the world -- only that this page seeds one, and a page cannot pool trials it does not carry. If a second eligible trial is identified, this verdict should be revisited.",
+    "model": "random-effects",
+    "estimator_used": "not applicable"
    }
   }
  },
@@ -66,5 +73,18 @@
   "verified_on": "2026-08-18",
   "sections": "10.10.3",
   "a_review_need_not_pool": "'A systematic review need not contain any meta-analyses.'"
+ },
+ "carried_contrasts": [],
+ "sources": {},
+ "question": "Selexipag Pah: NOT POOLABLE -- k=1 on the trial's own registered primary outcome?",
+ "generator_schema_patch_2026_08_18": {
+  "relocations": "SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our schema wrote it elsewhere on the same object. A relocation, not a new claim.",
+  "genuinely_empty": "GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is empty on acs-antiplatelet-review, which builds.",
+  "rule": "Every field added falls into RELOCATION, GENUINELY EMPTY, or DERIVED FROM RECORDED CONTENT. A field falling into none was REFUSED. Adding a key to satisfy a generator is not the same as adding the content that key should hold.",
+  "fields": [
+   "carried_contrasts=[] (empty)",
+   "sources={} (empty)",
+   "question (derived)"
+  ]
  }
 }

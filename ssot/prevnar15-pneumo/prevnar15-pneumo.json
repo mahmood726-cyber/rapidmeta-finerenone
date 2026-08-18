@@ -63,7 +63,9 @@
    "null_value": 1,
    "direction_of_benefit": "lower",
    "definition": "Percentage of participants reporting injection-site pain or tenderness within the trial's protocol-defined window after vaccination, read from the matching category of that trial's solicited injection-site outcome.",
-   "definition_note": "Each contributing trial posts this as a category of its own primary solicited injection-site outcome. The arms used and the observation window are recorded against each trial."
+   "definition_note": "Each contributing trial posts this as a category of its own primary solicited injection-site outcome. The arms used and the observation window are recorded against each trial.",
+   "comparator": null,
+   "comparator_type": "not applicable"
   },
   {
    "id": "injection_site_swelling",
@@ -2666,5 +2668,14 @@
    "ruling": "An endpoint absent from its own registration is a RISK OF BIAS question, not an eligibility one. Chapter 3 and MECIR Box 3.2.d discourage outcome-based exclusion; chapter 13 recommends detection, a risk-of-bias judgement and sensitivity analysis, never exclusion."
   },
   "relationship_to_the_other_defect_on_this_page": "This page carries TWO independent defects found by different screens on different days. The first: its four injection-site outcomes are CLASSES inside one registered composite, never separate endpoints -- recorded in results.by_outcome[*].poolable_reason and in the 25 endpoint-definition rows on inputs.trials[]. The second, here: NONE of the eight registrations declares a clinical endpoint at any rank. Neither supersedes the other and both are kept."
+ },
+ "carried_contrasts": [],
+ "generator_schema_patch_2026_08_18": {
+  "relocations": "SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our schema wrote it elsewhere on the same object. A relocation, not a new claim.",
+  "genuinely_empty": "GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is empty on acs-antiplatelet-review, which builds.",
+  "rule": "Every field added falls into RELOCATION, GENUINELY EMPTY, or DERIVED FROM RECORDED CONTENT. A field falling into none was REFUSED. Adding a key to satisfy a generator is not the same as adding the content that key should hold.",
+  "fields": [
+   "carried_contrasts=[] (empty)"
+  ]
  }
 }

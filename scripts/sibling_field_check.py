@@ -44,6 +44,21 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 THRESHOLD = 0.60
 
 
+def generation_of(o):
+    """GENERATION SCOPING -- added after the first run flagged 14 objects when 3 were real.
+
+    A 60% cut across all members of a kind produced a 39-field "norm" that no recent object
+    met, because the schema has GROWN UNVERSIONED: older objects accreted fields
+    (_estimand_rule, _prose_rule, cited_total) that newer ones were never built to carry.
+    Comparing across generations reports NEWER AND THINNER as DEGRADED, and a check that
+    flags 14 when 3 are real trains people to skip it -- which is how this corpus ended up
+    with gates nobody read.
+
+    Generation is keyed on the object's own `built` date, which is recorded content.
+    """
+    return str(o.get("built") or o.get("build_date") or "undated")[:7]
+
+
 def kind_of(o):
     """Objects are compared only against their own kind."""
     bo = (o.get("results") or {}).get("by_outcome") or {}
@@ -82,7 +97,7 @@ def main() -> int:
 
     bykind = {}
     for d, o in objs.items():
-        bykind.setdefault(kind_of(o), {})[d] = fields(o)
+        bykind.setdefault("%s @ %s" % (kind_of(o), generation_of(o)), {})[d] = fields(o)
 
     total_flags = 0
     for kind in sorted(bykind):

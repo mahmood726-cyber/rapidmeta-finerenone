@@ -34,7 +34,12 @@
    "id": "primary",
    "type": "primary",
    "name": "the clinical quantity this page pools",
-   "definition": "Not pre-specified in the registrations this page keys to -- see each trial's registered_primary."
+   "definition": "Not pre-specified in the registrations this page keys to -- see each trial's registered_primary.",
+   "measure": "not applicable",
+   "measure_note": "THE GENERATOR'S OWN IDIOM FOR ABSENCE. This topic publishes no estimate, so there is no measure it was expressed in. Not a borrowed value: sibling objects whose estimate was WITHDRAWN legitimately carry the withdrawn measure, which is a different case.",
+   "comparator": null,
+   "comparator_type": "not applicable",
+   "definition_note": "Registered endpoint definitions are recorded per trial on this object."
   }
  ],
  "results": {
@@ -52,7 +57,9 @@
      "withdrawn_utc": "2026-08-18"
     },
     "per_trial": [],
-    "what_this_verdict_does_not_establish": "THIS IS A STATEMENT ABOUT THE REGISTRATION, NOT ABOUT THE TRIAL. It does NOT establish that clinical outcomes were not measured -- they may well have been measured and published, and the published figures may be entirely correct. It does NOT establish that any trial here was conducted or reported improperly: a trial designed as an immunogenicity, safety or pharmacokinetic study that registers immunogenicity, safety or pharmacokinetic endpoints IS BEHAVING CORRECTLY. What it establishes is that a SYNTHESIS on this page pooled a clinical quantity that none of these registrations pre-specified, and the criticism belongs on that pooling and nowhere else. The registry is a live document; this reads its contents on the date recorded and a later amendment could change it."
+    "what_this_verdict_does_not_establish": "THIS IS A STATEMENT ABOUT THE REGISTRATION, NOT ABOUT THE TRIAL. It does NOT establish that clinical outcomes were not measured -- they may well have been measured and published, and the published figures may be entirely correct. It does NOT establish that any trial here was conducted or reported improperly: a trial designed as an immunogenicity, safety or pharmacokinetic study that registers immunogenicity, safety or pharmacokinetic endpoints IS BEHAVING CORRECTLY. What it establishes is that a SYNTHESIS on this page pooled a clinical quantity that none of these registrations pre-specified, and the criticism belongs on that pooling and nowhere else. The registry is a live document; this reads its contents on the date recorded and a later amendment could change it.",
+    "model": "random-effects",
+    "estimator_used": "not applicable"
    }
   }
  },
@@ -63,5 +70,18 @@
   "verified_on": "2026-08-18",
   "sections": "8.7 (bias in selection of the reported result); 10.10.3; 10.14",
   "ruling": "An endpoint absent from its own registration is a RISK OF BIAS question, not an eligibility one. Chapter 3 and MECIR Box 3.2.d discourage outcome-based exclusion; chapter 13 recommends detection, a risk-of-bias judgement and sensitivity analysis, never exclusion."
+ },
+ "carried_contrasts": [],
+ "sources": {},
+ "question": "Tigecycline Infection: NOT POOLABLE -- no registration declares a clinical endpoint at any rank on the clinical quantity this page pools?",
+ "generator_schema_patch_2026_08_18": {
+  "relocations": "SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our schema wrote it elsewhere on the same object. A relocation, not a new claim.",
+  "genuinely_empty": "GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is empty on acs-antiplatelet-review, which builds.",
+  "rule": "Every field added falls into RELOCATION, GENUINELY EMPTY, or DERIVED FROM RECORDED CONTENT. A field falling into none was REFUSED. Adding a key to satisfy a generator is not the same as adding the content that key should hold.",
+  "fields": [
+   "carried_contrasts=[] (empty)",
+   "sources={} (empty)",
+   "question (derived)"
+  ]
  }
 }

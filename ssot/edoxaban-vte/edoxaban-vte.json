@@ -42,7 +42,12 @@
    "id": "vte_events",
    "name": "Venous thromboembolism events",
    "type": "primary",
-   "definition": "Every contributing registration declares this primary, so the OUTCOME limb passes. That is why an outcome-only screen passed this page and why it is not poolable on a different limb."
+   "definition": "Every contributing registration declares this primary, so the OUTCOME limb passes. That is why an outcome-only screen passed this page and why it is not poolable on a different limb.",
+   "measure": "not applicable",
+   "measure_note": "THE GENERATOR'S OWN IDIOM FOR ABSENCE. This topic publishes no estimate, so there is no measure it was expressed in. Not a borrowed value: sibling objects whose estimate was WITHDRAWN legitimately carry the withdrawn measure, which is a different case.",
+   "comparator": null,
+   "comparator_type": "not applicable",
+   "definition_note": "Registered endpoint definitions are recorded per trial on this object."
   }
  ],
  "results": {
@@ -60,7 +65,9 @@
      "withdrawn_utc": "2026-08-18"
     },
     "per_trial": [],
-    "what_this_verdict_does_not_establish": "NOT that the trials are poor -- each is registered, randomised and reports its primary. NOT that the drug is ineffective. NOT that no poolable question exists in this area -- only that the one this page's title asks cannot be answered by pooling the trials on it."
+    "what_this_verdict_does_not_establish": "NOT that the trials are poor -- each is registered, randomised and reports its primary. NOT that the drug is ineffective. NOT that no poolable question exists in this area -- only that the one this page's title asks cannot be answered by pooling the trials on it.",
+    "model": "random-effects",
+    "estimator_used": "not applicable"
    }
   }
  },
@@ -73,5 +80,18 @@
   "sections": "10.10.3; MECIR Box 10.10.a (C62)",
   "a_review_need_not_pool": "'A systematic review need not contain any meta-analyses.'",
   "c62": "'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.'"
+ },
+ "carried_contrasts": [],
+ "sources": {},
+ "question": "Edoxaban in venous thromboembolism: NOT POOLABLE AS POSED -- a prophylaxis trial and a treatment trial, in adults and in children on Venous thromboembolism events?",
+ "generator_schema_patch_2026_08_18": {
+  "relocations": "SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our schema wrote it elsewhere on the same object. A relocation, not a new claim.",
+  "genuinely_empty": "GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is empty on acs-antiplatelet-review, which builds.",
+  "rule": "Every field added falls into RELOCATION, GENUINELY EMPTY, or DERIVED FROM RECORDED CONTENT. A field falling into none was REFUSED. Adding a key to satisfy a generator is not the same as adding the content that key should hold.",
+  "fields": [
+   "carried_contrasts=[] (empty)",
+   "sources={} (empty)",
+   "question (derived)"
+  ]
  }
 }

@@ -21,6 +21,11 @@ if __name__ == "__main__":
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 PAT = re.compile(r"text\s*=\s*True|universal_newlines\s*=\s*True")
 SKIP = re.compile(r"#\s*lint:allow-text-true")
+# text=True WITH AN EXPLICIT ENCODING IS SAFE -- the hazard is the DEFAULT codepage, not
+# text mode itself. Flagging `text=True, encoding="utf-8"` is a false positive, and a lint
+# that cries wolf on correct code is how gates stop being read. Found when the ratchet
+# refused a commit over two pre-existing sites that were already doing the right thing.
+SAFE = re.compile(r"encoding\s*=\s*[\"']")
 
 
 def main() -> int:
@@ -31,7 +36,7 @@ def main() -> int:
                 continue
             p = os.path.join(root, fn)
             for i, line in enumerate(io.open(p, encoding="utf-8", errors="replace"), 1):
-                if PAT.search(line) and not SKIP.search(line):
+                if PAT.search(line) and not SKIP.search(line) and not SAFE.search(line):
                     hits.append((os.path.relpath(p, REPO), i, line.strip()[:74]))
     for f, i, t in hits:
         print("%s:%d  %s" % (f, i, t))
