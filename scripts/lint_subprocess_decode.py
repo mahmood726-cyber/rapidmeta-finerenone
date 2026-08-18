@@ -35,9 +35,41 @@ def main() -> int:
             if not fn.endswith(".py") or fn == os.path.basename(__file__):
                 continue
             p = os.path.join(root, fn)
-            for i, line in enumerate(io.open(p, encoding="utf-8", errors="replace"), 1):
-                if PAT.search(line) and not SKIP.search(line) and not SAFE.search(line):
-                    hits.append((os.path.relpath(p, REPO), i, line.strip()[:74]))
+            # THE UNIT IS THE CALL, NOT THE LINE, AND THAT IS THE WHOLE FIX.
+            #
+            # The SAFE exemption for an explicit encoding= was evaluated PER LINE. A call
+            # written across several physical lines --
+            #     subprocess.run(args,
+            #                    text=True,
+            #                    encoding="utf-8", errors="replace")
+            # -- carries text=True on one line and encoding= on the next, so the exemption
+            # never saw it and the site was flagged. Correct code, refused by its own guard.
+            #
+            # This is the unit-of-analysis error that assessor_registry's detector 5 exists to
+            # catch -- the check ran correctly on the WRONG UNIT -- and it appeared here, in
+            # the lint that makes a lesson mechanical. Found when it blocked a commit of two
+            # sites that were already doing exactly what it asks for.
+            #
+            # The window below widens each hit to its enclosing call before applying the
+            # exemption, so SAFE is tested against the same call that carries the hazard.
+            with io.open(p, encoding="utf-8", errors="replace") as fh:
+                lines = fh.read().splitlines()
+            for i, line in enumerate(lines, 1):
+                if not PAT.search(line) or SKIP.search(line):
+                    continue
+                start = i - 1
+                while start > 0 and "(" not in lines[start]:
+                    start -= 1
+                depth, end = 0, start
+                for j in range(start, min(len(lines), start + 40)):   # bounded: cannot hang
+                    depth += lines[j].count("(") - lines[j].count(")")
+                    end = j
+                    if depth <= 0 and j > start:
+                        break
+                call = chr(10).join(lines[start:end + 1])
+                if SAFE.search(call) or SKIP.search(call):
+                    continue
+                hits.append((os.path.relpath(p, REPO), i, line.strip()[:74]))
     for f, i, t in hits:
         print("%s:%d  %s" % (f, i, t))
     print()

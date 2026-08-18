@@ -1821,3 +1821,62 @@ were caught before anything was written, and both are the house classes:
 **Result: 1 derived, 3 refused.** That ratio is the evidence the guards work. A derivation
 engine that succeeded on all four would have been the fabrication the exercise was designed
 to avoid.
+
+---
+
+## A correct verdict reached by broken reasoning passes every outcome-based test (2026-08-19)
+
+**The third derivation defect, and the one that generalises furthest.**
+
+`derive_criteria` refused `bococizumab-lipid-review` and `attr-cm-review`. Both refusals were
+CORRECT. The reason given for one of them was NOT.
+
+The objective source was written as `_first_readable(obj, ["question", "title"])` with a guard
+that rejected a question failing to name the intervention. The guard **returned before the
+fallback was ever reachable**, so `title` was never consulted. bococizumab's title is
+*"Bococizumab and LDL cholesterol"* -- it DOES name the intervention. The refusal reason said
+"question never names the topic intervention", which was true but was not why the topic could
+not be derived, and the code path that would have decided the real question never ran.
+
+**Every test passed.** The verdict was right, the topic was correctly refused, the batch
+matrix was correct, and a review that checked outcomes -- which is what almost every review
+checks -- would have seen nothing. Only reading the REASON exposed it.
+
+Fixing the fallback then forced the question the bug had been hiding: *should* a title be
+usable as a criteria statement? No. A two-noun label names the topic; it is not a rule for
+admitting studies to it, and MECIR R29 (Mandatory) requires participants be STATED. So `title`
+is not an objective source at all, and bococizumab now refuses for the true reason.
+
+**Same shape as the duplicate-detection check that fired on its founding case for a reason
+that was not the stated one.** A check can be right about the world and wrong about itself, and
+the two are only distinguishable by reading what it says, not what it decides.
+
+**The rule.** When a check emits a verdict, the verdict and the REASON are two separate
+outputs and both need testing. A green suite over verdicts is not evidence the reasoning ran.
+Assert on reason strings, not only on states -- `known_answer_preconditions.py` already does
+this for the factorial and uncontrolled-extension cases, and that is why those two are
+trustworthy in a way the derivation's refusals briefly were not.
+
+---
+
+## Duplicate seeding is worse than the record said, and one case reaches the flagship (2026-08-19)
+
+A corpus-wide ID-keyed reconciliation (135 objects) found **51 registration ids appearing in
+more than one topic's included set**. The recorded claim was "three omecamtiv pages all seed
+`NCT02929329`; two sacubitril pages both seed `NCT01035255`". Measured:
+
+| registration | topics | note |
+|---|---|---|
+| `NCT00262600` | **4** -- dabigatran-af, dabigatran-stroke, doac-af-review, warfarin-af | largest, and unrecorded |
+| `NCT01035255` | **3** -- **arni-hfref**, sacubitril-heartfail, sacubitril-valsartan-hf | record said TWO; the third is the FLAGSHIP |
+| `NCT02929329` | 3 -- omecamtiv-heartfail, omecamtiv-hf, omecamtiv-hfref | confirmed as recorded |
+| `NCT01764633` | 3 -- evolocumab-dyslipidemia-review, pcsk9-inhibitors-cv-review, pcsk9-review | unrecorded |
+| `NCT03470545` | 3 -- mavacamten-hcm-review, mavacamten-ohcm, mavacamten-ohcm-review | unrecorded |
+| `NCT04652102` | 3 -- covid19-vaccines, cvncov-covid19, cvncov-sarscov2 | unrecorded |
+
+**These are k-identity facts and this project has been burned by them before.** The sacubitril
+correction matters most: `NCT01035255` seeds `arni-hfref`, the one object holding the full
+eight-tab spec, so the flagship shares a trial with two other topics and the record did not say
+so. Nothing here says the sharing is wrong -- a trial can legitimately inform several
+questions -- but an unrecorded shared seed means k is not independent across those topics, and
+any corpus-level count that adds them is double-counting.
