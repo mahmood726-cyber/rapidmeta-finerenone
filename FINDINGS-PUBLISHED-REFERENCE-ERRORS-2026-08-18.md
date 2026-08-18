@@ -1,4 +1,10 @@
-# Do published syntheses make the same reference errors? **First one checked: yes.**
+# Do published syntheses make the same reference errors? **1 of 4. See the completed denominator at the foot of this file.**
+
+> **SUPERSEDED HEADER.** This file was written in two instalments and the first one read
+> stronger than the evidence. The completed answer is **4 of 4 checked, 1 affected, 3
+> handled correctly** — scroll to *DENOMINATOR COMPLETE*. The first instalment is left
+> intact rather than rewritten, so the progression from a 1-of-2 headline to a 1-of-4
+> result can be read rather than taken on trust.
 
 The claim being tested — written down before it was tested, and it was untested until
 now — is that a pool can be wrong in a way **no arithmetic reveals**, and that a
