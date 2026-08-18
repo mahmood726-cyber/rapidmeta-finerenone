@@ -844,3 +844,62 @@ were all really the same check. The question to ask of any suite is not "how man
 checks" but **"what class of damage is none of them looking at"**. Five content
 checks provide no redundancy against an encoding fault; they provide one check,
 run five times.
+
+
+---
+
+## Count KINDS of check, not checks — a suite grows by accretion into one check run N times
+
+Mahmood's generalisation of the CRLF fault, 2026-08-18, and it reframes every
+coverage number this project has quoted.
+
+Five checks stood in front of that edit — div balance, script-tag count,
+numerals-lost, byte growth, anchor-matched-once. **All five passed. All five were
+the same check.** Each asks a question about CONTENT; the damage was to ENCODING.
+
+> **We count checks as if they were independent. Five content comparisons are ONE
+> check applied five times, and a defect orthogonal to content passes all of them
+> by construction.**
+>
+> **The honest coverage question is not how many checks a page passes. It is how
+> many independent KINDS — and which kinds nothing is looking at.**
+
+This is the same shape as the ledger's older entry on a proportion of checks not
+establishing what it appears to: there the problem was checks that did not run,
+here it is checks that all run and all look the same way.
+
+### The classification, measured 2026-08-18 — `scripts/gate_kinds.py`
+
+**31 gates. Seven kinds. Three kinds with no gate at all.**
+
+| kind | n | what it actually inspects |
+|---|---|---|
+| EXTERNAL AGREEMENT | 11 | ours against a source outside the repo — a registry, an article |
+| INTERNAL AGREEMENT | 7 | two of our own surfaces compared with each other |
+| PRESENCE / DURABILITY | 4 | does the thing exist, is it tracked, is it current |
+| MARKUP / STRUCTURE | 3 | is the artefact well formed as a document |
+| ARITHMETIC | 2 | do the numbers reconcile |
+| TOPICALITY | 2 | is this about the right subject at all |
+| SELF-CHECK | 2 | can the checks themselves fail, and did they run |
+
+**And the part that matters — the empty rows. None of these is hypothetical; each
+has already cost something this week:**
+
+| uncovered kind | what it would inspect | what it already cost |
+|---|---|---|
+| **ENCODING / BYTE INTEGRITY** | line endings, BOM, charset — anything true of the FILE rather than of its text | 12,031 CRLF endings rewritten on two live pages; five content checks passed it; caught by `git commit`'s line count alone |
+| **DELIVERY / LIVENESS** | does the far side actually SERVE the bytes that were pushed | `ssot/` returned 404 for weeks while every page promised the reader a canonical object. "Verify live" is a manual step, and on an object-only change it had nothing to check — so it passed **vacuously** every previous time |
+| **DELTA / IDEMPOTENCY** | did this patch change what it meant to, and only that | the ledger's own entry: an append-instead-of-set produced a well-formed object every gate passed. Only a diff against the EXPECTED change reveals it, and no gate computes one |
+
+**A page passing all 31 gates is unchecked in all three.** That sentence is the
+value of the exercise, and it was not available before the kinds were named.
+
+**A trap worth keeping**, found while doing this: `ls scripts/*gate*.py` returns
+**52** files, of which **21 are `propagate_*`** — the glob matches "propa-**gate**".
+Any count quoted from that glob is wrong by two thirds. `gate_kinds.py` filters
+explicitly and derives the list from disk so the number cannot decay.
+
+**Why the classification is a script and not a table in this file:** the assignment
+of a gate to a kind is a judgement and belongs in prose where it can be argued with;
+the LIST of gates is a fact and must be re-derived, or it becomes another memory
+count of the sort this project has already had to reconcile twice.
