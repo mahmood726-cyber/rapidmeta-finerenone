@@ -1,350 +1,362 @@
 {
-  "app_id": "covid19-vaccines",
-  "schema_version": 2,
-  "title": "COVID-19 vaccines versus placebo: per-vaccine efficacy against symptomatic COVID-19, for the trials that could be sourced",
-  "question": "For each COVID-19 vaccine whose trial data could be sourced here, what was the risk of symptomatic laboratory-confirmed COVID-19 relative to placebo in its own trial? This is a per-vaccine snapshot of the sourceable trials. It is NOT a systematic review of COVID-19 vaccine evidence, and it does not combine vaccines. Most vaccines absent from it are absent because their counts could not be sourced here rather than because they were assessed and excluded. Two removals are not that: a registration carrying counts that belong to a pooled analysis of several trials, and a trial of a different disease. Both are itemised below.",
-  "built": "2026-08-04",
-  "_prose_rule": "Every text field is PROSE unless it is on the validator's numeric-text allowlist. Prose may not contain a bare numeral: any number it needs is written as a braced reference and resolved from the structured fields at build time.",
-  "_sourcing_rule": "Every MEASURED input names the source layer it came from via source_id. Values DERIVED by this build - the pooled estimate, heterogeneity, k, and any superseded figure - carry no source layer because they have no source: they are computed here, and the validator recomputes them rather than trusting them. Where two layers disagree on an input, both are recorded.",
-  "sources": {
-    "OA_VOYSEY": {
-      "layer": "Primary paper (abstract)",
-      "layer_rank": 4,
-      "name": "Voysey M et al. Safety and efficacy of the ChAdOx1 nCoV-19 vaccine (AZD1222) against SARS-CoV-2: an interim analysis. Lancet",
-      "url": "https://pubmed.ncbi.nlm.nih.gov/33306989/",
-      "access_note": "Abstract retrieved from PubMed and read. It states the pooled two-dose case counts and denominators directly."
-    },
-    "OA_LOGUNOV": {
-      "layer": "Primary paper (abstract)",
-      "layer_rank": 4,
-      "name": "Logunov DY et al. Safety and efficacy of an rAd26 and rAd5 vector-based heterologous prime-boost COVID-19 vaccine: an interim analysis. Lancet",
-      "url": "https://pubmed.ncbi.nlm.nih.gov/33545094/",
-      "access_note": "Abstract retrieved from PubMed and read. It states the case counts and both denominators, and confirms the unequal allocation."
-    },
-    "OA_KREMSNER": {
-      "layer": "Primary paper (abstract)",
-      "layer_rank": 4,
-      "name": "Kremsner PG et al. Efficacy and safety of the CVnCoV SARS-CoV-2 mRNA vaccine candidate: a phase 2b/3 trial. Lancet Infectious Diseases",
-      "url": "https://pubmed.ncbi.nlm.nih.gov/34826381/",
-      "access_note": "Abstract retrieved from PubMed and read. It states case counts and group sizes, but analyses the outcome on PERSON-TIME, which is not the same estimand as a crude risk ratio."
-    },
-    "OA_ALKAABI": {
-      "layer": "Primary paper (abstract)",
-      "layer_rank": 4,
-      "name": "Al Kaabi N et al. Effect of 2 Inactivated SARS-CoV-2 Vaccines on Symptomatic COVID-19 Infection in Adults: a randomized clinical trial. JAMA",
-      "url": "https://pubmed.ncbi.nlm.nih.gov/34037666/",
-      "access_note": "Abstract retrieved from PubMed and read. It states three randomised groups and their sizes and case counts, reports each group's INCIDENCE per 1000 person-years, and reports vaccine efficacy separately, as a percentage. The two are different quantities and an earlier version of this note ran them together."
-    },
-    "REGISTRY_CTGOV": {
-      "layer": "Registry",
-      "layer_rank": 5,
-      "name": "ClinicalTrials.gov records for the included trials",
-      "url": "https://clinicaltrials.gov/",
-      "access_note": "Every registration cited by the source app was resolved against the registry API before building, and all existed. Not all proved to be in the right disease area: staging one and opening it showed a trial of a different disease, which is why it now carries a removal reason of its own rather than being filed under unverifiable counts. Beyond that, the defects found were in the PUBLICATION citations rather than the registrations. That check covered citations this object does not expose, so it is recorded here as a statement about the build process and is not reviewable from this object alone. The registration removed for a units-of-analysis error is staged alongside the included trials, so the grounds for removing it can be checked rather than taken on trust."
-    },
-    "COCHRANE_GRANA": {
-      "layer": "Prior published synthesis",
-      "layer_rank": 3,
-      "name": "Grana C et al. Efficacy and safety of COVID-19 vaccines. Cochrane Database of Systematic Reviews",
-      "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9726273/",
-      "access_note": "Full text retrieved from PubMed Central and STAGED with this object; every reference figure quoted here was confirmed present in it. A TRIMMED EXTRACT of the passages carrying those figures is staged beside it, because the full review runs to about a million and a half characters and a reviewer reported its contents as absent -- concluding that figures appearing in it four times each had been fabricated. The vaccine names in it are written with a non-ASCII hyphen, so searching the ASCII spelling finds nothing. The full file remains authoritative; the extract exists so the relevant passage can actually be read.",
-      "staged_as": "PMC9726273.cochrane.xml",
-      "staged_extract": "PMC9726273.cochrane-SOF-extract.txt"
-    }
+ "app_id": "covid19-vaccines",
+ "schema_version": 2,
+ "title": "COVID-19 vaccines versus placebo: per-vaccine efficacy against symptomatic COVID-19, for the trials that could be sourced",
+ "question": "For each COVID-19 vaccine whose trial data could be sourced here, what was the risk of symptomatic laboratory-confirmed COVID-19 relative to placebo in its own trial? This is a per-vaccine snapshot of the sourceable trials. It is NOT a systematic review of COVID-19 vaccine evidence, and it does not combine vaccines. Most vaccines absent from it are absent because their counts could not be sourced here rather than because they were assessed and excluded. Two removals are not that: a registration carrying counts that belong to a pooled analysis of several trials, and a trial of a different disease. Both are itemised below.",
+ "built": "2026-08-04",
+ "_prose_rule": "Every text field is PROSE unless it is on the validator's numeric-text allowlist. Prose may not contain a bare numeral: any number it needs is written as a braced reference and resolved from the structured fields at build time.",
+ "_sourcing_rule": "Every MEASURED input names the source layer it came from via source_id. Values DERIVED by this build - the pooled estimate, heterogeneity, k, and any superseded figure - carry no source layer because they have no source: they are computed here, and the validator recomputes them rather than trusting them. Where two layers disagree on an input, both are recorded.",
+ "sources": {
+  "OA_VOYSEY": {
+   "layer": "Primary paper (abstract)",
+   "layer_rank": 4,
+   "name": "Voysey M et al. Safety and efficacy of the ChAdOx1 nCoV-19 vaccine (AZD1222) against SARS-CoV-2: an interim analysis. Lancet",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/33306989/",
+   "access_note": "Abstract retrieved from PubMed and read. It states the pooled two-dose case counts and denominators directly."
   },
-  "outcomes": [
-    {
-      "id": "symptomatic_covid",
-      "name": "Symptomatic laboratory-confirmed COVID-19",
-      "type": "primary",
-      "measure": "RR",
-      "definition": "Symptomatic virologically confirmed COVID-19 occurring after the completion of the trial's primary vaccination schedule, as defined by each trial.",
-      "definition_note": "The trials do not share one case definition or one time origin, and they were run against different circulating variants in different periods. The composite recorded here is therefore an approximation across related but non-identical endpoints.",
-      "direction_of_benefit": "lower",
-      "null_value": 1
-    }
-  ],
-  "inputs": {
-    "trials": [
-      {
-        "id": "Sputnik-V-phase3",
-        "name": "Gam-COVID-Vac interim analysis",
-        "nct": "NCT04530396",
-        "pmid": "33545094",
-        "year": 2021,
-        "design": "randomised, double-blind, placebo-controlled, unequal allocation",
-        "arms": [
-          {
-            "label": "Gam-COVID-Vac",
-            "role": "treatment"
-          },
-          {
-            "label": "placebo",
-            "role": "control"
-          }
-        ],
-        "by_outcome": {
-          "symptomatic_covid": {
-            "treatment": {
-              "events": 16,
-              "n": 14964,
-              "source_fragments": [
-                "16 (0·1%) of 14964 participants in the vaccine group"
-              ]
-            },
-            "control": {
-              "events": 62,
-              "n": 4902,
-              "source_fragments": [
-                "62 (1·3%) of 4902 in the placebo group"
-              ]
-            },
-            "provenance": {
-              "tag": "MEASURED",
-              "source_id": "OA_LOGUNOV",
-              "source": "abstract, from {self.by_outcome.symptomatic_covid.treatment.n} vaccine and {self.by_outcome.symptomatic_covid.control.n} placebo participants",
-              "note": "Allocation is unequal by design, so the two denominators differ by roughly threefold. That is a feature of the trial, not a data error, and it must not be corrected toward balance.",
-              "source_quotes": [
-                "From 21 days after the first dose of vaccine (the day of dose 2), 16 (0·1%) of 14964 participants in the vaccine group and 62 (1·3%) of 4902 in the placebo group were confirmed to have COVID-19; vaccine efficacy was 91·6% (95% CI 85·6-95·2)."
-              ],
-              "quote_note": "These are the sentences the counts were read from, quoted from the staged payload with digit separators normalised, since this source writes numerals with thin spaces, and each ARM additionally names the fragment of that sentence carrying its own count. An abstract has no outcome-and-category structure for a cell to name, so it names the sentence and then the phrase. Both are needed: a sentence normally reports BOTH arms, so quoting it alone would let the two counts be exchanged with each other and still be found in the quote. The per-arm fragment is what prevents that, and the exchange was executed against this object to confirm it is blocked."
-            }
-          }
-        },
-        "enrolled": 21977,
-        "registry_enrolment": 33758,
-        "enrolment_note": "Randomised in the published interim analysis: {self.enrolled}. The registry records an ACTUAL enrolment of {self.registry_enrolment} for the whole trial, which is a larger population than the interim analysis the counts here come from. An earlier version of this note called that figure a target enrolment; the registry marks it actual.",
-        "registry_enrolment_type": "ACTUAL"
-      },
-      {
-        "id": "HERALD",
-        "name": "CVnCoV phase 2b/3",
-        "nct": "NCT04652102",
-        "pmid": "34826381",
-        "year": 2021,
-        "design": "randomised, observer-blinded, placebo-controlled",
-        "arms": [
-          {
-            "label": "CVnCoV",
-            "role": "treatment"
-          },
-          {
-            "label": "placebo",
-            "role": "control"
-          }
-        ],
-        "by_outcome": {
-          "symptomatic_covid": {
-            "treatment": {
-              "events": 83,
-              "n": 12851,
-              "source_fragments": [
-                "83 cases of COVID-19 occurred in the CVnCoV group (n=12851)"
-              ]
-            },
-            "control": {
-              "events": 145,
-              "n": 12211,
-              "source_fragments": [
-                "145 cases occurred in the placebo group (n=12211)"
-              ]
-            },
-            "provenance": {
-              "tag": "MEASURED",
-              "source_id": "OA_KREMSNER",
-              "source": "abstract, cases in each group with group sizes as stated",
-              "note": "The trial analysed this outcome on PERSON-TIME, not on a crude risk. The counts and group sizes are as published, but a risk ratio computed from them is a different estimand from the efficacy the paper reports.",
-              "source_quotes": [
-                "After a mean observation period of 48·2 days (SE 0·2), 83 cases of COVID-19 occurred in the CVnCoV group (n=12851) in 1735·29 person-years and 145 cases occurred in the placebo group (n=12211) in 1569·87 person-years, resulting in an overall vaccine efficacy against symptomatic COVID-19 of 48·2% (95·826% CI 31·0-61·4; p=0·016)."
-              ],
-              "quote_note": "These are the sentences the counts were read from, quoted from the staged payload with digit separators normalised, since this source writes numerals with thin spaces, and each ARM additionally names the fragment of that sentence carrying its own count. An abstract has no outcome-and-category structure for a cell to name, so it names the sentence and then the phrase. Both are needed: a sentence normally reports BOTH arms, so quoting it alone would let the two counts be exchanged with each other and still be found in the quote. The per-arm fragment is what prevents that, and the exchange was executed against this object to confirm it is blocked."
-            }
-          }
-        },
-        "enrolled": 39680,
-        "dosed": 39540,
-        "enrolment_note": "Randomised: {self.enrolled}. Received at least one dose: {self.dosed}, taken from the registry record. The publication instead reports the two dosed arms separately, and those two figures sum to a slightly different total; the registry literal is recorded here rather than a sum computed by this build. An earlier build carried that computed sum, and before that carried it in the enrolled field as well.",
-        "dosed_source_id": "REGISTRY_CTGOV"
-      },
-      {
-        "id": "BBIBP-CorV-phase3",
-        "name": "Inactivated vaccine phase 3, HB02 group",
-        "nct": "NCT04510207",
-        "pmid": "34037666",
-        "year": 2021,
-        "design": "randomised, double-blind, three-group, alum-controlled",
-        "arms": [
-          {
-            "label": "HB02 inactivated vaccine",
-            "role": "treatment"
-          },
-          {
-            "label": "alum-only control",
-            "role": "control"
-          }
-        ],
-        "shared_control_note": "This trial randomised THREE groups: a WIV04 vaccine group, an HB02 vaccine group, and one alum-only control shared between them. Only the HB02 contrast is carried here. Including both vaccine groups against the same control would use that control twice and understate the variance.",
-        "by_outcome": {
-          "symptomatic_covid": {
-            "treatment": {
-              "events": 21,
-              "n": 13465,
-              "source_fragments": [
-                "21 in the HB02 group",
-                "HB02 (4 µg/dose; n = 13465)"
-              ],
-              "n_is": "randomisation group size, NOT the efficacy-analysis denominator"
-            },
-            "control": {
-              "events": 95,
-              "n": 13458,
-              "source_fragments": [
-                "95 in the alum-only group",
-                "aluminum hydroxide (alum)-only control (n = 13458)"
-              ],
-              "n_is": "randomisation group size, NOT the efficacy-analysis denominator"
-            },
-            "provenance": {
-              "tag": "MEASURED",
-              "source_id": "OA_ALKAABI",
-              "source": "abstract, HB02 group versus the alum-only group",
-              "note": "The source app recorded these denominators as 13456 and 13455. The published figures are as recorded here; the app's values are digit transpositions.",
-              "source_quotes": [
-                "Participants were randomized to receive 1 of 2 inactivated vaccines developed from SARS-CoV-2 WIV04 (5 µg/dose; n = 13459) and HB02 (4 µg/dose; n = 13465) strains or an aluminum hydroxide (alum)-only control (n = 13458); they received 2 intramuscular injections 21 days apart.",
-                "During a median (range) follow-up duration of 77 (1-121) days, symptomatic COVID-19 was identified in 26 participants in the WIV04 group (12.1 [95% CI, 8.3-17.8] per 1000 person-years), 21 in the HB02 group (9.8 [95% CI, 6.4-15.0] per 1000 person-years), and 95 in the alum-only group (44.7 [95% CI, 36.6-54.6] per 1000 person-years), resulting in a vaccine efficacy, compared with alum-only, of 72.8% (95% CI, 58.1%-82.4%) for WIV04 and 78.1% (95% CI, 64.8%-86.3%) for HB02 (P < .001 for both)."
-              ],
-              "quote_note": "These are the sentences the counts were read from, quoted from the staged payload with digit separators normalised, since this source writes numerals with thin spaces, and each ARM additionally names the fragment of that sentence carrying its own count. An abstract has no outcome-and-category structure for a cell to name, so it names the sentence and then the phrase. Both are needed: a sentence normally reports BOTH arms, so quoting it alone would let the two counts be exchanged with each other and still be found in the quote. The per-arm fragment is what prevents that, and the exchange was executed against this object to confirm it is blocked."
-            },
-            "numerator_population": "primary efficacy analysis",
-            "denominator_population": "randomised",
-            "population_mismatch_note": "The event counts come from the primary efficacy analysis population, which the publication reports as a single pooled total across all three groups and does not break down per group. The denominators used here are therefore the RANDOMISED group sizes, which are larger. A risk ratio formed from them is an approximation, and it slightly understates the event risk in both arms. The mismatch is recorded rather than hidden because no per-group efficacy denominator is available in the source.",
-            "denominator_note": "The event counts here come from the primary efficacy analysis, which the publication states included 38,206 of the randomised participants across every arm of the trial. The numbers stored as n are the RANDOMISATION group sizes and are larger. No per-arm efficacy denominator is reported by the publication, and the staged review gives only a figure combining the compared arms, so the matching denominators are not available and none is invented. A count-based risk ratio would divide efficacy-analysis events by randomisation totals, which is why none is reported."
-          }
-        },
-        "enrolled": 40382,
-        "registry_enrolment": 44101,
-        "registry_enrolment_type": "ACTUAL",
-        "enrolment_note": "Randomised in the publication: {self.enrolled}. The registry records an ACTUAL enrolment of {self.registry_enrolment} for this trial. The two disagree, and both are carried rather than one being chosen: the counts in this object come from the publication's primary efficacy analysis, which is a smaller population than everyone the registry counts as enrolled. This object states that where two layers disagree on an input, both are recorded; an earlier build carried only the publication figure."
-      }
-    ]
+  "OA_LOGUNOV": {
+   "layer": "Primary paper (abstract)",
+   "layer_rank": 4,
+   "name": "Logunov DY et al. Safety and efficacy of an rAd26 and rAd5 vector-based heterologous prime-boost COVID-19 vaccine: an interim analysis. Lancet",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/33545094/",
+   "access_note": "Abstract retrieved from PubMed and read. It states the case counts and both denominators, and confirms the unequal allocation."
   },
-  "config": {
-    "confidence_level": 95
+  "OA_KREMSNER": {
+   "layer": "Primary paper (abstract)",
+   "layer_rank": 4,
+   "name": "Kremsner PG et al. Efficacy and safety of the CVnCoV SARS-CoV-2 mRNA vaccine candidate: a phase 2b/3 trial. Lancet Infectious Diseases",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/34826381/",
+   "access_note": "Abstract retrieved from PubMed and read. It states case counts and group sizes, but analyses the outcome on PERSON-TIME, which is not the same estimand as a crude risk ratio."
   },
-  "results": {
-    "by_outcome": {
-      "symptomatic_covid": {
-        "k": 3,
-        "poolable": false,
-        "poolable_reason": "Each retained trial contributes counts for this outcome. Numbers sufficient to do the arithmetic are a prerequisite for pooling, not a justification for it; see the interpretation caveat.",
-        "model": "per-trial, no synthesis",
-        "estimator": "none (no synthesis)",
-        "estimator_used": "none (no synthesis)",
-        "pooled": null,
-        "heterogeneity": null,
-        "heterogeneity_status": "not applicable; no synthesis across vaccines is performed",
-        "not_poolable_reason": "These trials test DIFFERENT vaccines on different platforms, against different circulating variants, in different periods, with different case definitions. They do not estimate a common quantity, so no pooled figure is computed. The reference systematic review reaches the same conclusion and reports efficacy per vaccine. An earlier build of this object did report a single pooled risk ratio across all three; it was removed rather than caveated, because a number that should not be computed is not fixed by a warning beside it.",
-        "per_trial": [
-          {
-            "trial_id": "Sputnik-V-phase3",
-            "nct": "NCT04530396",
-            "measure": "RR",
-            "point": 0.0845,
-            "ci_low": 0.0488,
-            "ci_high": 0.1463,
-            "ci_level": 95,
-            "derivation": "crude risk ratio computed from this trial's own two-by-two table, with a normal-approximation interval on the log scale",
-            "reference_efficacy_percent": 91.1,
-            "reference_ci_low_percent": 83.8,
-            "reference_ci_high_percent": 95.1,
-            "reference_source_id": "COCHRANE_GRANA",
-            "source_divergence": "Two sources report this trial's efficacy and they do not quite agree. The trial's own publication reports 91.6 per cent, which is also what this object's crude counts give. The systematic review reports {self.reference_efficacy_percent} per cent. The cause is in the review itself and is a DIFFERENT ANALYSIS POPULATION, not a different answer to the same question: the review's confirmed-symptomatic-COVID analysis for this vaccine covers {self.reference_analysis_population} participants, while the crude counts here rest on {self.crude_analysis_population}, the full primary-efficacy population. The review uses that same {self.crude_analysis_population} for its severe-COVID analysis of this trial, which is how the two populations can be told apart in its own tables. Neither figure is corrected to match the other; the reason for the gap is stated so a reader is not left to assume rounding or error.",
-            "reference_analysis_population": 18695,
-            "crude_analysis_population": 19866
-          },
-          {
-            "trial_id": "HERALD",
-            "nct": "NCT04652102",
-            "measure": "RR",
-            "point": 0.5439,
-            "ci_low": 0.4158,
-            "ci_high": 0.7115,
-            "ci_level": 95,
-            "derivation": "crude risk ratio computed from this trial's own two-by-two table, with a normal-approximation interval on the log scale",
-            "reference_efficacy_percent": 48.2,
-            "reference_ci_low_percent": 31.7,
-            "reference_ci_high_percent": 60.9,
-            "reference_source_id": "COCHRANE_GRANA",
-            "estimand_difference": "This trial analysed its outcome on PERSON-TIME, not as a simple proportion: the staged abstract states cases against person-years in each group. The risk ratio here is a crude count ratio that ignores time at risk. Of the rows that carry a ratio, this is the one that diverges most from the review efficacy beside it, and this is the reason for it. The object records the same thing in the trial's provenance; it is repeated here so that it reaches the row a reader sees."
-          },
-          {
-            "trial_id": "BBIBP-CorV-phase3",
-            "nct": "NCT04510207",
-            "reference_efficacy_percent": 78.1,
-            "reference_ci_low_percent": 64.8,
-            "reference_ci_high_percent": 86.3,
-            "reference_source_id": "COCHRANE_GRANA",
-            "estimand_difference": "This trial reports its outcome as cases per 1000 person-years rather than as a simple proportion: {self.trial_reported_rate_treatment_per_1000_person_years} in the vaccine arm against {self.trial_reported_rate_control_per_1000_person_years} in the control arm. No risk ratio is computed from its counts, so nothing on this row shares an estimand with the review efficacy shown beside it: one is an incidence contrast over time at risk, the other an efficacy the review derived over its own analysis population. They are shown together so they can be compared, not because they measure the same quantity.",
-            "reference_analysis_population": 25463,
-            "source_divergence": "The review and this object describe different populations for this trial. The review's confirmed-symptomatic-COVID analysis covers {self.reference_analysis_population} participants; the publication's primary efficacy analysis covers 38,206 across every arm, and the per-arm randomisation totals stored here are larger still. An earlier version of this note called 26,923 'the two arms of the primary efficacy analysis'. It is the sum of the two randomisation groups, which is a different population.",
-            "not_computed_reason": "No count-based risk ratio is computed for this trial. Its event counts come from the primary efficacy analysis and the only per-arm denominators the publication reports are randomisation group sizes, so the two do not describe the same people. An earlier build divided one by the other and published the result.",
-            "trial_reported_rate_treatment_per_1000_person_years": 9.8,
-            "trial_reported_rate_control_per_1000_person_years": 44.7,
-            "trial_reported_rate_note": "What this trial reports for these arms, in its own words and its own units: incidence per 1000 person-years, given in the two fields above. These are the publication's figures, not a derivation here."
-          }
-        ],
-        "reading_note": "Each row is a single vaccine in a single trial. Nothing is combined across vaccines. A crude risk ratio is computed from a trial's own counts where its denominators match its events; a trial whose denominators do not match its events carries no ratio. The efficacy beside it is what the reference systematic review reports for the same vaccine, shown so the two can be compared rather than either taken on trust. Where a trial analysed its outcome on person-time rather than as a proportion, or where the trial publication and the review report different figures for the same trial, the row says so. EVERY row here carries such a note: none of these three comparisons is exact, and the closeness of the numbers should not be read as agreement between identical quantities."
-      }
-    }
+  "OA_ALKAABI": {
+   "layer": "Primary paper (abstract)",
+   "layer_rank": 4,
+   "name": "Al Kaabi N et al. Effect of 2 Inactivated SARS-CoV-2 Vaccines on Symptomatic COVID-19 Infection in Adults: a randomized clinical trial. JAMA",
+   "url": "https://pubmed.ncbi.nlm.nih.gov/34037666/",
+   "access_note": "Abstract retrieved from PubMed and read. It states three randomised groups and their sizes and case counts, reports each group's INCIDENCE per 1000 person-years, and reports vaccine efficacy separately, as a percentage. The two are different quantities and an earlier version of this note ran them together."
   },
-  "quarantine": {
-    "excluded_trials": 7,
-    "reason": "Of the {rm.total_cited} trials in the source app, {rm.retained} could be carried into this object. {q.excluded_trials} were excluded because their per-arm counts could not be verified to a primary source in this environment, and are excluded rather than reconstructed, under the rule that an unsourceable cell stays empty. The remaining removals are different cases and not sourcing failures: a registration carried with counts belonging to a pooled analysis spanning several trials, which is a units-of-analysis error, and a trial of a different disease entirely. An earlier version of this sentence described every removed trial as unverifiable, which was wrong about both."
+  "REGISTRY_CTGOV": {
+   "layer": "Registry",
+   "layer_rank": 5,
+   "name": "ClinicalTrials.gov records for the included trials",
+   "url": "https://clinicaltrials.gov/",
+   "access_note": "Every registration cited by the source app was resolved against the registry API before building, and all existed. Not all proved to be in the right disease area: staging one and opening it showed a trial of a different disease, which is why it now carries a removal reason of its own rather than being filed under unverifiable counts. Beyond that, the defects found were in the PUBLICATION citations rather than the registrations. That check covered citations this object does not expose, so it is recorded here as a statement about the build process and is not reviewable from this object alone. The registration removed for a units-of-analysis error is staged alongside the included trials, so the grounds for removing it can be checked rather than taken on trust."
   },
-  "build_mode": "build-to-core",
-  "removed_citations": {
-    "total_cited": 12,
-    "removed": 9,
-    "retained": 3,
-    "contributing_to_this_outcome": 3,
-    "categories": [
-      {
-        "reason": "per-arm counts not verifiable to a primary source",
-        "count": 7,
-        "detail": "These trials cited by the source app report no per-arm event counts and denominators that could be read from a primary source in this environment. They are excluded rather than reconstructed. This is a real limitation and a source of availability bias: the analysis is a convenience sample of what could be verified, NOT a systematic review of all evidence, and must not be read as one. Every excluded registration is staged with this object under a 'removed' subfolder, so the reduction can be audited and not merely counted. They sit apart from the contributing sources because they support no cell here.",
-        "removed_ids": [
-          "NCT04368728",
-          "NCT04470427",
-          "NCT04505722",
-          "NCT04611802",
-          "NCT04456595",
-          "NCT04672395",
-          "NCT04619628"
-        ]
-      },
-      {
-        "reason": "units-of-analysis error",
-        "count": 1,
-        "detail": "QUOTED: NCT04324606 was carried as a ChAdOx1 trial with 30 of 5807 versus 101 of 5829. Those are POOLED interim counts drawn from a single publication that combines several trials, not this trial's data. The registration cited is COV001 -- the staged registry record gives that as its organisation study identifier, a phase 1 and 2 study with an actual enrolment of 1077 -- which cannot contain 5807 participants. The staged publication record for those counts names a second trial, COV002, alongside it. Pooling a pooled estimate beside individual trials misstates the unit of analysis, so this registration is removed rather than corrected.",
-        "removed_ids": [
-          "NCT04324606"
-        ],
-        "verifiable_from": [
-          "NCT04324606.ctgov.json",
-          "PMID33306989.pubmed.xml"
-        ],
-        "not_asserted_here": "An earlier version of this note also named two further trials in that pooled analysis. Neither appears in any source staged with this object, so neither is asserted. They are omitted rather than carried on the strength of recall."
-      },
-      {
-        "reason": "wrong disease area",
-        "count": 1,
-        "detail": "A trial of a video game encouraging human papillomavirus vaccination in preteens, cited by a review of COVID-19 vaccine efficacy. It is not a COVID-19 trial and tests no vaccine. It had been filed under unverifiable counts, which was true but beside the point; the real defect only surfaced when the registration was staged and opened. The same pattern -- unrelated trials carried into a review by template rather than by selection -- is documented in the pneumococcal app in this corpus.",
-        "removed_ids": [
-          "NCT04627298"
-        ]
-      }
+  "COCHRANE_GRANA": {
+   "layer": "Prior published synthesis",
+   "layer_rank": 3,
+   "name": "Grana C et al. Efficacy and safety of COVID-19 vaccines. Cochrane Database of Systematic Reviews",
+   "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9726273/",
+   "access_note": "Full text retrieved from PubMed Central and STAGED with this object; every reference figure quoted here was confirmed present in it. A TRIMMED EXTRACT of the passages carrying those figures is staged beside it, because the full review runs to about a million and a half characters and a reviewer reported its contents as absent -- concluding that figures appearing in it four times each had been fabricated. The vaccine names in it are written with a non-ASCII hyphen, so searching the ASCII spelling finds nothing. The full file remains authoritative; the extract exists so the relevant passage can actually be read.",
+   "staged_as": "PMC9726273.cochrane.xml",
+   "staged_extract": "PMC9726273.cochrane-SOF-extract.txt"
+  }
+ },
+ "outcomes": [
+  {
+   "id": "symptomatic_covid",
+   "name": "Symptomatic laboratory-confirmed COVID-19",
+   "type": "primary",
+   "measure": "RR",
+   "definition": "Symptomatic virologically confirmed COVID-19 occurring after the completion of the trial's primary vaccination schedule, as defined by each trial.",
+   "definition_note": "The trials do not share one case definition or one time origin, and they were run against different circulating variants in different periods. The composite recorded here is therefore an approximation across related but non-identical endpoints.",
+   "direction_of_benefit": "lower",
+   "null_value": 1
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "Sputnik-V-phase3",
+    "name": "Gam-COVID-Vac interim analysis",
+    "nct": "NCT04530396",
+    "pmid": "33545094",
+    "year": 2021,
+    "design": "randomised, double-blind, placebo-controlled, unequal allocation",
+    "arms": [
+     {
+      "label": "Gam-COVID-Vac",
+      "role": "treatment"
+     },
+     {
+      "label": "placebo",
+      "role": "control"
+     }
     ],
-    "disclosure_note": "Of {rm.total_cited} citations in the source app, {rm.removed} were removed and {rm.retained} retained. The reduction is shown rather than absorbed."
-  },
-  "completeness_statement": "INCOMPLETE BY CONSTRUCTION. The source app cited {rm.total_cited} registrations. This object carries {rm.retained}. Most of the rest were dropped because their per-arm counts could not be read from a primary source in this environment, which selects for trials whose abstracts happen to state counts plainly. That is an availability bias and it is not corrected here. The remaining removals are not availability at all: a registration carrying counts that belong to a pooled analysis of several trials, and a trial of a different disease. Both are itemised in the removal table. The reference systematic review covers far more vaccines and trials than this; anyone wanting the evidence base rather than this snapshot should read it."
+    "by_outcome": {
+     "symptomatic_covid": {
+      "treatment": {
+       "events": 16,
+       "n": 14964,
+       "source_fragments": [
+        "16 (0·1%) of 14964 participants in the vaccine group"
+       ]
+      },
+      "control": {
+       "events": 62,
+       "n": 4902,
+       "source_fragments": [
+        "62 (1·3%) of 4902 in the placebo group"
+       ]
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_LOGUNOV",
+       "source": "abstract, from {self.by_outcome.symptomatic_covid.treatment.n} vaccine and {self.by_outcome.symptomatic_covid.control.n} placebo participants",
+       "note": "Allocation is unequal by design, so the two denominators differ by roughly threefold. That is a feature of the trial, not a data error, and it must not be corrected toward balance.",
+       "source_quotes": [
+        "From 21 days after the first dose of vaccine (the day of dose 2), 16 (0·1%) of 14964 participants in the vaccine group and 62 (1·3%) of 4902 in the placebo group were confirmed to have COVID-19; vaccine efficacy was 91·6% (95% CI 85·6-95·2)."
+       ],
+       "quote_note": "These are the sentences the counts were read from, quoted from the staged payload with digit separators normalised, since this source writes numerals with thin spaces, and each ARM additionally names the fragment of that sentence carrying its own count. An abstract has no outcome-and-category structure for a cell to name, so it names the sentence and then the phrase. Both are needed: a sentence normally reports BOTH arms, so quoting it alone would let the two counts be exchanged with each other and still be found in the quote. The per-arm fragment is what prevents that, and the exchange was executed against this object to confirm it is blocked."
+      }
+     }
+    },
+    "enrolled": 21977,
+    "registry_enrolment": 33758,
+    "enrolment_note": "Randomised in the published interim analysis: {self.enrolled}. The registry records an ACTUAL enrolment of {self.registry_enrolment} for the whole trial, which is a larger population than the interim analysis the counts here come from. An earlier version of this note called that figure a target enrolment; the registry marks it actual.",
+    "registry_enrolment_type": "ACTUAL",
+    "registration_arm_count": 2,
+    "registration_contrasts_read_utc": "2026-08-18"
+   },
+   {
+    "id": "HERALD",
+    "name": "CVnCoV phase 2b/3",
+    "nct": "NCT04652102",
+    "pmid": "34826381",
+    "year": 2021,
+    "design": "randomised, observer-blinded, placebo-controlled",
+    "arms": [
+     {
+      "label": "CVnCoV",
+      "role": "treatment"
+     },
+     {
+      "label": "placebo",
+      "role": "control"
+     }
+    ],
+    "by_outcome": {
+     "symptomatic_covid": {
+      "treatment": {
+       "events": 83,
+       "n": 12851,
+       "source_fragments": [
+        "83 cases of COVID-19 occurred in the CVnCoV group (n=12851)"
+       ]
+      },
+      "control": {
+       "events": 145,
+       "n": 12211,
+       "source_fragments": [
+        "145 cases occurred in the placebo group (n=12211)"
+       ]
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_KREMSNER",
+       "source": "abstract, cases in each group with group sizes as stated",
+       "note": "The trial analysed this outcome on PERSON-TIME, not on a crude risk. The counts and group sizes are as published, but a risk ratio computed from them is a different estimand from the efficacy the paper reports.",
+       "source_quotes": [
+        "After a mean observation period of 48·2 days (SE 0·2), 83 cases of COVID-19 occurred in the CVnCoV group (n=12851) in 1735·29 person-years and 145 cases occurred in the placebo group (n=12211) in 1569·87 person-years, resulting in an overall vaccine efficacy against symptomatic COVID-19 of 48·2% (95·826% CI 31·0-61·4; p=0·016)."
+       ],
+       "quote_note": "These are the sentences the counts were read from, quoted from the staged payload with digit separators normalised, since this source writes numerals with thin spaces, and each ARM additionally names the fragment of that sentence carrying its own count. An abstract has no outcome-and-category structure for a cell to name, so it names the sentence and then the phrase. Both are needed: a sentence normally reports BOTH arms, so quoting it alone would let the two counts be exchanged with each other and still be found in the quote. The per-arm fragment is what prevents that, and the exchange was executed against this object to confirm it is blocked."
+      }
+     }
+    },
+    "enrolled": 39680,
+    "dosed": 39540,
+    "enrolment_note": "Randomised: {self.enrolled}. Received at least one dose: {self.dosed}, taken from the registry record. The publication instead reports the two dosed arms separately, and those two figures sum to a slightly different total; the registry literal is recorded here rather than a sum computed by this build. An earlier build carried that computed sum, and before that carried it in the enrolled field as well.",
+    "dosed_source_id": "REGISTRY_CTGOV",
+    "registration_arm_count": 5,
+    "registration_declared_contrasts": [
+     [
+      "CVnCoV 12 μg Vaccine",
+      "Placebo"
+     ]
+    ],
+    "registration_contrasts_read_utc": "2026-08-18"
+   },
+   {
+    "id": "BBIBP-CorV-phase3",
+    "name": "Inactivated vaccine phase 3, HB02 group",
+    "nct": "NCT04510207",
+    "pmid": "34037666",
+    "year": 2021,
+    "design": "randomised, double-blind, three-group, alum-controlled",
+    "arms": [
+     {
+      "label": "HB02 inactivated vaccine",
+      "role": "treatment"
+     },
+     {
+      "label": "alum-only control",
+      "role": "control"
+     }
+    ],
+    "shared_control_note": "This trial randomised THREE groups: a WIV04 vaccine group, an HB02 vaccine group, and one alum-only control shared between them. Only the HB02 contrast is carried here. Including both vaccine groups against the same control would use that control twice and understate the variance.",
+    "by_outcome": {
+     "symptomatic_covid": {
+      "treatment": {
+       "events": 21,
+       "n": 13465,
+       "source_fragments": [
+        "21 in the HB02 group",
+        "HB02 (4 µg/dose; n = 13465)"
+       ],
+       "n_is": "randomisation group size, NOT the efficacy-analysis denominator"
+      },
+      "control": {
+       "events": 95,
+       "n": 13458,
+       "source_fragments": [
+        "95 in the alum-only group",
+        "aluminum hydroxide (alum)-only control (n = 13458)"
+       ],
+       "n_is": "randomisation group size, NOT the efficacy-analysis denominator"
+      },
+      "provenance": {
+       "tag": "MEASURED",
+       "source_id": "OA_ALKAABI",
+       "source": "abstract, HB02 group versus the alum-only group",
+       "note": "The source app recorded these denominators as 13456 and 13455. The published figures are as recorded here; the app's values are digit transpositions.",
+       "source_quotes": [
+        "Participants were randomized to receive 1 of 2 inactivated vaccines developed from SARS-CoV-2 WIV04 (5 µg/dose; n = 13459) and HB02 (4 µg/dose; n = 13465) strains or an aluminum hydroxide (alum)-only control (n = 13458); they received 2 intramuscular injections 21 days apart.",
+        "During a median (range) follow-up duration of 77 (1-121) days, symptomatic COVID-19 was identified in 26 participants in the WIV04 group (12.1 [95% CI, 8.3-17.8] per 1000 person-years), 21 in the HB02 group (9.8 [95% CI, 6.4-15.0] per 1000 person-years), and 95 in the alum-only group (44.7 [95% CI, 36.6-54.6] per 1000 person-years), resulting in a vaccine efficacy, compared with alum-only, of 72.8% (95% CI, 58.1%-82.4%) for WIV04 and 78.1% (95% CI, 64.8%-86.3%) for HB02 (P < .001 for both)."
+       ],
+       "quote_note": "These are the sentences the counts were read from, quoted from the staged payload with digit separators normalised, since this source writes numerals with thin spaces, and each ARM additionally names the fragment of that sentence carrying its own count. An abstract has no outcome-and-category structure for a cell to name, so it names the sentence and then the phrase. Both are needed: a sentence normally reports BOTH arms, so quoting it alone would let the two counts be exchanged with each other and still be found in the quote. The per-arm fragment is what prevents that, and the exchange was executed against this object to confirm it is blocked."
+      },
+      "numerator_population": "primary efficacy analysis",
+      "denominator_population": "randomised",
+      "population_mismatch_note": "The event counts come from the primary efficacy analysis population, which the publication reports as a single pooled total across all three groups and does not break down per group. The denominators used here are therefore the RANDOMISED group sizes, which are larger. A risk ratio formed from them is an approximation, and it slightly understates the event risk in both arms. The mismatch is recorded rather than hidden because no per-group efficacy denominator is available in the source.",
+      "denominator_note": "The event counts here come from the primary efficacy analysis, which the publication states included 38,206 of the randomised participants across every arm of the trial. The numbers stored as n are the RANDOMISATION group sizes and are larger. No per-arm efficacy denominator is reported by the publication, and the staged review gives only a figure combining the compared arms, so the matching denominators are not available and none is invented. A count-based risk ratio would divide efficacy-analysis events by randomisation totals, which is why none is reported."
+     }
+    },
+    "enrolled": 40382,
+    "registry_enrolment": 44101,
+    "registry_enrolment_type": "ACTUAL",
+    "enrolment_note": "Randomised in the publication: {self.enrolled}. The registry records an ACTUAL enrolment of {self.registry_enrolment} for this trial. The two disagree, and both are carried rather than one being chosen: the counts in this object come from the publication's primary efficacy analysis, which is a smaller population than everyone the registry counts as enrolled. This object states that where two layers disagree on an input, both are recorded; an earlier build carried only the publication figure.",
+    "registration_arm_count": 6,
+    "registration_contrasts_read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "config": {
+  "confidence_level": 95
+ },
+ "results": {
+  "by_outcome": {
+   "symptomatic_covid": {
+    "k": 3,
+    "poolable": false,
+    "poolable_reason": "Each retained trial contributes counts for this outcome. Numbers sufficient to do the arithmetic are a prerequisite for pooling, not a justification for it; see the interpretation caveat.",
+    "model": "per-trial, no synthesis",
+    "estimator": "none (no synthesis)",
+    "estimator_used": "none (no synthesis)",
+    "pooled": null,
+    "heterogeneity": null,
+    "heterogeneity_status": "not applicable; no synthesis across vaccines is performed",
+    "not_poolable_reason": "These trials test DIFFERENT vaccines on different platforms, against different circulating variants, in different periods, with different case definitions. They do not estimate a common quantity, so no pooled figure is computed. The reference systematic review reaches the same conclusion and reports efficacy per vaccine. An earlier build of this object did report a single pooled risk ratio across all three; it was removed rather than caveated, because a number that should not be computed is not fixed by a warning beside it.",
+    "per_trial": [
+     {
+      "trial_id": "Sputnik-V-phase3",
+      "nct": "NCT04530396",
+      "measure": "RR",
+      "point": 0.0845,
+      "ci_low": 0.0488,
+      "ci_high": 0.1463,
+      "ci_level": 95,
+      "derivation": "crude risk ratio computed from this trial's own two-by-two table, with a normal-approximation interval on the log scale",
+      "reference_efficacy_percent": 91.1,
+      "reference_ci_low_percent": 83.8,
+      "reference_ci_high_percent": 95.1,
+      "reference_source_id": "COCHRANE_GRANA",
+      "source_divergence": "Two sources report this trial's efficacy and they do not quite agree. The trial's own publication reports 91.6 per cent, which is also what this object's crude counts give. The systematic review reports {self.reference_efficacy_percent} per cent. The cause is in the review itself and is a DIFFERENT ANALYSIS POPULATION, not a different answer to the same question: the review's confirmed-symptomatic-COVID analysis for this vaccine covers {self.reference_analysis_population} participants, while the crude counts here rest on {self.crude_analysis_population}, the full primary-efficacy population. The review uses that same {self.crude_analysis_population} for its severe-COVID analysis of this trial, which is how the two populations can be told apart in its own tables. Neither figure is corrected to match the other; the reason for the gap is stated so a reader is not left to assume rounding or error.",
+      "reference_analysis_population": 18695,
+      "crude_analysis_population": 19866
+     },
+     {
+      "trial_id": "HERALD",
+      "nct": "NCT04652102",
+      "measure": "RR",
+      "point": 0.5439,
+      "ci_low": 0.4158,
+      "ci_high": 0.7115,
+      "ci_level": 95,
+      "derivation": "crude risk ratio computed from this trial's own two-by-two table, with a normal-approximation interval on the log scale",
+      "reference_efficacy_percent": 48.2,
+      "reference_ci_low_percent": 31.7,
+      "reference_ci_high_percent": 60.9,
+      "reference_source_id": "COCHRANE_GRANA",
+      "estimand_difference": "This trial analysed its outcome on PERSON-TIME, not as a simple proportion: the staged abstract states cases against person-years in each group. The risk ratio here is a crude count ratio that ignores time at risk. Of the rows that carry a ratio, this is the one that diverges most from the review efficacy beside it, and this is the reason for it. The object records the same thing in the trial's provenance; it is repeated here so that it reaches the row a reader sees."
+     },
+     {
+      "trial_id": "BBIBP-CorV-phase3",
+      "nct": "NCT04510207",
+      "reference_efficacy_percent": 78.1,
+      "reference_ci_low_percent": 64.8,
+      "reference_ci_high_percent": 86.3,
+      "reference_source_id": "COCHRANE_GRANA",
+      "estimand_difference": "This trial reports its outcome as cases per 1000 person-years rather than as a simple proportion: {self.trial_reported_rate_treatment_per_1000_person_years} in the vaccine arm against {self.trial_reported_rate_control_per_1000_person_years} in the control arm. No risk ratio is computed from its counts, so nothing on this row shares an estimand with the review efficacy shown beside it: one is an incidence contrast over time at risk, the other an efficacy the review derived over its own analysis population. They are shown together so they can be compared, not because they measure the same quantity.",
+      "reference_analysis_population": 25463,
+      "source_divergence": "The review and this object describe different populations for this trial. The review's confirmed-symptomatic-COVID analysis covers {self.reference_analysis_population} participants; the publication's primary efficacy analysis covers 38,206 across every arm, and the per-arm randomisation totals stored here are larger still. An earlier version of this note called 26,923 'the two arms of the primary efficacy analysis'. It is the sum of the two randomisation groups, which is a different population.",
+      "not_computed_reason": "No count-based risk ratio is computed for this trial. Its event counts come from the primary efficacy analysis and the only per-arm denominators the publication reports are randomisation group sizes, so the two do not describe the same people. An earlier build divided one by the other and published the result.",
+      "trial_reported_rate_treatment_per_1000_person_years": 9.8,
+      "trial_reported_rate_control_per_1000_person_years": 44.7,
+      "trial_reported_rate_note": "What this trial reports for these arms, in its own words and its own units: incidence per 1000 person-years, given in the two fields above. These are the publication's figures, not a derivation here."
+     }
+    ],
+    "reading_note": "Each row is a single vaccine in a single trial. Nothing is combined across vaccines. A crude risk ratio is computed from a trial's own counts where its denominators match its events; a trial whose denominators do not match its events carries no ratio. The efficacy beside it is what the reference systematic review reports for the same vaccine, shown so the two can be compared rather than either taken on trust. Where a trial analysed its outcome on person-time rather than as a proportion, or where the trial publication and the review report different figures for the same trial, the row says so. EVERY row here carries such a note: none of these three comparisons is exact, and the closeness of the numbers should not be read as agreement between identical quantities."
+   }
+  }
+ },
+ "quarantine": {
+  "excluded_trials": 7,
+  "reason": "Of the {rm.total_cited} trials in the source app, {rm.retained} could be carried into this object. {q.excluded_trials} were excluded because their per-arm counts could not be verified to a primary source in this environment, and are excluded rather than reconstructed, under the rule that an unsourceable cell stays empty. The remaining removals are different cases and not sourcing failures: a registration carried with counts belonging to a pooled analysis spanning several trials, which is a units-of-analysis error, and a trial of a different disease entirely. An earlier version of this sentence described every removed trial as unverifiable, which was wrong about both."
+ },
+ "build_mode": "build-to-core",
+ "removed_citations": {
+  "total_cited": 12,
+  "removed": 9,
+  "retained": 3,
+  "contributing_to_this_outcome": 3,
+  "categories": [
+   {
+    "reason": "per-arm counts not verifiable to a primary source",
+    "count": 7,
+    "detail": "These trials cited by the source app report no per-arm event counts and denominators that could be read from a primary source in this environment. They are excluded rather than reconstructed. This is a real limitation and a source of availability bias: the analysis is a convenience sample of what could be verified, NOT a systematic review of all evidence, and must not be read as one. Every excluded registration is staged with this object under a 'removed' subfolder, so the reduction can be audited and not merely counted. They sit apart from the contributing sources because they support no cell here.",
+    "removed_ids": [
+     "NCT04368728",
+     "NCT04470427",
+     "NCT04505722",
+     "NCT04611802",
+     "NCT04456595",
+     "NCT04672395",
+     "NCT04619628"
+    ]
+   },
+   {
+    "reason": "units-of-analysis error",
+    "count": 1,
+    "detail": "QUOTED: NCT04324606 was carried as a ChAdOx1 trial with 30 of 5807 versus 101 of 5829. Those are POOLED interim counts drawn from a single publication that combines several trials, not this trial's data. The registration cited is COV001 -- the staged registry record gives that as its organisation study identifier, a phase 1 and 2 study with an actual enrolment of 1077 -- which cannot contain 5807 participants. The staged publication record for those counts names a second trial, COV002, alongside it. Pooling a pooled estimate beside individual trials misstates the unit of analysis, so this registration is removed rather than corrected.",
+    "removed_ids": [
+     "NCT04324606"
+    ],
+    "verifiable_from": [
+     "NCT04324606.ctgov.json",
+     "PMID33306989.pubmed.xml"
+    ],
+    "not_asserted_here": "An earlier version of this note also named two further trials in that pooled analysis. Neither appears in any source staged with this object, so neither is asserted. They are omitted rather than carried on the strength of recall."
+   },
+   {
+    "reason": "wrong disease area",
+    "count": 1,
+    "detail": "A trial of a video game encouraging human papillomavirus vaccination in preteens, cited by a review of COVID-19 vaccine efficacy. It is not a COVID-19 trial and tests no vaccine. It had been filed under unverifiable counts, which was true but beside the point; the real defect only surfaced when the registration was staged and opened. The same pattern -- unrelated trials carried into a review by template rather than by selection -- is documented in the pneumococcal app in this corpus.",
+    "removed_ids": [
+     "NCT04627298"
+    ]
+   }
+  ],
+  "disclosure_note": "Of {rm.total_cited} citations in the source app, {rm.removed} were removed and {rm.retained} retained. The reduction is shown rather than absorbed."
+ },
+ "completeness_statement": "INCOMPLETE BY CONSTRUCTION. The source app cited {rm.total_cited} registrations. This object carries {rm.retained}. Most of the rest were dropped because their per-arm counts could not be read from a primary source in this environment, which selects for trials whose abstracts happen to state counts plainly. That is an availability bias and it is not corrected here. The remaining removals are not availability at all: a registration carrying counts that belong to a pooled analysis of several trials, and a trial of a different disease. Both are itemised in the removal table. The reference systematic review covers far more vaccines and trials than this; anyone wanting the evidence base rather than this snapshot should read it."
 }

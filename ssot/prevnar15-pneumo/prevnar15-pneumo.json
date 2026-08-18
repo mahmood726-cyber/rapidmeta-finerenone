@@ -1,1193 +1,1255 @@
 {
-  "app_id": "prevnar15-pneumo",
-  "schema_version": 2,
-  "build_mode": "build-to-core",
-  "title": "V114 versus Prevnar 13: the four solicited injection-site symptoms",
-  "question": "In participants randomised to the 15-valent pneumococcal conjugate vaccine V114 or to the 13-valent comparator Prevnar 13, how does the risk of each solicited injection-site symptom compare?",
-  "built": "2026-08-05",
-  "_prose_rule": "Every text field is PROSE unless it is on the numeric-text allowlist. Prose may not contain a bare numeral: any number it needs is a braced reference resolved at build time.",
-  "_sourcing_rule": "Every MEASURED input names the source layer it came from. Values DERIVED by this build carry no source layer because they have no source: they are computed here and the validator recomputes them.",
-  "sources": {
-    "REGISTRY_CTGOV": {
-      "layer": "Registry",
-      "layer_rank": 5,
-      "name": "ClinicalTrials.gov posted results: each category of each trial's solicited injection-site outcome, with its analysis denominators",
-      "url": "https://clinicaltrials.gov/",
-      "access_note": "Each trial's posted results were retrieved from the registry API and read at CATEGORY level. The solicited injection-site outcome carries several categories; each is selected by its label and that label is recorded beside every cell it produced."
-    }
-  },
-  "removed_citations": {
-    "total_cited": 14,
-    "removed": 7,
-    "retained": 7,
-    "contributing_to_this_outcome": 7,
-    "categories": [
-      {
-        "reason": "placeholder registration",
-        "count": 1,
-        "detail": "A placeholder identifier that resolves to nothing.",
-        "removed_ids": [
-          "NCT12345678"
-        ]
-      },
-      {
-        "reason": "wrong disease area",
-        "count": 5,
-        "detail": "Heart-failure and chronic-kidney-disease trials. The SAME five appear in an unrelated lipid review in this corpus, which identifies them as one donor template rather than independent mistakes.",
-        "removed_ids": [
-          "NCT01035255",
-          "NCT01920711",
-          "NCT02924727",
-          "NCT03988634",
-          "NCT05901831"
-        ]
-      },
-      {
-        "reason": "posts no comparable outcome",
-        "count": 1,
-        "detail": "A dose-ranging study with eight arms that posts no solicited injection-site outcome and no clean two-arm comparison of the vaccine against the comparator.",
-        "removed_ids": [
-          "NCT02037984"
-        ]
-      }
-    ],
-    "disclosure_note": "This app was rebuilt on its sourceable core. Of {rm.total_cited} citations in the source app, {rm.removed} were removed and {rm.retained} retained. The reduction is shown rather than absorbed."
-  },
-  "completeness_statement": "This reports every solicited injection-site symptom these trials post. Not every trial posts every symptom, and each outcome names the trials that contribute to it. It is a local tolerability review and covers neither immunogenicity nor protection against pneumococcal disease.",
-  "outcomes": [
-    {
-      "id": "injection_site_pain",
-      "name": "Injection-site pain or tenderness",
-      "type": "primary",
-      "measure": "RR",
-      "null_value": 1,
-      "direction_of_benefit": "lower",
-      "definition": "Percentage of participants reporting injection-site pain or tenderness within the trial's protocol-defined window after vaccination, read from the matching category of that trial's solicited injection-site outcome.",
-      "definition_note": "Each contributing trial posts this as a category of its own primary solicited injection-site outcome. The arms used and the observation window are recorded against each trial."
-    },
-    {
-      "id": "injection_site_swelling",
-      "name": "Injection-site swelling",
-      "type": "primary",
-      "measure": "RR",
-      "null_value": 1,
-      "direction_of_benefit": "lower",
-      "definition": "Percentage of participants reporting injection-site swelling within the trial's protocol-defined window after vaccination, read from the matching category of that trial's solicited injection-site outcome.",
-      "definition_note": "Each contributing trial posts this as a category of its own primary solicited injection-site outcome. The arms used and the observation window are recorded against each trial."
-    },
-    {
-      "id": "injection_site_erythema",
-      "name": "Injection-site erythema or redness",
-      "type": "primary",
-      "measure": "RR",
-      "null_value": 1,
-      "direction_of_benefit": "lower",
-      "definition": "Percentage of participants reporting injection-site erythema or redness within the trial's protocol-defined window after vaccination, read from the matching category of that trial's solicited injection-site outcome.",
-      "definition_note": "Each contributing trial posts this as a category of its own primary solicited injection-site outcome. The arms used and the observation window are recorded against each trial."
-    },
-    {
-      "id": "injection_site_induration",
-      "name": "Injection-site induration or hard lump",
-      "type": "primary",
-      "measure": "RR",
-      "null_value": 1,
-      "direction_of_benefit": "lower",
-      "definition": "Percentage of participants reporting injection-site induration or hard lump within the trial's protocol-defined window after vaccination, read from the matching category of that trial's solicited injection-site outcome.",
-      "definition_note": "Each contributing trial posts this as a category of its own primary solicited injection-site outcome. The arms used and the observation window are recorded against each trial."
-    }
-  ],
-  "inputs": {
-    "trials": [
-      {
-        "id": "NCT02547649",
-        "nct": "NCT02547649",
-        "name": "Safety, Tolerability, and Immunogenicity of Two Formulations of V114 in Healthy Adults 50 Years of Age or Older (V114-006)",
-        "year": null,
-        "design": "randomised, double-blind, active-comparator",
-        "comparator_type": "active",
-        "population": "adult",
-        "age_eligibility": "50 years and older",
-        "enrolled": 690,
-        "registry_arm_order": "as posted",
-        "arms": [
-          {
-            "label": "V114-A",
-            "role": "treatment"
-          },
-          {
-            "label": "V114-B",
-            "role": "treatment"
-          },
-          {
-            "label": "Prevnar 13®",
-            "role": "control"
-          }
-        ],
-        "by_outcome": {
-          "injection_site_pain": {
-            "treatment": {
-              "events": 283,
-              "n": 462,
-              "percentage": null,
-              "percentages_by_arm": [
-                62.3,
-                60.2
-              ]
-            },
-            "control": {
-              "events": 119,
-              "n": 227,
-              "percentage": 52.4
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Up to 14 days after vaccination",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
-              "source_category_title": "Pain",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.23,
-              "rounding_uncertainty_participants_control": 0.11,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          },
-          "injection_site_swelling": {
-            "treatment": {
-              "events": 65,
-              "n": 462,
-              "percentage": null,
-              "percentages_by_arm": [
-                11.7,
-                16.5
-              ]
-            },
-            "control": {
-              "events": 28,
-              "n": 227,
-              "percentage": 12.3
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Up to 14 days after vaccination",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
-              "source_category_title": "Swelling",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.23,
-              "rounding_uncertainty_participants_control": 0.11,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          },
-          "injection_site_erythema": {
-            "treatment": {
-              "events": 46,
-              "n": 462,
-              "percentage": null,
-              "percentages_by_arm": [
-                8.7,
-                11.3
-              ]
-            },
-            "control": {
-              "events": 23,
-              "n": 227,
-              "percentage": 10.1
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Up to 14 days after vaccination",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
-              "source_category_title": "Erythema",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.23,
-              "rounding_uncertainty_participants_control": 0.11,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          }
-        },
-        "arm_selection_note": "This trial randomised TWO V114 formulations against one shared Prevnar 13 arm. Both V114 arms are combined into a single treatment group against that shared control, which is the standard handling for a trial with more than one intervention group and avoids counting the control arm twice. An earlier build silently used the first formulation only."
-      },
-      {
-        "id": "NCT03547167",
-        "nct": "NCT03547167",
-        "name": "A Study to Evaluate the Safety, Tolerability, and Immunogenicity of V114 Followed by PNEUMOVAX™23 in Adults at Increased Risk for Pneumococcal Disease",
-        "year": null,
-        "design": "randomised, double-blind, active-comparator",
-        "comparator_type": "active",
-        "population": "adult",
-        "age_eligibility": "18 to 49 years",
-        "enrolled": 1515,
-        "registry_arm_order": "as posted",
-        "arms": [
-          {
-            "label": "V114",
-            "role": "treatment"
-          },
-          {
-            "label": "Prevnar 13™",
-            "role": "control"
-          }
-        ],
-        "by_outcome": {
-          "injection_site_pain": {
-            "treatment": {
-              "events": 860,
-              "n": 1134,
-              "percentage": 75.8,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 260,
-              "n": 378,
-              "percentage": 68.8
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Up to 5 days after Vaccination 1",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With Solicited Injection-site Adverse Events Following V114 or Prevnar 13™",
-              "source_category_title": "Injection site tenderness/pain",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.57,
-              "rounding_uncertainty_participants_control": 0.19,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          },
-          "injection_site_swelling": {
-            "treatment": {
-              "events": 246,
-              "n": 1134,
-              "percentage": 21.7,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 84,
-              "n": 378,
-              "percentage": 22.2
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Up to 5 days after Vaccination 1",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With Solicited Injection-site Adverse Events Following V114 or Prevnar 13™",
-              "source_category_title": "Injection site swelling",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.57,
-              "rounding_uncertainty_participants_control": 0.19,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          },
-          "injection_site_erythema": {
-            "treatment": {
-              "events": 171,
-              "n": 1134,
-              "percentage": 15.1,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 53,
-              "n": 378,
-              "percentage": 14.0
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Up to 5 days after Vaccination 1",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With Solicited Injection-site Adverse Events Following V114 or Prevnar 13™",
-              "source_category_title": "Injection site redness/erythema",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.57,
-              "rounding_uncertainty_participants_control": 0.19,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          }
-        }
-      },
-      {
-        "id": "NCT03950622",
-        "nct": "NCT03950622",
-        "name": "Safety and Immunogenicity of V114 in Healthy Adults (V114-019/PNEU-AGE)",
-        "year": null,
-        "design": "randomised, double-blind, active-comparator",
-        "comparator_type": "active",
-        "population": "adult",
-        "age_eligibility": "50 years and older",
-        "enrolled": 1205,
-        "registry_arm_order": "as posted",
-        "arms": [
-          {
-            "label": "V114",
-            "role": "treatment"
-          },
-          {
-            "label": "Prevnar 13™",
-            "role": "control"
-          }
-        ],
-        "by_outcome": {
-          "injection_site_pain": {
-            "treatment": {
-              "events": 325,
-              "n": 602,
-              "percentage": 54.0,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 254,
-              "n": 600,
-              "percentage": 42.3
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Up to Day 5 postvaccination",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event",
-              "source_category_title": "Injection site pain",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.3,
-              "rounding_uncertainty_participants_control": 0.3,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          },
-          "injection_site_swelling": {
-            "treatment": {
-              "events": 75,
-              "n": 602,
-              "percentage": 12.5,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 67,
-              "n": 600,
-              "percentage": 11.2
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Up to Day 5 postvaccination",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event",
-              "source_category_title": "Injection site swelling",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.3,
-              "rounding_uncertainty_participants_control": 0.3,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          },
-          "injection_site_erythema": {
-            "treatment": {
-              "events": 54,
-              "n": 602,
-              "percentage": 9.0,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 68,
-              "n": 600,
-              "percentage": 11.3
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Up to Day 5 postvaccination",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event",
-              "source_category_title": "Injection site erythema",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.3,
-              "rounding_uncertainty_participants_control": 0.3,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          }
-        }
-      },
-      {
-        "id": "NCT03620162",
-        "nct": "NCT03620162",
-        "name": "A Study to Evaluate the Interchangeability of V114 and Prevnar 13™ in Healthy Infants (V114-027/PNEU-DIRECTION)",
-        "year": null,
-        "design": "randomised, double-blind, active-comparator",
-        "comparator_type": "active",
-        "population": "child",
-        "age_eligibility": "42 to 90 days",
-        "enrolled": 900,
-        "registry_arm_order": "as posted",
-        "arms": [
-          {
-            "label": "Group 5: V114-V114-V114-V114",
-            "role": "treatment"
-          },
-          {
-            "label": "Group 1: Prevnar 13™-Prevnar 13™-Prevnar 13™-Prevnar 13™",
-            "role": "control"
-          }
-        ],
-        "by_outcome": {
-          "injection_site_pain": {
-            "treatment": {
-              "events": 85,
-              "n": 179,
-              "percentage": 47.5,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 79,
-              "n": 179,
-              "percentage": 44.1
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Up to ~14 days after each vaccination",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
-              "source_category_title": "Tenderness/Pain",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.09,
-              "rounding_uncertainty_participants_control": 0.09,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          },
-          "injection_site_swelling": {
-            "treatment": {
-              "events": 41,
-              "n": 179,
-              "percentage": 22.9,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 41,
-              "n": 179,
-              "percentage": 22.9
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Up to ~14 days after each vaccination",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
-              "source_category_title": "Swelling",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.09,
-              "rounding_uncertainty_participants_control": 0.09,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          },
-          "injection_site_erythema": {
-            "treatment": {
-              "events": 79,
-              "n": 179,
-              "percentage": 44.1,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 85,
-              "n": 179,
-              "percentage": 47.5
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Up to ~14 days after each vaccination",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
-              "source_category_title": "Erythema/Redness",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.09,
-              "rounding_uncertainty_participants_control": 0.09,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          },
-          "injection_site_induration": {
-            "treatment": {
-              "events": 47,
-              "n": 179,
-              "percentage": 26.3,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 62,
-              "n": 179,
-              "percentage": 34.6
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Up to ~14 days after each vaccination",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
-              "source_category_title": "Induration/Hard lump",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.09,
-              "rounding_uncertainty_participants_control": 0.09,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          }
-        },
-        "arm_selection_note": "This is a five-group interchangeability trial of mixed schedules. Groups 2, 3 and 4 each receive Prevnar 13 for some doses and V114 for others, so none of them is a comparison of one vaccine against the other and none is used. The only clean contrast is Group 5, four doses of V114, against Group 1, four doses of Prevnar 13. An earlier build used Group 2, a mixed schedule, as the treatment arm.",
-        "arms_not_used": [
-          "Group 2: Prevnar 13™-Prevnar 13™-Prevnar 13™-V114",
-          "Group 3: Prevnar 13™-Prevnar 13™-V114-V114",
-          "Group 4: Prevnar 13™-V114-V114-V114"
-        ]
-      },
-      {
-        "id": "NCT03692871",
-        "nct": "NCT03692871",
-        "name": "A Study to Evaluate the Safety and Tolerability of V114 and Prevnar 13™ in Healthy Infants (V114-031/PNEU-LINK)",
-        "year": null,
-        "design": "randomised, double-blind, active-comparator",
-        "comparator_type": "active",
-        "population": "child",
-        "age_eligibility": "42 to 90 days",
-        "enrolled": 2409,
-        "registry_arm_order": "as posted",
-        "arms": [
-          {
-            "label": "V114",
-            "role": "treatment"
-          },
-          {
-            "label": "Prevnar 13™",
-            "role": "control"
-          }
-        ],
-        "by_outcome": {
-          "injection_site_pain": {
-            "treatment": {
-              "events": 843,
-              "n": 1965,
-              "percentage": 42.9,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 158,
-              "n": 433,
-              "percentage": 36.5
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Up to Day 14 after each study vaccination",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event",
-              "source_category_title": "Injection-site pain",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.98,
-              "rounding_uncertainty_participants_control": 0.22,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          },
-          "injection_site_swelling": {
-            "treatment": {
-              "events": 548,
-              "n": 1965,
-              "percentage": 27.9,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 101,
-              "n": 433,
-              "percentage": 23.3
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Up to Day 14 after each study vaccination",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event",
-              "source_category_title": "Injection-site swelling",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.98,
-              "rounding_uncertainty_participants_control": 0.22,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          },
-          "injection_site_erythema": {
-            "treatment": {
-              "events": 863,
-              "n": 1965,
-              "percentage": 43.9,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 156,
-              "n": 433,
-              "percentage": 36.0
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Up to Day 14 after each study vaccination",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event",
-              "source_category_title": "Injection-site erythema",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.98,
-              "rounding_uncertainty_participants_control": 0.22,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          },
-          "injection_site_induration": {
-            "treatment": {
-              "events": 497,
-              "n": 1965,
-              "percentage": 25.3,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 111,
-              "n": 433,
-              "percentage": 25.6
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Up to Day 14 after each study vaccination",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event",
-              "source_category_title": "Injection-site induration",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.98,
-              "rounding_uncertainty_participants_control": 0.22,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          }
-        }
-      },
-      {
-        "id": "NCT03848065",
-        "nct": "NCT03848065",
-        "name": "Safety, Tolerability, and Immunogenicity of V114 in Healthy Japanese Infants (V114-028)",
-        "year": null,
-        "design": "randomised, double-blind, active-comparator",
-        "comparator_type": "active",
-        "population": "child",
-        "age_eligibility": "approximately 3 months",
-        "enrolled": 133,
-        "registry_arm_order": "as posted",
-        "arms": [
-          {
-            "label": "V114-SC",
-            "role": "treatment"
-          },
-          {
-            "label": "PCV13-SC",
-            "role": "control"
-          }
-        ],
-        "by_outcome": {
-          "injection_site_pain": {
-            "treatment": {
-              "events": 17,
-              "n": 44,
-              "percentage": 38.6,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 18,
-              "n": 43,
-              "percentage": 41.9
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Day 1 to Day 14 post each vaccination",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
-              "source_category_title": "Injection Site Pain",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.02,
-              "rounding_uncertainty_participants_control": 0.02,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          },
-          "injection_site_swelling": {
-            "treatment": {
-              "events": 38,
-              "n": 44,
-              "percentage": 86.4,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 38,
-              "n": 43,
-              "percentage": 88.4
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Day 1 to Day 14 post each vaccination",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
-              "source_category_title": "Injection Site Swelling",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.02,
-              "rounding_uncertainty_participants_control": 0.02,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          },
-          "injection_site_erythema": {
-            "treatment": {
-              "events": 44,
-              "n": 44,
-              "percentage": 100.0,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 41,
-              "n": 43,
-              "percentage": 95.3
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Day 1 to Day 14 post each vaccination",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
-              "source_category_title": "Injection Site Erythema (Redness)",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.02,
-              "rounding_uncertainty_participants_control": 0.02,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          },
-          "injection_site_induration": {
-            "treatment": {
-              "events": 40,
-              "n": 44,
-              "percentage": 90.9,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 43,
-              "n": 43,
-              "percentage": 100.0
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Day 1 to Day 14 post each vaccination",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
-              "source_category_title": "Injection Site Induration (Hard Lump)",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.02,
-              "rounding_uncertainty_participants_control": 0.02,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          }
-        },
-        "arm_selection_note": "This trial has a subcutaneous and an intramuscular V114 arm but only a subcutaneous comparator. The subcutaneous V114 arm is used so that both sides of the comparison share a route of administration; the intramuscular arm has no matching control and is therefore not used. An earlier build dropped it without saying so.",
-        "arms_not_used": [
-          "V114-IM"
-        ]
-      },
-      {
-        "id": "NCT03921424",
-        "nct": "NCT03921424",
-        "name": "Safety and Immunogenicity of V114 in Children Infected With Human Immunodeficiency Virus (HIV) (V114-030/PNEU-WAY PED)",
-        "year": null,
-        "design": "randomised, double-blind, active-comparator",
-        "comparator_type": "active",
-        "population": "child",
-        "age_eligibility": "6 to 17 years",
-        "enrolled": 407,
-        "registry_arm_order": "as posted",
-        "arms": [
-          {
-            "label": "V114",
-            "role": "treatment"
-          },
-          {
-            "label": "Prevnar 13™",
-            "role": "control"
-          }
-        ],
-        "by_outcome": {
-          "injection_site_pain": {
-            "treatment": {
-              "events": 112,
-              "n": 203,
-              "percentage": 55.2,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 110,
-              "n": 204,
-              "percentage": 53.9
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Through 14 Days after Vaccination 1 (Up to Day 14)",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-Site Adverse Event Following Vaccination With V114 or Prevnar 13™",
-              "source_category_title": "Injection site tenderness/pain",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.1,
-              "rounding_uncertainty_participants_control": 0.1,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          },
-          "injection_site_swelling": {
-            "treatment": {
-              "events": 58,
-              "n": 203,
-              "percentage": 28.6,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 44,
-              "n": 204,
-              "percentage": 21.6
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Through 14 Days after Vaccination 1 (Up to Day 14)",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-Site Adverse Event Following Vaccination With V114 or Prevnar 13™",
-              "source_category_title": "Injection site swelling",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.1,
-              "rounding_uncertainty_participants_control": 0.1,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          },
-          "injection_site_erythema": {
-            "treatment": {
-              "events": 19,
-              "n": 203,
-              "percentage": 9.4,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 12,
-              "n": 204,
-              "percentage": 5.9
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Through 14 Days after Vaccination 1 (Up to Day 14)",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-Site Adverse Event Following Vaccination With V114 or Prevnar 13™",
-              "source_category_title": "Injection site redness/erythema",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.1,
-              "rounding_uncertainty_participants_control": 0.1,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          },
-          "injection_site_induration": {
-            "treatment": {
-              "events": 21,
-              "n": 203,
-              "percentage": 10.3,
-              "percentages_by_arm": null
-            },
-            "control": {
-              "events": 13,
-              "n": 204,
-              "percentage": 6.4
-            },
-            "outcome_role_in_trial": "primary",
-            "measurement_window": "Through 14 Days after Vaccination 1 (Up to Day 14)",
-            "provenance": {
-              "tag": "DERIVED",
-              "source_id": "REGISTRY_CTGOV",
-              "source_outcome_title": "Percentage of Participants With a Solicited Injection-Site Adverse Event Following Vaccination With V114 or Prevnar 13™",
-              "source_category_title": "Injection site hard lump/induration",
-              "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
-              "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
-              "rounding_uncertainty_participants_treatment": 0.1,
-              "rounding_uncertainty_participants_control": 0.1,
-              "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
-            }
-          }
-        }
-      }
+ "app_id": "prevnar15-pneumo",
+ "schema_version": 2,
+ "build_mode": "build-to-core",
+ "title": "V114 versus Prevnar 13: the four solicited injection-site symptoms",
+ "question": "In participants randomised to the 15-valent pneumococcal conjugate vaccine V114 or to the 13-valent comparator Prevnar 13, how does the risk of each solicited injection-site symptom compare?",
+ "built": "2026-08-05",
+ "_prose_rule": "Every text field is PROSE unless it is on the numeric-text allowlist. Prose may not contain a bare numeral: any number it needs is a braced reference resolved at build time.",
+ "_sourcing_rule": "Every MEASURED input names the source layer it came from. Values DERIVED by this build carry no source layer because they have no source: they are computed here and the validator recomputes them.",
+ "sources": {
+  "REGISTRY_CTGOV": {
+   "layer": "Registry",
+   "layer_rank": 5,
+   "name": "ClinicalTrials.gov posted results: each category of each trial's solicited injection-site outcome, with its analysis denominators",
+   "url": "https://clinicaltrials.gov/",
+   "access_note": "Each trial's posted results were retrieved from the registry API and read at CATEGORY level. The solicited injection-site outcome carries several categories; each is selected by its label and that label is recorded beside every cell it produced."
+  }
+ },
+ "removed_citations": {
+  "total_cited": 14,
+  "removed": 7,
+  "retained": 7,
+  "contributing_to_this_outcome": 7,
+  "categories": [
+   {
+    "reason": "placeholder registration",
+    "count": 1,
+    "detail": "A placeholder identifier that resolves to nothing.",
+    "removed_ids": [
+     "NCT12345678"
     ]
+   },
+   {
+    "reason": "wrong disease area",
+    "count": 5,
+    "detail": "Heart-failure and chronic-kidney-disease trials. The SAME five appear in an unrelated lipid review in this corpus, which identifies them as one donor template rather than independent mistakes.",
+    "removed_ids": [
+     "NCT01035255",
+     "NCT01920711",
+     "NCT02924727",
+     "NCT03988634",
+     "NCT05901831"
+    ]
+   },
+   {
+    "reason": "posts no comparable outcome",
+    "count": 1,
+    "detail": "A dose-ranging study with eight arms that posts no solicited injection-site outcome and no clean two-arm comparison of the vaccine against the comparator.",
+    "removed_ids": [
+     "NCT02037984"
+    ]
+   }
+  ],
+  "disclosure_note": "This app was rebuilt on its sourceable core. Of {rm.total_cited} citations in the source app, {rm.removed} were removed and {rm.retained} retained. The reduction is shown rather than absorbed."
+ },
+ "completeness_statement": "This reports every solicited injection-site symptom these trials post. Not every trial posts every symptom, and each outcome names the trials that contribute to it. It is a local tolerability review and covers neither immunogenicity nor protection against pneumococcal disease.",
+ "outcomes": [
+  {
+   "id": "injection_site_pain",
+   "name": "Injection-site pain or tenderness",
+   "type": "primary",
+   "measure": "RR",
+   "null_value": 1,
+   "direction_of_benefit": "lower",
+   "definition": "Percentage of participants reporting injection-site pain or tenderness within the trial's protocol-defined window after vaccination, read from the matching category of that trial's solicited injection-site outcome.",
+   "definition_note": "Each contributing trial posts this as a category of its own primary solicited injection-site outcome. The arms used and the observation window are recorded against each trial."
   },
-  "config": {
-    "confidence_level": 95
+  {
+   "id": "injection_site_swelling",
+   "name": "Injection-site swelling",
+   "type": "primary",
+   "measure": "RR",
+   "null_value": 1,
+   "direction_of_benefit": "lower",
+   "definition": "Percentage of participants reporting injection-site swelling within the trial's protocol-defined window after vaccination, read from the matching category of that trial's solicited injection-site outcome.",
+   "definition_note": "Each contributing trial posts this as a category of its own primary solicited injection-site outcome. The arms used and the observation window are recorded against each trial."
   },
-  "results": {
+  {
+   "id": "injection_site_erythema",
+   "name": "Injection-site erythema or redness",
+   "type": "primary",
+   "measure": "RR",
+   "null_value": 1,
+   "direction_of_benefit": "lower",
+   "definition": "Percentage of participants reporting injection-site erythema or redness within the trial's protocol-defined window after vaccination, read from the matching category of that trial's solicited injection-site outcome.",
+   "definition_note": "Each contributing trial posts this as a category of its own primary solicited injection-site outcome. The arms used and the observation window are recorded against each trial."
+  },
+  {
+   "id": "injection_site_induration",
+   "name": "Injection-site induration or hard lump",
+   "type": "primary",
+   "measure": "RR",
+   "null_value": 1,
+   "direction_of_benefit": "lower",
+   "definition": "Percentage of participants reporting injection-site induration or hard lump within the trial's protocol-defined window after vaccination, read from the matching category of that trial's solicited injection-site outcome.",
+   "definition_note": "Each contributing trial posts this as a category of its own primary solicited injection-site outcome. The arms used and the observation window are recorded against each trial."
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT02547649",
+    "nct": "NCT02547649",
+    "name": "Safety, Tolerability, and Immunogenicity of Two Formulations of V114 in Healthy Adults 50 Years of Age or Older (V114-006)",
+    "year": null,
+    "design": "randomised, double-blind, active-comparator",
+    "comparator_type": "active",
+    "population": "adult",
+    "age_eligibility": "50 years and older",
+    "enrolled": 690,
+    "registry_arm_order": "as posted",
+    "arms": [
+     {
+      "label": "V114-A",
+      "role": "treatment"
+     },
+     {
+      "label": "V114-B",
+      "role": "treatment"
+     },
+     {
+      "label": "Prevnar 13®",
+      "role": "control"
+     }
+    ],
     "by_outcome": {
-      "injection_site_pain": {
-        "k": 7,
-        "poolable": false,
-        "not_poolable_reason": "These trials differ in observation window and in who records the symptom, so no estimate is combined across all of them.",
-        "model": "stratified, no overall synthesis",
-        "estimator": "DerSimonian-Laird",
-        "estimator_used": "DerSimonian-Laird",
-        "pooled": null,
-        "heterogeneity": null,
-        "heterogeneity_status": "not applicable; no overall synthesis is performed",
-        "contributing_trials": [
-          "NCT02547649",
-          "NCT03547167",
-          "NCT03950622",
-          "NCT03620162",
-          "NCT03692871",
-          "NCT03848065",
-          "NCT03921424"
-        ],
-        "reading_note": "Strata are grouped by age. Each states what it mixes and its measured heterogeneity; read both with the estimate.",
-        "interpretation_caveat": "This object records whether the symptom was registered as present, and nothing about how severe or how long-lasting it was. It says nothing about protection against disease.",
-        "subgroups": [
-          {
-            "id": "adults",
-            "label": "Adults",
-            "composition": "MIXED 14-day and 5-day (observation window); all self-reported (who records the symptom)",
-            "trial_ids": [
-              "NCT02547649",
-              "NCT03547167",
-              "NCT03950622"
-            ],
-            "k": 3,
-            "measure": "RR",
-            "note": "A published synthesis of these vaccines covers this stratum and pools more trials than this object carries.",
-            "point": 1.1696,
-            "ci_low": 1.0677,
-            "ci_high": 1.2812,
-            "ci_level": 95,
-            "tau2": 0.0034,
-            "i2": 51.7,
-            "q": 4.14,
-            "df": 2
-          },
-          {
-            "id": "children",
-            "label": "Infants and children",
-            "composition": "all 14-day (observation window); MIXED caregiver-observed and self-reported (who records the symptom)",
-            "trial_ids": [
-              "NCT03620162",
-              "NCT03692871",
-              "NCT03848065",
-              "NCT03921424"
-            ],
-            "k": 4,
-            "measure": "RR",
-            "point": 1.1028,
-            "ci_low": 1.0028,
-            "ci_high": 1.2128,
-            "ci_level": 95,
-            "tau2": 0.0,
-            "i2": 0.0,
-            "q": 2.07,
-            "df": 3
-          }
-        ]
+     "injection_site_pain": {
+      "treatment": {
+       "events": 283,
+       "n": 462,
+       "percentage": null,
+       "percentages_by_arm": [
+        62.3,
+        60.2
+       ]
       },
-      "injection_site_swelling": {
-        "k": 7,
-        "poolable": false,
-        "not_poolable_reason": "These trials differ in observation window and in who records the symptom, so no estimate is combined across all of them.",
-        "model": "stratified, no overall synthesis",
-        "estimator": "DerSimonian-Laird",
-        "estimator_used": "DerSimonian-Laird",
-        "pooled": null,
-        "heterogeneity": null,
-        "heterogeneity_status": "not applicable; no overall synthesis is performed",
-        "contributing_trials": [
-          "NCT02547649",
-          "NCT03547167",
-          "NCT03950622",
-          "NCT03620162",
-          "NCT03692871",
-          "NCT03848065",
-          "NCT03921424"
-        ],
-        "reading_note": "Strata are grouped by age. Each states what it mixes and its measured heterogeneity; read both with the estimate.",
-        "interpretation_caveat": "This object records whether the symptom was registered as present, and nothing about how severe or how long-lasting it was. It says nothing about protection against disease.",
-        "subgroups": [
-          {
-            "id": "adults",
-            "label": "Adults",
-            "composition": "MIXED 14-day and 5-day (observation window); all self-reported (who records the symptom)",
-            "trial_ids": [
-              "NCT02547649",
-              "NCT03547167",
-              "NCT03950622"
-            ],
-            "k": 3,
-            "measure": "RR",
-            "note": "A published synthesis of these vaccines covers this stratum and pools more trials than this object carries.",
-            "point": 1.0386,
-            "ci_low": 0.8815,
-            "ci_high": 1.2236,
-            "ci_level": 95,
-            "tau2": 0.0,
-            "i2": 0.0,
-            "q": 0.71,
-            "df": 2
-          },
-          {
-            "id": "children",
-            "label": "Infants and children",
-            "composition": "all 14-day (observation window); MIXED caregiver-observed and self-reported (who records the symptom)",
-            "trial_ids": [
-              "NCT03620162",
-              "NCT03692871",
-              "NCT03848065",
-              "NCT03921424"
-            ],
-            "k": 4,
-            "measure": "RR",
-            "point": 1.0952,
-            "ci_low": 0.9533,
-            "ci_high": 1.2583,
-            "ci_level": 95,
-            "tau2": 0.0058,
-            "i2": 28.6,
-            "q": 4.2,
-            "df": 3
-          }
-        ]
+      "control": {
+       "events": 119,
+       "n": 227,
+       "percentage": 52.4
       },
-      "injection_site_erythema": {
-        "k": 7,
-        "poolable": false,
-        "not_poolable_reason": "These trials differ in observation window and in who records the symptom, so no estimate is combined across all of them.",
-        "model": "stratified, no overall synthesis",
-        "estimator": "DerSimonian-Laird",
-        "estimator_used": "DerSimonian-Laird",
-        "pooled": null,
-        "heterogeneity": null,
-        "heterogeneity_status": "not applicable; no overall synthesis is performed",
-        "contributing_trials": [
-          "NCT02547649",
-          "NCT03547167",
-          "NCT03950622",
-          "NCT03620162",
-          "NCT03692871",
-          "NCT03848065",
-          "NCT03921424"
-        ],
-        "reading_note": "Strata are grouped by age. Each states what it mixes and its measured heterogeneity; read both with the estimate.",
-        "interpretation_caveat": "This object records whether the symptom was registered as present, and nothing about how severe or how long-lasting it was. It says nothing about protection against disease.",
-        "subgroups": [
-          {
-            "id": "adults",
-            "label": "Adults",
-            "composition": "MIXED 14-day and 5-day (observation window); all self-reported (who records the symptom)",
-            "trial_ids": [
-              "NCT02547649",
-              "NCT03547167",
-              "NCT03950622"
-            ],
-            "k": 3,
-            "measure": "RR",
-            "note": "A published synthesis of these vaccines covers this stratum and pools more trials than this object carries.",
-            "point": 0.9532,
-            "ci_low": 0.7817,
-            "ci_high": 1.1622,
-            "ci_level": 95,
-            "tau2": 0.0,
-            "i2": 0.0,
-            "q": 1.86,
-            "df": 2
-          },
-          {
-            "id": "children",
-            "label": "Infants and children",
-            "composition": "all 14-day (observation window); MIXED caregiver-observed and self-reported (who records the symptom)",
-            "trial_ids": [
-              "NCT03620162",
-              "NCT03692871",
-              "NCT03848065",
-              "NCT03921424"
-            ],
-            "k": 4,
-            "measure": "RR",
-            "point": 1.0893,
-            "ci_low": 0.9616,
-            "ci_high": 1.2341,
-            "ci_level": 95,
-            "tau2": 0.0078,
-            "i2": 55.0,
-            "q": 6.67,
-            "df": 3
-          }
-        ]
-      },
-      "injection_site_induration": {
-        "k": 4,
-        "poolable": false,
-        "not_poolable_reason": "These trials differ in observation window and in who records the symptom, so no estimate is combined across all of them.",
-        "model": "stratified, no overall synthesis",
-        "estimator": "DerSimonian-Laird",
-        "estimator_used": "DerSimonian-Laird",
-        "pooled": null,
-        "heterogeneity": null,
-        "heterogeneity_status": "not applicable; no overall synthesis is performed",
-        "contributing_trials": [
-          "NCT03620162",
-          "NCT03692871",
-          "NCT03848065",
-          "NCT03921424"
-        ],
-        "reading_note": "Strata are grouped by age. Each states what it mixes and its measured heterogeneity; read both with the estimate.",
-        "interpretation_caveat": "This object records whether the symptom was registered as present, and nothing about how severe or how long-lasting it was. It says nothing about protection against disease.",
-        "subgroups": [
-          {
-            "id": "children",
-            "label": "Infants and children",
-            "composition": "all 14-day (observation window); MIXED caregiver-observed and self-reported (who records the symptom)",
-            "trial_ids": [
-              "NCT03620162",
-              "NCT03692871",
-              "NCT03848065",
-              "NCT03921424"
-            ],
-            "k": 4,
-            "measure": "RR",
-            "point": 0.9295,
-            "ci_low": 0.8116,
-            "ci_high": 1.0646,
-            "ci_level": 95,
-            "tau2": 0.0072,
-            "i2": 38.7,
-            "q": 4.9,
-            "df": 3
-          }
-        ]
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Up to 14 days after vaccination",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
+       "source_category_title": "Pain",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.23,
+       "rounding_uncertainty_participants_control": 0.11,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
       }
-    }
-  },
-  "quarantine": null
+     },
+     "injection_site_swelling": {
+      "treatment": {
+       "events": 65,
+       "n": 462,
+       "percentage": null,
+       "percentages_by_arm": [
+        11.7,
+        16.5
+       ]
+      },
+      "control": {
+       "events": 28,
+       "n": 227,
+       "percentage": 12.3
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Up to 14 days after vaccination",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
+       "source_category_title": "Swelling",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.23,
+       "rounding_uncertainty_participants_control": 0.11,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     },
+     "injection_site_erythema": {
+      "treatment": {
+       "events": 46,
+       "n": 462,
+       "percentage": null,
+       "percentages_by_arm": [
+        8.7,
+        11.3
+       ]
+      },
+      "control": {
+       "events": 23,
+       "n": 227,
+       "percentage": 10.1
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Up to 14 days after vaccination",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
+       "source_category_title": "Erythema",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.23,
+       "rounding_uncertainty_participants_control": 0.11,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     }
+    },
+    "arm_selection_note": "This trial randomised TWO V114 formulations against one shared Prevnar 13 arm. Both V114 arms are combined into a single treatment group against that shared control, which is the standard handling for a trial with more than one intervention group and avoids counting the control arm twice. An earlier build silently used the first formulation only.",
+    "registration_arm_count": 3,
+    "registration_contrasts_read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT03547167",
+    "nct": "NCT03547167",
+    "name": "A Study to Evaluate the Safety, Tolerability, and Immunogenicity of V114 Followed by PNEUMOVAX™23 in Adults at Increased Risk for Pneumococcal Disease",
+    "year": null,
+    "design": "randomised, double-blind, active-comparator",
+    "comparator_type": "active",
+    "population": "adult",
+    "age_eligibility": "18 to 49 years",
+    "enrolled": 1515,
+    "registry_arm_order": "as posted",
+    "arms": [
+     {
+      "label": "V114",
+      "role": "treatment"
+     },
+     {
+      "label": "Prevnar 13™",
+      "role": "control"
+     }
+    ],
+    "by_outcome": {
+     "injection_site_pain": {
+      "treatment": {
+       "events": 860,
+       "n": 1134,
+       "percentage": 75.8,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 260,
+       "n": 378,
+       "percentage": 68.8
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Up to 5 days after Vaccination 1",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With Solicited Injection-site Adverse Events Following V114 or Prevnar 13™",
+       "source_category_title": "Injection site tenderness/pain",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.57,
+       "rounding_uncertainty_participants_control": 0.19,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     },
+     "injection_site_swelling": {
+      "treatment": {
+       "events": 246,
+       "n": 1134,
+       "percentage": 21.7,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 84,
+       "n": 378,
+       "percentage": 22.2
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Up to 5 days after Vaccination 1",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With Solicited Injection-site Adverse Events Following V114 or Prevnar 13™",
+       "source_category_title": "Injection site swelling",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.57,
+       "rounding_uncertainty_participants_control": 0.19,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     },
+     "injection_site_erythema": {
+      "treatment": {
+       "events": 171,
+       "n": 1134,
+       "percentage": 15.1,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 53,
+       "n": 378,
+       "percentage": 14.0
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Up to 5 days after Vaccination 1",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With Solicited Injection-site Adverse Events Following V114 or Prevnar 13™",
+       "source_category_title": "Injection site redness/erythema",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.57,
+       "rounding_uncertainty_participants_control": 0.19,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     }
+    },
+    "registration_arm_count": 2,
+    "registration_contrasts_read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT03950622",
+    "nct": "NCT03950622",
+    "name": "Safety and Immunogenicity of V114 in Healthy Adults (V114-019/PNEU-AGE)",
+    "year": null,
+    "design": "randomised, double-blind, active-comparator",
+    "comparator_type": "active",
+    "population": "adult",
+    "age_eligibility": "50 years and older",
+    "enrolled": 1205,
+    "registry_arm_order": "as posted",
+    "arms": [
+     {
+      "label": "V114",
+      "role": "treatment"
+     },
+     {
+      "label": "Prevnar 13™",
+      "role": "control"
+     }
+    ],
+    "by_outcome": {
+     "injection_site_pain": {
+      "treatment": {
+       "events": 325,
+       "n": 602,
+       "percentage": 54.0,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 254,
+       "n": 600,
+       "percentage": 42.3
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Up to Day 5 postvaccination",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event",
+       "source_category_title": "Injection site pain",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.3,
+       "rounding_uncertainty_participants_control": 0.3,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     },
+     "injection_site_swelling": {
+      "treatment": {
+       "events": 75,
+       "n": 602,
+       "percentage": 12.5,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 67,
+       "n": 600,
+       "percentage": 11.2
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Up to Day 5 postvaccination",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event",
+       "source_category_title": "Injection site swelling",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.3,
+       "rounding_uncertainty_participants_control": 0.3,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     },
+     "injection_site_erythema": {
+      "treatment": {
+       "events": 54,
+       "n": 602,
+       "percentage": 9.0,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 68,
+       "n": 600,
+       "percentage": 11.3
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Up to Day 5 postvaccination",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event",
+       "source_category_title": "Injection site erythema",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.3,
+       "rounding_uncertainty_participants_control": 0.3,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     }
+    },
+    "registration_arm_count": 2,
+    "registration_declared_contrasts": [
+     [
+      "Prevnar 13™",
+      "V114"
+     ]
+    ],
+    "registration_contrasts_read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT03620162",
+    "nct": "NCT03620162",
+    "name": "A Study to Evaluate the Interchangeability of V114 and Prevnar 13™ in Healthy Infants (V114-027/PNEU-DIRECTION)",
+    "year": null,
+    "design": "randomised, double-blind, active-comparator",
+    "comparator_type": "active",
+    "population": "child",
+    "age_eligibility": "42 to 90 days",
+    "enrolled": 900,
+    "registry_arm_order": "as posted",
+    "arms": [
+     {
+      "label": "Group 5: V114-V114-V114-V114",
+      "role": "treatment"
+     },
+     {
+      "label": "Group 1: Prevnar 13™-Prevnar 13™-Prevnar 13™-Prevnar 13™",
+      "role": "control"
+     }
+    ],
+    "by_outcome": {
+     "injection_site_pain": {
+      "treatment": {
+       "events": 85,
+       "n": 179,
+       "percentage": 47.5,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 79,
+       "n": 179,
+       "percentage": 44.1
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Up to ~14 days after each vaccination",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
+       "source_category_title": "Tenderness/Pain",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.09,
+       "rounding_uncertainty_participants_control": 0.09,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     },
+     "injection_site_swelling": {
+      "treatment": {
+       "events": 41,
+       "n": 179,
+       "percentage": 22.9,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 41,
+       "n": 179,
+       "percentage": 22.9
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Up to ~14 days after each vaccination",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
+       "source_category_title": "Swelling",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.09,
+       "rounding_uncertainty_participants_control": 0.09,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     },
+     "injection_site_erythema": {
+      "treatment": {
+       "events": 79,
+       "n": 179,
+       "percentage": 44.1,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 85,
+       "n": 179,
+       "percentage": 47.5
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Up to ~14 days after each vaccination",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
+       "source_category_title": "Erythema/Redness",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.09,
+       "rounding_uncertainty_participants_control": 0.09,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     },
+     "injection_site_induration": {
+      "treatment": {
+       "events": 47,
+       "n": 179,
+       "percentage": 26.3,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 62,
+       "n": 179,
+       "percentage": 34.6
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Up to ~14 days after each vaccination",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
+       "source_category_title": "Induration/Hard lump",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.09,
+       "rounding_uncertainty_participants_control": 0.09,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     }
+    },
+    "arm_selection_note": "This is a five-group interchangeability trial of mixed schedules. Groups 2, 3 and 4 each receive Prevnar 13 for some doses and V114 for others, so none of them is a comparison of one vaccine against the other and none is used. The only clean contrast is Group 5, four doses of V114, against Group 1, four doses of Prevnar 13. An earlier build used Group 2, a mixed schedule, as the treatment arm.",
+    "arms_not_used": [
+     "Group 2: Prevnar 13™-Prevnar 13™-Prevnar 13™-V114",
+     "Group 3: Prevnar 13™-Prevnar 13™-V114-V114",
+     "Group 4: Prevnar 13™-V114-V114-V114"
+    ],
+    "registration_arm_count": 5,
+    "registration_declared_contrasts": [
+     [
+      "Group 1: Prevnar 13™-Prevnar 13™-Prevnar 13™-Prevnar 13™",
+      "Group 5: V114-V114-V114-V114"
+     ],
+     [
+      "Group 1: Prevnar 13™-Prevnar 13™-Prevnar 13™-Prevnar 13™",
+      "Group 4: Prevnar 13™-V114-V114-V114"
+     ],
+     [
+      "Group 1: Prevnar 13™-Prevnar 13™-Prevnar 13™-Prevnar 13™",
+      "Group 3: Prevnar 13™-Prevnar 13™-V114-V114"
+     ],
+     [
+      "Group 1: Prevnar 13™-Prevnar 13™-Prevnar 13™-Prevnar 13™",
+      "Group 2: Prevnar 13™-Prevnar 13™-Prevnar 13™-V114"
+     ],
+     [
+      "Group 1: Prevnar 13™(Vaccinations 1-4) + Group 2: Prevnar 13™(Vaccinations 1-3)-V114 (Vaccination 4)",
+      "Group 5: V114-V114-V114-V114"
+     ]
+    ],
+    "registration_contrasts_read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT03692871",
+    "nct": "NCT03692871",
+    "name": "A Study to Evaluate the Safety and Tolerability of V114 and Prevnar 13™ in Healthy Infants (V114-031/PNEU-LINK)",
+    "year": null,
+    "design": "randomised, double-blind, active-comparator",
+    "comparator_type": "active",
+    "population": "child",
+    "age_eligibility": "42 to 90 days",
+    "enrolled": 2409,
+    "registry_arm_order": "as posted",
+    "arms": [
+     {
+      "label": "V114",
+      "role": "treatment"
+     },
+     {
+      "label": "Prevnar 13™",
+      "role": "control"
+     }
+    ],
+    "by_outcome": {
+     "injection_site_pain": {
+      "treatment": {
+       "events": 843,
+       "n": 1965,
+       "percentage": 42.9,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 158,
+       "n": 433,
+       "percentage": 36.5
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Up to Day 14 after each study vaccination",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event",
+       "source_category_title": "Injection-site pain",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.98,
+       "rounding_uncertainty_participants_control": 0.22,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     },
+     "injection_site_swelling": {
+      "treatment": {
+       "events": 548,
+       "n": 1965,
+       "percentage": 27.9,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 101,
+       "n": 433,
+       "percentage": 23.3
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Up to Day 14 after each study vaccination",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event",
+       "source_category_title": "Injection-site swelling",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.98,
+       "rounding_uncertainty_participants_control": 0.22,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     },
+     "injection_site_erythema": {
+      "treatment": {
+       "events": 863,
+       "n": 1965,
+       "percentage": 43.9,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 156,
+       "n": 433,
+       "percentage": 36.0
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Up to Day 14 after each study vaccination",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event",
+       "source_category_title": "Injection-site erythema",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.98,
+       "rounding_uncertainty_participants_control": 0.22,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     },
+     "injection_site_induration": {
+      "treatment": {
+       "events": 497,
+       "n": 1965,
+       "percentage": 25.3,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 111,
+       "n": 433,
+       "percentage": 25.6
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Up to Day 14 after each study vaccination",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event",
+       "source_category_title": "Injection-site induration",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.98,
+       "rounding_uncertainty_participants_control": 0.22,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     }
+    },
+    "registration_arm_count": 2,
+    "registration_declared_contrasts": [
+     [
+      "Prevnar 13™",
+      "V114"
+     ]
+    ],
+    "registration_contrasts_read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT03848065",
+    "nct": "NCT03848065",
+    "name": "Safety, Tolerability, and Immunogenicity of V114 in Healthy Japanese Infants (V114-028)",
+    "year": null,
+    "design": "randomised, double-blind, active-comparator",
+    "comparator_type": "active",
+    "population": "child",
+    "age_eligibility": "approximately 3 months",
+    "enrolled": 133,
+    "registry_arm_order": "as posted",
+    "arms": [
+     {
+      "label": "V114-SC",
+      "role": "treatment"
+     },
+     {
+      "label": "PCV13-SC",
+      "role": "control"
+     }
+    ],
+    "by_outcome": {
+     "injection_site_pain": {
+      "treatment": {
+       "events": 17,
+       "n": 44,
+       "percentage": 38.6,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 18,
+       "n": 43,
+       "percentage": 41.9
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Day 1 to Day 14 post each vaccination",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
+       "source_category_title": "Injection Site Pain",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.02,
+       "rounding_uncertainty_participants_control": 0.02,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     },
+     "injection_site_swelling": {
+      "treatment": {
+       "events": 38,
+       "n": 44,
+       "percentage": 86.4,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 38,
+       "n": 43,
+       "percentage": 88.4
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Day 1 to Day 14 post each vaccination",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
+       "source_category_title": "Injection Site Swelling",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.02,
+       "rounding_uncertainty_participants_control": 0.02,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     },
+     "injection_site_erythema": {
+      "treatment": {
+       "events": 44,
+       "n": 44,
+       "percentage": 100.0,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 41,
+       "n": 43,
+       "percentage": 95.3
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Day 1 to Day 14 post each vaccination",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
+       "source_category_title": "Injection Site Erythema (Redness)",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.02,
+       "rounding_uncertainty_participants_control": 0.02,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     },
+     "injection_site_induration": {
+      "treatment": {
+       "events": 40,
+       "n": 44,
+       "percentage": 90.9,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 43,
+       "n": 43,
+       "percentage": 100.0
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Day 1 to Day 14 post each vaccination",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-site Adverse Event (AE)",
+       "source_category_title": "Injection Site Induration (Hard Lump)",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.02,
+       "rounding_uncertainty_participants_control": 0.02,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     }
+    },
+    "arm_selection_note": "This trial has a subcutaneous and an intramuscular V114 arm but only a subcutaneous comparator. The subcutaneous V114 arm is used so that both sides of the comparison share a route of administration; the intramuscular arm has no matching control and is therefore not used. An earlier build dropped it without saying so.",
+    "arms_not_used": [
+     "V114-IM"
+    ],
+    "registration_arm_count": 3,
+    "registration_declared_contrasts": [
+     [
+      "V114-IM",
+      "V114-SC"
+     ],
+     [
+      "PCV13-SC",
+      "V114-SC"
+     ],
+     [
+      "PCV13-SC",
+      "V114-IM"
+     ]
+    ],
+    "registration_contrasts_read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT03921424",
+    "nct": "NCT03921424",
+    "name": "Safety and Immunogenicity of V114 in Children Infected With Human Immunodeficiency Virus (HIV) (V114-030/PNEU-WAY PED)",
+    "year": null,
+    "design": "randomised, double-blind, active-comparator",
+    "comparator_type": "active",
+    "population": "child",
+    "age_eligibility": "6 to 17 years",
+    "enrolled": 407,
+    "registry_arm_order": "as posted",
+    "arms": [
+     {
+      "label": "V114",
+      "role": "treatment"
+     },
+     {
+      "label": "Prevnar 13™",
+      "role": "control"
+     }
+    ],
+    "by_outcome": {
+     "injection_site_pain": {
+      "treatment": {
+       "events": 112,
+       "n": 203,
+       "percentage": 55.2,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 110,
+       "n": 204,
+       "percentage": 53.9
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Through 14 Days after Vaccination 1 (Up to Day 14)",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-Site Adverse Event Following Vaccination With V114 or Prevnar 13™",
+       "source_category_title": "Injection site tenderness/pain",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.1,
+       "rounding_uncertainty_participants_control": 0.1,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     },
+     "injection_site_swelling": {
+      "treatment": {
+       "events": 58,
+       "n": 203,
+       "percentage": 28.6,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 44,
+       "n": 204,
+       "percentage": 21.6
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Through 14 Days after Vaccination 1 (Up to Day 14)",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-Site Adverse Event Following Vaccination With V114 or Prevnar 13™",
+       "source_category_title": "Injection site swelling",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.1,
+       "rounding_uncertainty_participants_control": 0.1,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     },
+     "injection_site_erythema": {
+      "treatment": {
+       "events": 19,
+       "n": 203,
+       "percentage": 9.4,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 12,
+       "n": 204,
+       "percentage": 5.9
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Through 14 Days after Vaccination 1 (Up to Day 14)",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-Site Adverse Event Following Vaccination With V114 or Prevnar 13™",
+       "source_category_title": "Injection site redness/erythema",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.1,
+       "rounding_uncertainty_participants_control": 0.1,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     },
+     "injection_site_induration": {
+      "treatment": {
+       "events": 21,
+       "n": 203,
+       "percentage": 10.3,
+       "percentages_by_arm": null
+      },
+      "control": {
+       "events": 13,
+       "n": 204,
+       "percentage": 6.4
+      },
+      "outcome_role_in_trial": "primary",
+      "measurement_window": "Through 14 Days after Vaccination 1 (Up to Day 14)",
+      "provenance": {
+       "tag": "DERIVED",
+       "source_id": "REGISTRY_CTGOV",
+       "source_outcome_title": "Percentage of Participants With a Solicited Injection-Site Adverse Event Following Vaccination With V114 or Prevnar 13™",
+       "source_category_title": "Injection site hard lump/induration",
+       "source": "posted primary outcome measure, read at the level of the named CATEGORY within that outcome, with the analysis denominators for the named arms",
+       "derivation": "the registry posts this category as a PERCENTAGE of participants, so each event count here is that percentage multiplied by its denominator and rounded. The percentages and denominators are measured; the counts are not.",
+       "rounding_uncertainty_participants_treatment": 0.1,
+       "rounding_uncertainty_participants_control": 0.1,
+       "category_binding_note": "The registry posts this outcome as several categories. A cell is not identified until one is named, so the category is named here and can be checked against the source."
+      }
+     }
+    },
+    "registration_arm_count": 2,
+    "registration_contrasts_read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "config": {
+  "confidence_level": 95
+ },
+ "results": {
+  "by_outcome": {
+   "injection_site_pain": {
+    "k": 7,
+    "poolable": false,
+    "not_poolable_reason": "These trials differ in observation window and in who records the symptom, so no estimate is combined across all of them.",
+    "model": "stratified, no overall synthesis",
+    "estimator": "DerSimonian-Laird",
+    "estimator_used": "DerSimonian-Laird",
+    "pooled": null,
+    "heterogeneity": null,
+    "heterogeneity_status": "not applicable; no overall synthesis is performed",
+    "contributing_trials": [
+     "NCT02547649",
+     "NCT03547167",
+     "NCT03950622",
+     "NCT03620162",
+     "NCT03692871",
+     "NCT03848065",
+     "NCT03921424"
+    ],
+    "reading_note": "Strata are grouped by age. Each states what it mixes and its measured heterogeneity; read both with the estimate.",
+    "interpretation_caveat": "This object records whether the symptom was registered as present, and nothing about how severe or how long-lasting it was. It says nothing about protection against disease.",
+    "subgroups": [
+     {
+      "id": "adults",
+      "label": "Adults",
+      "composition": "MIXED 14-day and 5-day (observation window); all self-reported (who records the symptom)",
+      "trial_ids": [
+       "NCT02547649",
+       "NCT03547167",
+       "NCT03950622"
+      ],
+      "k": 3,
+      "measure": "RR",
+      "note": "A published synthesis of these vaccines covers this stratum and pools more trials than this object carries.",
+      "point": 1.1696,
+      "ci_low": 1.0677,
+      "ci_high": 1.2812,
+      "ci_level": 95,
+      "tau2": 0.0034,
+      "i2": 51.7,
+      "q": 4.14,
+      "df": 2
+     },
+     {
+      "id": "children",
+      "label": "Infants and children",
+      "composition": "all 14-day (observation window); MIXED caregiver-observed and self-reported (who records the symptom)",
+      "trial_ids": [
+       "NCT03620162",
+       "NCT03692871",
+       "NCT03848065",
+       "NCT03921424"
+      ],
+      "k": 4,
+      "measure": "RR",
+      "point": 1.1028,
+      "ci_low": 1.0028,
+      "ci_high": 1.2128,
+      "ci_level": 95,
+      "tau2": 0.0,
+      "i2": 0.0,
+      "q": 2.07,
+      "df": 3
+     }
+    ]
+   },
+   "injection_site_swelling": {
+    "k": 7,
+    "poolable": false,
+    "not_poolable_reason": "These trials differ in observation window and in who records the symptom, so no estimate is combined across all of them.",
+    "model": "stratified, no overall synthesis",
+    "estimator": "DerSimonian-Laird",
+    "estimator_used": "DerSimonian-Laird",
+    "pooled": null,
+    "heterogeneity": null,
+    "heterogeneity_status": "not applicable; no overall synthesis is performed",
+    "contributing_trials": [
+     "NCT02547649",
+     "NCT03547167",
+     "NCT03950622",
+     "NCT03620162",
+     "NCT03692871",
+     "NCT03848065",
+     "NCT03921424"
+    ],
+    "reading_note": "Strata are grouped by age. Each states what it mixes and its measured heterogeneity; read both with the estimate.",
+    "interpretation_caveat": "This object records whether the symptom was registered as present, and nothing about how severe or how long-lasting it was. It says nothing about protection against disease.",
+    "subgroups": [
+     {
+      "id": "adults",
+      "label": "Adults",
+      "composition": "MIXED 14-day and 5-day (observation window); all self-reported (who records the symptom)",
+      "trial_ids": [
+       "NCT02547649",
+       "NCT03547167",
+       "NCT03950622"
+      ],
+      "k": 3,
+      "measure": "RR",
+      "note": "A published synthesis of these vaccines covers this stratum and pools more trials than this object carries.",
+      "point": 1.0386,
+      "ci_low": 0.8815,
+      "ci_high": 1.2236,
+      "ci_level": 95,
+      "tau2": 0.0,
+      "i2": 0.0,
+      "q": 0.71,
+      "df": 2
+     },
+     {
+      "id": "children",
+      "label": "Infants and children",
+      "composition": "all 14-day (observation window); MIXED caregiver-observed and self-reported (who records the symptom)",
+      "trial_ids": [
+       "NCT03620162",
+       "NCT03692871",
+       "NCT03848065",
+       "NCT03921424"
+      ],
+      "k": 4,
+      "measure": "RR",
+      "point": 1.0952,
+      "ci_low": 0.9533,
+      "ci_high": 1.2583,
+      "ci_level": 95,
+      "tau2": 0.0058,
+      "i2": 28.6,
+      "q": 4.2,
+      "df": 3
+     }
+    ]
+   },
+   "injection_site_erythema": {
+    "k": 7,
+    "poolable": false,
+    "not_poolable_reason": "These trials differ in observation window and in who records the symptom, so no estimate is combined across all of them.",
+    "model": "stratified, no overall synthesis",
+    "estimator": "DerSimonian-Laird",
+    "estimator_used": "DerSimonian-Laird",
+    "pooled": null,
+    "heterogeneity": null,
+    "heterogeneity_status": "not applicable; no overall synthesis is performed",
+    "contributing_trials": [
+     "NCT02547649",
+     "NCT03547167",
+     "NCT03950622",
+     "NCT03620162",
+     "NCT03692871",
+     "NCT03848065",
+     "NCT03921424"
+    ],
+    "reading_note": "Strata are grouped by age. Each states what it mixes and its measured heterogeneity; read both with the estimate.",
+    "interpretation_caveat": "This object records whether the symptom was registered as present, and nothing about how severe or how long-lasting it was. It says nothing about protection against disease.",
+    "subgroups": [
+     {
+      "id": "adults",
+      "label": "Adults",
+      "composition": "MIXED 14-day and 5-day (observation window); all self-reported (who records the symptom)",
+      "trial_ids": [
+       "NCT02547649",
+       "NCT03547167",
+       "NCT03950622"
+      ],
+      "k": 3,
+      "measure": "RR",
+      "note": "A published synthesis of these vaccines covers this stratum and pools more trials than this object carries.",
+      "point": 0.9532,
+      "ci_low": 0.7817,
+      "ci_high": 1.1622,
+      "ci_level": 95,
+      "tau2": 0.0,
+      "i2": 0.0,
+      "q": 1.86,
+      "df": 2
+     },
+     {
+      "id": "children",
+      "label": "Infants and children",
+      "composition": "all 14-day (observation window); MIXED caregiver-observed and self-reported (who records the symptom)",
+      "trial_ids": [
+       "NCT03620162",
+       "NCT03692871",
+       "NCT03848065",
+       "NCT03921424"
+      ],
+      "k": 4,
+      "measure": "RR",
+      "point": 1.0893,
+      "ci_low": 0.9616,
+      "ci_high": 1.2341,
+      "ci_level": 95,
+      "tau2": 0.0078,
+      "i2": 55.0,
+      "q": 6.67,
+      "df": 3
+     }
+    ]
+   },
+   "injection_site_induration": {
+    "k": 4,
+    "poolable": false,
+    "not_poolable_reason": "These trials differ in observation window and in who records the symptom, so no estimate is combined across all of them.",
+    "model": "stratified, no overall synthesis",
+    "estimator": "DerSimonian-Laird",
+    "estimator_used": "DerSimonian-Laird",
+    "pooled": null,
+    "heterogeneity": null,
+    "heterogeneity_status": "not applicable; no overall synthesis is performed",
+    "contributing_trials": [
+     "NCT03620162",
+     "NCT03692871",
+     "NCT03848065",
+     "NCT03921424"
+    ],
+    "reading_note": "Strata are grouped by age. Each states what it mixes and its measured heterogeneity; read both with the estimate.",
+    "interpretation_caveat": "This object records whether the symptom was registered as present, and nothing about how severe or how long-lasting it was. It says nothing about protection against disease.",
+    "subgroups": [
+     {
+      "id": "children",
+      "label": "Infants and children",
+      "composition": "all 14-day (observation window); MIXED caregiver-observed and self-reported (who records the symptom)",
+      "trial_ids": [
+       "NCT03620162",
+       "NCT03692871",
+       "NCT03848065",
+       "NCT03921424"
+      ],
+      "k": 4,
+      "measure": "RR",
+      "point": 0.9295,
+      "ci_low": 0.8116,
+      "ci_high": 1.0646,
+      "ci_level": 95,
+      "tau2": 0.0072,
+      "i2": 38.7,
+      "q": 4.9,
+      "df": 3
+     }
+    ]
+   }
+  }
+ },
+ "quarantine": null
 }

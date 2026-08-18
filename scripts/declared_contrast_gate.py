@@ -1,0 +1,268 @@
+"""DECLARED CONTRAST -- was this comparison ever actually run?
+
+WHY THIS EXISTS -- A NEW DEFECT CLASS, FOUND ON EVOLOCUMAB_MIXED 2026-08-18
+    BERSON and Hua Tuo are both four-arm 2x2 designs of dosing frequency. Each
+    registers TWO treatment comparisons and both are WITHIN a frequency:
+    fortnightly against fortnightly, monthly against monthly.
+
+    The object paired a FORTNIGHTLY PLACEBO arm with a MONTHLY DRUG arm, on both
+    trials. That comparison was never registered, never analysed and never
+    reported by anyone -- and the numbers it produced, -71.8 and -70.8, are
+    neither registered comparison AND not the difference between any two of the
+    four arm means either trial reports.
+
+    THAT IS A FABRICATED CONTRAST, AND IT IS WORSE THAN EVERY ARM DEFECT ALREADY
+    IN THE LEDGER. An inverted LABEL preserves the magnitude -- which is exactly
+    why inversions survived unnoticed on three consecutive topics. A CROSS-PAIRING
+    changes the quantity being estimated and invents a number that exists nowhere
+    in the source.
+
+    AND NO CONSISTENCY CHECK WE OWN COULD EVER FIND IT. Internally the row is
+    perfectly coherent: two real arms, from one real trial, with a real
+    difference between them. Every gate in this repository passed it. The only
+    thing that can convict it is the registration's OWN list of comparisons.
+
+THE RULE
+    For any trial whose registration declares MORE THAN TWO ARMS, the contrast
+    this object extracted must be one the registration actually declares.
+
+WHAT THIS DOES NOT ESTABLISH -- written in advance
+    - NOTHING AT ALL on a two-arm registration. With two arms there is only one
+      possible contrast, so the check is NOT APPLICABLE rather than passed. It
+      must never be counted as a pass: a corpus of two-arm trials would otherwise
+      report 100% clean while establishing nothing.
+    - NOT that a declared contrast was extracted CORRECTLY. It checks which arms
+      were compared, not whether the number is right.
+    - NOTHING where the registration declares no analyses at all. That is
+      UNCHECKABLE, and it is common: a registry record may report arm-level
+      results and no between-arm comparison.
+    - NOT that the labels mean what they say. It matches the object's arm labels
+      against the registration's own group titles, which works BECAUSE the
+      converter took those labels from the registry in the first place. An
+      authored object with hand-written labels will come back UNCHECKABLE, and
+      that is honest rather than useless.
+
+USAGE
+    python scripts/declared_contrast_gate.py <object.json> [...]
+    python scripts/declared_contrast_gate.py --selftest
+    python scripts/declared_contrast_gate.py --fetch <object.json>
+"""
+from __future__ import annotations
+import io
+import json
+import os
+import re
+import sys
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+
+def norm(s):
+    """Lowercase alphanumerics only -- punctuation and spacing differ between the
+    object's copy of a label and the registry's own group title."""
+    return re.sub(r"[^a-z0-9]+", "", (s or "").lower())
+
+
+def _pair(a, b):
+    return frozenset((norm(a), norm(b)))
+
+
+def assess(trial):
+    arms = [a for a in (trial.get("arms") or []) if a.get("role") in
+            ("treatment", "intervention", "control", "comparator")]
+    n_reg = trial.get("registration_arm_count")
+    declared = trial.get("registration_declared_contrasts")
+
+    if not isinstance(n_reg, int):
+        return "UNCHECKABLE", "no registration_arm_count stored -- run --fetch"
+    if n_reg <= 2:
+        # NOT a pass. With two arms the only possible contrast is the declared
+        # one, so this trial cannot exhibit the defect and cannot clear itself of
+        # it either.
+        return "NOT_APPLICABLE", "the registration declares %d arms; only one contrast is possible" % n_reg
+    if len(arms) < 2:
+        return "UNCHECKABLE", "fewer than two roled arms on this row"
+    if not declared:
+        return ("UNCHECKABLE",
+                "the registration declares %d arms and NO between-arm analyses, so "
+                "there is no declared list to check this contrast against" % n_reg)
+
+    got = _pair(arms[0].get("label"), arms[1].get("label"))
+    if "" in got:
+        return "UNCHECKABLE", "an arm on this row carries no label"
+    want = [frozenset(norm(x) for x in c) for c in declared]
+    if got in want:
+        return ("PASS", "'%s' against '%s' IS a contrast this registration declares"
+                % (arms[0].get("label"), arms[1].get("label")))
+    known = {t for c in declared for t in c}
+    unknown = [a.get("label") for a in arms[:2] if norm(a.get("label")) not in
+               {norm(k) for k in known}]
+    if unknown:
+        return ("UNCHECKABLE",
+                "arm label(s) %s do not correspond to any group title in this "
+                "registration's declared comparisons, so the two cannot be matched "
+                "-- this is not a clearance" % ", ".join(repr(u) for u in unknown))
+    return ("FAIL",
+            "FABRICATED CONTRAST: this row compares '%s' against '%s'. The "
+            "registration declares %d arms and these comparisons: %s. The pair used "
+            "here is not among them, so it is a comparison the trial never ran."
+            % (arms[0].get("label"), arms[1].get("label"), n_reg,
+               "; ".join(" vs ".join(c) for c in declared)))
+
+
+def check(obj):
+    trials = ((obj.get("inputs") or {}).get("trials")) or []
+    if not trials:
+        return "UNCHECKABLE", ["object carries no trials"]
+    notes, worst, applicable = [], "NOT_APPLICABLE", 0
+    order = {"NOT_APPLICABLE": 0, "PASS": 1, "UNCHECKABLE": 2, "FAIL": 3}
+    for t in trials:
+        v, why = assess(t)
+        notes.append("  %-22s %-13s %-15s %s"
+                     % ((t.get("name") or "?")[:22], t.get("nct") or "", v, why[:150]))
+        if v in ("PASS", "FAIL"):
+            applicable += 1
+        if order[v] > order[worst]:
+            worst = v
+    notes.append("  %d of %d rows sit on a multi-arm registration and could be checked."
+                 % (applicable, len(trials)))
+    if worst == "NOT_APPLICABLE":
+        notes.append("-> NOT APPLICABLE: every trial's registration declares two arms. "
+                     "Nothing was established and nothing could be. This is not a pass.")
+    return worst, notes
+
+
+def selftest() -> int:
+    ok = True
+
+    def row(name, nct, li, lc, n_reg, declared):
+        return {"name": name, "nct": nct,
+                "arms": [{"role": "treatment", "label": li},
+                         {"role": "control", "label": lc}],
+                "registration_arm_count": n_reg,
+                "registration_declared_contrasts": declared}
+
+    BERSON_DECL = [["Placebo Q2W", "Evolocumab Q2W"], ["Placebo QM", "Evolocumab QM"]]
+    HUATUO_DECL = [["Placebo Q2W", "Evolocumab 140 mg Q2W"],
+                   ["Placebo QM", "Evolocumab 420 mg QM"]]
+    RELY_DECL = [["Dabigatran 110 mg", "Warfarin"], ["Dabigatran 150 mg", "Warfarin"]]
+
+    cases = [
+        # THE FOUNDING CASE FIRST. Both are the real cross-pairings found on
+        # EVOLOCUMAB_MIXED: a fortnightly placebo against a monthly drug arm.
+        ("FOUNDING Hua Tuo as extracted: Placebo Q2W vs Evolocumab 420 mg QM",
+         row("HUA TUO", "NCT03433755", "Placebo Q2W", "Evolocumab 420 mg QM", 4, HUATUO_DECL),
+         "FAIL"),
+        ("FOUNDING BERSON as extracted: placebo Q2W vs Evolocumab QM",
+         row("BERSON", "NCT02662569", "Atorvastatin (Q2W)", "Evolocumab QM + Atorvastatin",
+             4, BERSON_DECL), "UNCHECKABLE"),
+        # THE SAME TRIAL, PAIRED THE WAY IT WAS ACTUALLY RUN -- the sign-reversed
+        # twin, without which a FAIL proves nothing.
+        ("Hua Tuo paired as declared: Placebo QM vs Evolocumab 420 mg QM",
+         row("HUA TUO", "NCT03433755", "Evolocumab 420 mg QM", "Placebo QM", 4, HUATUO_DECL),
+         "PASS"),
+        ("Hua Tuo, the other declared pair",
+         row("HUA TUO", "NCT03433755", "Evolocumab 140 mg Q2W", "Placebo Q2W", 4, HUATUO_DECL),
+         "PASS"),
+        ("RE-LY, three arms, paired as declared",
+         row("RE-LY", "NCT00262600", "Dabigatran 150 mg", "Warfarin", 3, RELY_DECL), "PASS"),
+        ("RE-LY cross-paired onto its own two drug arms",
+         row("RE-LY", "NCT00262600", "Dabigatran 150 mg", "Dabigatran 110 mg", 3, RELY_DECL),
+         "FAIL"),
+        ("two-arm registration is NOT APPLICABLE, never a pass",
+         row("ORION-10", "NCT03399370", "Inclisiran", "Saline Solution", 2, None),
+         "NOT_APPLICABLE"),
+        ("multi-arm with no declared analyses is UNCHECKABLE",
+         row("X", "NCT9", "A", "B", 3, None), "UNCHECKABLE"),
+        ("no arm count stored is UNCHECKABLE, not a pass",
+         {"name": "Y", "nct": "NCT8", "arms": [{"role": "treatment", "label": "A"},
+                                               {"role": "control", "label": "B"}]},
+         "UNCHECKABLE"),
+    ]
+    for label, t, want in cases:
+        v, why = assess(t)
+        good = v == want
+        ok &= good
+        print("  %-64s -> %-15s (want %-15s) %s"
+              % (label[:64], v, want, "correct" if good else "WRONG"))
+        if not good:
+            print("        " + why[:160])
+
+    print("\nWHAT A FAILURE WOULD LOOK LIKE: the Hua Tuo founding row passing. It compares "
+          "a FORTNIGHTLY placebo arm against a MONTHLY drug arm on a 2x2 trial that only "
+          "ever compared like with like, and it produced -70.8 -- a number that is neither "
+          "registered comparison and not the difference between any two of the four arm "
+          "means the trial reports.")
+    print("NOTE ON THE BERSON ROW: it returns UNCHECKABLE rather than FAIL, and that is "
+          "correct and worth keeping. Its stored labels ('Atorvastatin (Q2W)') are the "
+          "PROTOCOL arm titles while the registry's RESULTS groups are named 'Placebo Q2W', "
+          "so the two cannot be matched. The gate refuses rather than guessing -- and a "
+          "reader is told the row could not be cleared, which is the honest state.")
+    print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+    return 0 if ok else 1
+
+
+def fetch_into(path):
+    import urllib.request
+    obj = json.load(open(path, encoding="utf-8"))
+    n = 0
+    for t in (obj.get("inputs") or {}).get("trials") or []:
+        nct = (t.get("nct") or "").upper()
+        if not nct.startswith("NCT"):
+            continue
+        url = ("https://clinicaltrials.gov/api/v2/studies/%s?fields="
+               "protocolSection.armsInterventionsModule,resultsSection" % nct)
+        req = urllib.request.Request(url, headers={"User-Agent": "rapidmeta-registry-read"})
+        with urllib.request.urlopen(req, timeout=90) as r:
+            d = json.loads(r.read().decode("utf-8"))
+        ps = d.get("protocolSection") or {}
+        arms = ((ps.get("armsInterventionsModule") or {}).get("armGroups") or [])
+        t["registration_arm_count"] = len(arms)
+        decl, seen = [], set()
+        om = ((d.get("resultsSection") or {}).get("outcomeMeasuresModule") or {})
+        for o in om.get("outcomeMeasures", []):
+            gm = {g.get("id"): g.get("title") for g in (o.get("groups") or [])}
+            for a in (o.get("analyses") or []):
+                gids = a.get("groupIds") or []
+                if len(gids) != 2:
+                    continue
+                pair = tuple(sorted(gm.get(g, "") for g in gids))
+                if all(pair) and pair not in seen:
+                    seen.add(pair)
+                    decl.append(list(pair))
+        if decl:
+            t["registration_declared_contrasts"] = decl
+        t["registration_contrasts_read_utc"] = "2026-08-18"
+        n += 1
+    json.dump(obj, open(path, "w", encoding="utf-8"), ensure_ascii=False, indent=1)
+    print("read declared contrasts for %d trial(s) in %s" % (n, os.path.basename(path)))
+    return 0
+
+
+def main() -> int:
+    if len(sys.argv) < 2 or sys.argv[1] == "--selftest":
+        return selftest()
+    if sys.argv[1] == "--fetch":
+        rc = 0
+        for p in sys.argv[2:]:
+            rc |= fetch_into(p)
+        return rc
+    worst = 0
+    for p in sys.argv[1:]:
+        if not os.path.exists(p):
+            print("declared_contrast: %s does not exist. NOT RUN." % p, file=sys.stderr)
+            worst = max(worst, 2)
+            continue
+        v, notes = check(json.load(open(p, encoding="utf-8")))
+        print(os.path.basename(p))
+        for n in notes:
+            print(n)
+        print("  -> %s" % v)
+        worst = max(worst, {"NOT_APPLICABLE": 0, "PASS": 0, "UNCHECKABLE": 2,
+                            "FAIL": 1}.get(v, 2))
+    return worst
+
+
+if __name__ == "__main__":
+    sys.exit(main())
