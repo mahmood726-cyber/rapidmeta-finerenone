@@ -797,3 +797,50 @@ internally consistent, because they were all the same sentence.
 Related: the corpus-echo failures, where an adversary gate returned our own text as a
 verification. Same mechanism, different carrier: there the loop ran through a tool,
 here through a summary, and the summary is faster.
+
+
+---
+
+## A content-preserving check suite does not see an ENCODING rewrite
+
+Found 2026-08-18, in this lane's own work, one commit after it shipped.
+
+Two ~900 KB pages needed a 1.2 KB disclosure banner each. The patch read them with
+`io.open(p, encoding="utf-8")` and wrote them back. `core.autocrlf` is **false** in
+this repository, so the tree stores **CRLF** — and a text-mode round-trip silently
+rewrote 6,073 and 5,958 line endings to LF. **12,031 insertions and 12,031 deletions
+for a 1.2 KB change.**
+
+**Every check written for that patch passed**, and they were not weak checks:
+
+| check | verdict | why it could not see this |
+|---|---|---|
+| div balance before/after | PASS | divs are unaffected by line endings |
+| `</script>` count | PASS | so are script tags |
+| numerals lost | 0 | so are numerals |
+| byte growth == text added | PASS *(in text mode)* | the read had already normalised |
+| anchor matched exactly once | PASS | true, and irrelevant |
+
+> **The checks all asked about CONTENT. The damage was to ENCODING, and content
+> checks are blind to it by construction.**
+
+It was caught by `git commit`'s own line count — 12,031 for a one-paragraph edit is
+absurd on its face — and by nothing else. Had the files been LF already, or smaller,
+nothing would have flagged it.
+
+**The narrow, transferable rule** (the ledger already carries the broad one, "revert
+rather than untangle when >50% of a diff is damage"):
+
+> **Never text-mode round-trip a file you did not author.** Read bytes, replace
+> bytes, write bytes; then assert that every byte outside the replaced span is
+> identical and that the CRLF count is unchanged. Those two assertions catch what
+> the entire content suite cannot.
+
+Redone that way, the same edit produced **1 insertion and 1 deletion per file**.
+
+**And the deeper point, which is the one this file exists for:** a check suite that
+grows by accretion tends to accumulate checks of ONE KIND — here, five checks that
+were all really the same check. The question to ask of any suite is not "how many
+checks" but **"what class of damage is none of them looking at"**. Five content
+checks provide no redundancy against an encoding fault; they provide one check,
+run five times.

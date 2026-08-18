@@ -1488,3 +1488,29 @@ that is `ssot/*/sources/`, raw captures no page promises. The canonical objects 
 and fails only above the 10 GB artifact ceiling — so the cap that would break this site
 is not enforced by a check that can fail. At 138 MB headroom it is not urgent; it is the
 "a build that cannot refuse" shape and it is in the queue.
+
+
+---
+
+## Queue item 9 — the two findings now reach a reader, and what that took
+
+**Both are on the pages, in static top-of-body banners** —
+`CRYPTOCOCCAL_MENINGITIS_AFRICA_REVIEW.html` and `LENACAPAVIR_PREP_REVIEW.html`, the
+pages the index actually links (three links each). **The `*_SSOT.html` files are
+orphans with zero index links**, so anything placed there reaches nobody; that was
+checked before choosing where to write.
+
+**Nothing was written into script.** Both pages are ~900 KB client-side apps that
+render trial content at runtime from an embedded seed — the trials appear in minified
+JS, not in markup. The banners sit in static HTML using the house
+`#standard-exception-banner` pattern the cryptococcal page already carried.
+
+**So queue item 9 is WORKED AROUND, not closed.** The definitions themselves still
+render on no page; what reaches the reader is a hand-authored disclosure of the two
+findings, and a hand-authored finding is exactly the thing this project has already
+watched die at a rebuild. These two pages have no known generator, so the risk is low
+today — but the durable fix is a projector that renders `outcome_definition_source`,
+and it is unbuilt.
+
+**What DID change structurally: the objects are now published.** Every banner cites
+its canonical object by path, and as of this session those paths resolve.
