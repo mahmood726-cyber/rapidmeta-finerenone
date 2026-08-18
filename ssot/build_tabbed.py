@@ -588,10 +588,24 @@ def _caption_tables(html):
     out, pos, n = [], 0, [0]
 
     def head_before(i):
+        # THIRD INSTANCE OF ONE CLASS, 2026-08-18. Stripping tags from generated
+        # markup does NOT yield plain text. Here the heading still contains an
+        # entity the projector emitted deliberately -- "Further analyses &mdash;
+        # what was run, and what was not" -- and the caller escapes what it is
+        # handed, so the reader sees the literal characters "&mdash;" in the
+        # table caption.
+        #
+        # The other two found today: _anchor_headings feeding the jump list, and
+        # an em-dash fallback passed inside e() in projectors2. THE CLASS: text
+        # extracted from generated markup is not plain text, and treating it as
+        # plain text at an escaping boundary goes wrong in one direction or the
+        # other every time. Unescape at extraction, so the value is plain text
+        # from here outward and is escaped exactly once, at render.
+        import html as _htmlmod
         h = None
         for m in _re.finditer(r"<h[234][^>]*>(.*?)</h[234]>", html[:i], _re.S):
             h = m.group(1)
-        return _re.sub(r"<[^>]+>", "", h).strip() if h else None
+        return _htmlmod.unescape(_re.sub(r"<[^>]+>", "", h)).strip() if h else None
 
     for m in _re.finditer(r"<table(?![^>]*caption)[^>]*>", html):
         seg = html[m.end():m.end() + 200]
