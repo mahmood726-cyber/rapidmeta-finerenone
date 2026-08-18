@@ -810,3 +810,37 @@ against the object's correct 643/781, reporting REVIEW.
 The total row and its two components are not three categories; they are a total and its
 parts. Distinct from the multi-category fix already in the ledger, which summed
 genuinely disjoint categories. **Existence: TRITON. Scope: not measured.**
+
+
+---
+
+## 20 — CLOSED for the batchable half, 2026-08-18
+
+**0 batchable rows remain.** 40 live rows across 15 objects, all topics:
+`fcm-hf-review` 4 · `finerenone-review` 4 · `malaria-vaccines` 4 · `attr-pn-review` 3 ·
+`netarsudil` 3 · `rotavirus-vaccine-africa` 3 · `tigecycline-ciai` 3 ·
+`empagliflozin-hf` 2 · `finerenone-cv` 2 · `hepatitis-b-taf-tdf` 2 · `icosapent-lipid` 2 ·
+`pcsk9-inhibitors-cv` 2 · `pitavastatin` 2 · `rosuvastatin` 2 · `sglt2-mace-cvot` 2.
+
+## 26 — CLOSED. `withdrawal_reason_gate` repaired, three defects, second matched pair added.
+
+## 28. A THIN OBJECT: seven pages whose protocol names a subject their object lacks
+
+Found by `protocol_subject_gate` and separated from contamination rather than reported
+as it. ATTR_PN, HEPATITIS_B_TAF_TDF, ICOSAPENT, NETARSUDIL, PCSK9_INHIBITORS_CV,
+PITAVASTATIN, ROSUVASTATIN. On each, the page's protocol prose names **its own** subject
+correctly and the extracted stub object does not contain the word at all — "netarsudil"
+is foreign to the netarsudil object.
+
+**This is a real defect and a different one.** It says the object is too thin to carry
+its own subject, which bears directly on every gate that reads object vocabulary — and
+on the estimand gate's ability to grade anything on those pages. Not measured beyond the
+seven; whether the thinness extends past the title field is unknown.
+
+## 29. `identity_by_registration_gate` cannot express a TWO-COHORT registration
+
+`malaria-vaccines` FAILs because NCT00866619 carries two names. Legitimate: the RTS,S
+phase 3 randomised 5-17-month and 6-12-week cohorts under one registration and analyses
+them separately. The rule "one id, two names" is right for the covering-label defect it
+was built for and wrong here. **Scope not measured** — it is not known how many objects
+legitimately split a registration by cohort.

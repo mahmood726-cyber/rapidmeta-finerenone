@@ -1514,3 +1514,92 @@ and it is unbuilt.
 
 **What DID change structurally: the objects are now published.** Every banner cites
 its canonical object by path, and as of this session those paths resolve.
+
+
+---
+
+## Item 20 — the BATCHABLE half is CLOSED. 0 rows left; 40 live rows remain as topics
+
+Re-derived, not recalled: **0 batchable rows across 0 objects; 40 live rows across 15
+objects.** The batchable backlog that was "13 across 5" three sessions ago, corrected
+to 33 across 2, is finished.
+
+| object | rows | what the registry said |
+|---|---|---|
+| `prevnar15-pneumo` | 25 | **no trial registers any of the four symptoms** — all are classes inside one composite |
+| `malaria-vaccines` | 8 | **NCT00436007 is not an efficacy trial at all** — see below |
+
+**THIRD INSTANCE OF AN ENDPOINT ABSENT FROM ITS OWN REGISTRATION, and the sharpest.**
+`NCT00436007` declares eighteen outcome measures and **not one mentions malaria,
+P. falciparum or parasitaemia**. Its registered primary is *"Number of Subjects With
+Serious Adverse Events"*; its seventeen secondaries are antibody titres and safety
+counts. It is a **co-administration safety and immunogenicity study**, and this object
+takes a clinical-malaria episode ratio from it. ANSWER-HF and the V114 trials at least
+registered a *different* endpoint; here nothing of the kind was pre-specified at all.
+The estimate is already withheld, correctly.
+
+**Two more the registry settled:** `r21_standard_first_12m` reports the first twelve
+months of a **two-year** registered window, with no 12-month measure registered — a
+sub-window, not an endpoint; and **no R21 phase-3 measure counts recurrent episodes
+separately** while the RTS,S registration declares all-episodes rates explicitly, which
+is exactly why that outcome is exploratory and unpooled.
+
+**Flagged, not fixed:** `identity_by_registration` FAILs on `malaria-vaccines` because
+NCT00866619 carries two names. That is legitimate — the RTS,S phase 3 randomised two
+age cohorts under one registration. The gate cannot currently express a two-cohort
+registration.
+
+---
+
+## `withdrawal_reason_gate` — it did not fire on the case it was designed for
+
+Three independent defects, all failing toward no-conviction, diagnosed before any fix:
+
+1. **The connective was hard-coded to "and".** It read *"bleeding AND efficacy
+   endpoints pooled"* and missed *"a harm endpoint was averaged WITH three efficacy
+   composites"*.
+2. **A bleeding endpoint named after its SCALE carries no safety word.** TWILIGHT's
+   *"BARC Type 2, 3, or 5"* matches nothing in a `bleed` pattern.
+3. **It was reading the wrong field** — the measure title, never
+   `description_verbatim`, which is where the registry says *"clinically relevant
+   bleeding episode … Types 2, 3 or 5 bleeding"*. **The object carried the evidence and
+   the gate was not looking at it.**
+
+**Only registry-sourced fields are read, deliberately.** A source block also carries our
+editorial notes, several of which name efficacy and safety — feeding those in would let
+the gate acquit a withdrawal using the withdrawal's own prose.
+
+**Selftest 10/10, founding pair intact.** A second matched pair was added and *proven*
+to be a constructible failing input: replayed against the old gate, both members return
+NOT_APPLICABLE. Corpus: exactly one verdict moves, and it is the target.
+
+---
+
+## Protocol contamination — swept, and it is **n = 1**
+
+`protocol_subject_gate`, new. It asks a question no existing gate asked: **whose
+QUESTION is this**, where every identifier check asks whose *trials* these are.
+
+`subject_match_gate` returns PASS on the contaminated page and is right to by its own
+design — it blocks on foreign registration ids and the foreign text names no trial. Its
+acronym signal saw `DOAC` four times but is report-only. **The defect was visible to
+nothing that blocks.**
+
+**Two instrument repairs before the result was believable.** The first run passed the
+case it was built for (a 220-char value cap; and in the PICO *table* the labels sit
+adjacent, so a label-then-value regex read each label as the next one's value). The
+second run reported 8 FAILs — **and seven were a different defect**: `netarsudil`
+flagged as foreign to the netarsudil object. Those are **thin objects**, not
+contamination, and the discriminator is the page's own `<title>`.
+
+| verdict | n | |
+|---|---|---|
+| **FAIL** | **1** | `ACS_ANTIPLATELET_REVIEW.html` — the only contaminated page |
+| REVIEW | 7 | thin objects: ATTR_PN, HEPATITIS_B_TAF_TDF, ICOSAPENT, NETARSUDIL, PCSK9_INHIBITORS_CV, PITAVASTATIN, ROSUVASTATIN |
+| PASS | 59 | |
+| NOT_APPLICABLE | 12 | no protocol pack — not a pass |
+
+**Also learned, and it bears on every text rule here:** the all-or-nothing version of
+the rule passed ACS because "stroke" is in that object's endpoint definitions and
+"apixaban" is there *because the withdrawal reason I wrote cites APIXABAN_ACS by name*.
+**An object acquires vocabulary from our own commentary.**
