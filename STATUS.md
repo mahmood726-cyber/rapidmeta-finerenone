@@ -6,7 +6,7 @@ section of `index.html` carries 54 page links, one of which
 consolidated at `ce1e9dc0e`. 54 − 1 = 53. Re-derive with
 `python scripts/cardio_program_status.py` rather than quoting this line.
 
-**DONE: 12 of 53.**
+**DONE: 13 of 53.**
 
 A topic is DONE when it has an SSOT object, is built through the tabbed
 projector to the written standard (`scripts/standard_manifest.py`, v1), its
@@ -29,6 +29,7 @@ endpoint does not, whatever the page looks like.
 | 10 | INCLISIRAN_LIPID_KIDNEY | v1, **pooled** | estimand identical in all three registries; every value matches; **pool STANDS** |
 | 11 | EVOLOCUMAB_MIXED_DYSL | **withdrawn** | both trials 2×2; this pooled a fortnightly placebo against a monthly drug arm, and the values are in no source |
 | 12 | COLCHICINE_CVD | **withdrawn** | COLCOT counts cardiac arrest and the others do not; CONVINCE is not a composite trial; 5 vs 3 vs 2 trial counts on one page |
+| 13 | BEMPEDOIC_ACID | v1, **stands** | k=1 and correct: only CLEAR Outcomes registers a CV primary. NCT02973841 is 'Sono-ease', a 40-patient device trial |
 
 `FINERENONE_CV` is also at v1 and is NOT counted here: it does not sit in the
 cardiology section of the index. Counting it would be the denominator drift this
@@ -36,14 +37,14 @@ file exists to prevent.
 
 ---
 
-## The remaining 41, by what is actually on them today
+## The remaining 40, by what is actually on them today
 
 Measured from the index cards, not assumed:
 
 | state | n | what it means |
 |---|---|---|
 | **Audit-first build** | 26 | no estimate ever published; the topic has never been taken through |
-| **live estimate, no v1 object** | 5 | a number is published that nothing in the current standard has checked |
+| **live estimate, no v1 object** | 4 | a number is published that nothing in the current standard has checked |
 | **withdrawn** | 7 | an estimate was retracted; the reason on the page has NOT been re-verified |
 | **not poolable** | 1 | MITRAL_FUNCMR — COAPT vs MITRA-FR, stated per-trial |
 | **no card at all** | 1 | INCRETIN_HFpEF is linked from the table and has no card |
@@ -760,6 +761,37 @@ the previous lane's own second escaping defect ("an em-dash fallback escaped whe
 it should not have been"), reproduced by someone who had read both. Fixed at
 source with a literal em-dash character, which escapes to itself.
 
+### 2026-08-18 — the card projector, then topic 13
+
+**Cards are PROJECTED from the object now.** Queue item 3 retired for every page
+with an object: numbers from the object through the page's own `sig()`, prose
+authored and carried as `card_note`. 13 of 14 cards rewritten, 0.0% drift on all
+six with a live value. Two of my own defects caught by `--check` before anything
+was written: it **guessed** IV_IRON's headline outcome (would have swapped
+`RATE_RATIO 0.8066` for `HR 0.978`, a different outcome, on the reader's first
+surface) and it **double-escaped** the migrated notes. Multi-outcome objects must
+now declare `results.headline_outcome` or the projector refuses.
+
+**Topic 13 of 53 — BEMPEDOIC_ACID, estimate STANDS, live-verified.**
+
+- HR 0.87 (0.79–0.96) **is CLEAR Outcomes' own registered Cox analysis**, digit
+  for digit; counts 819/6,992 against 927/6,978 are the registry's own.
+- **k=1 is correct, not a shortfall.** Only CLEAR Outcomes registers a
+  cardiovascular-event primary; CLEAR Harmony's are safety endpoints and CLEAR
+  Serenity's is LDL-C percent change at week 12. Excluding them is right; saying
+  so was missing, and now is on the page.
+- **Second wrong registration of the session:** `NCT02973841` is **Sono-ease**, a
+  40-patient internal-jugular-cannulation device trial, sitting in a bempedoic
+  acid include list. It carries no data so it moves no number.
+- **The published-meta comparison compares the estimate against itself** — the
+  only benchmark entry for this outcome is CLEAR Outcomes. **Honest denominator:
+  zero independent syntheses.**
+- **The push was blocked by the harness gate and the block was right.**
+  `CHK020_ORPHAN_POOLED_RESULT` fired on `poolable:false` plus a displayed value.
+  Fixed in the exporter: `poolable:false` was carrying two meanings, and a k=1
+  single-study result is not an orphan pool. Verified the real orphan (k=2, no
+  `single_study_ref`) still fails.
+
 ---
 
 ## Where the next lane picks up
@@ -768,15 +800,15 @@ source with a literal em-dash character, which escapes to itself.
 page below is verified live, cache-busted, against the bytes on disk.
 
 Live-verified this session: **ARNI, SGLT2_HF, IV_IRON, SOTAGLIFLOZIN, PCSK9,
-SGLT2_CKD, DOAC_AF, DOAC_CANCER_VTE, INCLISIRAN, EVOLOCUMAB_MIXED, COLCHICINE_CVD.** Each was confirmed byte-identical by
+SGLT2_CKD, DOAC_AF, DOAC_CANCER_VTE, INCLISIRAN, EVOLOCUMAB_MIXED, COLCHICINE_CVD, BEMPEDOIC_ACID.** Each was confirmed byte-identical by
 SHA-256 against the served bytes, cache-busted. ALIROCUMAB, FINERENONE_CV and ABLATION_AF were unchanged and needed
 no rebuild.
 
 **Start here, in this order:**
 
-1. **The 5 remaining topics with a live estimate and no object.** These are the
+1. **The 4 remaining topics with a live estimate and no object.** These are the
    dangerous ones and every one examined so far has been withdrawable:
-   BEMPEDOIC_ACID (k=1 — a "pool" over one trial), CANGRELOR_PCI,
+   CANGRELOR_PCI,
    HFREF_NMA, INTENSIVE_BP, RIVAROXABAN_VASC. Objects already exist
    under `ssot/` for several of them.
 2. **Rebuild the four earlier topics** so their endpoint definitions are on the
