@@ -82,11 +82,50 @@ def assess(trial):
         return "UNCHECKABLE", "arm labels identify nothing: %r vs %r" % (li, lc)
     if li.lower() == lc.lower():
         return "FAIL", "both arms carry the SAME label: %r" % li
-    # A placebo/control word on exactly one side settles it: that is a real
-    # comparison whatever else the labels share.
-    CTRL = re.compile(r"placebo|sham|vehicle|usual care|warfarin", re.I)
-    if bool(CTRL.search(li)) != bool(CTRL.search(lc)):
-        return "PASS", "%r vs %r (control arm identified)" % (li, lc)
+    # A placebo/control word on exactly one side settles that this IS a real
+    # comparison. IT DOES NOT SETTLE WHICH SIDE IS WHICH, and this branch used to
+    # stop there.
+    #
+    # DEFECT ONE, FOUND 2026-08-18: THIS REGEX COULD NEVER MATCH ANYTHING.
+    # The file carried literal BACKSPACE bytes (0x08) where the word-boundary
+    # escapes belong, so the pattern required a control character no arm label
+    # has ever contained. It had been so since the gate was written at bc82518d7,
+    # which means the "control arm identified" branch HAD NEVER ONCE EXECUTED.
+    # The gate still returned PASS on those objects, through the token comparison
+    # below, so nothing ever looked wrong: a dead branch inside a live gate is
+    # invisible precisely because the gate keeps answering.
+    # scripts/ssot_signals.py carried the same corruption on three lines.
+    # Cause: the file was written by a program through a non-raw string, so the
+    # escape became 0x08 on the way to disk -- and no reader of the source can
+    # see it, because a backspace renders as nothing.
+    #
+    # DEFECT TWO, in the logic the repair exposed: PCSK9_REVIEW records, for BOTH
+    # of its trials, an arm labelled "Placebo" carrying role TREATMENT and an arm
+    # labelled "Evolocumab" (and "Alirocumab 75 mg Q2W") carrying role CONTROL.
+    # Even with the regex working, the old test was "the control word is on
+    # exactly one side" -- which is TRUE when the word is on the WRONG side. The
+    # evidence that could have settled the DIRECTION was used only to confirm
+    # that a DIFFERENCE existed, and the branch then reported "(control arm
+    # identified)" about a page whose intervention arm is the placebo.
+    #
+    # It matters because the arithmetic can be right while every label is wrong,
+    # which is how EAST-AFNET 4's swapped arms survived on ABLATION_AF: "the
+    # derived odds ratio was unaffected in MAGNITUDE, which is exactly why
+    # nothing caught it -- the numbers were internally consistent and the labels
+    # were not."
+    CTRL = re.compile(r"\bplacebo\b|\bsham\b|\bvehicle\b|\busual care\b|"
+                      r"\bstandard care\b|\bwarfarin\b", re.I)
+    ci, cc = bool(CTRL.search(li)), bool(CTRL.search(lc))
+    if ci and not cc:
+        return ("FAIL",
+                "THE ROLES ARE INVERTED: the arm carrying role INTERVENTION is "
+                "labelled %r and the arm carrying role CONTROL is labelled %r. "
+                "A placebo is not an intervention. The pooled estimate may still "
+                "be right in MAGNITUDE -- that is what lets this survive -- but "
+                "every label a reader sees is on the wrong arm" % (li, lc))
+    if cc and not ci:
+        return ("PASS", "%r vs %r (control arm named, and on the control side)"
+                % (li, lc))
     ti, tc = core_tokens(li), core_tokens(lc)
     if ti and tc and ti == tc:
         kind = "the same drug at two doses" if (DOSE.search(li) or DOSE.search(lc)) \

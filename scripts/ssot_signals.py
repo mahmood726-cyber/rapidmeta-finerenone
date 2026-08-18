@@ -91,7 +91,7 @@ def sig_constant_verdict(html, text):
     # "NOT SUBMISSION-READY was the old label" -- which is legitimate text about a
     # fixed defect, not the defect returning. A guard that cannot tell a defect
     # from a description of it will be switched off by whoever writes the history.
-    if re.search(r"""class=["'][^"']*(?:badge|banner)[^"']*["'][^>]*>(?:\s|<[^>]+>)*"""
+    if re.search(r"""class=["'][^"']*\b(?:badge|banner)\b[^"']*["'][^>]*>(?:\s|<[^>]+>)*"""
                  r"NOT SUBMISSION-READY", html):
         return "hardcoded NOT SUBMISSION-READY banner is back"
     return None
@@ -107,7 +107,7 @@ def sig_empty_panel(html, text):
     bad = []
     # Attribute order. `<section id=... class="panel">` is the same element and
     # slipped past a pattern that assumed class came first.
-    for m in re.finditer(r'<section(?=[^>]*class="[^"]*panel)'
+    for m in re.finditer(r'<section\b(?=[^>]*class="[^"]*panel)'
                          r'(?=[^>]*id="(pn-[a-z]+)")[^>]*>(.*?)</section>',
                          html, re.S):
         pid, body = m.group(1), m.group(2)
@@ -129,7 +129,7 @@ def sig_no_projection_footer(html, text):
     # A NEGATED sentence contains the phrase, so "this page is NOT projected
     # from a single canonical object" satisfied the check that exists to
     # confirm the opposite.
-    if re.search(r"(?:not|never|isn.t)\s+projected from a single canonical "
+    if re.search(r"\b(?:not|never|isn.t)\s+projected from a single canonical "
                  r"object", text, re.I):
         return "page DENIES the projection claim this footer should make"
     return (None if "projected from a single canonical object" in text
