@@ -1801,6 +1801,14 @@
       "why": "Three between-study-variance estimators, each with Wald and HKSJ intervals. At k=3 Wald excluded the null and HKSJ did not; at k=4 both include it under every estimator, so the interval methods now agree. The point estimate moves from 0.872 to 0.904 across estimators, and I-squared from 32.9% to 55.7%.",
       "verdict": "The estimator changes the point estimate from 0.872 to 0.904 and I-squared from 32.9% to 55.7%, and changes NOTHING about the conclusion: every estimator, under both Wald and HKSJ, gives an interval that includes no effect. At k=3 Wald and HKSJ disagreed about the null; at k=4 they agree.",
       "estimator_kept": "REML with a Wald interval remains the registered headline. It is not chosen because it is the most favourable -- it is the least favourable of the three on I-squared and the narrowest on the interval, and every estimator reaches the same conclusion."
+     },
+     "unregistered_endpoint_leave_one_out_2026_08_18": {
+      "removed": "ANSWER-HF (NCT04853758), whose endpoint is registered at no rank",
+      "k": 3,
+      "point": 0.8333,
+      "ci_low": 0.7473,
+      "ci_high": 0.9292,
+      "note": "Reported under Handbook 6.5 section 10.14. The primary analysis remains k=4; see results.by_outcome.cvdeath_or_hfh_first.eligibility_of_an_unregistered_endpoint for the decision and its authority."
      }
     },
     "cross_engine": {
@@ -2862,6 +2870,31 @@
        "All three use the trial's own full analysis set. In PARACHUTE-HF that equals the randomised total; in PARADIGM-HF and PARALLEL-HF it is smaller, and each cell shows the arithmetic from the randomised total rather than leaving the difference unexplained."
       ]
      }
+    },
+    "eligibility_of_an_unregistered_endpoint": {
+     "question": "ANSWER-HF (NCT04853758) registers this endpoint at NO rank. Should a trial whose contributed endpoint is absent from its own registration be ELIGIBLE to contribute to the pool at all?",
+     "decided": "2026-08-18",
+     "decision": "IT STAYS IN THE PRIMARY ANALYSIS. The absence is graded as RISK OF BIAS, not as ineligibility, and k=3 is reported as a sensitivity analysis.",
+     "authority": "Cochrane Handbook for Systematic Reviews of Interventions, Version 6.5 (2024), section 8.7 -- RoB 2 domain 5, 'bias in selection of the reported result'. That domain covers bias arising when 'the reported result is selected (based on its direction, magnitude or statistical significance) from among multiple intervention effect estimates that were calculated by the trial authors', and its stated method is to 'attempt to retrieve the pre-specified analysis intentions for each trial ... allows for the identification of any outcome measures or analyses that have been omitted from, or added to, the results report, post hoc'. AN ENDPOINT ADDED POST HOC IS WHAT SECTION 8.7 EXISTS TO GRADE. Eligibility is Chapter 3's business -- participants, interventions, comparators, outcomes and study design -- and registration status is not among its criteria. Nothing in the Handbook makes an unregistered analysis ineligible.",
+     "sensitivity_authority": "Section 10.14: 'Sensitivity analyses should be used to examine whether overall findings are robust to potentially influential decisions.'",
+     "handbook_version_verified": "Version 6.5, 2024, read live on 2026-08-18 at https://www.cochrane.org/authors/handbooks-and-manuals/handbook/current . NOTE: this object's `sensitivity.authority` field says '6.5.1'; the current Handbook page states '6.5'. Recorded as verified rather than reconciled, because a remembered point-release number is exactly the kind of citation this check exists to stop.",
+     "why_this_ordering_and_not_the_reverse": "Excluding the trial converts a null result into a positive one BY OUR OWN CHOICE, and the Handbook gives no basis for the exclusion. Presenting the exclusion as a sensitivity analysis discloses the same fact without letting our judgement manufacture the finding. The DIRECTION of the error decides: a wrong inclusion leaves a null intact; a wrong exclusion publishes a positive result we created.",
+     "rob2_consequence": "RoB 2 domain 5 is graded HIGH RISK for ANSWER-HF on this result, with the registry enumeration as the evidence: twenty outcome measures declared, two primary and eighteen secondary, none a first-event union of cardiovascular death and heart-failure hospitalisation.",
+     "sensitivity_result": {
+      "k": 3,
+      "trials": [
+       "PARADIGM-HF",
+       "PARACHUTE-HF",
+       "PARALLEL-HF"
+      ],
+      "measure": "HR",
+      "point": 0.8333,
+      "ci_low": 0.7473,
+      "ci_high": 0.9292,
+      "ci_level": 95,
+      "interpretation": "Excluding ANSWER-HF gives 0.8333 (0.7473-0.9292), which does not cross one, against the primary 0.8715 (0.7461-1.0181), which does. THIS IS REPORTED AS A SENSITIVITY ANALYSIS AND IS NOT THE PAGE'S ESTIMATE. It is stated in full precisely because the direction is uncomfortable: a reader is entitled to know that the null depends on the trial with the weakest pre-specification."
+     },
+     "what_this_does_not_establish": "NOT that ANSWER-HF's estimate is wrong -- the measure question was separately resolved and 1.83 (0.72-4.67) is a hazard ratio. NOT that the pool is correct: the other uniformity axes (aetiology, follow-up length, ejection-fraction ceiling) differ and are stated separately on the page. This field decides ELIGIBILITY only."
     }
    }
   }
