@@ -63,6 +63,41 @@ lane does not rediscover it.
 
 ---
 
+## SCOPE — read this before judging the night's output
+
+**53 cardiology topics will not all be finished at this standard in one session,
+and pretending otherwise would be the failure this repository exists to prevent.**
+
+Measured, not estimated. Each topic done properly costs, in this session:
+registry retrieval for every trial, endpoint definitions read word for word, the
+pool defended or withdrawn with its reason, a rebuild, a content comparison
+against the artefact being replaced, gates, three surfaces corrected, a push and a
+live cache-busted verification. **A single page rebuild alone runs 1–6 minutes**
+(ARNI is 6.2 MB). Tonight that produced **2 topics carried to a verdict** —
+ARNI resolved, PCSK9 withdrawn — plus SGLT2_CKD (not in the 53), ABLATION_AF
+closed out, and **eight instrument defects found and fixed**.
+
+The instrument work was not a detour. Five of the eight were in gates that were
+returning green, and **every one of them failed toward comfort**. Any topic taken
+through before they were fixed would have been graded by an estimand gate that
+reports three different composites as agreeing, an arm gate whose control-word
+branch had never executed, and a card gate that stopped reading a page whenever
+the card said "withdrawn". Rushing the remaining topics through those instruments
+would have produced 46 pages with green checks and no evidence — the exact
+artefact the standard's own preamble warns about.
+
+**The rate to plan against is roughly 2–4 fully-verified topics per session at
+this depth**, faster once the converted objects stop yielding new instrument
+defects. The 26 audit-first topics should be cheaper: they publish nothing, so
+there is no live claim to defend, only a build.
+
+**What is NOT done and is not started:** the ~35 untouched cardiology topics, the
+withdrawn ones needing a rebuild-or-restate decision, the rest of the tooling
+queue, and the whole infectious-disease programme. None of it is blocked; it is
+simply not reached.
+
+---
+
 ## PARKED — needs Mahmood's judgement, not more work
 
 These are decisions, not tasks. Each is blocked on a choice only he can make;
@@ -83,26 +118,42 @@ none of them blocks the rest of the programme.
    before its answer is known and this comparison already knows what the
    components give. **Someone who has not seen those numbers should choose.**
 
-3. **ARNI: what measure is `1.83 (0.72–4.67)`?** See the ARNI section below.
+3. **PCSK9 and three other objects: are the arm LABELS wrong, or the ROLES?**
+   Seven trials across four objects record the intervention arm labelled
+   "Placebo" and the drug arm as the control — FOURIER and ODYSSEY OUTCOMES (in
+   both `pcsk9-review` and `pcsk9-inhibitors-cv-review`), MARINE and ANCHOR in
+   `icosapent-lipid`, HUA TUO in `evolocumab-mixed-dyslipidemia`. All four are
+   converter output, so it is the converter's arm ordering. The pooled estimate
+   can be right in magnitude while every label is on the wrong arm — that is how
+   EAST-AFNET 4's swap survived. **Deciding it needs each trial's own arm sizes
+   and event counts from source**, which the protocol-only registry endpoint does
+   not return. Left as a recorded contradiction rather than guessed.
+
+4. **SGLT2_CKD's replacement question.** ESKD as dialysis-or-transplant, and
+   cardiovascular death, are defined identically across CREDENCE, DAPA-CKD and
+   EMPA-KIDNEY and reported separately by all three. Same rule as ABLATION_AF:
+   the question must be chosen before its answer is known.
 
 ---
 
-## ARNI — the open measure question
+## ARNI — the measure question, CLOSED 2026-08-18
 
-The contributing ratio `1.83 (0.72–4.67)` is not established as a hazard ratio,
-and it decides the direction of the result. Crude RR from the published counts is
-1.50, crude OR 1.57, and the trial's own win ratio is 1.80 (1.27–2.63). None
-reproduces 1.83 (0.72–4.67).
+`1.83 (0.72–4.67)` **is a hazard ratio.** JACC Table 2's column header reads
+verbatim `Effect HR (95% CI)`, and the Statistical Analysis section states the
+composite was analysed with *"Cox proportional hazard models, with treatment
+group and research site as fixed-effect factors. HRs, 95% CIs, and 2-sided P
+values are reported."* A third witness needs neither sentence: Table 2's
+all-cause death row is 8/95 against 8/95 — crude RR and OR both exactly 1.000 —
+and the published value is 1.08. No crude measure produces 1.08 from 8 versus 8.
 
-**If it cannot be established, the trial comes out and the k=3 headline is
-disclosed in the abstract, not slipped in** — because removing it converts a null
-result to a positive one, and a change of that size is owed to the reader
-prominently or not at all.
+**ANSWER-HF stays in. k=4 and HR 0.8715 (0.7461–1.0181) stand.** Removing it
+would have given 0.8333 (0.7473–0.9292) — a null converted to a positive result,
+and wrong.
 
-Identity precondition, non-negotiable: the source document must be confirmed as
-ANSWER-HF **by NCT04853758** before any number is read from it. A document
-labelled ANSWER-HF was once read that was PARACHUTE-HF. That is the worst error in
-the ledger and the reason `identity_by_registration_gate` exists.
+Identity was established first, by registration id: `NCT04853758` is the only
+registration in the document and appears twice in registration context.
+PARACHUTE-HF appears eight times, every one a citation of a different trial with
+its own win ratio 1.52 (1.28–1.82). Nothing was read before that check.
 
 ---
 
