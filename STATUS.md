@@ -246,7 +246,38 @@ none of them blocks the rest of the programme.
    take the remaining pairwise topics first. **Not decided here.** It is roughly
    two to three topics of work at this depth and it is the only NMA among the 53.
 
-7. **SGLT2_CKD's replacement question.** ESKD as dialysis-or-transplant, and
+7. **An AUDIT-FIRST topic cannot currently clear the harness gate, and the gate
+   is right.** MAVACAMTEN_OHCM was built to standard — identity established,
+   endpoint definition read from the registry — and **the push was refused**, twice,
+   for the correct reason: an artefact with no displayed estimate yields almost
+   nothing an artefact-decidable check can see, so the checks that do run can only
+   pass *vacuously*. `CHK020` was vacuous because there is no displayed pool;
+   `CHK024` because there is no network. One check executed, it was INVALID, and
+   100% INVALID is above the gate's 50% ceiling.
+
+   **Nothing here is broken.** The gate exists to refuse exactly this — a green
+   produced by a check that could not have failed — and it did. The object was
+   corrected once on the way (`poolable: None`, not `False`: an unmade verdict is
+   not a negative one), which was a real fault of mine and is fixed.
+
+   **The open question is what "built to standard" MEANS for a topic that
+   publishes no estimate.** Twenty-six of the 53 cardiology topics are audit-first.
+   If they cannot clear the harness, either they cannot be marked done, or the
+   harness needs an audit-first path that checks what such a page DOES assert —
+   identity, endpoint definitions, and the absence itself — rather than a pooled
+   value it correctly does not have.
+
+   **Options:** (a) give the harness an audit-first artefact shape; (b) require
+   audit-first objects to carry per-trial rows so ordinary checks apply; (c) accept
+   that audit-first topics are "built but not certifiable" and say so on the page.
+   **Not decided here, and it gates 26 of the remaining 37 topics.**
+
+   **What shipped anyway, because it needs no page rebuild:** the card said
+   `2 trials` and the page contains **one**. EXPLORER-HCM (NCT03470545) is the only
+   trial on it; `VALOR` appears **zero times** in the file. The card is corrected
+   and names the trial and its registration.
+
+8. **SGLT2_CKD's replacement question.** ESKD as dialysis-or-transplant, and
    cardiovascular death, are defined identically across CREDENCE, DAPA-CKD and
    EMPA-KIDNEY and reported separately by all three. Same rule as ABLATION_AF:
    the question must be chosen before its answer is known.
