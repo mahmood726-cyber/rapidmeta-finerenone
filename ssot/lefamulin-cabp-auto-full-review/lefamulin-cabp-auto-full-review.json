@@ -1,0 +1,128 @@
+{
+ "app_id": "lefamulin-cabp-auto-full-review",
+ "schema_version": 2,
+ "title": "Lefamulin versus moxifloxacin in community-acquired bacterial pneumonia",
+ "built": "2026-08-18",
+ "build_mode": "full",
+ "topic_state": "POOLED -- risk ratio, k=2, registry-sourced throughout",
+ "verification_basis": "Both registrations read from ClinicalTrials.gov on 2026-08-18: conditions, arm groups with types, registered primary outcome measures, and the POSTED RESULTS counts and denominators used in the pool.",
+ "inputs": {
+  "trials": [
+   {
+    "trial_id": "NCT02559310",
+    "nct": "NCT02559310",
+    "label": "LEAP 1",
+    "registry": "ClinicalTrials.gov",
+    "source_url": "https://clinicaltrials.gov/study/NCT02559310",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "trial_id": "NCT02813694",
+    "nct": "NCT02813694",
+    "label": "LEAP 2",
+    "registry": "ClinicalTrials.gov",
+    "source_url": "https://clinicaltrials.gov/study/NCT02813694",
+    "read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "provenance": "REGISTRY THROUGHOUT. Every count and denominator in this pool is read from ClinicalTrials.gov posted results. No publication figure is used and no value is imported.",
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "measure": "RR",
+    "comparator": "moxifloxacin (with or without linezolid in LEAP 1)",
+    "outcome": "early clinical response",
+    "k": 2,
+    "model": "random-effects",
+    "estimator": "REML",
+    "pooled": {
+     "point": 0.9884,
+     "ci_low": 0.953,
+     "ci_high": 1.025,
+     "ci_level": 95
+    },
+    "pooled_hartung_knapp": {
+     "point": 0.9884,
+     "ci_low": 0.7807,
+     "ci_high": 1.2513,
+     "df": 1,
+     "t_critical": 12.7062047,
+     "variance_inflation_applied": 1.0,
+     "why_it_is_shown": "Handbook 6.5 section 10.10.4.5 recommends the Hartung-Knapp adjustment where k is small. At k=2 it uses t on ONE degree of freedom, whose critical value is 12.71 against the normal 1.96, so the interval is very much wider. IT IS SHOWN ALONGSIDE RATHER THAN INSTEAD, because presenting only the narrow interval would overstate what two trials establish and presenting only the wide one would understate two large concordant trials. A floor of 1 is applied to the variance-inflation factor so the adjustment can never NARROW the interval below the unadjusted one."
+    },
+    "heterogeneity": {
+     "tau2": 0.0,
+     "q": 0.7313,
+     "df": 1,
+     "i2_percent": 0.0,
+     "how_to_read_this_at_k2": "I-squared and tau-squared at k=2 are WEAK evidence about consistency in either direction. Two points cannot demonstrate agreement, and a low value here means only that the two estimates are CONSISTENT WITH a common effect -- not that one is established."
+    },
+    "per_trial": [
+     {
+      "trial_id": "NCT02559310",
+      "nct": "NCT02559310",
+      "label": "LEAP 1",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT02559310",
+      "read_utc": "2026-08-18",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results, read 2026-08-18",
+      "as_posted": {
+       "experimental_events": 241,
+       "experimental_n": 276,
+       "comparator_events": 248,
+       "comparator_n": 275
+      },
+      "measure": "RR",
+      "point": 0.9683,
+      "ci_low": 0.9123,
+      "ci_high": 1.0276,
+      "log_rr": -0.032262,
+      "se_log_rr": 0.030366,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. The COUNTS are read from the registry's posted results; only the arithmetic is ours and the formula is shown so both can be checked."
+     },
+     {
+      "trial_id": "NCT02813694",
+      "nct": "NCT02813694",
+      "label": "LEAP 2",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT02813694",
+      "read_utc": "2026-08-18",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results, read 2026-08-18",
+      "as_posted": {
+       "experimental_events": 336,
+       "experimental_n": 370,
+       "comparator_events": 334,
+       "comparator_n": 368
+      },
+      "measure": "RR",
+      "point": 1.0006,
+      "ci_low": 0.9556,
+      "ci_high": 1.0476,
+      "log_rr": 0.00055,
+      "se_log_rr": 0.023454,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. The COUNTS are read from the registry's posted results; only the arithmetic is ours and the formula is shown so both can be checked."
+     }
+    ],
+    "denominator_handling": "LEAP 1 posts responder / non-responder / INDETERMINATE, summing exactly to the denominator (241+29+6=276; 248+21+6=275). LEAP 2 posts responder / non-responder only, leaving 5 and 3 participants unaccounted against its posted denominators (336+29=365 of 370; 334+31=365 of 368). THE POSTED DENOMINATOR IS USED IN BOTH, so non-response and indeterminacy are treated alike as not-responding. For a comparison against an ACTIVE control that is the conservative direction: it cannot flatter the experimental arm.",
+    "why_this_topic_pools_when_most_do_not": "Of 62 infectious-disease topics, this is one of the few that survives all four limbs without reconciliation: the SAME experimental drug in the experimental arm of both trials, the SAME active comparator, the SAME registered primary outcome measured the same way, and the SAME infection. The eleven topics closed on 2026-08-18 failed because one of those four differed. This is what a poolable topic looks like.",
+    "published_synthesis_comparison": {
+     "status": "NOT DONE -- recorded as owed rather than claimed",
+     "what_is_owed": "A published meta-analysis or regulatory review pooling these two trials on this outcome has NOT been searched for or read. Until it is, this object states an estimate that has not been checked against anyone else's. That is a gap in this page, and it is named here rather than left for a reader to discover.",
+     "why_it_matters_here": "Both trial pairs are registration trials for a new antibiotic, so a regulatory review almost certainly pools them and would be the strongest available comparator."
+    },
+    "what_this_does_not_establish": "NOT that either trial is free of bias -- NO RISK-OF-BIAS ASSESSMENT IS RECORDED, and a pooled estimate without one is an arithmetic result, not a graded finding. NOT non-inferiority or superiority: both trials were designed as non-inferiority studies against an active comparator, and a risk ratio near 1 with an interval spanning 1 is the EXPECTED result of a successful non-inferiority trial rather than evidence of no difference. NOT that the pooled interval is reliable at k=2 -- see the Hartung-Knapp interval, which is the honest width. NOT agreement with any published synthesis; none has been checked.",
+    "handbook_authority": {
+     "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+     "version": "Version 6.5, 2024",
+     "verified_on": "2026-08-18",
+     "sections": "6.4.1 (risk ratio); 10.10.4.4 (REML default); 10.10.4.4-5 (k<=3)",
+     "estimator_note": "REML is the Handbook 6.5 default tau-squared estimator. At k=2 the Handbook notes that random-effects estimates of between-study variance are very imprecise, and 10.10.4.5 recommends the Hartung-Knapp adjustment where k is small."
+    }
+   }
+  }
+ },
+ "DUPLICATION_NOTICE": "THIS TOPIC OCCUPIES MORE THAN ONE PAGE. lefamulin-cabp-auto-full-review and lefamulin-cap-auto-full-review seed IDENTICAL trial sets (NCT02559310, NCT02813694) and carry the same analysis. They are not two syntheses; they are one synthesis published twice. Which page should survive is a decision about the topic list, not about this analysis, and it has been referred rather than taken here."
+}

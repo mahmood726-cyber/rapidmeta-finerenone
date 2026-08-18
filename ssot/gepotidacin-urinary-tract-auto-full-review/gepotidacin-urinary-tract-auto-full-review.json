@@ -1,0 +1,130 @@
+{
+ "app_id": "gepotidacin-urinary-tract-auto-full-review",
+ "schema_version": 2,
+ "title": "Gepotidacin versus nitrofurantoin in uncomplicated urinary tract infection",
+ "built": "2026-08-18",
+ "build_mode": "full",
+ "topic_state": "POOLED WITH SUBSTANTIAL HETEROGENEITY -- k=2, I2=70.5%, no conclusion drawn",
+ "verification_basis": "Both registrations read from ClinicalTrials.gov on 2026-08-18: conditions, arm groups with types, registered primary outcome measures, and the POSTED RESULTS counts and denominators used in the pool.",
+ "inputs": {
+  "trials": [
+   {
+    "trial_id": "NCT04020341",
+    "nct": "NCT04020341",
+    "label": "EAGLE-2",
+    "registry": "ClinicalTrials.gov",
+    "source_url": "https://clinicaltrials.gov/study/NCT04020341",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "trial_id": "NCT04187144",
+    "nct": "NCT04187144",
+    "label": "EAGLE-3",
+    "registry": "ClinicalTrials.gov",
+    "source_url": "https://clinicaltrials.gov/study/NCT04187144",
+    "read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "provenance": "REGISTRY THROUGHOUT. Every count and denominator in this pool is read from ClinicalTrials.gov posted results. No publication figure is used and no value is imported.",
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "measure": "RR",
+    "comparator": "nitrofurantoin",
+    "outcome": "therapeutic response (combined clinical and microbiological), test-of-cure visit",
+    "k": 2,
+    "model": "random-effects",
+    "estimator": "REML",
+    "pooled": {
+     "point": 1.2007,
+     "ci_low": 0.9668,
+     "ci_high": 1.4912,
+     "ci_level": 95
+    },
+    "pooled_hartung_knapp": {
+     "point": 1.2007,
+     "ci_low": 0.2947,
+     "ci_high": 4.8919,
+     "df": 1,
+     "t_critical": 12.7062047,
+     "variance_inflation_applied": 1.0,
+     "why_it_is_shown": "Handbook 6.5 section 10.10.4.5 recommends the Hartung-Knapp adjustment where k is small. At k=2 it uses t on ONE degree of freedom, whose critical value is 12.71 against the normal 1.96, so the interval is very much wider. IT IS SHOWN ALONGSIDE RATHER THAN INSTEAD, because presenting only the narrow interval would overstate what two trials establish and presenting only the wide one would understate two large concordant trials. A floor of 1 is applied to the variance-inflation factor so the adjustment can never NARROW the interval below the unadjusted one."
+    },
+    "heterogeneity": {
+     "tau2": 0.017225,
+     "q": 3.3855,
+     "df": 1,
+     "i2_percent": 70.5,
+     "how_to_read_this_at_k2": "I-squared and tau-squared at k=2 are WEAK evidence about consistency in either direction. Two points cannot demonstrate agreement, and a low value here means only that the two estimates are CONSISTENT WITH a common effect -- not that one is established."
+    },
+    "per_trial": [
+     {
+      "trial_id": "NCT04020341",
+      "nct": "NCT04020341",
+      "label": "EAGLE-2",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT04020341",
+      "read_utc": "2026-08-18",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results, read 2026-08-18",
+      "as_posted": {
+       "experimental_events": 162,
+       "experimental_n": 320,
+       "comparator_events": 135,
+       "comparator_n": 287
+      },
+      "measure": "RR",
+      "point": 1.0762,
+      "ci_low": 0.9138,
+      "ci_high": 1.2676,
+      "log_rr": 0.073483,
+      "se_log_rr": 0.083492,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. The COUNTS are read from the registry's posted results; only the arithmetic is ours and the formula is shown so both can be checked."
+     },
+     {
+      "trial_id": "NCT04187144",
+      "nct": "NCT04187144",
+      "label": "EAGLE-3",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT04187144",
+      "read_utc": "2026-08-18",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results, read 2026-08-18",
+      "as_posted": {
+       "experimental_events": 162,
+       "experimental_n": 277,
+       "comparator_events": 115,
+       "comparator_n": 264
+      },
+      "measure": "RR",
+      "point": 1.3426,
+      "ci_low": 1.1334,
+      "ci_high": 1.5904,
+      "log_rr": 0.294596,
+      "se_log_rr": 0.086432,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. The COUNTS are read from the registry's posted results; only the arithmetic is ours and the formula is shown so both can be checked."
+     }
+    ],
+    "denominator_handling": "Both trials post responder and failure counts that sum exactly to the posted denominator (162+158=320, 135+152=287, 162+115=277, 115+149=264). Nothing is unaccounted.",
+    "why_this_topic_pools_when_most_do_not": "Of 62 infectious-disease topics, this is one of the few that survives all four limbs without reconciliation: the SAME experimental drug in the experimental arm of both trials, the SAME active comparator, the SAME registered primary outcome measured the same way, and the SAME infection. The eleven topics closed on 2026-08-18 failed because one of those four differed. This is what a poolable topic looks like.",
+    "published_synthesis_comparison": {
+     "status": "NOT DONE -- recorded as owed rather than claimed",
+     "what_is_owed": "A published meta-analysis or regulatory review pooling these two trials on this outcome has NOT been searched for or read. Until it is, this object states an estimate that has not been checked against anyone else's. That is a gap in this page, and it is named here rather than left for a reader to discover.",
+     "why_it_matters_here": "Both trial pairs are registration trials for a new antibiotic, so a regulatory review almost certainly pools them and would be the strongest available comparator."
+    },
+    "what_this_does_not_establish": "NOT that either trial is free of bias -- NO RISK-OF-BIAS ASSESSMENT IS RECORDED, and a pooled estimate without one is an arithmetic result, not a graded finding. NOT non-inferiority or superiority: both trials were designed as non-inferiority studies against an active comparator, and a risk ratio near 1 with an interval spanning 1 is the EXPECTED result of a successful non-inferiority trial rather than evidence of no difference. NOT that the pooled interval is reliable at k=2 -- see the Hartung-Knapp interval, which is the honest width. NOT agreement with any published synthesis; none has been checked.",
+    "handbook_authority": {
+     "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+     "version": "Version 6.5, 2024",
+     "verified_on": "2026-08-18",
+     "sections": "6.4.1 (risk ratio); 10.10.4.4 (REML default); 10.10.4.4-5 (k<=3)",
+     "estimator_note": "REML is the Handbook 6.5 default tau-squared estimator. At k=2 the Handbook notes that random-effects estimates of between-study variance are very imprecise, and 10.10.4.5 recommends the Hartung-Knapp adjustment where k is small."
+    },
+    "HETEROGENEITY_WARNING_READ_BEFORE_THE_POINT_ESTIMATE": "THE TWO TRIALS DISAGREE AND THE POOLED POINT SHOULD NOT BE READ AS THE ANSWER. I-squared is 70.5% and tau-squared 0.0172 on TWO trials. EAGLE-2 gives RR 1.08 with an interval spanning 1 (0.91-1.27); EAGLE-3 gives RR 1.34 with an interval EXCLUDING 1 (1.13-1.59). One trial finds gepotidacin no better than nitrofurantoin and the other finds it better. The random-effects interval (0.97-1.49) spans 1, and the Hartung-Knapp interval at one degree of freedom (0.29-4.89) is uninformative. THIS TOPIC HAS A POOLED NUMBER AND NOT A CONCLUSION.",
+    "why_this_warning_is_here_and_not_a_footnote": "A published olmesartan review in our own error taxonomy reports I-squared = 100%, pools final values, and interprets the estimate anyway. That pattern -- disclosure treated as discharging the obligation the disclosure creates -- is CLASS 2 in TAXONOMY-PUBLISHED-SYNTHESIS-ERRORS.md, and the taxonomy was written the same day this pool was built. It caught this build. The consequence is placed in the same block as the number rather than in a note below it, because that is the difference between reporting heterogeneity and acting on it.",
+    "what_would_resolve_it": "NOT more pooling. The two trials differ in their comparator response: nitrofurantoin succeeded in 135/287 (47.0%) in EAGLE-2 and 115/264 (43.6%) in EAGLE-3, while gepotidacin succeeded in 50.6% and 58.5%. THE EXPERIMENTAL ARM MOVED MORE THAN THE CONTROL ARM DID between trials, which is where the heterogeneity comes from. Reading the two protocols for a difference in population or in how therapeutic response was adjudicated is the next step, and it has NOT been done."
+   }
+  }
+ }
+}
