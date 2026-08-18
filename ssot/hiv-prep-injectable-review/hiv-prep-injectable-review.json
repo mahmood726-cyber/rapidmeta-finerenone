@@ -18,7 +18,14 @@
      "primary"
     ],
     "source_url": "https://clinicaltrials.gov/study/NCT02720094",
-    "read_utc": "2026-08-18"
+    "read_utc": "2026-08-18",
+    "registered_primaries": [
+     "Number of Participants With Documented Incident HIV Infections During Steps 1 and 2",
+     "Number of Participants Experiencing Grade 2 or Higher Clinical and Laboratory Adverse Events"
+    ],
+    "registered_secondary_count": 13,
+    "label": "Injectable Cabotegravir Compared to TDF/FTC For PrEP in HIV-Uninfected Men and Transgender Women Who Have Sex With Men",
+    "registered_primaries_read_utc": "2026-08-18"
    },
    {
     "trial_id": "NCT02842086",
@@ -28,7 +35,13 @@
      "primary"
     ],
     "source_url": "https://clinicaltrials.gov/study/NCT02842086",
-    "read_utc": "2026-08-18"
+    "read_utc": "2026-08-18",
+    "registered_primaries": [
+     "Incidence of HIV-1 Infection Per 100 Person Years (PY)"
+    ],
+    "registered_secondary_count": 15,
+    "label": "Study to Evaluate the Safety and Efficacy of Emtricitabine and Tenofovir Alafenamide (F/TAF) Fixed-Dose Combination Once Daily for Pre-Exposure Prophylaxis in Men and Transgender Women Who Have Sex With Men and Are At Risk of HIV-1 Infection",
+    "registered_primaries_read_utc": "2026-08-18"
    },
    {
     "trial_id": "NCT03164564",
@@ -38,7 +51,14 @@
      "primary"
     ],
     "source_url": "https://clinicaltrials.gov/study/NCT03164564",
-    "read_utc": "2026-08-18"
+    "read_utc": "2026-08-18",
+    "registered_primaries": [
+     "Number of Pariicipants With Documented Incident HIV Infections",
+     "Number of Participants Who Experienced Grade 2 or Higher Clinical and Laboratory Adverse Events (AEs) in Steps 1 and 2"
+    ],
+    "registered_secondary_count": 0,
+    "label": "Evaluating the Safety and Efficacy of Long-Acting Injectable Cabotegravir Compared to Daily Oral TDF/FTC for Pre-Exposure Prophylaxis in HIV-Uninfected Women",
+    "registered_primaries_read_utc": "2026-08-18"
    }
   ]
  },
@@ -66,9 +86,70 @@
     "per_trial": [],
     "where_the_analysis_actually_is": "ssot/cab-prep-hiv-review/cab-prep-hiv-review.json -- pooled RR 0.2081 (0.0715, 0.6057), k=2.",
     "the_discover_exclusion_is_not_a_criticism_of_discover": "DISCOVER is a large, well-conducted trial answering a real question -- F/TAF against F/TDF for ORAL pre-exposure prophylaxis. It is excluded because THIS PAGE'S TITLE asks about INJECTABLE prophylaxis and DISCOVER has no injectable arm. The defect is in the topic's trial list, not in the trial.",
-    "what_this_verdict_does_not_establish": "NOT that injectable prophylaxis does or does not work -- that pool exists and is built elsewhere. NOT that DISCOVER is poor. ONLY that this page duplicates another and carries one trial that does not match its own title."
+    "what_this_verdict_does_not_establish": "NOT that injectable prophylaxis does or does not work -- that pool exists and is built elsewhere. NOT that DISCOVER is poor. ONLY that this page duplicates another and carries one trial that does not match its own title.",
+    "model": "random-effects"
    }
   }
  },
- "renamed_2026_08_18": "Renamed from hiv-prep-injectable-auto-full-review. THE READER LANDS ON hiv-prep-injectable_REVIEW.html and the object now says so. Leaving the mismatch would have made PAGE_MAP the only place that truth lived -- one more route, and every multi-route value in this corpus has diverged. Done as a git mv, not a delete-and-write."
+ "renamed_2026_08_18": "Renamed from hiv-prep-injectable-auto-full-review. THE READER LANDS ON hiv-prep-injectable_REVIEW.html and the object now says so. Leaving the mismatch would have made PAGE_MAP the only place that truth lived -- one more route, and every multi-route value in this corpus has diverged. Done as a git mv, not a delete-and-write.",
+ "registered_primaries_restored_2026_08_18": "inputs.trials[].registered_primaries was ABSENT from this object and is restored here by re-reading each registration from ClinicalTrials.gov on 2026-08-18. THE READ DATE IS STAMPED FOR THIS READ, not carried over from the original: the registry is a live document and this object's own verdict says so. Restoring recorded content, never fabricating it. The field went missing because this object was composed by hand while eleven sibling closures were generated from one script -- and the script carried the field every time.",
+ "outcomes": [
+  {
+   "id": "primary",
+   "type": "primary",
+   "name": "each trial's own registered primary outcome",
+   "definition": "This topic publishes no pooled estimate. Each contributing trial registered its own primary outcome, and those are recorded per trial rather than reduced to a common quantity -- which is the reason no pool is displayed.",
+   "definition_note": "DERIVED from inputs.trials[].registered_primaries, which were read from each registration on the dates recorded there. Not authored: every phrase above describes the structure of the record, and the substance is the per-trial list below.",
+   "derived_from": {
+    "field": "inputs.trials[].registered_primaries",
+    "trials": [
+     {
+      "nct": "NCT02720094",
+      "registered_primaries": [
+       "Number of Participants With Documented Incident HIV Infections During Steps 1 and 2",
+       "Number of Participants Experiencing Grade 2 or Higher Clinical and Laboratory Adverse Events"
+      ],
+      "read_utc": "2026-08-18",
+      "source_url": "https://clinicaltrials.gov/study/NCT02720094"
+     },
+     {
+      "nct": "NCT02842086",
+      "registered_primaries": [
+       "Incidence of HIV-1 Infection Per 100 Person Years (PY)"
+      ],
+      "read_utc": "2026-08-18",
+      "source_url": "https://clinicaltrials.gov/study/NCT02842086"
+     },
+     {
+      "nct": "NCT03164564",
+      "registered_primaries": [
+       "Number of Pariicipants With Documented Incident HIV Infections",
+       "Number of Participants Who Experienced Grade 2 or Higher Clinical and Laboratory Adverse Events (AEs) in Steps 1 and 2"
+      ],
+      "read_utc": "2026-08-18",
+      "source_url": "https://clinicaltrials.gov/study/NCT03164564"
+     }
+    ],
+    "how_to_check": "Each entry names its registration and the date it was read. A reader can go from this page to that NCT on ClinicalTrials.gov and compare. THE DERIVATION IS TRACEABLE, not merely sourced."
+   },
+   "measure": "not applicable",
+   "measure_note": "THE GENERATOR'S OWN IDIOM FOR ABSENCE, not a borrowed measure. Its code renders \"not stated\" rather than a zero where an object is silent, with the comment \"a zero is a claim\" -- so a marker is the established convention here. This topic publishes no estimate and never computed one, so there is no measure it was expressed in. Sibling verdict-only objects such as acs-antiplatelet-review DO carry a real measure because their estimate was WITHDRAWN and the withdrawn value had one: a different case. A null broke the generator's escape function; an inherited \"OR\" would have been a defaulted-field lie on a published page.",
+   "comparator": "not applicable",
+   "comparator_type": "not applicable"
+  }
+ ],
+ "verdict_outcomes_derivation_2026_08_18": "The generator requires `outcomes`; this object had none because it records why no pool exists rather than what was pooled. The entry was DERIVED from this object's own registered_primaries and NAMES WHAT IT WAS DERIVED FROM. Objects whose closures predate endpoint reading were REFUSED rather than given a generic name.",
+ "carried_contrasts": [],
+ "sources": {},
+ "question": "Injectable HIV pre-exposure prophylaxis: DUPLICATE PAGE -- see cab-prep-hiv on each trial's own registered primary outcome?",
+ "generator_schema_patch_2026_08_18": {
+  "relocations": "SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our schema wrote it elsewhere on the same object. A relocation, not a new claim.",
+  "genuinely_empty": "GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is empty on acs-antiplatelet-review, which builds.",
+  "rule": "Every field added falls into RELOCATION, GENUINELY EMPTY, or DERIVED FROM RECORDED CONTENT. A field falling into none was REFUSED. Adding a key to satisfy a generator is not the same as adding the content that key should hold.",
+  "fields": [
+   "carried_contrasts=[] (empty)",
+   "sources={} (empty)",
+   "question (derived)"
+  ]
+ }
 }

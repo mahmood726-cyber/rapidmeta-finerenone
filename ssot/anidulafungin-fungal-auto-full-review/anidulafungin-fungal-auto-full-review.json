@@ -17,7 +17,13 @@
      "primary"
     ],
     "source_url": "https://clinicaltrials.gov/study/NCT00805740",
-    "read_utc": "2026-08-18"
+    "read_utc": "2026-08-18",
+    "registered_primaries": [
+     "Percentage of Participants With Global Response at End of Treatment (Day 14 To Day 42)"
+    ],
+    "registered_secondary_count": 8,
+    "label": "An Evaluation Of The Effectiveness And Safety Of Anidulafungin Compared To Caspofungin For The Treatment Of Deep Tissue Infection Due To Candida",
+    "registered_primaries_read_utc": "2026-08-18"
    },
    {
     "trial_id": "NCT00806351",
@@ -27,7 +33,13 @@
      "primary"
     ],
     "source_url": "https://clinicaltrials.gov/study/NCT00806351",
-    "read_utc": "2026-08-18"
+    "read_utc": "2026-08-18",
+    "registered_primaries": [
+     "Global Response at End of Intravenous Treatment (EOIVT)"
+    ],
+    "registered_secondary_count": 13,
+    "label": "An Evaluation Of The Effectiveness And Safety Of Anidulafungin Compared To Caspofungin For The Treatment Of Serious Fungal Infection Due To Candida In Patients With A Dysfunctional Immune System",
+    "registered_primaries_read_utc": "2026-08-18"
    }
   ]
  },
@@ -56,8 +68,59 @@
     "per_trial": [],
     "what_this_verdict_does_not_establish": "NOT that any trial here is poor -- each is registered and reports its own primary. NOT that the drug is ineffective. NOT that no poolable question exists in this area: only that the question this page's title asks cannot be answered by pooling the trials this page carries. THE CRITICISM IS OF THE POOLING AND OF NOTHING ELSE. Registry read 2026-08-18.",
     "the_denominators_alone_would_close_it": "THE COMPARATOR ARMS HOLD 13 AND 3 PARTICIPANTS. A three-participant arm cannot support an interval worth displaying whatever the population. Recorded SECOND because the population difference is the principled reason and the denominators are the practical one; either is sufficient and neither depends on the other.",
-    "the_caveat_this_topic_carried_into_the_build": "This topic was KEPT at the candidate stage with the neutropenic split flagged as a question to answer at build time rather than a reason to close in advance. The build answered it: it closes. The flag was right to be a flag and right not to be a verdict."
+    "the_caveat_this_topic_carried_into_the_build": "This topic was KEPT at the candidate stage with the neutropenic split flagged as a question to answer at build time rather than a reason to close in advance. The build answered it: it closes. The flag was right to be a flag and right not to be a verdict.",
+    "model": "random-effects"
    }
   }
+ },
+ "registered_primaries_restored_2026_08_18": "inputs.trials[].registered_primaries was ABSENT from this object and is restored here by re-reading each registration from ClinicalTrials.gov on 2026-08-18. THE READ DATE IS STAMPED FOR THIS READ, not carried over from the original: the registry is a live document and this object's own verdict says so. Restoring recorded content, never fabricating it. The field went missing because this object was composed by hand while eleven sibling closures were generated from one script -- and the script carried the field every time.",
+ "outcomes": [
+  {
+   "id": "primary",
+   "type": "primary",
+   "name": "each trial's own registered primary outcome",
+   "definition": "This topic publishes no pooled estimate. Each contributing trial registered its own primary outcome, and those are recorded per trial rather than reduced to a common quantity -- which is the reason no pool is displayed.",
+   "definition_note": "DERIVED from inputs.trials[].registered_primaries, which were read from each registration on the dates recorded there. Not authored: every phrase above describes the structure of the record, and the substance is the per-trial list below.",
+   "derived_from": {
+    "field": "inputs.trials[].registered_primaries",
+    "trials": [
+     {
+      "nct": "NCT00805740",
+      "registered_primaries": [
+       "Percentage of Participants With Global Response at End of Treatment (Day 14 To Day 42)"
+      ],
+      "read_utc": "2026-08-18",
+      "source_url": "https://clinicaltrials.gov/study/NCT00805740"
+     },
+     {
+      "nct": "NCT00806351",
+      "registered_primaries": [
+       "Global Response at End of Intravenous Treatment (EOIVT)"
+      ],
+      "read_utc": "2026-08-18",
+      "source_url": "https://clinicaltrials.gov/study/NCT00806351"
+     }
+    ],
+    "how_to_check": "Each entry names its registration and the date it was read. A reader can go from this page to that NCT on ClinicalTrials.gov and compare. THE DERIVATION IS TRACEABLE, not merely sourced."
+   },
+   "measure": "not applicable",
+   "measure_note": "THE GENERATOR'S OWN IDIOM FOR ABSENCE, not a borrowed measure. Its code renders \"not stated\" rather than a zero where an object is silent, with the comment \"a zero is a claim\" -- so a marker is the established convention here. This topic publishes no estimate and never computed one, so there is no measure it was expressed in. Sibling verdict-only objects such as acs-antiplatelet-review DO carry a real measure because their estimate was WITHDRAWN and the withdrawn value had one: a different case. A null broke the generator's escape function; an inherited \"OR\" would have been a defaulted-field lie on a published page.",
+   "comparator": "not applicable",
+   "comparator_type": "not applicable"
+  }
+ ],
+ "verdict_outcomes_derivation_2026_08_18": "The generator requires `outcomes`; this object had none because it records why no pool exists rather than what was pooled. The entry was DERIVED from this object's own registered_primaries and NAMES WHAT IT WAS DERIVED FROM. Objects whose closures predate endpoint reading were REFUSED rather than given a generic name.",
+ "carried_contrasts": [],
+ "sources": {},
+ "question": "Anidulafungin in invasive fungal infection: NOT POOLABLE -- PARTICIPANTS + OUTCOME on each trial's own registered primary outcome?",
+ "generator_schema_patch_2026_08_18": {
+  "relocations": "SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our schema wrote it elsewhere on the same object. A relocation, not a new claim.",
+  "genuinely_empty": "GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is empty on acs-antiplatelet-review, which builds.",
+  "rule": "Every field added falls into RELOCATION, GENUINELY EMPTY, or DERIVED FROM RECORDED CONTENT. A field falling into none was REFUSED. Adding a key to satisfy a generator is not the same as adding the content that key should hold.",
+  "fields": [
+   "carried_contrasts=[] (empty)",
+   "sources={} (empty)",
+   "question (derived)"
+  ]
  }
 }

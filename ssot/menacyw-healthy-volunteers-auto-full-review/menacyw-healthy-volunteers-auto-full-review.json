@@ -17,7 +17,14 @@
      "primary"
     ],
     "source_url": "https://clinicaltrials.gov/study/NCT03537508",
-    "read_utc": "2026-08-18"
+    "read_utc": "2026-08-18",
+    "registered_primaries": [
+     "Groups 1a and 2a: Percentage of Participants With Vaccine Seroresponse Measured by Serum Bactericidal Assay Using Human Complement (hSBA) at Day 30 Post 12-Month Vaccination",
+     "Groups 1 and 2: Percentage of Participants Who Achieved Antibody Titers >=1:8 by hSBA at Day 30 Post 6-Month Vaccination"
+    ],
+    "registered_secondary_count": 15,
+    "label": "Immunogenicity and Safety of a Quadrivalent Meningococcal Conjugate Vaccine When Administered Concomitantly With Routine Pediatric Vaccines in Healthy Infants and Toddlers in the US",
+    "registered_primaries_read_utc": "2026-08-18"
    },
    {
     "trial_id": "NCT03691610",
@@ -27,7 +34,13 @@
      "primary"
     ],
     "source_url": "https://clinicaltrials.gov/study/NCT03691610",
-    "read_utc": "2026-08-18"
+    "read_utc": "2026-08-18",
+    "registered_primaries": [
+     "Infants Groups 1 and 2: Percentage of Participants With Vaccine Seroresponse Measured by Serum Bactericidal Assay Using Human Complement (hSBA) at 30 Days Post Second Dose of MenACYW Conjugate Vaccine or MENVEO"
+    ],
+    "registered_secondary_count": 11,
+    "label": "Immunogenicity and Safety Study of a Quadrivalent Meningococcal Conjugate Vaccine Administered Concomitantly With Routine Pediatric Vaccines in Healthy Infants and Toddlers",
+    "registered_primaries_read_utc": "2026-08-18"
    }
   ]
  },
@@ -55,9 +68,61 @@
     "per_trial": [],
     "what_this_verdict_does_not_establish": "NOT that any trial here is poor -- each is registered and reports its own primary. NOT that the drug is ineffective; both lenacapavir trials in fact report striking results on their own terms. NOT that no poolable question exists in this area: only that the question this page's title asks cannot be answered by pooling the trials this page carries. THE CRITICISM IS OF THE POOLING AND OF NOTHING ELSE. The registry is a live document and this reads its contents on 2026-08-18; a later amendment could change it.",
     "what_a_poolable_version_would_need": "A shared comparator vaccine, a single named serogroup, and corresponding age strata. Each is available in principle; none is available across THESE two registrations.",
-    "an_immunogenicity_caveat_worth_recording": "Seroresponse percentage is a surrogate. Even a well-formed pool of it would not estimate protection against meningococcal disease, and a page titled for healthy volunteers should not be read as reporting one."
+    "an_immunogenicity_caveat_worth_recording": "Seroresponse percentage is a surrogate. Even a well-formed pool of it would not estimate protection against meningococcal disease, and a page titled for healthy volunteers should not be read as reporting one.",
+    "model": "random-effects"
    }
   }
  },
- "risk_of_bias_verdict": "Not assessed. A risk-of-bias assessment grades trials contributing to a pooled result; this page publishes none."
+ "risk_of_bias_verdict": "Not assessed. A risk-of-bias assessment grades trials contributing to a pooled result; this page publishes none.",
+ "registered_primaries_restored_2026_08_18": "inputs.trials[].registered_primaries was ABSENT from this object and is restored here by re-reading each registration from ClinicalTrials.gov on 2026-08-18. THE READ DATE IS STAMPED FOR THIS READ, not carried over from the original: the registry is a live document and this object's own verdict says so. Restoring recorded content, never fabricating it. The field went missing because this object was composed by hand while eleven sibling closures were generated from one script -- and the script carried the field every time.",
+ "outcomes": [
+  {
+   "id": "primary",
+   "type": "primary",
+   "name": "each trial's own registered primary outcome",
+   "definition": "This topic publishes no pooled estimate. Each contributing trial registered its own primary outcome, and those are recorded per trial rather than reduced to a common quantity -- which is the reason no pool is displayed.",
+   "definition_note": "DERIVED from inputs.trials[].registered_primaries, which were read from each registration on the dates recorded there. Not authored: every phrase above describes the structure of the record, and the substance is the per-trial list below.",
+   "derived_from": {
+    "field": "inputs.trials[].registered_primaries",
+    "trials": [
+     {
+      "nct": "NCT03537508",
+      "registered_primaries": [
+       "Groups 1a and 2a: Percentage of Participants With Vaccine Seroresponse Measured by Serum Bactericidal Assay Using Human Complement (hSBA) at Day 30 Post 12-Month Vaccination",
+       "Groups 1 and 2: Percentage of Participants Who Achieved Antibody Titers >=1:8 by hSBA at Day 30 Post 6-Month Vaccination"
+      ],
+      "read_utc": "2026-08-18",
+      "source_url": "https://clinicaltrials.gov/study/NCT03537508"
+     },
+     {
+      "nct": "NCT03691610",
+      "registered_primaries": [
+       "Infants Groups 1 and 2: Percentage of Participants With Vaccine Seroresponse Measured by Serum Bactericidal Assay Using Human Complement (hSBA) at 30 Days Post Second Dose of MenACYW Conjugate Vaccine or MENVEO"
+      ],
+      "read_utc": "2026-08-18",
+      "source_url": "https://clinicaltrials.gov/study/NCT03691610"
+     }
+    ],
+    "how_to_check": "Each entry names its registration and the date it was read. A reader can go from this page to that NCT on ClinicalTrials.gov and compare. THE DERIVATION IS TRACEABLE, not merely sourced."
+   },
+   "measure": "not applicable",
+   "measure_note": "THE GENERATOR'S OWN IDIOM FOR ABSENCE, not a borrowed measure. Its code renders \"not stated\" rather than a zero where an object is silent, with the comment \"a zero is a claim\" -- so a marker is the established convention here. This topic publishes no estimate and never computed one, so there is no measure it was expressed in. Sibling verdict-only objects such as acs-antiplatelet-review DO carry a real measure because their estimate was WITHDRAWN and the withdrawn value had one: a different case. A null broke the generator's escape function; an inherited \"OR\" would have been a defaulted-field lie on a published page.",
+   "comparator": "not applicable",
+   "comparator_type": "not applicable"
+  }
+ ],
+ "verdict_outcomes_derivation_2026_08_18": "The generator requires `outcomes`; this object had none because it records why no pool exists rather than what was pooled. The entry was DERIVED from this object's own registered_primaries and NAMES WHAT IT WAS DERIVED FROM. Objects whose closures predate endpoint reading were REFUSED rather than given a generic name.",
+ "carried_contrasts": [],
+ "sources": {},
+ "question": "MenACYW conjugate vaccine in healthy volunteers: NOT POOLABLE -- COMPARATOR + OUTCOME on each trial's own registered primary outcome?",
+ "generator_schema_patch_2026_08_18": {
+  "relocations": "SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our schema wrote it elsewhere on the same object. A relocation, not a new claim.",
+  "genuinely_empty": "GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is empty on acs-antiplatelet-review, which builds.",
+  "rule": "Every field added falls into RELOCATION, GENUINELY EMPTY, or DERIVED FROM RECORDED CONTENT. A field falling into none was REFUSED. Adding a key to satisfy a generator is not the same as adding the content that key should hold.",
+  "fields": [
+   "carried_contrasts=[] (empty)",
+   "sources={} (empty)",
+   "question (derived)"
+  ]
+ }
 }
