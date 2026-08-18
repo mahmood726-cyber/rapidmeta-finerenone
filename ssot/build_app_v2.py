@@ -339,7 +339,7 @@ def _endpoint_definitions(canon, oid, p, e):
             continue
         link = src.get("source_url") or ""
         linkhtml = ('<a href="%s" rel="noopener">%s</a>' % (e(link), e(reg or link))
-                    if link else e(reg) or "&mdash;")
+                    if link else e(reg) or "—")
         rows += (
             "    <tr><td><strong>%s</strong><br><small>%s</small></td>"
             "<td>%s</td><td>%s</td><td>%s</td></tr>\n"
@@ -347,7 +347,7 @@ def _endpoint_definitions(canon, oid, p, e):
                p(src.get("description_verbatim") or
                  "no description is recorded in this registry field"),
                p(src.get("analysis_set_as_the_registry_states_it")
-                 or src.get("time_frame") or "&mdash;")))
+                 or src.get("time_frame") or "—")))
         # A CONFLICT ABOUT A TRIAL BELONGS BESIDE THAT TRIAL. On DOAC_CANCER_VTE
         # the fact that NCT02583191 names a different study from the one whose
         # data sits on the row reached the page ONLY inside the withdrawal prose,
@@ -389,13 +389,13 @@ def _not_contributing(canon, p, e):
         link = st.get("source_url")
         reg = st.get("id") or ""
         linkhtml = ('<a href="%s" rel="noopener">%s</a>' % (e(link), e(reg))
-                    if link else e(reg) or "&mdash;")
+                    if link else e(reg) or "—")
         rows += ("    <tr><td><strong>%s</strong><br><small>%s</small></td>"
                  "<td>%s</td><td>%s</td></tr>\n"
                  % (e(st.get("name") or reg or "?"), linkhtml,
                     p(st.get("why_not_contributing") or "not stated"),
                     p(st.get("what_the_registry_holds_that_the_page_does_not")
-                      or st.get("registered_primary_measure") or "&mdash;")))
+                      or st.get("registered_primary_measure") or "—")))
     return ("""<div class="card">
   <h3>Named on this review, contributing nothing to its pool</h3>
   <p><small>%s</small></p>
