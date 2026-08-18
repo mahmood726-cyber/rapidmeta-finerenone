@@ -710,3 +710,48 @@ which is the vacuous direction, while the message reads as a data defect.
 
 **Two separate fixes:** say *"this trial does not carry outcome X"* when that is
 what happened, and make the fallback explicit rather than alphabetical.
+
+
+---
+
+## 24. THE SSOT OBJECTS ARE NOT PUBLISHED, AND THE PAGES THAT CITE THEM ARE
+
+Measured 2026-08-18 while verifying a push from the far side. Cache-busted, on
+the live site:
+
+| path | result |
+|---|---|
+| `ARNI_HF_REVIEW.html` | **HTTP 200**, 6,174,333 bytes |
+| `STATUS.md` | **HTTP 200** |
+| `ssot/arni-hfref/arni-hfref.json` | **HTTP 404** |
+| `ssot/PAGE_MAP.json` | **HTTP 404** |
+
+**This is not a failed push and not new.** The flagship's object has been in the
+repository for weeks and 404s exactly as the ones pushed today do.
+
+**What is established:** `.nojekyll` is present, `ssot/` is tracked (365 files),
+there is no `_config.yml` and no exclusion. Root `.html` and root `.md` serve;
+`ssot/` does not.
+
+**What is NOT established, and must not be written down as though it were:** the
+cause. A plausible one is already documented in `.github/workflows/pages.yml` —
+the legacy branch builder has a ~10 minute timeout that this 1.1 GB, 1,478-page
+repository has been observed to exceed, and a timed-out build can deploy a
+partial tree. That is a hypothesis. It has not been tested and no build log has
+been read.
+
+**Why it matters.** Every page in this corpus says its numbers are *"projected
+from a single canonical object"*. That object is the provenance the whole
+apparatus rests on, and a reader who follows the claim cannot reach it. The
+review is auditable to us and not to them.
+
+**It also silently bounds our own verification.** "Verify live, cache-busted" is
+the last step of the protocol, and for any object-only change there is nothing
+live to verify — which is why this went unnoticed until a lane shipped a change
+that touched **no page at all**. The protocol step passed vacuously every time
+before, because every previous change also moved a page.
+
+**Options:** (a) find out why `ssot/` is missing and fix the deploy — the honest
+first move, and it is a log-read not a design change; (b) publish a curated
+object surface deliberately; (c) decide the objects are internal and stop having
+pages promise a canonical object the reader cannot open. **Not decided here.**
