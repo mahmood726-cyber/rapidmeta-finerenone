@@ -6,7 +6,7 @@ section of `index.html` carries 54 page links, one of which
 consolidated at `ce1e9dc0e`. 54 − 1 = 53. Re-derive with
 `python scripts/cardio_program_status.py` rather than quoting this line.
 
-**DONE: 11 of 53.**
+**DONE: 12 of 53.**
 
 A topic is DONE when it has an SSOT object, is built through the tabbed
 projector to the written standard (`scripts/standard_manifest.py`, v1), its
@@ -28,6 +28,7 @@ endpoint does not, whatever the page looks like.
 | 9 | DOAC_CANCER_VTE | **withdrawn** | a bleeding endpoint averaged with two efficacy endpoints; one registration names a different trial |
 | 10 | INCLISIRAN_LIPID_KIDNEY | v1, **pooled** | estimand identical in all three registries; every value matches; **pool STANDS** |
 | 11 | EVOLOCUMAB_MIXED_DYSL | **withdrawn** | both trials 2×2; this pooled a fortnightly placebo against a monthly drug arm, and the values are in no source |
+| 12 | COLCHICINE_CVD | **withdrawn** | COLCOT counts cardiac arrest and the others do not; CONVINCE is not a composite trial; 5 vs 3 vs 2 trial counts on one page |
 
 `FINERENONE_CV` is also at v1 and is NOT counted here: it does not sit in the
 cardiology section of the index. Counting it would be the denominator drift this
@@ -35,14 +36,14 @@ file exists to prevent.
 
 ---
 
-## The remaining 42, by what is actually on them today
+## The remaining 41, by what is actually on them today
 
 Measured from the index cards, not assumed:
 
 | state | n | what it means |
 |---|---|---|
 | **Audit-first build** | 26 | no estimate ever published; the topic has never been taken through |
-| **live estimate, no v1 object** | 6 | a number is published that nothing in the current standard has checked |
+| **live estimate, no v1 object** | 5 | a number is published that nothing in the current standard has checked |
 | **withdrawn** | 7 | an estimate was retracted; the reason on the page has NOT been re-verified |
 | **not poolable** | 1 | MITRAL_FUNCMR — COAPT vs MITRA-FR, stated per-trial |
 | **no card at all** | 1 | INCRETIN_HFpEF is linked from the table and has no card |
@@ -703,6 +704,62 @@ pure label swap leaves it intact. The remaining four trials in that parked item
 should be expected to need the registry *results* section read, not merely
 re-labelled.
 
+### 2026-08-18 (continued) — the multi-arm screen, then COLCHICINE_CVD
+
+**The screen first, because it answers a scope question and the answer is not
+"one page".** `declared_contrast_gate` was built before topic 12, per the ratchet,
+and run across all 34 objects and 109 trial rows:
+
+| | |
+|---|---|
+| rows on a **multi-arm registration** — where a fabricated contrast is possible | **26 (24%)** |
+| **FAIL** — confirmed fabricated contrast | **1** (Hua Tuo) |
+| PASS — the contrast is one the registration declares | 6 |
+| **UNCHECKABLE — cannot be cleared** | **19** |
+
+**One confirmed and nineteen unmeasured, over a quarter of the corpus.** Nine of
+the nineteen are uncheckable for one reason: the registration declares more than
+two arms and **no between-arm analyses at all**, so there is no declared list to
+compare against. Recorded as queue item 14 with the signal each group needs, and
+an explicit instruction **not to close it by relaxing the matcher.**
+
+It also **narrowed a parked item**: MARINE and ANCHOR (two of the four trials
+still parked under item 3) both come back PASS, so whatever is wrong with their
+arms is a **label** question with the magnitude intact — not a cross-pairing.
+RE-LY and ENGAGE also PASS, confirming by machine what topic 8 established by hand.
+
+---
+
+**Topic 12 of 53 — COLCHICINE_CVD, withdrawn, live-verified.** First topic
+**AUTHORED from source** rather than converted: it had no object, so the index
+number was published by a page nothing had ever checked.
+
+- **The registered primaries differ by whole components.** COLCOT counts
+  **resuscitated cardiac arrest** and **urgent hospitalisation for angina
+  requiring revascularisation**; CLEAR SYNERGY's colchicine primary counts neither
+  and uses a different revascularisation trigger; LoDoCo2 counts **spontaneous**
+  MI. **And CONVINCE is not a composite trial at all** — it registers three
+  separate primaries and the first is recurrent non-fatal ischaemic stroke alone.
+- **Three trial counts on one page**: the include list names 5, the data holds 3,
+  the card published k=2.
+- **The headline is unreconstructable** — 33 candidate pools, none gives
+  0.75 (0.61–0.91). Third topic in this lane with that shape.
+- **The pool drops CLEAR SYNERGY in silence** — the largest trial (7,264) and the
+  only null one.
+
+**Credit where the page earned it, and it matters:** LoDoCo2 and COPS have no
+ClinicalTrials.gov registration, and the page carries them as `ACTRN-LODOCO2` and
+`ACTRN-COPS` **rather than inventing NCT numbers**. On DOAC_CANCER_VTE the
+identical situation produced a row keyed to an unrelated German trial.
+
+**My own fifth self-inflicted defect of the session, and the shortest feedback
+loop yet:** the two cards I added today used the HTML entity `&mdash;` as a
+fallback, passed through the escaper — so a reader saw the literal characters
+`&amp;mdash;`. That is the class `TOOLING-QUEUE` item 2 records as unswept, and
+the previous lane's own second escaping defect ("an em-dash fallback escaped when
+it should not have been"), reproduced by someone who had read both. Fixed at
+source with a literal em-dash character, which escapes to itself.
+
 ---
 
 ## Where the next lane picks up
@@ -711,15 +768,15 @@ re-labelled.
 page below is verified live, cache-busted, against the bytes on disk.
 
 Live-verified this session: **ARNI, SGLT2_HF, IV_IRON, SOTAGLIFLOZIN, PCSK9,
-SGLT2_CKD, DOAC_AF, DOAC_CANCER_VTE, INCLISIRAN, EVOLOCUMAB_MIXED.** Each was confirmed byte-identical by
+SGLT2_CKD, DOAC_AF, DOAC_CANCER_VTE, INCLISIRAN, EVOLOCUMAB_MIXED, COLCHICINE_CVD.** Each was confirmed byte-identical by
 SHA-256 against the served bytes, cache-busted. ALIROCUMAB, FINERENONE_CV and ABLATION_AF were unchanged and needed
 no rebuild.
 
 **Start here, in this order:**
 
-1. **The 6 remaining topics with a live estimate and no object.** These are the
+1. **The 5 remaining topics with a live estimate and no object.** These are the
    dangerous ones and every one examined so far has been withdrawable:
-   BEMPEDOIC_ACID (k=1 — a "pool" over one trial), CANGRELOR_PCI, COLCHICINE_CVD,
+   BEMPEDOIC_ACID (k=1 — a "pool" over one trial), CANGRELOR_PCI,
    HFREF_NMA, INTENSIVE_BP, RIVAROXABAN_VASC. Objects already exist
    under `ssot/` for several of them.
 2. **Rebuild the four earlier topics** so their endpoint definitions are on the
