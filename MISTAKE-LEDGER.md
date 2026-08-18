@@ -903,3 +903,39 @@ explicitly and derives the list from disk so the number cannot decay.
 of a gate to a kind is a judgement and belongs in prose where it can be argued with;
 the LIST of gates is a fact and must be re-derived, or it becomes another memory
 count of the sort this project has already had to reconcile twice.
+
+
+---
+
+## A true rule, correctly applied, producing a FALSE ANNOUNCEMENT
+
+Found 2026-08-18 while applying the estimator decision. The rule was right (REML, per
+Handbook 6.5 sec 10.10.4.4). The pools were in scope. The sweep would still have lied.
+
+Five pools showed a shift when recomputed under REML. **On four of them tau-squared is
+ZERO under both estimators.** With tau-squared identical the two estimators produce the
+same pooled value *by construction*, so those shifts (0.005-0.019%) are recomputation
+noise from stored, rounded `log_point` and `log_se` -- not an effect of the estimator.
+
+Applying them would have overwritten four published numbers with noise **and announced
+each one as an estimator change it was not**. The `display_change_announced` block would
+have named DerSimonian-Laird-to-REML as the cause of a movement the estimator did not
+cause.
+
+> **An announcement must name the reason the value moved, not merely the process that
+> moved it.**
+
+This is a new shape for this file. Every earlier entry is a wrong rule, a wrong scope,
+or a check that could not fail. Here the rule is right, the scope is right, the check
+runs -- and the *attribution* is false. A reader told "we changed estimator and the
+number moved" would draw a conclusion about between-study heterogeneity that the data
+does not support.
+
+**And the test is constructible, not a judgement call:** tau-squared identical under
+both estimators means the estimator cannot be the cause. The guard is three lines and
+prints the four excluded pools on every run.
+
+**The general form worth carrying:** whenever a sweep applies one rule to many objects,
+ask of each object not "is this in scope" but **"is the rule the REASON this one
+changes"**. Scope membership and causal attribution are different questions, and only
+the second is what an announcement asserts.
