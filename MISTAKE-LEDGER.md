@@ -1332,3 +1332,41 @@ rather than pass bad ones, which feels like caution and reads like diligence.
 when a verifier fails, **check the verifier against a case you can inspect by hand before
 believing it** — the same rule as for measurements, which had not been extended to the
 things that check them.
+
+---
+
+## The straight-path thesis failed at the point where WE were building (2026-08-18)
+
+Thirteen canonical objects were built across the infectious-disease section — every one
+registration-read, four-limb checked, with provenance and a verdict or a pool. **Not one
+was connected to a page.** Zero appeared in `PAGE_MAP`. The analyses sat in the SSOT layer
+reaching no reader while the pages showed what they had shown before.
+
+**This is not a mapping oversight and should not be filed as one.** In the same week we
+measured that **88 of 1,486 pages are projected — 5.9%** — and wrote that every defect
+found came from a departure from the straight path, **we departed from it thirteen times
+and did not notice.** The count reported each round as progress — "47 of 62" — was
+measuring objects built, not topics delivered.
+
+**The one question this programme exists to ask is whether the work reaches the reader, and
+it was not asked about our own output.**
+
+**How to apply:** a deliverable is not done at the artefact, it is done at the surface a
+reader reaches. For any object built, the completion check is the mapping and the live
+page, not the object's own validity. **Where a count is reported as progress, name what it
+counts** — "objects built" and "topics delivered" are different numbers and only one of
+them is what anyone wants to know.
+
+---
+
+## Widening a guard to fit the thing it just caught is how guards stop guarding (2026-08-18)
+
+The staging guard, built one commit earlier, refused `.lint-decode-baseline` as outside its
+declared path set. **The tempting fix was to widen the pattern to admit the file.** Instead
+the documented `STAGING_WIDE=1` override was used and disclosed in the commit message.
+
+Sits beside **"a guard that must be remembered is not a guard"**, and completes it with the
+lint's ratchet design: **a guard that stops the work gets bypassed, so it must be passable
+today and unbreachable tomorrow.** The ratchet-at-baseline is that shape — 28 sites are
+tolerated, a 29th is refused. `guard_write` is the counter-example in both directions: it
+had to be remembered, and when it was inconvenient it was simply not called.
