@@ -6,7 +6,7 @@ section of `index.html` carries 54 page links, one of which
 consolidated at `ce1e9dc0e`. 54 − 1 = 53. Re-derive with
 `python scripts/cardio_program_status.py` rather than quoting this line.
 
-**DONE: 13 of 53.**
+**DONE: 15 of 53.**
 
 A topic is DONE when it has an SSOT object, is built through the tabbed
 projector to the written standard (`scripts/standard_manifest.py`, v1), its
@@ -30,6 +30,8 @@ endpoint does not, whatever the page looks like.
 | 11 | EVOLOCUMAB_MIXED_DYSL | **withdrawn** | both trials 2×2; this pooled a fortnightly placebo against a monthly drug arm, and the values are in no source |
 | 12 | COLCHICINE_CVD | **withdrawn** | COLCOT counts cardiac arrest and the others do not; CONVINCE is not a composite trial; 5 vs 3 vs 2 trial counts on one page |
 | 13 | BEMPEDOIC_ACID | v1, **stands** | k=1 and correct: only CLEAR Outcomes registers a CV primary. NCT02973841 is 'Sono-ease', a 40-patient device trial |
+| 14 | CANGRELOR_PCI | **withdrawn** | all-cause-mortality numerators over primary-composite denominators; correcting it reverses the conclusion |
+| 15 | RIVAROXABAN_VASC | **withdrawn** | VOYAGER adds acute limb ischaemia and major amputation; COMMANDER counts all-cause death and registers a rate |
 
 `FINERENONE_CV` is also at v1 and is NOT counted here: it does not sit in the
 cardiology section of the index. Counting it would be the denominator drift this
@@ -37,14 +39,14 @@ file exists to prevent.
 
 ---
 
-## The remaining 40, by what is actually on them today
+## The remaining 38, by what is actually on them today
 
 Measured from the index cards, not assumed:
 
 | state | n | what it means |
 |---|---|---|
 | **Audit-first build** | 26 | no estimate ever published; the topic has never been taken through |
-| **live estimate, no v1 object** | 4 | a number is published that nothing in the current standard has checked |
+| **live estimate, no v1 object** | 2 | a number is published that nothing in the current standard has checked |
 | **withdrawn** | 7 | an estimate was retracted; the reason on the page has NOT been re-verified |
 | **not poolable** | 1 | MITRAL_FUNCMR — COAPT vs MITRA-FR, stated per-trial |
 | **no card at all** | 1 | INCRETIN_HFpEF is linked from the table and has no card |
@@ -792,6 +794,41 @@ now declare `results.headline_outcome` or the projector refuses.
   single-study result is not an orphan pool. Verified the real orphan (k=2, no
   `single_study_ref`) still fails.
 
+### 2026-08-18 — topics 14 and 15, and a detector for the class that reverses conclusions
+
+**Topic 14 — CANGRELOR_PCI, WITHDRAWN.** The sharpest data defect of the
+programme. Each row carried the primary composite's denominators **exact to the
+patient** against event counts that were **all-cause mortality**, a named
+secondary in the same registry record. Registry primaries are 290/276, 185/210,
+257/322; the page used 8/5, 6/18, 18/18. **Correcting it reverses the
+conclusion**: OR 0.8955 (0.7526–1.0656), crossing no effect, against a published
+0.81 (0.71–0.91) that excludes it. **Five of six numbers in each 2×2 were right**,
+which is why nothing internal could see it.
+
+**A detector followed, and then found nothing more.** `count_provenance_gate`
+replays the founding row (FAIL, naming the mortality outcome) against the same row
+with the registry's counts (PASS). Three parser faults were fixed before it was
+trusted — arm order, rate-valued outcomes, multi-category outcomes summed per arm
+— all of which had made correct rows look wrong. **Final corpus screen: zero
+FAILs across 37 objects.** The four original FAILs all shared one cause — the
+object records no `outcome_definition`, so the gate fell back to the
+registration's primary and disagreed with rows deliberately pooling a secondary
+(FIDELIO's CV composite, SUMMIT's HF events, pitavastatin's NCEP target
+attainment). **A row that does not declare its outcome now returns UNCHECKABLE**;
+convicting there would make one FAIL mean two incompatible things.
+
+**Topic 15 — RIVAROXABAN_VASC, WITHDRAWN.** VOYAGER PAD's composite adds **acute
+limb ischaemia and major amputation**, in no other trial here; COMMANDER HF counts
+**all-cause** rather than cardiovascular death and registers an event **rate**.
+The arithmetic reproduces exactly — 0.8494 (0.7775–0.9278) against a card of 0.85
+(0.77–0.94) — so nothing was miscomputed; what was averaged should not have been.
+All four per-trial values are on the page and **all four point the same way**.
+
+**Queue item 17 in the wild, second instance:** the only benchmark entry is
+COMPASS, which is an included trial. Here it disagrees with the pool so nothing
+was falsely corroborated; on BEMPEDOIC_ACID the same configuration agreed
+perfectly with itself.
+
 ---
 
 ## Where the next lane picks up
@@ -800,16 +837,15 @@ now declare `results.headline_outcome` or the projector refuses.
 page below is verified live, cache-busted, against the bytes on disk.
 
 Live-verified this session: **ARNI, SGLT2_HF, IV_IRON, SOTAGLIFLOZIN, PCSK9,
-SGLT2_CKD, DOAC_AF, DOAC_CANCER_VTE, INCLISIRAN, EVOLOCUMAB_MIXED, COLCHICINE_CVD, BEMPEDOIC_ACID.** Each was confirmed byte-identical by
+SGLT2_CKD, DOAC_AF, DOAC_CANCER_VTE, INCLISIRAN, EVOLOCUMAB_MIXED, COLCHICINE_CVD, BEMPEDOIC_ACID, CANGRELOR_PCI, RIVAROXABAN_VASC.** Each was confirmed byte-identical by
 SHA-256 against the served bytes, cache-busted. ALIROCUMAB, FINERENONE_CV and ABLATION_AF were unchanged and needed
 no rebuild.
 
 **Start here, in this order:**
 
-1. **The 4 remaining topics with a live estimate and no object.** These are the
+1. **The 2 remaining topics with a live estimate and no object.** These are the
    dangerous ones and every one examined so far has been withdrawable:
-   CANGRELOR_PCI,
-   HFREF_NMA, INTENSIVE_BP, RIVAROXABAN_VASC. Objects already exist
+      HFREF_NMA, INTENSIVE_BP, RIVAROXABAN_VASC. Objects already exist
    under `ssot/` for several of them.
 2. **Rebuild the four earlier topics** so their endpoint definitions are on the
    page. They were read and are invisible; see the projector defect above.
