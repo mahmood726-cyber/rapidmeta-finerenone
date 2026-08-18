@@ -23,6 +23,13 @@ from __future__ import annotations
 import io
 import math
 import re
+# CASE-SENSITIVE FILENAME PATTERNS MADE PAGES INVISIBLE.
+# [A-Z0-9_]+ cannot match INCRETIN_HFpEF_REVIEW.html -- lowercase 'p'. That page's
+# card existed, published a different measure, value and trial count from its
+# object, and was reported as having NO CARD by two tools and skipped silently by
+# a third. Found 2026-08-18 and swept across every script that enumerates pages.
+# A record invisible to the instrument that counts records is not merely
+# uncounted: it is counted as a DIFFERENT THING.
 import sys
 from pathlib import Path
 
@@ -60,7 +67,7 @@ def is_placeholder(claim) -> bool:
 # --------- Landing-card claim extraction ----------------------------------
 
 LANDING_RE = re.compile(
-    r'href="([A-Z0-9_]+_REVIEW)\.html".*?Published:\s*'
+    r'href="([A-Za-z0-9_]+_REVIEW)\.html".*?Published:\s*'
     r'(HR|OR|RR)\s*~?\s*(\d+\.\d+)\s*\(([\d.]+)[–\-]+([\d.]+)\),\s*k=(\d+)',
     re.IGNORECASE,
 )

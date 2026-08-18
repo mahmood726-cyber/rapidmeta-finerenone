@@ -80,13 +80,13 @@ def withdrawn_pages(index_html):
     out = set()
     WITHHELD = re.compile(r"withdrawn|not analysable|not poolable|not pooled|"
                           r"reported separately", re.I)
-    for m in re.finditer(r'<a href="([A-Z0-9_]+\.html)" class="card [^"]*">'
+    for m in re.finditer(r'<a href="([A-Za-z0-9_]+\.html)" class="card [^"]*">'
                          r'<span class="name">[^<]*</span><span class="pub">(.*?)</span></a>',
                          index_html):
         if WITHHELD.search(m.group(2)):
             out.add(m.group(1))
     # table rows: <a href=X>label</a> ... <td>estimate cell</td>
-    for m in re.finditer(r'<a href="([A-Z0-9_]+\.html)"[^>]*>[^<]*</a></td><td>[^<]*</td>'
+    for m in re.finditer(r'<a href="([A-Za-z0-9_]+\.html)"[^>]*>[^<]*</a></td><td>[^<]*</td>'
                          r'<td[^>]*>[^<]*</td><td[^>]*>([^<]*)</td>', index_html):
         if WITHHELD.search(m.group(2)):
             out.add(m.group(1))

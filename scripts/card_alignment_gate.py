@@ -221,7 +221,7 @@ def audit_vocabulary() -> int:
     """
     idx = open(os.path.join(SSOT, "index.html"), encoding="utf-8",
                errors="replace").read()
-    cards = re.findall(r'<a href="([A-Z0-9_]+\.html)" class="card [^"]*">'
+    cards = re.findall(r'<a href="([A-Za-z0-9_]+\.html)" class="card [^"]*">'
                        r'<span class="name">[^<]*</span><span class="pub">(.*?)</span></a>', idx)
     live = [(h, p) for h, p in cards if not WITHHELD.search(p)]
     flag = [(h, p) for h, p in live if SUSPECT.search(p)]
@@ -251,7 +251,7 @@ def main() -> int:
     targets = {os.path.basename(a) for a in sys.argv[1:]
                if a.upper().endswith(".HTML")}
     idx = open(os.path.join(SSOT, "index.html"), encoding="utf-8", errors="replace").read()
-    cards = re.findall(r'<a href="([A-Z0-9_]+\.html)" class="card [^"]*">'
+    cards = re.findall(r'<a href="([A-Za-z0-9_]+\.html)" class="card [^"]*">'
                        r'<span class="name">[^<]*</span><span class="pub">(.*?)</span></a>', idx)
     if targets:
         cards = [(h, pub) for h, pub in cards if h in targets]
