@@ -1603,3 +1603,85 @@ contamination, and the discriminator is the page's own `<title>`.
 the rule passed ACS because "stroke" is in that object's endpoint definitions and
 "apixaban" is there *because the withdrawal reason I wrote cites APIXABAN_ACS by name*.
 **An object acquires vocabulary from our own commentary.**
+
+
+---
+
+## The parked decisions — THREE SETTLED against Handbook 6.5, one brought back
+
+Full reasoning and verbatim quotations: **`DECISIONS-COCHRANE-2026-08-18.md`**.
+**Version verified live at apply-time, not recalled** — the Handbook moved host during
+the check (`training.cochrane.org` now 301s to `cochrane.org/authors/...`), which is
+itself the argument against a remembered section number.
+
+| question | verdict | authority |
+|---|---|---|
+| **Estimator** | **REML corpus-wide**; HKSJ as **sensitivity at k≤3**, not primary | §10.10.4.4 — REML is RevMan's current default; §10.10.4.4–5 — "when there are only two or three studies … undertake a sensitivity analysis to compare results from the different methods" |
+| **ANSWER-HF eligibility** | **stays in**; RoB 2 domain 5 HIGH; k=3 as sensitivity | §8.7 — bias in selection of the reported result covers measures "added to, the results report, post hoc"; eligibility is Chapter 3 and registration status is not among its criteria; §10.14 for the sensitivity analysis |
+| **NMA grain** | **per contrast** — no network-wide verdict needed, so the standard needs no extension | §11.5 — "confidence in the evidence should be assessed for each intervention effect that is reported" |
+| **Cangrelor / colchicine** | **withdrawals stand**, now grounded in a mandatory expectation | MECIR C62 — "Undertake **(or display)** a meta-analysis only if … sufficiently similar"; §10.10.3 — "A systematic review need not contain any meta-analyses" |
+
+**The estimator change is a published-number change and is staged separately**, not
+folded into the decision commit. 7 of 28 pools move, 0 conclusions change.
+
+**ANSWER-HF is applied and no published number moved** — 0.87153524291 before and
+after. The k=3 value (0.8333, 0.7473–0.9292) is recorded as a sensitivity result and is
+stated in full precisely because its direction is uncomfortable.
+
+**STILL YOURS — the ABLATION_AF and SGLT2_CKD replacement questions.** The Handbook
+settles *whether* to pool and cannot choose *which question to ask*. Both options and
+their consequences are written out in the decisions file. **My recommendation, as one:**
+take SGLT2_CKD (endpoints established identical from the registrations *before* any
+value was read); do **not** take ABLATION_AF's component pool — we have already seen
+0.62/0.63/0.64, so choosing that question now is choosing one whose answer we know.
+
+---
+
+## Audit-first: **6 of 25 can produce a pool** — `scripts/audit_first_poolability_triage.py`
+
+Poolability decided **first**, from the registrations, as instructed — so we know how
+many topics there are before building any of them.
+
+| verdict | n |
+|---|---|
+| **POOL POSSIBLE** | **6** |
+| NOT POOLABLE ON REGISTERED PRIMARIES (≥2 trials, no shared outcome family) | 9 |
+| NOT POOLABLE — fewer than two trials | 10 |
+
+**The six, with the shared registered family:**
+
+| topic | k | family | registrations |
+|---|---|---|---|
+| AZILSARTAN_HTN | 4 | blood-pressure change | NCT00591578, NCT00818883, NCT00846365, NCT01033071 |
+| OLMESARTAN_HTN | 3 | blood-pressure change | NCT00846365, NCT01033071, NCT01599104 |
+| MIPOMERSEN_HOFH | 3 | LDL-C change | NCT00477594, NCT00607373, NCT00707746 |
+| EDOXABAN_VTE | 2 | recurrent VTE | NCT01181102, NCT02798471 |
+| PITAVASTATIN | 2 | LDL-C change | NCT00309738, NCT00309777 |
+| RIOCIGUAT_PAH | 2 | six-minute walk | NCT00810693, NCT00855465 |
+
+**Note AZILSARTAN and OLMESARTAN share two registrations** (NCT00846365, NCT01033071).
+That is a double-counting risk across two topics and must be resolved before either is
+built — the same trial cannot contribute to two pools presented as independent.
+
+**The other 19 are finished topics, not failures.** Per §10.10.3 — *"A systematic review
+need not contain any meta-analyses"* — each ends as a **stated, sourced non-poolable
+verdict with the registry evidence on the page**. That is what "built to standard" means
+for a page publishing no estimate, and it needs no vacuous-gate certification because
+there is no pooled value to certify.
+
+**Three pages seed no trial at all** — SACUBITRIL_HEARTFAIL, SACUBITRIL_VALSARTAN_HF and
+HFREF_NMA carry no non-residue registration. For HFREF_NMA that is the known
+12-ids-for-28-trials defect; **for the two sacubitril pages it is new**, and means the
+page is keyed to nothing.
+
+**The first run of this screen reported 0 trials on 22 of 25 pages** and would have
+declared almost the whole programme unpoolable. The ids live in the minified script, not
+in markup. Fixed, and the residue set the HFREF_NMA note predicted was confirmed exactly.
+
+### What is NOT done
+
+**No audit-first topic has been rebuilt yet.** The triage tells us which six are worth
+building and stops there. Each still needs the full protocol — identity, every endpoint
+definition read word for word, the pool defended or the non-poolable verdict written,
+build, gates, push, live verification — and the AZILSARTAN/OLMESARTAN overlap resolved
+before either.
