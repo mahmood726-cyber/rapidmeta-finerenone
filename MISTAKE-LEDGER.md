@@ -1706,3 +1706,52 @@ same error as certifying a per-tab cell migration with a grand-total check: **th
 correctly on the wrong unit.** It became detector 5.
 
 **Stop treating documentation as a defence.** Full writeup: `SESSION-2026-08-18-INSTRUMENTS.md`.
+
+---
+
+## Three cache defects in one night, none keyed on content (2026-08-18)
+
+| keyed on | what happened | what it looked like |
+|---|---|---|
+| **existence** | curl wrote 0 bytes and exited 0; the empty file cached forever | every later run reported a TRANSPORT failure as unparseable DATA |
+| **position** | `hop2_{batch_index}`, index always 0 | three articles with 26, 53 and 86 references returned byte-identical results |
+| **neither** | no key at all | the first answer became every answer |
+
+Three mechanisms, one root cause: **the key never included the input.**
+
+**A cache is invisible when it works and indistinguishable from a finding when it does
+not.** All three produced output that looked like data — plausible counts, populated
+tables, no error anywhere. The position-keyed one would have shipped ~1,100 confident
+nulls into a literature claim.
+
+What caught the second one was **identical output from different inputs** — detector 4's
+principle, working outside the registry it was written for. It is now promoted to
+`ssot/invariants.py` alongside `content_cache_key()` and `cache_is_valid()` (zero bytes is
+a MISS), so any pipeline here can call it.
+
+**The rule: a cache key is derived from content. Existence is not content, and position is
+not content.**
+
+---
+
+## The reference list is the wrong denominator for a double-counting claim (2026-08-18)
+
+Two-hop resolution over a synthesis's REFERENCE LIST showed a strong duplicate signature:
+`NCT03997383` cited x5, `NCT01994889` x4, nine registrations multiply cited in one article.
+
+**It does not survive at the included-studies table, and it should not have been expected
+to.** Protocol papers, design papers and secondary analyses of one trial all cite
+legitimately; a synthesis citing them is not double-counting. On PMC12719876 the included
+table exists and carries no bibliographic cross-references at all, so the claim is
+**NOT-ASSESSABLE** from it -- not refuted, unmeasurable. On PMC13466188 the heuristic
+selected a THERAPIES table rather than an included-studies table, so its apparent collapse
+is an artefact of table selection.
+
+**The reference-list signature was a citation artefact, and publishing it as a literature
+defect would have been the night's pattern one more time -- in the direction that flatters
+us, against someone else's work.**
+
+And "unresolved" still cannot carry a rate. Decomposed by PublicationType the largest
+bucket is **OTHER / uncategorised (35)**, against RESOLVED 22, not-a-trial 12,
+unregistered 4, and **genuinely unresolved trials: 2**. A denominator whose biggest class
+is uncategorised is not a denominator.
