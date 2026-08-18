@@ -96,7 +96,17 @@ def _pair(trial, oid):
 def assess(trial, oid="primary"):
     got = _pair(trial, oid)
     if got is None:
-        return "UNCHECKABLE", "this row carries no complete 2x2"
+        # A CONTINUOUS OUTCOME IS NOT THIS GATE'S BUSINESS, and calling it
+        # UNCHECKABLE made the gate's coverage look worse than it is while burying
+        # the rows that genuinely need work. 65 of 154 rows are LDL-C percent
+        # change, KCCQ scores, LVOT gradients and effect-only rows: a count gate
+        # cannot check a mean difference and is not owed one. NOT_APPLICABLE, and
+        # OUT OF THE DENOMINATOR -- the same principle as a two-arm registration on
+        # declared_contrast_gate. It is still not a pass.
+        return ("NOT_APPLICABLE",
+                "this row carries no 2x2 -- a continuous outcome or an effect-only "
+                "row. A count gate cannot check a mean difference and does not "
+                "claim to. Not a pass, and not a debt owed to this gate")
     te, ce, tn, cn = got
     # MATCH THE OUTCOME THE ROW NAMES, NOT NECESSARILY THE REGISTRATION'S PRIMARY.
     # A review may legitimately synthesise a SECONDARY outcome: FINERENONE_CV pools
@@ -206,7 +216,7 @@ def check(obj):
     oid = (results.get("headline_outcome") if isinstance(results.get("headline_outcome"), str)
            else None) or sorted(results)[0]
     notes, worst = [], "UNCHECKABLE"
-    order = {"PASS": 0, "UNCHECKABLE": 1, "REVIEW": 2, "FAIL": 3}
+    order = {"NOT_APPLICABLE": 0, "PASS": 1, "UNCHECKABLE": 2, "REVIEW": 3, "FAIL": 4}
     seen = False
     for t in trials:
         v, why = assess(t, oid)

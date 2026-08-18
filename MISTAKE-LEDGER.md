@@ -446,6 +446,58 @@ their enrolment. The signature, not the value, was the tell.**
 
 ---
 
+## An alarming inference from a real defect is still an inference
+
+2026-08-18. A filename pattern, `[A-Z0-9_]+`, was found in eight scripts including
+the card gate. The defect was real: one page's card had never been compared with
+its page, and it published a different measure, value and trial count.
+
+**From that I said every count those eight scripts had produced was suspect. It
+was relayed onward as fact. Then it was measured: ONE figure moved, by 7 of 818,
+and the move was caused by my own page rebuilds rather than by the bug. The bug's
+own effect was 1 trial and 1 page, because only 19 of ~1,500 files carry a
+lowercase letter in the stem and only one of those is a review page with a card.**
+
+> **An alarming inference from a real defect spreads faster than the defect,
+> because it sounds like diligence.** A sweep that finds a pattern in eight files
+> invites the conclusion that eight files' worth of output is wrong. Finding a
+> defect and bounding a defect are different pieces of work, and only the second
+> one produces a number.
+
+**The rule: never report the SCOPE of a defect until it has been measured
+separately from its EXISTENCE.** "Found in eight scripts" and "affects eight
+scripts' output" are different claims, and the first does not license the second.
+
+---
+
+## The instruments and the human judgement converged, independently
+
+Worth logging precisely because it is neither a save nor a defect, and this file
+records almost nothing else.
+
+Three cardiology topics — APIXABAN_AF, DABIGATRAN_VTE and RIVAROXABAN_ACS — were
+withdrawn by hand, on ENDPOINT grounds read from the registry: an efficacy
+endpoint pooled with a safety one, four incompatible endpoint types, an undeclared
+choice between two primaries.
+
+`count_provenance_gate` was built afterwards, for a completely different defect
+class — numerators taken from one outcome and denominators from another — and
+knew nothing of those verdicts. Run across the corpus it returned **four FAILs, and
+all four sit on those same three topics**: RENAL-AF's numerators are not its
+primary's, nor NCT02913326's, nor ATLAS ACS TIMI 46's, and NCT00168805's counts are
+that trial's *"Number of Participants With Pulmonary Embolism"*.
+
+**Two independent routes — one human reading registry endpoint definitions, one
+machine reconciling counts — reached the same three pages without either informing
+the other.** Every one of those withdrawals now rests on two grounds instead of one.
+
+**That is the closest thing to validation this programme has produced.** It does
+not prove the method is right; it shows that where it can be checked twice, the
+two checks agree. Given how much of this file records instruments that agreed with
+nothing, the convergence is worth as much as any single finding in it.
+
+---
+
 ## Logged saves — design choices that prevented a failure
 
 - **Asserting an unmade judgement, caught and corrected, 2026-08-18.**
