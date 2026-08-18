@@ -487,6 +487,68 @@
       "why_that_one_could_not_stand": "TWO OF THE THREE TRIALS ON THIS PAGE REGISTER ONLY CONTINUOUS PRIMARY OUTCOMES, AND THIS PAGE POOLED EVENT COUNTS. Verbatim: STEP-HFpEF and STEP-HFpEF DM each register two co-primaries, 'Change in Kansas City Cardiomyopathy Questionnaire Clinical Summary Score' and 'Change in Body Weight'. Both are CONTINUOUS CHANGE SCORES. Neither is an event count and neither can produce a 2x2 table. The counts stored for STEP-HFpEF DM, 7 of 310 against 18 of 306, CORRESPOND TO NO REGISTERED PRIMARY OUTCOME OF THAT TRIAL. SUMMIT is different and is the only row here with a defensible source: it registers a continuous KCCQ primary AND 'First Occurrence of the Composite Endpoint of Heart Failure (HF) Outcomes', and its stored 29 of 364 against 52 of 367 do correspond to that event co-primary. So the pool joins one trial's registered event composite to another trial's unregistered counts. SEPARATELY: THE "
      },
      "card_wording_note": "The card avoids the word 'withdrawn' deliberately. card_alignment_gate treats a card declaring a withheld state beside a page publishing a value as the SGLT2_HF defect -- an announced withdrawal never performed -- and it fired here on a card that merely DESCRIBED what this analysis replaces. The gate's rule is right and was not weakened; the card was reworded. The withdrawn outcome is still on this object in full, with its reason."
+    },
+    "replacement_analysis_2026_08_18": {
+     "measure": "MD",
+     "unit": "points, KCCQ clinical summary score change from baseline",
+     "comparator": "placebo",
+     "k": 2,
+     "model": "random-effects",
+     "estimator": "REML",
+     "pooled": {
+      "point": 7.0864,
+      "ci_low": 4.7599,
+      "ci_high": 9.4129,
+      "ci_level": 95
+     },
+     "heterogeneity": {
+      "tau2": 0.0,
+      "q": 0.0389,
+      "df": 1,
+      "i2_percent": 0.0
+     },
+     "MIXED_PROVENANCE_READ_THIS_FIRST": "THE TWO INPUTS COME FROM DIFFERENT KINDS OF SOURCE AND THE GUARANTEE IS NOT THE SAME FOR BOTH. Every other pool in this corpus is registry-sourced throughout; this one is not, and a reader is entitled to see which number carries which guarantee before reading the pooled value.",
+     "per_trial": [
+      {
+       "trial_id": "NCT04847557",
+       "nct": "NCT04847557",
+       "label": "SUMMIT",
+       "provenance": "REGISTRY -- ClinicalTrials.gov results record, read 2026-08-18",
+       "as_posted": {
+        "tirzepatide_ls_mean": 19.51,
+        "tirzepatide_se": 1.24,
+        "placebo_ls_mean": 12.68,
+        "placebo_se": 1.25
+       },
+       "measure": "MD",
+       "point": 6.83,
+       "se": 1.7607,
+       "ci_low": 3.3791,
+       "ci_high": 10.2809,
+       "derived_here": true,
+       "how": "MD = 19.51 - 12.68. SE = sqrt(1.24^2 + 1.25^2). The INPUTS are read from the registry; only the arithmetic is ours and the formula is shown so both can be checked."
+      },
+      {
+       "trial_id": "NCT04916470",
+       "nct": "NCT04916470",
+       "label": "STEP-HFpEF DM",
+       "provenance": "PUBLICATION ABSTRACT -- NOT the registry, which posts no results section for this trial at all, and NOT a full-text results table",
+       "citation": "Kosiborod MN et al. Semaglutide in Patients with Obesity-Related Heart Failure and Type 2 Diabetes. N Engl J Med 2024;390:1394-1407. PMID 38587233. doi:10.1056/NEJMoa2313917",
+       "quoted_verbatim": "estimated difference, 7.3 points; 95% confidence interval [CI], 4.1 to 10.4; P<0.001",
+       "measure": "MD",
+       "point": 7.3,
+       "ci_low": 4.1,
+       "ci_high": 10.4,
+       "se": 1.6072,
+       "derived_here": false,
+       "se_note": "SE recovered from the quoted interval: (10.4 - 4.1) / (2 * 1.96).",
+       "provenance_tier": "ABSTRACT. If the full text becomes available its results TABLE should SUPERSEDE this value and the difference between them checked and recorded.",
+       "identity_check_direction": "PubMed is cookie-gated to this reader, so the NCT printed ON THE PAPER was NOT verified. The check was made from the REGISTRY side: NCT04916470 carries acronym 'STEP HFpEF DM', an official title naming semaglutide 2.4 mg in obesity-related HFpEF, and a registered PRIMARY of 'Change in KCCQ (Kansas City Cardiomyopathy Questionnaire) clinical summary score'. Trial and endpoint both match. THE REVERSE DIRECTION IS UNVERIFIED and is recorded as such rather than assumed."
+      }
+     ],
+     "why_the_earlier_refusal_does_not_carry": "This figure was refused earlier, on the ground that every number in this object was registry-sourced and breaking that for one data point costs the guarantee that makes the rest checkable. That reasoning was about an UNSOURCED import. The source is now identified, quotable and tiered, and the mixed provenance is declared per trial rather than hidden. The refusal was right about an unsourced number and does not extend to a sourced one.",
+     "published_comparison_owed": "NCT04916470's own registration lists PMID 39222642 -- Kosiborod et al., Lancet 2024, a pooled PARTICIPANT-LEVEL analysis of SELECT, FLOW, STEP-HFpEF and STEP-HFpEF DM reporting heart-failure event outcomes. That is a published synthesis covering our trials and it belongs in this topic's published-meta comparison. NOT YET CHECKED, and recorded as owed rather than done.",
+     "what_this_does_not_establish": "NOT that the two trials are free of bias -- no RoB-2 assessment is recorded. NOT that tirzepatide and semaglutide are interchangeable: this pools TWO DIFFERENT INCRETIN AGENTS against placebo on one instrument, which is a decision about the question being asked and is visible on the face of the topic. NOT that the abstract figure equals the full-text table figure."
     }
    }
   },
@@ -503,5 +565,6 @@
   "rob2": "No risk-of-bias assessment was recoverable from the page.",
   "grade": "No certainty rating was recoverable from the page.",
   "sources": "Every ENDPOINT DEFINITION on this page is verbatim from the trial's own ClinicalTrials.gov record and carries a resolvable link. The per-trial counts are the page's own and carry no quoted source sentence."
- }
+ },
+ "topic_state": "REPLACEMENT ANALYSIS BUILT -- mean difference, k=2, MIXED PROVENANCE (one registry, one publication abstract)"
 }
