@@ -1,0 +1,206 @@
+"""Publish BOTH coherent pools for sglt2-hf, each with its estimand named and R output quoted.
+
+THE FINDING. The four trials do not share one endpoint, so the k=4 pool was withdrawn -- that
+was already right. But withdrawing the mixture left TWO coherent questions, and the object
+published only one of them:
+
+  A  two-component   CV death or hospitalisation for HF        k=3   PUBLISHED  0.7636
+  B  three-component + urgent HF visit                          k=2   NOT PUBLISHED
+
+So DELIVER -- an included trial, correctly screened in -- contributed to NOTHING. It registers
+no two-component composite at any of its seven ranks, so it cannot join A; and B, the pool it
+CAN join, was never formed. An included trial contributing to no published result is a gap
+whether or not any single number is wrong.
+
+Neither pool supersedes the other and neither is the "real" one. They estimate the effect on
+DIFFERENT COMPOSITE ENDPOINTS. Both are published, each naming its estimand.
+
+R OUTPUT IS QUOTED, NOT SUMMARISED. Pool A reproduces the object's stored 0.7636 (0.7062 to
+0.8258) exactly, which is an independent confirmation of a value that was already there.
+"""
+import json
+import os
+import sys
+
+ROOT = os.path.dirname(os.path.abspath(__file__))
+TOPIC = "sglt2-hf"
+R_OUT = "F:/claude-temp/claude/F--rapidmeta-ssot-shell/eb4d84e5-8a24-4c3b-afe2-34bd91c20bc7/scratchpad/sglt2_r.txt"
+
+
+def walk(node, prefix=""):
+    out = []
+    if isinstance(node, dict):
+        for k, v in node.items():
+            out.append(f"{prefix}{k}")
+            out.extend(walk(v, f"{prefix}{k}."))
+    elif isinstance(node, list):
+        for i, v in enumerate(node):
+            out.extend(walk(v, f"{prefix}[{i}]."))
+    return out
+
+
+with open(R_OUT, encoding="utf-8") as fh:
+    r_text = fh.read()
+blocks = r_text.split("=" * 78)
+pool_a = ("=" * 78).join(blocks[1:3]).strip() if len(blocks) > 2 else r_text
+pool_b = ("=" * 78).join(blocks[3:5]).strip() if len(blocks) > 4 else ""
+
+ENV = "R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1"
+
+path = os.path.join(ROOT, TOPIC, f"{TOPIC}.json")
+with open(path, "rb") as fh:
+    original = fh.read()
+obj = json.loads(original.decode("utf-8"))
+before = set(walk(obj))
+
+# --- the withholding question, recorded as asked ------------------------------------------
+obj["withholding_question"] = {
+    "asked_on": "2026-08-19",
+    "question": ("does each trial report, AT ANY RANK -- primary, secondary or other -- an "
+                 "outcome matching what the others report, before any decision about which "
+                 "pools are possible?"),
+    "why_before_deciding": (
+        "Reading only primaries would have shown DAPA-HF reporting a THREE-component endpoint "
+        "and EMPEROR reporting a TWO-component one, and concluded they share nothing. "
+        "DAPA-HF's two-component composite is at SECONDARY rank. Asked at the primary alone, "
+        "pool A does not exist."),
+    "per_trial": {
+        "NCT03036124": {"name": "DAPA-HF", "ranks_read": 6,
+                        "two_component": "SECONDARY -- 'Composite Endpoint of CV Death or "
+                                         "Hospitalization Due to Heart Failure'",
+                        "three_component": "PRIMARY -- includes 'Urgent Visit Due to Heart Failure'"},
+        "NCT03057977": {"name": "EMPEROR-Reduced", "ranks_read": 10,
+                        "two_component": "PRIMARY -- 'Adjudicated Cardiovascular (CV) Death or "
+                                         "Adjudicated Hospitalisation for Heart Failure (HHF)'",
+                        "three_component": "NONE at any rank -- registers no urgent-visit endpoint"},
+        "NCT03057951": {"name": "EMPEROR-Preserved", "ranks_read": 10,
+                        "two_component": "PRIMARY -- 'Time to First Event of Adjudicated "
+                                         "Cardiovascular (CV) Death or Adjudicated "
+                                         "Hospitalisation for Heart Failure (HHF)'",
+                        "three_component": "NONE at any rank"},
+        "NCT03619213": {"name": "DELIVER", "ranks_read": 7,
+                        "two_component": "NONE AT ANY RANK. Every heart-failure composite it "
+                                         "registers -- primary and secondary -- includes an "
+                                         "urgent heart-failure visit. This is why pool A is "
+                                         "k=3 and not k=4, and it is established by reading "
+                                         "all seven ranks rather than by matching the primary.",
+                        "three_component": "PRIMARY"},
+    },
+    "matcher_defect_found_and_not_relied_on": {
+        "what_happened": (
+            "The first pass used a substring matcher for the two-component endpoint. It "
+            "returned ZERO for BOTH EMPEROR trials, whose primaries ARE the two-component "
+            "endpoint. Cause: the matcher required the contiguous string 'cardiovascular "
+            "death', and the registry writes 'Cardiovascular (CV) Death' -- an interposed "
+            "parenthetical abbreviation, which is ubiquitous in registry outcome names."),
+        "why_it_mattered": (
+            "It produced the RIGHT answer for DELIVER (zero two-component outcomes) for the "
+            "WRONG reason, and the WRONG answer for EMPEROR. Trusted, it would have implied "
+            "pool A is k=1. The verdict was checked by READING all 33 registered outcome "
+            "names across the four trials, not by the matcher."),
+        "class": "substring matching over clinical text breaks on parenthetical abbreviations",
+    },
+}
+
+# --- name the estimand on the pool that already existed -----------------------------------
+for oc in obj["outcomes"]:
+    if oc.get("id") == "harmonised_cvdeath_or_hhf" and not oc.get("estimand"):
+        oc["estimand"] = {
+            "id": "harmonised_cvdeath_or_hhf-estimand",
+            "family": "time_to_first",
+            "model": "Cox proportional hazards, as reported by each trial",
+            "unit_of_analysis": "participant, time to the first component event",
+            "case_definition": ("cardiovascular death OR hospitalisation for heart failure. "
+                                "TWO components. An urgent heart-failure visit is NOT a "
+                                "qualifying event."),
+            "named_on": "2026-08-19",
+            "why_it_was_null": ("This pool was published with its estimand unnamed while the "
+                                "WITHDRAWN pool beside it carried one -- the wrong way round. "
+                                "A published estimate is the one that most needs its estimand "
+                                "stated."),
+        }
+
+# --- publish pool B -----------------------------------------------------------------------
+obj["outcomes"].append({
+    "id": "threecomp_cvdeath_hhf_urgent",
+    "name": "Cardiovascular death, hospitalisation for heart failure, or an urgent heart-failure "
+            "visit, whichever comes first, as a hazard ratio",
+    "definition": "Cardiovascular death, hospitalisation for heart failure, or an urgent "
+                  "heart-failure visit, first event",
+    "type": "primary",
+    "measure": "HR",
+    "effect_scale": "log",
+    "comparator": "placebo",
+    "comparator_type": "placebo",
+    "direction_of_benefit": "lower is better",
+    "estimand": {
+        "id": "threecomp_cvdeath_hhf_urgent-estimand",
+        "family": "time_to_first",
+        "model": "Cox proportional hazards, as reported by each trial",
+        "unit_of_analysis": "participant, time to the first component event",
+        "case_definition": ("cardiovascular death OR hospitalisation for heart failure OR an "
+                            "urgent heart-failure visit. THREE components."),
+    },
+    "added_on": "2026-08-19",
+    "why_added": ("DELIVER was an included trial contributing to NO published pool. It shares "
+                  "this three-component endpoint with DAPA-HF, and that pool is coherent."),
+})
+
+obj["results"]["by_outcome"]["threecomp_cvdeath_hhf_urgent"] = {
+    "k": 2,
+    "estimand_id": "threecomp_cvdeath_hhf_urgent",
+    "model": "random-effects",
+    "estimator_used": "REML",
+    "comparator_type": "placebo",
+    "poolable": True,
+    "poolable_reason": ("Both trials register this same three-component composite as their "
+                        "PRIMARY endpoint. One endpoint definition, one question."),
+    "per_trial": [
+        {"trial_id": "NCT03036124", "nct": "NCT03036124", "measure": "HR", "point": 0.74,
+         "ci_low": 0.65, "ci_high": 0.85, "ci_level": 95, "rank_used": "PRIMARY"},
+        {"trial_id": "NCT03619213", "nct": "NCT03619213", "measure": "HR", "point": 0.82,
+         "ci_low": 0.73, "ci_high": 0.92, "ci_level": 95, "rank_used": "PRIMARY"},
+    ],
+    "pooled": {"measure": "HR", "point": 0.7835, "ci_low": 0.7090, "ci_high": 0.8659,
+               "ci_level": 95, "scale": "log"},
+    "heterogeneity": {"tau2": 0.0012, "i2": 22.51, "q": 1.2904, "df": 1, "q_pval": 0.2560,
+                      "i2_definition": "REML/metafor I-squared as printed by rma()"},
+    "prediction_interval": {"low": 0.6945, "high": 0.8840,
+                            "note": "metafor predict() pi.lb/pi.ub; at k=2 a prediction "
+                                    "interval is extremely weakly determined and is reported "
+                                    "because it was computed, not because it is informative."},
+    "r_output": {"_environment": ENV, "verbatim": pool_b,
+                 "call": 'rma(yi = log(hr), sei = (log(hi)-log(lo))/(2*qnorm(0.975)), '
+                         'method = "REML")',
+                 "script": "ssot/sglt2_pools.R"},
+    "relationship_to_the_other_pools": (
+        "This does NOT supersede the two-component pool and is not superseded by it. They "
+        "estimate the effect on DIFFERENT composite endpoints. The k=4 pool that mixed the two "
+        "definitions remains withdrawn."),
+}
+
+# --- quote R for the pool that already existed ---------------------------------------------
+obj["results"]["by_outcome"]["harmonised_cvdeath_or_hhf"]["r_output"] = {
+    "_environment": ENV, "verbatim": pool_a,
+    "call": 'rma(yi = log(hr), sei = (log(hi)-log(lo))/(2*qnorm(0.975)), method = "REML")',
+    "script": "ssot/sglt2_pools.R",
+    "reproduces_the_stored_value": (
+        "The stored pooled value was HR 0.7636 (0.7062 to 0.8258). This run reproduces it "
+        "EXACTLY -- an independent confirmation of a number that was already on the page."),
+}
+
+after = set(walk(obj))
+lost = before - after
+if lost:
+    with open(path, "wb") as fh:
+        fh.write(original)
+    raise SystemExit(f"ABORTED: would remove {sorted(lost)[:6]}. Restored.")
+
+tmp = path + ".part"
+with open(tmp, "w", encoding="utf-8", newline="") as fh:
+    json.dump(obj, fh, indent=1, ensure_ascii=True)
+    fh.write("\n")
+os.replace(tmp, path)
+print("published pool B (k=2, three-component) HR 0.7835 (0.7090 to 0.8659), I2 22.51%")
+print("quoted R verbatim for both pools; named the estimand that was null")
+print(f"outcomes now: {[o['id'] for o in obj['outcomes']]}")

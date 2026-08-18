@@ -1,6 +1,6 @@
 # The page standard, versioned
 
-**`PAGE_STANDARD_VERSION = "1.0.0-2026-08-19"`**
+**`PAGE_STANDARD_VERSION = "1.1.0-2026-08-19"`**
 
 Until tonight this standard existed only as practice and as one exemplary object
 (`arni-hfref`). It had **no version marker anywhere in the repo** — `grep` for `build_stamp`
@@ -32,6 +32,8 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P8 | **Registration identity** | every trial keyed to a registration id verified against the registry |
 | P9 | **Build stamp** | naming this standard version |
 | P10 | **Served-bytes verification** | the property is confirmed in bytes served over HTTP, not in a source file and not by an exit code |
+| P11 | **Coded field governs** | where the object holds BOTH a coded field and a free-text label for the same thing, the verdict is taken from the CODE; the text only corroborates. Where the code is absent and the verdict falls back to text, **the verdict says so on its face** |
+| P12 | **The known-answer suite ran** | the suite executed and passed in this build. An import error is a BUILD FAILURE, not a skipped test |
 
 ## The ratchet
 
@@ -49,6 +51,24 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.1.0-2026-08-19
+Adds P11 and P12, both from live defects on 2026-08-19.
+
+**P11 — the coded field governs.** `comparators_identified_and_consistent` FAILed `sglt2-hf`
+on `'placebo added to background heart failure therapy'` vs `'placebo'`, while
+`comparator_type` read `'placebo'` on both and every control arm was labelled exactly
+`placebo`. Routing through `text_match` was necessary and NOT sufficient: the strings really
+are different and `text_match` was right to say so. **The error was asking a text question at
+all**, when the semantic answer was recorded in the coded field beside it. This will recur
+anywhere the corpus holds both a code and a label, so it is a property rather than one
+assessor's fix.
+
+**P12 — the suite ran.** The `criteria_stated` / `criteria_predefined` split was committed
+without re-running `known_answer_preconditions.py`, which had been erroring on import since
+the rename. It was "verified" by running the batch assessment and reading the matrix — which
+is checking VERDICTS, not REASONING, for the third time in one night, and done to the suite
+whose entire job is to catch that. **A green matrix is not evidence the suite ran.**
 
 ### 1.0.0-2026-08-19
 First versioned statement. Encodes the lessons established through 2026-08-19:

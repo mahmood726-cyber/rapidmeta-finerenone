@@ -147,7 +147,49 @@ PRISMA = {
 }
 
 
+# ===========================================================================================
+# THIS SCRIPT TAKES A TOPIC ARGUMENT AND CARRIED ONE TOPIC'S DATA AS MODULE CONSTANTS.
+# ===========================================================================================
+#
+# `SEARCH` and `PRISMA` above are bempedoic-acid-review's executed search and flow counts.
+# `build(topic)` accepted any topic and assigned them unconditionally:
+#
+#     obj["search"] = SEARCH        # <- bempedoic's queries, dates and record counts
+#     obj["prisma_flow"] = PRISMA   # <- bempedoic's 21/17/4/1
+#
+# Run on sglt2-hf it would have attributed BEMPEDOIC'S EXECUTED SEARCH to a different topic --
+# a fabricated provenance record, on the property whose entire purpose is provenance. It
+# crashed first, on an unrelated hardcoded outcome id, and the write-at-end pattern meant
+# nothing reached disk. That is luck, not design.
+#
+# A parameter a function does not honour is worse than no parameter: the signature advertises
+# generality the body does not have, and the failure is silent wherever the shapes happen to
+# line up.
+#
+# So per-topic data is now KEYED BY TOPIC and the builder REFUSES a topic it has no record
+# for, rather than reaching for whichever constant is in scope.
+
+TOPIC_DATA = {
+    "bempedoic-acid-review": {"search": SEARCH, "prisma": PRISMA,
+                              "k_cascade": {
+                                  "k0_surfaced": 21, "k2_role_located": 21,
+                                  "k3_experimental": 17, "k4_comparator": 4,
+                                  "k5_background": 0, "kNA_not_assessable": 0,
+                                  "k_included_in_object": 1, "k_unscreened_remainder": 16},
+                              "primary_outcome_key": "primary"},
+}
+
+
 def build(topic):
+    spec = TOPIC_DATA.get(topic)
+    if spec is None:
+        raise SystemExit(
+            f"REFUSED: no executed-search record on file for {topic!r}. This builder holds "
+            f"per-topic data keyed by topic and will NOT substitute another topic's search, "
+            f"PRISMA counts or cascade. Record {topic}'s OWN executed search first -- "
+            f"attributing one topic's search to another is a fabricated provenance record on "
+            f"the property whose whole purpose is provenance. Topics on file: "
+            f"{sorted(TOPIC_DATA)}")
     path = os.path.join(ROOT, topic, f"{topic}.json")
     with open(path, "rb") as fh:
         original = fh.read()
@@ -157,8 +199,8 @@ def build(topic):
     props = {}
 
     # --- P1 -----------------------------------------------------------------------------
-    obj["search"] = SEARCH
-    obj["prisma_flow"] = PRISMA
+    obj["search"] = spec["search"]
+    obj["prisma_flow"] = spec["prisma"]
     props["P1_executed_search"] = prop(
         HELD, "Two databases, queries verbatim with dates and counts; PRISMA arithmetic "
               "reconciles and the 16-trial unscreened remainder is stated as a number.")
@@ -281,7 +323,7 @@ def build(topic):
               "named; all against a resolvable registry link.")
 
     # --- P6 analysis output verbatim ----------------------------------------------------
-    outcome = obj["results"]["by_outcome"]["primary"]
+    outcome = obj["results"]["by_outcome"][spec["primary_outcome_key"]]
     outcome["r_output"] = {
         "state": "ABSENT_AND_THAT_IS_THE_FINDING",
         "_why_absent": (
