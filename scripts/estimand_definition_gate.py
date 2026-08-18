@@ -71,6 +71,13 @@ COMPONENT = re.compile(
     # been reported as counting the same events. That is the comfortable
     # direction and it was sitting in a live object.
     r"serious bleeding|major bleeding|cardiac arrest|acute coronary syndrome|"
+    # DOAC_AF, 2026-08-18. Four registry records, four composites, every one of
+    # them "stroke OR systemic embolism" -- and this reader saw ONE of the two.
+    # Half of every composite in the topic was invisible, and the gate reported
+    # PASS "they agree" from a reading of the other half. Same shape as CABANA
+    # above and same shape as the CKD false agreement, in a third vocabulary.
+    r"non-?cns systemic embolism|systemic embolic events?|"
+    r"systemic emboli[sz]ation|systemic embolism|systemic emboli|"
     r"myocardial infarction|stroke|worsening heart failure", re.I)
 
 # "WORSENING HEART FAILURE" IS USUALLY A QUALIFIER, NOT A COMPONENT.
@@ -135,6 +142,18 @@ _CANON = (
     (re.compile(r"acute coronary syndrome", re.I), "acs"),
     (re.compile(r"(cardiovascular|cv) mortality", re.I), "cv_death"),
     (re.compile(r"myocardial infarction", re.I), "mi"),
+    # ONE KEY FOR ALL FOUR PHRASINGS, and the reason is written down because
+    # this is exactly the kind of judgement that manufactures an agreement if
+    # it is wrong. RE-LY writes "systemic embolic event", ARISTOTLE "Systemic
+    # Embolism", ENGAGE "Systemic Embolic Events", ROCKET AF "non-CNS systemic
+    # embolism". The "non-CNS" is a clarification rather than a narrowing: an
+    # embolus reaching the brain is counted by all four as STROKE, which is the
+    # other arm of the same composite, so the non-CNS qualifier removes nothing
+    # the other three records count. Four descriptions, one event.
+    # SPLITTING THEM WOULD MANUFACTURE A DISAGREEMENT between four trials that
+    # count the same thing -- the destructive direction, because it argues for
+    # withdrawing a sound estimate.
+    (re.compile(r"systemic embol", re.I), "systemic_embolism"),
     (re.compile(r"stroke", re.I), "stroke"),
     (re.compile(r"worsening heart failure", re.I), "worsening_hf"),
 )
@@ -207,7 +226,10 @@ EVENT_LIKE = re.compile(
     r"bacteremia|seroconversion|viral load|virologic failure|virological "
     r"failure|treatment failure|fracture|amputation|blindness|visual acuity|"
     r"overall survival|readmission|intubation|ventilation|transfusion|"
-    r"revascularisation|revascularization|graft loss|rejection"
+    r"revascularisation|revascularization|graft loss|rejection|"
+    # the term whose absence let this list fail at the job it exists for
+    r"systemic embol[a-z]*|embolism|embolic|thromboembolism|"
+    r"venous thromboembolism|pulmonary embolism|deep vein thrombosis"
     r")\b", re.I)
 
 
@@ -556,6 +578,42 @@ def selftest():
             "Total Mortality, Disabling Stroke, Serious Bleeding, or Cardiac Arrest")
     clean = all(not unrecognised_terms(c) for c in card)
     ok &= clean
+    # ------------------------------------------------ DOAC_AF, 2026-08-18
+    # SYSTEMIC EMBOLISM WAS INVISIBLE TO ALL THREE LISTS. Four registry
+    # composites, every one "stroke OR systemic embolism", and _components()
+    # returned frozenset({'stroke'}) for each -- so the gate compared HALF of
+    # every composite in the topic and reported that they agreed.
+    #
+    # It was not caught by EVENT_LIKE either, and that is the part that matters:
+    # EVENT_LIKE exists to force UNCHECKABLE whenever the recognition list meets
+    # a term it cannot handle, and TOOLING-QUEUE.md recorded that mechanism as
+    # the reason "the gate can no longer report agreement from a partial
+    # reading". The net had the same hole as the thing it was netting.
+    #
+    # THE WIDENING MOVED NO VERDICT ON ANY OBJECT IN THE REPOSITORY. DOAC_AF was
+    # PASS before and PASS after, because its four composites really do agree.
+    # So the only thing that can demonstrate the fix is a pair that differs ONLY
+    # in the half that used to be unreadable. Old gate: PASS. New gate: FAIL.
+    _doac = {"inputs": {"trials": [
+        {"name": "A", "nct": "NCT1",
+         "by_outcome": {"o": {"outcome_definition": "Stroke or systemic embolism"}}},
+        {"name": "B", "nct": "NCT2",
+         "by_outcome": {"o": {"outcome_definition": "Stroke"}}}]},
+        "results": {"by_outcome": {"o": {"k": 2, "pooled": {"point": 0.8}}}}}
+    _v = check(_doac)[0]
+    _good = _v == "FAIL"
+    ok &= _good
+    print("\n  REPLAY DOAC_AF: two composites differing ONLY in the embolism half")
+    for _n, _t in (("RE-LY      ", "Time to first occurrence of stroke or systemic embolic event."),
+                   ("ROCKET AF  ", "the first occurrence of a stroke or non-CNS systemic embolism"),
+                   ("ARISTOTLE  ", "First Event of Ischemic/Unspecified Stroke, Hemorrhagic Stroke, or Systemic Embolism"),
+                   ("ENGAGE     ", "The composite of stroke and Systemic Embolic Events (SEE)")):
+        print("        %s reads %s" % (_n, sorted(_components(_t))))
+    print("        'stroke or systemic embolism' vs 'stroke' -> %s  %s"
+          % (_v, "correct" if _good else "WRONG"))
+    print("        the version this replaces returned PASS on that pair -- it could "
+          "not see\n        the component that is the entire difference.")
+
     print("\n  NEGATIVE CONTROL cardiology definitions stay readable -> %-5s %s"
           % (clean, "correct" if clean else
              "WRONG: %s" % [sorted(unrecognised_terms(c)) for c in card]))
