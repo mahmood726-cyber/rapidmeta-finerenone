@@ -132,7 +132,11 @@
     "per_trial": [],
     "what_this_verdict_does_not_establish": "THIS IS A STATEMENT ABOUT THE REGISTRATION, NOT ABOUT THE TRIAL. It does NOT establish that clinical outcomes were not measured -- they may well have been measured and published, and the published figures may be entirely correct. It does NOT establish that any trial here was conducted or reported improperly: a trial designed as an immunogenicity, safety or pharmacokinetic study that registers immunogenicity, safety or pharmacokinetic endpoints IS BEHAVING CORRECTLY. What it establishes is that a SYNTHESIS on this page pooled a clinical quantity that none of these registrations pre-specified, and the criticism belongs on that pooling and nowhere else. The registry is a live document; this reads its contents on the date recorded and a later amendment could change it.",
     "model": "random-effects",
-    "estimator_used": "not applicable"
+    "estimator_used": "not applicable",
+    "source_page_pooled": false,
+    "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+    "estimand_established": null,
+    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass."
    }
   }
  },

@@ -1701,7 +1701,11 @@
      "withdrawn_on": "2026-08-18",
      "reverification": "RE-VERIFIED 2026-08-18. VERDICT: CONFIRMED. The stated reason is exactly right and is now sourced: three registrations, one shared continuous primary, quoted verbatim. Re-verification added that the stored counts imply a 91-per-cent 'event' rate, showing they are an undocumented dichotomisation rather than events.",
      "card_note": "CONFIRMED: all three registrations declare the SAME continuous primary -- percent change from baseline in LDL-C at week 12 -- and a continuous endpoint has no events for an odds ratio to be built from. The stored counts imply a 91% 'event' rate in placebo, so they are an undocumented dichotomisation. A MEAN DIFFERENCE synthesis here is defensible and is the parked replacement"
-    }
+    },
+    "source_page_pooled": false,
+    "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+    "estimand_established": null,
+    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass."
    },
    "ldlc_pct_change_wk12": {
     "k": 5,
@@ -1931,7 +1935,11 @@
      },
      "why_this_matters": "The source step was recorded as OWED for this topic and for three others. It is now taken here, and the finding is that the existing values were already read correctly. THE DEBT WAS IN THE RECORD, NOT IN THE NUMBERS -- the object held the right values without recording where they came from, which is a provenance gap and not an arithmetic one.",
      "a_near_miss_worth_recording": "This object was briefly OVERWRITTEN rather than patched while taking that step: a rebuild wrote 152 lines over 1,626, destroying the withdrawn `primary` outcome with its reason, the sources, the screening record and the risk-of-bias verdict. Caught by reading the diff stat -- 1,626 deletions for a change that should have ADDED -- and reverted. The replacement analysis already existed; only the PAGE_MAP registration was missing."
-    }
+    },
+    "source_page_pooled": true,
+    "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+    "estimand_established": true,
+    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass."
    }
   },
   "headline_outcome": "ldlc_pct_change_wk12",

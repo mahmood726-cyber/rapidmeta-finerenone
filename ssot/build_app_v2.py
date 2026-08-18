@@ -1031,11 +1031,26 @@ def _outcome_section(canon, oid, p, e):
             # checked. The class is not "absent field, bad default" -- it is
             # "generator prose asserting something it never verified against the
             # object".
+            # A PAGE SHOULD SAY "pooled" BECAUSE THE ESTIMAND WAS ESTABLISHED, NOT
+            # BECAUSE SOMEONE ONCE POOLED IT. This read res["poolable"], which meant
+            # only "the source page pooled these trials" -- never a judgement that the
+            # pool was sound. Two live estimates were found combining incommensurable
+            # constructs while carrying poolable=true AND estimand "NOT ESTABLISHED" in
+            # the same block: finerenone-review pooled three event composites with a
+            # continuous albuminuria ratio, and fcm-hf-review pooled a composite with
+            # trials whose registered primaries were six-minute walk distance and
+            # patient global assessment. The object was honest; the renderer read the
+            # wrong field. FIFTH instance of the generator class -- prose asserting a
+            # property the generator never verified against the object.
             + row("Effect scale",
                   (f"pooled on the {e(outcome.get('effect_scale', 'natural'))} scale"
-                   if res.get("poolable") else
-                   f"reported on the {e(outcome.get('effect_scale', 'natural'))} "
-                   f"scale; nothing is pooled on this outcome"))
+                   if res.get("estimand_established") is True else
+                   (f"combined on the {e(outcome.get('effect_scale', 'natural'))} scale; "
+                    f"ESTIMAND UNIFORMITY NOT ESTABLISHED -- the contributing trials have "
+                    f"not been shown to measure the same quantity"
+                    if res.get("source_page_pooled") or res.get("poolable") else
+                    f"reported on the {e(outcome.get('effect_scale', 'natural'))} "
+                    f"scale; nothing is pooled on this outcome")))
             + "  </table>" + NL + "</div>" + NL)
 
     # THE COLUMN HEADER MUST NOT NAME AN INTERVAL LEVEL THE ROWS DO NOT CARRY.

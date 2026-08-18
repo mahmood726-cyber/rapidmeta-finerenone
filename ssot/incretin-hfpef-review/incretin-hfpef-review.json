@@ -451,7 +451,11 @@
      "card_note": "WITHDRAWN. STEP-HFpEF and STEP-HFpEF DM register only CONTINUOUS co-primaries (KCCQ change and body-weight change), and the counts stored for STEP-HFpEF DM match no registered primary of that trial. The card here published HR 0.41 (0.22-0.79) k=3 while the object held OR 0.4846 (0.3178-0.7389) k=2 -- and NEITHER our status scanner nor our card projector could see this card at all, because their regex required an uppercase page name and this page is HFpEF. A KCCQ mean-difference synthesis across all three is available and is parked"
     },
     "authoritative_reason_field": "pooled.withdrawn_reason",
-    "reason_precedence_note": "TWO ACCOUNTS OF ONE DECISION, RECONCILED 2026-08-18. This block carried poolable_reason AND pooled.withdrawn_reason with DIFFERENT text and nothing saying which was authoritative. A reader opening the object saw two stories; the page rendered one of them. THE RENDERED ONE -- pooled.withdrawn_reason -- IS AUTHORITATIVE, because it is what a reader has actually been shown. Both are kept: neither is deleted, and precedence is now explicit rather than accidental. Milder form of the ARNI internal-contradiction class."
+    "reason_precedence_note": "TWO ACCOUNTS OF ONE DECISION, RECONCILED 2026-08-18. This block carried poolable_reason AND pooled.withdrawn_reason with DIFFERENT text and nothing saying which was authoritative. A reader opening the object saw two stories; the page rendered one of them. THE RENDERED ONE -- pooled.withdrawn_reason -- IS AUTHORITATIVE, because it is what a reader has actually been shown. Both are kept: neither is deleted, and precedence is now explicit rather than accidental. Milder form of the ARNI internal-contradiction class.",
+    "source_page_pooled": false,
+    "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+    "estimand_established": null,
+    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass."
    },
    "kccq_css_change": {
     "k": 1,
@@ -667,7 +671,11 @@
       "what_this_comparison_does_not_establish": "NOT that our pooled KCCQ estimate is right or wrong -- their paper does not report the quantity we pool. NOT that semaglutide and tirzepatide behave alike on heart-failure events; their analysis contains no tirzepatide. NOT that a symptom-score benefit implies an event benefit, or the reverse: that inference is not licensed by either synthesis and neither paper claims it."
      },
      "published_comparison_owed_resolved": "The owed comparison was DONE on 2026-08-18 and is recorded above. One item it was hoped to resolve -- a published KCCQ results table superseding the abstract value -- IS NOT IN THIS PAPER, and that supersession remains owed."
-    }
+    },
+    "source_page_pooled": true,
+    "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+    "estimand_established": true,
+    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass."
    }
   },
   "headline_outcome": "kccq_css_change",

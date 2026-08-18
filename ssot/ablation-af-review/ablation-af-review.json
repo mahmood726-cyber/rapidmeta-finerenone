@@ -702,7 +702,11 @@
      "what": "EVERY PER-TRIAL VALUE ON THIS PAGE HAS CHANGED, and the measure has changed with it. The four rows previously showed ODDS RATIOS derived by us from 2x2 counts -- 0.4956, 0.8604, 0.7412 and 0.6682. They now show each trial's OWN reported HAZARD RATIO: 0.62 (0.43-0.87), 0.86 (0.65-1.15), 0.79 (0.66-0.94 at 96%) and 0.71 (0.49-1.03).",
      "why": "An odds ratio on participants is not the time-to-first-event hazard ratio any of these trials reports, and on CASTLE-AF the two differ materially -- 0.4956 against 0.62. Two of the rows were also wrong on their own terms: RAFT-AF's event counts were 44 and 55 against a true 50 and 64, and EAST-AFNET 4's arm labels were swapped so the page named USUAL CARE as the intervention arm.",
      "for_a_reader_who_wrote_the_old_numbers_down": "None of the four old values is a correction of an arithmetic slip. They were correct arithmetic on a quantity none of these trials reports, computed in two cases from wrong or mislabelled inputs. Use the new ones."
-    }
+    },
+    "source_page_pooled": false,
+    "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+    "estimand_established": false,
+    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass."
    }
   }
  },

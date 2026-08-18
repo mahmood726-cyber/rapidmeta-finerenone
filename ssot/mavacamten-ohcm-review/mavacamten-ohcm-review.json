@@ -246,7 +246,11 @@
     "single_study_ref": "NCT03470545",
     "per_trial": [],
     "pooled": null,
-    "poolable_verdict_absent_because": "NO POOLABILITY VERDICT HAS BEEN MADE FOR THIS TOPIC, and recording False would be a claim this build did not establish. False means 'these cannot legitimately be pooled', which is an assessment; this topic has ONE trial and publishes NO estimate, so the question was never reached. The distinction matters downstream: the orphan-pooled-result check exists to catch a DISPLAYED estimate an engine cannot compute, and with nothing displayed it can only pass vacuously -- which the harness gate correctly refuses to count as evidence. An absent verdict is emitted as an omission instead, which is the honest state and is what that gate is built to distinguish."
+    "poolable_verdict_absent_because": "NO POOLABILITY VERDICT HAS BEEN MADE FOR THIS TOPIC, and recording False would be a claim this build did not establish. False means 'these cannot legitimately be pooled', which is an assessment; this topic has ONE trial and publishes NO estimate, so the question was never reached. The distinction matters downstream: the orphan-pooled-result check exists to catch a DISPLAYED estimate an engine cannot compute, and with nothing displayed it can only pass vacuously -- which the harness gate correctly refuses to count as evidence. An absent verdict is emitted as an omission instead, which is the honest state and is what that gate is built to distinguish.",
+    "source_page_pooled": null,
+    "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+    "estimand_established": null,
+    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass."
    }
   }
  },

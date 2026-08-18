@@ -782,7 +782,11 @@
       "estimator_kept": "The headline estimator is restricted maximum likelihood, which is what section 10.10.4.4 records as the default in the Cochrane software and the direction its evidence points: it says in terms that other methods for estimating the between-study variance perform better than DerSimonian and Laird. An earlier version of this object kept DerSimonian and Laird as the headline and gave as its reason that the local validator could recompute it. A reviewer was right that this is not a methodological reason at all, and that it mattered here, because the headline is the line that excludes the null. The tooling was the thing that had to move, not the method: the validator now recomputes restricted maximum likelihood independently, so the Handbook's default and external checkability are no longer in tension. DerSimonian and Laird is still shown beside it, and it makes almost no difference to the summary, which is what the Handbook says to expect."
      },
      "conclusion": "The DIRECTION is stable: every trial's point estimate, every alternative statistic and every leave-one-out set puts tigecycline below its comparator on cure. What is NOT stable is the exclusion of the null. It survives only under the risk ratio of cure, on the evaluable population, with all three trials in. Reporting the primary line without this block would present a fragile result as a firm one."
-    }
+    },
+    "source_page_pooled": true,
+    "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+    "estimand_established": null,
+    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass."
    }
   }
  },

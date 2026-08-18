@@ -455,7 +455,11 @@
      "multi_arm_handling": "The 4 mg against 40 mg contrast is used in both trials, because it is the dose pair they share. NCT00309777 also randomised 2 mg against 20 mg (-38.99 vs -34.97); pooling both contrasts from one trial would double-count its participants, so the second is recorded here and NOT pooled.",
      "relationship_to_the_withdrawal": "The withdrawn value was an ODDS RATIO on this same continuous endpoint, with no source sentence behind it. It is not superseded quietly: the withdrawal and its reason stand in this object, and this is the analysis that replaces it.",
      "what_this_does_not_establish": "NOT that the two trials are free of bias -- no RoB-2 assessment is recorded. NOT that the arithmetic reproduces a published pooled figure; no published synthesis of these two trials has been checked against it. The INPUTS are read from the registry; the mean difference and its standard error are computed here and the formula is stated so both can be checked."
-    }
+    },
+    "source_page_pooled": false,
+    "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+    "estimand_established": false,
+    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass."
    }
   }
  },

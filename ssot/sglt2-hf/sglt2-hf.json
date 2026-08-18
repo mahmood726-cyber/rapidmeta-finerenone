@@ -271,6 +271,17 @@
    "comparator_type": "placebo",
    "definition": "Cardiovascular death or a worsening heart failure event, whichever comes first, as a hazard ratio",
    "definition_note": "The four contributing trials share no participant and no control group. They do not share a single definition of the composite, which is why this field is worded around the outcome CONCEPT and each cell stores its trial's own wording."
+  },
+  {
+   "id": "harmonised_cvdeath_or_hhf",
+   "type": "primary",
+   "name": "cardiovascular death or hospitalisation for heart failure, first event",
+   "measure": "HR",
+   "comparator": "placebo",
+   "comparator_type": "placebo",
+   "definition": "cardiovascular death or hospitalisation for heart failure, first event",
+   "definition_note": "Registered endpoint definitions read from every contributing registration on 2026-08-18; recorded per trial on this object.",
+   "added_2026_08_18": "The harmonised analysis block was added without a matching outcomes[] entry, and the generator raised StopIteration looking for it. MY OWN DEFECT, and the same class as everything else this week: a block the consumer cannot resolve is a block that does not exist to it."
   }
  ],
  "inputs": {
@@ -1473,7 +1484,11 @@
       "10.14"
      ],
      "what_this_certainty_is_about": "It is the certainty of the POOLED class average across four trials of two molecules, spanning the ejection-fraction spectrum. It is not a rating of either molecule on its own and not a rating for any one ejection-fraction band. It is also not a rating of the strictly harmonized composite that the published syntheses in the reconciliation block estimate, because that is a different quantity computed from patient-level or trial-level data this object does not hold. Reading this rating as a verdict on one drug in one population would be a misreading, and the sentence is here because that misreading is the easy one."
-    }
+    },
+    "source_page_pooled": false,
+    "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+    "estimand_established": null,
+    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass."
    },
    "harmonised_cvdeath_or_hhf": {
     "measure": "HR",

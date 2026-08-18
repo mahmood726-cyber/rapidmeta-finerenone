@@ -107,6 +107,17 @@
    "comparator_type": "not recorded on the page this object was extracted from",
    "direction_of_benefit": "not recorded on the page this object was extracted from",
    "null_value": 1
+  },
+  {
+   "id": "harmonised_cvdeath_or_hfh",
+   "type": "primary",
+   "name": "cardiovascular death or hospitalisation for heart failure",
+   "measure": "RR",
+   "comparator": "placebo or standard care",
+   "comparator_type": "active",
+   "definition": "cardiovascular death or hospitalisation for heart failure",
+   "definition_note": "Registered endpoint definitions read from every contributing registration on 2026-08-18; recorded per trial on this object.",
+   "added_2026_08_18": "The harmonised analysis block was added without a matching outcomes[] entry, and the generator raised StopIteration looking for it. MY OWN DEFECT, and the same class as everything else this week: a block the consumer cannot resolve is a block that does not exist to it."
   }
  ],
  "inputs": {
@@ -540,7 +551,11 @@
      }
     },
     "authoritative_reason_field": "pooled.withdrawn_reason",
-    "found_by": "Found by an EXTERNAL VALIDATOR -- rct-extractor-v2's outcome-grouping guard, written independently by people who hit these defect classes separately. Verified here against every registration before acting. FOURTH INSTANCE THIS WEEK of an outside check finding what our own passes missed, after Codex on ARNI's internal contradiction, Gemini on the SGLT2 disproportion, and a blinded comparator on the PARACHUTE-HF adverse-event discrepancy."
+    "found_by": "Found by an EXTERNAL VALIDATOR -- rct-extractor-v2's outcome-grouping guard, written independently by people who hit these defect classes separately. Verified here against every registration before acting. FOURTH INSTANCE THIS WEEK of an outside check finding what our own passes missed, after Codex on ARNI's internal contradiction, Gemini on the SGLT2 disproportion, and a blinded comparator on the PARACHUTE-HF adverse-event discrepancy.",
+    "source_page_pooled": false,
+    "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+    "estimand_established": false,
+    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass."
    },
    "harmonised_cvdeath_or_hfh": {
     "measure": "RR",
@@ -548,26 +563,33 @@
     "model": "random-effects",
     "estimator": "REML",
     "pooled": {
-     "point": 0.7987,
-     "ci_low": 0.749,
-     "ci_high": 0.8517,
-     "ci_level": 95
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "measure": null,
+     "withdrawn": true,
+     "withdrawn_reason": "WITHDRAWN 2026-08-18, HOURS AFTER IT WAS BUILT. Correcting an arm inversion in the IRONMAN row changed this pool from RR 0.7987 (0.7490-0.8517) with I2=0% to RR 0.976 (0.624-1.527) with I2=97.9%, AND THE TWO TRIALS NOW POINT IN OPPOSITE DIRECTIONS: AFFIRM-AHF 0.776, IRONMAN 1.225. IRONMAN FAVOURING THE CONTROL ARM CONTRADICTS THE PUBLISHED TRIAL. Combined with the fact that NCT02642562 POSTS NO RESULTS SECTION AT ALL -- so these counts did not come from the registry and this object never recorded where they did -- the IRONMAN row cannot be relied on in either direction. A POOL AT I2=97.9% BUILT ON AN UNATTRIBUTED ROW WHOSE DIRECTION CONTRADICTS ITS OWN TRIAL IS NOT AN ESTIMATE. Withdrawn until the IRONMAN counts are sourced.",
+     "withdrawn_utc": "2026-08-18",
+     "superseded_values": {
+      "as_first_built": "RR 0.7987 (0.7490, 0.8517) I2=0% -- ARMS INVERTED",
+      "after_correction": "RR 0.9760 (0.6240, 1.5265) I2=97.9% -- direction contradicts IRONMAN"
+     }
     },
     "pooled_hartung_knapp": {
-     "point": 0.7987,
-     "ci_low": 0.5266,
-     "ci_high": 1.2114,
+     "point": 0.976,
+     "ci_low": 0.0537,
+     "ci_high": 17.73,
      "df": 1,
      "t_critical": 12.7062047,
      "variance_inflation_applied": 1.0,
      "why_it_is_shown": "Handbook 6.5 section 10.10.4.5 recommends Hartung-Knapp where k is small. Shown ALONGSIDE the unadjusted interval, not instead of it. A FLOOR OF 1 is applied to the variance-inflation factor so the adjustment can never NARROW the interval below the unadjusted one."
     },
     "heterogeneity": {
-     "tau2": 0.0,
-     "q": 0.5687,
+     "tau2": 0.101961,
+     "q": 47.5352,
      "df": 1,
-     "i2_percent": 0.0,
-     "DIRECTION_TEST": "NOT APPLICABLE -- I-squared is 0.0%, below the threshold at which the direction test is informative. The trials are consistent with a common effect and no heterogeneity caution is warranted. Applying one here would manufacture doubt the data do not support, which is the mirror failure of ignoring heterogeneity that matters.",
+     "i2_percent": 97.9,
+     "DIRECTION_TEST": "SUBSTANTIVE -- I-squared is 97.9% AND the trial intervals do not all exclude 1, or do not all point the same way. The trials disagree on WHETHER. THE POOLED POINT IS A NUMBER AND NOT A CONCLUSION.",
      "how_to_read_this_at_low_k": "At k=2 or k=3 these statistics are weak evidence about consistency in EITHER direction. A low value means the estimates are CONSISTENT WITH a common effect, not that one is demonstrated."
     },
     "per_trial": [
@@ -602,15 +624,15 @@
       "read_utc": "2026-08-18",
       "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
       "as_posted": {
-       "iv_iron_events": 336,
-       "iv_iron_n": 569,
-       "control_events": 411,
-       "control_n": 568
+       "iv_iron_events": 411,
+       "iv_iron_n": 568,
+       "control_events": 336,
+       "control_n": 569
       },
       "measure": "RR",
-      "point": 0.8161,
-      "ci_low": 0.7494,
-      "ci_high": 0.8887,
+      "point": 1.2254,
+      "ci_low": 1.1252,
+      "ci_high": 1.3344,
       "se_log_rr": 0.043488,
       "derived_here": true,
       "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. Counts read from the registry; only the arithmetic is ours and the formula is shown."
@@ -631,7 +653,14 @@
       "first occurrence of cardiovascular death or hospitalisation for heart failure, both trials"
      ]
     },
-    "what_this_does_not_establish": "NOT that either trial is free of bias -- no risk-of-bias assessment is recorded. NOT a result for CONFIRM-HF's or FAIR-HF's populations, which are absent here. NOT that intravenous iron does not improve functional capacity: that is what those two trials measured and it is a different question."
+    "what_this_does_not_establish": "NOT that either trial is free of bias -- no risk-of-bias assessment is recorded. NOT a result for CONFIRM-HF's or FAIR-HF's populations, which are absent here. NOT that intravenous iron does not improve functional capacity: that is what those two trials measured and it is a different question.",
+    "ARM_INVERSION_CORRECTED_2026_08_18": "THE IRONMAN ROW WAS INVERTED WHEN THIS POOL WAS FIRST BUILT, HOURS AGO. I read the object arms in order and assigned arms[0] to the intervention. arms[0] IS THE CONTROL: the object labels it \"Standard care\" (336/569) and arms[1] \"Standard care plus IV iron infusion\" (411/568). The REGISTRY confirms the direction -- NCT02642562 types \"Standard care\" as NO_INTERVENTION and \"Standard care plus IV iron infusion\" as EXPERIMENTAL. POSITION IN A LIST IS NOT A ROLE, and the label and the registry arm type both said so. Corrected: IV iron 411/568 against control 336/569.",
+    "found_by": "Found by an INDEPENDENT BLINDED REVIEW on OpenAI GPT-5 via Codex, given four rebuilt objects cold with no knowledge of how or why they were built. Its single most serious finding: \"FCM-HF IRONMAN row. The live headline pool depends on it, while its own fields contradict registry availability and treatment/control assignment. That can flip the effect.\" IT DID FLIP THE EFFECT. FIFTH outside check this week to find what our own passes missed -- and the first to catch a defect I introduced the same day.",
+    "source_page_pooled": false,
+    "estimand_established": false,
+    "authoritative_reason_field": "pooled.withdrawn_reason",
+    "what_is_owed": "The IRONMAN CV-death-or-HF-hospitalisation counts from a stated source. The registry posts none. Until then AFFIRM-AHF stands alone at RR 0.776 (293/558 vs 372/550), registry-verified, and one trial is a trial rather than a synthesis.",
+    "the_sequence_worth_recording": "Built, corrected, withdrawn -- within hours. The first build inverted the arms; an independent blinded review caught it; the correction flipped the result and revealed that the underlying row was unattributed and pointed the wrong way. THE INVERSION WAS MINE AND THE UNATTRIBUTED ROW PREDATES ME. Neither was visible without the other."
    }
   }
  },
@@ -658,5 +687,5 @@
  ],
  "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",
  "headline_outcome": "harmonised_cvdeath_or_hfh",
- "topic_state": "WITHDRAWAL SUPERSEDED -- harmonised pool built, k=2, registry-sourced; the k=4 pool remains withdrawn with its reason"
+ "topic_state": "WITHDRAWN -- k=4 incommensurable; harmonised k=2 withdrawn on an unattributed IRONMAN row"
 }
