@@ -97,3 +97,35 @@ diseases, or a prophylaxis trial with a treatment trial will not now do so.
 
 **And the outcome limb alone would have passed all six.** The triage was right to say it
 tested one limb; reading the other three changed the answer for five of the six.
+
+
+---
+
+## Both surviving pools need the SAME source step, and it is the same one already owed
+
+`PITAVASTATIN` and `AZILSARTAN_HTN` are the only two candidates that survive as genuine
+pools. **Neither can be built from what is in this repository**, and for one reason:
+
+| topic | registered primary | measure type |
+|---|---|---|
+| PITAVASTATIN | *"Percent Change From Baseline in LDL-C"* | **continuous** |
+| AZILSARTAN k=2 | *"Change From Baseline to Week 8 in Trough, Sitting, Clinic Systolic Blood Pressure"* | **continuous** |
+
+A continuous endpoint needs a **mean difference and its standard error per trial**, read
+from each trial's own results record. The repository holds neither: PITAVASTATIN stored
+extractor-derived **odds ratios** with `"No source document was consulted and no source
+sentence is recorded"`, and AZILSARTAN has no object at all.
+
+**This is the same source step already owed for `BOCOCIZUMAB_LIPID` and
+`INCRETIN_HFpEF`** — both flagged in STATUS as needing least-squares mean differences
+read from results records, and both still owed.
+
+> **Four replacement analyses, one source-reading task.** Doing it once for all four is
+> the efficient order, and doing it badly for one is how a continuous endpoint acquires
+> an odds ratio in the first place.
+
+**AZILSARTAN_HTN is therefore NOT closed and is not counted.** Its coherent k=2 subset is
+identified (`NCT00846365`, `NCT01033071` — same intervention, same comparator, same
+registered primary), its two excluded trials have stated reasons, and the rename is
+decided. What is missing is the effect data, and estimating it rather than reading it is
+precisely the defect PITAVASTATIN was just withdrawn for.
