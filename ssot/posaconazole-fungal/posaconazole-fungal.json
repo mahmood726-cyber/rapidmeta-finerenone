@@ -1,0 +1,85 @@
+{
+ "app_id": "posaconazole-fungal",
+ "schema_version": 2,
+ "title": "Posaconazole Fungal: NOT POOLABLE -- no registration declares a clinical endpoint at any rank",
+ "built": "2026-08-18",
+ "build_mode": "verdict-only",
+ "topic_state": "NOT POOLABLE -- decided from the registrations",
+ "which_limb_fails": "OUTCOME -- the pooled quantity is not pre-specified anywhere",
+ "verification_basis": "Every seeded registration read from ClinicalTrials.gov on 2026-08-18 at all three outcome ranks: primaryOutcomes, secondaryOutcomes and otherOutcomes. The ranks read and the per-trial verdict are recorded on each trial row.",
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT00034645",
+    "nct": "NCT00034645",
+    "registration": "NCT00034645",
+    "registry": "ClinicalTrials.gov",
+    "label": "Prophylaxis Trial in High Risk Allogenic Stem Cell Transplant Recipients With Graft vs. Host Disease",
+    "ranks_read": [
+     "primary",
+     "secondary",
+     "other"
+    ],
+    "registered_primary": [],
+    "registered_secondary_count": 0,
+    "registered_other_count": 0,
+    "clinical_endpoint_at_any_rank": false,
+    "source_url": "https://clinicaltrials.gov/study/NCT00034645",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT00044486",
+    "nct": "NCT00044486",
+    "registration": "NCT00044486",
+    "registry": "ClinicalTrials.gov",
+    "label": "Prophylaxis Trial of Posaconazole Versus Standard Azole Therapy for Neutropenic Patients (Study P01899)",
+    "ranks_read": [
+     "primary",
+     "secondary",
+     "other"
+    ],
+    "registered_primary": [],
+    "registered_secondary_count": 0,
+    "registered_other_count": 0,
+    "clinical_endpoint_at_any_rank": false,
+    "source_url": "https://clinicaltrials.gov/study/NCT00044486",
+    "read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "outcomes": [
+  {
+   "id": "primary",
+   "type": "primary",
+   "name": "the clinical quantity this page pools",
+   "definition": "Not pre-specified in the registrations this page keys to -- see each trial's registered_primary."
+  }
+ ],
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 0,
+    "poolable": false,
+    "poolable_reason": "ALL 2 OF 2 SEEDED REGISTRATIONS REGISTER NO CLINICAL ENDPOINT AT ANY RANK. Every registration on this page was read on 2026-08-18 at ALL THREE RANKS -- primary, secondary and other outcome measures -- from ClinicalTrials.gov. Registrations read: NCT00034645, NCT00044486. AUTHORITY: Cochrane Handbook 6.5 (2024) section 8.7, RoB 2 domain 5, bias in selection of the reported result, which covers outcome measures 'added to, the results report, post hoc'. Eligibility is chapter 3's business and registration status is not among its criteria, so nothing here is excluded on eligibility; and section 10.10.3, 'A systematic review need not contain any meta-analyses.' ",
+    "pooled": {
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "withdrawn": true,
+     "withdrawn_reason": "ALL 2 OF 2 SEEDED REGISTRATIONS REGISTER NO CLINICAL ENDPOINT AT ANY RANK. Every registration on this page was read on 2026-08-18 at ALL THREE RANKS -- primary, secondary and other outcome measures -- from ClinicalTrials.gov. Registrations read: NCT00034645, NCT00044486. AUTHORITY: Cochrane Handbook 6.5 (2024) section 8.7, RoB 2 domain 5, bias in selection of the reported result, which covers outcome measures 'added to, the results report, post hoc'. Eligibility is chapter 3's business and registration status is not among its criteria, so nothing here is excluded on eligibility; and section 10.10.3, 'A systematic review need not contain any meta-analyses.' ",
+     "withdrawn_utc": "2026-08-18"
+    },
+    "per_trial": [],
+    "what_this_verdict_does_not_establish": "THIS IS A STATEMENT ABOUT THE REGISTRATION, NOT ABOUT THE TRIAL. It does NOT establish that clinical outcomes were not measured -- they may well have been measured and published, and the published figures may be entirely correct. It does NOT establish that any trial here was conducted or reported improperly: a trial designed as an immunogenicity, safety or pharmacokinetic study that registers immunogenicity, safety or pharmacokinetic endpoints IS BEHAVING CORRECTLY. What it establishes is that a SYNTHESIS on this page pooled a clinical quantity that none of these registrations pre-specified, and the criticism belongs on that pooling and nowhere else. The registry is a live document; this reads its contents on the date recorded and a later amendment could change it."
+   }
+  }
+ },
+ "risk_of_bias_verdict": "RoB 2 domain 5 (Handbook 6.5 section 8.7), bias in selection of the reported result, would be graded HIGH for every trial marked clinical_endpoint_at_any_rank=false, with the registry enumeration as the evidence. No pooled result is published here, so no further domain is graded.",
+ "handbook_authority": {
+  "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+  "version": "Version 6.5, 2024",
+  "verified_on": "2026-08-18",
+  "sections": "8.7 (bias in selection of the reported result); 10.10.3; 10.14",
+  "ruling": "An endpoint absent from its own registration is a RISK OF BIAS question, not an eligibility one. Chapter 3 and MECIR Box 3.2.d discourage outcome-based exclusion; chapter 13 recommends detection, a risk-of-bias judgement and sensitivity analysis, never exclusion."
+ }
+}

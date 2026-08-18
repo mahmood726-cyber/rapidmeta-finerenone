@@ -1,0 +1,93 @@
+{
+ "app_id": "amoxicillin-aom",
+ "schema_version": 2,
+ "title": "Amoxicillin Aom: NOT POOLABLE -- no registration declares a clinical endpoint at any rank",
+ "built": "2026-08-18",
+ "build_mode": "verdict-only",
+ "topic_state": "NOT POOLABLE -- decided from the registrations",
+ "which_limb_fails": "OUTCOME -- the pooled quantity is not pre-specified anywhere",
+ "verification_basis": "Every seeded registration read from ClinicalTrials.gov on 2026-08-18 at all three outcome ranks: primaryOutcomes, secondaryOutcomes and otherOutcomes. The ranks read and the per-trial verdict are recorded on each trial row.",
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT00377260",
+    "nct": "NCT00377260",
+    "registration": "NCT00377260",
+    "registry": "ClinicalTrials.gov",
+    "label": "Acute Otitis Media (AOM) Therapy Trial in Young Children",
+    "ranks_read": [
+     "primary",
+     "secondary",
+     "other"
+    ],
+    "registered_primary": [
+     "The Time to Resolution of Symptoms, Defined as Acute Otitis Media-Severity of Symptoms (AOM-SOS) Score of 0 or 1, According to Treatment Assignment",
+     "The Time to Resolution of Symptoms, Defined as Acute Otitis Media-Severity of Symptoms (AOM-SOS) Score of 0 or 1 on Two Consecutive Occasions, According to Treatment Assignment",
+     "The Weighted Average Acute Otitis Media - Severity of Symptom (AOM-SOS) Score, According to Treatment Assignment"
+    ],
+    "registered_secondary_count": 21,
+    "registered_other_count": 0,
+    "clinical_endpoint_at_any_rank": false,
+    "source_url": "https://clinicaltrials.gov/study/NCT00377260",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT03818815",
+    "nct": "NCT03818815",
+    "registration": "NCT03818815",
+    "registry": "ClinicalTrials.gov",
+    "label": "A Study to Assess the Safety, Tolerability and Efficacy of OP0201 as an Adjunct Treatment for Acute Otitis Media in Infants and Children Aged 6 to 24 Months",
+    "ranks_read": [
+     "primary",
+     "secondary",
+     "other"
+    ],
+    "registered_primary": [
+     "Number of Participants With Adverse Events",
+     "Evaluation of Efficacy (Otoscopy)",
+     "Evaluation of Efficacy (Otoscopy)"
+    ],
+    "registered_secondary_count": 0,
+    "registered_other_count": 0,
+    "clinical_endpoint_at_any_rank": false,
+    "source_url": "https://clinicaltrials.gov/study/NCT03818815",
+    "read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "outcomes": [
+  {
+   "id": "primary",
+   "type": "primary",
+   "name": "the clinical quantity this page pools",
+   "definition": "Not pre-specified in the registrations this page keys to -- see each trial's registered_primary."
+  }
+ ],
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 0,
+    "poolable": false,
+    "poolable_reason": "ALL 2 OF 2 SEEDED REGISTRATIONS REGISTER NO CLINICAL ENDPOINT AT ANY RANK. Every registration on this page was read on 2026-08-18 at ALL THREE RANKS -- primary, secondary and other outcome measures -- from ClinicalTrials.gov. Registrations read: NCT00377260, NCT03818815. AUTHORITY: Cochrane Handbook 6.5 (2024) section 8.7, RoB 2 domain 5, bias in selection of the reported result, which covers outcome measures 'added to, the results report, post hoc'. Eligibility is chapter 3's business and registration status is not among its criteria, so nothing here is excluded on eligibility; and section 10.10.3, 'A systematic review need not contain any meta-analyses.' ",
+    "pooled": {
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "withdrawn": true,
+     "withdrawn_reason": "ALL 2 OF 2 SEEDED REGISTRATIONS REGISTER NO CLINICAL ENDPOINT AT ANY RANK. Every registration on this page was read on 2026-08-18 at ALL THREE RANKS -- primary, secondary and other outcome measures -- from ClinicalTrials.gov. Registrations read: NCT00377260, NCT03818815. AUTHORITY: Cochrane Handbook 6.5 (2024) section 8.7, RoB 2 domain 5, bias in selection of the reported result, which covers outcome measures 'added to, the results report, post hoc'. Eligibility is chapter 3's business and registration status is not among its criteria, so nothing here is excluded on eligibility; and section 10.10.3, 'A systematic review need not contain any meta-analyses.' ",
+     "withdrawn_utc": "2026-08-18"
+    },
+    "per_trial": [],
+    "what_this_verdict_does_not_establish": "THIS IS A STATEMENT ABOUT THE REGISTRATION, NOT ABOUT THE TRIAL. It does NOT establish that clinical outcomes were not measured -- they may well have been measured and published, and the published figures may be entirely correct. It does NOT establish that any trial here was conducted or reported improperly: a trial designed as an immunogenicity, safety or pharmacokinetic study that registers immunogenicity, safety or pharmacokinetic endpoints IS BEHAVING CORRECTLY. What it establishes is that a SYNTHESIS on this page pooled a clinical quantity that none of these registrations pre-specified, and the criticism belongs on that pooling and nowhere else. The registry is a live document; this reads its contents on the date recorded and a later amendment could change it."
+   }
+  }
+ },
+ "risk_of_bias_verdict": "RoB 2 domain 5 (Handbook 6.5 section 8.7), bias in selection of the reported result, would be graded HIGH for every trial marked clinical_endpoint_at_any_rank=false, with the registry enumeration as the evidence. No pooled result is published here, so no further domain is graded.",
+ "handbook_authority": {
+  "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+  "version": "Version 6.5, 2024",
+  "verified_on": "2026-08-18",
+  "sections": "8.7 (bias in selection of the reported result); 10.10.3; 10.14",
+  "ruling": "An endpoint absent from its own registration is a RISK OF BIAS question, not an eligibility one. Chapter 3 and MECIR Box 3.2.d discourage outcome-based exclusion; chapter 13 recommends detection, a risk-of-bias judgement and sensitivity analysis, never exclusion."
+ }
+}

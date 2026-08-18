@@ -1034,3 +1034,36 @@ id — `SACUBITRIL_HEARTFAIL`, `SACUBITRIL_VALSARTAN_HF`, `HFREF_NMA` — and on
 PARADIGM-HF is a heart-failure trial. **Every count derived from that list is suspect
 until the exclusion is made conditional**, and the two "unidentifiable" verdicts are
 withdrawn.
+
+
+---
+
+## A commit message is authored; a diff is produced. When they disagree, the message is read
+
+Found 2026-08-18, in this lane's own work, one commit after it happened.
+
+A chained command ran a Python script to write findings into two documents and then `git
+commit` in the same shell. **The Python died on a syntax error. The git command ran
+anyway.** The commit shipped a script alone — and its message set out the completed
+cardiology numbers, the under-counting correction and the provenance labelling, **none of
+which the diff contained.**
+
+**This is not the "did it land where it has to be" shape already in this file**, though it
+is adjacent. Those four were: the action succeeded, reported success, and did not take
+effect. Here the action **partly** succeeded — and the discrepancy is between two records
+of it that are produced by different mechanisms:
+
+> **A commit message is AUTHORED. A diff is PRODUCED.**
+> **The message is the one that gets read. The diff is the one that is true.**
+
+Nothing cross-checks them. Every gate in this repository reads files; none reads what a
+commit claimed about them. A reader — including a future lane — takes the message as the
+record, and here the message described a state of the repository that did not exist.
+
+**The rule, and it is free:** **never let a commit message state a finding the diff does
+not contain**, and **check with `git show --stat` before moving on** — one file, 147
+insertions, no document, which is what caught it.
+
+**And the narrower lesson underneath:** a `&&` chain that ends in `git commit` will commit
+whatever state exists when the earlier step fails in a way the shell does not treat as
+fatal. Generating content and recording it should not share a command.
