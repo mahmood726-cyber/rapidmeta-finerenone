@@ -938,7 +938,7 @@ filter.overallStatus=COMPLETED|TERMINATED|ACTIVE_NOT_RECRUITING</pre>
 </div>
   </section>
 <!--end-screen-->  <section class="panel" id="pn-extract">
-  <p class='toc'><strong>In this section:</strong> <a href="#extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</a> &middot; <a href="#extract-risk-of-bias-rob-2">Risk of bias (RoB-2)</a> &middot; <a href="#extract-overall-judgement-per-trial">Overall judgement per trial</a> &middot; <a href="#extract-inter-assessor-agreement-as-measured">Inter-assessor agreement, as measured</a> &middot; <a href="#extract-open-disagreements-5">Open disagreements (5)</a> &middot; <a href="#extract-integrity-flag">Integrity flag</a> &middot; <a href="#extract-where-two-sources-disagree">Where two sources disagree</a> &middot; <a href="#extract-sources">Sources</a> &middot; <a href="#extract-cardiovascular-death-or-hospitalization-">Cardiovascular death or hospitalization for heart failure, whichever comes first, as a hazard ratio</a> &middot; <a href="#extract-cardiovascular-death-or-hospitalization--2">Cardiovascular death or hospitalization for heart failure, whichever comes first, as a hazard ratio</a> &middot; <a href="#extract-what-was-measured">What was measured</a> &middot; <a href="#extract-pooled-result">Pooled result</a> &middot; <a href="#extract-what-this-pool-holds-constant">What this pool holds constant</a> &middot; <a href="#extract-contributing-trials">Contributing trials</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision">The methods rule governing this decision</a> &middot; <a href="#extract-leave-one-out-sensitivity">Leave-one-out sensitivity</a> &middot; <a href="#extract-does-the-answer-depend-on-the-pooling-me">Does the answer depend on the pooling method?</a></p>
+  <p class='toc'><strong>In this section:</strong> <a href="#extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</a> &middot; <a href="#extract-risk-of-bias-rob-2">Risk of bias (RoB-2)</a> &middot; <a href="#extract-overall-judgement-per-trial">Overall judgement per trial</a> &middot; <a href="#extract-inter-assessor-agreement-as-measured">Inter-assessor agreement, as measured</a> &middot; <a href="#extract-open-disagreements-5">Open disagreements (5)</a> &middot; <a href="#extract-integrity-flag">Integrity flag</a> &middot; <a href="#extract-where-two-sources-disagree">Where two sources disagree</a> &middot; <a href="#extract-sources">Sources</a> &middot; <a href="#extract-cardiovascular-death-or-hospitalization-">Cardiovascular death or hospitalization for heart failure, whichever comes first, as a hazard ratio</a> &middot; <a href="#extract-cardiovascular-death-or-hospitalization--2">Cardiovascular death or hospitalization for heart failure, whichever comes first, as a hazard ratio</a> &middot; <a href="#extract-what-was-measured">What was measured</a> &middot; <a href="#extract-pooled-result">Pooled result</a> &middot; <a href="#extract-what-this-pool-holds-constant">What this pool holds constant</a> &middot; <a href="#extract-contributing-trials">Contributing trials</a> &middot; <a href="#extract-endpoint-definitions-read-from-the-regis">Endpoint definitions, read from the registry</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision">The methods rule governing this decision</a> &middot; <a href="#extract-leave-one-out-sensitivity">Leave-one-out sensitivity</a> &middot; <a href="#extract-does-the-answer-depend-on-the-pooling-me">Does the answer depend on the pooling method?</a></p>
 <div class='card'>
   <h2 id="extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</h2>
   <p>One row per extracted value. Every row carries the value, the verbatim sentence it was read from, a resolvable link to the source, and whether the number was read or derived. Where any of those is absent the row says so rather than omitting the value.</p>
@@ -1105,6 +1105,23 @@ filter.overallStatus=COMPLETED|TERMINATED|ACTIVE_NOT_RECRUITING</pre>
   </table></div>
   <p><small>The four contributing trials share no participant and no control group.</small></p>
 </div>
+<div class="card">
+  <h3 id="extract-endpoint-definitions-read-from-the-regis">Endpoint definitions, read from the registry</h3>
+  <p><small>What each trial COUNTED, in its own registry record's words, before
+  anything here was pooled. A sentence saying what HAPPENED is not a sentence
+  saying what was COUNTED, and only the second one licenses a pool. Read from the registry on 2026-08-17. Follow the
+  registration link to disagree with any row.</small></p>
+  <div class='tscroll'><table>
+    <caption>Table 20. Endpoint definitions, read from the registry</caption>
+
+    <tr><th>Trial</th><th>Registered primary outcome measure</th>
+        <th>Description, verbatim</th><th>Analysis set / window</th></tr>
+    <tr><td><strong>PARADIGM-HF</strong><br><small>NCT01035255</small></td><td colspan='3'><em>No endpoint definition is recorded for this trial. Its effect was pooled without one.</em></td></tr>
+    <tr><td><strong>PARACHUTE-HF</strong><br><small>NCT04023227</small></td><td colspan='3'><em>No endpoint definition is recorded for this trial. Its effect was pooled without one.</em></td></tr>
+    <tr><td><strong>PARALLEL-HF</strong><br><small><a href="https://clinicaltrials.gov/study/NCT02468232" rel="noopener">NCT02468232</a></small></td><td>Number of Participants Who Had CEC (Clinical Endpoint Committee) Confirmed Composite Endpoints</td><td>Composite endpoint is defined as either cardiovascular (CV) death or heart failure (HF) hospitalization in Japanese patients with chronic heart failure (CHF) and reduced ejection fraction. The composite endpoint events occurred on and after End-of-study (EOS) declaration were reported by investigators but those events were not required to be adjudicated by Clinical Endpoint Committee (CEC) and not included in the efficacy analysis.</td><td>up to 40 months</td></tr>
+    <tr><td><strong>ANSWER-HF</strong><br><small>NCT04853758</small></td><td colspan='3'><em>No endpoint definition is recorded for this trial. Its effect was pooled without one.</em></td></tr>
+  </table></div>
+</div>
 <div class='card'>
   <h3 id="extract-the-methods-rule-governing-this-decision">The methods rule governing this decision</h3>
   <p><strong>Decision:</strong> POOL four trials reporting the same effect measure for the same outcome concept against the same comparator, producing an AVERAGE ACROSS documented differences in aetiology, ejection-fraction ceiling, blinding and the endpoint&#x27;s rank within its own trial</p>
@@ -1115,7 +1132,7 @@ filter.overallStatus=COMPLETED|TERMINATED|ACTIVE_NOT_RECRUITING</pre>
   <h3 id="extract-leave-one-out-sensitivity">Leave-one-out sensitivity</h3>
   <p>Two decisions. First, whether the pooled benefit depends on any single trial -- and it does. Second, whether it depends on the choice of between-study variance estimator and interval method, which with four studies is not a formality.</p>
   <div class='tscroll'><table>
-    <caption>Table 20. Leave-one-out sensitivity</caption>
+    <caption>Table 21. Leave-one-out sensitivity</caption>
 
     <tr><th>Cohort omitted</th><th>k</th><th>HR (95% CI)</th></tr>
     <tr><td>paradigm-hf</td><td class='num'>3</td><td class='num'>0.966 (0.7897 to 1.182)</td></tr>
@@ -1128,7 +1145,7 @@ filter.overallStatus=COMPLETED|TERMINATED|ACTIVE_NOT_RECRUITING</pre>
   <h3 id="extract-does-the-answer-depend-on-the-pooling-me">Does the answer depend on the pooling method?</h3>
   <p>Three between-study-variance estimators, each with Wald and HKSJ intervals. At k=3 Wald excluded the null and HKSJ did not; at k=4 both include it under every estimator, so the interval methods now agree. The point estimate moves from 0.872 to 0.904 across estimators, and I-squared from 32.9% to 55.7%.</p>
   <div class='tscroll'><table>
-    <caption>Table 21. Does the answer depend on the pooling method?</caption>
+    <caption>Table 22. Does the answer depend on the pooling method?</caption>
 
     <tr><th>Between-study variance</th><th>Interval</th><th>Summary (95% CI)</th><th>&tau;&sup2;</th></tr>
     <tr><td>restricted maximum likelihood (REML)</td><td>ordinary (Wald)</td><td class='num'>0.8715 (0.7461 to 1.018)</td><td class='num'>0.008597</td></tr>
@@ -1149,7 +1166,7 @@ filter.overallStatus=COMPLETED|TERMINATED|ACTIVE_NOT_RECRUITING</pre>
   <h2 id="analysis-which-outcomes-were-analysed">Which outcomes were analysed</h2>
   <p><strong>One outcome is the REGISTERED analysis. Three more are now pooled as secondary, and everything else the trials report cannot be pooled without changing the question.</strong></p>
   <div class='tscroll'><table>
-    <caption>Table 22. Which outcomes were analysed</caption>
+    <caption>Table 23. Which outcomes were analysed</caption>
 
     <tr><th scope='col'>Outcome</th><th>Measure</th><th>k</th><th>Result / status</th></tr>
     <tr><td>Cardiovascular death or hospitalization for heart failure, whichever comes first, as a hazard ratio</td><td>HR</td><td class='num'>3</td><td><strong>POOLED -- the primary result</strong></td></tr>
@@ -1162,7 +1179,7 @@ filter.overallStatus=COMPLETED|TERMINATED|ACTIVE_NOT_RECRUITING</pre>
   <p><small>parallel-hf all-cause death is ClinicalTrials.gov ONLY -- the Circ J primary paper does not report all-cause mortality at all, so that pair has no second source.</small></p>
   <h3 id="analysis-considered-and-not-pooled-with-the-reas">Considered and NOT pooled, with the reason</h3>
   <div class='tscroll'><table>
-    <caption>Table 23. Considered and NOT pooled, with the reason</caption>
+    <caption>Table 24. Considered and NOT pooled, with the reason</caption>
 
     <tr><th scope='col'>Win ratio (PARACHUTE-HF primary)</th><td>A hierarchical win ratio is not convertible to a hazard ratio or a risk ratio. It compares pairs of patients on an ordered hierarchy of events; there is no arithmetic that turns it into this review&#x27;s estimand without inventing information.</td></tr>
     <tr><th scope='col'>NT-proBNP change (PIONEER-HF and others)</th><td>A ratio of change in a biomarker is not an event-time quantity. Excluded on the measure axis at screening, not omitted here.</td></tr>
@@ -1872,7 +1889,7 @@ filter.overallStatus=COMPLETED|TERMINATED|ACTIVE_NOT_RECRUITING</pre>
 <div class='card'>
   <h3 id="report-summary-of-findings">Summary of findings</h3>
   <div class='tscroll'><table>
-    <caption>Table 24. Summary of findings</caption>
+    <caption>Table 25. Summary of findings</caption>
 
     <tr><th>Outcome</th><th>k</th><th>Pooled effect</th><th>Certainty</th></tr>
     <tr><td>Cardiovascular death or hospitalization for heart failure, whichever comes first, as a hazard ratio</td><td class='num'>4 (lower bound)</td><td class='num'>HR 0.872 (0.746 to 1.02)</td><td>low</td></tr>
@@ -1881,14 +1898,14 @@ filter.overallStatus=COMPLETED|TERMINATED|ACTIVE_NOT_RECRUITING</pre>
 <div class='card'>
   <h3 id="report-reproducibility-artifact">Reproducibility artifact</h3>
   <div class='tscroll'><table>
-    <caption>Table 25. Reproducibility artifact</caption>
+    <caption>Table 26. Reproducibility artifact</caption>
 
     <tr><th scope='col'>Canonical object</th><td><code>ssot/arni-hfref/arni-hfref.json</code></td></tr>
     <tr><th scope='col'>Registered at</th><td><code>961400264a06</code> 2026-08-10T05:13:40Z</td></tr>
     <tr><th scope='col'>Permalink</th><td><a href='https://github.com/mahmood726-cyber/rapidmeta-finerenone/commit/961400264a06bd940bef11e02b528ea0f73a8dee'>https://github.com/mahmood726-cyber/rapidmeta-finerenone/commit/961400264a06bd940bef11e02b528ea0f73a8dee</a></td></tr>
     <tr><th scope='col'>Schema</th><td>2</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-09</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>00a5bfc55</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>d1339a8cb</code>, built to STANDARD v1</td></tr>
     <tr><th scope='col'>Statistical engine</th><td>metafor 5.0.1 under R 4.6.0, generic inverse variance on the same log point and log standard error this object stores</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
@@ -1899,7 +1916,7 @@ filter.overallStatus=COMPLETED|TERMINATED|ACTIVE_NOT_RECRUITING</pre>
   <p><strong>13 checks were applied to this review and 9 came back clean. The denominator is stated because a list of only the failures is not a finding, it is a selection.</strong></p>
   <p><small>Confirmations are listed in the same table, in the same detail, as errors. Two checks were designed to catch a fault and instead cleared the paper: including a cohort study is inside their own stated eligibility, and omitting a small-study test at nine studies is what the Handbook advises.</small></p>
   <div class='tscroll'><table>
-    <caption>Table 26. Comparison with published syntheses</caption>
+    <caption>Table 27. Comparison with published syntheses</caption>
 
     <tr><th scope='col'>Check</th><th>Verdict</th><th>What was found</th></tr>
     <tr><td><strong>Stated study count against the rows of its own Table 1</strong><br><small>count-stated-vs-table</small></td><td>CONFIRMED<br><small>checked and clean</small></td><td>The abstract and Results both say nine. Table 1 carries exactly nine author rows: Bano, Desai, Li, McMurray, Pathadka, Piepoli, Tsutsui, Velazquez, Zhao. Counted from the staged full text, not taken from the abstract.<br><small>Quoted: &ldquo;A total of nine studies were included in this meta-analysis.&rdquo; &mdash; Abstract; Results, paragraph 1</small></td></tr>
@@ -1918,13 +1935,13 @@ filter.overallStatus=COMPLETED|TERMINATED|ACTIVE_NOT_RECRUITING</pre>
   </table></div>
   <h3 id="report-the-syntheses-reconciled-against">The syntheses reconciled against</h3>
   <div class='tscroll'><table>
-    <caption>Table 27. The syntheses reconciled against</caption>
+    <caption>Table 28. The syntheses reconciled against</caption>
 
     <tr><th scope='col'>38084196</th><td>Reyaz I, et al. Comparison of outcomes between sacubitril/valsartan and enalapril in patients with heart failure: a systematic review and meta-analysis. Cureus 2023;15(11):e48623.<br><small>Three differences, and none of them makes either review wrong. They admit observational designs and this object does not. They pool RISK RATIOS over whole follow-up; this object pools a time-to-first-event HAZARD RATIO, a different quantity. Their search closed in September 2023, before two of the four trials pooled here existed.</small></td></tr>
   </table></div>
   <h3 id="report-where-the-numbers-differ-and-why">Where the numbers differ, and why</h3>
   <div class='tscroll'><table>
-    <caption>Table 28. Where the numbers differ, and why</caption>
+    <caption>Table 29. Where the numbers differ, and why</caption>
 
     <tr><th scope='col'>This review</th><td>HR 0.872 (0.746 to 1.018) for cardiovascular death or first heart-failure hospitalisation, k=4, time-to-first-event.</td></tr>
     <tr><th scope='col'>The published synthesis</th><td>RR 0.76 (0.66 to 0.86) for cardiovascular hospitalisation and RR 0.75 (0.62 to 0.91) for cardiovascular mortality, reported as separate outcomes.</td></tr>
@@ -1939,7 +1956,7 @@ filter.overallStatus=COMPLETED|TERMINATED|ACTIVE_NOT_RECRUITING</pre>
   <p>Started at <strong>high</strong> &mdash; every contributing study is a randomised controlled trial.</p>
   <p><small>start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -&gt; low. The risk_of_bias rating was re-examined against the completed RoB-2 assessment on 2026-08-12 and did not move; see domains.risk_of_bias.rob2_effect_on_this_rating.</small></p>
   <div class='tscroll'><table>
-    <caption>Table 29. Certainty of the evidence (GRADE)</caption>
+    <caption>Table 30. Certainty of the evidence (GRADE)</caption>
 
     <tr><th scope='col'>Domain</th><th>Rating</th><th>Why it was rated that way</th></tr>
     <tr><th scope='col'>Risk of bias</th><td>serious</td><td><small>Three separate features, each read from a staged source rather than assumed. PARACHUTE-HF describes itself as an &#x27;open-label, multicenter randomized clinical trial&#x27; with blinded endpoint adjudication; blinded adjudication protects how an event is classified but not the unblinded management decisions that produce a heart failure hospitalization, which is one of the two components. In the same trial this composite is the first SECONDARY endpoint, the primary being a win ratio, so the result pooled here comes from that trial&#x27;s secondary hierarchy and carries the multiplicity and selective-reporting exposure that goes with it; the separate question of the trial not being POWERED for this endpoint is random error and is carried in the imprecision domain, not here. PARADIGM-HF &#x27;was stopped early, according to prespecified rules ... because the boundary for an overwhelming benefit with LCZ696 had been crossed&#x27;, and a trial stopped early for benefit tends to overstate the effect it was stopped for -- which matters here because the leave-one-out analysis shows the pooled benefit rests on that trial. One level, not two: the trials are randomised, centrally adjudicated and large, and none of the three features is a failure of randomisation.</small></td></tr>
@@ -2015,7 +2032,7 @@ Second, and this is why &#x27;no domain reached HIGH&#x27; does not discharge th
   <figure class='doc-t'>
     <figcaption><strong>Table 1.</strong> PRISMA flow of records, as counts</figcaption>
     <div class='tscroll'><table>
-    <caption>Table 30. Results</caption>
+    <caption>Table 31. Results</caption>
 
       <tr><th>Stage</th><th>n</th><th>Detail</th></tr>
       <tr><td>Records identified from databases and registers</td><td>423</td><td>PubMed: 331; ClinicalTrials.gov API v2: 92</td></tr>
@@ -2053,7 +2070,7 @@ Second, and this is why &#x27;no domain reached HIGH&#x27; does not discharge th
   <figure class='doc-t'>
     <figcaption><strong>Table 2.</strong> Characteristics of the included trials</figcaption>
     <div class='tscroll'><table>
-    <caption>Table 31. Included studies</caption>
+    <caption>Table 32. Included studies</caption>
 
       <tr><th>Trial</th><th>Registry ID</th><th>Year</th><th>Design</th><th>Population</th><th>Analysed (T/C)</th></tr>
       <tr><td>PARADIGM-HF</td><td>NCT01035255</td><td>2014</td><td>phase 3, double-blind, randomised one to one against an acti</td><td>adults with NYHA class II to IV heart failure and </td><td>4187 / 4212</td></tr>
@@ -2066,7 +2083,7 @@ Second, and this is why &#x27;no domain reached HIGH&#x27; does not discharge th
   <figure class='doc-t'>
     <figcaption><strong>Table 3.</strong> Per-arm events and denominators for the pooled composite</figcaption>
     <div class='tscroll'><table>
-    <caption>Table 32. Per-arm event counts</caption>
+    <caption>Table 33. Per-arm event counts</caption>
 
       <tr><th>Trial</th><th>Intervention events / n</th><th>Comparator events / n</th><th>Source tier</th></tr>
       <tr><td>PARADIGM-HF</td><td>914 / 4187</td><td>1117 / 4212</td><td>T1+T2</td></tr>
@@ -2080,7 +2097,7 @@ Second, and this is why &#x27;no domain reached HIGH&#x27; does not discharge th
   <figure class='doc-t'>
     <figcaption><strong>Table 4.</strong> Extracted values, and where each came from</figcaption>
     <div class='tscroll'><table>
-    <caption>Table 33. Extracted values, and where each came from</caption>
+    <caption>Table 34. Extracted values, and where each came from</caption>
 
       <tr><th>Trial / outcome</th><th>Value as extracted</th><th>Verbatim source sentence</th><th>Source links</th><th>Read or derived</th></tr>
       <tr><td>PARADIGM-HF / cvdeath_or_hfh_first</td><td> 0.8 (95% CI 0.73 to 0.87)</td><td><pre class='cellpre'>“At the time of study closure, the primary outcome had occurred in 914 patients (21.8%) in the LCZ696 group and 1117 patients (26.5%) in the enalapril group (hazard ratio in the LCZ696 group, 0.80; 95% confidence interval [CI], 0.73 to 0.87; P&lt;0.001).”
@@ -2098,7 +2115,7 @@ Second, and this is why &#x27;no domain reached HIGH&#x27; does not discharge th
   <figure class='doc-t'>
     <figcaption><strong>Table 5.</strong> Component endpoints and each trial&#x27;s published effect</figcaption>
     <div class='tscroll'><table>
-    <caption>Table 34. Component endpoints</caption>
+    <caption>Table 35. Component endpoints</caption>
 
       <tr><th>Trial</th><th>Endpoint</th><th>Intervention events / n</th><th>Comparator events / n</th><th>Published effect</th><th>Source tier</th></tr>
       <tr><td>PARADIGM-HF</td><td>Cardiovascular death</td><td>558 / 4187</td><td>693 / 4212</td><td>None published</td><td>T1+T2</td></tr>
@@ -2123,7 +2140,7 @@ Second, and this is why &#x27;no domain reached HIGH&#x27; does not discharge th
   <figure class='doc-t'>
     <figcaption><strong>Table 6.</strong> The same 2x2 on three scales (sensitivity to the primary hazard-ratio pool)</figcaption>
     <div class='tscroll'><table>
-    <caption>Table 35. Pooled result</caption>
+    <caption>Table 36. Pooled result</caption>
 
       <tr><th>Measure</th><th>Pooled (95% interval)</th><th>I-squared (%)</th><th>k</th></tr>
       <tr><td>Risk ratio</td><td>0.872 (0.777 to 0.979)</td><td>25.2</td><td>4</td></tr>
@@ -2134,7 +2151,7 @@ Second, and this is why &#x27;no domain reached HIGH&#x27; does not discharge th
   <figure class='doc-t'>
     <figcaption><strong>Table 7.</strong> Leave-one-out sensitivity analysis</figcaption>
     <div class='tscroll'><table>
-    <caption>Table 36. Pooled result</caption>
+    <caption>Table 37. Pooled result</caption>
 
       <tr><th>Trial omitted</th><th>Pooled estimate (95% interval)</th><th>I-squared (%)</th></tr>
       <tr><td>paradigm-hf</td><td>0.966 (0.79 to 1.18)</td><td>1.2</td></tr>
@@ -2146,7 +2163,7 @@ Second, and this is why &#x27;no domain reached HIGH&#x27; does not discharge th
   <figure class='doc-t'>
     <figcaption><strong>Table 8.</strong> Between-study-variance estimator comparison</figcaption>
     <div class='tscroll'><table>
-    <caption>Table 37. Pooled result</caption>
+    <caption>Table 38. Pooled result</caption>
 
       <tr><th>Estimator</th><th>Interval method</th><th>Point</th><th>Lower</th><th>Upper</th><th>tau-squared</th></tr>
       <tr><td>REML</td><td>Wald</td><td>0.872</td><td>0.746</td><td>1.02</td><td>0.0086</td></tr>
@@ -2226,7 +2243,7 @@ Second, and this is why &#x27;no domain reached HIGH&#x27; does not discharge th
   <figure class='doc-t'>
     <figcaption><strong>Table 9.</strong> Screening log: every record adjudicated, with its decision and the reason for it</figcaption>
     <div class='tscroll'><table>
-    <caption>Table 38. Screening and exclusions</caption>
+    <caption>Table 39. Screening and exclusions</caption>
 
       <tr><th>Record</th><th>Registry / PMID</th><th>Decision</th><th>Reason</th></tr>
       <tr><td>PARAGON-HF</td><td>NCT01920711 PMID 31475794</td><td>excluded</td><td>Fails the frozen question on all three axes, and any one of them is sufficient. POPULATION: it enrolled an ejection fraction of 45% or higher, which is preserved rather than reduced. COMPARATOR: it randomised against VALSARTAN, not enalapril. MEASURE: its primary is the cumulative number of cardiovascular deaths and TOTAL, first and recurrent, heart failure hospitalizations, analysed as a RATE RAT</td></tr>
@@ -2249,7 +2266,7 @@ Second, and this is why &#x27;no domain reached HIGH&#x27; does not discharge th
   <figure class='doc-t'>
     <figcaption><strong>Table 10.</strong> GRADE summary of findings</figcaption>
     <div class='tscroll'><table>
-    <caption>Table 39. Certainty of the evidence</caption>
+    <caption>Table 40. Certainty of the evidence</caption>
 
       <tr><th>Domain</th><th>Rating</th><th>Basis</th></tr>
       <tr><td>Risk of bias</td><td>serious</td><td>Three separate features, each read from a staged source rather than assumed. PARACHUTE-HF describes itself as an &#x27;open-label, multicenter randomized clinical trial&#x27; with blinded endpoint adjudication; blinded adjudication protects how an event is classified but not the unblinded management decisions that produce a heart failure hospitalization, which is one of the two components. In the same trial</td></tr>
@@ -2265,7 +2282,7 @@ Second, and this is why &#x27;no domain reached HIGH&#x27; does not discharge th
   <figure class='doc-t'>
     <figcaption><strong>Table 11.</strong> Risk of bias by domain and trial, both assessors shown separately and unreconciled</figcaption>
     <div class='tscroll'><table>
-    <caption>Table 40. Risk of bias in the included results</caption>
+    <caption>Table 41. Risk of bias in the included results</caption>
 
       <tr><th>Trial</th><th>Domain</th><th>Assessor 1 (openai)</th><th>Assessor 2 (google)</th><th>Agreed</th></tr>
       <tr><td>paradigm-hf</td><td>D1 bias arising from the randomization process</td><td>LOW</td><td>LOW</td><td>yes</td></tr>
@@ -2288,7 +2305,7 @@ Second, and this is why &#x27;no domain reached HIGH&#x27; does not discharge th
   <figure class='doc-t'>
     <figcaption><strong>Table 12.</strong> Overall risk-of-bias judgement per trial, by the standard algorithm</figcaption>
     <div class='tscroll'><table>
-    <caption>Table 41. Risk of bias in the included results</caption>
+    <caption>Table 42. Risk of bias in the included results</caption>
 
       <tr><th>Trial</th><th>Assessor 1</th><th>Assessor 2</th><th>Agreed</th></tr>
       <tr><td>paradigm-hf</td><td>SOME CONCERNS</td><td>LOW</td><td>NO</td></tr>
@@ -2300,7 +2317,7 @@ Second, and this is why &#x27;no domain reached HIGH&#x27; does not discharge th
   <figure class='doc-t'>
     <figcaption><strong>Table 13.</strong> Open disagreements, carried at the more cautious judgement pending adjudication</figcaption>
     <div class='tscroll'><table>
-    <caption>Table 42. Risk of bias in the included results</caption>
+    <caption>Table 43. Risk of bias in the included results</caption>
 
       <tr><th>Trial</th><th>Domain</th><th>Assessor 1</th><th>Assessor 2</th><th>Carried</th><th>Status</th></tr>
       <tr><td>paradigm-hf</td><td>D5</td><td>SOME CONCERNS</td><td>LOW</td><td>SOME CONCERNS</td><td>AWAITING ADJUDICATION by the named human (Mahmood Ahmad)</td></tr>
@@ -2321,7 +2338,7 @@ Second, and this is why &#x27;no domain reached HIGH&#x27; does not discharge th
   <figure class='doc-t'>
     <figcaption><strong>Table 14.</strong> Quantities on which registry and publication disagree</figcaption>
     <div class='tscroll'><table>
-    <caption>Table 43. Disagreements between sources</caption>
+    <caption>Table 44. Disagreements between sources</caption>
 
       <tr><th>Trial</th><th>Quantity</th><th>Registry</th><th>Publication</th><th>Status</th></tr>
       <tr><td>PARACHUTE-HF</td><td>Serious adverse events</td><td>169/183</td><td>211/234</td><td>UNRESOLVED -- both values recorded, neither adopted</td></tr>
@@ -2338,7 +2355,7 @@ Second, and this is why &#x27;no domain reached HIGH&#x27; does not discharge th
   <figure class='doc-t'>
     <figcaption><strong>Table 15.</strong> Trial-by-trial reconciliation against their included set</figcaption>
     <div class='tscroll'><table>
-    <caption>Table 44. Reyaz I, et al. Comparison of outcomes between sacubitril/valsartan and enalapril in patients with heart failure: a syst</caption>
+    <caption>Table 45. Reyaz I, et al. Comparison of outcomes between sacubitril/valsartan and enalapril in patients with heart failure: a syst</caption>
 
       <tr><th>Side</th><th>Trial</th><th>Disposition here</th><th>Reason</th></tr>
       <tr><td>only theirs</td><td>Tsutsui 2021 (PARALLEL-HF)</td><td>recovered</td><td>Eligible on every axis of the frozen question and absent from the brief this object was built from. Recovered, sourced to its own publication and its own registry record, and pooled.</td></tr>
@@ -2356,7 +2373,7 @@ Second, and this is why &#x27;no domain reached HIGH&#x27; does not discharge th
   <figure class='doc-t'>
     <figcaption><strong>Table 16.</strong> Checks applied to the published synthesis, with verdicts</figcaption>
     <div class='tscroll'><table>
-    <caption>Table 45. Reyaz I, et al. Comparison of outcomes between sacubitril/valsartan and enalapril in patients with heart failure: a syst</caption>
+    <caption>Table 46. Reyaz I, et al. Comparison of outcomes between sacubitril/valsartan and enalapril in patients with heart failure: a syst</caption>
 
       <tr><th>Check</th><th>Verdict</th><th>What was compared</th></tr>
       <tr><td>Stated study count against the rows of its own Table 1</td><td>CONFIRMED</td><td>The abstract and Results both say nine. Table 1 carries exactly nine author rows: Bano, Desai, Li, McMurray, Pathadka, Piepoli, Tsutsui, Velazquez, Zhao. Counted from the staged full text, not taken from the abstract.</td></tr>
@@ -2378,7 +2395,7 @@ Second, and this is why &#x27;no domain reached HIGH&#x27; does not discharge th
   <figure class='doc-t'>
     <figcaption><strong>Table 17.</strong> Quoted evidence for each check, with its location and our adjudication</figcaption>
     <div class='tscroll'><table>
-    <caption>Table 46. Reyaz I, et al. Comparison of outcomes between sacubitril/valsartan and enalapril in patients with heart failure: a syst</caption>
+    <caption>Table 47. Reyaz I, et al. Comparison of outcomes between sacubitril/valsartan and enalapril in patients with heart failure: a syst</caption>
 
       <tr><th>Claim checked</th><th>Verbatim quotation</th><th>Location</th><th>Adjudication</th></tr>
       <tr><td>Stated study count against the rows of its own Table 1</td><td>A total of nine studies were included in this meta-analysis.</td><td>Abstract; Results, paragraph 1</td><td>CONFIRMED</td></tr>
@@ -2407,7 +2424,7 @@ Second, and this is why &#x27;no domain reached HIGH&#x27; does not discharge th
   <figure class='doc-t'>
     <figcaption><strong>Table 18.</strong> Statistical output quoted verbatim, with the call that produced it</figcaption>
     <div class='tscroll'><table>
-    <caption>Table 47. Statistical output, quoted verbatim</caption>
+    <caption>Table 48. Statistical output, quoted verbatim</caption>
 
       <tr><th>Result</th><th>Call</th><th>Verbatim output</th></tr>
       <tr><td>Primary pooled hazard ratio, random-effects REML on the log scale</td><td>rma(yi = log_hr, sei = log_se, method = &quot;REML&quot;, level = 95)</td><td><pre class='cellpre'>
@@ -2707,13 +2724,13 @@ Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &
   <p>1. McMurray JJ, Packer M, Desai AS, Gong J, Lefkowitz MP, Rizkala AR, et al.. Angiotensin-neprilysin inhibition versus enalapril in heart failure. N Engl J Med. 2014;371(11):993-1004. PMID 25176015 doi:10.1056/NEJMoa1409077 https://pubmed.ncbi.nlm.nih.gov/25176015/ [link checked: 200]</p>
   <p>2. Solomon SD, McMurray JJV, Anand IS, Ge J, Lam CSP, Maggioni AP, et al.. Angiotensin-Neprilysin Inhibition in Heart Failure with Preserved Ejection Fraction. N Engl J Med. 2019;381(17):1609-1620. PMID 31475794 doi:10.1056/NEJMoa1908655 https://pubmed.ncbi.nlm.nih.gov/31475794/ [link checked: 200]</p>
   <p>3. Bano S, Bai P, Kumar S, Kumar N, Ali A, Pariya F, et al.. Comparison of Sacubitril/Valsartan Versus Enalapril in the Management of Heart Failure. Cureus. 2021;13(7):e16332. PMID 34395116 doi:10.7759/cureus.16332 https://pubmed.ncbi.nlm.nih.gov/34395116/ [link checked: 200]</p>
-  <p>4. Tsutsui H, Momomura SI, Saito Y, Ito H, Yamamoto K, Sakata Y, et al.. Efficacy and Safety of Sacubitril/Valsartan in Japanese Patients With Chronic Heart Failure and Reduced Ejection Fraction&amp;#x3000;- Results From the PARALLEL-HF Study. Circ J. 2021;85(5):584-594. PMID 33731544 doi:10.1253/circj.CJ-20-0854 https://pubmed.ncbi.nlm.nih.gov/33731544/ [link checked: 200]</p>
+  <p>4. Tsutsui H, Momomura SI, Saito Y, Ito H, Yamamoto K, Sakata Y, et al.. Efficacy and Safety of Sacubitril/Valsartan in Japanese Patients With Chronic Heart Failure and Reduced Ejection Fraction　- Results From the PARALLEL-HF Study. Circ J. 2021;85(5):584-594. PMID 33731544 doi:10.1253/circj.CJ-20-0854 https://pubmed.ncbi.nlm.nih.gov/33731544/ [link checked: 200]</p>
   <p>5. Pathadka S, Yan VKC, Li X, Tse G, Wan EYF, Lau H, et al.. Hospitalization and Mortality in Patients With Heart Failure Treated With Sacubitril/Valsartan vs. Enalapril: A Real-World, Population-Based Study. Front Cardiovasc Med. 2021;7:602363. PMID 33553256 doi:10.3389/fcvm.2020.602363 https://pubmed.ncbi.nlm.nih.gov/33553256/ [link checked: 200]</p>
-  <p>6. Zhao Y, Tian LG, Zhang LX, Ma T, Di L, Wang YB, et al.. The comparative effects of sacubitril/valsartan versus&amp;#xa0;enalapril on pulmonary hypertension due to heart failure with a reduced ejection fraction. Pulm Circ. 2022;12(3):e12034. PMID 35874853 doi:10.1002/pul2.12034 https://pubmed.ncbi.nlm.nih.gov/35874853/ [link checked: 200]</p>
-  <p>7. Mentz RJ, Ward JH, Hernandez AF, Lepage S, Morrow DA, Sarwat S, et al.. Angiotensin-Neprilysin Inhibition in&amp;#xa0;Patients With Mildly Reduced or&amp;#xa0;Preserved Ejection Fraction and&amp;#xa0;Worsening Heart&amp;#xa0;Failure. J Am Coll Cardiol. 2023;82(1):1-12. PMID 37212758 doi:10.1016/j.jacc.2023.04.019 https://pubmed.ncbi.nlm.nih.gov/37212758/ [link checked: 200]</p>
+  <p>6. Zhao Y, Tian LG, Zhang LX, Ma T, Di L, Wang YB, et al.. The comparative effects of sacubitril/valsartan versus enalapril on pulmonary hypertension due to heart failure with a reduced ejection fraction. Pulm Circ. 2022;12(3):e12034. PMID 35874853 doi:10.1002/pul2.12034 https://pubmed.ncbi.nlm.nih.gov/35874853/ [link checked: 200]</p>
+  <p>7. Mentz RJ, Ward JH, Hernandez AF, Lepage S, Morrow DA, Sarwat S, et al.. Angiotensin-Neprilysin Inhibition in Patients With Mildly Reduced or Preserved Ejection Fraction and Worsening Heart Failure. J Am Coll Cardiol. 2023;82(1):1-12. PMID 37212758 doi:10.1016/j.jacc.2023.04.019 https://pubmed.ncbi.nlm.nih.gov/37212758/ [link checked: 200]</p>
   <p>8. Madrini V, Souza PVR, Fernandes F, Ianni BM, Martins AS, Luzuriaga GJ, et al.. Sacubitril-Valsartan vs Enalapril in Heart Failure Due to Chagas Disease: Primary Results of ANSWER-HF Randomized Trial. J Am Coll Cardiol. 2026;87(10):1220-1232. PMID 41396086 doi:10.1016/j.jacc.2025.10.053 https://pubmed.ncbi.nlm.nih.gov/41396086/ [link checked: 200]</p>
   <p>9. Daniyal SM, Tabish S, Burhan M, Noor A, Jalal AA, Khalid A, et al.. Sacubitril/Valsartan Versus Enalapril in Chagas Cardiomyopathy With Heart Failure With Reduced Ejection Fraction: A Systematic Review and Meta-Analysis. Cardiol Rev. 2026. PMID 41923142 doi:10.1097/CRD.0000000000001242 https://pubmed.ncbi.nlm.nih.gov/41923142/ [link checked: 200]</p>
-  <p>10. Lopes RD, Bocchi EA, Echeverr&amp;#xed;a LE, Demacq C, de Barros E Silva PGM, Barbosa LM, et al.. Sacubitril/Valsartan vs Enalapril in Heart Failure Due to Chagas Disease: An Open-Label, Multicenter Randomized Clinical Trial. JAMA. 2026;335(1):49-59. PMID 41335448 doi:10.1001/jama.2025.19808 https://pubmed.ncbi.nlm.nih.gov/41335448/ [link checked: 200]</p>
+  <p>10. Lopes RD, Bocchi EA, Echeverría LE, Demacq C, de Barros E Silva PGM, Barbosa LM, et al.. Sacubitril/Valsartan vs Enalapril in Heart Failure Due to Chagas Disease: An Open-Label, Multicenter Randomized Clinical Trial. JAMA. 2026;335(1):49-59. PMID 41335448 doi:10.1001/jama.2025.19808 https://pubmed.ncbi.nlm.nih.gov/41335448/ [link checked: 200]</p>
   <p>10 references. Every one is a work rather than a database, carries a link, and the link&#x27;s reachability was tested at build time and reported above whether it passed or not. </p>
   <h2 id="paper-keywords">Keywords</h2>
   <p>heart failure, reduced ejection fraction, sacubitril/valsartan, angiotensin receptor-neprilysin inhibitor, enalapril, meta-analysis, systematic review, hazard ratio</p>
@@ -2811,7 +2828,7 @@ Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &
 <div class='card'>
   <h3 id="statistics-diagnostics">Diagnostics</h3>
   <div class='tscroll'><table>
-    <caption>Table 48. Diagnostics</caption>
+    <caption>Table 49. Diagnostics</caption>
 
     <tr><th>Statistic</th><th>Value</th><th>Method and caution</th></tr>
     <tr><th>Prediction interval</th><td class='num'>0.686 to 1.11</td><td><small>t_{k-1}, Cochrane Handbook v6.5</small></td></tr>
@@ -2824,7 +2841,7 @@ Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &
 <div class='card'>
   <h3 id="statistics-per-trial-influence-and-weight">Per-trial influence and weight</h3>
   <div class='tscroll'><table>
-    <caption>Table 49. Per-trial influence and weight</caption>
+    <caption>Table 50. Per-trial influence and weight</caption>
 
     <tr><th>Trial</th><th>Weight</th><th>Leverage</th><th>Cook's D</th><th>Std. residual</th></tr>
     <tr><th>paradigm-hf</th><td class='num'>59.3%</td><td class='num'>0.593</td><td class='num'>1.68</td><td class='num'>-1.63</td></tr>
@@ -2837,7 +2854,7 @@ Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &
 <div class='card'>
   <h3 id="statistics-leave-one-out-numerically">Leave-one-out, numerically</h3>
   <div class='tscroll'><table>
-    <caption>Table 50. Leave-one-out, numerically</caption>
+    <caption>Table 51. Leave-one-out, numerically</caption>
 
     <tr><th>Omitted</th><th>Pooled</th><th>I-squared</th></tr>
     <tr><th>paradigm-hf</th><td class='num'>0.966 (0.79 to 1.18)</td><td class='num'>1.2%</td></tr>
@@ -2853,7 +2870,7 @@ Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &
 <div class='card'>
   <h3 id="statistics-the-same-2x2-on-three-scales">The same 2x2, on three scales</h3>
   <div class='tscroll'><table>
-    <caption>Table 51. The same 2x2, on three scales</caption>
+    <caption>Table 52. The same 2x2, on three scales</caption>
 
     <tr><th>Measure</th><th>Pooled</th><th>I-squared</th></tr>
     <tr><th>Risk ratio</th><td class='num'>0.872 (0.777 to 0.979)</td><td class='num'>25.2%</td></tr>
@@ -2870,7 +2887,7 @@ Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &
 <div class='card'>
   <h3 id="statistics-baseline-risk-per-trial">Baseline risk, per trial</h3>
   <div class='tscroll'><table>
-    <caption>Table 52. Baseline risk, per trial</caption>
+    <caption>Table 53. Baseline risk, per trial</caption>
 
     <tr><th>Trial</th><th>Control events / analysed</th><th>Risk</th></tr>
     <tr><th>paradigm-hf</th><td class='num'>1117 / 4212</td><td class='num'>0.265</td></tr>
@@ -2882,7 +2899,7 @@ Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &
 <div class='card'>
   <h3 id="statistics-benford-first-digit-screen">Benford first-digit screen</h3>
   <div class='tscroll'><table>
-    <caption>Table 53. Benford first-digit screen</caption>
+    <caption>Table 54. Benford first-digit screen</caption>
 
     <tr><th>Leading digit</th><th>Observed</th><th>Expected</th></tr>
     <tr><th>1</th><td class='num'>3</td><td class='num'>1.81</td></tr>
@@ -2904,7 +2921,7 @@ Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &
 <div class='card'>
   <h3 id="statistics-further-analyses-what-was-run-and-wha">Further analyses &mdash; what was run, and what was not</h3>
   <div class='tscroll'><table>
-    <caption>Table 54. Further analyses — what was run, and what was not</caption>
+    <caption>Table 55. Further analyses — what was run, and what was not</caption>
 
     <tr><th>Analysis</th><th>Status</th><th>Why</th></tr>
     <tr><th>Forest plot</th><td>shown</td><td><small>Drawn from the stored per-trial and pooled estimates.</small></td></tr>
