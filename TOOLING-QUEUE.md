@@ -447,6 +447,24 @@ two incompatible things.
 **The 31 UNCHECKABLE are the real backlog** and they are mostly that same missing
 declaration.
 
+**MEASURED 2026-08-18 — the 134 UNCHECKABLE rows split into exactly three causes,
+and they need three different things. 154 trial rows across 49 objects:**
+
+| cause | rows | what it needs |
+|---|---|---|
+| **no complete 2x2 on the row** | **65** | nothing from this gate. These are CONTINUOUS outcomes (LDL-C percent change, KCCQ scores, LVOT gradients) and rows carrying only an effect estimate. A count gate cannot check a mean difference. **The right instrument is a different one: compare the stored MEAN DIFFERENCE against the registry's own reported difference**, exactly as the two replacement analyses did by hand. That is a new check, not a fix to this one. |
+| **no `outcome_definition` recorded** | **39** | a registry read. Every one is a converted object that predates the endpoint-reading protocol. This is the same backlog `estimand_definition_gate` reports, and closing it closes both gates at once — **the single highest-leverage remaining data task.** |
+| **no `registration_primary_counts` stored** | **30** | one `--fetch` run each. Purely mechanical; these objects were authored or converted before the fetch existed. |
+
+**Concentrated rather than spread:** `malaria-vaccines` 8, `prevnar15-pneumo` 7,
+`alirocumab-lipid` 6, `intensive-bp-review` 6, `bococizumab-lipid-review` 5,
+`iv-iron-hf` 5.
+
+**The 30 are free. The 39 are the real work and they unblock two gates. The 65 are
+out of scope for this gate and should stop being counted against it** — a count
+gate reporting UNCHECKABLE on a continuous outcome is behaving correctly, and
+listing those rows as a backlog implies a debt that is not owed.
+
 **Owed:**
 
 1. **A better outcome-title match.** The gate compares a row against the registry
