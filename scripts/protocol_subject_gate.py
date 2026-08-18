@@ -1,0 +1,307 @@
+"""PROTOCOL SUBJECT -- is the page's PROTOCOL PROSE about this page's subject?
+
+WHY THIS EXISTS, AND WHY subject_match_gate DOES NOT COVER IT
+    ACS_ANTIPLATELET_REVIEW.html carries a full PRISMA/AMSTAR protocol pack whose
+    Review Title reads "Network Meta-Analysis of Direct Oral Anticoagulants
+    (Dabigatran 150 mg BID, Rivaroxaban 20 mg daily, Apixaban 5 mg BID, Edoxaban
+    60 mg daily)", whose Population is "Adults with NVAF", and whose secondary
+    outcomes include hyperkalemia and a renal composite. The page is about
+    ticagrelor, prasugrel and clopidogrel in acute coronary syndrome, and its four
+    trials ARE the right four.
+
+    RIGHT NUMBERS, WRONG WORDS -- the ARNI contamination pattern in reverse. There
+    a page carried another review's TRIALS. Here it carries another review's
+    PROSE, and the data is clean.
+
+    subject_match_gate returns PASS on it, and correctly by its own design: it
+    blocks on FOREIGN REGISTRATION IDS, and there are none -- the contaminated text
+    names no trial at all. Its acronym signal did see "DOAC" four times, but that
+    signal is deliberately report-only because as a blocking rule it flooded.
+    SO THE DEFECT IS VISIBLE TO NOTHING THAT BLOCKS.
+
+    This is a DIFFERENT KIND OF EVIDENCE from every identifier check in the set:
+    those ask whose trials these are, this asks whose QUESTION this is.
+
+WHAT THIS CHECKS
+    The protocol pack's declared subject fields -- Review Title, Population,
+    Intervention, Comparator -- against the vocabulary the OBJECT owns. A content
+    word that appears in the protocol prose and NOWHERE in the object is a
+    candidate foreign subject.
+
+WHAT A FULL PASS DOES NOT ESTABLISH -- written in advance
+    - NOT that the protocol is CORRECT, only that its subject words are this
+      object's. A protocol can name the right drug and describe the wrong design.
+    - NOT that the numbers are right. Nothing here reads a number.
+    - NOT that the trials are the right ones -- subject_match_gate owns that, and
+      this gate passing says nothing about it. They are complementary and neither
+      substitutes for the other.
+    - NOT that a page WITHOUT a protocol pack is clean. No pack, NOT_APPLICABLE,
+      and that is not a pass.
+
+USAGE
+    python scripts/protocol_subject_gate.py <page.html> <object.json>
+    python scripts/protocol_subject_gate.py --corpus
+    python scripts/protocol_subject_gate.py --selftest
+"""
+from __future__ import annotations
+import glob
+import io
+import json
+import os
+import re
+import sys
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Protocol-pack fields that DECLARE a subject. Each is matched as a label followed
+# by its value in the rendered text.
+FIELDS = ("Review Title", "Population", "Intervention", "Comparator",
+          "Primary Outcome")
+
+# Words that carry subject meaning nowhere near enough to be a lexicon, but enough
+# to be checkable: clinical content words are long, lowercase-able and not
+# boilerplate. The stop set is METHODOLOGICAL vocabulary, which every protocol
+# shares and which therefore cannot indicate contamination.
+STOP = {
+    "randomized", "randomised", "controlled", "trials", "trial", "study", "studies",
+    "patients", "participants", "adults", "adult", "placebo", "standard", "care",
+    "primary", "secondary", "outcome", "outcomes", "composite", "endpoint",
+    "endpoints", "efficacy", "safety", "review", "analysis", "meta", "network",
+    "systematic", "protocol", "version", "living", "manually", "updated", "freeze",
+    "date", "registration", "immutable", "timestamp", "github", "commit", "history",
+    "amendment", "planned", "update", "frequency", "automated", "surveillance",
+    "currently", "service", "registry", "search", "eligibility", "funding", "source",
+    "external", "independent", "academic", "conflicts", "interest", "declared",
+    "contributor", "roles", "credit", "conceptualization", "methodology", "data",
+    "curation", "writing", "original", "draft", "editing", "supervision", "assistance",
+    "disclosure", "tools", "claude", "anthropic", "provided", "audit", "tooling",
+    "implementation", "internal", "consistency", "fragility", "index", "phase",
+    "design", "parallel", "crossover", "observational", "single", "series", "arm",
+    "healthy", "volunteers", "paediatric", "pediatric", "animal", "vitro", "months",
+    "weeks", "days", "years", "follow", "clinical", "cardiovascular", "renal",
+    "background", "experimental", "comparator", "active", "sham", "biomarker",
+    "event", "events", "extractable", "published", "registered", "language",
+    "duplicate", "cohorts", "editorials", "letters", "reviews", "assessment",
+    "individual", "components", "subgroup", "plan", "mortality", "cause", "death",
+    "decline", "hospitalization", "hospitalisation", "with", "from", "that", "this",
+    "than", "were", "will", "each", "both", "into", "have", "been", "which", "their",
+}
+
+WORD = re.compile(r"[A-Za-z][A-Za-z0-9\-]{4,}")
+
+# THE RULE IS PROPORTIONAL, AND ALL-OR-NOTHING WAS WRONG. The first cut demanded
+# that EVERY content word be foreign. On the contaminated ACS page 15 of 17 are --
+# and it passed, because two were not: "stroke" appears in that object's endpoint
+# definitions, and "apixaban" appears because the withdrawal reason I wrote cites
+# APIXABAN_ACS by name. AN OBJECT CAN ACQUIRE A WORD FROM OUR OWN COMMENTARY, so a
+# rule that needs unanimity is defeated by one incidental mention.
+#
+# THRESHOLD, CHOSEN FROM THE MEASURED DISTRIBUTION AND NOT BY TASTE: across every
+# page/object pair in this repository the foreign share of a declared subject field
+# is bimodal -- clean pages sit far below, the contaminated one at 0.88. 0.70 sits
+# in the empty gap between the two modes. MIN_FOREIGN additionally requires the
+# absolute count to be meaningful, so a two-word field cannot trip it.
+FOREIGN_SHARE = 0.70
+MIN_CONTENT = 4
+MIN_FOREIGN = 3
+
+
+def visible(html: str) -> str:
+    t = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", html, flags=re.S)
+    t = re.sub(r"<[^>]+>", " ", t)
+    t = (t.replace("&mdash;", " ").replace("&ndash;", " ").replace("&amp;", "&")
+          .replace("&nbsp;", " ").replace("&ge;", " ").replace("&le;", " ")
+          .replace("&lt;", " ").replace("&gt;", " ").replace("&rsquo;", "'"))
+    return re.sub(r"\s+", " ", t)
+
+
+# Every label that can TERMINATE a value. A value runs from its own label to the
+# next label of any kind -- not to a fixed character count, which is what missed
+# the contaminated Review Title (it runs ~270 characters before its terminator).
+_LABELS = FIELDS + ("Protocol Version", "Protocol Freeze Date", "Protocol Registration",
+                    "Last Substantive Amendment", "Planned Update Frequency",
+                    "Funding Source", "Conflicts of Interest", "Contributor Roles",
+                    "AI Assistance Disclosure", "Secondary Outcomes", "Subgroup Plan",
+                    "Criterion", "Study Design", "Database", "Phase", "Participants",
+                    "Publication", "Outcomes", "Follow-up")
+_NEXT = re.compile("|".join(re.escape(x) for x in sorted(_LABELS, key=len, reverse=True)))
+
+
+def protocol_claims(text: str):
+    """(field, value) for each declared subject field found in the rendered text.
+
+    A value ends at the next LABEL, whatever its length. And a "value" that is
+    itself only a label is discarded: in the PICO table the four headers sit
+    adjacent because their values are in another row, and reading them as each
+    other's values is how the first cut of this screen passed a contaminated page.
+    """
+    out = []
+    for f in FIELDS:
+        m = re.search(re.escape(f) + r"\s+", text)
+        if not m:
+            continue
+        rest = text[m.end():m.end() + 600]
+        nxt = _NEXT.search(rest)
+        val = (rest[:nxt.start()] if nxt else rest).strip(" .;:|")
+        if len(val) < 4:
+            continue
+        if _NEXT.fullmatch(val.strip()):
+            continue                      # the value IS a label -- table layout
+        out.append((f, val))
+    return out
+
+
+def object_vocabulary(canon) -> set:
+    blob = json.dumps(canon, ensure_ascii=False).lower()
+    return set(w.lower() for w in WORD.findall(blob))
+
+
+def page_title(html: str) -> str:
+    m = re.search(r"<title[^>]*>(.*?)</title>", html, re.S | re.I)
+    return re.sub(r"\s+", " ", m.group(1)) if m else ""
+
+
+def check(page_path: str, canon):
+    html = io.open(page_path, encoding="utf-8", errors="replace").read()
+    text = visible(html)
+    claims = protocol_claims(text)
+    if not claims:
+        return ("NOT_APPLICABLE",
+                "this page declares no protocol subject fields, so there is no "
+                "protocol prose to check. Not a pass", [])
+
+    own = object_vocabulary(canon)
+    # THE PAGE'S OWN TITLE IS THE SECOND WITNESS. A thin object can lack its own
+    # subject word; a page's <title> does not. Contamination requires the prose to
+    # disagree with BOTH.
+    title_words = set(w.lower() for w in WORD.findall(page_title(html)))
+    findings, thin = [], []
+    for field, value in claims:
+        words = [w.lower() for w in WORD.findall(value)]
+        content = [w for w in words if w not in STOP]
+        foreign = [w for w in content if w not in own]
+        if len(content) < MIN_CONTENT:
+            continue
+        share = len(foreign) / float(len(content))
+        if share < FOREIGN_SHARE or len(foreign) < MIN_FOREIGN:
+            continue
+        # does the field share ANY content word with the page's own title?
+        shared_with_title = [w for w in content if w in title_words]
+        if shared_with_title:
+            thin.append((field, value, foreign, share, shared_with_title))
+        else:
+            findings.append((field, value, foreign, share))
+    if findings:
+        return ("FAIL",
+                "a declared protocol subject field shares NO content word with this "
+                "page's own title and almost none with its object -- the prose is "
+                "about a different review", findings)
+    if thin:
+        return ("REVIEW",
+                "the protocol prose names THIS page's subject (it agrees with the "
+                "page title) but the OBJECT does not contain those words. That is a "
+                "thin object, not contamination, and it is a different defect",
+                [(f, v, fo, sh) for f, v, fo, sh, _ in thin])
+    return ("PASS",
+            "every declared protocol subject field shares content vocabulary with "
+            "this object", [])
+
+
+def _pairs():
+    pm_path = os.path.join(REPO, "ssot", "PAGE_MAP.json")
+    pairs = []
+    if os.path.exists(pm_path):
+        for page, obj in json.load(io.open(pm_path, encoding="utf-8")).items():
+            p, o = os.path.join(REPO, page), os.path.join(REPO, obj)
+            if os.path.exists(p) and os.path.exists(o):
+                pairs.append((p, o))
+    # objects with a same-stem page but no PAGE_MAP entry are checked too: the
+    # contaminated page is one of those, and a screen that only reads PAGE_MAP
+    # would have missed the case it was built for.
+    for o in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        if os.path.basename(o)[:-5] != os.path.basename(os.path.dirname(o)):
+            continue
+        stem = os.path.basename(o)[:-5].upper().replace("-", "_")
+        for cand in glob.glob(os.path.join(REPO, stem + "*.html")):
+            if (cand, o) not in pairs and os.path.exists(cand):
+                pairs.append((cand, o))
+    return pairs
+
+
+def selftest() -> int:
+    ok = True
+    obj = {"title": "Ticagrelor, prasugrel and clopidogrel after acute coronary syndrome",
+           "inputs": {"trials": [{"name": "PLATO", "nct": "NCT00391872"}]}}
+    contaminated = ("<html><body>Review Title Network Meta-Analysis of Direct Oral "
+                    "Anticoagulants Dabigatran Rivaroxaban Apixaban Edoxaban  "
+                    "Population Adults with NVAF  </body></html>")
+    clean = ("<html><body>Review Title Ticagrelor prasugrel and clopidogrel after "
+             "acute coronary syndrome  Population Adults with acute coronary "
+             "syndrome  </body></html>")
+    import tempfile
+    cases = []
+    for label, html, want in (("CONTAMINATED: DOAC/NVAF protocol on an ACS object", contaminated, "FAIL"),
+                              ("CLEAN: the protocol names this object's own subject", clean, "PASS"),
+                              ("NO protocol fields at all is NOT_APPLICABLE, not a pass",
+                               "<html><body>nothing here</body></html>", "NOT_APPLICABLE")):
+        fh = tempfile.NamedTemporaryFile("w", suffix=".html", delete=False, encoding="utf-8")
+        fh.write(html)
+        fh.close()
+        cases.append((label, fh.name, want))
+    for label, path, want in cases:
+        v, why, f = check(path, obj)
+        good = v == want
+        ok &= good
+        print("  %-62s -> %-15s (want %-15s) %s"
+              % (label[:62], v, want, "correct" if good else "WRONG"))
+        if not good:
+            print("        " + why[:160])
+        os.unlink(path)
+    print("\nWHAT A FAILURE WOULD LOOK LIKE: the contaminated and the clean page "
+          "returning the SAME verdict. They differ only in whose subject the prose "
+          "names, which is the entire question.")
+    print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+    return 0 if ok else 1
+
+
+def main() -> int:
+    if len(sys.argv) < 2 or sys.argv[1] == "--selftest":
+        return selftest()
+    if sys.argv[1] == "--corpus":
+        pairs = _pairs()
+        tally, worst = {}, 0
+        print("page/object pairs screened: %d" % len(pairs))
+        for p, o in pairs:
+            try:
+                canon = json.load(io.open(o, encoding="utf-8"))
+            except Exception:
+                continue
+            v, why, findings = check(p, canon)
+            tally[v] = tally.get(v, 0) + 1
+            if v in ("FAIL", "REVIEW"):
+                worst = 1 if v == "FAIL" else worst
+                print("\n%s  <- %s\n  -> %s  %s" % (os.path.basename(p),
+                                                    os.path.basename(o), v, why))
+                for field, value, foreign, share in findings:
+                    print("     %-16s %s" % (field, value[:104]))
+                    print("     %-16s %.0f%% of its content words appear NOWHERE in "
+                          "the object: %s" % ("", 100 * share, ", ".join(foreign[:10])))
+        print("\nverdicts:")
+        for k in sorted(tally):
+            print("  %-16s %d" % (k, tally[k]))
+        print("  NOT_APPLICABLE is not a pass.")
+        return worst
+    page, obj = sys.argv[1], sys.argv[2]
+    v, why, findings = check(page, json.load(io.open(obj, encoding="utf-8")))
+    print("%s\n  -> %s  %s" % (os.path.basename(page), v, why))
+    for field, value, foreign, share in findings:
+        print("     %-16s %s" % (field, value[:110]))
+        print("     %-16s %.0f%% foreign: %s" % ("", 100 * share, ", ".join(foreign[:12])))
+    return 1 if v == "FAIL" else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
