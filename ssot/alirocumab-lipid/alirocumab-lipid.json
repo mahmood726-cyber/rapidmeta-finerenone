@@ -2193,5 +2193,39 @@
    "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
    "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
   }
- ]
+ ],
+ "precondition_verdict": {
+  "assessed_on": "2026-08-19",
+  "assessed_by": "ssot/preconditions.py (seven preconditions, authored 2026-08-19)",
+  "authoring_constraint": "These seven preconditions were authored in the same session that applied them. A reader who disagrees should disagree with the definitions in ssot/preconditions.py, from which every verdict below is reproducible.",
+  "authority": {
+   "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+   "version": "6.5, 2024",
+   "verified_on": "2026-08-19",
+   "verified_how": "read from cochrane.org/authors/handbooks-and-manuals/handbook/current chapters 10 and 23, and from the official MECIR PDF (February 2022), text extracted locally rather than summarised"
+  },
+  "builds": false,
+  "status": "NOT_ASSESSED",
+  "refused_on": {},
+  "not_assessed": {
+   "inclusion_criteria_auditable": {
+    "verdict": "NOT-ASSESSABLE",
+    "reason": "cannot assess: no key screening",
+    "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.'"
+   },
+   "eligibility_met": {
+    "verdict": "NOT-ASSESSABLE",
+    "reason": "cannot assess: criteria are not stated (no key screening), so whether any trial met them cannot be decided",
+    "authority": "MECIR C5/C7 (Mandatory) with C6 'Predefining a strategy for studies with a subset of eligible participants' (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report"
+   }
+  },
+  "not_assessed_means": "NOT_ASSESSABLE is not a refusal. These preconditions could not be evaluated against this object; the topic has not been judged on them.",
+  "passed": [
+   "population_stated",
+   "arm_role_resolved",
+   "comparator_identified",
+   "estimand_named",
+   "contributes_a_randomised_contrast"
+  ]
+ }
 }

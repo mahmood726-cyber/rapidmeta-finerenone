@@ -190,14 +190,38 @@ def assess(obj, path, predicate=None, **kw):
 # mirrors the objects' own `handbook_authority` shape and carries `verified_on: None`.
 # Any caller that publishes a verdict resting on this MUST fail closed while that is None.
 
+# VERIFIED 2026-08-19 BY READING THE SOURCE, AND THE READING FALSIFIED THE CLAIM BELOW.
+#
+# The previous `claim` read: "A factorial or multi-arm trial is included for ONE randomised
+# comparison at a time -- the comparison the review asks about." That is the strategy
+# Handbook 6.5 s23.3.4 explicitly calls NOT GENERALLY RECOMMENDED. The recommended method is
+# to COMBINE. The claim was not merely uncited; it was backwards, and it had already been
+# encoded into a precondition that failed five live topics' trials.
+#
+# The old section numbers were wrong too: s23.1 is cluster-randomized trials and s23.2 is
+# crossover trials, not multi-arm and factorial.
 HANDBOOK_AUTHORITY = {
     "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
-    "version": None,          # fill from the edition actually read
-    "sections": None,         # variants on randomised trials: >2 intervention groups; factorial
-    "verified_on": None,      # MUST be set from a real read before this authority is cited
-    "claim": ("A factorial or multi-arm trial is included for ONE randomised comparison at a "
-              "time -- the comparison the review asks about -- with the other factor or the "
-              "unused arms recorded rather than the trial excluded."),
+    "version": "6.5, 2024",
+    "sections": ("23.3.3 Studies with more than two intervention groups; "
+                 "23.3.4 How to include multiple groups from one study; "
+                 "23.3.6 Factorial trials; "
+                 "10.10.3 Strategies for addressing heterogeneity; "
+                 "MECIR C5, C6, C7, C8, C9 (eligibility criteria), C62 (meaningful meta-analyses)"),
+    "verified_on": "2026-08-19",
+    "verified_how": ("read from cochrane.org/authors/handbooks-and-manuals/handbook/current "
+                     "chapters 10 and 23, and from the official MECIR PDF (February 2022), "
+                     "text extracted locally rather than summarised"),
+    "claim": ("A factorial or multi-arm trial is INCLUDED BY COMBINING: s23.3.4 -- 'The "
+              "recommended method in most situations is to combine all relevant experimental "
+              "intervention groups of the study into a single group, and to combine all "
+              "relevant comparator intervention groups into a single comparator group.' "
+              "Selecting a single pair of interventions 'results in a loss of information and "
+              "is open to results-related choices, so is not generally recommended'. A trial "
+              "is therefore never excluded for having more than two groups; it is excluded "
+              "only when no control side or no topic side exists at all."),
+    "supersedes": ("the pre-2026-08-19 claim that a multi-arm trial is taken ONE comparison "
+                   "at a time, which inverted s23.3.4"),
 }
 
 

@@ -163,27 +163,38 @@ check("6 eligibility: differs from precondition 5 on the same input",
       != P.inclusion_criteria_auditable({"screening": {"eligibility": "Adults with ATTR-CM"}})[0],
       True)
 
-# --- 7. one_randomised_comparison -------------------------------------------------------
-check("7 design: 1 exp vs 1 control -> PASS",
-      P.one_randomised_comparison(GOOD_TRIALS)[0], PASS)
-# AUGUSTUS-shaped 2x2 factorial: 2 topic x 2 control = 4 candidates. NOT ineligible.
+# --- 7. contributes_a_randomised_contrast ----------------------------------------------
+# EXPECTATIONS CHANGED 2026-08-19 AFTER READING Handbook 6.5 s23.3.4.
+# The old check FAILed a multi-arm/factorial trial until the review named ONE comparison.
+# s23.3.4: "The recommended method in most situations is to combine all relevant
+# experimental intervention groups ... and to combine all relevant comparator intervention
+# groups". Selecting a single pair "is not generally recommended". So a factorial trial now
+# PASSES, with the combining instruction recorded -- the OPPOSITE of the old expectation.
+check("7 design: 1 topic vs 1 control -> PASS",
+      P.contributes_a_randomised_contrast(GOOD_TRIALS)[0], PASS)
 AUGUSTUS = {"inputs": {"trials": [{"nct": "NCT02415400", "arms": [
     {"role": "experimental"}, {"role": "experimental"},
     {"role": "active_comparator"}, {"role": "placebo"}]}]}}
-aug = P.one_randomised_comparison(AUGUSTUS)
-check("7 design: 2x2 factorial -> FAIL naming candidates (NOT rejected as ineligible)",
-      aug[0], FAIL)
-check("7 design: the factorial reason NAMES the trial and the count",
-      "NCT02415400(4)" in aug[1], True)
-# An uncontrolled extension: all arms are the drug. Zero comparisons -- a different FAIL.
-ext = P.one_randomised_comparison(
+aug = P.contributes_a_randomised_contrast(AUGUSTUS)
+check("7 design: 2x2 factorial -> PASS by COMBINING (s23.3.4), was FAIL",
+      aug[0], PASS)
+check("7 design: the PASS records the combining instruction, not a selection",
+      "COMBINED per Handbook 6.5 s23.3.4" in aug[1], True)
+check("7 design: it names the multi-arm trial and its shape", "NCT02415400(2x2)" in aug[1], True)
+# An uncontrolled extension has NO control side. No method in s23.3.4 recovers a contrast.
+ext = P.contributes_a_randomised_contrast(
     {"inputs": {"trials": [{"nct": "NCT00477594",
                             "arms": [{"role": "experimental"}, {"role": "experimental"}]}]}})
-check("7 design: uncontrolled extension -> FAIL", ext[0], FAIL)
-check("7 design: extension reason is DIFFERENT from the factorial reason",
-      ext[1] != aug[1], True)
+check("7 design: uncontrolled extension (no control side) -> FAIL", ext[0], FAIL)
+check("7 design: the FAIL says no method recovers a contrast",
+      "no control side" in ext[1], True)
+# No topic side at all: the OLMESARTAN_HTN class, object-side.
+notopic = P.contributes_a_randomised_contrast(
+    {"inputs": {"trials": [{"nct": "NCT00846365",
+                            "arms": [{"role": "control"}, {"role": "control"}]}]}})
+check("7 design: no topic arm (OLMESARTAN class) -> FAIL", notopic[0], FAIL)
 check("7 design: blank roles -> NOT_ASSESSABLE",
-      P.one_randomised_comparison(
+      P.contributes_a_randomised_contrast(
           {"inputs": {"trials": [{"nct": "NCT3", "arms": [{"role": ""}]}]}})[0], NOT_ASSESSABLE)
 
 # --- 7b. THE FIXTURE THAT COMES FROM THE CORPUS, NOT FROM THE AUTHOR --------------------
@@ -200,11 +211,11 @@ CORPUS_VOCAB = {"inputs": {"trials": [
     {"nct": "NCT01994889", "arms": [{"role": "treatment"}, {"role": "control"}]},
     {"nct": "NCT03860935", "arms": [{"role": "treatment"}, {"role": "control"}]}]}}
 check("7b CORPUS vocabulary treatment/control -> PASS (was FAIL on 5 live topics)",
-      P.one_randomised_comparison(CORPUS_VOCAB)[0], PASS)
+      P.contributes_a_randomised_contrast(CORPUS_VOCAB)[0], PASS)
 check("7b classify_arm_role reads the corpus vocabulary",
       (P.classify_arm_role("treatment"), P.classify_arm_role("control")), ("topic", "control"))
 # An unrecognised role must REFUSE, never be sorted into "not the topic arm".
-unk = P.one_randomised_comparison(
+unk = P.contributes_a_randomised_contrast(
     {"inputs": {"trials": [{"nct": "NCT9", "arms": [{"role": "Arm A"}, {"role": "Arm B"}]}]}})
 check("7b unknown role vocabulary -> NOT_ASSESSABLE, never FAIL", unk[0], NOT_ASSESSABLE)
 check("7b the refusal NAMES the unrecognised value", "Arm A" in unk[1], True)
@@ -240,7 +251,7 @@ if not alarms:
 
 print()
 print("=" * 78)
-check("AUTHORITY stays fail-closed", P.verdict_is_publishable(), False)
+check("AUTHORITY now VERIFIED -- sections read 2026-08-19", P.verdict_is_publishable(), True)
 print("=" * 78)
 if fails:
     print(f"FAILURES ({len(fails)}):")

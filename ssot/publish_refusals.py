@@ -1,0 +1,148 @@
+"""Write the precondition refusals into their objects. ADDITIVE ONLY, and it proves it.
+
+A refusal is only publishable when the authority behind it has been read. `verdict_is_
+publishable()` gates this script: it refuses to run while `HANDBOOK_AUTHORITY` or
+`SECTION_VERIFIED_ON` is unset. That gate is the reason nothing was written on the first
+pass of 2026-08-19.
+
+THE SYMMETRY THIS ENFORCES. Removing a published estimate on an unverified citation is the
+same error as publishing one on unverified authority, pointed the other way. So this script
+NEVER removes anything -- it adds one key, `precondition_verdict`, and then re-reads the file
+and asserts that every key and every trial present before is still present. A net deletion
+aborts the write and restores the original bytes.
+
+WHAT IS PUBLISHED. Only FAIL. A NOT-ASSESSABLE topic has NOT been judged, and writing it into
+an object as a refusal would be the substitution the whole session is about -- so blocked
+topics get their status recorded as `not_assessed`, with the reason, and are explicitly NOT
+called refusals.
+"""
+import json
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+import preconditions as P
+from assessment import FAIL, HANDBOOK_AUTHORITY, NOT_ASSESSABLE
+
+ROOT = os.path.dirname(os.path.abspath(__file__))
+ASSESS = os.path.join(os.path.dirname(ROOT), "evidence", "2026-08-19-batch1", "assess.json")
+
+
+def all_keys(node, prefix="", out=None):
+    """Every dotted key path in the document, for the net-deletion assertion."""
+    out = set() if out is None else out
+    if isinstance(node, dict):
+        for k, v in node.items():
+            out.add(f"{prefix}{k}")
+            all_keys(v, f"{prefix}{k}.", out)
+    elif isinstance(node, list):
+        for i, v in enumerate(node):
+            all_keys(v, f"{prefix}[{i}].", out)
+    return out
+
+
+def trial_ncts(obj):
+    return {t.get("nct") for t in ((obj.get("inputs") or {}).get("trials") or [])
+            if isinstance(t.get("nct"), str)}
+
+
+if not P.verdict_is_publishable():
+    raise SystemExit(
+        "REFUSING TO PUBLISH: verdict_is_publishable() is False. The Handbook authority or "
+        "SECTION_VERIFIED_ON is unset, and a refusal resting on an unread citation is not a "
+        "Handbook refusal. Read the sections and set them, or do not publish.")
+
+with open(ASSESS, "r", encoding="utf-8") as fh:
+    report = json.load(fh)
+
+published, recorded_unassessed, skipped = [], [], []
+
+for topic, entry in report["topics"].items():
+    path = os.path.join(ROOT, topic, f"{topic}.json")
+    if not os.path.exists(path):
+        skipped.append((topic, "object absent"))
+        continue
+
+    with open(path, "rb") as fh:
+        original_bytes = fh.read()
+    obj = json.loads(original_bytes.decode("utf-8"))
+
+    before_keys, before_ncts = all_keys(obj), trial_ncts(obj)
+
+    failed = entry["failed_preconditions"]
+    unassessed = entry["unassessable_preconditions"]
+
+    verdict = {
+        "assessed_on": "2026-08-19",
+        "assessed_by": "ssot/preconditions.py (seven preconditions, authored 2026-08-19)",
+        "authoring_constraint": (
+            "These seven preconditions were authored in the same session that applied them. "
+            "A reader who disagrees should disagree with the definitions in "
+            "ssot/preconditions.py, from which every verdict below is reproducible."),
+        "authority": {
+            "handbook": HANDBOOK_AUTHORITY["handbook"],
+            "version": HANDBOOK_AUTHORITY["version"],
+            "verified_on": HANDBOOK_AUTHORITY["verified_on"],
+            "verified_how": HANDBOOK_AUTHORITY["verified_how"],
+        },
+        "builds": entry["builds"],
+        "status": ("REFUSED" if failed else
+                   ("NOT_ASSESSED" if unassessed else "PRECONDITIONS_MET")),
+        "refused_on": {n: {"verdict": FAIL,
+                           "reason": entry["verdicts"][n][1],
+                           "authority": P._SECTIONS[n]} for n in failed},
+        "not_assessed": {n: {"verdict": NOT_ASSESSABLE,
+                             "reason": entry["verdicts"][n][1],
+                             "authority": P._SECTIONS[n]} for n in unassessed},
+        "not_assessed_means": (
+            "NOT_ASSESSABLE is not a refusal. These preconditions could not be evaluated "
+            "against this object; the topic has not been judged on them."),
+        "passed": [n for n in P.SEVEN if entry["verdicts"][n][0] not in (FAIL, NOT_ASSESSABLE)],
+    }
+
+    obj["precondition_verdict"] = verdict
+
+    after_keys, after_ncts = all_keys(obj), trial_ncts(obj)
+    lost_keys = before_keys - after_keys
+    lost_ncts = before_ncts - after_ncts
+    if lost_keys or lost_ncts:
+        with open(path, "wb") as fh:
+            fh.write(original_bytes)
+        raise SystemExit(
+            f"ABORTED on {topic}: write would have removed {len(lost_keys)} key(s) "
+            f"{sorted(lost_keys)[:5]} and {len(lost_ncts)} trial(s) {sorted(lost_ncts)}. "
+            f"Original bytes restored. This script is additive only.")
+
+    # MATCH THE CORPUS'S OWN SERIALISATION, or the diff hides the change.
+    #
+    # The first run used a plain text-mode open and ensure_ascii=False. On Windows that
+    # translates every \n to \r\n, so all 2,196 lines of alirocumab-lipid.json showed as
+    # deleted-and-re-added for a one-key addition. The write WAS additive -- a semantic diff
+    # against HEAD confirmed it -- but nobody can review a 2,196-line diff, and "the deletion
+    # is only reformatting" is exactly what a real deletion would also look like.
+    #
+    # newline="" keeps LF; ensure_ascii=True keeps the \uXXXX escaping the corpus already
+    # uses; indent=1 matches the existing files.
+    tmp = path + ".part"
+    with open(tmp, "w", encoding="utf-8", newline="") as fh:
+        json.dump(obj, fh, indent=1, ensure_ascii=True)
+        fh.write("\n")
+    os.replace(tmp, path)
+
+    if failed:
+        published.append((topic, failed))
+    elif unassessed:
+        recorded_unassessed.append((topic, unassessed))
+
+print(f"AUTHORITY: {HANDBOOK_AUTHORITY['version']}, verified {HANDBOOK_AUTHORITY['verified_on']}")
+print()
+print(f"REFUSALS PUBLISHED ({len(published)}) -- a real FAIL, on read authority")
+for t, f in published:
+    print(f"  {t:<46} {', '.join(f)}")
+print()
+print(f"RECORDED AS NOT_ASSESSED ({len(recorded_unassessed)}) -- NOT refusals")
+for t, u in recorded_unassessed:
+    print(f"  {t:<46} {len(u)} precondition(s) unassessable")
+if skipped:
+    print(f"\nSKIPPED: {skipped}")

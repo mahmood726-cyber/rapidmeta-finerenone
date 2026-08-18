@@ -29,32 +29,51 @@ conditions were attached and all three are implemented here:
   3. This notice.
 
 =============================================================================
-THE AUTHORITY IS NOT YET VERIFIED, AND THAT GATES PUBLICATION, NOT COMPUTATION.
+THE AUTHORITY WAS VERIFIED ON 2026-08-19, AND THREE CITATIONS DID NOT SURVIVE IT.
 =============================================================================
 
-`assessment.HANDBOOK_AUTHORITY` carries `version=None, sections=None, verified_on=None`.
-`handbook_authority_is_verified()` therefore returns False, and `verdict_is_publishable()`
-below returns False with it.
+Every section was READ from the primary source on 2026-08-19, not recalled. What the
+reading changed:
 
-The distinction matters and is deliberate:
+| cited from recall | what the source actually says | outcome |
+|---|---|---|
+| Handbook 6.5 s23.1 = multi-arm | s23.1 is **cluster-randomized trials** | WRONG, replaced |
+| Handbook 6.5 s23.2 = factorial | s23.2 is **crossover trials** | WRONG, replaced |
+| MECIR "Box 10.10.a C62" | no "Box 10.10.a" in the MECIR manual | UNVERIFIED, dropped |
+| Handbook 6.5 s10.10.3 as the PICO-limb rule | it is "Strategies for addressing heterogeneity" | MISCITED, replaced by MECIR C5/C7/C8/C62 |
+| MECIR C62 | verbatim as claimed, Mandatory | HOLDS |
 
-  * The verdicts may be COMPUTED. They are reproducible facts about the objects.
-  * No topic may be REFUSED ON HANDBOOK GROUNDS while the authority is unverified,
-    because an unverified citation is not authority and must not be printed as one.
+**And one was wrong on the merits, not merely on its number.** The old
+`one_randomised_comparison` required exactly ONE topic-vs-control comparison per trial.
+Handbook 6.5 s23.3.4 says the recommended method is to COMBINE all relevant experimental
+groups and all relevant comparator groups, and that selecting a single pair "results in a
+loss of information and is open to results-related choices, so is not generally
+recommended." The check demanded the strategy the Handbook discourages and FAILED trials it
+says to include. Rewritten and renamed `contributes_a_randomised_contrast`.
 
-Section numbers below are cited as CLAIMED, from the sections named in the corpus's own
-prior work (`FINDINGS-AUDIT-FIRST-VERDICTS-2026-08-18.md` cites MECIR Box 10.10.a C62 and
-Handbook 6.5 s10.10.3). They are recorded so a reader can check them. They are NOT recorded
-as verified, and `SECTION_VERIFIED_ON` is None for every one.
+That is the point of reading rather than recalling: a wrong section NUMBER is caught by
+looking it up, but a wrong RULE is only caught by reading what the section says.
+
+SOURCES READ 2026-08-19
+  * Handbook version string "Version 6.5, 2024" --
+    cochrane.org/authors/handbooks-and-manuals/handbook/current
+  * Chapter 23 "Including variants on randomized trials", s23.3.3/23.3.4/23.3.6
+  * Chapter 10 "Analysing data and undertaking meta-analyses", s10.10.3
+  * MECIR standards C5, C6, C7, C8, C9, C62 -- extracted from the official MECIR PDF
+    (cochrane.org/sites/default/files/uploads/PDFs/MECIR/MECIR Version February 2022.pdf)
+
+WHAT VERIFICATION UNLOCKS. `verdict_is_publishable()` now returns True, so a topic MAY be
+refused on these grounds. It gates publication, never computation -- the verdicts were
+always computable; what was missing was the right to act on them.
 """
 
 from assessment import (FAIL, NOT_ASSESSABLE, PASS, handbook_authority_is_verified, judge,
                         read, read_scalar)
 from assessor_registry import AssessorRejected, Registry, text_match
 
-# Every citation below is CLAIMED, never verified. None of these has been read in the
-# current edition during this session, so all of them stay fail-closed.
-SECTION_VERIFIED_ON = None
+# Every section cited below was read from the primary source on this date. Setting this to
+# None again -- or changing a citation without re-reading -- must re-close the gate.
+SECTION_VERIFIED_ON = "2026-08-19"
 
 REGISTRY = Registry()
 _SECTIONS = {}
@@ -88,8 +107,11 @@ def register_precondition(name, reads, handbook_section, unit="object", unit_sou
 @register_precondition(
     "population_stated",
     reads=["question", "title"],
-    handbook_section="MECIR Box 10.10.a C62 (claimed); Handbook 6.5 s10.10.3 'participants' "
-                     "limb -- a synthesis states the participants it is about",
+    handbook_section="MECIR C62 'Ensuring meta-analyses are meaningful' (Mandatory, READ "
+                     "2026-08-19): 'Undertake (or display) a meta-analysis only if "
+                     "participants, interventions, comparisons and outcomes are judged to be "
+                     "sufficiently similar...'; MECIR C5 'Predefining unambiguous criteria "
+                     "for participants' (Mandatory)",
     unit="object")
 def population_stated(obj):
     """Can the object state WHICH PARTICIPANTS its pooled question is about?
@@ -114,8 +136,9 @@ def population_stated(obj):
 @register_precondition(
     "arm_role_resolved",
     reads=["inputs.trials"],
-    handbook_section="MECIR Box 10.10.a C62 (claimed); Handbook 6.5 s10.10.3 'interventions' "
-                     "limb -- the intervention must be the one the review asks about",
+    handbook_section="MECIR C7 'Predefining unambiguous criteria for interventions and "
+                     "comparators' (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), "
+                     "'interventions' limb",
     unit="trial", unit_source="trials")
 def arm_role_resolved(obj):
     """Does EVERY included trial carry arms with a readable role?
@@ -154,8 +177,9 @@ def arm_role_resolved(obj):
 @register_precondition(
     "comparator_identified",
     reads=["outcomes.comparator", "outcomes.comparator_type"],
-    handbook_section="MECIR Box 10.10.a C62 (claimed); Handbook 6.5 s10.10.3 'comparator' -- "
-                     "one synthesis pools one contrast",
+    handbook_section="MECIR C7 (Mandatory, READ 2026-08-19): 'Specification of comparator "
+                     "interventions requires particular clarity'; MECIR C62 (Mandatory), "
+                     "'comparisons' limb",
     unit="outcome", unit_source="outcomes")
 def comparator_identified(obj):
     """Does every outcome name a comparator, and do they agree ACROSS outcomes?
@@ -196,8 +220,8 @@ def comparator_identified(obj):
 @register_precondition(
     "estimand_named",
     reads=["outcomes.estimand", "outcomes.definition"],
-    handbook_section="MECIR Box 10.10.a C62 (claimed); Handbook 6.5 s10.10.3 'outcomes' -- "
-                     "trials registering different quantities are not one estimand",
+    handbook_section="MECIR C8 'Clarifying role of outcomes' (Mandatory, READ 2026-08-19); "
+                     "MECIR C62 (Mandatory), 'outcomes' limb",
     unit="outcome", unit_source="outcomes")
 def estimand_named(obj):
     """Does every outcome name the QUANTITY it estimates?
@@ -231,8 +255,10 @@ def estimand_named(obj):
 @register_precondition(
     "inclusion_criteria_auditable",
     reads=["screening.eligibility"],
-    handbook_section="MECIR Box 10.10.a C62 (claimed); Handbook 6.5 s10.10.3 -- a review "
-                     "states the criteria by which its included set was chosen",
+    handbook_section="MECIR C5 'Predefining unambiguous criteria for participants' AND C7 "
+                     "'...for interventions and comparators', BOTH Mandatory (READ "
+                     "2026-08-19): 'Predefined, unambiguous eligibility criteria are a "
+                     "fundamental prerequisite for a systematic review.'",
     unit="object")
 def inclusion_criteria_auditable(obj):
     """Can the OBJECT state the criteria its included set was chosen by?
@@ -251,8 +277,9 @@ def inclusion_criteria_auditable(obj):
 @register_precondition(
     "eligibility_met",
     reads=["screening.eligibility", "sources"],
-    handbook_section="MECIR Box 10.10.a C62 (claimed); Handbook 6.5 s10.10.3 -- eligibility "
-                     "is assessed against the full report, not a flattened record",
+    handbook_section="MECIR C5/C7 (Mandatory) with C6 'Predefining a strategy for studies "
+                     "with a subset of eligible participants' (Highly desirable, READ "
+                     "2026-08-19) -- eligibility is assessed against the full report",
     unit="object")
 def eligibility_met(obj):
     """Did THIS topic's trials meet the stated criteria?
@@ -330,23 +357,54 @@ def classify_arm_role(value):
     return "unknown"
 
 @register_precondition(
-    "one_randomised_comparison",
+    "contributes_a_randomised_contrast",
     reads=["inputs.trials.arms"],
-    handbook_section="Handbook 6.5 s23.1 (claimed) variants on randomised trials -- more "
-                     "than two intervention groups; s23.2 (claimed) factorial trials: take "
-                     "ONE randomised comparison at a time",
+    handbook_section="Handbook 6.5 s23.3.4 'How to include multiple groups from one study' "
+                     "(READ 2026-08-19) and s23.3.6 'Factorial trials'; MECIR C7 "
+                     "'Predefining unambiguous criteria for interventions and comparators' "
+                     "(Mandatory)",
     unit="trial", unit_source="trials")
-def one_randomised_comparison(obj):
-    """Does every trial offer exactly one topic-vs-control randomised comparison?
+def contributes_a_randomised_contrast(obj):
+    """Can every trial contribute a topic-vs-control randomised contrast AT ALL?
 
-    NOT AN ARM-COUNT TEST. AUGUSTUS (NCT02415400) is an open-label 2x2 factorial and
-    APPRAISE (NCT00313300) is multi-arm dose-ranging; an arm-count test rejects both and the
-    Handbook does not. More than one candidate comparison is a DECISION THE REVIEW OWES ITS
-    READER, not an ineligible trial -- so it is a FAIL that NAMES the candidates, and the
-    review records which one it asks about.
+    ==========================================================================
+    THIS PRECONDITION WAS WRONG ON THE MERITS AND THE HANDBOOK SAID SO.
+    ==========================================================================
 
-    An uncontrolled extension (MIPOMERSEN NCT00477594, both arms mipomersen; BOSENTAN_PAH
-    NCT00319020, single arm) yields ZERO comparisons and is a different FAIL.
+    Its first version was named `one_randomised_comparison` and required EXACTLY ONE
+    topic-vs-control comparison per trial, FAILing a multi-arm or factorial trial until the
+    review named which comparison it asked about. It cited "s23.1 / s23.2" from recall.
+
+    Reading Handbook 6.5 Chapter 23 on 2026-08-19:
+
+      * s23.1 is CLUSTER-RANDOMIZED TRIALS. s23.2 is CROSSOVER TRIALS. Both citations were
+        simply wrong -- the identifier-by-recall defect in methodological clothing.
+      * The correct sections are s23.3.4 and s23.3.6, AND THEY SAY THE OPPOSITE OF WHAT THIS
+        CHECK ENCODED:
+
+            "The recommended method in most situations is to combine all relevant
+             experimental intervention groups of the study into a single group, and to
+             combine all relevant comparator intervention groups into a single comparator
+             group."
+
+            "The alternative strategy of selecting a single pair of interventions ...
+             results in a loss of information and is open to results-related choices, so is
+             NOT GENERALLY RECOMMENDED."
+
+    So the old check demanded the strategy the Handbook explicitly discourages, and FAILED
+    trials the Handbook says to INCLUDE by combining. A multi-arm or factorial trial is not
+    a defect to be resolved by the review picking one arm -- it is a trial to be combined.
+
+    THE CORRECTED QUESTION is the one that actually gates poolability: does the trial offer
+    a topic side AND a control side at all? If it does, s23.3.4 tells you how to reduce it
+    to one contrast. If it has no control side, no method recovers a contrast from it --
+    that is the uncontrolled extension (MIPOMERSEN NCT00477594, both arms mipomersen;
+    BOSENTAN_PAH NCT00319020, single arm). If it has no topic side, the topic drug is not
+    the intervention here (the OLMESARTAN_HTN class, object-side).
+
+    The rename is deliberate: `one_randomised_comparison` named a requirement that is not
+    the Handbook's, and a name that misdescribes its check is how one word came to carry two
+    questions on 2026-08-18.
     """
     r = read(obj, "inputs.trials")
     if not r.readable:
@@ -377,11 +435,14 @@ def one_randomised_comparison(obj):
         if not topic and not control:
             silent.append(ident)
             continue
-        n = topic * control
-        if n < 1:
-            none_found.append(ident)
-        elif n > 1:
-            multi.append(f"{ident}({n})")
+        if not control:
+            none_found.append(f"{ident}(no control arm)")
+        elif not topic:
+            none_found.append(f"{ident}(no topic arm)")
+        elif topic > 1 or control > 1:
+            # s23.3.4: COMBINE. Not a failure -- a handling instruction, recorded so the
+            # synthesis states which groups it merged.
+            multi.append(f"{ident}({topic}x{control})")
     # An UNRECOGNISED role vocabulary is a fact about the schema, not about the trial. It
     # must never be sorted into "not the topic arm" -- that is what produced five false FAILs.
     if unknown_vocab:
@@ -395,21 +456,23 @@ def one_randomised_comparison(obj):
             f"roles {silent[:4]}")
     if none_found:
         return FAIL, (
-            f"inputs.trials.arms: {len(none_found)} trial(s) offer NO randomised comparison "
-            f"of the topic against a non-topic arm {none_found[:4]} -- an uncontrolled "
-            f"extension cannot contribute a contrast")
+            f"inputs.trials.arms: {len(none_found)} trial(s) can contribute NO randomised "
+            f"contrast {none_found[:4]}. No method in Handbook 6.5 s23.3.4 recovers a "
+            f"contrast from a trial with no control side or no topic side.")
     if multi:
-        return FAIL, (
-            f"inputs.trials.arms: {len(multi)} trial(s) offer more than one candidate "
-            f"randomised comparison {multi[:4]}. Not ineligible -- the review must name which "
-            f"comparison it asks about (factorial / dose-ranging designs)")
+        # PASS with the instruction recorded. s23.3.4 makes this includable, not defective.
+        return PASS, (
+            f"inputs.trials.arms: all {len(trials) - len(silent)} readable trial(s) contribute "
+            f"a randomised contrast; {len(multi)} are multi-arm {multi[:4]} and are COMBINED "
+            f"per Handbook 6.5 s23.3.4 (combine all relevant experimental groups into one and "
+            f"all relevant comparator groups into one), NOT reduced by selecting a single pair")
     return PASS, (
-        f"inputs.trials.arms: all {len(trials) - len(silent)} readable trial(s) offer exactly "
-        f"one topic-vs-control randomised comparison")
+        f"inputs.trials.arms: all {len(trials) - len(silent)} readable trial(s) contribute one "
+        f"topic-vs-control randomised contrast")
 
 
 SEVEN = ("population_stated", "arm_role_resolved", "comparator_identified", "estimand_named",
-         "inclusion_criteria_auditable", "eligibility_met", "one_randomised_comparison")
+         "inclusion_criteria_auditable", "eligibility_met", "contributes_a_randomised_contrast")
 
 assert len(REGISTRY._by_name) == 7, f"expected 7 registered, got {len(REGISTRY._by_name)}"
 assert set(REGISTRY._by_name) == set(SEVEN), "registered names disagree with SEVEN"

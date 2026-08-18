@@ -384,5 +384,40 @@
   "grade": "No certainty rating was recoverable from the page.",
   "sources": "Every ENDPOINT DEFINITION on this page is verbatim from the trial's own ClinicalTrials.gov record and carries a resolvable link. The per-trial counts are the page's own and carry no quoted source sentence."
  },
- "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over."
+ "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over.",
+ "precondition_verdict": {
+  "assessed_on": "2026-08-19",
+  "assessed_by": "ssot/preconditions.py (seven preconditions, authored 2026-08-19)",
+  "authoring_constraint": "These seven preconditions were authored in the same session that applied them. A reader who disagrees should disagree with the definitions in ssot/preconditions.py, from which every verdict below is reproducible.",
+  "authority": {
+   "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+   "version": "6.5, 2024",
+   "verified_on": "2026-08-19",
+   "verified_how": "read from cochrane.org/authors/handbooks-and-manuals/handbook/current chapters 10 and 23, and from the official MECIR PDF (February 2022), text extracted locally rather than summarised"
+  },
+  "builds": false,
+  "status": "REFUSED",
+  "refused_on": {
+   "inclusion_criteria_auditable": {
+    "verdict": "FAIL",
+    "reason": "declared absent: screening.eligibility states its own absence: 'not recorded on the page this object was built from'",
+    "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.'"
+   }
+  },
+  "not_assessed": {
+   "eligibility_met": {
+    "verdict": "NOT-ASSESSABLE",
+    "reason": "cannot assess: criteria are not stated (screening.eligibility states its own absence: 'not recorded on the page this object was built from'), so whether any trial met them cannot be decided",
+    "authority": "MECIR C5/C7 (Mandatory) with C6 'Predefining a strategy for studies with a subset of eligible participants' (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report"
+   }
+  },
+  "not_assessed_means": "NOT_ASSESSABLE is not a refusal. These preconditions could not be evaluated against this object; the topic has not been judged on them.",
+  "passed": [
+   "population_stated",
+   "arm_role_resolved",
+   "comparator_identified",
+   "estimand_named",
+   "contributes_a_randomised_contrast"
+  ]
+ }
 }
