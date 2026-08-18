@@ -744,3 +744,56 @@ Meanwhile `iv-iron-hf` is listed as owing 3 and owes 0.
 A list that is wrong about the items it contains gets audited. A list that is
 silently missing items reads as complete, and nothing about working through it
 ever reveals the gap.
+
+
+---
+
+## The orchestrator as a folklore vector — a claim that gained provenance by being retold
+
+Named by Mahmood, 2026-08-18, about his own relay, and it is the sharpest statement
+of this mechanism the project has.
+
+The chain, exactly as it ran:
+
+| step | what existed | what it claimed |
+|---|---|---|
+| the object | `endpoint_rank_in_its_own_trial: "a secondary endpoint; the trial's primary is change in left ventricular ejection fraction"` | an assertion we wrote |
+| a lane read it | the same sentence | a finding |
+| the relay | the same sentence | **"an earlier lane verified all four endpoint definitions from the registry word for word and found them identical"** |
+
+**Nobody read a registry at any step.** The registration says ANSWER-HF declares
+twenty outcome measures and none is the pooled endpoint, and that only ONE of the
+four trials contributes it as a secondary. Both halves of the relayed sentence are
+false, and the phrase that made it authoritative — *"from the registry, word for
+word"* — was **added by the retelling**.
+
+> **A claim gains authority as it passes through a summary, and nobody re-checks a
+> fact that arrives already attributed.**
+
+**This is not a wrong document. It is a wrong PROVENANCE**, which is worse, because
+every downstream reader's decision about whether to re-check is made on the
+provenance and not on the claim. A sentence labelled "our object says" invites a
+check. The identical sentence labelled "read from the registry" forecloses one.
+
+**Same species as the PARACHUTE/ANSWER conflation, one level up.** There, two trials'
+properties merged inside one document. Here, an assertion and its verification merged
+inside one summary. Both are joins across the wrong grain; this one joins a claim to
+a source that never carried it.
+
+**THE RULE, and it is the whole entry:**
+
+> **When relaying a lane's finding, carry the SOURCE IT NAMES, not the CONFIDENCE IT
+> CARRIES.**
+
+"The object records X" and "the registry says X" are different claims and must
+survive as different sentences all the way down the chain. If a summary cannot say
+which one it is holding, it must say *that* rather than pick the stronger.
+
+**What made it recoverable** was an instruction to re-establish the finding from the
+registry *rather than* to audit the characterisation. That cost one API call. Auditing
+the retelling would have cost more and found nothing — every document in the chain was
+internally consistent, because they were all the same sentence.
+
+Related: the corpus-echo failures, where an adversary gate returned our own text as a
+verification. Same mechanism, different carrier: there the loop ran through a tool,
+here through a summary, and the summary is faster.

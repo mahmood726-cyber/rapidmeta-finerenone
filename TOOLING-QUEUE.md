@@ -755,3 +755,58 @@ before, because every previous change also moved a page.
 first move, and it is a log-read not a design change; (b) publish a curated
 object surface deliberately; (c) decide the objects are internal and stop having
 pages promise a canonical object the reader cannot open. **Not decided here.**
+
+
+---
+
+## 20 — SECOND UPDATE 2026-08-18. Both objects the old list omitted are DONE
+
+- `acs-antiplatelet-review` **4 rows — DONE, worked as a topic, POOL WITHDRAWN.**
+  Four different contrasts, a BLEEDING endpoint (TWILIGHT's BARC 2/3/5) averaged with
+  three ischaemic composites, three different death terms among those three, and
+  I²=91%. Arm labels wrong on two of four, both reversing the trial's conclusion.
+- `prevnar15-pneumo` **25 rows — DONE.** No trial registers any of the four symptoms
+  as an outcome measure; all four are classes inside one registered composite. The
+  four `poolable=False` verdicts now carry the reason they never had.
+
+**Remaining: 44 live rows across 16 objects, and 8 batchable rows in
+`malaria-vaccines`.** The batchable half of item 20 is now finished except those 8.
+
+---
+
+## 25. `pages_preflight.py` WARNS at the limit that would break the site
+
+It fails above the 10 GB artifact ceiling and only **warns** above the **1 GB
+published-site limit** — which is the one that actually breaks this deploy, and which
+`pages.yml`'s own comments call "a build FAILURE, not a warning".
+
+Current headroom is 138 MB, so this is not urgent. It is exactly the shape of queue
+item 21 and of the ledger's "a gate that cannot fail": the check that matters can only
+delay, never block. **Make the 1 GB limit an exit-1**, with the prune list and the
+measured payload printed beside it so a future lane that adds 140 MB learns it at build
+time rather than from a dead site.
+
+---
+
+## 26. `withdrawal_reason_gate` did not engage on a withdrawal that names its family
+
+The ACS withdrawal states, in terms, that a harm endpoint was averaged with three
+efficacy composites — the exact family this gate exists to check. It returned
+`NOT_APPLICABLE`: *"the stated reason does not claim an efficacy/safety mixture"*.
+
+So the corpus's newest withdrawal is **unwitnessed by the gate built to witness
+withdrawals**. Existence established; **scope not measured** — it is not known how many
+existing withdrawal reasons the family-matcher also fails to recognise, and that should
+be measured before anyone reports how big this is.
+
+---
+
+## 27. `count_provenance_gate` sums OVERLAPPING result strata
+
+TRITON-TIMI 38 posts its primary as three rows — UA/NSTEMI (469/565), STEMI (174/216),
+and **all subjects (643/781)**. The gate sums all three per arm and compares 1286/1562
+against the object's correct 643/781, reporting REVIEW.
+
+The total row and its two components are not three categories; they are a total and its
+parts. Distinct from the multi-category fix already in the ledger, which summed
+genuinely disjoint categories. **Existence: TRITON. Scope: not measured.**

@@ -1389,3 +1389,102 @@ changed 35 lines; the screen assumed `build_app_v2.py` is the whole-page
 generator, and it is not. Caught by checking the claim against something already
 known before writing it down — the ledger's own rule about reading the first
 corpus run of any new screen. **Reported here as a near-miss, not as a finding.**
+
+
+---
+
+## ACS_ANTIPLATELET — worked as a topic 2026-08-18, and the pool is WITHDRAWN
+
+**It was on no backlog.** A live pooled `OR 0.8371 (0.6576–1.0657)`, k=4, with four
+trial rows whose endpoint definitions had never been read. Surfaced only by
+re-deriving queue item 20 at the row grain.
+
+Identity established first: all four registrations resolve, `identity_by_registration`
+PASS 4/4. Then the definitions, word for word — and the pool fails on four
+independent grounds:
+
+| | |
+|---|---|
+| **the contrasts differ on every trial** | PLATO ticagrelor↔clopidogrel · TRITON prasugrel↔clopidogrel · ISAR-REACT 5 ticagrelor↔prasugrel · TWILIGHT ticagrelor+aspirin↔ticagrelor alone. **Four contrasts, no two alike.** The page's own title calls it an NMA. |
+| **one trial contributes a BLEEDING endpoint** | TWILIGHT's sole registered primary is *"Number of Participants With BARC Type 2, 3, or 5"*. A harm endpoint averaged with three efficacy composites — the defect that withdrew DOAC_CANCER_VTE and APIXABAN_ACS. |
+| **the three ischaemic composites are not identical either** | **Three different death terms**: "Death From Vascular Causes" (PLATO), "Cardiovascular (CV) Death" with **NONFATAL** MI and stroke over **15** months (TRITON), and unqualified — therefore **all-cause** — "death" (ISAR-REACT 5). |
+| **the heterogeneity already said so** | I² **91.0%**, Q 33.4 on 3 df, per-trial 0.55–1.37 with ISAR-REACT 5 pointing the opposite way. That statistic was in the object before today and nothing acted on it. |
+
+**The withdrawn value is preserved**, not deleted, at `pooled_superseded_2026_08_18`.
+
+**ARM LABELS WRONG ON TWO OF FOUR, AND BOTH REVERSE THE TRIAL'S CONCLUSION** — this is
+*not* the parked "label wrong, role right, magnitude unaffected" pattern:
+
+- **PLATO** — registry posts TICAGRELOR 864/9333, CLOPIDOGREL 1014/9291. The object had
+  them swapped **and the roles swapped**, so it read as clopidogrel beating ticagrelor.
+- **TWILIGHT** — registry posts PLACEBO+TICAGRELOR 141/3555, ASPIRIN+TICAGRELOR 250/3564.
+  Swapped, so it read as though *adding* aspirin halved bleeding. TWILIGHT found that
+  *dropping* it did.
+- **TRITON — CONFIRMED CORRECT** against posted results, labels and roles included.
+- **ISAR-REACT 5** posts no results and could not be checked. Stated, not glossed.
+
+**The page is a separate problem and is not fixed.** `ACS_ANTIPLATELET_REVIEW.html` is
+not in PAGE_MAP, publishes no static estimate, computes client-side from an embedded
+seed — and **its entire protocol pack belongs to a different review**: "Network
+Meta-Analysis of Direct Oral Anticoagulants", population "Adults with NVAF", secondary
+outcomes including hyperkalemia and a renal composite. The four ACS trials *are* its
+real seed set, so the data is ACS and only the protocol prose is foreign. The page
+already discloses "62 number(s) marked UNVERIFIED" and "below the current standard".
+
+---
+
+## PREVNAR15 — 25 rows read, and no trial registers any of these endpoints
+
+The largest block of unread rows in the corpus, also on no backlog. Seven
+V114-vs-Prevnar-13 trials × four solicited injection-site symptoms.
+
+**Not one of the seven registers pain, swelling, erythema or induration as an outcome
+measure.** Each registers a single composite — *"Percentage of Participants With a
+Solicited Injection-site Adverse Event"* — and the symptoms appear only as **classes
+inside that measure's posted results**. The page separates four endpoints the trials
+never separated.
+
+**Checked before believing it:** zero matches across seven registrations is the shape
+that is usually an instrument artefact, so all 74 outcome measures were dumped and
+read by hand. Real finding, not a regex miss.
+
+The 25 rows are recorded with an **honest rank** — component of a composite, not a
+pre-specified endpoint — and the four `poolable=False` verdicts, which previously
+carried **no reason at all**, now carry two: no registered endpoint, and **observation
+windows that split 5 days against 14 days** across the seven trials.
+
+---
+
+## The SSOT 404 — DIAGNOSED and FIXED 2026-08-18
+
+**It was one line, and it was deliberate.** `.github/workflows/pages.yml`:
+`run: rm -rf retired removed ssot`.
+
+Diagnosed by probing one tracked file per top-level directory against the live site:
+**29 of 33 served; exactly four 404** — `.github` (excluded by the upload action by
+design), `removed`, `retired`, `ssot`. Three of the four are named on that line. Not
+Jekyll, not a path, not the 1 GB timeout the file's own comments worry about. *It also
+settles a stale comment in that file: the Actions builder **is** live, because the only
+directories missing from the site are precisely the three it deletes.*
+
+**The old justification was correct and answered the wrong question.** It dropped
+`ssot/` because "no served file references it" — checked by grepping every root `.html`
+and `.js` for `href`/`src`/`fetch`. That grep was right. But every review page tells its
+reader, **in prose**, that its numbers are *"projected from a single canonical object"*.
+**A link grep cannot see a prose promise.**
+
+**The fix costs 5.3 MB, not 90.** `ssot/` is 90.5 MB across 365 files — but 85.2 MB of
+that is `ssot/*/sources/`, raw captures no page promises. The canonical objects are
+**3.0 MB across 49 files**. Pruning only `sources/` keeps 125 files:
+
+| rule | artifact | headroom vs 1 GB |
+|---|---|---|
+| prune `retired removed ssot` (old) | 856.5 MB | 143.5 MB |
+| **prune `retired removed` + `ssot/*/sources/` (now)** | **861.8 MB** | **138.2 MB** |
+| prune `retired removed` only | 947.0 MB | 53.0 MB — too thin |
+| prune nothing | 1052.3 MB | **over cap, build fails** |
+
+**Logged, not fixed:** `scripts/pages_preflight.py` **warns** above the 1 GB site limit
+and fails only above the 10 GB artifact ceiling — so the cap that would break this site
+is not enforced by a check that can fail. At 138 MB headroom it is not urgent; it is the
+"a build that cannot refuse" shape and it is in the queue.
