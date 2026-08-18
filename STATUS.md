@@ -6,7 +6,7 @@ section of `index.html` carries 54 page links, one of which
 consolidated at `ce1e9dc0e`. 54 − 1 = 53. Re-derive with
 `python scripts/cardio_program_status.py` rather than quoting this line.
 
-**DONE: 16 of 53.**
+**DONE: 18 of 53.**
 
 A topic is DONE when it has an SSOT object, is built through the tabbed
 projector to the written standard (`scripts/standard_manifest.py`, v1), its
@@ -33,6 +33,8 @@ endpoint does not, whatever the page looks like.
 | 14 | CANGRELOR_PCI | **withdrawn** | all-cause-mortality numerators over primary-composite denominators; correcting it reverses the conclusion |
 | 15 | RIVAROXABAN_VASC | **withdrawn** | VOYAGER adds acute limb ischaemia and major amputation; COMMANDER counts all-cause death and registers a rate |
 | 16 | INTENSIVE_BP | **withdrawn** | six trials, six different composites; STEP counts atrial fibrillation, SPS3 counts stroke alone; page holds 1 effect, card said k=5 |
+| 17 | APIXABAN_AF | **withdrawn, re-verified** | CONFIRMED: ARISTOTLE/AVERROES register stroke-SE, PACIFIC-AF/RENAL-AF register bleeding |
+| 18 | APIXABAN_ACS | **withdrawn, reason REPLACED** | the card's reason was FALSE — both trials register bleeding; withdrawn instead on rate-vs-percentage, a dose subset, and scope |
 
 `FINERENONE_CV` is also at v1 and is NOT counted here: it does not sit in the
 cardiology section of the index. Counting it would be the denominator drift this
@@ -40,7 +42,7 @@ file exists to prevent.
 
 ---
 
-## The remaining 37, by what is actually on them today
+## The remaining 35, by what is actually on them today
 
 Measured from the index cards, not assumed:
 
@@ -48,7 +50,7 @@ Measured from the index cards, not assumed:
 |---|---|---|
 | **Audit-first build** | 26 | no estimate ever published; the topic has never been taken through |
 | **live estimate, no v1 object** | 1 | a number is published that nothing in the current standard has checked |
-| **withdrawn** | 7 | an estimate was retracted; the reason on the page has NOT been re-verified |
+| **withdrawn** | 6 | an estimate was retracted; the reason on the page has NOT been re-verified |
 | **not poolable** | 1 | MITRAL_FUNCMR — COAPT vs MITRA-FR, stated per-trial |
 | **no card at all** | 1 | INCRETIN_HFpEF is linked from the table and has no card |
 
@@ -891,6 +893,39 @@ COMPASS, which is an included trial. Here it disagrees with the pool so nothing
 was falsely corroborated; on BEMPEDOIC_ACID the same configuration agreed
 perfectly with itself.
 
+### 2026-08-18 — the withdrawn topics, re-verified: one reason was FALSE
+
+**The eight withdrawn topics are unblocked by the audit-first question and they
+close properly**, because a withdrawn topic counts as done when its reason is
+current, sourced and on the page. Two done.
+
+**Topic 17 — APIXABAN_AF: CONFIRMED.** ARISTOTLE and AVERROES register stroke or
+systemic embolism; PACIFIC-AF and RENAL-AF register ISTH major or clinically
+relevant non-major **bleeding**. For an anticoagulant those move in **opposite
+directions**, so averaging them yields a number estimating neither, whose sign
+depends on the trial mix. Sharpened further: AVERROES registers a **rate**, and
+the two bleeding trials (249 and 82) are tiny beside ARISTOTLE's 9,120 — so the
+direction was always set by the efficacy trials while the estimand was
+contaminated by the safety ones. **The re-verification could have reversed this
+and did not.**
+
+**Topic 18 — APIXABAN_ACS: WITHDRAWAL CONFIRMED, REASON REPLACED. The card's
+reason was false.** It said "bleeding and efficacy endpoints pooled". **Both
+trials register bleeding** — APPRAISE-1 an *event rate* of major + CRNM bleeding,
+APPRAISE-J a *percentage* of participants with ISTH major + CRNM bleeding. There
+was no efficacy endpoint in the pool at all.
+
+It still cannot stand, on three grounds the registry **does** support: a rate
+pooled with a percentage as if both were counts; APPRAISE-1's primary being
+restricted to **"Treated Participants With Placebo or Apixaban LOW Doses"** — its
+315-against-599 arms are not a randomised comparison; and a review whose title
+promises an ischaemic-outcome question answering a bleeding one.
+
+**This is the first confirmed instance of the failure mode the re-verification
+pass exists to catch: a withdrawal whose published reason is false.** A reader who
+accepted that card was told something the source records contradict. Six
+withdrawn topics remain unre-verified.
+
 ---
 
 ## Where the next lane picks up
@@ -899,7 +934,7 @@ perfectly with itself.
 page below is verified live, cache-busted, against the bytes on disk.
 
 Live-verified this session: **ARNI, SGLT2_HF, IV_IRON, SOTAGLIFLOZIN, PCSK9,
-SGLT2_CKD, DOAC_AF, DOAC_CANCER_VTE, INCLISIRAN, EVOLOCUMAB_MIXED, COLCHICINE_CVD, BEMPEDOIC_ACID, CANGRELOR_PCI, RIVAROXABAN_VASC, INTENSIVE_BP.** Each was confirmed byte-identical by
+SGLT2_CKD, DOAC_AF, DOAC_CANCER_VTE, INCLISIRAN, EVOLOCUMAB_MIXED, COLCHICINE_CVD, BEMPEDOIC_ACID, CANGRELOR_PCI, RIVAROXABAN_VASC, INTENSIVE_BP, APIXABAN_AF, APIXABAN_ACS.** Each was confirmed byte-identical by
 SHA-256 against the served bytes, cache-busted. ALIROCUMAB, FINERENONE_CV and ABLATION_AF were unchanged and needed
 no rebuild.
 
