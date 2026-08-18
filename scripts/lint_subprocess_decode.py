@@ -10,6 +10,7 @@ token. It needs no semantic judgement, so a grep IS the enforcement.
 
 The fix at each site: `capture_output=True` then `.stdout.decode("utf-8", "replace")`.
 """
+import ast
 import io
 import os
 import re
@@ -35,39 +36,47 @@ def main() -> int:
             if not fn.endswith(".py") or fn == os.path.basename(__file__):
                 continue
             p = os.path.join(root, fn)
-            # THE UNIT IS THE CALL, NOT THE LINE, AND THAT IS THE WHOLE FIX.
-            #
-            # The SAFE exemption for an explicit encoding= was evaluated PER LINE. A call
-            # written across several physical lines --
-            #     subprocess.run(args,
-            #                    text=True,
-            #                    encoding="utf-8", errors="replace")
-            # -- carries text=True on one line and encoding= on the next, so the exemption
-            # never saw it and the site was flagged. Correct code, refused by its own guard.
-            #
-            # This is the unit-of-analysis error that assessor_registry's detector 5 exists to
-            # catch -- the check ran correctly on the WRONG UNIT -- and it appeared here, in
-            # the lint that makes a lesson mechanical. Found when it blocked a commit of two
-            # sites that were already doing exactly what it asks for.
-            #
-            # The window below widens each hit to its enclosing call before applying the
-            # exemption, so SAFE is tested against the same call that carries the hazard.
             with io.open(p, encoding="utf-8", errors="replace") as fh:
                 lines = fh.read().splitlines()
+            # THE CALL IS FOUND BY PARSING, NOT BY COUNTING BRACKETS.
+            #
+            # A first fix walked backwards to the nearest line containing "(". That is still
+            # the wrong unit: in
+            #     proc = subprocess.run(
+            #         [sys.executable, "-W", "error", str(SSOT / "v.py"), str(target)],
+            #         text=True,
+            #         encoding="utf-8",
+            # the nearest "(" going up is `str(` INSIDE the argument list, so the window
+            # closed before reaching encoding= and the false positive survived. Widening a
+            # bracket heuristic just moves the boundary; it does not make it the call.
+            #
+            # AST gives the exact node. Every keyword of the SAME CALL is inspected together,
+            # which is what "the unit is the call" actually means. Falls back to the line test
+            # only when the file will not parse, and says so rather than passing silently.
+            keyword_safe: set[int] = set()
+            parsed_ok = True
+            try:
+                tree = ast.parse(chr(10).join(lines))
+            except SyntaxError:
+                parsed_ok = False
+            if parsed_ok:
+                for node in ast.walk(tree):
+                    if not isinstance(node, ast.Call):
+                        continue
+                    names = {k.arg for k in node.keywords if k.arg}
+                    if not ({"text", "universal_newlines"} & names):
+                        continue
+                    if "encoding" in names:
+                        # Safe: this call decodes with an explicit codec, not the codepage.
+                        for k in node.keywords:
+                            if k.arg in ("text", "universal_newlines"):
+                                keyword_safe.add(k.value.lineno)
             for i, line in enumerate(lines, 1):
                 if not PAT.search(line) or SKIP.search(line):
                     continue
-                start = i - 1
-                while start > 0 and "(" not in lines[start]:
-                    start -= 1
-                depth, end = 0, start
-                for j in range(start, min(len(lines), start + 40)):   # bounded: cannot hang
-                    depth += lines[j].count("(") - lines[j].count(")")
-                    end = j
-                    if depth <= 0 and j > start:
-                        break
-                call = chr(10).join(lines[start:end + 1])
-                if SAFE.search(call) or SKIP.search(call):
+                if parsed_ok and i in keyword_safe:
+                    continue
+                if not parsed_ok and SAFE.search(line):
                     continue
                 hits.append((os.path.relpath(p, REPO), i, line.strip()[:74]))
     for f, i, t in hits:
