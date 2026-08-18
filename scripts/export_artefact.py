@@ -222,10 +222,25 @@ def export(obj, page_html=None):
         if res.get("poolable") is None:
             continue
         can = bool(res.get("poolable"))
+        # A SINGLE-TRIAL RESULT IS NOT AN ORPHAN POOL.
+        # `poolable: false` was carrying two incompatible meanings: "this cannot
+        # legitimately be pooled" and "there is only one trial here". CHK020 read
+        # the first and blocked BEMPEDOIC_ACID, whose displayed 0.87 IS CLEAR
+        # Outcomes' own registered hazard ratio -- a value whose derivation is not
+        # missing, because nothing needed deriving. The third condition is now
+        # stated rather than inferred, so the check can tell "no derivation" from
+        # "no synthesis required". An object with poolable=false, k>1, a displayed
+        # value and NO single_study_ref is untouched by this and still fails, which
+        # is the real orphan defect.
+        _single = res.get("single_study_ref")
+        _k = res.get("k")
+        _is_single = bool(_single) and _k == 1
         caps.append({
             "outcome_id": oid,
             "displayed_pooled_estimate": (res.get("pooled") or {}).get("point"),
-            "engine_can_pool": can,
+            "engine_can_pool": can or _is_single,
+            "single_study": _is_single,
+            "single_study_ref": _single if _is_single else "",
             # EMIT IN BOTH STATES. This field was written only when poolability
             # was FALSE, so CHK020_ORPHAN_POOLED_RESULT returned INVALID on every
             # clean artefact: it could not tell "can pool" from "was never
@@ -234,9 +249,9 @@ def export(obj, page_html=None):
             # written to avoid it. An explicit value is not a synthesised one: it
             # states which branch the object recorded FOR THIS OUTCOME.
             "engine_block_reason": (
-                "" if can else (res.get("poolable_reason")
-                                or "the object records poolable=false with no "
-                                   "reason given")),
+                "" if (can or _is_single) else
+                (res.get("poolable_reason")
+                 or "the object records poolable=false with no reason given")),
         })
     if caps:
         art["pool_capability"] = caps
