@@ -23,7 +23,7 @@ import preconditions as P
 from assessment import FAIL, HANDBOOK_AUTHORITY, NOT_ASSESSABLE, PASS
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-PAGE_STANDARD_VERSION = "1.2.0-2026-08-19"
+PAGE_STANDARD_VERSION = "1.3.0-2026-08-19"
 
 HELD = "HELD"
 REFUSING = "REFUSING"

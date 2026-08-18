@@ -1,6 +1,6 @@
 # The page standard, versioned
 
-**`PAGE_STANDARD_VERSION = "1.2.0-2026-08-19"`**
+**`PAGE_STANDARD_VERSION = "1.3.0-2026-08-19"`**
 
 Until tonight this standard existed only as practice and as one exemplary object
 (`arni-hfref`). It had **no version marker anywhere in the repo** — `grep` for `build_stamp`
@@ -36,6 +36,9 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P12 | **The known-answer suite ran** | the suite executed and passed in this build. An import error is a BUILD FAILURE, not a skipped test |
 | P13 | **Keyed by entity, never by module constant** | a function that accepts an identifier must REFUSE when it holds no record keyed to it. Per-entity data is keyed by entity; it is never reached for from whichever constant is in scope |
 | P14 | **No substring matching over clinical text** | identity is decided by a declared, enumerated term set or a coded field. Registry text carries parenthetical abbreviations — `Cardiovascular (CV) Death` — so substring containment is a KNOWN-BROKEN method, not a shortcut |
+| P15 | **A short-circuiting check reports all failing limbs** | a check that returns on first failure must report EVERY limb that fails, or state that the named limb is merely the first tested. A single reason drawn from an ordered sequence of tests is a fact about the sequence |
+| P16 | **A guard is proven in three parts** | it **must be able to fire**; it **must not fire on the correct case**; and **neither can be established by the build reporting success**. All three are demonstrated, not assumed |
+| P17 | **Negative claims are computed, never asserted** | any field whose name implies a check — `shared_with_other_topics`, `conflicts`, `unresolved`, `discrepancies` — carries a computed value and names what it was computed against. A literal `false` or `[]` in such a field is a claim, not a result |
 
 ## The ratchet
 
@@ -53,6 +56,29 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.3.0-2026-08-19
+Adds P15, P16, P17 — all three from defects that produced *correct-looking output*.
+
+**P15 — short-circuit attribution.** bempedoic's screen reported 13 of 16 trials failing on
+the OUTCOME limb. Restated on two axes, only **2** are genuinely eligible-but-unpoolable; the
+rest fail population or comparator anyway. The screener checked outcome FIRST and returned on
+first failure, so **the limb it named was decided by the order the checks were written in**.
+Sixteen verdicts, sixteen right answers, attributed reason wrong throughout — and nothing
+downstream could detect it, because everything downstream reads verdicts. That number was
+relayed onward before it was corrected.
+
+**P16 — a guard is proven in three parts.** The foreign-registration-id guard, written against
+the cross-contamination class, was destroyed by the heredoc-mangling class: its `` became a
+literal BACKSPACE byte. It compiled, imported, ran, and the build printed `HELD 7 / REFUSING 1`
+and success — while unable to match anything. Exposed only by planting a fake id. Repaired, it
+then fired on a *correct* object. **The last clause is the one people skip**: a build reporting
+success is not evidence a guard within it can fire.
+
+**P17 — negative claims are computed.** `duplicate_seeding_check` asserted
+`shared_with_other_topics: false`. Computed, it is **true** — two of sglt2-hf's trials are also
+seeded by another topic. "Not shared", "no conflicts", "none found" all read as diligence and
+are free to assert.
 
 ### 1.2.0-2026-08-19
 Adds P13 and P14. Both are the same family as P11: the check ran, and it ran on the wrong
