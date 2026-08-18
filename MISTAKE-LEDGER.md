@@ -217,7 +217,109 @@ knowledge. We knew the rule; it was three hours old and we had all quoted it.
 **Knowing a rule does not apply it. Only a check does.** Every rule in this file
 that is not also a constructible check should be read as a rule we will break.
 
+## A surface that can express failure but not justification
+
+**The most important finding of 2026-08-18, and nothing statistical could have
+caught it, because it is not in the analysis — it is in the rendering layer.**
+
+`build_app_v2._outcome_section` had a `withdrawn_reason` field, rendered first and
+prominently, with a comment explaining why: *"The reason is the deliverable; the
+withdrawal is only its consequence."* **It had no field at all for the reason a
+pool STANDS.**
+
+So the projector could say why an estimate was **retracted** and had no way to say
+why one was **kept**. For three consecutive topics that cost nothing, because all
+three were withdrawals. On the fourth — a pool where the estimand was identical
+across three registrations, every value matched the registry digit for digit, and
+the pooled number reproduced to four decimals — **all of that verification landed
+in the object and none of it reached the page.**
+
+**The general form:**
+
+> A surface that can express failure but not justification will make a careful
+> project look purely destructive, and will hide exactly the work that vindicates
+> a published number.
+
+Why it is worth its own entry rather than a line in a build log:
+
+- **It is a bias in the rendering layer, not the analysis.** Every number was
+  right. Every gate passed. No statistical check exists that could fire on this,
+  because nothing is wrong with the computation — the artefact simply has no slot
+  for one half of the conclusion.
+- **It is invisible while the news is bad.** Three withdrawals in a row and the
+  asymmetry is undetectable, because a withdrawal-shaped renderer renders
+  withdrawals perfectly. It becomes visible only on the first verdict that goes
+  the other way — which is the verdict least likely to be reached by anyone
+  working under momentum.
+- **It compounds with the reader's inference.** A reader of these pages sees
+  reasons attached to retractions and bare numbers attached to claims, and
+  correctly concludes that the retractions are the checked ones. **The rendering
+  taught a false lesson about which of our outputs were verified.**
+
+Sweep the class the same way as any other: for every conclusion this corpus can
+reach, ask whether the artefact has somewhere to put the REASON — not only for
+the negative branch. `absent_from_source` had the mirror defect on the same day:
+it announced "no resolvable link to a paper was recoverable" on an object whose
+links had since been filled in. **An absence that has been filled must stop being
+announced.**
+
+---
+
+## An instrument that fails in the way it was built to detect
+
+Four instances on 2026-08-18, which is the point: this is a **pattern**, not four
+incidents. In each, the defect the tool exists to catch was present in the tool.
+
+| the instrument | what it exists to catch | what it did |
+|---|---|---|
+| `arm_identity_gate` (fix cut 1) | an arm label that misidentifies its arm | deleted the control word from a pure placebo arm, so an inverted arrangement passed |
+| `arm_identity_gate` (fix cut 2) | a finder widened without its classifier | matched `placebo <ANY WORD>`, destroying eight correct detections |
+| `registration_identity_gate` threshold | a check that cannot fail | picked a threshold that **excluded its own founding case** — 0.75 against a 0.825 fixture |
+| `registration_identity_gate` reader | a partial read reported as complete | read `intervention`/`control`, summed **one arm**, and called it the trial total |
+
+The last is the sharpest: `arm_identity_gate` carries a comment documenting that
+the v1 objects key arms `treatment`/`control` and that a reader expecting
+`intervention` returns nothing. **I had read that comment, and wrote the same bug
+into the next gate the same night.**
+
+This is the same shape already logged as *"the rule broken by its own author,
+inside its own enforcer"*, and the repetition is the finding. **Knowing a rule
+does not apply it. Only a check does** — and a check written by someone who knows
+the rule is not exempt, because the knowledge is what makes the author feel
+entitled to skip the fixture.
+
+**Practical consequence, and it is cheap:** the FIRST test written for any new
+instrument should be its own founding case, and the SECOND should be that case
+with the sign reversed. Both were what caught these. A threshold chosen before its
+fixture is run is a threshold chosen to pass.
+
+Two of the four were caught only by running the thing against the real corpus
+rather than by reading it: the wrong-key read produced ratios of 49.9, 49.9, 49.8,
+50.0, 50.1, 49.9, 50.0. **Thirteen independent trials do not analyse exactly half
+their enrolment. The signature, not the value, was the tell.**
+
+---
+
 ## Logged saves — design choices that prevented a failure
+
+- **Naming momentum before it acted, 2026-08-18.** Three cardiology topics had
+  been withdrawn in a row when the fourth came up. It was recorded, in advance of
+  reading it, that *"after three withdrawals this was the verdict most in need of
+  resisting"* — and the topic was then checked in the same order and to the same
+  depth as the three before it, and **the pool stood**: estimand identical across
+  three registrations, every value the registry's own, the pooled number
+  reproducing to four decimals.
+
+  Worth logging because **momentum is a real bias and it is invisible from
+  inside**. A lane that has withdrawn three estimates has an implicit model that
+  says the fourth is probably wrong too, and that model is never written down and
+  never tested. The ledger already says a withdrawal is not the safe default,
+  because withdrawing a correct estimate destroys a true finding and publishes the
+  destruction as a discovery. **The running score sharpens it: across ten
+  cardiology topics the published literature has been implicated in NOTHING.
+  Every defect found has been ours.** A lane that keeps finding its own errors is
+  working correctly right up until the moment it starts finding errors that are
+  not there, and nothing external distinguishes those two states.
 
 We have far more logged failures than saves, which distorts what the file teaches.
 

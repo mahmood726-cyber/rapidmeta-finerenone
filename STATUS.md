@@ -176,7 +176,37 @@ none of them blocks the rest of the programme.
    re-extract, which discards correct SELECT-D data. **A schema decision, not a
    data one.**
 
-5. **SGLT2_CKD's replacement question.** ESKD as dialysis-or-transplant, and
+5. **Should the corpus headline move from DerSimonian-Laird to REML? — NOW
+   QUANTIFIED, so this is a one-minute decision.** The house rule is REML or
+   Paule-Mandel below k=10 and the corpus publishes DL. **Measured on every live
+   pool in every SSOT object, 2026-08-18 — 28 pools, all of them k<10:**
+
+   | | |
+   |---|---|
+   | pools whose point estimate moves at all | **7 of 28** |
+   | pools whose CONCLUSION changes | **0 of 28** |
+   | median absolute point shift | **0.000%** |
+   | largest point shift | **1.36%** (ARNI, HR 0.8835 → 0.8715) |
+   | largest interval-width change | **+49%** (ACS_ANTIPLATELET), then +19% (ALIROCUMAB), −13% (ARNI) |
+
+   Twenty-one of the 28 do not move at all, because τ² is already zero under both
+   estimators — mostly k=2 pools, where there is nothing for an estimator to
+   disagree about.
+
+   **The finding that should decide it: the corpus is ALREADY MIXED.** ARNI
+   publishes `HR 0.8715`, which is the REML value; its DL value is 0.8835.
+   INCLISIRAN publishes the DL value. **So "the corpus uses DerSimonian-Laird" is
+   not true today**, and the choice is not between changing and not changing — it
+   is between one estimator and two.
+
+   **Options:** (a) move everything to REML — 7 displayed values change, no
+   conclusion changes, and every change needs announcing under
+   `display_change_announced`; (b) keep DL everywhere and re-derive ARNI, which
+   moves the flagship's headline the wrong way; (c) leave both and state the
+   estimator on every card. **Not decided here: (a) and (b) both change published
+   numbers, which is his call.**
+
+6. **SGLT2_CKD's replacement question.** ESKD as dialysis-or-transplant, and
    cardiovascular death, are defined identically across CREDENCE, DAPA-CKD and
    EMPA-KIDNEY and reported separately by all three. Same rule as ABLATION_AF:
    the question must be chosen before its answer is known.
