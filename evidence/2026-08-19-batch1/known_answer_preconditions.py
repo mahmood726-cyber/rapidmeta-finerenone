@@ -135,16 +135,55 @@ check("4 estimand: silent -> NOT_ASSESSABLE",
       P.estimand_named({"outcomes": [{"id": "a"}]})[0], NOT_ASSESSABLE)
 
 # --- 5. inclusion_criteria_auditable ----------------------------------------------------
-check("5 auditable: DECLARED not recorded -> FAIL",
-      P.inclusion_criteria_auditable(
+check("5 criteria_stated: DECLARED not recorded -> FAIL",
+      P.criteria_stated(
           {"screening": {"eligibility": "not recorded on the page this object was built from"}})[0],
       FAIL)
-check("5 auditable: no screening key -> NOT_ASSESSABLE",
-      P.inclusion_criteria_auditable({})[0], NOT_ASSESSABLE)
-check("5 auditable: real criteria -> PASS",
-      P.inclusion_criteria_auditable(
+check("5 criteria_stated: no screening key -> NOT_ASSESSABLE",
+      P.criteria_stated({})[0], NOT_ASSESSABLE)
+check("5 criteria_stated: real criteria -> PASS",
+      P.criteria_stated(
           {"screening": {"eligibility": "Adults with wild-type or variant ATTR-CM, NYHA I-III"}})[0],
       PASS)
+
+# --- 5b. criteria_predefined: the SPLIT, and it must be undischargeable post hoc ---------
+check("5b predefined: a DERIVED block (predefined:false) -> FAIL, permanently",
+      P.criteria_predefined(
+          {"screening": {"eligibility_provenance": {"predefined": False}}})[0], FAIL)
+check("5b predefined: a genuinely predefined block -> PASS",
+      P.criteria_predefined(
+          {"screening": {"eligibility_provenance": {"predefined": True}}})[0], PASS)
+check("5b predefined: no provenance, protocol declared absent -> FAIL",
+      P.criteria_predefined(
+          {"absent_from_source": {"protocol": "No protocol record was recoverable."}})[0], FAIL)
+check("5b predefined: silent on both -> NOT_ASSESSABLE",
+      P.criteria_predefined({})[0], NOT_ASSESSABLE)
+check("5b criteria_stated and criteria_predefined are DIFFERENT checks",
+      P.criteria_stated({"screening": {"eligibility": "Adults with X"}})[0]
+      != P.criteria_predefined({"screening": {"eligibility": "Adults with X"}})[0], True)
+
+# --- 3b. THE SEMANTIC FIELD DECIDES, from the corpus ------------------------------------
+#
+# sglt2-hf declares comparator 'placebo added to background heart failure therapy' on one
+# outcome and 'placebo' on the other, while comparator_type is 'placebo' on BOTH and every
+# included trial's control arm is labelled exactly 'placebo'. Comparing the DESCRIPTION FAILed
+# it -- the 2026-08-18 comparator defect reappearing one field over, in the check written to
+# replace it. Routing through text_match satisfied detector 2 and did not save it, because the
+# error was asking a TEXT question where a SEMANTIC answer was recorded.
+check("3b same comparator_type, different verbosity -> PASS (was FAIL, live topic)",
+      P.comparators_identified_and_consistent({"outcomes": [
+          {"id": "a", "comparator": "placebo added to background heart failure therapy",
+           "comparator_type": "placebo"},
+          {"id": "b", "comparator": "placebo", "comparator_type": "placebo"}]})[0], PASS)
+check("3b a real TYPE difference still FAILs",
+      P.comparators_identified_and_consistent({"outcomes": [
+          {"id": "a", "comparator": "warfarin", "comparator_type": "active"},
+          {"id": "b", "comparator": "placebo", "comparator_type": "placebo"}]})[0], FAIL)
+_notype = P.comparators_identified_and_consistent({"outcomes": [
+    {"id": "a", "comparator": "warfarin"}, {"id": "b", "comparator": "aspirin"}]})
+check("3b with no type recorded it falls back to text and SAYS so", _notype[0], FAIL)
+check("3b the fallback verdict declares it rests on display text",
+      "DISPLAY TEXT" in _notype[1], True)
 
 # --- 6. eligibility_met -----------------------------------------------------------------
 # Always NOT_ASSESSABLE from JSON, and the three reasons must be DIFFERENT.
@@ -160,7 +199,7 @@ check("6 eligibility: three DISTINCT reasons, not one repeated",
 # It must NOT be a byte-identical copy of precondition 5 -- that was `subject_role`.
 check("6 eligibility: differs from precondition 5 on the same input",
       P.eligibility_met({"screening": {"eligibility": "Adults with ATTR-CM"}})[0]
-      != P.inclusion_criteria_auditable({"screening": {"eligibility": "Adults with ATTR-CM"}})[0],
+      != P.criteria_stated({"screening": {"eligibility": "Adults with ATTR-CM"}})[0],
       True)
 
 # --- 7. contributes_a_randomised_contrast ----------------------------------------------

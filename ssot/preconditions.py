@@ -209,14 +209,56 @@ def comparators_identified_and_consistent(obj):
         return NOT_ASSESSABLE, (
             f"cannot assess: {len(missing)} of {len(outcomes)} outcome(s) carry no readable "
             f"comparator {missing[:4]}")
+    # THE SEMANTIC FIELD DECIDES; THE FREE TEXT ONLY CORROBORATES.
+    #
+    # This check first compared `outcomes.comparator`, which is a DESCRIPTION, and FAILed
+    # sglt2-hf on:
+    #     'placebo added to background heart failure therapy'  vs  'placebo'
+    # Those are the same comparator at two levels of verbosity. The object says so in the
+    # field beside it -- `comparator_type` is 'placebo' on BOTH -- and every included trial's
+    # control arm is labelled exactly 'placebo'.
+    #
+    # That is the 2026-08-18 `comparator` defect reappearing in the check written to replace
+    # it, ONE FIELD OVER. Routing through text_match satisfied detector 2 and did not save me,
+    # because the error was never the comparison method: it was asking a TEXT question where a
+    # SEMANTIC answer was recorded. "Added to background therapy" is not schedule noise, so
+    # text_match is right to call the strings different -- and the strings were the wrong thing
+    # to consult.
+    #
+    # So: comparator_type governs. A difference in the free text where the types AGREE is a
+    # verbosity note, never a FAIL. A genuine difference in type is still a FAIL.
+    types = []
+    for o in outcomes:
+        tr = read_scalar(o, "comparator_type")
+        if tr.readable:
+            types.append(tr.value)
+    if len(types) == len(outcomes) and types:
+        first_t = types[0]
+        differing_t = [t for t in types[1:] if not text_match(first_t, t)]
+        if differing_t:
+            return FAIL, (
+                f"outcomes.comparator_type: {len(differing_t) + 1} distinct comparator TYPES "
+                f"({first_t!r} vs {differing_t[:3]!r}). One synthesis pools one contrast; the "
+                f"review must say which.")
+        verbose = [c for c in named[1:] if not text_match(named[0], c)]
+        note = ("" if not verbose else
+                f"; free-text descriptions differ in verbosity ({named[0]!r} vs "
+                f"{verbose[:2]!r}) but comparator_type agrees, which is what governs")
+        return PASS, (f"outcomes.comparator_type: all {len(types)} outcome(s) declare "
+                      f"{first_t!r}{note}")
+
+    # No semantic field to consult -- fall back to the description, and SAY that the verdict
+    # rests on display text rather than on a typed field.
     first = named[0]
     disagreeing = [c for c in named[1:] if not text_match(first, c)]
     if disagreeing:
         return FAIL, (
             f"outcomes.comparator: {len(disagreeing) + 1} distinct comparators after "
-            f"normalisation ({first!r} vs {disagreeing[:3]!r}). One synthesis pools one "
-            f"contrast; the review must say which.")
-    return PASS, f"outcomes.comparator: all {len(named)} outcome(s) name {first!r}"
+            f"normalisation ({first!r} vs {disagreeing[:3]!r}), and comparator_type is not "
+            f"recorded on every outcome, so this verdict rests on DISPLAY TEXT rather than on "
+            f"a typed field. One synthesis pools one contrast; the review must say which.")
+    return PASS, (f"outcomes.comparator: all {len(named)} outcome(s) name {first!r} "
+                  f"(comparator_type not recorded on every outcome; verdict rests on text)")
 
 
 # ---------------------------------------------------------------------------
