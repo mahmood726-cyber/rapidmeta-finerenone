@@ -12,3 +12,5 @@ python "$(git rev-parse --show-toplevel)/scripts/ssot_net_deletion_check.py" || 
 
 # class-3 staging guard
 sh "$(git rev-parse --show-toplevel)/.githooks/pre-commit-staging" || exit 1
+
+python "$(git rev-parse --show-toplevel)/scripts/lint_subprocess_decode.py" >/dev/null || { echo "REFUSED: subprocess decode-hazard sites present (scripts/lint_subprocess_decode.py)"; exit 1; }
