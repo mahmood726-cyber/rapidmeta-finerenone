@@ -505,7 +505,7 @@ topic with a false reason still counted as done.
 
 ---
 
-## 20. THE 55 UNREAD ENDPOINT DEFINITIONS — the next lane's first job, scoped
+## 20. THE UNREAD ENDPOINT DEFINITIONS — **77, not 55**; batchable half DONE 2026-08-18
 
 **Corrected count: 55 rows across 22 objects, not 39.** The earlier figure counted
 only rows the count gate reached; enumerating every trial row whose headline
@@ -612,3 +612,101 @@ to ~15.
   containing "UNCHECKABLE" overrode a deliberate exit 3. Two previous patches to
   that regex had already failed; the fix was precedence, not a third pattern.
   **A declared field beats an inferred one.**
+
+
+---
+
+## 20 — UPDATED 2026-08-18. Corrected count, batchable half closed, list was incomplete
+
+**DONE: `arni-hfref` (3 rows, as a topic) and the five batchable objects (22 rows).**
+`sglt2-hf` 4 · `antimalarial-act` 3 · `covid19-vaccines` 3 · `lenacapavir-prep` 6 ·
+`cryptococcal-meningitis` 6. The queue said 13; at the trial-outcome-ROW grain the
+queue itself states, it is **22** — trials were counted where rows were meant on
+two of the five.
+
+**THE CORPUS FIGURE IS 77, NOT 55**, re-derived at the row grain:
+**44 rows under a live estimate across 16 objects** (topics), **33 batchable
+across 2 objects**.
+
+**THE OLD LIST MISSED OBJECTS, AND ONE OF THEM IS LIVE:**
+
+- `acs-antiplatelet-review` — **4 unread rows under a LIVE pooled estimate**, on
+  no version of this list. Handle as a topic.
+- `prevnar15-pneumo` — **25 batchable rows**, 7 trials × 4 outcomes, none carrying
+  a definition, no live estimate. Larger than the batch just completed.
+- `malaria-vaccines` — **8 batchable** rows and **4 live** ones. Split.
+- `iv-iron-hf` — listed as owing 3; owes **0**. All ten rows carry definitions.
+
+**NEXT BATCHABLE WORK, in order: `prevnar15-pneumo` (25), then
+`malaria-vaccines`'s 8 non-live rows.** Neither needs a page: neither publishes an
+estimate on those outcomes.
+
+**METHOD NOTE THAT SAVED FOUR ROWS.** `cryptococcal-meningitis`'s ACTA and
+AMBITION-cm rows were unread because `registry_endpoint_read.py` speaks only
+ClinicalTrials.gov. **ISRCTN serves a WHO-ICTRP-format XML export** at
+`https://www.isrctn.com/api/query/format/who?q=ISRCTN########` carrying
+`<prim_outcome>` and `<sec_outcome>`. The constraint was the tool's, not the
+registry's. Teaching `registry_endpoint_read.py` to speak ISRCTN is a small job
+and unblocks every ISRCTN-registered trial in the corpus.
+
+---
+
+## 21. `build_app_v2.py` DESTROYS a page it did not generate, via its only invocation
+
+`python ssot/build_app_v2.py <object> <page>` on `SGLT2_HF_REVIEW.html` wrote
+**45,551 bytes over 1,047,960**, losing **2,773 of 2,902 numerals**. Reverted
+before shipping; caught by content comparison, not by the build, which exited 0.
+
+**Root cause, established not guessed:** the object at HEAD, the object at
+`d54a608dd`, and **the build script as it stood at `d54a608dd`** all produce
+~42–44 KB. This page was never projected from this object at any commit. These
+pages are maintained by **surgical row-level patches** — which is how ARNI was
+updated in `bd7b38034`, 35 lines changed on a 6.17 MB page.
+
+**Blast radius, measured:** of 28 PAGE_MAP entries, **5 build "successfully" and
+would truncate** — ARNI_HF, IV_IRON_HF, SOTAGLIFLOZIN_HF, ALIROCUMAB_LIPID,
+SGLT2_HF. **23 crash**, which is protection by accident, not by design.
+
+**The fix is a guard, not a rewrite:** refuse to write when the outgoing artefact
+loses numerals present in the one being replaced, unless explicitly overridden.
+The comparison already exists as a working practice; it belongs **inside** the
+build. **A build that cannot refuse is the same shape as a gate that cannot fail.**
+
+---
+
+## 22. `count_provenance_gate` reads a percentage as a participant count
+
+The guard is `"participant" in unit`; the registry unit `"percentage of
+participants"` contains it. `counts <= denoms` cannot catch it — a percentage is
+always below its own denominator.
+
+**Existence:** PARACHUTE-HF, whose stored counts are **correct** (155/462 and
+169/460, reconciling exactly to the registry's 33.5% and 36.7%) and are reported
+REVIEW against a percentage.
+
+**Scope, measured separately: 31 rows across 13 objects**, of 109 carrying a
+stored primary. Some hold **negative** values and some hold values **above 100**
+in a field named `treatment_events`.
+
+**Nth instance of the substring over-match** the ledger already carries. The fix
+is to test the unit for what it IS, not for what it contains — reject any unit
+beginning `percent`/`proportion`/`rate`, and reject any stored value that is
+negative or exceeds its denominator.
+
+---
+
+## 23. `count_provenance_gate`'s alphabetical fallback names a FALSE cause
+
+With no `headline_outcome` the gate uses `sorted(results)[0]`. On a multi-contrast
+object that is an arbitrary contrast, and every trial not carrying it is reported
+as **"this row records no outcome_definition"** — a specific, false, and
+actionable-looking cause. On `lenacapavir-prep` it says that of PURPOSE 2, which
+holds **four** definitions; PURPOSE 2 simply has no F/TAF arm.
+
+**Scope, measured: 9 objects have >1 outcome and no `headline_outcome`; on 6 the
+alphabetical pick is absent from ≥1 trial — 15 trial rows.** Includes
+`iv-iron-hf`, which is **live**. Those rows are **not being checked at all**,
+which is the vacuous direction, while the message reads as a data defect.
+
+**Two separate fixes:** say *"this trial does not carry outcome X"* when that is
+what happened, and make the fallback explicit rather than alphabetical.

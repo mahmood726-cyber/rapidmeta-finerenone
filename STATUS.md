@@ -17,11 +17,11 @@ endpoint does not, whatever the page looks like.
 
 | # | topic | state | note |
 |---|---|---|---|
-| 1 | ARNI_HF | v1, pooled | measure question **RESOLVED 2026-08-18**; k=4 stands |
+| 1 | ARNI_HF | v1, pooled | measure question RESOLVED; **endpoint definitions READ 2026-08-18** — ANSWER-HF registers this endpoint at NO rank; k=4 and HR 0.8715 stand, `estimand_definition` now FAIL **by design** |
 | 2 | ALIROCUMAB_LIPID | v1, pooled | six endpoint definitions read, six values confirmed |
 | 3 | IV_IRON_HF | v1, pooled | five registries read, four pools stand |
 | 4 | SOTAGLIFLOZIN_HF | v1, pooled | endpoints read, pool stands |
-| 5 | SGLT2_HF | v1, **withheld** | four trials, two endpoint definitions |
+| 5 | SGLT2_HF | v1, **withheld** | four trials, two endpoint definitions — **now READ from the registry 2026-08-18**, so the withdrawal reason is quoted rather than asserted |
 | 6 | ABLATION_AF | v1, **withheld** | four trials, four different primary composites |
 | 7 | PCSK9 | **withdrawn** | one composite counts revascularization, the other does not |
 | 8 | DOAC_AF | **withdrawn** | the headline was this page's own Ruff 2014 comparator; k said 4, the pool had 3 |
@@ -1225,3 +1225,167 @@ withdrawals. A project that only removes numbers is easy to dismiss.**
   three correct blocks, three fixes to the object or the exporter and none to the
   check.
 
+
+
+---
+
+## ARNI — the endpoint-definition question, CLOSED 2026-08-18, and what it left parked
+
+**The expected answer was a recording gap. It is not one.** The three unread rows
+were read from ClinicalTrials.gov and re-verified independently by this lane
+against the API, not against the object:
+
+| trial | registration | registered rank of the pooled endpoint |
+|---|---|---|
+| PARADIGM-HF | NCT01035255 | **PRIMARY** |
+| PARACHUTE-HF | NCT04023227 | **SECONDARY**, the first of six |
+| PARALLEL-HF | NCT02468232 | **PRIMARY** |
+| ANSWER-HF | NCT04853758 | **NOT REGISTERED AT ANY RANK** |
+
+**ANSWER-HF declares twenty outcome measures — two primary, eighteen secondary,
+none "other" — and not one of them is a first-event union of cardiovascular death
+and heart-failure hospitalisation.** Its only measure naming both components is a
+four-level hierarchical **win ratio** (time to CV death; time to first HF
+hospitalisation; relative change in NT-proBNP; relative change in LVEF), which is
+a different estimand, not the pooled one. The quantity this page pools from that
+trial exists only in the publication. Independently re-established by this lane
+by enumerating all twenty measures from the registry.
+
+**Two prior characterisations were wrong and both should be retired.** The
+briefing carried forward that all four definitions were "identical, with two
+trials contributing it as a secondary endpoint". Only **one** trial contributes
+it as a secondary; the fourth does not register it at all. That reading traces to
+the object's own field, which said ANSWER-HF's rank was "a secondary endpoint" —
+**an object field read as though it were a registry read.** The registration
+refutes it.
+
+**NO PUBLISHED NUMBER MOVED.** 938 numeric fields before and after, zero
+differences; the pool stands at **HR 0.8715 (0.7461–1.0181), k=4**, and the live
+page is byte-identical to the local build (verified cache-busted, 6,174,333
+bytes, sha256 28e1cd92…).
+
+**PARKED — and it must not be decided by anyone who already knows the answer.**
+Whether an endpoint absent from a trial's registration should be **eligible** to
+contribute at all is an eligibility-rule change, not a data fix. It is parked
+because the measurement is already known: **removing ANSWER-HF moves the pool
+from 0.8715 (0.7461–1.0181), which crosses one, to 0.8333 (0.7473–0.9292), which
+does not.** Dropping the only trial that disagrees, on a defect that argues for
+disclosure, would manufacture the positive finding this review does not have.
+**A withdrawal needs the same evidence as a claim.** The trial stays in and the
+page states the exposure on its face. **Mahmood's call, and nobody else's.**
+
+---
+
+## Item 20 — the batchable half is DONE, and the queue's enumeration was incomplete
+
+**22 rows written, not 13.** Re-derived at the queue's own stated grain — the
+trial-outcome ROW — the five named objects hold 22 unread rows, not 13. The queue
+counted TRIALS on three objects, where trials and rows are equal, and carried
+that across to two where they are not: `lenacapavir-prep` is 6 and not 2,
+`cryptococcal-meningitis` is 6 and not 1.
+
+**Delta verified, not validity:** 216 leaf paths added, **0 removed, 0 changed**,
+and the numeric multiset of all five objects is unchanged.
+
+**The one verdict that moved is the one worth having.** `sglt2-hf` was already
+withheld for "two endpoint definitions"; the gate could not read them and took it
+on trust. It now returns **WITHDRAWN** naming the split from the registrations —
+DAPA-HF and DELIVER count `{cv_death, hf_hospitalisation, urgent_visit}`, both
+EMPEROR trials count `{cv_death, hf_hospitalisation}`. **The withdrawal reason is
+now quoted rather than asserted.**
+
+**Two rows are findings rather than records:**
+
+- **lenacapavir-prep** — in **both** PURPOSE trials the **randomised** comparison
+  against F/TDF is a **SECONDARY**, and the comparison against a **non-randomised**
+  background incidence is the **PRIMARY**. Two trials, same ordering, so it is the
+  programme's design and not a slip.
+- **cryptococcal-meningitis** — **ACTA's registered primary is mortality at TWO
+  weeks**; this page reports **ten**-week mortality, which is its registered
+  *secondary*. AMBITION-cm registers ten-week mortality as its **primary**. The two
+  trials contribute the same quantity at different registered ranks. They are never
+  pooled with each other, and the rows now say so.
+
+**Four rows were unread because of OUR TOOL, not the registry.** ACTA and
+AMBITION-cm are **ISRCTN** registrations and `registry_endpoint_read.py` speaks
+only ClinicalTrials.gov. ISRCTN publishes a **WHO-ICTRP-format export** that
+carries the outcome text (`<prim_outcome>` / `<sec_outcome>`), so all four were
+readable all along.
+
+### The corpus figure is 77, not 55 — and the miss is on the LIVE side
+
+Re-derived at the row grain across every object:
+
+| | rows | objects |
+|---|---|---|
+| under a **LIVE** pooled estimate — topics, one at a time | **44** | 16 |
+| no live estimate — **batchable** | **33** | 2 |
+| **total** | **77** | 17 |
+
+**The queue's enumeration missed whole objects, and one of them is live.**
+`acs-antiplatelet-review` carries **4 unread rows under a live pooled estimate**
+and appears nowhere in the queue's list. `prevnar15-pneumo` carries **25
+batchable rows** — more than the entire batch just completed — and is also
+absent. Conversely `iv-iron-hf` is listed as owing 3 and owes **0**; all ten of
+its rows carry definitions.
+
+**The remaining batchable work is `prevnar15-pneumo` (25) and `malaria-vaccines`
+(8), and neither was on the list.** Both publish no estimate on those outcomes.
+
+### What this did NOT do
+
+**These definitions render on NO PAGE.** Only `sglt2-hf` of the five is in
+PAGE_MAP; the other four have `*_SSOT.html` pages from an earlier generation that
+carry no endpoint-definition table. The rows close **on the object and on the
+gates that read the object**. That is queue item 9 and this commit does not close
+it.
+
+---
+
+## Three instrument defects found in passing, each measured before being reported
+
+**1. `build_app_v2.py <object> <page>` silently truncates a page it did not
+generate — and that is its only documented invocation.** Running it on
+`SGLT2_HF_REVIEW.html` produced **45,551 bytes from 1,047,960**, losing **2,773 of
+2,902 numerals**. Caught by the content comparison and reverted; nothing shipped.
+Root cause established rather than guessed: the object at HEAD and the object at
+`d54a608dd` both build to ~43.9 KB, and **the build script as it was at
+`d54a608dd` also produces 42.6 KB** — so this page was never projected from this
+object, at any commit. The ARNI page is maintained the same way: its last update
+was a **surgical row-level patch**, not a rebuild.
+**Blast radius, measured:** of 28 PAGE_MAP entries, **5 build "successfully" and
+would truncate** (ARNI, IV_IRON_HF, SOTAGLIFLOZIN_HF, ALIROCUMAB_LIPID, SGLT2_HF);
+**23 crash**, which is safe only by accident. The script has no guard comparing
+what it is about to write against what is there.
+
+**2. `count_provenance_gate` admits a percentage as a participant count.** The
+guard tests `"participant" in unit`, and the registry's unit string
+`"percentage of participants"` **contains** `"participant"`. The secondary sanity
+check (`counts <= denoms`) cannot catch it, because a percentage is always below
+its own denominator.
+**Existence** established on PARACHUTE-HF, whose object counts (155/462, 169/460)
+are **correct** and reconcile exactly to the registry's 33.5% and 36.7%.
+**Scope, measured separately: 31 trial rows across 13 objects**, of 109 rows
+carrying a stored primary. Some store **negative** values (`−56.34`) and some
+values **above 100** (`149.1`) in a field named `treatment_events`.
+
+**3. `count_provenance_gate` names a false cause when an object has no
+`headline_outcome`.** It falls back to `sorted(results)[0]` — an **alphabetical**
+pick — and reports every trial lacking that outcome as *"this row records no
+outcome_definition"*. On `lenacapavir-prep` it says that of PURPOSE 2, which
+carries **four** definitions; the true cause is that PURPOSE 2 has no F/TAF arm
+and so no `ftaf_vs_background` row.
+**Scope, measured: 9 objects have >1 outcome and no `headline_outcome`; on 6 of
+them the alphabetical pick is absent from at least one trial — 15 trial rows
+misreported**, including `iv-iron-hf`, which is **live**. Those 15 rows are not
+merely mislabelled, they are **not being checked**.
+
+### A false finding this lane produced and did not ship
+
+A screen written to test whether PAGE_MAP's page↔object binding holds reported
+**"0 of 28 reproducible"** and that ARNI would lose **97.4%** of its numerals.
+**It is an instrument artefact.** ARNI is live at 6.17 MB and its last commit
+changed 35 lines; the screen assumed `build_app_v2.py` is the whole-page
+generator, and it is not. Caught by checking the claim against something already
+known before writing it down — the ledger's own rule about reading the first
+corpus run of any new screen. **Reported here as a near-miss, not as a finding.**

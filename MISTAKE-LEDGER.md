@@ -663,3 +663,84 @@ established by any running check**. Two are WITHHELD — the property met by
 withholding an estimate rather than by agreement, which needed its own verdict
 because scoring it FAIL made a page that *found* the problem look identical to
 one that pooled straight through.
+
+
+---
+
+## An object field read as though it were a registry read
+
+Found 2026-08-18 on the flagship. `arni-hfref` recorded ANSWER-HF's endpoint rank
+as *"a secondary endpoint; the trial's primary is change in left ventricular
+ejection fraction"*. A lane read that field, and the finding travelled onward as
+**"verified from the registry word for word: all four identical, two contributing
+it as a secondary"** — into a briefing, as established fact.
+
+**The registration refutes it.** NCT04853758 declares twenty outcome measures and
+**none** is a first-event union of cardiovascular death and heart-failure
+hospitalisation. Only **one** trial of the four contributes it as a secondary.
+
+> **A field in our own object is not a source. It is a claim we made earlier,
+> and re-reading it confirms only that we are consistent with ourselves.**
+
+This is the corpus-echo failure in a new costume: previously a gate with corpus
+reach handed a lane its own just-written text back as "verification"; here an
+object field did the same thing across sessions, and the laundering step — "read
+from the registry" — was added by the retelling, not by anyone reading a registry.
+
+**The countermeasure that worked:** the instruction to re-establish the finding
+from the registry *rather than trusting the characterisation*. It cost one API
+call and overturned the expected answer. **Where a claim's provenance is "an
+earlier lane established this", the cheap move is to re-establish it, not to
+audit the retelling.**
+
+---
+
+## A screen that produced a spectacular false finding, and the check that stopped it
+
+Written 2026-08-18 to test whether PAGE_MAP's page↔object binding holds. It
+reported **0 of 28 pages reproducible** and that the flagship would lose **97.4%**
+of its numerals on rebuild.
+
+**Every part of that is an artefact of the instrument.** The screen assumed
+`build_app_v2.py` is the whole-page generator. It is not: these pages are
+maintained by surgical row-level patches, and ARNI's last commit changed 35 lines
+on a 6.17 MB page. The screen was measuring the wrong thing perfectly.
+
+It was caught in the only way this class ever is: **the output contradicted
+something already known** — ARNI is live at 6.17 MB, byte-identical to local,
+verified twenty minutes earlier. The ledger's existing rule ("read the first
+corpus run of any new screen before reporting it") is now **four** instances, and
+the fourth was written by someone who had read the rule that morning.
+
+**What survived the correction is smaller and true:** running that builder the
+documented way on 5 of 28 objects silently truncates the page. That is queue item
+21, and it is a real defect — but it is one fifth the size of what the screen
+first said, and about the BUILDER rather than about the pages.
+
+> **A screen's first run measures the screen. Only its second measures the
+> corpus.**
+
+---
+
+## Counting at the wrong grain, twice, in the same queue item
+
+Queue item 20 was written as "39 rows", corrected to "55 rows across 22 objects",
+and is **77 across 17** when re-derived at the trial-OUTCOME-row grain the item
+itself specifies. Both earlier figures counted **trials** on objects where trials
+and rows happen to be equal, then carried that unit onto objects where they are
+not.
+
+**The correction is not the interesting part; the DIRECTION is.** The enumeration
+did not merely undercount — it **omitted whole objects**, and one of them
+(`acs-antiplatelet-review`, 4 rows) carries a **live pooled estimate**, the exact
+category the item flags as needing topic-depth handling. Another
+(`prevnar15-pneumo`, 25 rows) is larger than the entire batch the item scoped.
+Meanwhile `iv-iron-hf` is listed as owing 3 and owes 0.
+
+> **A backlog derived once and then quoted is a measurement that decays. Re-derive
+> it at the stated grain before working from it — and check what it OMITS, not
+> just what it counts wrong.**
+
+A list that is wrong about the items it contains gets audited. A list that is
+silently missing items reads as complete, and nothing about working through it
+ever reveals the gap.
