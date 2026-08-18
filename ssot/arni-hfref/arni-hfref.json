@@ -2938,6 +2938,40 @@
       "how_this_was_verified": "The ruling to adopt this reading came from the author. An author's agreement is not a source, so both propositions that would OVERTURN it were tested before it was applied: (1) does the Handbook place a non-pre-specified outcome under ELIGIBILITY? Chapter 3 says the opposite and discourages outcome-based exclusion. (2) is it explicit that such results should be EXCLUDED from primary synthesis? Chapter 13 recommends detection, a risk-of-bias judgement and sensitivity analysis instead. Both fail; the Handbook is more emphatic than the ruling."
      },
      "citation_is_shared": "This block is quoted from scripts/handbook_citations.py, which holds the single verified copy. Three objects carry the same finding and a citation retyped three times is a citation that will differ in three places."
+    },
+    "independent_rederivation_2026_08_18": {
+     "verdict": "THE PUBLISHED POOLED ESTIMATE RE-DERIVES. Point, interval, tau-squared and Q all reproduce from this object's own per-trial inputs.",
+     "why_this_was_done_and_why_it_had_not_been": "AUDITING A TOPIC'S PROVENANCE IS NOT AUDITING ITS ARITHMETIC. This page has had more scrutiny than any other in the corpus -- ANSWER-HF's endpoint registration status, its measure question, its identity, its Handbook treatment -- and NONE of that recomputed the number the page publishes. The earlier headline-reproduction sweep returned 514 of 514, but it compared PAGE TO OBJECT: it establishes that the projection is faithful and says nothing about whether the object's own arithmetic is right. Those are two different questions and only the first had been answered.",
+     "step_1_inputs_against_their_own_reported_effects": "Each trial's stored log point and log standard error were recomputed from the HR and CI recorded beside them. All four agree to 1e-6 or better: PARADIGM-HF 0.80 (0.73-0.87), PARACHUTE-HF 0.91 (0.73-1.13), PARALLEL-HF 1.09 (0.65-1.82), ANSWER-HF 1.83 (0.72-4.67).",
+     "step_2_pooled_estimate": {
+      "rederived": {
+       "hr": 0.8715322897,
+       "ci_low": 0.74608374134,
+       "ci_high": 1.018074098
+      },
+      "on_object": {
+       "hr": 0.87153524291,
+       "ci_low": 0.74608292776,
+       "ci_high": 1.0180821077
+      },
+      "max_absolute_difference": 8.01e-06,
+      "reading": "Agreement to six decimal places. The residual is rounding in the stored log inputs, not a difference in method. REML random-effects, k=4."
+     },
+     "step_3_heterogeneity_AND_A_LABELLING_DEFECT_FOUND": {
+      "tau2": {
+       "rederived": 0.0085962428909,
+       "on_object": 0.0085970258403,
+       "delta": 7.83e-07
+      },
+      "q": {
+       "rederived": 5.161295477,
+       "on_object": 5.1612775488,
+       "delta": 1.79e-05
+      },
+      "i2_DISCREPANCY_RESOLVED": "I-squared did NOT match on first comparison: 41.87 recomputed against 32.89 on the object, a 9-point gap that is not rounding. IT IS A DIFFERENCE OF DEFINITION, and both are correct. Higgins I-squared = (Q - df)/Q = 41.8749. The metafor/REML formulation, I-squared = tau-squared / (tau-squared + typical within-study variance), gives 32.8940 against the object's 32.8939087126 -- agreement to four decimal places. THE OBJECT'S VALUE IS RIGHT AND ITS LABEL IS INCOMPLETE: the field is named 'i2' and does not say which definition it reports. A reader comparing it to a Higgins I-squared computed from the same Q would conclude the object was wrong.",
+      "what_should_change": "The field should name its definition. This is recorded rather than silently renamed, because the value is unchanged and the defect is in the labelling of every object that carries an 'i2' field, not in this one."
+     },
+     "what_this_does_not_establish": "NOT that the four trials should be pooled -- that is the estimand and eligibility question settled elsewhere on this object, and re-derivation is arithmetic, not judgement. NOT that the per-trial HRs are correctly read from their sources: this checked the object's internal consistency, from stored HR and CI through to the pooled value. Whether 0.80 is what PARADIGM-HF reports is a SOURCE check and is separate. NOT that any other topic re-derives; 18 remain unchecked."
     }
    }
   }

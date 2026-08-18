@@ -1215,3 +1215,28 @@ the measurement works. It is the case where checking is most urgent, because the
 interestingness that makes it worth reporting is also what suppresses the instinct to
 verify. Hand-check the cases you already know the answer to — **not a sample, the ones you
 can independently verify** — and do it BEFORE the number is in a sentence.
+
+---
+
+## Auditing provenance is not auditing arithmetic (2026-08-18)
+
+**"The finding was established against the registrations. The pooled estimate sitting on
+the object was never re-derived. Those are different acts and only the first was done."**
+
+`arni-hfref` had more scrutiny than any other topic in the corpus — ANSWER-HF's endpoint
+registration status, its measure question, its identity, its Handbook treatment, days of
+it. **None of that recomputed the number the page publishes.**
+
+**And the check that looked like it covered this did not.** The headline-reproduction sweep
+returned 514 of 514 — but it compared **page to object**. That establishes the projection
+is faithful. It says nothing about whether the object's own arithmetic is right. **Two
+different questions, and only the first had ever been answered.**
+
+**The general form, now screened for:** does every published pooled estimate re-derive from
+its own object's per-trial inputs? Not "does the page agree with the object" — **does the
+object agree with itself.**
+
+**How to apply:** a provenance audit and an arithmetic audit are separate passes and
+neither implies the other. When a topic has been examined hard, that is a reason to check
+whether the examination ever touched the number — the depth of scrutiny on one axis is
+what makes it feel unnecessary on the other.
