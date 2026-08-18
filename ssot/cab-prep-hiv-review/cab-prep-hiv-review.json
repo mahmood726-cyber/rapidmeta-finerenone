@@ -40,7 +40,8 @@
      "point": 0.2081,
      "ci_low": 0.0715,
      "ci_high": 0.6057,
-     "ci_level": 95
+     "ci_level": 95,
+     "measure": "RR"
     },
     "pooled_hartung_knapp": {
      "point": 0.2081,
@@ -59,7 +60,9 @@
      "how_to_read_this_at_k2": "At k=2 these statistics are WEAK evidence about consistency in either direction. Two points cannot demonstrate agreement.",
      "tau2_estimator": "REML -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
      "i2_definition": "Higgins I-squared = (Q - df) / Q, clamped at 0. Cochrane Handbook 6.5 section 10.10.2.",
-     "i2_definition_evidence": "Decided by recomputing BOTH definitions from this object's own per-trial inputs: Higgins gives 68.8289 and REML/metafor gives 68.8287 against the stored 68.8000."
+     "i2_definition_evidence": "Decided by recomputing BOTH definitions from this object's own per-trial inputs: Higgins gives 68.8289 and REML/metafor gives 68.8287 against the stored 68.8000.",
+     "i2": 68.8,
+     "i2_pct": 68.8
     },
     "per_trial": [
      {
@@ -123,7 +126,8 @@
      "c62": "'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.'"
     },
     "HETEROGENEITY_AND_HOW_IT_DIFFERS_FROM_THE_GEPOTIDACIN_CASE": "I-squared is 68.8% and tau-squared 0.418, which is substantial -- BUT IT IS HETEROGENEITY OF MAGNITUDE, NOT OF DIRECTION, and the distinction changes what may be said. HPTN 083 gives RR 0.33 (0.18-0.62) and HPTN 084 gives RR 0.11 (0.04-0.31). BOTH INTERVALS EXCLUDE 1 AND BOTH FAVOUR CABOTEGRAVIR; the trials disagree about HOW MUCH, not about WHETHER. Contrast the gepotidacin topic built the same day, where one trial excluded 1 and the other did not -- there the pooled point genuinely could not be read as an answer. HERE THE DIRECTION IS CONSISTENT AND THE MAGNITUDE IS NOT ESTABLISHED. The pooled RR 0.21 should be read as: both trials found substantially fewer infections on cabotegravir, and these two trials do not pin down the size of that difference.",
-    "the_likely_source_of_the_magnitude_difference_NOT_CHECKED": "The two trials enrol different populations with different modes of HIV acquisition and, plausibly, different adherence to a DAILY ORAL comparator -- which is the arm whose performance determines the ratio. That is a HYPOTHESIS. It has NOT been checked against the registrations or any publication, and it is recorded as a hypothesis so that it is not mistaken later for a finding."
+    "the_likely_source_of_the_magnitude_difference_NOT_CHECKED": "The two trials enrol different populations with different modes of HIV acquisition and, plausibly, different adherence to a DAILY ORAL comparator -- which is the arm whose performance determines the ratio. That is a HYPOTHESIS. It has NOT been checked against the registrations or any publication, and it is recorded as a hypothesis so that it is not mistaken later for a finding.",
+    "estimator_used": "REML"
    }
   }
  },
@@ -136,5 +140,36 @@
    "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
   }
  ],
- "renamed_2026_08_18": "Renamed from cab-prep-hiv-auto-full-review. THE READER LANDS ON cab-prep-hiv_REVIEW.html and the object now says so. Leaving the mismatch would have made PAGE_MAP the only place that truth lived -- one more route, and every multi-route value in this corpus has diverged. Done as a git mv, not a delete-and-write."
+ "renamed_2026_08_18": "Renamed from cab-prep-hiv-auto-full-review. THE READER LANDS ON cab-prep-hiv_REVIEW.html and the object now says so. Leaving the mismatch would have made PAGE_MAP the only place that truth lived -- one more route, and every multi-route value in this corpus has diverged. Done as a git mv, not a delete-and-write.",
+ "carried_contrasts": [],
+ "sources": {},
+ "outcomes": [
+  {
+   "id": "primary",
+   "type": "primary",
+   "name": "documented incident HIV infection",
+   "definition": "documented incident HIV infection",
+   "derived_note": "Assembled from this object's own recorded outcome text. Nothing authored fresh.",
+   "measure": "RR",
+   "comparator": "daily oral TDF/FTC",
+   "comparator_type": "active",
+   "definition_note": "Registered endpoint definitions were read from every contributing registration on 2026-08-18; this text is the object's own record of them."
+  }
+ ],
+ "question": "Long-acting injectable cabotegravir versus daily oral TDF/FTC for HIV pre-exposure prophylaxis versus daily oral TDF/FTC on documented incident HIV infection?",
+ "generator_schema_patch_2026_08_18": {
+  "relocations": "SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our schema wrote it elsewhere on the same object. A relocation, not a new claim.",
+  "genuinely_empty": "GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is empty on acs-antiplatelet-review, which builds.",
+  "rule": "Every field added falls into RELOCATION, GENUINELY EMPTY, or DERIVED FROM RECORDED CONTENT. A field falling into none was REFUSED. Adding a key to satisfy a generator is not the same as adding the content that key should hold.",
+  "fields": [
+   "carried_contrasts=[] (empty)",
+   "sources={} (empty)",
+   "pooled.measure (reloc)",
+   "estimator_used (reloc)",
+   "het.i2 (reloc)",
+   "het.i2_pct (reloc)",
+   "outcomes (derived)",
+   "question (derived)"
+  ]
+ }
 }

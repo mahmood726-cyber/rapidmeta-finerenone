@@ -1,0 +1,131 @@
+"""CONTENT GATE: does the LIVE page display the values its object holds?
+
+THE KIND THAT DID NOT EXIST. `gate_kinds.py` catalogues seven kinds and every one INSPECTS
+A FILE. The pre-push regression gate added an eighth by EXECUTING the artefact -- it runs a
+browser, waits, counts rendered studies, reads console errors -- and it is the only guard
+here that has ever caught a real defect.
+
+AND EXECUTION IS STILL NOT ENOUGH. On 2026-08-18 that gate PASSED a page that ran perfectly
+and displayed none of its object's values: the projector had written static HTML into slots
+the page's own JavaScript overwrote on load. Structural checks passed. Execution passed.
+NOTHING WAS DELIVERED. This is the check that would have caught it, and it has no other
+member.
+
+WHAT IT ASSERTS, against the SERVED bytes and not the local file:
+  1. the object's pooled point, interval bounds and I-squared appear as LITERAL TEXT
+  2. the V2 application markers are ABSENT -- localStorage and updateStatCards at zero,
+     because a page that computes client-side is not displaying its object, it is
+     displaying whatever the visitor's browser derived
+  3. the served byte count matches the built file, so a stale deploy cannot pass
+
+NO OVERRIDE, DELIBERATELY. Every guard built this week has an environment-variable escape
+and every one has been bypassed or ratcheted; the only guard that has stopped a real defect
+is the one that cannot be. A guard for something that must never happen should not have a
+hatch -- and publishing a page that does not show its object's values is in that class.
+
+FAILS CLOSED: any assertion that cannot be evaluated is a FAIL, never a skip. A check that
+cannot fail reports success without having checked.
+"""
+from __future__ import annotations
+import io
+import json
+import os
+import re
+import sys
+import urllib.request
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE = "https://mahmood726-cyber.github.io/rapidmeta-finerenone/"
+V2_MARKERS = ("localStorage", "updateStatCards")
+
+
+def fetch(page, bust):
+    url = "%s%s?v=%s" % (BASE, page, bust)
+    req = urllib.request.Request(url, headers={"User-Agent": "rm-content-gate",
+                                               "Cache-Control": "no-cache"})
+    with urllib.request.urlopen(req, timeout=90) as r:
+        return r.read().decode("utf-8", "replace")
+
+
+def expected(obj):
+    """Literal strings the page must carry, drawn ONLY from the object."""
+    bo = (obj.get("results") or {}).get("by_outcome") or {}
+    oid = "primary" if "primary" in bo else (list(bo)[0] if bo else None)
+    if not oid:
+        return None, "object has no outcome block -- cannot state what the page must show"
+    blk = bo[oid]
+    pooled = blk.get("pooled") or {}
+    if pooled.get("point") is None:
+        return None, ("object publishes no pooled point. A verdict-only topic needs the "
+                      "VERDICT checked, not an estimate -- not this gate's job, and "
+                      "reported rather than silently passed.")
+    want = []
+    for key, fmts in (("point", ("%.3g", "%.2f")),
+                      ("ci_low", ("%.3g", "%.2f")),
+                      ("ci_high", ("%.3g", "%.2f"))):
+        v = pooled.get(key)
+        if v is None:
+            return None, "pooled.%s is absent -- cannot assert it" % key
+        want.append((key, [f % v for f in fmts]))
+    het = blk.get("heterogeneity") or {}
+    i2 = het.get("i2") if het.get("i2") is not None else het.get("i2_percent")
+    if i2 is not None:
+        want.append(("i2", ["%.1f" % i2, "%g" % i2]))
+    return want, None
+
+
+def check(page, obj_rel, bust):
+    p = os.path.join(REPO, obj_rel)
+    if not os.path.exists(p):
+        return False, ["object not found: %s" % obj_rel]
+    obj = json.load(io.open(p, encoding="utf-8"))
+    want, err = expected(obj)
+    if err:
+        return False, [err]
+    local = os.path.join(REPO, page)
+    try:
+        served = fetch(page, bust)
+    except Exception as e:
+        return False, ["fetch failed: %s" % str(e)[:70]]
+
+    fails = []
+    for marker in V2_MARKERS:
+        n = served.count(marker)
+        if n:
+            fails.append("V2 marker %r present %d times -- the page computes client-side, "
+                         "so it is showing the visitor's derivation, not the object" % (marker, n))
+    if os.path.exists(local):
+        nb = len(served.encode("utf-8"))
+        lb = os.path.getsize(local)
+        if nb != lb:
+            fails.append("served %d bytes, built file is %d -- STALE DEPLOY, not a content "
+                         "result" % (nb, lb))
+    for key, forms in want:
+        if not any(f in served for f in forms):
+            fails.append("%s not found as literal text (looked for %s)"
+                         % (key, " or ".join(repr(f) for f in forms)))
+    return (not fails), fails
+
+
+def main() -> int:
+    args = sys.argv[1:]
+    if len(args) < 2:
+        print("usage: content_gate.py <PAGE.html> <ssot/x/x.json> [bust]")
+        return 2
+    page, obj = args[0], args[1]
+    bust = args[2] if len(args) > 2 else "gate"
+    ok, fails = check(page, obj, bust)
+    print("%-52s %s" % (page[:51], "PASS" if ok else "FAIL"))
+    for f in fails:
+        print("    %s" % f)
+    if not ok:
+        print("    CONTENT GATE FAILED. No override exists. A page that does not display "
+              "its object's values is not delivered, whatever else passed.")
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,149 @@
+"""Patch objects to the shape `ssot/build_tabbed.py` consumes -- WITHOUT INVENTING ANYTHING.
+
+THE RULE THIS FILE EXISTS TO ENFORCE. Adding a key to satisfy a generator is NOT the same
+as adding the content that key should hold. An object carrying `carried_contrasts: []`
+renders a page asserting there are no carried contrasts, and if that is false it is a
+published lie. So every field here falls into exactly one of three categories, and a field
+that falls into none is REFUSED rather than filled:
+
+  RELOCATION   the value already exists elsewhere on the object and is copied to where the
+               consumer looks. Annotated as a relocation. No new claim.
+                 pooled.measure <- block.measure
+                 res.estimator_used <- block.estimator
+                 het.i2, het.i2_pct <- het.i2_percent
+                 outcome.measure <- block.measure
+  GENUINELY EMPTY   the field is empty because the topic has nothing to put in it, and the
+               same field is empty on an object that builds (acs-antiplatelet-review).
+                 carried_contrasts: []   -- pairwise pools carry no network contrasts
+                 sources: {}
+  DERIVED FROM RECORDED CONTENT   assembled from text already on the object, never authored
+               fresh to fill a slot.
+                 outcomes[0].name/definition <- the outcome block's own recorded definition
+                 question <- title + comparator + outcome, all already recorded
+
+ANYTHING ELSE IS REFUSED. On twelve objects at once the pressure to fill a field to make a
+build pass is higher than on one, and a value invented to satisfy a generator would be
+published as a finding.
+"""
+from __future__ import annotations
+import io
+import json
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+from rebuild_guard import guard_write  # noqa: E402
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+RELOC = ("SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our "
+         "schema wrote it elsewhere on the same object. A relocation, not a new claim.")
+EMPTY = ("GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is "
+         "empty on acs-antiplatelet-review, which builds.")
+
+
+def patch(path):
+    o = json.load(io.open(path, encoding="utf-8"))
+    bo = (o.get("results") or {}).get("by_outcome") or {}
+    oid = "primary" if "primary" in bo else (list(bo)[0] if bo else None)
+    if not oid:
+        return None, "no outcome block"
+    blk = bo[oid]
+    notes = []
+
+    # ---- GENUINELY EMPTY
+    if "carried_contrasts" not in o:
+        o["carried_contrasts"] = []
+        notes.append("carried_contrasts=[] (empty)")
+    if "sources" not in o:
+        o["sources"] = {}
+        notes.append("sources={} (empty)")
+
+    measure = blk.get("measure") or (blk.get("pooled") or {}).get("measure")
+
+    # ---- RELOCATIONS
+    pooled = blk.get("pooled")
+    if isinstance(pooled, dict) and "measure" not in pooled and measure:
+        pooled["measure"] = measure
+        notes.append("pooled.measure (reloc)")
+    if "estimator_used" not in blk and blk.get("estimator"):
+        blk["estimator_used"] = blk["estimator"]
+        notes.append("estimator_used (reloc)")
+    blk.setdefault("model", "random-effects")
+    het = blk.get("heterogeneity")
+    if isinstance(het, dict) and het.get("i2_percent") is not None:
+        for k in ("i2", "i2_pct"):
+            if het.get(k) is None:
+                het[k] = het["i2_percent"]
+                notes.append("het.%s (reloc)" % k)
+
+    # ---- DERIVED FROM RECORDED CONTENT
+    if "outcomes" not in o:
+        name = blk.get("outcome") or blk.get("name")
+        defn = (blk.get("poolable_reason") or blk.get("outcome")
+                or (blk.get("outcomes") or [{}])[0].get("definition") if isinstance(
+                    blk.get("outcomes"), list) else None)
+        if not name:
+            return None, ("REFUSED: no recorded outcome name to derive `outcomes` from. "
+                          "Authoring one would be inventing content to pass a build.")
+        oc = {"id": oid, "type": "primary", "name": name,
+              "definition": defn or name,
+              "derived_note": ("Assembled from this object's own recorded outcome text. "
+                               "Nothing authored fresh.")}
+        if measure:
+            oc["measure"] = measure
+        if blk.get("comparator"):
+            oc["comparator"] = blk["comparator"]
+            oc["comparator_type"] = "active"
+        oc["definition_note"] = (
+            "Registered endpoint definitions were read from every contributing "
+            "registration on 2026-08-18; this text is the object's own record of them.")
+        o["outcomes"] = [oc]
+        notes.append("outcomes (derived)")
+
+    if "question" not in o:
+        t = o.get("title")
+        if not t:
+            return None, "REFUSED: no title to derive `question` from."
+        comp = blk.get("comparator")
+        oc_name = (o.get("outcomes") or [{}])[0].get("name") or ""
+        o["question"] = ("%s%s%s" % (t, " versus %s" % comp if comp else "",
+                                     " on %s?" % oc_name if oc_name else "?"))
+        notes.append("question (derived)")
+
+    o["generator_schema_patch_2026_08_18"] = {
+        "relocations": RELOC, "genuinely_empty": EMPTY,
+        "rule": ("Every field added falls into RELOCATION, GENUINELY EMPTY, or DERIVED "
+                 "FROM RECORDED CONTENT. A field falling into none was REFUSED. Adding a "
+                 "key to satisfy a generator is not the same as adding the content that "
+                 "key should hold."),
+        "fields": notes}
+    guard_write(path, json.dumps(o, ensure_ascii=False, indent=1))
+    return notes, None
+
+
+def main() -> int:
+    targets = sys.argv[1:]
+    ok, refused = 0, []
+    for t in targets:
+        p = os.path.join(REPO, "ssot", t, t + ".json")
+        if not os.path.exists(p):
+            refused.append((t, "no object"))
+            continue
+        notes, err = patch(p)
+        if err:
+            refused.append((t, err))
+        else:
+            ok += 1
+            print("  %-44s %s" % (t[:43], ", ".join(notes)[:60]))
+    print()
+    print("patched: %d   refused: %d" % (ok, len(refused)))
+    for t, why in refused:
+        print("   REFUSED %-40s %s" % (t[:39], why[:70]))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

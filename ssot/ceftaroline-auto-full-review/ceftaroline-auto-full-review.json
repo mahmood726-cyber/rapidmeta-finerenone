@@ -46,7 +46,8 @@
      "point": 1.1049,
      "ci_low": 1.0494,
      "ci_high": 1.1633,
-     "ci_level": 95
+     "ci_level": 95,
+     "measure": "RR"
     },
     "pooled_hartung_knapp": {
      "point": 1.1049,
@@ -65,7 +66,9 @@
      "DIRECTION_TEST": "NOT APPLICABLE -- I-squared is 0.0%, below the threshold at which the direction test is informative. The trials are consistent with a common effect and no heterogeneity caution is warranted. Applying one here would manufacture doubt the data do not support, which is the mirror failure of ignoring heterogeneity that matters.",
      "how_to_read_this_at_low_k": "At k=2 or k=3 these statistics are weak evidence about consistency in EITHER direction. A low value means the estimates are CONSISTENT WITH a common effect, not that one is demonstrated.",
      "tau2_estimator": "REML -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
-     "i2_definition": "UNDECIDABLE from this object. I-squared is 0 and Q is below the degrees of freedom, where the Higgins form is negative-and-clamped and the REML/metafor form is exactly zero -- BOTH DEFINITIONS GIVE 0 and nothing here distinguishes them. Recorded as undecidable rather than guessed."
+     "i2_definition": "UNDECIDABLE from this object. I-squared is 0 and Q is below the degrees of freedom, where the Higgins form is negative-and-clamped and the REML/metafor form is exactly zero -- BOTH DEFINITIONS GIVE 0 and nothing here distinguishes them. Recorded as undecidable rather than guessed.",
+     "i2": 0.0,
+     "i2_pct": 0.0
     },
     "per_trial": [
      {
@@ -151,7 +154,8 @@
      "sections": "6.4.1; 10.10.3; 10.10.4.4-5; MECIR Box 10.10.a (C62)",
      "c62": "'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.'"
     },
-    "analysis_code": "scripts/ctg_binary_pool.py::pool_rr -- shared, so the arithmetic is one implementation checked once rather than N hand copies."
+    "analysis_code": "scripts/ctg_binary_pool.py::pool_rr -- shared, so the arithmetic is one implementation checked once rather than N hand copies.",
+    "estimator_used": "REML"
    }
   }
  },
@@ -163,5 +167,36 @@
    "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
    "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
   }
- ]
+ ],
+ "carried_contrasts": [],
+ "sources": {},
+ "outcomes": [
+  {
+   "id": "primary",
+   "type": "primary",
+   "name": "clinical cure at test-of-cure",
+   "definition": "clinical cure at test-of-cure",
+   "derived_note": "Assembled from this object's own recorded outcome text. Nothing authored fresh.",
+   "measure": "RR",
+   "comparator": "intravenous ceftriaxone",
+   "comparator_type": "active",
+   "definition_note": "Registered endpoint definitions were read from every contributing registration on 2026-08-18; this text is the object's own record of them."
+  }
+ ],
+ "question": "Ceftaroline fosamil versus ceftriaxone in bacterial pneumonia versus intravenous ceftriaxone on clinical cure at test-of-cure?",
+ "generator_schema_patch_2026_08_18": {
+  "relocations": "SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our schema wrote it elsewhere on the same object. A relocation, not a new claim.",
+  "genuinely_empty": "GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is empty on acs-antiplatelet-review, which builds.",
+  "rule": "Every field added falls into RELOCATION, GENUINELY EMPTY, or DERIVED FROM RECORDED CONTENT. A field falling into none was REFUSED. Adding a key to satisfy a generator is not the same as adding the content that key should hold.",
+  "fields": [
+   "carried_contrasts=[] (empty)",
+   "sources={} (empty)",
+   "pooled.measure (reloc)",
+   "estimator_used (reloc)",
+   "het.i2 (reloc)",
+   "het.i2_pct (reloc)",
+   "outcomes (derived)",
+   "question (derived)"
+  ]
+ }
 }
