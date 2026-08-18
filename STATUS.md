@@ -1017,6 +1017,53 @@ numbers is easy to dismiss.
 
 ---
 
+### 2026-08-18 — the two REPLACEMENT analyses: a correct number in place of an absence
+
+**Twenty-six topics in, this project had withdrawn or corrected far more than it
+had delivered.** Every one of those was right. But a project that only removes
+numbers is easy to dismiss, and these are the two cases where the trials support
+an analysis a reader can be handed instead. **Neither needed an estimand
+judgement, which is exactly why they were unblocked.**
+
+**BOCOCIZUMAB_LIPID — MD −55.46 (−58.84 to −52.07) percentage points, REML, k=5,
+n=3,628.** All five registrations declare the identical primary. **The estimand
+was never the problem; the measure was** — the withdrawn value was an odds ratio
+from an undocumented dichotomisation whose counts implied a 91% "event" rate in
+placebo. Every input is the registry's own least-squares mean difference. The
+point spans −55.43 to −55.53 across six estimator × interval combinations;
+leave-one-out gives −54.60 to −56.50. **REML by choice, not inheritance** — a new
+analysis, so the estimator was picked correctly from the start. **Two trials were
+added that the withdrawn pool never had**, and that is stated so the k change is
+not silent. **LDL-C is a surrogate, and bococizumab was discontinued for
+immunogenicity — the page says so.**
+
+**INCRETIN_HFpEF — MD 7.43 (5.09 to 9.77) KCCQ points, k=2, n=1,094, I² 0%.** All
+three trials register the KCCQ clinical summary score. **Pooled at k=2, not 3, and
+that is the honest number:** STEP-HFpEF DM's registry record has **no results
+section**, its published value exists in the literature, and it is **deliberately
+not imported** — every number on this page is registry-sourced and breaking that
+for one data point would cost the guarantee that makes the rest checkable. At k=2
+the Hartung-Knapp interval is **1.80 to 13.06** and is arguably the honest one;
+both are recorded. **A seven-point KCCQ difference is a symptom benefit, not an
+event reduction.**
+
+Both objects keep **both** outcomes — the withdrawn one in full with its reason,
+and the replacement beside it — with `headline_outcome` declared so the card leads
+with the replacement rather than the retraction.
+
+**Three of my own defects on the way, all caught before or at the gate:** an
+append-shaped patch script run twice, appending one outcome three times (results
+were keyed by id, so every gate passed and it had to be looked for); the
+case-sensitive filename pattern found in **eight** further scripts including
+`card_alignment_gate` itself; and my replacement card note using the word
+"withdrawn", which correctly tripped that gate's SGLT2_HF rule. **The rule was not
+weakened — the card was reworded.**
+
+**26 of 53 topics. 25 found by instruments; 1 — MITRAL_FUNCMR — found by a person
+noticing two headline numbers were not comparable.** That ratio is the argument
+for the harness, and the single exception is the argument against trusting it
+completely.
+
 ## Where the next lane picks up
 
 **HANDOVER, written 2026-08-18 while there was still room to write it properly
@@ -1074,7 +1121,14 @@ withdrawals. A project that only removes numbers is easy to dismiss.**
 
 ### Tooling queue, in the order agreed
 
-1. **Item 19 — the false-withdrawal-reason check.** Founding fixtures are ready
+0. **DONE since this was written:** item 19 is built (`withdrawal_reason_gate`,
+   corpus 49 objects: 1 FAIL, 5 PASS, 43 NOT_APPLICABLE), and **both replacement
+   analyses are delivered and live.** Five one-off maintenance scripts still carry
+   the case-sensitive filename pattern (`decontaminate_sglt2_clones`,
+   `verify_decontamination`, `inject_e156_claim_buttons`, `restyle_index_nyt`,
+   `extract_to_ssot`'s second pattern) — **cheap, and every count they produced is
+   suspect until fixed.**
+1. ~~Item 19 — the false-withdrawal-reason check.~~ **BUILT.** Founding fixtures
    and unusually good: APIXABAN_ACS (card says "bleeding and efficacy pooled",
    **both** trials register bleeding → FALSE) and RIVAROXABAN_ACS (**identical
    card wording**, and there it is TRUE). A detector with a true positive and a
