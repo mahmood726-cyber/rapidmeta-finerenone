@@ -64,7 +64,12 @@ REPO = os.path.dirname(HERE)
 sys.path.insert(0, os.path.join(REPO, "ssot"))
 
 CARD_RE = re.compile(
-    r'(<a href="(?P<page>[A-Z0-9_]+\.html)" class="card [^"]*">'
+    r'(<a href="(?P<page>[A-Za-z0-9_]+\.html)" class="card [^"]*">'  # [A-Z0-9_] MISSED ANY PAGE WITH A LOWERCASE LETTER.
+# INCRETIN_HFpEF_REVIEW.html has a lowercase 'p'. Its card existed and
+# published 'HR 0.41 (0.22-0.79), k=3' -- and BOTH this scanner and the card
+# projector reported it as having NO CARD, for weeks. A page invisible to the
+# tool that counts pages is worse than an uncounted page: it is counted as a
+# DIFFERENT thing, and it silently escaped card-alignment checking entirely.
     r'<span class="name">[^<]*</span><span class="pub">)(?P<pub>.*?)(</span></a>)')
 
 

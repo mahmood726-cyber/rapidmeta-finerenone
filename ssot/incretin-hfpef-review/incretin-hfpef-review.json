@@ -1,111 +1,85 @@
 {
  "app_id": "incretin-hfpef-review",
- "schema_version": "2-converted-from-extractor",
- "source_links_enforced": null,
- "source_links_enforced_means": "not recorded on the page this object was extracted from",
- "title": "Multiple trial-declared outcomes: Change in Kansas City Cardiomyopathy Questionnaire Clinical Summary Score (KCCQ-CSS) | Change From Baseline in the Kansas City Cardiomyopathy Questionnaire (KCCQ) Clinical Summary Score (CSS)",
- "question": "Multiple trial-declared outcomes: Change in Kansas City Cardiomyopathy Questionnaire Clinical Summary Score (KCCQ-CSS) | Change From Baseline in the Kansas City Cardiomyopathy Questionnaire (KCCQ) Clinical Summary Score (CSS)",
- "built": "2026-08-17T12:06Z",
- "_prose_rule": "not recorded on the page this object was extracted from",
- "_sourcing_rule": "not recorded on the page this object was extracted from",
- "_estimand_rule": "not recorded on the page this object was extracted from",
- "build_mode": "CONVERTED",
- "single_tier_because": "not recorded on the page this object was extracted from",
+ "schema_version": "2-authored-from-source",
+ "title": "Incretin therapies in heart failure with preserved ejection fraction",
+ "question": "This page published a pooled odds ratio and had NO CARD on the index at all. Two of its three trials register only continuous primaries.",
+ "built": "2026-08-18T00:00Z",
+ "build_mode": "AUTHORED",
+ "_estimand_rule": "Every endpoint definition below was READ FROM THE REGISTRY, word for word, when this withdrawal was RE-VERIFIED on 2026-08-18.",
+ "source_links_enforced": true,
+ "source_links_enforced_means": "every trial row carries its registration link",
  "cited_total": null,
- "completeness_statement": "not recorded on the page this object was extracted from",
+ "completeness_statement": "not recorded on the page this object was built from",
  "verification_basis": {
-  "what_verifies_this_object": "not recorded on the page this object was extracted from",
-  "what_is_not_claimed": "not recorded on the page this object was extracted from",
+  "what_verifies_this_object": "ClinicalTrials.gov protocol records, read 2026-08-18",
+  "what_is_not_claimed": "that any per-trial count was checked against a results record",
   "families": [],
-  "bar": "not recorded on the page this object was extracted from"
+  "bar": "not recorded on the page this object was built from"
  },
  "methodological_authority": {
-  "reference": "not recorded on the page this object was extracted from",
-  "version": "not recorded on the page this object was extracted from",
-  "version_checked_on": "not recorded on the page this object was extracted from",
-  "version_checked_how": "not recorded on the page this object was extracted from",
-  "chapters_as_dated_by_the_publisher": [],
-  "version_note": "not recorded on the page this object was extracted from",
-  "scope_of_this_rule": "not recorded on the page this object was extracted from",
-  "url": "not recorded on the page this object was extracted from",
-  "note": "not recorded on the page this object was extracted from",
-  "sections_relied_on": []
+  "reference": "not recorded on the page this object was built from",
+  "version": "not recorded on the page this object was built from",
+  "version_checked_on": "not recorded on the page this object was built from",
+  "version_checked_how": "not recorded on the page this object was built from",
+  "version_note": "not recorded on the page this object was built from",
+  "scope_of_this_rule": "not recorded on the page this object was built from",
+  "url": "not recorded on the page this object was built from",
+  "note": "not recorded on the page this object was built from"
  },
  "config": {
   "model": "random-effects",
-  "method": "DerSimonian-Laird inverse-variance on extracted effect estimates",
+  "method": "not pooled -- withdrawn",
   "scale": "log"
  },
  "screening": {
-  "search_note": "not recorded on the page this object was extracted from",
-  "eligibility": "not recorded on the page this object was extracted from",
-  "known_limitation": "not recorded on the page this object was extracted from",
-  "records": [],
-  "excluded": []
+  "search_note": "not recorded on the page this object was built from",
+  "eligibility": "not recorded on the page this object was built from",
+  "known_limitation": "not recorded on the page this object was built from"
  },
  "screening_names_unresolved": [],
  "eligible_but_not_contributing": {
-  "note": "not recorded on the page this object was extracted from",
+  "note": "All included registrations carry a row in this object.",
   "studies": []
  },
  "reconciliation": {
-  "why_this_step_exists": "not recorded on the page this object was extracted from",
+  "why_this_step_exists": "not recorded on the page this object was built from",
   "clean": null,
-  "clean_because": "not recorded on the page this object was extracted from",
-  "target_source_id": "not recorded on the page this object was extracted from",
-  "access_limitation": "not recorded on the page this object was extracted from",
+  "clean_because": "not recorded on the page this object was built from",
   "trial_list_diffs": [],
   "matches": [],
   "corrections": [],
   "unresolved": []
  },
- "claims_corrected": [],
- "scope_decisions": {
-  "SCOPE:three-estimands-never-merged": {
-   "decision": "not recorded on the page this object was extracted from",
-   "sections": [],
-   "conformance": "not recorded on the page this object was extracted from"
-  },
-  "SCOPE:the-label-on-the-quantity-is-not-the-quantity": {
-   "decision": "not recorded on the page this object was extracted from",
-   "sections": [],
-   "conformance": "not recorded on the page this object was extracted from"
-  },
-  "SCOPE:publication-two-component-first-event-composite": {
-   "decision": "not recorded on the page this object was extracted from",
-   "sections": [],
-   "conformance": "not recorded on the page this object was extracted from"
-  },
-  "SCOPE:drug-wide-pivotal-not-heart-failure": {
-   "decision": "not recorded on the page this object was extracted from",
-   "sections": [],
-   "conformance": "not recorded on the page this object was extracted from"
-  },
-  "SCOPE:no-number-needed-to-treat": {
-   "decision": "not recorded on the page this object was extracted from",
-   "sections": [],
-   "conformance": "not recorded on the page this object was extracted from"
+ "claims_corrected": [
+  {
+   "claim": "a pooled OR 0.4846 (0.3178 to 0.7389), k=2, published with NO index card",
+   "where": "INCRETIN_HFpEF_REVIEW.html; the index table links it and no card existed",
+   "what_it_actually_is": "an odds ratio over event counts where two of three trials register only continuous primaries",
+   "evidence": "STEP-HFpEF and STEP-HFpEF DM register 'Change in KCCQ clinical summary score' and 'Change in body weight' as their co-primaries; the 7 and 18 stored for STEP-HFpEF DM match no registered primary of that trial",
+   "corrected_to": "withdrawn, and a card created",
+   "on": "2026-08-18"
   }
- },
- "conversion_note": "This object was CONVERTED from an extractor recovery artefact, not authored. The trials, arms, effects and pooled result below were recovered from the published page. Everything a review also needs -- protocol, search, screening log, risk-of-bias assessment, certainty rating, sources and manuscript -- is ABSENT FROM THE SOURCE and is recorded as absent. Nothing is substituted from any other review.",
+ ],
+ "scope_decisions": {},
+ "conversion_note": "AUTHORED, not converted. This topic's estimate was withdrawn BEFORE the current detector set existed; the withdrawal was re-verified against the registry on 2026-08-18.",
  "sources": {},
  "outcomes": [
   {
    "id": "primary",
-   "name": "Multiple trial-declared outcomes: Change in Kansas City Cardiomyopathy Questionnaire Clinical Summary Score (KCCQ-CSS) | Change From Baseline in the Kansas City Cardiomyopathy Questionnaire (KCCQ) Clinical Summary Score (CSS)",
-   "definition": "Multiple trial-declared outcomes: Change in Kansas City Cardiomyopathy Questionnaire Clinical Summary Score (KCCQ-CSS) | Change From Baseline in the Kansas City Cardiomyopathy Questionnaire (KCCQ) Clinical Summary Score (CSS)",
-   "definition_note": "not recorded on the page this object was extracted from",
+   "name": "Registered as CONTINUOUS in two trials -- and pooled here as an event count",
+   "definition": "STEP-HFpEF and STEP-HFpEF DM register TWO CONTINUOUS co-primaries each: change in KCCQ clinical summary score and change in body weight. SUMMIT registers a continuous KCCQ primary AND an event composite. This page pooled EVENT COUNTS.",
+   "definition_note": "Authored from source. The outcome name inherited from the converter says 'Change in KCCQ-CSS' while the stored measure is an odds ratio over event counts -- the name and the measure describe different quantities.",
    "measure": "OR",
    "effect_scale": "log",
    "type": "primary",
    "estimand": {
     "id": "primary",
-    "family": "not recorded on the page this object was extracted from",
+    "family": "first event",
     "model": "random-effects"
    },
-   "comparator": "not recorded on the page this object was extracted from",
-   "comparator_type": "not recorded on the page this object was extracted from",
-   "direction_of_benefit": "not recorded on the page this object was extracted from",
+   "comparator": "placebo",
+   "comparator_type": "placebo",
+   "direction_of_benefit": "lower is better",
    "null_value": 1
   }
  ],
@@ -120,45 +94,53 @@
      {
       "label": "Semaglutide 2.4 mg once weekly (OW)",
       "role": "treatment",
-      "events": 7.0,
-      "participants": 310.0
+      "events": 7,
+      "participants": 310
      },
      {
       "label": "Semaglutide placebo OW",
       "role": "control",
-      "events": 18.0,
-      "participants": 306.0
+      "events": 18,
+      "participants": 306
      }
     ],
+    "arms_as_the_registry_lists_them": "'Semaglutide 2.4 mg once weekly (OW)', 'Semaglutide placebo OW'",
     "by_outcome": {
      "primary": {
       "effect": {
        "measure": "OR",
        "scale": "log",
-       "point": 0.3696369636963696,
-       "ci_low": 0.152125986876415,
-       "ci_high": 0.8981469092566596,
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
        "ci_level": 95,
-       "analysis_scale_estimate": -0.9952339342142746,
-       "analysis_scale_variance": 0.20518525066792392,
-       "derived_from": "extractor recovery from the published page",
-       "derivation_note": "The point estimate and interval shown here are DERIVED, not read: the extractor recovered an estimate and a variance on the analysis scale, and the interval is estimate +/- 1.96*sqrt(variance) back-transformed. No source document was consulted and no source sentence is recorded."
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
       },
       "provenance": {
-       "tag": "RECOVERED",
+       "tag": "REGISTRY-READ",
        "source_quotes": [],
-       "quote_note": "No verbatim source sentence is held for this value. It was recovered from the page's own embedded data, so it can be traced to the page but NOT to a paper."
+       "quote_note": "the endpoint definition is verbatim from the registry"
       },
-      "source_url": null,
+      "source_url": "https://clinicaltrials.gov/study/NCT04916470",
       "analysed": {
-       "intervention": 310.0,
-       "control": 306.0
+       "treatment": 310,
+       "control": 306
+      },
+      "outcome_definition": "Change in KCCQ (Kansas City Cardiomyopathy Questionnaire) clinical summary score",
+      "outcome_definition_source": {
+       "time_frame": "From baseline (week 0) to end of treatment (week 52)",
+       "description_verbatim": "Score on a scale of 0 to 100 where the score 100 means the least burden for the participant.",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT04916470",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "TWO CONTINUOUS CO-PRIMARIES: 'Change in KCCQ clinical summary score' and 'Change in body weight'. NEITHER IS AN EVENT COUNT. The 7 and 18 stored on this page correspond to no registered primary outcome of this trial.",
+       "analysis_set_as_the_registry_states_it": "Both registered primaries are continuous change scores."
       }
      }
-    },
-    "registration_arm_count": 2,
-    "registration_contrasts_read_utc": "2026-08-18",
-    "registration_counts_read_utc": "2026-08-18"
+    }
    },
    {
     "id": "NCT04847557",
@@ -169,149 +151,53 @@
      {
       "label": "Tirzepatide",
       "role": "treatment",
-      "events": 29.0,
-      "participants": 364.0
+      "events": 29,
+      "participants": 364
      },
      {
       "label": "Placebo",
       "role": "control",
-      "events": 52.0,
-      "participants": 367.0
+      "events": 52,
+      "participants": 367
      }
     ],
+    "arms_as_the_registry_lists_them": "'Tirzepatide', 'Placebo'",
     "by_outcome": {
      "primary": {
       "effect": {
        "measure": "OR",
        "scale": "log",
-       "point": 0.5243972445464983,
-       "ci_low": 0.32462344237777613,
-       "ci_high": 0.8471121742586327,
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
        "ci_level": 95,
-       "analysis_scale_estimate": -0.6455057815943867,
-       "analysis_scale_variance": 0.05987320565292774,
-       "derived_from": "extractor recovery from the published page",
-       "derivation_note": "The point estimate and interval shown here are DERIVED, not read: the extractor recovered an estimate and a variance on the analysis scale, and the interval is estimate +/- 1.96*sqrt(variance) back-transformed. No source document was consulted and no source sentence is recorded."
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
       },
       "provenance": {
-       "tag": "RECOVERED",
+       "tag": "REGISTRY-READ",
        "source_quotes": [],
-       "quote_note": "No verbatim source sentence is held for this value. It was recovered from the page's own embedded data, so it can be traced to the page but NOT to a paper."
+       "quote_note": "the endpoint definition is verbatim from the registry"
       },
-      "source_url": null,
+      "source_url": "https://clinicaltrials.gov/study/NCT04847557",
       "analysed": {
-       "intervention": 364.0,
-       "control": 367.0
+       "treatment": 364,
+       "control": 367
+      },
+      "outcome_definition": "Change From Baseline in the Kansas City Cardiomyopathy Questionnaire (KCCQ) Clinical Summary Score (CSS)",
+      "outcome_definition_source": {
+       "time_frame": "Baseline, Week 52",
+       "description_verbatim": "The KCCQ is a 23-item, participant self-administered questionnaire that assesses impacts of heart failure \"over the past 2 weeks\" on the following 7 domains:\n\n* Physical Limitation (6)\n* Symptom Stability (1)\n* Symptom Frequency (4)\n* Symptom Burden (3)\n* Self-Efficacy (2)\n* Quality of Life (3)\n* Social Limitation (4)\n\nEach of the 23 individual items are answered on Likert scales of varying lengths (5, 6, or 7-point scales).\n\nKCCQ-CSS includes the symptom and physical limitation domains of the KCCQ. Scores are obtained by averaging the associated individual items and transforming the score to a 0 to 100 range. Higher scores indicate better health status.\n\nLeast Square (LS) mean was determined using ANCOVA model with Baseline + HF Decompensation Within 12 Months of Screening + T2DM Status + Baseline BMI group (\\<35, \\>=35 kg/m2) + Treatment (Type III sum of squares) as variables .",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT04847557",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "a continuous KCCQ primary AND 'First Occurrence of the Composite Endpoint of Heart Failure (HF) Outcomes'. The 29 and 52 stored here DO correspond to that event co-primary.",
+       "analysis_set_as_the_registry_states_it": "The event co-primary is a first-occurrence composite."
       }
      }
-    },
-    "registration_arm_count": 2,
-    "registration_declared_contrasts": [
-     [
-      "Placebo",
-      "Tirzepatide - MTD"
-     ]
-    ],
-    "registration_contrasts_read_utc": "2026-08-18",
-    "registration_primary_counts": {
-     "title": "Change From Baseline in the Kansas City Cardiomyopathy Questionnaire (KCCQ) Clinical Summary Score (CSS)",
-     "treatment_events": 19.51,
-     "control_events": 12.68,
-     "treatment_n": 301.0,
-     "control_n": 313.0,
-     "note": "arm order as the registry lists it; a swapped pair would show as a mismatch rather than a silent pass"
-    },
-    "registration_other_outcome_counts": [
-     {
-      "title": "Change From Baseline in the Kansas City Cardiomyopathy Questionnaire (KCCQ) Clinical Summary Score (CSS)",
-      "type": "PRIMARY",
-      "counts": [
-       19.51,
-       12.68
-      ]
-     },
-     {
-      "title": "First Occurrence of the Composite Endpoint of Heart Failure (HF) Outcomes",
-      "type": "PRIMARY",
-      "counts": [
-       36.0,
-       56.0
-      ]
-     },
-     {
-      "title": "Change From Baseline in Exercise Capacity as Measured by 6-Minute Walk Distance (6MWD)",
-      "type": "SECONDARY",
-      "counts": [
-       26.04,
-       10.1
-      ]
-     },
-     {
-      "title": "Percent Change From Baseline in Body Weight",
-      "type": "SECONDARY",
-      "counts": [
-       -13.85,
-       -2.24
-      ]
-     },
-     {
-      "title": "Percent Change From Baseline in High-Sensitivity C-Reactive Protein (hsCRP)",
-      "type": "SECONDARY",
-      "counts": [
-       -38.76,
-       -5.88
-      ]
-     },
-     {
-      "title": "Win Percentage of the Hierarchical Composite Endpoint",
-      "type": "SECONDARY",
-      "counts": [
-       57.9,
-       35.43
-      ]
-     },
-     {
-      "title": "Percentage of Participants With New York Heart Association (NYHA) Class Change",
-      "type": "SECONDARY",
-      "counts": [
-       33.27,
-       20.39
-      ]
-     },
-     {
-      "title": "Number of Participants With Time to All-Cause Death",
-      "type": "SECONDARY",
-      "counts": [
-       19.0,
-       15.0
-      ]
-     },
-     {
-      "title": "Number of Participants With Time to First Occurrence of HF Events",
-      "type": "SECONDARY",
-      "counts": [
-       29.0,
-       52.0
-      ]
-     },
-     {
-      "title": "Number of HF Events and All-Cause Death",
-      "type": "SECONDARY",
-      "counts": [
-       61.0,
-       82.0
-      ]
-     },
-     {
-      "title": "Number of Recurrent HF Events",
-      "type": "SECONDARY",
-      "counts": [
-       44.0,
-       68.0
-      ]
-     }
-    ],
-    "registration_counts_read_utc": "2026-08-18"
+    }
    }
   ]
  },
@@ -320,77 +206,48 @@
    "primary": {
     "k": 2,
     "estimand_id": "primary",
-    "estimand_id_means": "not recorded on the page this object was extracted from",
     "model": "random-effects",
-    "estimator": "DerSimonian-Laird inverse-variance on extracted effect estimates",
-    "estimator_used": "DerSimonian-Laird inverse-variance on extracted effect estimates",
+    "estimator": "not pooled -- the estimate is withdrawn",
+    "estimator_used": "none",
     "handbook": {
-     "decision": "NOT RECORDED - no methods decision was recoverable from the page",
+     "decision": "not recorded on the page this object was built from",
      "sections": [],
-     "conformance": "not recorded on the page this object was extracted from"
+     "conformance": "not recorded on the page this object was built from"
     },
-    "comparator_type": "not recorded on the page this object was extracted from",
-    "favours": "treatment",
-    "poolable": true,
-    "poolable_reason": "The extractor recovered a pooled result from this page, so the page pooled these trials. Whether they SHOULD have been pooled is not established by conversion - several pages in this corpus pooled harm with efficacy, or distinct agents, and their estimates were withdrawn for that reason.",
-    "estimand_homogeneous_across_cohorts": null,
+    "comparator_type": "placebo",
+    "favours": null,
+    "poolable": false,
+    "poolable_reason": "TWO OF THE THREE TRIALS ON THIS PAGE REGISTER ONLY CONTINUOUS PRIMARY OUTCOMES, AND THIS PAGE POOLED EVENT COUNTS. Verbatim: STEP-HFpEF and STEP-HFpEF DM each register two co-primaries, 'Change in Kansas City Cardiomyopathy Questionnaire Clinical Summary Score' and 'Change in Body Weight'. Both are CONTINUOUS CHANGE SCORES. Neither is an event count and neither can produce a 2x2 table. The counts stored for STEP-HFpEF DM, 7 of 310 against 18 of 306, CORRESPOND TO NO REGISTERED PRIMARY OUTCOME OF THAT TRIAL. SUMMIT is different and is the only row here with a defensible source: it registers a continuous KCCQ primary AND 'First Occurrence of the Composite Endpoint of Heart Failure (HF) Outcomes', and its stored 29 of 364 against 52 of 367 do correspond to that event co-primary. So the pool joins one trial's registered event composite to another trial's unregistered counts. SEPARATELY: THE OUTCOME NAME AND THE MEASURE DESCRIBE DIFFERENT QUANTITIES. The outcome is named 'Change in Kansas City Cardiomyopathy Questionnaire Clinical Summary Score' and the stored measure is an ODDS RATIO. A change score has no odds. SEPARATELY AGAIN, AND IT IS WHY THIS TOPIC WAS INVISIBLE: THIS PAGE'S CARD WAS INVISIBLE TO OUR OWN TOOLING. The card existed and published 'HR 0.41 (0.22 to 0.79), k=3' -- a measure, a value and a trial count that all differ from the object's OR 0.4846 (0.3178 to 0.7389) at k=2. It was reported as having NO CARD because two scripts matched card links with the pattern [A-Z0-9_]+\\.html, which cannot match the lowercase 'p' in HFpEF. A page invisible to the tool that counts pages is worse than an uncounted one: it is counted as a different thing, and this card escaped card-alignment checking entirely for as long as those tools have run.",
     "pool_uniformity": {
      "effect_measure": [
       "NOT ESTABLISHED",
-      "not recorded on the page this object was extracted from"
+      "an odds ratio over event counts, where two of the three included trials register only continuous primaries"
      ],
      "estimand": [
-      "NOT ESTABLISHED",
-      "not recorded on the page this object was extracted from"
+      "REFUTED",
+      "one trial contributes a registered event co-primary and the other contributes counts matching no registered primary at all"
      ]
     },
-    "heterogeneity": {
-     "i2": 0.0,
-     "tau2": 0.0,
-     "q": 0.46144455239286697,
-     "df": 1
-    },
-    "heterogeneity_status": "not recorded on the page this object was extracted from",
+    "heterogeneity": null,
+    "heterogeneity_status": "not recorded on the page this object was built from",
     "grade": null,
     "cross_engine": null,
     "sensitivity": null,
     "single_study_ref": null,
-    "per_trial": [
-     {
-      "trial_id": "NCT04916470",
-      "nct": "NCT04916470",
-      "measure": "OR",
-      "point": 0.3696369636963696,
-      "ci_low": 0.152125986876415,
-      "ci_high": 0.8981469092566596,
-      "ci_level": 95,
-      "log_point": -0.9952339342142746,
-      "log_se": 0.45297378585070897,
-      "estimand_id": "primary",
-      "population": "not recorded on the page this object was extracted from",
-      "derivation": "DERIVED by conversion: the extractor recovered an estimate and a variance on the analysis scale; the point and interval are estimate +/- 1.96*sqrt(variance), back-transformed. No source printed this interval."
-     },
-     {
-      "trial_id": "NCT04847557",
-      "nct": "NCT04847557",
-      "measure": "OR",
-      "point": 0.5243972445464983,
-      "ci_low": 0.32462344237777613,
-      "ci_high": 0.8471121742586327,
-      "ci_level": 95,
-      "log_point": -0.6455057815943867,
-      "log_se": 0.24469001952046948,
-      "estimand_id": "primary",
-      "population": "not recorded on the page this object was extracted from",
-      "derivation": "DERIVED by conversion: the extractor recovered an estimate and a variance on the analysis scale; the point and interval are estimate +/- 1.96*sqrt(variance), back-transformed. No source printed this interval."
-     }
-    ],
+    "per_trial": [],
     "pooled": {
      "measure": "OR",
-     "point": 0.4845644882976914,
-     "ci_low": 0.3177595902564872,
-     "ci_high": 0.7389320433403029,
-     "ci_level": 95
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "ci_level": 95,
+     "scale": "log",
+     "withdrawn": true,
+     "withdrawn_reason": "TWO OF THE THREE TRIALS ON THIS PAGE REGISTER ONLY CONTINUOUS PRIMARY OUTCOMES, AND THIS PAGE POOLED EVENT COUNTS. Verbatim: STEP-HFpEF and STEP-HFpEF DM each register two co-primaries, 'Change in Kansas City Cardiomyopathy Questionnaire Clinical Summary Score' and 'Change in Body Weight'. Both are CONTINUOUS CHANGE SCORES. Neither is an event count and neither can produce a 2x2 table. The counts stored for STEP-HFpEF DM, 7 of 310 against 18 of 306, CORRESPOND TO NO REGISTERED PRIMARY OUTCOME OF THAT TRIAL. SUMMIT is different and is the only row here with a defensible source: it registers a continuous KCCQ primary AND 'First Occurrence of the Composite Endpoint of Heart Failure (HF) Outcomes', and its stored 29 of 364 against 52 of 367 do correspond to that event co-primary. So the pool joins one trial's registered event composite to another trial's unregistered counts. SEPARATELY: THE OUTCOME NAME AND THE MEASURE DESCRIBE DIFFERENT QUANTITIES. The outcome is named 'Change in Kansas City Cardiomyopathy Questionnaire Clinical Summary Score' and the stored measure is an ODDS RATIO. A change score has no odds. SEPARATELY AGAIN, AND IT IS WHY THIS TOPIC WAS INVISIBLE: THIS PAGE HAD NO INDEX CARD AT ALL. It is linked from the index table and appears in no card, so it published a pooled odds ratio of 0.4846 (0.3178 to 0.7389) that the corpus's own card-alignment checking could never reach -- there was no card to compare against the page.",
+     "withdrawn_note": "WHAT THIS DOES NOT ESTABLISH: NOT that incretin therapies do not help in heart failure with preserved ejection fraction. STEP-HFpEF, STEP-HFpEF DM and SUMMIT all report benefit on the outcomes they were designed around -- symptom burden measured by KCCQ, and body weight -- and SUMMIT additionally reports its heart-failure event composite. The trials here measure symptom scores and weight, and nothing on this page estimated those. WHAT IS CONFIRMED: SUMMIT's stored counts ARE its registered event co-primary, and all three identities are correct. THE REPLACEMENT QUESTION IS AVAILABLE AND PARKED: all three trials share a KCCQ clinical-summary-score primary, so a MEAN DIFFERENCE synthesis of symptom benefit is squarely defensible and needs no estimand judgement -- only each trial's least-squares mean difference read from its results record. That is the second such case in this programme, after BOCOCIZUMAB_LIPID.",
+     "withdrawn_on": "2026-08-18",
+     "reverification": "AUTHORED AND WITHDRAWN 2026-08-18. THE PAGE WAS NOT UNCARDED -- IT WAS INVISIBLE. Its card existed and published 'HR 0.41 (0.22-0.79), k=3'. Both cardio_program_status and project_index_cards matched card links with [A-Z0-9_]+\\.html, which cannot match the lowercase 'p' in HFpEF, so for as long as those tools have run this topic has been reported as having NO CARD and its card has never been compared with its page. The card said k=3 and HR 0.41; the object held k=2 and OR 0.4846. Both regexes are fixed in this commit.",
+     "card_note": "WITHDRAWN. STEP-HFpEF and STEP-HFpEF DM register only CONTINUOUS co-primaries (KCCQ change and body-weight change), and the counts stored for STEP-HFpEF DM match no registered primary of that trial. The card here published HR 0.41 (0.22-0.79) k=3 while the object held OR 0.4846 (0.3178-0.7389) k=2 -- and NEITHER our status scanner nor our card projector could see this card at all, because their regex required an uppercase page name and this page is HFpEF. A KCCQ mean-difference synthesis across all three is available and is parked"
     }
    }
   }
@@ -399,12 +256,11 @@
  "risk_of_bias_verdict": null,
  "carried_contrasts": [],
  "absent_from_source": {
-  "protocol": "No protocol or registration record was recoverable from the page.",
+  "protocol": "No protocol record was recoverable from the page.",
   "search": "No search strategy was recoverable from the page.",
   "screening": "No screening log was recoverable from the page.",
   "rob2": "No risk-of-bias assessment was recoverable from the page.",
   "grade": "No certainty rating was recoverable from the page.",
-  "sources": "No source registry was recoverable from the page, so no value on this page carries a resolvable link or a quoted source sentence.",
-  "manuscript": "No manuscript exists for this review."
+  "sources": "Every ENDPOINT DEFINITION on this page is verbatim from the trial's own ClinicalTrials.gov record and carries a resolvable link. The per-trial counts are the page's own and carry no quoted source sentence."
  }
 }

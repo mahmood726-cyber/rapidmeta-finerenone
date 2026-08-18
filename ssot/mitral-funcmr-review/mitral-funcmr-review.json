@@ -1,0 +1,323 @@
+{
+ "app_id": "mitral-funcmr-review",
+ "schema_version": "2-authored-from-source",
+ "title": "Transcatheter repair for functional mitral regurgitation",
+ "question": "Three trials of transcatheter mitral repair in functional regurgitation, registering three different composites at two different time horizons.",
+ "built": "2026-08-18T00:00Z",
+ "build_mode": "AUTHORED",
+ "_estimand_rule": "Every endpoint definition below was READ FROM THE REGISTRY, word for word, when this withdrawal was RE-VERIFIED on 2026-08-18.",
+ "source_links_enforced": true,
+ "source_links_enforced_means": "every trial row carries its registration link",
+ "cited_total": null,
+ "completeness_statement": "not recorded on the page this object was built from",
+ "verification_basis": {
+  "what_verifies_this_object": "ClinicalTrials.gov protocol records, read 2026-08-18",
+  "what_is_not_claimed": "that any per-trial count was checked against a results record",
+  "families": [],
+  "bar": "not recorded on the page this object was built from"
+ },
+ "methodological_authority": {
+  "reference": "not recorded on the page this object was built from",
+  "version": "not recorded on the page this object was built from",
+  "version_checked_on": "not recorded on the page this object was built from",
+  "version_checked_how": "not recorded on the page this object was built from",
+  "version_note": "not recorded on the page this object was built from",
+  "scope_of_this_rule": "not recorded on the page this object was built from",
+  "url": "not recorded on the page this object was built from",
+  "note": "not recorded on the page this object was built from"
+ },
+ "config": {
+  "model": "random-effects",
+  "method": "not pooled -- withdrawn",
+  "scale": "log"
+ },
+ "screening": {
+  "search_note": "not recorded on the page this object was built from",
+  "eligibility": "not recorded on the page this object was built from",
+  "known_limitation": "not recorded on the page this object was built from"
+ },
+ "screening_names_unresolved": [],
+ "eligible_but_not_contributing": {
+  "note": "All included registrations carry a row in this object.",
+  "studies": []
+ },
+ "reconciliation": {
+  "why_this_step_exists": "not recorded on the page this object was built from",
+  "clean": null,
+  "clean_because": "not recorded on the page this object was built from",
+  "trial_list_diffs": [],
+  "matches": [],
+  "corrections": [],
+  "unresolved": []
+ },
+ "claims_corrected": [
+  {
+   "claim": "Not poolable -- COAPT vs MITRA-FR: different measures, endpoints and timepoints",
+   "where": "index.html card",
+   "what_it_actually_is": "correct, but naming two of the three trials on the page",
+   "evidence": "RESHAPE-HF2 (NCT02444338) is included and registers a third distinct composite plus a continuous KCCQ primary",
+   "corrected_to": "not poolable, with all three registered primaries quoted",
+   "on": "2026-08-18"
+  }
+ ],
+ "scope_decisions": {},
+ "conversion_note": "AUTHORED, not converted. This topic's estimate was withdrawn BEFORE the current detector set existed; the withdrawal was re-verified against the registry on 2026-08-18.",
+ "sources": {},
+ "outcomes": [
+  {
+   "id": "primary",
+   "name": "Three different registered composites, at 12 and at 24 months",
+   "definition": "NOT ONE DEFINITION, and the page has always said so. COAPT registers a device-safety primary AND an effectiveness primary; MITRA-FR registers all-cause mortality with unplanned heart-failure hospitalisation at 12 months; RESHAPE-HF2 registers THREE primaries including a continuous quality-of-life score.",
+   "definition_note": "Authored on re-verification of a NOT-POOLABLE verdict that was already correct and is now sourced.",
+   "measure": "OR",
+   "effect_scale": "log",
+   "type": "primary",
+   "estimand": {
+    "id": "primary",
+    "family": "first or recurrent event",
+    "model": "random-effects"
+   },
+   "comparator": "guideline-directed medical therapy",
+   "comparator_type": "active",
+   "direction_of_benefit": "lower is better",
+   "null_value": 1
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT01626079",
+    "name": "COAPT",
+    "nct": "NCT01626079",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "MitraClip System",
+      "role": "treatment",
+      "events": 151,
+      "participants": 302
+     },
+     {
+      "label": "COAPT CAS Group",
+      "role": "control",
+      "events": 212,
+      "participants": 312
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'MitraClip System', 'Control Group', 'COAPT CAS Group'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT01626079",
+      "analysed": {
+       "treatment": 302,
+       "control": 312
+      },
+      "outcome_definition": "Primary Effectiveness Endpoint",
+      "outcome_definition_source": {
+       "time_frame": "24 months",
+       "description_verbatim": "Recurrent HF hospitalizations (HFH) through 24 months, analyzed when the last subject completes 12-month follow-up",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[1] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[1]",
+       "source_url": "https://clinicaltrials.gov/study/NCT01626079",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "the registered PRIMARY EFFECTIVENESS endpoint. This registration also declares a PRIMARY SAFETY endpoint -- 'Percentage of Participants With Freedom From Device Related Complications at 12 Months' -- so it carries two primaries of opposite kind.",
+       "analysis_set_as_the_registry_states_it": "24 months. Note that the safety primary is measured at 12 months and the effectiveness primary at 24, within one registration."
+      }
+     }
+    }
+   },
+   {
+    "id": "NCT01920698",
+    "name": "MITRA-FR",
+    "nct": "NCT01920698",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "MitraClip Device",
+      "role": "treatment",
+      "events": 83,
+      "participants": 152
+     },
+     {
+      "label": "Control",
+      "role": "control",
+      "events": 78,
+      "participants": 155
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'MitraClip Device', 'Control'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT01920698",
+      "analysed": {
+       "treatment": 152,
+       "control": 155
+      },
+      "outcome_definition": "All-cause mortality and unplanned hospitalizations for heart failure",
+      "outcome_definition_source": {
+       "time_frame": "1 year",
+       "description_verbatim": "no description registered",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT01920698",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "ALL-CAUSE MORTALITY and unplanned hospitalisations for heart failure. A two-component composite whose death component is ALL-CAUSE.",
+       "analysis_set_as_the_registry_states_it": "12 months -- HALF the horizon of the other two trials."
+      }
+     }
+    }
+   },
+   {
+    "id": "NCT02444338",
+    "name": "RESHAPE-HF2",
+    "nct": "NCT02444338",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "Control Group",
+      "role": "treatment",
+      "events": 139,
+      "participants": 255
+     },
+     {
+      "label": "Device Group",
+      "role": "control",
+      "events": 170,
+      "participants": 250
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'Control Group', 'Device Group'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT02444338",
+      "analysed": {
+       "treatment": 255,
+       "control": 250
+      },
+      "outcome_definition": "Composite rate of recurrent heart failure hospitalizations and cardiovascular (CV) death within 24 months",
+      "outcome_definition_source": {
+       "time_frame": "24 months",
+       "description_verbatim": "Composite rate of recurrent heart failure hospitalizations and cardiovascular (CV) death within 24 months",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT02444338",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "THREE registered primaries: (1) composite rate of RECURRENT heart-failure hospitalisations and CARDIOVASCULAR death within 24 months; (2) rate of TOTAL, first and recurrent, HF hospitalisations within 24 months; (3) CHANGE IN QUALITY OF LIFE, the KCCQ overall score, at 12 months -- a CONTINUOUS outcome.",
+       "analysis_set_as_the_registry_states_it": "24 months for the two event primaries, 12 months for the quality-of-life primary. Its first primary counts RECURRENT events, not first events."
+      }
+     }
+    }
+   }
+  ]
+ },
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 3,
+    "estimand_id": "primary",
+    "model": "random-effects",
+    "estimator": "not pooled -- the estimate is withdrawn",
+    "estimator_used": "none",
+    "handbook": {
+     "decision": "not recorded on the page this object was built from",
+     "sections": [],
+     "conformance": "not recorded on the page this object was built from"
+    },
+    "comparator_type": "active",
+    "favours": null,
+    "poolable": false,
+    "poolable_reason": "NOT POOLABLE, AND THE REGISTRY NOW SAYS WHY IN THE TRIALS' OWN WORDS. The three registrations declare three different primary outcomes at two different horizons. MITRA-FR registers 'All-cause mortality and unplanned hospitalizations for heart failure' AT 12 MONTHS. RESHAPE-HF2 registers a 'Composite rate of RECURRENT heart failure hospitalizations and CARDIOVASCULAR (CV) death WITHIN 24 MONTHS' -- cardiovascular death, not all-cause, and RECURRENT events rather than first events, which is a different counting rule altogether. COAPT registers a primary EFFECTIVENESS endpoint at 24 months AND a primary SAFETY endpoint, 'Freedom From Device Related Complications', at 12 months. A twelve-month all-cause composite, a twenty-four-month recurrent-event cardiovascular composite, and a device-safety proportion are three quantities, not one. AND RESHAPE-HF2 REGISTERS A CONTINUOUS PRIMARY AS WELL -- change in the KCCQ overall score at 12 months -- which no count-derived odds ratio can carry at all. THE ORIGINAL CARD NAMED ONLY TWO OF THE THREE TRIALS. It contrasted COAPT with MITRA-FR and did not mention RESHAPE-HF2, which is on the page and which adds the third distinct composite and the continuous primary. The verdict was right and its evidence was incomplete.",
+    "pool_uniformity": {
+     "effect_measure": [
+      "NOT ESTABLISHED",
+      "a count-derived odds ratio across trials registering first-event, recurrent-event and continuous primaries"
+     ],
+     "estimand": [
+      "REFUTED",
+      "three trials, three different composites, two horizons, and one continuous primary among them"
+     ]
+    },
+    "heterogeneity": null,
+    "heterogeneity_status": "not recorded on the page this object was built from",
+    "grade": null,
+    "cross_engine": null,
+    "sensitivity": null,
+    "single_study_ref": null,
+    "per_trial": [],
+    "pooled": {
+     "measure": "OR",
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "ci_level": 95,
+     "scale": "log",
+     "withdrawn": true,
+     "withdrawn_reason": "NOT POOLABLE, AND THE REGISTRY NOW SAYS WHY IN THE TRIALS' OWN WORDS. The three registrations declare three different primary outcomes at two different horizons. MITRA-FR registers 'All-cause mortality and unplanned hospitalizations for heart failure' AT 12 MONTHS. RESHAPE-HF2 registers a 'Composite rate of RECURRENT heart failure hospitalizations and CARDIOVASCULAR (CV) death WITHIN 24 MONTHS' -- cardiovascular death, not all-cause, and RECURRENT events rather than first events, which is a different counting rule altogether. COAPT registers a primary EFFECTIVENESS endpoint at 24 months AND a primary SAFETY endpoint, 'Freedom From Device Related Complications', at 12 months. A twelve-month all-cause composite, a twenty-four-month recurrent-event cardiovascular composite, and a device-safety proportion are three quantities, not one. AND RESHAPE-HF2 REGISTERS A CONTINUOUS PRIMARY AS WELL -- change in the KCCQ overall score at 12 months -- which no count-derived odds ratio can carry at all. THE ORIGINAL CARD NAMED ONLY TWO OF THE THREE TRIALS. It contrasted COAPT with MITRA-FR and did not mention RESHAPE-HF2, which is on the page and which adds the third distinct composite and the continuous primary. The verdict was right and its evidence was incomplete.",
+     "withdrawn_note": "WHAT THIS DOES NOT ESTABLISH: NOT that transcatheter mitral repair does not help in functional mitral regurgitation, and NOT that COAPT and MITRA-FR disagreeing was a mistake by either. Those two trials enrolled different populations and measured different things over different horizons, which is the leading published explanation for their divergence and is visible directly in their registrations. The trials here measure heart-failure hospitalisation, death and quality of life on three different definitions, and nothing on this page estimates a single quantity across them. WHAT IS CONFIRMED: the NOT-POOLABLE verdict was correct before this re-verification and is correct after it -- this is the one topic in the cardiology set that reached the right answer without a detector, by a human noticing that two headline numbers were not comparable. All three identities are correct. THE REPLACEMENT QUESTION IS PARKED: RESHAPE-HF2 and COAPT share a 24-month horizon and both count heart-failure hospitalisation, so a synthesis restricted to that component is conceivable -- but one counts recurrent events and the other first events, and reconciling those is an estimand decision needing each trial's own results record.",
+     "withdrawn_on": "2026-08-18",
+     "reverification": "RE-VERIFIED 2026-08-18. VERDICT: NOT POOLABLE, CONFIRMED and SHARPENED. The card's contrast of COAPT against MITRA-FR is correct and incomplete: RESHAPE-HF2 is on the page, adds a third composite counting RECURRENT cardiovascular events over 24 months, and registers a CONTINUOUS quality-of-life primary as well.",
+     "card_note": "NOT POOLABLE, confirmed against the registry and sharpened: three trials, three different registered composites, two horizons (12 and 24 months), all-cause versus cardiovascular death, FIRST versus RECURRENT events -- and RESHAPE-HF2, which the old card did not mention, also registers a CONTINUOUS KCCQ primary"
+    }
+   }
+  }
+ },
+ "manuscript": null,
+ "risk_of_bias_verdict": null,
+ "carried_contrasts": [],
+ "absent_from_source": {
+  "protocol": "No protocol record was recoverable from the page.",
+  "search": "No search strategy was recoverable from the page.",
+  "screening": "No screening log was recoverable from the page.",
+  "rob2": "No risk-of-bias assessment was recoverable from the page.",
+  "grade": "No certainty rating was recoverable from the page.",
+  "sources": "Every ENDPOINT DEFINITION on this page is verbatim from the trial's own ClinicalTrials.gov record and carries a resolvable link. The per-trial counts are the page's own and carry no quoted source sentence."
+ }
+}
