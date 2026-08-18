@@ -144,5 +144,35 @@
    "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
    "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
   }
- ]
+ ],
+ "render": [
+  {
+   "block": "effect",
+   "slot": "res-or",
+   "path": "results.by_outcome.primary.pooled.point"
+  },
+  {
+   "block": "interval",
+   "slot": "res-ci",
+   "path_low": "results.by_outcome.primary.pooled.ci_low",
+   "path_high": "results.by_outcome.primary.pooled.ci_high"
+  },
+  {
+   "block": "percent",
+   "slot": "res-i2",
+   "path": "results.by_outcome.primary.heterogeneity.i2_percent"
+  },
+  {
+   "block": "interval",
+   "slot": "res-hksj",
+   "path_low": "results.by_outcome.primary.pooled_hartung_knapp.ci_low",
+   "path_high": "results.by_outcome.primary.pooled_hartung_knapp.ci_high"
+  },
+  {
+   "block": "count",
+   "slot": "va-n",
+   "path": "results.by_outcome.primary.k"
+  }
+ ],
+ "render_contract": "THE BLOCK LIST IS DECLARED HERE, NOT IN THE PROJECTOR. scripts/project_topic_page.py maps a block TYPE to a formatter and knows nothing about which blocks this topic has. Adding a sixth block is an edit to THIS list. A missing path is a REFUSAL, never a placeholder."
 }
