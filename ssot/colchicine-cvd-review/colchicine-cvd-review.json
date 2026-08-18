@@ -1,0 +1,388 @@
+{
+ "app_id": "colchicine-cvd-review",
+ "schema_version": "2-authored-from-source",
+ "title": "Colchicine for cardiovascular prevention",
+ "question": "Does low-dose colchicine reduce major cardiovascular events? The trials on this page do not answer one question: their registered primary outcomes differ by whole components and one of them is not a composite.",
+ "built": "2026-08-18T00:00Z",
+ "build_mode": "AUTHORED",
+ "_estimand_rule": "Every endpoint definition below was READ FROM THE REGISTRY, word for word, before anything was pooled or withdrawn.",
+ "source_links_enforced": true,
+ "source_links_enforced_means": "every trial row carries its registration link",
+ "cited_total": null,
+ "completeness_statement": "not recorded on the page this object was built from",
+ "verification_basis": {
+  "what_verifies_this_object": "ClinicalTrials.gov protocol and results records, read 2026-08-18",
+  "what_is_not_claimed": "that the per-trial hazard ratios were checked against the journal reports; they were read from this review's own embedded data",
+  "families": [],
+  "bar": "not recorded on the page this object was built from"
+ },
+ "methodological_authority": {
+  "reference": "not recorded on the page this object was built from",
+  "version": "not recorded on the page this object was built from",
+  "version_checked_on": "not recorded on the page this object was built from",
+  "version_checked_how": "not recorded on the page this object was built from",
+  "version_note": "not recorded on the page this object was built from",
+  "scope_of_this_rule": "not recorded on the page this object was built from",
+  "url": "not recorded on the page this object was built from",
+  "note": "not recorded on the page this object was built from"
+ },
+ "config": {
+  "model": "random-effects",
+  "method": "not pooled -- withdrawn",
+  "scale": "log"
+ },
+ "screening": {
+  "search_note": "not recorded on the page this object was built from",
+  "eligibility": "not recorded on the page this object was built from",
+  "known_limitation": "not recorded on the page this object was built from"
+ },
+ "screening_names_unresolved": [],
+ "eligible_but_not_contributing": {
+  "note": "TWO OF THE FIVE TRIALS THIS PAGE AUTO-INCLUDES CARRY NO EMBEDDED DATA AT ALL. LoDoCo2 and COPS are Australian trials registered on ANZCTR, not on ClinicalTrials.gov, and the page names them 'ACTRN-LODOCO2' and 'ACTRN-COPS'. THAT IS THE CORRECT BEHAVIOUR and it is worth saying so: the alternative -- attaching a plausible NCT number to a trial that has none -- is exactly the defect found on DOAC_CANCER_VTE. LoDoCo2's result reaches this page only as a published-comparator benchmark entry, 0.69 (0.57 to 0.83); COPS's does not reach it at all.",
+  "studies": [
+   {
+    "id": "ACTRN12614000093684",
+    "name": "LoDoCo2",
+    "why_not_contributing": "no embedded per-trial record on this page; present only as a published-synthesis benchmark",
+    "registered_primary_measure": "per this page's own benchmark record: CV death, spontaneous MI, ischaemic stroke, or ischaemia-driven coronary revascularisation",
+    "source_url": "https://anzctr.org.au/",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "id": "ACTRN-COPS",
+    "name": "COPS",
+    "why_not_contributing": "named in the page's include list and carries no data anywhere on it",
+    "source_url": "https://anzctr.org.au/",
+    "read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "reconciliation": {
+  "why_this_step_exists": "not recorded on the page this object was built from",
+  "clean": null,
+  "clean_because": "not recorded on the page this object was built from",
+  "trial_list_diffs": [],
+  "matches": [],
+  "corrections": [],
+  "unresolved": []
+ },
+ "claims_corrected": [
+  {
+   "claim": "Published: HR 0.75 (0.61 to 0.91), k=2",
+   "where": "index.html card and summary table row",
+   "what_it_actually_is": "not reconstructable from any data on this page",
+   "evidence": "33 candidate pools -- every subset of the page's four published hazard ratios under fixed-effect, DerSimonian-Laird and REML -- and none gives 0.75 (0.61 to 0.91); closest is 0.755 (0.623 to 0.915)",
+   "corrected_to": "withdrawn, with the reason and the per-trial values on the page",
+   "on": "2026-08-18"
+  }
+ ],
+ "scope_decisions": {},
+ "conversion_note": "AUTHORED, not converted. This topic had no SSOT object: the estimate on the index was published by a page nothing in the current standard had ever checked.",
+ "sources": {},
+ "outcomes": [
+  {
+   "id": "primary",
+   "name": "Major adverse cardiovascular events, as each trial defines them",
+   "definition": "NOT ONE DEFINITION. The four trials' registered primary outcomes differ by whole components and one of them is a single-component stroke-recurrence outcome. Each is recorded per trial below.",
+   "definition_note": "This object was authored rather than converted, so the outcome name is not a machine concatenation of trial titles. It states the finding instead: there is no shared endpoint.",
+   "measure": "HR",
+   "effect_scale": "log",
+   "type": "primary",
+   "estimand": {
+    "id": "primary",
+    "family": "time to first event",
+    "model": "random-effects"
+   },
+   "comparator": "placebo, except CONVINCE which is usual care",
+   "comparator_type": "mixed -- see per-trial analysis_set notes",
+   "direction_of_benefit": "lower is better",
+   "null_value": 1
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT02551094",
+    "name": "COLCOT",
+    "nct": "NCT02551094",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "colchicine",
+      "role": "treatment",
+      "events": 131,
+      "participants": 2366
+     },
+     {
+      "label": "colchicine placebo",
+      "role": "control",
+      "events": 170,
+      "participants": 2379
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'colchicine', 'colchicine placebo'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "HR",
+       "scale": "log",
+       "point": 0.77,
+       "ci_low": 0.61,
+       "ci_high": 0.96,
+       "ci_level": 95,
+       "derived_from": "the review page's own embedded trial record",
+       "derivation_note": "READ from the page's embedded publishedHR/hrLCI/hrUCI for this trial, not recomputed. It is this review's record of the trial's published hazard ratio; it has NOT been checked against the trial's own results record except where noted."
+      },
+      "provenance": {
+       "tag": "PAGE-EMBEDDED",
+       "source_quotes": [],
+       "quote_note": "No verbatim journal sentence is held. The endpoint DEFINITION beside it is verbatim from the registry; the VALUE is not."
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT02551094",
+      "analysed": {
+       "treatment": 2366,
+       "control": 2379
+      },
+      "outcome_definition": "First Event of Cardiovascular Death, Resuscitated Cardiac Arrest, Acute Myocardial Infarction, Stroke, or Urgent Hospitalization for Angina Requiring Coronary Revascularization",
+      "outcome_definition_source": {
+       "time_frame": "From randomization to occurence of first event, assessed up to 3.5 years",
+       "description_verbatim": "The descriptive statistics are the number of participants having at least one of the composites of the primary endpoint.",
+       "endpoint_rank": "PRIMARY -- index 0 of this registration's primary outcome list",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT02551094",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "cardiovascular death; RESUSCITATED CARDIAC ARREST; acute myocardial infarction; stroke; URGENT HOSPITALIZATION FOR ANGINA REQUIRING CORONARY REVASCULARIZATION. Five components.",
+       "analysis_set_as_the_registry_states_it": "From randomization to first event, assessed up to 3.5 years. Placebo-controlled: registry arms are 'colchicine' and 'colchicine placebo'."
+      },
+      "value_checked_against_registry": "COLCOT'S EVENT COUNTS ARE THE REGISTRY'S OWN, EXACTLY: colchicine 131 of 2366 and colchicine placebo 170 of 2379, from its primary-outcome results record. CLEAR SYNERGY and CONVINCE have NO results section on ClinicalTrials.gov, so their counts could not be checked the same way and are not claimed to have been."
+     }
+    },
+    "registration_enrolment": 4745,
+    "registration_arm_count": 2,
+    "registration_brief_title": "Colchicine Cardiovascular Outcomes Trial (COLCOT)",
+    "registration_org_study_id": "MHIPS-003",
+    "registration_read_utc": "2026-08-18",
+    "registration_contrasts_read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT03048825",
+    "name": "CLEAR SYNERGY",
+    "nct": "NCT03048825",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "Colchicine + Spironolactone +/- SYNERGY Stent",
+      "role": "treatment",
+      "events": 322,
+      "participants": 3528
+     },
+     {
+      "label": "Placebo +/- SYNERGY Stent",
+      "role": "control",
+      "events": 327,
+      "participants": 3534
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'Colchicine + Spironolactone +/- SYNERGY Stent', 'Spironolactone +/- SYNERGY Stent', 'Colchicine +/- SYNERGY Stent', 'Placebo +/- SYNERGY Stent'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "HR",
+       "scale": "log",
+       "point": 0.99,
+       "ci_low": 0.85,
+       "ci_high": 1.16,
+       "ci_level": 95,
+       "derived_from": "the review page's own embedded trial record",
+       "derivation_note": "READ from the page's embedded publishedHR/hrLCI/hrUCI for this trial, not recomputed. It is this review's record of the trial's published hazard ratio; it has NOT been checked against the trial's own results record except where noted."
+      },
+      "provenance": {
+       "tag": "PAGE-EMBEDDED",
+       "source_quotes": [],
+       "quote_note": "No verbatim journal sentence is held. The endpoint DEFINITION beside it is verbatim from the registry; the VALUE is not."
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT03048825",
+      "analysed": {
+       "treatment": 3528,
+       "control": 3534
+      },
+      "outcome_definition": "Composite of cardiovascular death, recurrent myocardial infarction, stroke, or unplanned ischemia driven revascularization",
+      "outcome_definition_source": {
+       "time_frame": "through study completion, an estimated average of 3 years",
+       "description_verbatim": "The first occurrence of cardiovascular death, recurrent myocardial infarction, stroke, or unplanned ischemia driven revascularization in the colchicine comparison",
+       "endpoint_rank": "PRIMARY -- index 1 of this registration's primary outcome list",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[1]",
+       "source_url": "https://clinicaltrials.gov/study/NCT03048825",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "cardiovascular death; recurrent myocardial infarction; stroke; UNPLANNED ISCHEMIA-DRIVEN REVASCULARIZATION. Four components, and NO cardiac-arrest component.",
+       "analysis_set_as_the_registry_states_it": "Through study completion, an estimated average of 3 years. THIS IS A 2x2 FACTORIAL TRIAL of colchicine AND spironolactone: the registry declares four arms -- 'Colchicine + Spironolactone +/- SYNERGY Stent', 'Spironolactone +/- SYNERGY Stent', 'Colchicine +/- SYNERGY Stent', 'Placebo +/- SYNERGY Stent' -- and separate co-primary outcomes for the colchicine comparison and the spironolactone comparison. The record carries NO results section, so which arms a colchicine contrast pools cannot be checked against a declared comparison."
+      }
+     }
+    },
+    "registration_enrolment": 7264,
+    "registration_arm_count": 4,
+    "registration_brief_title": "Colchicine and Spironolactone in Patients with MI / SYNERGY Stent Registry",
+    "registration_org_study_id": "CLSYN.1702",
+    "registration_read_utc": "2026-08-18",
+    "registration_contrasts_read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT02898610",
+    "name": "CONVINCE",
+    "nct": "NCT02898610",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "Colchicine treatment",
+      "role": "treatment",
+      "events": 153,
+      "participants": 1569
+     },
+     {
+      "label": "Usual Standard of care alone",
+      "role": "control",
+      "events": 185,
+      "participants": 1575
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'Colchicine treatment', 'Usual Standard of care alone'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "HR",
+       "scale": "log",
+       "point": 0.84,
+       "ci_low": 0.68,
+       "ci_high": 1.05,
+       "ci_level": 95,
+       "derived_from": "the review page's own embedded trial record",
+       "derivation_note": "READ from the page's embedded publishedHR/hrLCI/hrUCI for this trial, not recomputed. It is this review's record of the trial's published hazard ratio; it has NOT been checked against the trial's own results record except where noted."
+      },
+      "provenance": {
+       "tag": "PAGE-EMBEDDED",
+       "source_quotes": [],
+       "quote_note": "No verbatim journal sentence is held. The endpoint DEFINITION beside it is verbatim from the registry; the VALUE is not."
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT02898610",
+      "analysed": {
+       "treatment": 1569,
+       "control": 1575
+      },
+      "outcome_definition": "Recurrence of non-fatal ischemic stroke",
+      "outcome_definition_source": {
+       "time_frame": "any time within 60 month",
+       "description_verbatim": "Any recurrence of non-fatal ischemic stroke",
+       "endpoint_rank": "PRIMARY -- index 0 of this registration's primary outcome list",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT02898610",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "recurrence of NON-FATAL ISCHEMIC STROKE, and nothing else. This registration declares THREE SEPARATE PRIMARY OUTCOMES -- this one, 'non-fatal Major Cardiac event', and 'Vascular death' -- rather than one composite of them.",
+       "analysis_set_as_the_registry_states_it": "Any time within 60 months. NOT PLACEBO-CONTROLLED: the registry arms are 'Colchicine treatment' and 'Usual Standard of care alone', so this is an open comparison against usual care while COLCOT and LoDoCo2 are placebo-controlled."
+      }
+     }
+    },
+    "registration_enrolment": 3154,
+    "registration_arm_count": 2,
+    "registration_brief_title": "Colchicine for Prevention of Vascular Inflammation in Non-cardio Embolic Stroke",
+    "registration_org_study_id": "2015-004505-16",
+    "registration_read_utc": "2026-08-18",
+    "registration_contrasts_read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 3,
+    "estimand_id": "primary",
+    "model": "random-effects",
+    "estimator": "not pooled -- the estimate is withdrawn",
+    "estimator_used": "none",
+    "handbook": {
+     "decision": "not recorded on the page this object was built from",
+     "sections": [],
+     "conformance": "not recorded on the page this object was built from"
+    },
+    "comparator_type": "mixed",
+    "favours": null,
+    "poolable": false,
+    "poolable_reason": "THE TRIALS DO NOT SHARE ONE ENDPOINT, AND ONE WHOLE COMPONENT IS PRESENT IN ONE AND ABSENT FROM THE OTHERS. COLCOT's registered primary, verbatim, is 'First Event of Cardiovascular Death, RESUSCITATED CARDIAC ARREST, Acute Myocardial Infarction, Stroke, or URGENT HOSPITALIZATION FOR ANGINA REQUIRING CORONARY REVASCULARIZATION' -- five components. CLEAR SYNERGY's colchicine primary is 'Composite of cardiovascular death, recurrent myocardial infarction, stroke, or unplanned ischemia driven revascularization' -- four, with NO cardiac-arrest component and a different revascularisation trigger. LoDoCo2's, per this page's own benchmark record, is CV death, SPONTANEOUS myocardial infarction, ischaemic stroke, or ischaemia-driven coronary revascularisation. AND CONVINCE IS NOT A COMPOSITE TRIAL AT ALL. Its registration declares THREE SEPARATE PRIMARY OUTCOMES -- 'Recurrence of non-fatal ischemic stroke', 'non-fatal Major Cardiac event', and 'Vascular death' -- and the first of them counts RECURRENT NON-FATAL ISCHAEMIC STROKE AND NOTHING ELSE. A single-component stroke-recurrence outcome cannot be averaged with a five-component cardiovascular composite. SEPARATELY: THE PAGE CANNOT AGREE WITH ITSELF ABOUT HOW MANY TRIALS THIS IS. Its AUTO_INCLUDE_TRIAL_IDS names FIVE -- COLCOT, LoDoCo2, COPS, CLEAR SYNERGY and CONVINCE. Its embedded trial data carries THREE. The index card published k=2. Three different counts on one page, and nothing reconciles them. SEPARATELY AGAIN: THE PUBLISHED NUMBER IS NOT RECONSTRUCTABLE. The card served 'HR 0.75 (0.61 to 0.91), k=2'. Thirty-three candidate pools were computed from this page's own four published hazard ratios -- every subset of two, three and four trials, under fixed-effect, DerSimonian-Laird and REML -- and NONE gives 0.75 (0.61 to 0.91). The closest, LoDoCo2 with CONVINCE under DerSimonian-Laird, gives 0.755 (0.623 to 0.915). Search bounded at 33 pools and reported as bounded. AND WHICHEVER TWO TRIALS IT WAS, THE POOL EXCLUDES CLEAR SYNERGY IN SILENCE -- the largest trial here at 7,264 randomised, and the only one whose result is null at 0.99 (0.85 to 1.16). Nothing on the page states that it was left out.",
+    "pool_uniformity": {
+     "effect_measure": [
+      "ESTABLISHED",
+      "all three are published hazard ratios"
+     ],
+     "estimand": [
+      "REFUTED",
+      "the registered primary outcomes differ by whole components"
+     ]
+    },
+    "heterogeneity": null,
+    "heterogeneity_status": "not recorded on the page this object was built from",
+    "grade": null,
+    "cross_engine": null,
+    "sensitivity": null,
+    "single_study_ref": null,
+    "per_trial": [
+     {
+      "trial_id": "NCT02551094",
+      "nct": "NCT02551094",
+      "measure": "HR",
+      "point": 0.77,
+      "ci_low": 0.61,
+      "ci_high": 0.96,
+      "ci_level": 95,
+      "estimand_id": "primary"
+     },
+     {
+      "trial_id": "NCT03048825",
+      "nct": "NCT03048825",
+      "measure": "HR",
+      "point": 0.99,
+      "ci_low": 0.85,
+      "ci_high": 1.16,
+      "ci_level": 95,
+      "estimand_id": "primary"
+     },
+     {
+      "trial_id": "NCT02898610",
+      "nct": "NCT02898610",
+      "measure": "HR",
+      "point": 0.84,
+      "ci_low": 0.68,
+      "ci_high": 1.05,
+      "ci_level": 95,
+      "estimand_id": "primary"
+     }
+    ],
+    "pooled": {
+     "measure": "HR",
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "ci_level": 95,
+     "scale": "log",
+     "withdrawn": true,
+     "withdrawn_reason": "THE TRIALS DO NOT SHARE ONE ENDPOINT, AND ONE WHOLE COMPONENT IS PRESENT IN ONE AND ABSENT FROM THE OTHERS. COLCOT's registered primary, verbatim, is 'First Event of Cardiovascular Death, RESUSCITATED CARDIAC ARREST, Acute Myocardial Infarction, Stroke, or URGENT HOSPITALIZATION FOR ANGINA REQUIRING CORONARY REVASCULARIZATION' -- five components. CLEAR SYNERGY's colchicine primary is 'Composite of cardiovascular death, recurrent myocardial infarction, stroke, or unplanned ischemia driven revascularization' -- four, with NO cardiac-arrest component and a different revascularisation trigger. LoDoCo2's, per this page's own benchmark record, is CV death, SPONTANEOUS myocardial infarction, ischaemic stroke, or ischaemia-driven coronary revascularisation. AND CONVINCE IS NOT A COMPOSITE TRIAL AT ALL. Its registration declares THREE SEPARATE PRIMARY OUTCOMES -- 'Recurrence of non-fatal ischemic stroke', 'non-fatal Major Cardiac event', and 'Vascular death' -- and the first of them counts RECURRENT NON-FATAL ISCHAEMIC STROKE AND NOTHING ELSE. A single-component stroke-recurrence outcome cannot be averaged with a five-component cardiovascular composite. SEPARATELY: THE PAGE CANNOT AGREE WITH ITSELF ABOUT HOW MANY TRIALS THIS IS. Its AUTO_INCLUDE_TRIAL_IDS names FIVE -- COLCOT, LoDoCo2, COPS, CLEAR SYNERGY and CONVINCE. Its embedded trial data carries THREE. The index card published k=2. Three different counts on one page, and nothing reconciles them. SEPARATELY AGAIN: THE PUBLISHED NUMBER IS NOT RECONSTRUCTABLE. The card served 'HR 0.75 (0.61 to 0.91), k=2'. Thirty-three candidate pools were computed from this page's own four published hazard ratios -- every subset of two, three and four trials, under fixed-effect, DerSimonian-Laird and REML -- and NONE gives 0.75 (0.61 to 0.91). The closest, LoDoCo2 with CONVINCE under DerSimonian-Laird, gives 0.755 (0.623 to 0.915). Search bounded at 33 pools and reported as bounded. AND WHICHEVER TWO TRIALS IT WAS, THE POOL EXCLUDES CLEAR SYNERGY IN SILENCE -- the largest trial here at 7,264 randomised, and the only one whose result is null at 0.99 (0.85 to 1.16). Nothing on the page states that it was left out.",
+     "withdrawn_note": "WHAT IS CONFIRMED, STATED AS PROMINENTLY AS WHAT IS WRONG. (1) COLCOT'S EVENT COUNTS ARE THE REGISTRY'S OWN, EXACTLY: 131 of 2366 against 170 of 2379. (2) THE TRIAL IDENTITIES ARE RIGHT, and the page deserves credit for something this corpus has got wrong elsewhere: LoDoCo2 and COPS are Australian trials with no ClinicalTrials.gov registration, and the page carries them as 'ACTRN-LODOCO2' and 'ACTRN-COPS' RATHER THAN INVENTING NCT NUMBERS FOR THEM. On DOAC_CANCER_VTE the same situation produced a row keyed to an unrelated German trial. Here it did not. (3) THE DIRECTION OF THE UNDERLYING QUESTION IS NOT IN DOUBT and this withdrawal does not touch it: colchicine reduced events in COLCOT, 0.77 (0.61 to 0.96), and in LoDoCo2, 0.69 (0.57 to 0.83). What it did NOT do is reduce them in the two largest and most recent trials -- CLEAR SYNERGY 0.99 (0.85 to 1.16) and CONVINCE 0.84 (0.68 to 1.05) -- and a two-trial pool that drops the null ones is the specific thing that cannot stand here. WHAT THIS WITHDRAWAL DOES NOT ESTABLISH: not that colchicine is ineffective, and not that no synthesis of these trials is possible. It establishes that THIS one averaged endpoints that differ by whole components, over a trial count the page states three different ways, to reach a number none of its own data produces. THE REPLACEMENT QUESTION IS IDENTIFIED AND DELIBERATELY NOT TAKEN. The defensible synthesis is over the trials whose composites genuinely share components -- COLCOT, LoDoCo2 and CLEAR SYNERGY, excluding CONVINCE's stroke-recurrence outcome -- and its answer is already known to whoever would choose it, because it was computed while bounding the search above: 0.813 (0.645 to 1.024), which crosses no effect. THAT IS EXACTLY WHY THE CHOICE MUST NOT BE MADE BY THE PERSON WHO HAS SEEN IT. PARKED.",
+     "withdrawn_on": "2026-08-18",
+     "value_the_index_published": "HR 0.75 (0.61 to 0.91), k=2"
+    }
+   }
+  }
+ },
+ "manuscript": null,
+ "risk_of_bias_verdict": null,
+ "carried_contrasts": [],
+ "absent_from_source": {
+  "protocol": "No protocol record was recoverable from the page.",
+  "search": "No search strategy was recoverable from the page.",
+  "screening": "No screening log was recoverable from the page.",
+  "rob2": "No risk-of-bias assessment was recoverable from the page.",
+  "grade": "No certainty rating was recoverable from the page.",
+  "sources": "Every ENDPOINT DEFINITION on this page is verbatim from the trial's own ClinicalTrials.gov record and carries a resolvable link. No per-trial EFFECT VALUE carries a quoted journal sentence: the hazard ratios were read from this review's own embedded data. A reader can check WHAT EACH TRIAL COUNTED against the registry from this page, and cannot check the VALUES against a publication from this page."
+ }
+}
