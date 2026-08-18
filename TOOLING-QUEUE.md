@@ -844,3 +844,28 @@ phase 3 randomised 5-17-month and 6-12-week cohorts under one registration and a
 them separately. The rule "one id, two names" is right for the covering-label defect it
 was built for and wrong here. **Scope not measured** — it is not known how many objects
 legitimately split a registration by cohort.
+
+
+---
+
+## 22 — RECONCILED with FINDINGS-COUNT-UNITS-2026-08-18.md. Use 63, not 31.
+
+Two lanes found this defect independently, from the same PARACHUTE-HF row, and
+reported two numbers. They are not in conflict; they measure different things over
+the same denominator of 109 stored trial rows:
+
+| | n | what it detects |
+|---|---|---|
+| queue item 22 (mine) | **31** | rows whose stored PRIMARY count is *titled* as a percentage, rate or proportion |
+| FINDINGS-COUNT-UNITS | **63** | rows where any stored count field carries a non-count VALUE, detected from the registry's own `unitOfMeasure` / `paramType`, across primary AND `registration_other_outcome_counts[]` |
+
+**31 is a strict subset of 63, and 63 is the better detector** — it reads the unit the
+registry actually publishes instead of inferring one from a title, and it covers the
+other-outcome fields my screen never looked at. **Quote 63.** My 31 stands only as the
+narrower title-based cut and should not be cited as the scope of the defect.
+
+**Noted for the record:** that file was written as a standalone deliberately, because
+this lane was rewriting `STATUS.md`, `TOOLING-QUEUE.md` and `MISTAKE-LEDGER.md` in the
+same working tree at the same time. That was the right call and it worked — the commit
+is purely additive, 333 insertions and 0 deletions, and touched nothing either lane
+held. Fold it into item 18 when there is a single writer again.
