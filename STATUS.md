@@ -1180,7 +1180,15 @@ withdrawals. A project that only removes numbers is easy to dismiss.**
 
 ### Tooling queue, in the order agreed
 
-0. **DONE since this was written:** item 19 is built (`withdrawal_reason_gate`,
+0. **START HERE — queue item 20: the 55 unread endpoint definitions.** Corrected
+   from 39; 55 rows across 22 objects. Closes rows on TWO gates in one pass. **13
+   are safe to batch** (the estimate is withdrawn or absent); **42 sit on LIVE
+   estimates and are TOPICS, not rows** — recording a definition there can turn
+   `estimand_definition_gate` from UNCHECKABLE to FAIL, which is a finding about a
+   published number. **`arni-hfref` is on that list: the flagship has three trial
+   rows with no recorded endpoint definition under a live pooled hazard ratio.
+   That is the most important row in the queue.**
+0b. **DONE since this was written:** item 19 is built (`withdrawal_reason_gate`,
    corpus 49 objects: 1 FAIL, 5 PASS, 43 NOT_APPLICABLE), and **both replacement
    analyses are delivered and live.** Five one-off maintenance scripts still carry
    the case-sensitive filename pattern (`decontaminate_sglt2_clones`,

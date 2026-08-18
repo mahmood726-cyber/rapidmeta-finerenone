@@ -505,6 +505,45 @@ topic with a false reason still counted as done.
 
 ---
 
+## 20. THE 55 UNREAD ENDPOINT DEFINITIONS — the next lane's first job, scoped
+
+**Corrected count: 55 rows across 22 objects, not 39.** The earlier figure counted
+only rows the count gate reached; enumerating every trial row whose headline
+outcome carries no `outcome_definition` gives 55. **My number, my correction.**
+
+**This is the highest-leverage remaining data task** because it closes rows on
+`count_provenance_gate` AND `estimand_definition_gate` in one pass — two gates
+cleared by one body of work, converting UNCHECKABLE into an actual verdict.
+
+**BUT 17 OF THE 22 OBJECTS CARRY A LIVE ESTIMATE, and those are TOPICS, not rows.**
+Recording a definition on a live-estimate object can turn `estimand_definition_gate`
+from UNCHECKABLE to FAIL, which is a finding about a published number and must be
+worked at topic depth — registry read, verdict, page, card, live verification —
+not batched.
+
+**LIVE (handle as topics, one at a time):**
+`fcm-hf-review` 4 · `arni-hfref` 3 · `attr-pn-review` 3 · `finerenone-review` 3 ·
+`iv-iron-hf` 3 · `netarsudil-ocular-hypertension` 3 · `rotavirus-vaccine-africa` 3 ·
+`tigecycline-ciai` 3 · `empagliflozin-hf` 2 · `finerenone-cv` 2 ·
+`hepatitis-b-taf-tdf` 2 · `icosapent-lipid` 2 · `pcsk9-inhibitors-cv` 2 ·
+`pitavastatin` 2 · `rosuvastatin` 2 · `sglt2-mace-cvot` 2 · `incretin-hfpef` 1
+
+**NOT LIVE (safe to batch — the estimate is already withdrawn or absent):**
+`sglt2-hf` 4 · `antimalarial-act` 3 · `covid19-vaccines` 3 · `lenacapavir-prep` 2 ·
+`cryptococcal-meningitis` 1 — **13 rows.**
+
+**Note what this list reveals: `arni-hfref` is on it.** The flagship carries three
+trial rows with no recorded endpoint definition on its headline outcome, on a page
+publishing a live pooled hazard ratio. **That is the single most important row in
+the queue.**
+
+**Method that worked and should be reused:** batch the registry reads with
+`scripts/registry_endpoint_read.py` across several trials in one call, then author
+with a parameterised spec — that took the withdrawn set from ~30 minutes a topic
+to ~15.
+
+---
+
 ## Closed
 
 - **2026-08-18 — all eight withdrawn cardiology topics re-verified against the
