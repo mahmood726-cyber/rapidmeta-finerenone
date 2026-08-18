@@ -133,7 +133,20 @@ def payloads_for(artefact: Mapping[str, Any]) -> list[tuple[str, dict]]:
                     {"build_path": artefact.get("build_path"), **s}))
 
     # --- method claim ------------------------------------------------------
-    if artefact.get("claimed_method"):
+    # SCOPED 2026-08-18. CHK024 asks whether a NETWORK claim is supported by a
+    # network. It decides nothing about a pairwise claim, so projecting one into
+    # it produced an unconditional PASS -- 115 of them on this corpus, every one
+    # vacuous, every one previously counted as coverage. The gate's mutation test
+    # caught it only when fifteen new artefacts pushed the INVALID share past the
+    # ceiling; the defect predates them entirely.
+    #
+    # Emitting NOTHING for an inapplicable claim is the honest result. Zero
+    # results from a check with no applicable case is coverage of zero, STATED.
+    # A hundred and fifteen passes from that same check is coverage of zero,
+    # CONCEALED -- and the second is worse, because it reads as verification.
+    _cm = str(artefact.get("claimed_method") or "").strip().upper()
+    if _cm in ("NMA", "NETWORK META-ANALYSIS", "NETWORK-META-ANALYSIS",
+               "MIXED TREATMENT COMPARISON", "MTC"):
         out.append(("CHK024_FALSE_METHOD_CLAIM",
                     {"page_id": page, "claimed_method": artefact["claimed_method"],
                      "network_edges": artefact.get("network_edges") or []}))

@@ -173,15 +173,64 @@ CHK016 = Check(
 # =============================================================================
 # CHK017 -- DUP-1 BY BIT EQUALITY (replaces the heterogeneity signature)
 # =============================================================================
-# Two distinct trials cannot agree to 16 significant digits. Identical point
-# estimates carrying different variances, pooling to exactly that value, is the
-# arithmetic signature of one estimate entered twice: inverse-variance pooling of
-# identical y_i returns y_i regardless of the weights, so the I^2 = 0 that
-# follows is an artefact of the duplication, not evidence of agreement.
+# CORRECTED 2026-08-18. THE ORIGINAL PREMISE WAS FALSE, AND IT WAS FALSE ABOUT
+# THIS CHECK'S OWN FOUNDING CASE.
 #
-# This is a PROOF, not an inference, which is why it replaces the heterogeneity
-# signature the adversary dismantled. Heterogeneity is a statistic and can be
-# argued with. Bit equality of two independently-derived floats cannot.
+# What it used to say: "two distinct trials cannot agree to 16 significant
+# digits ... This is a PROOF, not an inference." What is actually true: the
+# founding fixture's value, -0.15082288973458366, is BIT-IDENTICAL TO
+# math.log(0.86). The sixteen digits are manufactured by math.log out of a
+# TWO-DECIMAL PUBLISHED RATIO -- so every trial reporting HR 0.86 yields exactly
+# that float, and agreement between two of them proves nothing whatever.
+#
+# THE CHECK WAS READING THE PRECISION OF THE FLOAT AND CALLING IT THE PRECISION
+# OF THE ESTIMATE. Published effect estimates arrive at two decimals; a plausible
+# ratio band holds about 36 of them, so among k=3 entries a collision occurs
+# ABOUT 8% OF THE TIME BY CHANCE ALONE -- and more often in reality, because real
+# effect sizes cluster rather than spreading uniformly.
+#
+# THE PROOF WAS THE OTHER CONDITION ALL ALONG, and it sat here as decoration: an
+# appended sentence on a verdict already reached without it. Inverse-variance
+# pooling of two DISTINCT values cannot return either one exactly. So POOLED
+# BIT-IDENTICAL TO AN ENTRY is the arithmetic proof of duplication; ENTRY
+# BIT-IDENTICAL TO ENTRY is an ordinary coincidence at published precision.
+#
+# WHAT FAILS NOW, and the founding case still fails on the first of them:
+#   (a) the pooled estimate is bit-identical to a repeated entry -- PROOF; or
+#   (b) the shared value is NOT reducible to a short-decimal ratio, i.e. it
+#       carries precision no published summary could supply, which genuinely
+#       cannot arise twice independently.
+#
+# A shared SHORT-DECIMAL value with a distinct pooled estimate is reported and
+# does NOT fail, because it is the ordinary case: DAPA-HF and EMPEROR-Reduced
+# both report 0.75 for CV death or heart-failure hospitalisation, with intervals
+# 0.65-0.85 and 0.65-0.86. Two trials, one two-decimal number, no duplication.
+#
+# THIS MAKES THE CHECK NARROWER IN WHAT IT ASSERTS AND NOT WEAKER IN WHAT IT
+# CATCHES: every genuine duplicate carries condition (a), because bit-identical
+# entries are exactly what force the pooled value onto them.
+
+def _is_short_decimal_ratio(log_value: float) -> bool:
+    """Is this log-estimate explicable as the log of a PUBLISHED two/three-decimal ratio?
+
+    THIS IS THE DISCRIMINATOR THE CHECK LACKED. Published effect estimates arrive
+    already rounded -- 0.75, 0.86, 1.02 -- and math.log turns each into a
+    full-precision float. Those sixteen digits describe THE LOGARITHM, not the
+    estimate, so two trials reporting the same rounded number produce the same
+    float necessarily rather than remarkably.
+
+    The tolerance is loose deliberately: objects in this corpus store log_point
+    rounded to six decimals, so exp() lands NEAR the published value rather than
+    exactly on it. -0.287682 exponentiates to 0.7500000543, not to 0.75.
+    """
+    try:
+        r = math.exp(log_value)
+    except (OverflowError, ValueError):
+        return False
+    if not (0.0 < r < 1e6):
+        return False
+    return any(abs(r - round(r, d)) < 5e-6 for d in (2, 3))
+
 
 def _dup1_bit_equality(p: Mapping[str, Any]) -> Result:
     cid, inst = "CHK017_DUP1_BIT_EQUALITY", "float-identity"
@@ -202,30 +251,59 @@ def _dup1_bit_equality(p: Mapping[str, Any]) -> Result:
         ids = [m.get("id") for m in members]
         variances = [m.get("variance") for m in members]
         pooled = p.get("pooled_estimate")
-        proof = ""
-        if pooled is not None and repr(float(pooled)) == k0:
-            proof = (" The pooled estimate is bit-identical to it, which is what "
-                     "inverse-variance pooling of one repeated value returns "
-                     "regardless of weights.")
-        return make_fail(cid, inst,
-                         f"entries {ids} carry the bit-identical estimate {k0}"
-                         + (f" with differing variances {variances}" if
-                            len(set(map(repr, variances))) > 1 else "")
-                         + f".{proof}",
-                         observed=f"repr(float(estimate)) == {k0} for {len(members)} "
-                                  f"entries: {ids}",
-                         locator=str(p.get("pool_id")),
-                         opposite_would_be="every entry carrying a distinct float; "
-                                           "two independently derived estimates do "
-                                           "not agree to 16 significant digits",
-                         duplicate_value=k0, members=ids)
+        pooled_matches = pooled is not None and repr(float(pooled)) == k0
+
+        if pooled_matches:
+            return make_fail(
+                cid, inst,
+                f"entries {ids} carry the same estimate {k0}"
+                + (f" with differing variances {variances}" if
+                   len(set(map(repr, variances))) > 1 else "")
+                + ". THE POOLED ESTIMATE IS BIT-IDENTICAL TO IT, and THAT is the "
+                  "proof: inverse-variance pooling of two DISTINCT values cannot "
+                  "return either one exactly, so this pool holds one value entered "
+                  "twice, whatever the weights claim.",
+                observed=f"pooled == entry == {k0} for {len(members)} entries: {ids}",
+                locator=str(p.get("pool_id")),
+                opposite_would_be="a pooled estimate strictly between the entries, "
+                                  "which is what pooling two distinct values gives",
+                duplicate_value=k0, members=ids, proof="pooled-bit-identity")
+
+        if not _is_short_decimal_ratio(float(k0)):
+            return make_fail(
+                cid, inst,
+                f"entries {ids} carry the bit-identical estimate {k0}, WHICH IS NOT "
+                "REDUCIBLE TO A PUBLISHED SHORT-DECIMAL RATIO. A value at this "
+                "precision is the output of a computation, and one computation run "
+                "over two different trials does not land on the same float.",
+                observed=f"repr(float(estimate)) == {k0} for {len(members)} entries: "
+                         f"{ids}; exp() does not round-trip through three "
+                         "significant figures",
+                locator=str(p.get("pool_id")),
+                opposite_would_be="a shared value explicable as a two-decimal "
+                                  "published ratio, where collision is ordinary",
+                duplicate_value=k0, members=ids, proof="precision-beyond-publication")
+
+        # SHARED, AT PUBLISHED PRECISION, WITH A DISTINCT POOLED ESTIMATE. The
+        # ordinary case, and NOT a finding. Reported in full so the correction of
+        # 2026-08-18 is legible at exactly the point where it applies.
+        return make_pass(
+            cid, inst,
+            observed=f"entries {ids} share {k0}, which is the log of a short-decimal "
+                     f"ratio, and the pooled estimate {pooled!r} is DISTINCT from it: "
+                     "two trials reporting the same two-decimal number, which happens "
+                     "in roughly 8% of three-entry pools by chance alone",
+            locator=str(p.get("pool_id")),
+            opposite_would_be="a pooled estimate bit-identical to the shared value, "
+                              "which pooling two distinct values cannot produce",
+            shared_value=k0, members=ids, at_published_precision=True)
 
     return make_pass(cid, inst,
                      observed=f"{len(entries)} entries, {len(groups)} distinct "
-                              "point estimates at full float precision",
+                              "point estimates",
                      locator=str(p.get("pool_id")),
-                     opposite_would_be="two entries whose estimates are equal at "
-                                       "full float precision")
+                     opposite_would_be="two entries sharing a value with the pooled "
+                                       "estimate bit-identical to it")
 
 
 CHK017 = Check(
@@ -244,24 +322,64 @@ CHK017 = Check(
         Verdict.FAIL,
         provenance="[R] corpus lane -- both entries carrying "
                    "-0.15082288973458366, pooling to exactly that value")],
-    must_be_silent_on=[Fixture(
-        "fidelio_vs_figaro_distinct",
-        {"pool_id": "finerenone-kidney",
-         "entries": [{"id": "FIDELIO-DKD", "estimate": -0.19845, "variance": 0.0038},
-                     {"id": "FIGARO-DKD", "estimate": -0.13103, "variance": 0.0041}],
-         "pooled_estimate": -0.16389},
-        Verdict.PASS,
-        provenance="[F] report #3 -- FIDELIO-DKD (2833/2840) and FIGARO-DKD "
-                   "(3666/3686) are the two trials the published metas triple-count; "
-                   "as DISTINCT entries they are the natural negative for a "
-                   "duplication check")],
+    must_be_silent_on=[
+        Fixture(
+            "fidelio_vs_figaro_distinct",
+            {"pool_id": "finerenone-kidney",
+             "entries": [{"id": "FIDELIO-DKD", "estimate": -0.19845,
+                          "variance": 0.0038},
+                         {"id": "FIGARO-DKD", "estimate": -0.13103,
+                          "variance": 0.0041}],
+             "pooled_estimate": -0.16389},
+            Verdict.PASS,
+            provenance="[F] report #3 -- FIDELIO-DKD (2833/2840) and FIGARO-DKD "
+                       "(3666/3686) are the two trials the published metas "
+                       "triple-count; as DISTINCT entries they are the natural "
+                       "negative for a duplication check"),
+        Fixture(
+            "dapa_hf_and_emperor_reduced_both_report_0_75",
+            {"pool_id": "harmonised_cvdeath_or_hhf",
+             "entries": [{"id": "NCT03036124", "estimate": -0.287682,
+                          "variance": 0.004683486095999999},
+                         {"id": "NCT03057977", "estimate": -0.287682,
+                          "variance": 0.0051008163999999995},
+                         {"id": "NCT03057951", "estimate": -0.235722,
+                          "variance": 0.004464},
+                         ],
+             "pooled_estimate": -0.269518},
+            Verdict.PASS,
+            provenance="[R] registry, read 2026-08-18 -- THE FALSE POSITIVE THIS "
+                       "CORRECTION EXISTS FOR. DAPA-HF posts HR 0.75 (0.65-0.85) for "
+                       "CV death or heart-failure hospitalisation as a SECONDARY "
+                       "outcome, and EMPEROR-Reduced posts 0.75 (0.65-0.86). Two "
+                       "trials, two intervals, one two-decimal number -- and the "
+                       "pooled estimate 0.7636 is distinct from both, so the "
+                       "arithmetic proof of duplication is ABSENT. The old check "
+                       "called this a duplicate and blocked a push over it. The old "
+                       "negative fixture could never have caught that, because two "
+                       "DISTINCT estimates pass under every version of this check; "
+                       "a negative fixture has to be the shape that was getting it "
+                       "wrong."),
+    ],
     observation_terms={
+        # RE-POINTED WITH THE CORRECTION. Each term now mutates into the branch it
+        # actually governs, so the flip proves the check reads that term. Forcing
+        # two entries equal no longer suffices -- under the corrected check that is
+        # the ORDINARY case, which is the whole point.
+        # THE MUTATION VALUE IS ITSELF A TRAP AND I WALKED INTO IT ONCE. The first
+        # attempt used -0.1984512345678901, which sits 3e-7 from log(0.82) -- so the
+        # corrected check read it as PUBLISHED PRECISION, returned PASS, and CHK017
+        # went vacuous on thirteen real artefacts. A mutation must land in the branch
+        # it is testing. log(0.834567) cannot be a published ratio.
         "entries": lambda p: _mut(p, entries=[
-            dict(p["entries"][0]),
-            {**p["entries"][1], "estimate": p["entries"][0]["estimate"]}]),
+            {**p["entries"][0], "estimate": -0.18084225150576030},
+            {**p["entries"][1], "estimate": -0.18084225150576030}]
+            + [dict(e) for e in p["entries"][2:]]),
         "pooled_estimate": lambda p: _mut(
-            p, entries=[dict(e) for e in p["entries"]] + [
-                {**p["entries"][0], "id": "entry-dup"}]),
+            p,
+            entries=[dict(e) for e in p["entries"]] + [
+                {**p["entries"][0], "id": "entry-dup"}],
+            pooled_estimate=p["entries"][0]["estimate"]),
     },
 )
 
