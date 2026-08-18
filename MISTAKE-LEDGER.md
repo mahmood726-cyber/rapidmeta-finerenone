@@ -1102,3 +1102,50 @@ was wrong: the prior object was restored from `HEAD~1` and the verdict MERGED in
 its own block, so the page now carries both of its independent defects — the four
 injection-site outcomes that are classes inside one registered composite, and the eight
 registrations that declare no clinical endpoint at any rank.
+
+---
+
+## Shared code makes a wrong rule VISIBLE; hand copies make it invisible and unanimous (2026-08-18)
+
+`scripts/ctg_binary_pool.py` was written on the third occurrence of the same pooling
+arithmetic. **The line-count saving is not the point and should not be cited as the
+reason.** Writing the rule down in one place is what exposed that the rule was wrong.
+
+The heterogeneity direction test was given as: *when I-squared is high, check whether the
+intervals agree in direction before choosing the sentence.* I implemented it
+**unconditionally**. Applied that way it labelled a k=3 pool at **I-squared = 0%** a
+"substantive disagreement" — purely because one interval was wide.
+
+**Note the direction of that failure. It manufactured doubt about a sound result.** That
+is the mirror of Class 2 in `TAXONOMY-PUBLISHED-SYNTHESIS-ERRORS.md`, and for this
+programme it is **the more expensive error**: caveating or withdrawing a correct finding is
+precisely the thing we have said throughout is not safe, because it publishes destruction
+as rigour.
+
+**Twelve hand-written copies would have carried the same error into twelve topics with
+nothing to compare them against.** Each would have looked locally reasonable. The error
+became visible the moment the rule had to be stated once, for all cases, in a form that
+could be run against three known topics and checked.
+
+**How to apply:** when the same analytical rule is about to be written a third time, the
+reason to extract it is not economy — it is that a rule with one implementation can be
+tested, and a rule with N implementations can only be trusted. Extract it, then run it
+against every case already decided by hand and confirm the answers match.
+
+---
+
+## A rule stated without its precondition will be applied without it (2026-08-18)
+
+The gate — *when I-squared is high* — was present in the instruction and **implicit**. It
+was not carried into the implementation. The error was in the statement of the rule, not
+in the coding of it, and it is worth separating those because the fix is different:
+tightening review of the implementation would not have caught this.
+
+Sits directly beside **"a guard that must be remembered is not a guard"**. Same family:
+**a condition that lives only in the reader's head is not a condition.** If a rule has a
+precondition, the precondition belongs in the rule's text, in the function's code, and in
+the test — not in the shared understanding of the two people who discussed it.
+
+**How to apply:** when writing down any conditional rule, state the condition first and
+the action second, and give the rule a name that includes the condition. Then write the
+test for the case where the condition is FALSE, before the case where it is true.

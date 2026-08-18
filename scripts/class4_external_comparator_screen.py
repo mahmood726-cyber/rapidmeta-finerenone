@@ -1,0 +1,165 @@
+"""CLASS 4 SCREEN: a registered primary whose comparator is not a randomised arm.
+
+THE SHAPE, from the lenacapavir closure. Both PURPOSE trials register HIV-1 incidence
+against a BACKGROUND INCIDENCE ESTIMATE derived from screened participants by a
+recent-infection testing algorithm. That is an EXTERNAL, NON-RANDOMISED comparator sitting
+inside a randomised trial's registered primary. Pooling such a contrast presents
+non-randomised comparisons as randomised results, AND EVERY ARITHMETIC CHECK PASSES --
+the counts are right, the registration is complete, the arms are typed correctly.
+
+Nothing in this corpus looked for it before 2026-08-18.
+
+HOW IT DETECTS. For each trial with posted results, it compares the GROUPS of each posted
+PRIMARY outcome measure against the randomised ARM GROUPS of the protocol section. Two
+signals, either sufficient to flag:
+
+  LEXICAL   an outcome group title naming a screening-derived, background, historical or
+            external population ("screened", "background", "incidence phase", "historical
+            control", "external control", "natural history", "non-randomized").
+  STRUCTURAL an outcome measure carrying MORE groups than the trial has randomised arms,
+            which is how an external comparator usually appears -- appended to the real
+            arms rather than replacing them.
+
+THIS IS A TRIAGE. IT IS NOT A VERDICT, AND A PASS IS NOT CLEARANCE. Demonstrated
+false-negative modes:
+  1. An external comparator described in the outcome DESCRIPTION but given a neutral group
+     title ("Group 2") is invisible to both signals.
+  2. A single-arm outcome measure compared against a literature value stated only in the
+     protocol document is invisible -- the registry holds no second group at all.
+  3. A trial that posts no results cannot be screened. MALARIA_ACT's five trials are in
+     that category and this screen says nothing about them.
+False-positive mode: multi-arm trials legitimately post more outcome groups than two, and
+open-label-extension or pharmacokinetic sub-cohorts often appear as extra groups. Every
+flag needs a human read of the registration before it means anything.
+"""
+from __future__ import annotations
+import io
+import json
+import os
+import re
+import sys
+import time
+import urllib.request
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+API = "https://clinicaltrials.gov/api/v2/studies/{}?format=json"
+NCT = re.compile(r"NCT\d{8}")
+CACHE = os.path.join(REPO, ".class4-cache.json")
+
+LEXICAL = re.compile(
+    r"screened|screening|background\s+incidence|incidence\s+phase|historical|"
+    r"external\s+control|natural\s+history|non-randomi[sz]ed|registry\s+control|"
+    r"standard\s+of\s+care\s+cohort|observational", re.I)
+
+
+def fetch(nct, cache):
+    if nct in cache:
+        return cache[nct]
+    try:
+        req = urllib.request.Request(API.format(nct), headers={"User-Agent": "rm-c4"})
+        with urllib.request.urlopen(req, timeout=45) as r:
+            d = json.loads(r.read().decode("utf-8"))
+        ps = d.get("protocolSection") or {}
+        rs = d.get("resultsSection") or {}
+        arms = [(a.get("type") or "", a.get("label") or "")
+                for a in ((ps.get("armsInterventionsModule") or {}).get("armGroups") or [])]
+        prims = []
+        for o in ((rs.get("outcomeMeasuresModule") or {}).get("outcomeMeasures") or []):
+            if o.get("type") != "PRIMARY":
+                continue
+            prims.append({"title": o.get("title") or "",
+                          "groups": [(g.get("title") or "") for g in (o.get("groups") or [])]})
+        rec = {"title": (ps.get("identificationModule") or {}).get("briefTitle", ""),
+               "arms": arms, "primaries": prims, "has_results": bool(rs)}
+    except Exception as e:
+        rec = {"error": str(e)[:50]}
+    cache[nct] = rec
+    time.sleep(0.06)
+    return rec
+
+
+def screen(rec):
+    """Return list of (signal, detail) or []."""
+    if rec.get("error") or not rec.get("has_results"):
+        return []
+    n_arms = len(rec.get("arms") or [])
+    hits = []
+    for pr in rec.get("primaries") or []:
+        for g in pr["groups"]:
+            if LEXICAL.search(g):
+                hits.append(("LEXICAL", "outcome group %r on primary %r"
+                             % (g[:52], pr["title"][:44])))
+        if n_arms and len(pr["groups"]) > n_arms:
+            hits.append(("STRUCTURAL", "primary %r posts %d groups against %d randomised "
+                                       "arms" % (pr["title"][:40], len(pr["groups"]), n_arms)))
+    return hits
+
+
+def corpus_ncts():
+    """Every NCT this corpus references, from built objects and from page seeds."""
+    out = {}
+    ss = os.path.join(REPO, "ssot")
+    for d in sorted(os.listdir(ss)) if os.path.isdir(ss) else []:
+        f = os.path.join(ss, d, d + ".json")
+        if not os.path.exists(f):
+            continue
+        try:
+            o = json.load(io.open(f, encoding="utf-8"))
+        except Exception:
+            continue
+        for t in ((o.get("inputs") or {}).get("trials") or []):
+            n = t.get("nct") or t.get("trial_id") or ""
+            if NCT.fullmatch(n or ""):
+                out.setdefault(n, set()).add(d)
+    return out
+
+
+def main() -> int:
+    cache = json.load(io.open(CACHE, encoding="utf-8")) if os.path.exists(CACHE) else {}
+    ncts = corpus_ncts()
+    print("corpus trials referenced by built objects: %d" % len(ncts))
+    print()
+    flagged, screened, no_results, errs = [], 0, 0, 0
+    for i, (n, topics) in enumerate(sorted(ncts.items())):
+        rec = fetch(n, cache)
+        if i % 25 == 0:
+            json.dump(cache, io.open(CACHE, "w", encoding="utf-8"), ensure_ascii=False)
+        if rec.get("error"):
+            errs += 1
+            continue
+        if not rec.get("has_results"):
+            no_results += 1
+            continue
+        screened += 1
+        hits = screen(rec)
+        if hits:
+            flagged.append((n, sorted(topics), rec["title"], hits))
+    json.dump(cache, io.open(CACHE, "w", encoding="utf-8"), ensure_ascii=False)
+
+    print("SCREENED (results posted): %d" % screened)
+    print("NOT SCREENABLE (no results posted): %d   -- the screen says NOTHING about these"
+          % no_results)
+    print("fetch errors: %d" % errs)
+    print()
+    print("FLAGGED: %d" % len(flagged))
+    for n, topics, title, hits in flagged:
+        print("  %s  %s" % (n, title[:62]))
+        print("      topics: %s" % ", ".join(topics)[:78])
+        for sig, det in hits[:3]:
+            print("      [%s] %s" % (sig, det[:88]))
+    json.dump([{"nct": n, "topics": t, "title": ti,
+                "hits": [{"signal": s, "detail": d} for s, d in h]}
+               for n, t, ti, h in flagged],
+              io.open(os.path.join(REPO, ".class4-flags.json"), "w", encoding="utf-8"),
+              ensure_ascii=False, indent=1)
+    print()
+    print("A FLAG IS WHERE TO LOOK, NOT WHAT YOU WILL FIND. Every one needs the "
+          "registration read by hand before it means anything.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
