@@ -397,7 +397,22 @@
     "source_page_pooled": false,
     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
     "estimand_established": null,
-    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass."
+    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+    "r_output": {
+     "state": "ABSENT_AND_THAT_IS_THE_FINDING",
+     "_why_absent": "k=1. No meta-analysis was performed, so there is NO model call to quote, NO pooled estimate, NO heterogeneity and NO package version. This is not a missing artefact; it is the correct state for a single-study topic.",
+     "quotable_model_call": null,
+     "heterogeneity": null,
+     "heterogeneity_reason": "Undefined at k=1: there is no between-study variance to estimate.",
+     "package_version": null,
+     "what_stands_instead": {
+      "estimate": "HR 0.87 (95% CI 0.79 to 0.96)",
+      "provenance": "CLEAR Outcomes' OWN registry-posted analysis, NOT a synthesis result computed here",
+      "verbatim_from_registry": "Hazard Ratio (HR) 0.87, CI 0.79 - 0.96, statistical method Log Rank, p=0.004",
+      "read_utc": "2026-08-19"
+     },
+     "what_would_change_it": "Screening the 16-trial unscreened remainder. If any of them share this estimand and comparator, k rises above 1 and a pooled model becomes both possible and required -- at which point this field must carry the quoted call."
+    }
    }
   }
  },
@@ -416,37 +431,345 @@
  "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",
  "precondition_verdict": {
   "assessed_on": "2026-08-19",
-  "assessed_by": "ssot/preconditions.py (seven preconditions, authored 2026-08-19)",
-  "authoring_constraint": "These seven preconditions were authored in the same session that applied them. A reader who disagrees should disagree with the definitions in ssot/preconditions.py, from which every verdict below is reproducible.",
+  "standard_version": "1.0.0-2026-08-19",
   "authority": {
    "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
    "version": "6.5, 2024",
    "verified_on": "2026-08-19",
    "verified_how": "read from cochrane.org/authors/handbooks-and-manuals/handbook/current chapters 10 and 23, and from the official MECIR PDF (February 2022), text extracted locally rather than summarised"
   },
-  "builds": false,
-  "status": "REFUSED",
-  "refused_on": {
-   "inclusion_criteria_auditable": {
+  "publishable": true,
+  "authoring_constraint": "These preconditions were authored in the same session that applied them. A reader who disagrees should disagree with ssot/preconditions.py, from which every verdict here is reproducible.",
+  "verdicts": {
+   "population_stated": {
+    "verdict": "PASS",
+    "reason": "present: question carries 223 characters",
+    "authority": "MECIR C62 'Ensuring meta-analyses are meaningful' (Mandatory, READ 2026-08-19): 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar...'; MECIR C5 'Predefining unambiguous criteria for participants' (Mandatory)"
+   },
+   "arm_role_resolved": {
+    "verdict": "PASS",
+    "reason": "inputs.trials: all 1 trial(s) carry arms with a readable role",
+    "authority": "MECIR C62 (Mandatory), 'interventions' limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are 'sufficiently similar' without knowing which arm is the intervention. NOT cited to C5/C7: those govern PREDEFINITION of criteria, and this check only reads whether a field is populated."
+   },
+   "comparators_identified_and_consistent": {
+    "verdict": "PASS",
+    "reason": "outcomes.comparator: all 1 outcome(s) name 'placebo'",
+    "authority": "MECIR C62 (Mandatory), 'comparisons' limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency."
+   },
+   "estimand_named": {
+    "verdict": "PASS",
+    "reason": "outcomes.estimand: all 1 outcome(s) name a quantity",
+    "authority": "MECIR C8 'Clarifying role of outcomes' (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), 'outcomes' limb"
+   },
+   "criteria_stated": {
+    "verdict": "PASS",
+    "reason": "present: screening.eligibility carries 704 characters",
+    "authority": "MECIR R29 'Eligibility criteria for types of participants', R30 '...types of interventions', R31 'Role of outcomes' -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block DERIVED post hoc satisfies this if it is labelled post hoc per R107."
+   },
+   "criteria_predefined": {
     "verdict": "FAIL",
-    "reason": "declared absent: screening.eligibility states its own absence: 'not recorded on the page this object was built from'",
-    "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.'"
-   }
-  },
-  "not_assessed": {
+    "reason": "screening.eligibility_provenance.predefined is false: the criteria were DERIVED post hoc from this object's own question and recorded exclusions. That is auditable (R29/R30/R31) and is not pre-specification (C5/C7). This FAIL is permanent and correct.",
+    "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.' C5/C7 govern PREDEFINITION and CANNOT be discharged by a post hoc derivation."
+   },
    "eligibility_met": {
     "verdict": "NOT-ASSESSABLE",
-    "reason": "cannot assess: criteria are not stated (screening.eligibility states its own absence: 'not recorded on the page this object was built from'), so whether any trial met them cannot be decided",
+    "reason": "cannot assess: criteria are stated, but sources is an empty dict -- no full text was available this pass, and inclusion logic is conditional prose",
     "authority": "MECIR C5/C7 (Mandatory) with C6 'Predefining a strategy for studies with a subset of eligible participants' (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report"
+   },
+   "contributes_a_randomised_contrast": {
+    "verdict": "PASS",
+    "reason": "inputs.trials.arms: all 1 readable trial(s) contribute one topic-vs-control randomised contrast",
+    "authority": "Handbook 6.5 s23.3.4 'How to include multiple groups from one study' (READ 2026-08-19) and s23.3.6 'Factorial trials'; MECIR C7 'Predefining unambiguous criteria for interventions and comparators' (Mandatory)"
+   }
+  }
+ },
+ "search": {
+  "executed_by": "lane 1 (Claude, Anthropic family), Claude-side because the analysis sandbox that holds the classifier has no network egress",
+  "databases": [
+   {
+    "database": "ClinicalTrials.gov API v2",
+    "tool": "mcp__plugin_bio-research_c-trials__search_trials",
+    "query_as_executed": "condition=\"hypercholesterolemia OR dyslipidemia OR cardiovascular disease\"; intervention=\"bempedoic acid\"; study_type=INTERVENTIONAL; phase=[PHASE3,PHASE4]; count_total=true; page_size=60",
+    "query_parameters": {
+     "condition": "hypercholesterolemia OR dyslipidemia OR cardiovascular disease",
+     "intervention": "bempedoic acid",
+     "study_type": "INTERVENTIONAL",
+     "phase": [
+      "PHASE3",
+      "PHASE4"
+     ],
+     "count_total": true,
+     "page_size": 60
+    },
+    "date_executed": "2026-08-18",
+    "records_returned": 21,
+    "total_reported": 21,
+    "corroborating_transport": {
+     "endpoint": "https://clinicaltrials.gov/api/v2/studies",
+     "query.cond": "hypercholesterolemia OR dyslipidemia OR cardiovascular disease",
+     "query.intr": "bempedoic acid",
+     "filter.advanced": "AREA[StudyType]INTERVENTIONAL AND AREA[Phase](PHASE3 OR PHASE4)",
+     "records_returned": 21,
+     "agrees_with_mcp": true,
+     "why_two_transports": "The MCP payload is FLATTENED and carries no arm types, so it cannot support the arm-role cascade. The raw v2 endpoint supplies the role payload. Both totals are recorded side by side and were NOT reconciled silently -- an earlier run showed them diverging, and the divergence was the phase filter missing from the raw query, not a property of either instrument."
+    }
+   },
+   {
+    "database": "PubMed (NCBI E-utilities esearch)",
+    "tool": "mcp__plugin_bio-research_pubmed__search_articles",
+    "query_as_executed": "(bempedoic acid[tiab] OR ETC-1002[tiab] OR Nexletol[tiab] OR Nilemdo[tiab]) AND (cardiovascular[tiab] OR MACE[tiab] OR \"major adverse cardiovascular events\"[tiab]) AND (randomized controlled trial[pt] OR randomised[tiab] OR randomized[tiab])",
+    "query_translation_returned_by_ncbi": "(\"bempedoic acid\"[Title/Abstract] OR \"ETC-1002\"[Title/Abstract] OR \"Nexletol\"[Title/Abstract] OR \"Nilemdo\"[Title/Abstract]) AND (\"cardiovascular\"[Title/Abstract] OR \"MACE\"[Title/Abstract] OR \"major adverse cardiovascular events\"[Title/Abstract]) AND (\"randomized controlled trial\"[Publication Type] OR \"randomised\"[Title/Abstract] OR \"randomized\"[Title/Abstract])",
+    "date_executed": "2026-08-19",
+    "total_count": 109,
+    "records_returned": 50,
+    "records_not_retrieved": 59,
+    "IMPORTANT": "50 of 109 were retrieved. The remaining 59 are NOT screened and NOT excluded -- they are UNEXAMINED. Reporting them as excluded would be the substitution this project audits for. The PRISMA counts below therefore carry an unexamined bucket rather than a clean funnel."
+   }
+  ]
+ },
+ "prisma_flow": {
+  "_scope": "PRISMA 2020 flow, counted from the executed searches above.",
+  "identification": {
+   "ctgov_records": 21,
+   "pubmed_records_retrieved": 50,
+   "pubmed_records_not_retrieved": 59,
+   "total_identified_across_databases": 130,
+   "note": "130 = 21 CTGov + 109 PubMed total. Of the 109, 50 were retrieved."
+  },
+  "screened": {
+   "ctgov_screened_by_arm_role": 21,
+   "pubmed_screened": 0,
+   "why_pubmed_zero": "The topic's included set is keyed on REGISTRATION IDs, and screening ran on the registry side. The PubMed search is recorded because it was executed and because the published-meta comparison (P7) will consume it, NOT because it contributed to the included set. Reporting it as screened would overstate what was done."
+  },
+  "eligibility_ctgov": {
+   "role_located": 21,
+   "topic_is_experimental_arm": 17,
+   "topic_is_comparator_arm": 4,
+   "topic_is_background": 0,
+   "not_assessable": 0
+  },
+  "included": {
+   "in_this_object": 1,
+   "nct": [
+    "NCT02993406"
+   ]
+  },
+  "excluded_with_reasons": {
+   "recorded_on_object": 3,
+   "ids": [
+    "NCT02666664",
+    "NCT02988115",
+    "NCT02973841"
+   ]
+  },
+  "reconciliation": {
+   "arithmetic": "21 CTGov identified = 17 experimental + 4 comparator + 0 background + 0 unassessable",
+   "reconciles": true,
+   "included_plus_recorded_exclusions": "1 included + 3 recorded exclusions = 4 registrations the page ever carried",
+   "gap_stated_plainly": "17 CTGov trials place bempedoic acid in an EXPERIMENTAL arm; this object includes ONE. The other 16 are NOT excluded -- they were never screened against the stated criteria. That is an UNSCREENED REMAINDER of 16, and it is recorded as a number rather than omitted. Screening them is the next unit of work on this topic."
+  }
+ },
+ "k_cascade": {
+  "_why": "k is never one number. Each stage is what the instrument at that stage could actually decide.",
+  "k0_surfaced": 21,
+  "k2_role_located": 21,
+  "k3_experimental": 17,
+  "k4_comparator": 4,
+  "k5_background": 0,
+  "kNA_not_assessable": 0,
+  "k_included_in_object": 1,
+  "k_unscreened_remainder": 16,
+  "keyed_on": "registration id",
+  "source": "evidence/2026-08-19-batch1/cascade.json"
+ },
+ "precondition_verdict_superseded": {
+  "superseded_on": "2026-08-19",
+  "superseded_because": "the seven preconditions became eight when inclusion_criteria_auditable split into criteria_stated (MECIR R29/R30/R31) and criteria_predefined (MECIR C5/C7)",
+  "block": {
+   "assessed_on": "2026-08-19",
+   "assessed_by": "ssot/preconditions.py (seven preconditions, authored 2026-08-19)",
+   "authoring_constraint": "These seven preconditions were authored in the same session that applied them. A reader who disagrees should disagree with the definitions in ssot/preconditions.py, from which every verdict below is reproducible.",
+   "authority": {
+    "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+    "version": "6.5, 2024",
+    "verified_on": "2026-08-19",
+    "verified_how": "read from cochrane.org/authors/handbooks-and-manuals/handbook/current chapters 10 and 23, and from the official MECIR PDF (February 2022), text extracted locally rather than summarised"
+   },
+   "builds": false,
+   "status": "REFUSED",
+   "refused_on": {
+    "inclusion_criteria_auditable": {
+     "verdict": "FAIL",
+     "reason": "declared absent: screening.eligibility states its own absence: 'not recorded on the page this object was built from'",
+     "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.'"
+    }
+   },
+   "not_assessed": {
+    "eligibility_met": {
+     "verdict": "NOT-ASSESSABLE",
+     "reason": "cannot assess: criteria are not stated (screening.eligibility states its own absence: 'not recorded on the page this object was built from'), so whether any trial met them cannot be decided",
+     "authority": "MECIR C5/C7 (Mandatory) with C6 'Predefining a strategy for studies with a subset of eligible participants' (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report"
+    }
+   },
+   "not_assessed_means": "NOT_ASSESSABLE is not a refusal. These preconditions could not be evaluated against this object; the topic has not been judged on them.",
+   "passed": [
+    "population_stated",
+    "arm_role_resolved",
+    "comparator_identified",
+    "estimand_named",
+    "contributes_a_randomised_contrast"
+   ]
+  }
+ },
+ "extraction": {
+  "_why": "Every cell says whether it was READ from a named source or DERIVED, and carries the sentence it was read from. A cell with no label is not evidence.",
+  "verified_utc": "2026-08-19",
+  "source": {
+   "registry": "ClinicalTrials.gov NCT02993406",
+   "link": "https://clinicaltrials.gov/study/NCT02993406",
+   "api": "https://clinicaltrials.gov/api/v2/studies/NCT02993406",
+   "read_via": "raw v2 API, fields=protocolSection,resultsSection,derivedSection"
+  },
+  "cells": [
+   {
+    "field": "nct",
+    "value": "NCT02993406",
+    "label": "READ",
+    "source_path": "protocolSection.identificationModule.nctId"
+   },
+   {
+    "field": "enrolment",
+    "value": 13970,
+    "label": "READ",
+    "source_path": "protocolSection.designModule.enrollmentInfo",
+    "verbatim": "{'count': 13970, 'type': 'ACTUAL'}"
+   },
+   {
+    "field": "primary_outcome",
+    "label": "READ",
+    "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+    "verbatim": "Number of Participants With First Occurrence of Four Component Major Adverse Cardiovascular Events (MACE)"
+   },
+   {
+    "field": "events_treatment",
+    "value": 819,
+    "label": "READ",
+    "source_path": "resultsSection.outcomeMeasuresModule[0] group OG000 'Bempedoic Acid 180 mg'",
+    "verbatim": "OG000 819"
+   },
+   {
+    "field": "events_control",
+    "value": 927,
+    "label": "READ",
+    "source_path": "resultsSection.outcomeMeasuresModule[0] group OG001 'Placebo Comparator'",
+    "verbatim": "OG001 927"
+   },
+   {
+    "field": "participants_treatment",
+    "value": 6992,
+    "label": "READ",
+    "source_path": "resultsSection group OG000 denominator"
+   },
+   {
+    "field": "participants_control",
+    "value": 6978,
+    "label": "READ",
+    "source_path": "resultsSection group OG001 denominator"
+   },
+   {
+    "field": "effect",
+    "value": "HR 0.87 (95% CI 0.79 to 0.96)",
+    "label": "READ",
+    "source_path": "resultsSection.outcomeMeasuresModule[0].analyses[0]",
+    "verbatim": "Hazard Ratio (HR) 0.87, CI 0.79 to 0.96, Log Rank, p=0.004",
+    "note": "NOT derived. This is the registry's own posted analysis, digit for digit. The object's stored value was checked against it and matches."
+   },
+   {
+    "field": "arm_role",
+    "value": "treatment / control",
+    "label": "DERIVED",
+    "derived_by": "ssot/topic_identity.locate() over the raw v2 armGroups",
+    "note": "DERIVED, not read: the registry declares arm TYPE; the topic-vs-control assignment is this project's classification of it."
+   }
+  ]
+ },
+ "published_comparison": {
+  "state": "PENDING_EXTERNAL_RESOLUTION",
+  "_why": "Every page this project ships carries this section with a DENOMINATOR. A comparison without one reports the syntheses it happened to find.",
+  "denominator": null,
+  "denominator_reason": "Not yet established. Establishing it requires resolving published syntheses' included-sets to REGISTRATION IDs. A second lane has validated that pipeline (stated-k table identification plus two-hop citation->PMID->registration) and is running it now.",
+  "explicitly_not_done": "CITATION-STRING MATCHING. It would produce a comparison-shaped answer tonight and it is not identity: two syntheses citing the same trial under different labels would read as different, and the same label on different trials as the same. That is the substitution class this project audits for.",
+  "candidate_source_search": "PubMed search recorded at search.databases[1] (109 records)",
+  "blocked_on": "lane 2 registration-id resolution"
+ },
+ "registration_identity": {
+  "verified_utc": "2026-08-19",
+  "method": "live fetch of the raw ClinicalTrials.gov v2 record and comparison of the returned nctId against the id stored on this object",
+  "trials": [
+   {
+    "nct": "NCT02993406",
+    "verified": true,
+    "status_returned": "COMPLETED",
+    "org_study_id": "1002-043",
+    "link": "https://clinicaltrials.gov/study/NCT02993406"
+   }
+  ],
+  "duplicate_seeding_check": {
+   "shared_with_other_topics": false,
+   "checked_against": "evidence/2026-08-19-corpus/reconcile.json (51 shared ids corpus-wide); NCT02993406 is not among them"
+  }
+ },
+ "build_stamp": {
+  "page_standard_version": "1.0.0-2026-08-19",
+  "standard_document": "PAGE-STANDARD.md",
+  "built_utc": "2026-08-19",
+  "built_by": "ssot/build_to_standard.py",
+  "properties": {
+   "P1_executed_search": {
+    "state": "HELD",
+    "reason": "Two databases, queries verbatim with dates and counts; PRISMA arithmetic reconciles and the 16-trial unscreened remainder is stated as a number."
+   },
+   "P2_k_cascade": {
+    "state": "HELD",
+    "reason": "Seven stages recorded, plus the unscreened remainder."
+   },
+   "P3_inclusion_criteria": {
+    "state": "HELD",
+    "reason": "Derived block present with predefined:false and post_hoc:true on its face, each element naming its source field; authorised by MECIR R107."
+   },
+   "P4_preconditions": {
+    "state": "HELD",
+    "reason": "All 8 recorded with verdict and cited authority (1 FAIL). criteria_predefined FAILs permanently: the criteria are post hoc, which R107 permits and C5/C7 does not satisfy."
+   },
+   "P5_extraction_table": {
+    "state": "HELD",
+    "reason": "9 cells, 8 READ with source path and verbatim text, 1 DERIVED with its method named; all against a resolvable registry link."
+   },
+   "P6_analysis_output": {
+    "state": "REFUSING",
+    "reason": "No quotable model output exists because k=1 and nothing was pooled. The absence is recorded as a finding with its cause and its trigger, and the registry's own analysis is quoted verbatim in its place."
+   },
+   "P7_published_comparison": {
+    "state": "REFUSING",
+    "reason": "No denominator yet. Blocked on external registration-id resolution; citation-string matching explicitly refused rather than substituted."
+   },
+   "P8_registration_identity": {
+    "state": "HELD",
+    "reason": "1 of 1 trial verified live against the registry; not among the 51 corpus-wide shared registration ids."
    }
   },
-  "not_assessed_means": "NOT_ASSESSABLE is not a refusal. These preconditions could not be evaluated against this object; the topic has not been judged on them.",
-  "passed": [
-   "population_stated",
-   "arm_role_resolved",
-   "comparator_identified",
-   "estimand_named",
-   "contributes_a_randomised_contrast"
-  ]
+  "held": [
+   "P1_executed_search",
+   "P2_k_cascade",
+   "P3_inclusion_criteria",
+   "P4_preconditions",
+   "P5_extraction_table",
+   "P8_registration_identity"
+  ],
+  "refusing": [
+   "P6_analysis_output",
+   "P7_published_comparison"
+  ],
+  "_ratchet": "This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant."
  }
 }

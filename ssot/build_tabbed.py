@@ -649,6 +649,110 @@ def _caption_tables(html):
     return html
 
 
+def _standard_block(canon, e_):
+    """Render the page-standard properties. A page with no stamp SAYS SO rather than omitting.
+
+    Every branch here emits something. An unstamped page renders "unknown-version", which is
+    what `arni-hfref` currently is -- unstamped is not the same as compliant, and the corpus
+    is not allowed to look compliant by virtue of a missing field.
+    """
+    stamp = canon.get("build_stamp")
+    if not stamp:
+        return ("<div class='card warn'><h2>Page standard</h2><p><strong>UNSTAMPED — "
+                "unknown-version.</strong> This page carries no <code>build_stamp</code>, so "
+                "the standard it was built to cannot be established. That is a statement "
+                "about the record, not a claim that the page is below standard.</p></div>")
+
+    rows = []
+    for name, prop in (stamp.get("properties") or {}).items():
+        cls = "ok" if prop.get("state") == "HELD" else "warn"
+        rows.append("<tr class='%s'><td>%s</td><td><strong>%s</strong></td><td>%s</td></tr>"
+                    % (cls, e_(name), e_(str(prop.get("state"))), e_(str(prop.get("reason")))))
+
+    casc = canon.get("k_cascade") or {}
+    casc_rows = "".join("<tr><td>%s</td><td>%s</td></tr>" % (e_(k), e_(str(v)))
+                        for k, v in casc.items() if not k.startswith("_"))
+
+    prov = (canon.get("screening") or {}).get("eligibility_provenance") or {}
+    prov_html = ""
+    if prov:
+        prov_html = (
+            "<h3>Inclusion criteria — derived, post hoc</h3>"
+            "<p><strong>predefined: %s &nbsp;|&nbsp; post_hoc: %s</strong> — derived %s</p>"
+            "<p><small>%s</small></p>"
+            % (e_(str(prov.get("predefined"))), e_(str(prov.get("post_hoc"))),
+               e_(str(prov.get("derived_on"))),
+               e_(str(prov.get("authority_permitting_this", "")))))
+        prov_html += "<table><tr><th>limb</th><th>value</th><th>derived from</th></tr>"
+        for el in prov.get("elements") or []:
+            prov_html += ("<tr><td>%s</td><td>%s</td><td><code>%s</code></td></tr>"
+                          % (e_(str(el.get("limb"))), e_(str(el.get("value"))[:160]),
+                             e_(str(el.get("derived_from")))))
+        prov_html += "</table>"
+
+    pv = canon.get("precondition_verdict") or {}
+    pre_rows = "".join(
+        "<tr><td>%s</td><td><strong>%s</strong></td><td><small>%s</small></td>"
+        "<td><small>%s</small></td></tr>"
+        % (e_(n), e_(str(v.get("verdict"))), e_(str(v.get("reason"))[:220]),
+           e_(str(v.get("authority"))[:200]))
+        for n, v in (pv.get("verdicts") or {}).items())
+
+    # P6 and P7 detail. The property TABLE already carries each refusal and its reason; these
+    # blocks carry the evidence underneath it. A first served-bytes check found the reasons
+    # present and the evidence absent, which is a page that says it refuses without showing
+    # what it refused on.
+    ro = ((canon.get("results") or {}).get("by_outcome") or {})
+    ro = (next(iter(ro.values()), {}) or {}).get("r_output") or {}
+    ro_html = ""
+    if ro:
+        stands = ro.get("what_stands_instead") or {}
+        ro_html = ("<h3>Analysis output — %s</h3><p>%s</p>"
+                   "<p><strong>What stands instead:</strong> %s<br>"
+                   "<small>Provenance: %s</small><br>"
+                   "<code>%s</code></p>"
+                   "<p><small>Heterogeneity: %s<br>What would change it: %s</small></p>"
+                   % (e_(str(ro.get("state"))), e_(str(ro.get("_why_absent"))),
+                      e_(str(stands.get("estimate", ""))),
+                      e_(str(stands.get("provenance", ""))),
+                      e_(str(stands.get("verbatim_from_registry", ""))),
+                      e_(str(ro.get("heterogeneity_reason", ""))),
+                      e_(str(ro.get("what_would_change_it", "")))))
+
+    pc = canon.get("published_comparison") or {}
+    pc_html = ""
+    if isinstance(pc, dict) and pc.get("state"):
+        pc_html = ("<h3>Published-meta comparison — %s</h3>"
+                   "<p><strong>Denominator: %s.</strong> %s</p>"
+                   "<p><small><strong>Explicitly not done:</strong> %s</small></p>"
+                   "<p><small>Blocked on: %s</small></p>"
+                   % (e_(str(pc.get("state"))), e_(str(pc.get("denominator"))),
+                      e_(str(pc.get("denominator_reason", ""))),
+                      e_(str(pc.get("explicitly_not_done", ""))),
+                      e_(str(pc.get("blocked_on", "")))))
+
+    auth = pv.get("authority") or {}
+    return (
+        "<div class='card'><h2>Page standard %s</h2>"
+        "<p>Built %s by <code>%s</code> against <code>%s</code>. "
+        "<strong>%d held, %d refusing.</strong> A refusal is a complete outcome; nothing is "
+        "generated to fill a slot.</p>"
+        "<table><tr><th>property</th><th>state</th><th>reason</th></tr>%s</table>"
+        "<h3>k at every stage</h3><table><tr><th>stage</th><th>k</th></tr>%s</table>"
+        "%s%s%s"
+        "<h3>Preconditions</h3><p><small>Authority: %s %s, verified %s. Publishable: %s.</small></p>"
+        "<table><tr><th>precondition</th><th>verdict</th><th>reason</th><th>authority</th></tr>"
+        "%s</table>"
+        "<p><small>%s</small></p></div>"
+        % (e_(str(stamp.get("page_standard_version"))), e_(str(stamp.get("built_utc"))),
+           e_(str(stamp.get("built_by"))), e_(str(stamp.get("standard_document"))),
+           len(stamp.get("held") or []), len(stamp.get("refusing") or []),
+           "".join(rows), casc_rows, prov_html, ro_html, pc_html,
+           e_(str(auth.get("handbook", ""))), e_(str(auth.get("version", ""))),
+           e_(str(auth.get("verified_on", ""))), e_(str(pv.get("publishable"))),
+           pre_rows, e_(str(stamp.get("_ratchet", "")))))
+
+
 def build(canon):
     e_ = html.escape
 
@@ -739,6 +843,16 @@ def build(canon):
         "paper": _paper_panel(canon),
     }
     body, tab_css = pj.tabbed_body(canon, parts, page)
+    # THE STANDARD BLOCK MUST REACH SERVED BYTES, NOT JUST THE OBJECT.
+    #
+    # bempedoic-acid-review was built to page standard 1.0.0-2026-08-19 and the object
+    # carried all ten properties. A served-bytes check then found FOUR of them absent from
+    # the page: the k cascade, the criteria provenance, the precondition verdicts and the
+    # build stamp itself. The build exited 0 and the object was right; the page was not.
+    #
+    # That is the whole reason P10 is verified in bytes rather than by an exit code. A
+    # property a reader cannot see is not a property the page has.
+    body += _standard_block(canon, e_)
     body = _caption_tables(body)
     return """<!doctype html>
 <html lang="en">
