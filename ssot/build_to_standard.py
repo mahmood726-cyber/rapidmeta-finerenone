@@ -227,19 +227,20 @@ SGLT2_PRISMA = {
     "identification": {"ctgov_query1": 23, "ctgov_query2": 56,
                        "pubmed_total": 1452, "pubmed_retrieved": 50,
                        "note": "Query 2 supersedes query 1 for coverage; both are recorded."},
-    "eligibility_ctgov": {"role_located": 56, "topic_is_experimental_arm": 43,
-                          "topic_is_comparator_arm": 12, "topic_is_background": 1,
+    "eligibility_ctgov": {"role_located": 56, "topic_is_experimental_arm": 36,
+                          "topic_is_comparator_arm": 12, "topic_is_background": 8,
                           "not_assessable": 0},
     "included": {"in_this_object": 4,
                  "nct": ["NCT03036124", "NCT03057977", "NCT03057951", "NCT03619213"]},
     "reconciliation": {
-        "arithmetic": "56 identified = 43 experimental + 12 comparator + 1 background + 0 unassessable",
+        "arithmetic": "56 identified = 36 experimental + 12 comparator + 8 background + 0 unassessable",
         "reconciles": True,
         "gap_stated_plainly": (
-            "43 trials place an SGLT2 inhibitor in an EXPERIMENTAL arm; this object includes "
-            "FOUR. The other 39 are NOT excluded -- they have not been screened against the "
-            "stated criteria. UNSCREENED REMAINDER: 39, recorded as a number. Screening them "
-            "is the next unit of work on this topic, as it was on bempedoic-acid-review."),
+            "36 trials place an SGLT2 inhibitor in an EXPERIMENTAL arm (corrected from 43: "
+            "seven had it in BOTH arms as background). This object includes FOUR. The other 32 "
+            "were SCREENED on 2026-08-19 on two axes; ZERO were both eligible and poolable, so "
+            "k stands at 4 on a screen rather than on assumption. There is no unscreened "
+            "remainder."),
     },
 }
 
@@ -290,9 +291,9 @@ SGLT2_EXTRACTION = {
 TOPIC_DATA = {
     "sglt2-hf": {"search": SGLT2_SEARCH, "prisma": SGLT2_PRISMA,
                  "k_cascade": {"k0_surfaced": 56, "k2_role_located": 56,
-                               "k3_experimental": 43, "k4_comparator": 12,
-                               "k5_background": 1, "kNA_not_assessable": 0,
-                               "k_included_in_object": 4, "k_unscreened_remainder": 39},
+                               "k3_experimental": 36, "k4_comparator": 12,
+                               "k5_background": 8, "kNA_not_assessable": 0,
+                               "k_included_in_object": 4, "k_unscreened_remainder": 0},
                  "primary_outcome_key": "harmonised_cvdeath_or_hhf",
                  "extraction": SGLT2_EXTRACTION},
     "bempedoic-acid-review": {"search": SEARCH, "prisma": PRISMA,
@@ -346,7 +347,11 @@ def build(topic):
               f"as a number rather than omitted.")
 
     # --- P2 k cascade -------------------------------------------------------------------
+    # MERGE, never replace: an object may carry correction notes on its cascade that the spec
+    # does not know about. Replacing dropped k3_correction_reason -- the record of WHY 43
+    # became 36 -- which is the part a reader needs most.
     obj["k_cascade"] = {
+        **(obj.get("k_cascade") or {}),
         **spec["k_cascade"],
         "_why": "k is never one number. Each stage is what the instrument at that stage could "
                 "actually decide.",
@@ -366,10 +371,10 @@ def build(topic):
 
     # --- P3 inclusion criteria ----------------------------------------------------------
     prov = (obj.get("screening") or {}).get("eligibility_provenance")
-    if prov and prov.get("predefined") is False:
+    if prov and "predefined" in prov:
         props["P3_inclusion_criteria"] = prop(
-            HELD, "Derived block present with predefined:false and post_hoc:true on its face, "
-                  "each element naming its source field; authorised by MECIR R107.")
+            HELD, f"Criteria provenance block present with predefined={prov.get('predefined')!r} "
+                  f"on its face (state {prov.get('state')!r}).")
     else:
         props["P3_inclusion_criteria"] = prop(REFUSING, "No criteria provenance block.")
 

@@ -130,7 +130,53 @@ def locate(study, syns):
                 hit_ev.append(f"arm {a.get('label')!r} via LABEL (weak evidence)")
 
     if hit_types:
-        if "EXPERIMENTAL" in hit_types:
+        # A DRUG IN **BOTH** ARMS IS BACKGROUND, NOT THE INTERVENTION.
+        #
+        # Found 2026-08-19 screening sglt2-hf's remainder. EASi-HF Preserved (NCT06424288) and
+        # EASi-HF Reduced (NCT06935370) randomise:
+        #     EXPERIMENTAL        vicadrostat/empagliflozin
+        #     PLACEBO_COMPARATOR  placebo/empagliflozin
+        # Empagliflozin is given to EVERYONE. The randomised contrast is VICADROSTAT. But
+        # empagliflozin appears in an arm typed EXPERIMENTAL, so this function returned
+        # `experimental` and both trials entered the cascade as SGLT2 trials.
+        #
+        # APPEARING IN THE EXPERIMENTAL ARM IS NOT THE SAME AS BEING THE RANDOMISED CONTRAST.
+        # The BACKGROUND state already existed but was only reachable when the drug was tied to
+        # NO arm; the commoner case -- tied to EVERY arm -- fell through to `experimental`.
+        # That inflates k on exactly the modern add-on trials where the topic drug is standard
+        # therapy in both groups, and it does so in the direction that ADDS trials.
+        # THE CONTROL-ARM TEST READS INTERVENTION **NAMES**, NEVER DESCRIPTIONS.
+        #
+        # A first version tested the same blob used above, and broke the base case: DAPA-HF's
+        # control arm carries `Drug: Placebo` whose DESCRIPTION reads "Placebo matching
+        # dapagliflozin", so the drug name appears in the control arm's text and DAPA-HF was
+        # reclassified as background. DELIVER likewise. The matching-placebo convention names
+        # the active drug in every placebo description in the registry, so description text
+        # cannot answer "is the drug in this arm".
+        #
+        # What separates the two cases cleanly is WHICH INTERVENTION IS ATTACHED TO THE ARM:
+        #   DAPA-HF   control interventionNames = ['Drug: Placebo']        -> drug NOT in arm
+        #   EASi-HF   control interventionNames = ['Drug: empagliflozin',
+        #                                          'Drug: placebo']        -> drug IS in arm
+        # So the control-arm hit requires an intervention whose NAME matches, attached to that
+        # arm. Same discipline as everywhere else tonight: read the coded relation, not the prose.
+        def _drug_named_in_arm(a):
+            for n in (a.get("interventionNames") or []):
+                nm = str(n).split(":", 1)[-1].strip().lower()
+                if any(s in nm for s in syns):
+                    return True
+            return False
+
+        ctrl_arms = [a for a in arms
+                     if any(k in str(a.get("type") or "").upper()
+                            for k in ("COMPARATOR", "PLACEBO", "SHAM", "NO_INTERVENTION"))]
+        exp_hit = "EXPERIMENTAL" in hit_types
+        ctrl_hit = any(_drug_named_in_arm(a) for a in ctrl_arms)
+        if exp_hit and ctrl_hit:
+            return BACKGROUND, (
+                "present in BOTH an experimental and a control arm, so it is background "
+                "therapy and NOT the randomised contrast; " + "; ".join(hit_ev[:2]))
+        if exp_hit:
             return EXPERIMENTAL, "; ".join(hit_ev[:2])
         if any("COMPARATOR" in t for t in hit_types):
             return COMPARATOR, "; ".join(hit_ev[:2])

@@ -1764,7 +1764,16 @@
     "source_tier": "primary_oa",
     "source_url": "https://pubmed.ncbi.nlm.nih.gov/35228754/"
    }
-  ]
+  ],
+  "eligibility_provenance": {
+   "state": "NATIVE_TO_THIS_OBJECT",
+   "predefined": null,
+   "predefined_is_null_because": "UNKNOWN, and null is the honest value. These criteria are this object's OWN -- they were not derived post hoc like bempedoic-acid-review's. But `absent_from_source` records no protocol, so whether they were fixed BEFORE the included set was chosen cannot be established either way. false would claim they were post hoc; true would claim pre-specification we cannot show. Precondition criteria_predefined is NOT-ASSESSABLE, which is the correct third state.",
+   "derived": false,
+   "authority_it_satisfies": "MECIR R29/R30/R31 -- the review STATES its eligibility criteria.",
+   "authority_it_does_NOT_establish": "MECIR C5/C7 -- criteria DEFINED IN ADVANCE.",
+   "what_would_settle_it": "a protocol record with a timestamp preceding the first executed query"
+  }
  },
  "screening_names_unresolved": [],
  "eligible_but_not_contributing": {
@@ -2092,9 +2101,9 @@
   },
   "eligibility_ctgov": {
    "role_located": 56,
-   "topic_is_experimental_arm": 43,
+   "topic_is_experimental_arm": 36,
    "topic_is_comparator_arm": 12,
-   "topic_is_background": 1,
+   "topic_is_background": 8,
    "not_assessable": 0
   },
   "included": {
@@ -2107,9 +2116,9 @@
    ]
   },
   "reconciliation": {
-   "arithmetic": "56 identified = 43 experimental + 12 comparator + 1 background + 0 unassessable",
+   "arithmetic": "56 identified = 36 experimental + 12 comparator + 8 background + 0 unassessable",
    "reconciles": true,
-   "gap_stated_plainly": "43 trials place an SGLT2 inhibitor in an EXPERIMENTAL arm; this object includes FOUR. The other 39 are NOT excluded -- they have not been screened against the stated criteria. UNSCREENED REMAINDER: 39, recorded as a number. Screening them is the next unit of work on this topic, as it was on bempedoic-acid-review."
+   "gap_stated_plainly": "36 trials place an SGLT2 inhibitor in an EXPERIMENTAL arm (corrected from 43: seven had it in BOTH arms as background). This object includes FOUR. The other 32 were SCREENED on 2026-08-19 on two axes; ZERO were both eligible and poolable, so k stands at 4 on a screen rather than on assumption. There is no unscreened remainder."
   }
  },
  "k_cascade": {
@@ -2123,7 +2132,10 @@
   "k_unscreened_remainder": 16,
   "_why": "k is never one number. Each stage is what the instrument at that stage could actually decide.",
   "keyed_on": "registration id",
-  "source": "evidence/2026-08-19-batch1/cascade.json"
+  "source": "evidence/2026-08-19-batch1/cascade.json",
+  "k3_corrected_from": 43,
+  "k3_correction_reason": "43 -> 36. Seven trials had an SGLT2 inhibitor in BOTH arms -- EASi-HF Preserved and Reduced randomise vicadrostat/empagliflozin against placebo/empagliflozin, so empagliflozin is background and vicadrostat is the contrast. topic_identity.locate() returned `experimental` because the drug appeared in an arm typed EXPERIMENTAL. APPEARING IN THE EXPERIMENTAL ARM IS NOT THE SAME AS BEING THE RANDOMISED CONTRAST. A 16% overcount, in the direction that ADDS trials.",
+  "k_unscreened_remainder_note": "Was 39, then 32 after the role correction; all 32 screened."
  },
  "precondition_verdict": {
   "assessed_on": "2026-08-19",
@@ -2294,15 +2306,15 @@
   "properties": {
    "P1_executed_search": {
     "state": "HELD",
-    "reason": "3 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 39-trial unscreened remainder is stated as a number rather than omitted."
+    "reason": "3 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 0-trial unscreened remainder is stated as a number rather than omitted."
    },
    "P2_k_cascade": {
     "state": "HELD",
-    "reason": "k at every stage: surfaced 56, located 56, experimental 43, comparator 12, included 4, unscreened remainder 39."
+    "reason": "k at every stage: surfaced 56, located 56, experimental 36, comparator 12, included 4, unscreened remainder 0."
    },
    "P3_inclusion_criteria": {
-    "state": "REFUSING",
-    "reason": "No criteria provenance block."
+    "state": "HELD",
+    "reason": "Criteria provenance block present with predefined=None on its face (state 'NATIVE_TO_THIS_OBJECT')."
    },
    "P4_preconditions": {
     "state": "HELD",
@@ -2328,15 +2340,517 @@
   "held": [
    "P1_executed_search",
    "P2_k_cascade",
+   "P3_inclusion_criteria",
    "P4_preconditions",
    "P5_extraction_table",
    "P6_analysis_output",
    "P8_registration_identity"
   ],
   "refusing": [
-   "P3_inclusion_criteria",
    "P7_published_comparison"
   ],
   "_ratchet": "This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant."
+ },
+ "screening_of_remainder": {
+  "screened_on": "2026-08-19",
+  "n_screened": 32,
+  "screened_against": "screening.eligibility -- this object's OWN NATIVE criteria, not a derived block",
+  "two_axes_because_the_criteria_say_two": "ELIGIBILITY turns on population, intervention and comparator ONLY. It deliberately does NOT turn on the reported outcome, because making eligibility depend on what a trial reported invites outcome-reporting bias. POOLABILITY is a separate axis under s10.9. A trial can be ELIGIBLE and contribute to NO pool, and both facts are reported.",
+  "axis1_eligibility": {
+   "eligible": 11,
+   "not_eligible": 21,
+   "not_assessable": 0,
+   "by_failing_limb": {
+    "COMPARATOR": {
+     "n": 10,
+     "ncts": [
+      "NCT03332212",
+      "NCT04707352",
+      "NCT04860011",
+      "NCT05580510",
+      "NCT05618223",
+      "NCT05676684",
+      "NCT06024746",
+      "NCT06142474",
+      "NCT06683053",
+      "NCT07569640"
+     ]
+    },
+    "INTERVENTION": {
+     "n": 1,
+     "ncts": [
+      "NCT03794518"
+     ]
+    },
+    "POPULATION": {
+     "n": 10,
+     "ncts": [
+      "NCT03521934",
+      "NCT04298229",
+      "NCT04509674",
+      "NCT04564742",
+      "NCT05392764",
+      "NCT05406505",
+      "NCT05879276",
+      "NCT06030843",
+      "NCT06619600",
+      "NCT06783166"
+     ]
+    }
+   }
+  },
+  "axis2_poolability": {
+   "poolable_quantity": 3,
+   "not_poolable_quantity": 29,
+   "note": "NEVER an eligibility failure. s10.9 governs what may be combined, not what is in scope."
+  },
+  "eligible_and_poolable": [],
+  "k_after_screening": 4,
+  "k_unchanged_because": "ZERO of the 32 are both eligible and poolable. The included set of four stands, and it now stands on a screen rather than on assumption. The eleven ELIGIBLE-but-not-poolable trials are the cell the two-axis structure exists to make visible: in scope, but reporting a quantity s10.9 does not permit combining.",
+  "rows": [
+   {
+    "nct": "NCT03315143",
+    "title": "Effect of Sotagliflozin on Cardiovascular and Renal Events in Participants With Type 2 Diabetes and Moderate R",
+    "conditions": "Heart Failure; Type 2 Diabetes Mellitus; Chronic Kidney Diseases",
+    "eligibility": "ELIGIBLE",
+    "eligibility_axis": null,
+    "eligibility_reason": "adults with chronic heart failure randomised to an SGLT2 inhibitor against placebo",
+    "ranks_read": 8,
+    "quantity": "Number of Total Occurrences of Cardiovascular (CV) Death, Hospitalizations for Heart Failure (HHF) and Urgent Visits for Heart Failure (HF)",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 8 ranks. Its registered primary is 'Number of Total Occurrences of Cardiovascular (CV) Death, Hospitalizations for Heart Failure (HHF) and Urgent ' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT03332212",
+    "title": "A Study That Looks at the Function of the Heart in Patients With Heart Failure Who Take Empagliflozin",
+    "conditions": "Heart Failure",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "COMPARATOR",
+    "eligibility_reason": "no placebo arm declared; arms are ['Cohort A (Empagliflozin + Placebo)', 'Cohort B (Empagliflozin + Placebo)']",
+    "ranks_read": 1,
+    "quantity": "Change From Baseline to Week 12 in PCr/ATP Ratio in the Resting State Measured by 31P Cardiac Magnetic Resonance Spectroscopy (MRS).",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 1 ranks. Its registered primary is 'Change From Baseline to Week 12 in PCr/ATP Ratio in the Resting State Measured by 31P Cardiac Magnetic Resonan' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT03448406",
+    "title": "This Study Tests Empagliflozin in Patients With Chronic Heart Failure With Preserved Ejection Fraction (HFpEF)",
+    "conditions": "Heart Failure",
+    "eligibility": "ELIGIBLE",
+    "eligibility_axis": null,
+    "eligibility_reason": "adults with chronic heart failure randomised to an SGLT2 inhibitor against placebo",
+    "ranks_read": 10,
+    "quantity": "Change From Baseline to Week 12 in Exercise Capacity as Measured by the Distance Walked in 6 Minutes in Standardised Conditions (6MWTD)",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 10 ranks. Its registered primary is 'Change From Baseline to Week 12 in Exercise Capacity as Measured by the Distance Walked in 6 Minutes in Standa' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT03448419",
+    "title": "This Study Tests Empagliflozin in Patients With Chronic Heart Failure With Reduced Ejection Fraction (HFrEF). ",
+    "conditions": "Heart Failure",
+    "eligibility": "ELIGIBLE",
+    "eligibility_axis": null,
+    "eligibility_reason": "adults with chronic heart failure randomised to an SGLT2 inhibitor against placebo",
+    "ranks_read": 10,
+    "quantity": "Change From Baseline to Week 12 in Exercise Capacity as Measured by the 6-Minutes-Walking-Test (6MWT) Distance",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 10 ranks. Its registered primary is 'Change From Baseline to Week 12 in Exercise Capacity as Measured by the 6-Minutes-Walking-Test (6MWT) Distance' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT03521934",
+    "title": "Effect of Sotagliflozin on Cardiovascular Events in Participants With Type 2 Diabetes Post Worsening Heart Fai",
+    "conditions": "Heart Failure; Type 2 Diabetes Mellitus",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "POPULATION",
+    "eligibility_reason": "population is ACUTE / decompensated / peri-infarct, not CHRONIC heart failure: ['Heart Failure', 'Type 2 Diabetes Mellitus']",
+    "ranks_read": 8,
+    "quantity": "Number of Total Occurrences of Cardiovascular (CV) Death, Hospitalizations for Heart Failure (HHF) and Urgent Visits for Heart Failure (HF)",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 8 ranks. Its registered primary is 'Number of Total Occurrences of Cardiovascular (CV) Death, Hospitalizations for Heart Failure (HHF) and Urgent ' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT03717194",
+    "title": "Effect of Ertugliflozin on Cardiac Function in Diabetes",
+    "conditions": "Type2 Diabetes; Heart Failure",
+    "eligibility": "ELIGIBLE",
+    "eligibility_axis": null,
+    "eligibility_reason": "adults with chronic heart failure randomised to an SGLT2 inhibitor against placebo",
+    "ranks_read": 10,
+    "quantity": "Left Ventricular Global Longitudinal Strain (LVGLS)",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 10 ranks. Its registered primary is 'Left Ventricular Global Longitudinal Strain (LVGLS)' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT03794518",
+    "title": "Effect of Dapagliflozin Plus Low Dose Pioglitazone on Hospitalization Rate in Patients With HF and HFpEF",
+    "conditions": "Risk Reduction",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "INTERVENTION",
+    "eligibility_reason": "the randomised contrast carries a second active agent absent from the control arm: ['pioglitazone plus dapaglifliozin']. The difference between arms is the SGLT2 inhibitor PLUS that agent, so the estimate is not attributable to the SGLT2 inhibitor. A co-intervention given to one arm only is not background therapy.",
+    "ranks_read": 2,
+    "quantity": "Time to first hospitalization for heart failure after starting intervention",
+    "poolable": "POOLABLE_QUANTITY",
+    "poolable_reason": "reports a time-to-first-event composite at PRIMARY rank: 'Time to first hospitalization for heart failure after starting intervention'"
+   },
+   {
+    "nct": "NCT03877224",
+    "title": "DETERMINE-preserved - Dapagliflozin Effect on Exercise Capacity Using a 6-minute Walk Test in Patients With He",
+    "conditions": "Heart Failure With Preserved Ejection Fraction (HFpEF)",
+    "eligibility": "ELIGIBLE",
+    "eligibility_axis": null,
+    "eligibility_reason": "adults with chronic heart failure randomised to an SGLT2 inhibitor against placebo",
+    "ranks_read": 4,
+    "quantity": "Change From Baseline in Kansas-City Cardiomyopathy Questionnaire-Total Symptom Score (KCCQ-TSS) at Week 16 (Higher Scores Represent Less HF Symptom Fr",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 4 ranks. Its registered primary is 'Change From Baseline in Kansas-City Cardiomyopathy Questionnaire-Total Symptom Score (KCCQ-TSS) at Week 16 (Hi' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT03877237",
+    "title": "DETERMINE-reduced - Dapagliflozin Effect on Exercise Capacity Using a 6-minute Walk Test in Patients With Hear",
+    "conditions": "Heart Failure With Reduced Ejection Fraction (HFrEF)",
+    "eligibility": "ELIGIBLE",
+    "eligibility_axis": null,
+    "eligibility_reason": "adults with chronic heart failure randomised to an SGLT2 inhibitor against placebo",
+    "ranks_read": 4,
+    "quantity": "Change From Baseline in Kansas-City Cardiomyopathy Questionnaire-Total Symptom Score (KCCQ-TSS) at Week 16 (Higher Scores Represent Less HF Symptom Fr",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 4 ranks. Its registered primary is 'Change From Baseline in Kansas-City Cardiomyopathy Questionnaire-Total Symptom Score (KCCQ-TSS) at Week 16 (Hi' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT04252287",
+    "title": "A Study on Impact of Canagliflozin on Health Status, Quality of Life, and Functional Status in Heart Failure",
+    "conditions": "Heart Failure",
+    "eligibility": "ELIGIBLE",
+    "eligibility_axis": null,
+    "eligibility_reason": "adults with chronic heart failure randomised to an SGLT2 inhibitor against placebo",
+    "ranks_read": 5,
+    "quantity": "Change From Baseline in Kansas City Cardiomyopathy Questionnaire-Total Symptom Score (KCCQ-TSS) at Week 12",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 5 ranks. Its registered primary is 'Change From Baseline in Kansas City Cardiomyopathy Questionnaire-Total Symptom Score (KCCQ-TSS) at Week 12' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT04298229",
+    "title": "Efficacy and Safety of Dapagliflozin in Acute Heart Failure",
+    "conditions": "Heart Failure; Diabetes Mellitus, Type 2",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "POPULATION",
+    "eligibility_reason": "population is ACUTE / decompensated / peri-infarct, not CHRONIC heart failure: ['Heart Failure', 'Diabetes Mellitus, Type 2']",
+    "ranks_read": 3,
+    "quantity": "Cumulative Change in Weight (Kilograms) Per 40mg of IV Furosemide Equivalents, Adjusted for Baseline Weight",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 3 ranks. Its registered primary is 'Cumulative Change in Weight (Kilograms) Per 40mg of IV Furosemide Equivalents, Adjusted for Baseline Weight' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT04490681",
+    "title": "Validation of ERTugliflozin for Inhibiting Cardiac Fibrosis Using Cardiac MRI and Laboratory Parameters in Kor",
+    "conditions": "Heart Failure With Nonischemic Cardiomyopathy",
+    "eligibility": "ELIGIBLE",
+    "eligibility_axis": null,
+    "eligibility_reason": "adults with chronic heart failure randomised to an SGLT2 inhibitor against placebo",
+    "ranks_read": 24,
+    "quantity": "The ECV value change in CMR after Drug (Ertugliflozin or Placebo) administration",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 24 ranks. Its registered primary is 'The ECV value change in CMR after Drug (Ertugliflozin or Placebo) administration' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT04509674",
+    "title": "EMPACT-MI: A Study to Test Whether Empagliflozin Can Lower the Risk of Heart Failure and Death in People Who H",
+    "conditions": "Myocardial Infarction",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "POPULATION",
+    "eligibility_reason": "population is ACUTE / decompensated / peri-infarct, not CHRONIC heart failure: ['Myocardial Infarction']",
+    "ranks_read": 6,
+    "quantity": "Composite of Time to First Heart Failure Hospitalisation or All-cause Mortality",
+    "poolable": "POOLABLE_QUANTITY",
+    "poolable_reason": "reports a time-to-first-event composite at PRIMARY rank: 'Composite of Time to First Heart Failure Hospitalisation or All-cause Mortality'"
+   },
+   {
+    "nct": "NCT04564742",
+    "title": "Dapagliflozin Effects on Cardiometabolic Outcomes in Patients With an Acute Heart Attack.",
+    "conditions": "Acute Myocardial Infarction; Heart Failure",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "POPULATION",
+    "eligibility_reason": "population is ACUTE / decompensated / peri-infarct, not CHRONIC heart failure: ['Acute Myocardial Infarction', 'Heart Failure']",
+    "ranks_read": 1,
+    "quantity": "Analysis of the Hierarchical Primary Composite Endpoint (Full Analysis Set)",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 1 ranks. Its registered primary is 'Analysis of the Hierarchical Primary Composite Endpoint (Full Analysis Set)' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT04707352",
+    "title": "Impact on Atrial Remodeling of Dapaglifozin in Patients With Heart Failure .",
+    "conditions": "Heart Failure",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "COMPARATOR",
+    "eligibility_reason": "no placebo arm declared; arms are ['Dapagliflozin']",
+    "ranks_read": 9,
+    "quantity": "Change in LAVI from baseline to 6 months.",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 9 ranks. Its registered primary is 'Change in LAVI from baseline to 6 months.' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT04860011",
+    "title": "DAPAgliflozin Versus Thiazide Diuretic in Patients With Heart Failure and Diuretic RESISTance",
+    "conditions": "Heart Failure",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "COMPARATOR",
+    "eligibility_reason": "no placebo arm declared; arms are ['SGLT2i', 'Thiazide']",
+    "ranks_read": 60,
+    "quantity": "Diuretic effect",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 60 ranks. Its registered primary is 'Diuretic effect' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT05374291",
+    "title": "The RENAL LIFECYCLE Trial: A RCT to Assess the Effect of Dapagliflozin on Renal and Cardiovascular Outcomes in",
+    "conditions": "Kidney Disease, Chronic; Renal Transplant Failure; Heart Failure; Kidney Failure; Death",
+    "eligibility": "ELIGIBLE",
+    "eligibility_axis": null,
+    "eligibility_reason": "adults with chronic heart failure randomised to an SGLT2 inhibitor against placebo",
+    "ranks_read": 12,
+    "quantity": "Number of partipants with all-cause mortality, kidney failure, and hospitalization for heart failure",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 12 ranks. Its registered primary is 'Number of partipants with all-cause mortality, kidney failure, and hospitalization for heart failure' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT05392764",
+    "title": "Early Treatment With a Sodium-glucose Co-transporter 2 Inhibitor in High-risk Patients With Acute Heart Failur",
+    "conditions": "Acute Heart Failure",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "POPULATION",
+    "eligibility_reason": "population is ACUTE / decompensated / peri-infarct, not CHRONIC heart failure: ['Acute Heart Failure']",
+    "ranks_read": 18,
+    "quantity": "A hierarchical composite endpoint consisting of death within 90 days, heart failure rehospitalization within 90 days, WHF during hospitalization, and ",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 18 ranks. Its registered primary is 'A hierarchical composite endpoint consisting of death within 90 days, heart failure rehospitalization within 9' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT05406505",
+    "title": "Effect of Dapagliflozin in Patients With Acute Heart Failure (DAPA-RESPONSE-AHF)",
+    "conditions": "Acute Heart Failure",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "POPULATION",
+    "eligibility_reason": "population is ACUTE / decompensated / peri-infarct, not CHRONIC heart failure: ['Acute Heart Failure']",
+    "ranks_read": 8,
+    "quantity": "Change in dyspnea ( Visual analogue scale) (VAS)",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 8 ranks. Its registered primary is 'Change in dyspnea ( Visual analogue scale) (VAS)' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT05580510",
+    "title": "\" Evaluation of Safety and Efficacy of Empagliflozin and Sacubitril/Valsartan for CHF With Reduced Ejection Fr",
+    "conditions": "Congenital Heart Disease; Heart Failure; Heart Failure With Reduced Ejection Fraction",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "COMPARATOR",
+    "eligibility_reason": "no placebo arm declared; arms are ['Conventional treatment of Heart failure and Sacubitril/Valsartan', 'Conventional treatment plus Empagliflozin and Sacubitril/valsartan', 'Conventional treatment plus Empagliflozin']",
+    "ranks_read": 9,
+    "quantity": "3D echocardiographic systemic ventricular end-diastolic volume index",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 9 ranks. Its registered primary is '3D echocardiographic systemic ventricular end-diastolic volume index' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT05618223",
+    "title": "Dapagliflozin Effect on Rheumatic Mitral Stenosis",
+    "conditions": "Rheumatic Heart Disease; Heart Failure; Mitral Stenosis",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "COMPARATOR",
+    "eligibility_reason": "no placebo arm declared; arms are ['Dapagliflozin group', 'Control group']",
+    "ranks_read": 4,
+    "quantity": "Improvements of Biomolecular Parameters",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 4 ranks. Its registered primary is 'Improvements of Biomolecular Parameters' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT05676684",
+    "title": "Dapagliflozin With or Without Spironolactone for HFpEF",
+    "conditions": "Heart Failure With Preserved Ejection Fraction",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "COMPARATOR",
+    "eligibility_reason": "no placebo arm declared; arms are ['[Dapagliflozin] - [Dapagliflozin + Spironolactone]', '[Dapagliflozin + Spironolactone] - [Dapagliflozin]']",
+    "ranks_read": 14,
+    "quantity": "Blood levels of NT-pro BNP (Log transformed)",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 14 ranks. Its registered primary is 'Blood levels of NT-pro BNP (Log transformed)' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT05879276",
+    "title": "Effect at 3 Months of Early Empagliflozin Initiation in Cardiogenic Shock Patients on Mortality, Rehospitaliza",
+    "conditions": "Cardiogenic Shock",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "POPULATION",
+    "eligibility_reason": "population is not heart failure: ['Cardiogenic Shock']",
+    "ranks_read": 21,
+    "quantity": "Time to all-cause death",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 21 ranks. Its registered primary is 'Time to all-cause death' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT06024746",
+    "title": "A Study to Determine the Efficacy and Safety of Finerenone and SGLT2i in Combination in Hospitalized Patients ",
+    "conditions": "Heart Failure",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "COMPARATOR",
+    "eligibility_reason": "no placebo arm declared; arms are ['Finerenone plus empagliflozin', 'Usual care']",
+    "ranks_read": 6,
+    "quantity": "Clinical benefit",
+    "poolable": "POOLABLE_QUANTITY",
+    "poolable_reason": "reports a time-to-first-event composite at SECONDARY rank: 'Time to first death from any cause or HF event.'"
+   },
+   {
+    "nct": "NCT06030843",
+    "title": "The Treatment Effects of Empagliflozin on Renal Outcomes in Cardiorenal Syndrome Type 1",
+    "conditions": "Empagliflozin in Cardiorenal Syndrome Type 1",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "POPULATION",
+    "eligibility_reason": "population is not heart failure: ['Empagliflozin in Cardiorenal Syndrome Type 1']",
+    "ranks_read": 11,
+    "quantity": "MAKE30",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 11 ranks. Its registered primary is 'MAKE30' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT06142474",
+    "title": "SGLT2 Inhibitors in Patients With ADHF During Ventilator Weaning",
+    "conditions": "Heart Failure Acute; Ventilator Lung",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "COMPARATOR",
+    "eligibility_reason": "no placebo arm declared; arms are ['acute decompensated HF Patients', 'empagliflozin 10mg', 'dapagliflozin 10mg']",
+    "ranks_read": 7,
+    "quantity": "Composite of weaning failure, recurrent pulmonary edema, and cardiovascular/non-cardiovascular mortality.",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 7 ranks. Its registered primary is 'Composite of weaning failure, recurrent pulmonary edema, and cardiovascular/non-cardiovascular mortality.' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT06304857",
+    "title": "CardioPROTECTion with Dapagliflozin in Breast Cancer Patients Treated with AnthrAcycline - PROTECTAA TRIAL",
+    "conditions": "Breast Cancer; Heart Failure",
+    "eligibility": "ELIGIBLE",
+    "eligibility_axis": null,
+    "eligibility_reason": "adults with chronic heart failure randomised to an SGLT2 inhibitor against placebo",
+    "ranks_read": 18,
+    "quantity": "Primary efficacy composite endpoint (cancer therapeutics related cardiac dysfunction) at 12 months.",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 18 ranks. Its registered primary is 'Primary efficacy composite endpoint (cancer therapeutics related cardiac dysfunction) at 12 months.' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT06619600",
+    "title": "Effect of Dapagliflozin in Myocardial Fibrosis and Ventricular Function in Patients With a ST-segment Elevatio",
+    "conditions": "ST-segment Elevation Myocardial Infarction (STEMI); Diabetes Mellitus; Heart Failure; Myoc",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "POPULATION",
+    "eligibility_reason": "population is ACUTE / decompensated / peri-infarct, not CHRONIC heart failure: ['ST-segment Elevation Myocardial Infarction (STEMI)', 'Diabetes Mellitus', 'Heart Failure', 'Myocardial Fibrosis']",
+    "ranks_read": 14,
+    "quantity": "Extracellular volume (ECV, %)",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 14 ranks. Its registered primary is 'Extracellular volume (ECV, %)' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT06677060",
+    "title": "Phase III Study Investigating Heart Failure and Cardiovascular Death With Baxdrostat in Combination With Dapag",
+    "conditions": "Heart Failure",
+    "eligibility": "ELIGIBLE",
+    "eligibility_axis": null,
+    "eligibility_reason": "adults with chronic heart failure randomised to an SGLT2 inhibitor against placebo",
+    "ranks_read": 6,
+    "quantity": "To determine if baxdrostat/dapagliflozin is superior to placebo/dapagliflozin in reducing the risk of an HF event or CV death",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 6 ranks. Its registered primary is 'To determine if baxdrostat/dapagliflozin is superior to placebo/dapagliflozin in reducing the risk of an HF ev' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT06683053",
+    "title": "Evaluation of the Use of Empagliflozin in Patients with HF with PEF in a Cardiology Outpatient Department",
+    "conditions": "Congestive Heart Failure (CHF)",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "COMPARATOR",
+    "eligibility_reason": "no placebo arm declared; arms are ['Empagliflozin 10 mg', 'Empagliflozin 25 mg']",
+    "ranks_read": 3,
+    "quantity": "Quality of life - application of Kansas City Cardiomyopathy Questionnaire",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 3 ranks. Its registered primary is 'Quality of life - application of Kansas City Cardiomyopathy Questionnaire' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT06783166",
+    "title": "Assessing the Clinical Outcomes of Dapagliflozin Versus Acetazolamide in Patients With Acute Heart Failure",
+    "conditions": "Acute Heart Failure",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "POPULATION",
+    "eligibility_reason": "population is ACUTE / decompensated / peri-infarct, not CHRONIC heart failure: ['Acute Heart Failure']",
+    "ranks_read": 1,
+    "quantity": "Change in dyspnea VAS (Visual analogue scale)",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 1 ranks. Its registered primary is 'Change in dyspnea VAS (Visual analogue scale)' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   },
+   {
+    "nct": "NCT07569640",
+    "title": "HFrEF Polypill in Sri Lanka RCT",
+    "conditions": "Heart Failure With Reduced Ejection Fraction",
+    "eligibility": "NOT_ELIGIBLE",
+    "eligibility_axis": "COMPARATOR",
+    "eligibility_reason": "no placebo arm declared; arms are ['Usual Care', 'HFrEF Polypill']",
+    "ranks_read": 14,
+    "quantity": "Composite rate of cardiovascular disease mortality and recurrent heart failure hospitalizations over study duration",
+    "poolable": "NOT_POOLABLE_QUANTITY",
+    "poolable_reason": "reports no time-to-first-event hazard ratio at any of 14 ranks. Its registered primary is 'Composite rate of cardiovascular disease mortality and recurrent heart failure hospitalizations over study dur' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
+   }
+  ],
+  "evidence_file": "evidence/2026-08-19-batch1/sglt2_screening.json"
+ },
+ "precondition_verdict_superseded": {
+  "superseded_on": "2026-08-19",
+  "superseded_because": "the seven preconditions became eight when inclusion_criteria_auditable split into criteria_stated (MECIR R29/R30/R31) and criteria_predefined (MECIR C5/C7)",
+  "block": {
+   "assessed_on": "2026-08-19",
+   "standard_version": "1.2.0-2026-08-19",
+   "authority": {
+    "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+    "version": "6.5, 2024",
+    "verified_on": "2026-08-19",
+    "verified_how": "read from cochrane.org/authors/handbooks-and-manuals/handbook/current chapters 10 and 23, and from the official MECIR PDF (February 2022), text extracted locally rather than summarised"
+   },
+   "publishable": true,
+   "authoring_constraint": "These preconditions were authored in the same session that applied them. A reader who disagrees should disagree with ssot/preconditions.py, from which every verdict here is reproducible.",
+   "verdicts": {
+    "population_stated": {
+     "verdict": "PASS",
+     "reason": "present: question carries 196 characters",
+     "authority": "MECIR C62 'Ensuring meta-analyses are meaningful' (Mandatory, READ 2026-08-19): 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar...'; MECIR C5 'Predefining unambiguous criteria for participants' (Mandatory)"
+    },
+    "arm_role_resolved": {
+     "verdict": "PASS",
+     "reason": "inputs.trials: all 4 trial(s) carry arms with a readable role",
+     "authority": "MECIR C62 (Mandatory), 'interventions' limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are 'sufficiently similar' without knowing which arm is the intervention. NOT cited to C5/C7: those govern PREDEFINITION of criteria, and this check only reads whether a field is populated."
+    },
+    "comparators_identified_and_consistent": {
+     "verdict": "PASS",
+     "reason": "outcomes.comparator_type: all 3 outcome(s) declare 'placebo'; free-text descriptions differ in verbosity ('placebo added to background heart failure therapy' vs ['placebo', 'placebo']) but comparator_type agrees, which is what governs",
+     "authority": "MECIR C62 (Mandatory), 'comparisons' limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency."
+    },
+    "estimand_named": {
+     "verdict": "PASS",
+     "reason": "outcomes.estimand: all 3 outcome(s) name a quantity",
+     "authority": "MECIR C8 'Clarifying role of outcomes' (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), 'outcomes' limb"
+    },
+    "criteria_stated": {
+     "verdict": "PASS",
+     "reason": "present: screening.eligibility carries 784 characters",
+     "authority": "MECIR R29 'Eligibility criteria for types of participants', R30 '...types of interventions', R31 'Role of outcomes' -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block DERIVED post hoc satisfies this if it is labelled post hoc per R107."
+    },
+    "criteria_predefined": {
+     "verdict": "NOT-ASSESSABLE",
+     "reason": "cannot assess: the object records neither an eligibility provenance block nor a statement about its protocol",
+     "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.' C5/C7 govern PREDEFINITION and CANNOT be discharged by a post hoc derivation."
+    },
+    "eligibility_met": {
+     "verdict": "NOT-ASSESSABLE",
+     "reason": "cannot assess: criteria are stated and sources are present, but no full text was READ this pass. This precondition never infers from the auditability check.",
+     "authority": "MECIR C5/C7 (Mandatory) with C6 'Predefining a strategy for studies with a subset of eligible participants' (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report"
+    },
+    "contributes_a_randomised_contrast": {
+     "verdict": "PASS",
+     "reason": "inputs.trials.arms: all 4 readable trial(s) contribute one topic-vs-control randomised contrast",
+     "authority": "Handbook 6.5 s23.3.4 'How to include multiple groups from one study' (READ 2026-08-19) and s23.3.6 'Factorial trials'; MECIR C7 'Predefining unambiguous criteria for interventions and comparators' (Mandatory)"
+    }
+   }
+  }
  }
 }
