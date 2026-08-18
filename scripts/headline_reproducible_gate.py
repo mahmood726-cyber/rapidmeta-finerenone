@@ -1,0 +1,355 @@
+"""HEADLINE REPRODUCIBLE -- did the published number come from this page's own evidence?
+
+WHY THIS EXISTS
+    Three topics in one session showed the identical shape: no combination of
+    estimator, interval method or trial subset reproduces the published headline.
+
+      PCSK9            card HR 0.85 (0.79-0.92); the object's own pool is
+                       OR 0.8440. The card's number appears nowhere in the object.
+      DOAC_CANCER_VTE  card HR 0.55 (0.30-1.00) k=4; object OR 0.7290 k=3. Ten
+                       candidate pools of the page's own four published hazard
+                       ratios gave 0.60, 0.58, 0.64, 0.49, 0.54, 0.75 -- none 0.55.
+      COLCHICINE_CVD   card HR 0.75 (0.61-0.91) k=2. Thirty-three candidate pools
+                       across three estimators and every subset of two, three and
+                       four trials. None gives it.
+
+    A fourth, DOAC_AF, reproduced perfectly -- as Ruff 2014's published RR, which
+    the page carries as its COMPARATOR. The number was real and belonged to
+    somebody else.
+
+    THE QUESTION THIS ASKS IS MORE GENERAL THAN ANY ENDPOINT MISMATCH: does the
+    displayed pooled estimate follow from the per-trial numbers the object itself
+    records? If no combination reproduces it, the headline came from somewhere the
+    object does not record -- and that is checkable on every page with a pooled
+    value, not only the ones somebody happened to open.
+
+WHAT IT TRIES
+    Between-study variance:  fixed-effect, DerSimonian-Laird, Paule-Mandel, REML
+    Subsets:                 the full set, then every subset of size >= 2 when k
+                             is small enough to enumerate, else leave-one-out
+    Scale:                   log for ratio measures, natural for differences
+
+WHAT THIS DOES NOT ESTABLISH -- written in advance
+    - NOT that a reproduced headline is CORRECT. It shows the arithmetic follows
+      from the recorded inputs; the inputs can still be the wrong trials, the wrong
+      arms, or the wrong endpoint. Every withdrawal this session was of a page
+      whose arithmetic was internally fine.
+    - NOT that an unreproduced headline is WRONG. A legitimate weighting this does
+      not implement -- Mantel-Haenszel, Peto, a Bayesian posterior, an
+      IPD reanalysis -- would also fail to reproduce. The verdict is therefore
+      NOT_REPRODUCED, a flag for a human, and never FABRICATED.
+    - NOTHING where per-trial intervals are missing. That is UNCHECKABLE and is
+      never counted as clean, per the rule in scripts/gate_integrity.py.
+    - NOTHING about a withdrawn pool: there is no headline left to reproduce, so
+      the outcome is skipped rather than passed.
+
+USAGE
+    python scripts/headline_reproducible_gate.py <object.json> [...]
+    python scripts/headline_reproducible_gate.py --selftest
+    python scripts/headline_reproducible_gate.py --corpus <glob>
+"""
+from __future__ import annotations
+import glob
+import io
+import itertools
+import json
+import math
+import os
+import sys
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+Z = 1.959963984540054
+RATIO = {"OR", "RR", "HR", "IRR", "RATE_RATIO"}
+# Tolerance on the point estimate, relative. Deliberately generous: the published
+# value is often rounded to 2-4 significant figures, and a tight tolerance would
+# report rounding as fabrication -- the manufactured-finding direction.
+TOL = 0.005
+# Intervals are printed to fewer figures and are more sensitive to the method, so
+# their tolerance is looser than the point's. Still far tighter than the gap that
+# separated COLCHICINE's published 0.61-0.91 from the 0.6512-0.8652 its own
+# fixed-effect subset gives.
+CI_TOL = 0.02
+MAX_ENUMERATE = 8
+# t critical values for HKSJ, by k-1 degrees of freedom
+_T = {1: 12.706205, 2: 4.302653, 3: 3.182446, 4: 2.776445, 5: 2.570582,
+      6: 2.446912, 7: 2.364624, 8: 2.306004, 9: 2.262157, 10: 2.228139}
+
+
+def _tau2(y, v, how):
+    k = len(y)
+    wf = [1.0 / x for x in v]
+    mf = sum(a * b for a, b in zip(wf, y)) / sum(wf)
+    Q = sum(w * (yi - mf) ** 2 for w, yi in zip(wf, y))
+    C = sum(wf) - sum(w * w for w in wf) / sum(wf)
+    dl = max(0.0, (Q - (k - 1)) / C) if C > 0 else 0.0
+    if how == "FE":
+        return 0.0
+    if how == "DL":
+        return dl
+    if how == "PM":
+        t = 0.0
+        for _ in range(500):
+            w = [1.0 / (x + t) for x in v]
+            m = sum(a * b for a, b in zip(w, y)) / sum(w)
+            F = sum(wi * (yi - m) ** 2 for wi, yi in zip(w, y)) - (k - 1)
+            if abs(F) < 1e-11:
+                break
+            d = sum(wi * wi * (yi - m) ** 2 for wi, yi in zip(w, y))
+            if d <= 0:
+                break
+            t = max(0.0, t + F / d)
+        return t
+    t = dl if dl > 0 else 0.01
+    for _ in range(500):
+        w = [1.0 / (x + t) for x in v]
+        sw = sum(w)
+        m = sum(a * b for a, b in zip(w, y)) / sw
+        num = sum(wi ** 2 * ((yi - m) ** 2 - vi) for wi, yi, vi in zip(w, y, v))
+        den = sum(wi ** 2 for wi in w)
+        n = max(0.0, num / den + 1.0 / sw) if den else 0.0
+        if abs(n - t) < 1e-13:
+            t = n
+            break
+        t = n
+    return t
+
+
+def _pool(y, v, how):
+    t2 = _tau2(y, v, how)
+    w = [1.0 / (x + t2) for x in v]
+    m = sum(a * b for a, b in zip(w, y)) / sum(w)
+    return m
+
+
+def _rows(res):
+    out = []
+    for r in res.get("per_trial") or []:
+        p, lo, hi = r.get("point"), r.get("ci_low"), r.get("ci_high")
+        if not all(isinstance(x, (int, float)) for x in (p, lo, hi)):
+            continue
+        out.append((r.get("trial_id") or r.get("nct") or "?", float(p), float(lo), float(hi)))
+    return out
+
+
+def assess_outcome(res, measure):
+    pooled = res.get("pooled") or {}
+    if pooled.get("withdrawn") or pooled.get("point") is None:
+        return "SKIPPED", "no live pooled value on this outcome", None
+    target = float(pooled["point"])
+    rows = _rows(res)
+    if len(rows) < 2:
+        return ("UNCHECKABLE",
+                "fewer than two per-trial rows carry a point and an interval -- "
+                "nothing to reproduce from. Not a pass", None)
+    log = (measure or "").upper() in RATIO
+    idx = list(range(len(rows)))
+    ys, vs = [], []
+    for _, p, lo, hi in rows:
+        if log:
+            if min(p, lo, hi) <= 0:
+                return "UNCHECKABLE", "a ratio row is non-positive; scale unclear", None
+            ys.append(math.log(p))
+            vs.append(((math.log(hi) - math.log(lo)) / (2 * Z)) ** 2)
+        else:
+            ys.append(p)
+            vs.append(((hi - lo) / (2 * Z)) ** 2)
+    if any(v <= 0 for v in vs):
+        return "UNCHECKABLE", "a per-trial interval has zero width", None
+
+    if len(idx) <= MAX_ENUMERATE:
+        subsets = [c for r in range(2, len(idx) + 1) for c in itertools.combinations(idx, r)]
+    else:
+        subsets = [tuple(idx)] + [tuple(x for x in idx if x != d) for d in idx]
+    # A HEADLINE IS A POINT **AND** AN INTERVAL, and the two can come apart.
+    # The first cut of this gate matched the point alone and reported COLCHICINE_CVD
+    # as REPRODUCED: fixed-effect over LoDoCo2 and CONVINCE gives 0.7506 against a
+    # published 0.75. That is a real match on the point -- and its interval is
+    # 0.6512 to 0.8652 against a published 0.61 to 0.91, which is not close.
+    #
+    # So POINT_ONLY is its own verdict rather than a pass. It says something
+    # specific and useful: the estimator and subset ARE identifiable, and the
+    # published interval does not follow from them -- an interval computed by a
+    # different method from the point it is printed beside.
+    tgt_lo, tgt_hi = pooled.get("ci_low"), pooled.get("ci_high")
+    have_ci = isinstance(tgt_lo, (int, float)) and isinstance(tgt_hi, (int, float))
+    tried = 0
+    best = None
+    point_hit = None
+    for how in ("FE", "DL", "PM", "REML"):
+        for sub in subsets:
+            for interval in ("Wald", "HKSJ"):
+                tried += 1
+                yy = [ys[i] for i in sub]
+                vv = [vs[i] for i in sub]
+                t2 = _tau2(yy, vv, how)
+                w = [1.0 / (x + t2) for x in vv]
+                m = sum(a * b for a, b in zip(w, yy)) / sum(w)
+                if interval == "Wald":
+                    se = math.sqrt(1.0 / sum(w))
+                    crit = Z
+                else:
+                    if len(sub) < 2:
+                        continue
+                    num = sum(wi * (yi - m) ** 2 for wi, yi in zip(w, yy))
+                    se = math.sqrt(num / ((len(sub) - 1) * sum(w)))
+                    crit = _T.get(len(sub) - 1, Z)
+                lo_m, hi_m = m - crit * se, m + crit * se
+                val = math.exp(m) if log else m
+                vlo = math.exp(lo_m) if log else lo_m
+                vhi = math.exp(hi_m) if log else hi_m
+                rel = abs(val - target) / abs(target) if target else abs(val - target)
+                if best is None or rel < best[0]:
+                    best = (rel, how, sub, val, interval)
+                if rel <= TOL:
+                    if point_hit is None:
+                        point_hit = (how, sub, val, vlo, vhi, interval)
+                    if not have_ci:
+                        return ("REPRODUCED",
+                                "%s over %d of %d trial(s) gives %.4f against the "
+                                "published %.4f; the object records no interval to "
+                                "check (%d combinations tried)"
+                                % (how, len(sub), len(rows), val, target, tried), tried)
+                    if (abs(vlo - tgt_lo) / max(abs(tgt_lo), 1e-9) <= CI_TOL
+                            and abs(vhi - tgt_hi) / max(abs(tgt_hi), 1e-9) <= CI_TOL):
+                        return ("REPRODUCED",
+                                "%s + %s over %d of %d trial(s) gives %.4f (%.4f to "
+                                "%.4f) against the published %.4f (%.4f to %.4f); "
+                                "%d combinations tried"
+                                % (how, interval, len(sub), len(rows), val, vlo, vhi,
+                                   target, tgt_lo, tgt_hi, tried), tried)
+    if point_hit:
+        how, sub, val, vlo, vhi, interval = point_hit
+        return ("POINT_ONLY",
+                "THE POINT REPRODUCES AND THE INTERVAL DOES NOT. %s over %d of %d "
+                "trial(s) gives %.4f against the published %.4f, but its interval is "
+                "%.4f to %.4f against a published %.4f to %.4f. The published "
+                "interval does not follow from the same computation as the point it "
+                "is printed beside. %d combinations tried"
+                % (how, len(sub), len(rows), val, target, vlo, vhi,
+                   tgt_lo, tgt_hi, tried), tried)
+    rel, how, sub, val, interval = best
+    return ("NOT_REPRODUCED",
+            "NO combination of fixed-effect, DerSimonian-Laird, Paule-Mandel or REML, "
+            "with Wald or HKSJ intervals, over any subset of the %d recorded trials "
+            "reproduces the published %.4f. %d combinations tried; closest is %s over "
+            "%d trial(s) at %.4f, off by %.1f%%"
+            % (len(rows), target, tried, how, len(sub), val, 100 * rel), tried)
+
+
+def check(obj):
+    results = ((obj.get("results") or {}).get("by_outcome")) or {}
+    outcomes = {o.get("id"): o for o in (obj.get("outcomes") or [])}
+    if not results:
+        return "UNCHECKABLE", ["object carries no pooled outcome"]
+    notes, worst = [], "SKIPPED"
+    order = {"SKIPPED": 0, "REPRODUCED": 1, "POINT_ONLY": 2, "UNCHECKABLE": 3,
+             "NOT_REPRODUCED": 4}
+    for oid, res in results.items():
+        measure = ((outcomes.get(oid) or {}).get("measure")
+                   or (res.get("pooled") or {}).get("measure") or "")
+        v, why, _ = assess_outcome(res, measure)
+        notes.append("  %-26s %-15s %s" % (str(oid)[:26], v, why[:150]))
+        if order[v] > order[worst]:
+            worst = v
+    return worst, notes
+
+
+def selftest() -> int:
+    ok = True
+
+    def obj(measure, per, pooled):
+        return {"outcomes": [{"id": "o", "measure": measure}],
+                "results": {"by_outcome": {"o": {
+                    "per_trial": [{"trial_id": "t%d" % i, "point": p,
+                                   "ci_low": lo, "ci_high": hi}
+                                  for i, (p, lo, hi) in enumerate(per)],
+                    "pooled": pooled}}}}
+
+    # INCLISIRAN, which really does reproduce: DL over all three gives -54.0014.
+    INCL = [(-49.52, -55.045, -43.995), (-57.64, -60.855, -54.425),
+            (-53.50, -56.66, -50.34)]
+    # COLCHICINE's four published hazard ratios and the card that fits none.
+    COLCH = [(.77, .61, .96), (.69, .57, .83), (.99, .85, 1.16), (.84, .68, 1.05)]
+    cases = [
+        ("REPRODUCED: inclisiran, DL over all three gives the published value",
+         obj("MD", INCL, {"measure": "MD", "point": -54.0014}), "REPRODUCED"),
+        ("POINT_ONLY: colchicine's 0.75 point reproduces, its interval does not",
+         obj("HR", COLCH, {"measure": "HR", "point": 0.75, "ci_low": 0.61,
+                           "ci_high": 0.91}), "POINT_ONLY"),
+        ("NOT_REPRODUCED: a point no subset or estimator reaches",
+         obj("HR", COLCH, {"measure": "HR", "point": 0.42, "ci_low": 0.30,
+                           "ci_high": 0.55}), "NOT_REPRODUCED"),
+        ("REPRODUCED: a point that IS a subset pool, with no interval recorded",
+         obj("HR", COLCH, {"measure": "HR", "point": 0.7217}), "REPRODUCED"),
+        ("SKIPPED: a withdrawn pool has no headline to reproduce",
+         obj("HR", COLCH, {"measure": "HR", "point": None, "withdrawn": True}), "SKIPPED"),
+        ("UNCHECKABLE: one row and nothing to pool",
+         obj("HR", COLCH[:1], {"measure": "HR", "point": 0.77}), "UNCHECKABLE"),
+    ]
+    for label, o, want in cases:
+        v, notes = check(o)
+        good = v == want
+        ok &= good
+        print("  %-62s -> %-16s (want %-16s) %s"
+              % (label[:62], v, want, "correct" if good else "WRONG"))
+        if not good:
+            for n in notes:
+                print("        " + n.strip()[:160])
+    print("\nWHAT A FAILURE WOULD LOOK LIKE: the colchicine case reporting REPRODUCED. Its "
+          "published 0.75 (0.61-0.91) was checked by hand against 33 candidate pools and "
+          "fits none of them.")
+    print("AND THE OPPOSITE FAILURE MATTERS AS MUCH: inclisiran reporting NOT_REPRODUCED "
+          "would flag a page whose arithmetic is exactly right, which is the direction "
+          "that manufactures findings.")
+    print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
+    return 0 if ok else 1
+
+
+def main() -> int:
+    if len(sys.argv) < 2 or sys.argv[1] == "--selftest":
+        return selftest()
+    if sys.argv[1] == "--corpus":
+        paths = sorted(glob.glob(sys.argv[2]))
+    else:
+        paths = sys.argv[1:]
+    tally = {}
+    hits = []
+    for p in paths:
+        try:
+            obj = json.load(open(p, encoding="utf-8"))
+        except Exception:
+            continue
+        try:
+            v, notes = check(obj)
+        except Exception as ex:
+            v, notes = "UNCHECKABLE", ["  raised %s" % type(ex).__name__]
+        tally[v] = tally.get(v, 0) + 1
+        if v in ("NOT_REPRODUCED", "POINT_ONLY"):
+            hits.append((os.path.basename(p), notes))
+        if len(paths) <= 40:
+            print(os.path.basename(p))
+            for n in notes:
+                print(n)
+            print("  -> %s" % v)
+    if len(paths) > 40:
+        print("objects: %d" % len(paths))
+        for k in ("REPRODUCED", "POINT_ONLY", "NOT_REPRODUCED", "UNCHECKABLE",
+                  "SKIPPED"):
+            print("  %-16s %d" % (k, tally.get(k, 0)))
+        d = tally.get("REPRODUCED", 0) + tally.get("NOT_REPRODUCED", 0)
+        if d:
+            print("  reproduced among the %d objects where the question could be asked: "
+                  "%.1f%%" % (d, 100.0 * tally.get("REPRODUCED", 0) / d))
+        print("  UNCHECKABLE and SKIPPED are NOT passes and are not in that denominator.")
+        for name, notes in hits[:30]:
+            print("\n  NOT_REPRODUCED %s" % name)
+            for n in notes:
+                if "NOT_REPRODUCED" in n or "POINT_ONLY" in n:
+                    print("   " + n.strip()[:200])
+    return 1 if tally.get("NOT_REPRODUCED") else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

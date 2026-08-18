@@ -24,6 +24,47 @@ THE MECHANISM THIS DETECTS, WHICH IS OUR MOST RECURRENT ONE
          pass. The fix is an expected-section manifest projected from the object,
          so absence FAILS instead of falling outside the comparison.
 
+    THE COMPANION RULE, AND THE ONE THIS PROJECT HAS HAD TO RE-LEARN FOUR TIMES:
+
+        A VERDICT THAT MEANS "I COULD NOT CHECK" IS NEVER A PASS.
+        NOT_APPLICABLE IS NEVER A PASS.
+        UNCHECKABLE IS NEVER A PASS.
+        UNMEASURED IS NEVER A PASS.
+        AND NONE OF THEM MAY BE COUNTED INTO A CLEAN DENOMINATOR.
+
+    This is stated HERE, once, because it has been restated locally in four gates
+    and four copies of one rule drift apart. Each of the four earned it against a
+    real artefact:
+
+      card_alignment_gate      an audit-first card is UNCHECKABLE by construction.
+                               Folding those into the pass count reported "0.0%
+                               drift" over 1.2% of the corpus -- a reassuring
+                               headline computed over the sliver that could be
+                               read, with the enormous unmeasured remainder
+                               presented as if it were not there.
+      declared_contrast_gate   a two-arm registration returns NOT_APPLICABLE. Only
+                               one contrast is possible, so the trial can neither
+                               exhibit the defect nor clear itself of it. Counting
+                               those as passes would let a corpus of two-arm trials
+                               report 100% clean while establishing nothing.
+      arm_identity_gate        arm labels that identify nothing ('1' vs '2') are
+                               UNCHECKABLE. The gate that returned PASS on finding
+                               nothing to inspect is how eleven properties were
+                               once claimed where four were established.
+      estimand_definition_gate a definition containing an unrecognised event term
+                               is UNCHECKABLE and OUTRANKS both PASS and WITHDRAWN,
+                               because a partial reading that reports agreement is
+                               the CKD false agreement.
+
+    THE TEST FOR WHETHER A VERDICT IS BEING MISCOUNTED: ask what the check would
+    report over a corpus in which it can see NOTHING AT ALL. If the answer is
+    anything other than "nothing was established", the not-a-pass verdicts are
+    leaking into the pass count.
+
+    AND A PROPORTION MUST CARRY ITS COMPARABLE FRACTION INLINE OR REFUSE TO
+    RENDER. "0.0% drift" and "0.0% drift over 6 of 514 cards" are different
+    claims, and only the second one is true.
+
     The shape is identical in all five: the SUCCESS PATH IS REACHABLE AND THE
     FAILURE PATH IS NOT. A green result is therefore evidence of nothing, and
     nobody investigates a green result -- which is why these survive.

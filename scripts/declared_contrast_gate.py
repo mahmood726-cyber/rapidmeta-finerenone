@@ -27,6 +27,9 @@ THE RULE
     this object extracted must be one the registration actually declares.
 
 WHAT THIS DOES NOT ESTABLISH -- written in advance
+    THE GENERAL RULE THIS FOLLOWS is stated once in
+    scripts/gate_integrity.py: a verdict meaning "I could not check" is never
+    a pass, and never enters a clean denominator.
     - NOTHING AT ALL on a two-arm registration. With two arms there is only one
       possible contrast, so the check is NOT APPLICABLE rather than passed. It
       must never be counted as a pass: a corpus of two-arm trials would otherwise
