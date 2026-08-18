@@ -1067,3 +1067,38 @@ insertions, no document, which is what caught it.
 **And the narrower lesson underneath:** a `&&` chain that ends in `git commit` will commit
 whatever state exists when the earlier step fails in a way the shell does not treat as
 fatal. Generating content and recording it should not share a command.
+
+
+---
+
+## The guard existed, and I wrote past it
+
+Found 2026-08-18, twenty minutes after the guard was committed.
+
+`scripts/rebuild_guard.py` was written *the previous day*, for exactly this: a rebuild
+that writes a small object over a large one and destroys the material that makes the page
+checkable. Its selftest carries the failing input. It works.
+
+**Then a batch closer wrote a 203-line verdict object over `prevnar15-pneumo.json`'s
+2,422 lines**, destroying the 25 registry-read endpoint-definition rows and the four
+`poolable_reason` blocks written *earlier the same day* — and the guard did not fire,
+**because the script called `io.open(...).write()` directly instead of `guard_write()`.**
+
+> **A guard that must be remembered is not a guard.** It is a note with a selftest.
+
+The bococizumab instance was caught by reading a diff stat. This one was caught the same
+way — `git show --stat` showing 2,434 deletions on a commit that should only have added —
+which means the *detection* is reliable and the *prevention* is not. **The detection is
+a habit; the prevention is a function call, and only one of them is enforceable.**
+
+**What would actually close it:** the guard cannot be opt-in. Either every object write in
+this repository goes through one helper, or a pre-commit check refuses a commit whose
+staged diff net-deletes from `ssot/*.json` without an explicit marker. **Neither exists
+yet, and until one does this will recur** — it has now happened twice in two days, both
+times to an object holding a day's registry reading.
+
+**Fixed forward rather than reverted**, because the verdict was correct and only the write
+was wrong: the prior object was restored from `HEAD~1` and the verdict MERGED into it as
+its own block, so the page now carries both of its independent defects — the four
+injection-site outcomes that are classes inside one registered composite, and the eight
+registrations that declare no clinical endpoint at any rank.
