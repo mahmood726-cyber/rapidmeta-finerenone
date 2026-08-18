@@ -60,19 +60,39 @@ jobs:
 
       # Pages caps a published site at 1 GB, and here that is a build FAILURE, not a
       # warning -- it is what commit f7cb32bdd was fixing. After that slim-down and the
-      # corpus merge the tracked tree is still 1.026 GB. These three directories are
-      # repository working material that no served file references (checked by grep for
-      # href/src/fetch AND for the bare directory name across every root .html and .js),
-      # and dropping them takes ~192 MB off the artifact.
+      # corpus merge the tracked tree is still ~1.05 GB, so something must be pruned.
       #
-      # This prunes the RUNNER'S DISPOSABLE CHECKOUT. Nothing is untracked, nothing is
-      # deleted from the repository, and the build lane's ssot/ files are untouched in
-      # git -- they simply are not published.
+      # WHAT CHANGED 2026-08-18, AND WHY ssot/ IS NO LONGER PRUNED WHOLESALE.
+      # The old rule dropped all of ssot/ on the ground that "no served file references
+      # it", checked by grepping every root .html and .js for href/src/fetch and for the
+      # bare directory name. That check was correct and it was answering the wrong
+      # question. EVERY REVIEW PAGE IN THIS CORPUS TELLS ITS READER, in prose, that its
+      # numbers are "projected from a single canonical object" -- and that object was
+      # returning 404. The claim is not a hyperlink, so a link grep could never see it.
+      # The central transparency claim of the project was unverifiable by the reader it
+      # was written for, and had been for weeks.
+      #
+      # THE COST IS 5.3 MB, NOT 90. Measured from the tracked tree at origin/main:
+      # ssot/ is 90.5 MB across 365 files, but 85.2 MB of that is ssot/*/sources/ --
+      # raw registry and publication captures, which are working material and which no
+      # page promises. The canonical objects themselves are 3.0 MB across 49 files;
+      # keeping everything except sources/ is 125 files and 5.26 MB.
+      #
+      #   prune retired + removed + all of ssot   856.5 MB   (the old rule)
+      #   prune retired + removed + ssot sources  861.8 MB   (this rule, 138 MB headroom)
+      #   prune retired + removed only            947.0 MB   (53 MB headroom -- too thin)
+      #   prune nothing                          1052.3 MB   (OVER CAP, build fails)
+      #
+      # This prunes the RUNNER'S DISPOSABLE CHECKOUT. Nothing is untracked and nothing is
+      # deleted from the repository; the pruned paths simply are not published.
       #
       # outputs/ and e156-submission/ are NOT pruned: 916 served pages fetch paths under
       # outputs/, and index.html links three files in e156-submission/.
       - name: Prune non-served directories from the artifact
-        run: rm -rf retired removed ssot
+        run: |
+          rm -rf retired removed
+          find ssot -mindepth 2 -maxdepth 2 -type d -name sources -exec rm -rf {} +
+          echo "ssot/ retained: $(find ssot -type f | wc -l) files, $(du -sh ssot | cut -f1)"
 
       - name: Preflight (site shape + payload)
         run: python scripts/pages_preflight.py --root .
