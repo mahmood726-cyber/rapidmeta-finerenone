@@ -1506,3 +1506,153 @@ discipline this ledger has been accumulating.** A day of work survived because a
 unrelated probe happened to import the module and Python happened to cache the bytecode.
 **That is luck, not a backup.** The rule it earns is already written — *commit after each
 completed batch, not at session end* — and this is what the alternative costs.
+
+---
+
+## An instrument that cannot START must not read as a negative result (2026-08-18)
+
+`codex exec` was invoked from the agent harness with the prompt passed as an argument
+and **stdin left open on a non-TTY**. Codex printed one line —
+
+> `Reading additional input from stdin...`
+
+— and blocked forever waiting for an EOF that was never coming. It burned the full
+600-second timeout and returned **no output at all**.
+
+**What that presents as is Codex failing.** A delegation that times out with an empty
+result reads as *slow*, *quota-dead*, or *the task was too hard*. The correct reading is
+that **Codex never started work**. On the night this happened the Claude API was
+returning 529s and the Codex seat was the only route available — concluding "the
+delegation route is down" would have been a false negative on the one instrument still
+working, drawn from an instrument that had not yet taken a reading.
+
+**This is the census-scoring-an-unreadable-page-zero shape, one level down.** There the
+instrument read a page it could not parse and recorded *zero*; here the instrument could
+not start and the absence of output reads as *failure*. Both collapse **NOT-MEASURABLE
+into a negative result**, and both fail toward a confident wrong answer rather than an
+admission.
+
+**The rule:** before reporting any delegated run as failed, read its output and check
+whether it ever began. If the last line is `Reading additional input from stdin...`, the
+run never started — that is NOT-MEASURABLE, not failure. Invoke with stdin closed
+(`< /dev/null`) so the state cannot arise.
+
+**And the general form:** *an instrument's inability to start must be distinguishable, in
+its output, from a negative reading.* A tool whose "never ran" and whose "found nothing"
+are the same bytes is not reporting — it is guessing, and the guess is always the
+comfortable one.
+
+---
+
+## What the delegated classification actually cost (2026-08-18)
+
+The three-tab classification of `sglt2-hf` — enumerate the corpus, read the canonical
+object, trace the projectors, classify each tab three ways — was run entirely on the
+Codex seat.
+
+| side | spend | what it did |
+|---|---|---|
+| **Codex** | **158,443 tokens** (self-reported at exit) | all repo reading, all grep/trace work, the whole classification |
+| **Claude** | **~13 orchestration turns, zero corpus reads** | wrote the prompt, launched the run, polled it, relayed the result |
+
+Exact Claude token accounting is not available from inside the session; the honest figure
+is the call count and the fact that **no corpus file was read on the Claude side at all**.
+
+**This is the number that settles model allocation for tomorrow, when the Claude
+allowance halves.** The expensive part of this work is *reading the repo*, and reading
+the repo is exactly the part that can be moved to a seat whose quota is not the binding
+constraint. Claude's irreducible share is the part that cannot be delegated: deciding
+what question to ask, noticing which step of the answer was asserted rather than proven,
+and refusing to act on the assertion.
+
+**The caveat that keeps this honest:** a delegated run is only as good as the step you
+audit. Codex's first report classified all three tabs NOTHING-TO-RENDER, and one row
+rested on an **asserted routing claim** — that `sensitivity.analyses` belongs to Analysis
+Suite rather than Statistics — which, if wrong, flips that verdict to RENDER-FIXABLE.
+Cheap tokens do not buy a proven chain. **An asserted routing claim is the same species
+as a check that asserts a PROOF: it marks where the reasoning stopped, not where it
+concluded.**
+
+---
+
+## One flagship and 134 objects built to a narrower shape (2026-08-18)
+
+Three tabs on `sglt2-hf` — Search, Paper Studio, Statistics — render a refusal reading
+"Not held in this object". The question asked was which of them the projector was failing
+to render. Swept across the whole corpus, per tab, the answer is not about projectors at
+all:
+
+| Tab | RENDER-FIXABLE | NOTHING-TO-RENDER |
+|---|---:|---:|
+| Search | 0 | 134 |
+| Paper Studio | 0 | 134 |
+| Statistics | 0 | 134 |
+| **Total** | **0** | **402** |
+
+135 canonical objects, 405 tab cells, **zero render defects**. Three further cells sit
+**outside the taxonomy** and are named below.
+
+**`arni-hfref` is the only object of 135 that holds any of these three blocks.** It holds
+all three, and all three render correctly today — `search` through
+`projectors2.search_strings_card`, `manuscript_docmodel.json` through
+`build_tabbed._paper_panel`/`wysiwyg.render`, and `panels`/`count_panels`/
+`analysis_panels` through `statistics_tables`/`count_tables`/`panels_card`.
+
+**That reframes the question.** This is not 134 broken pages. It is **one flagship and a
+corpus built to a different specification**, and the 134 refusals are those objects
+correctly declining to show content they were never built to hold. A refusal that is
+accurate is not a defect, and "fixing" it would mean generating content to fill a tab —
+the precise failure the refusal exists to prevent.
+
+The one load-bearing step was proven rather than asserted:
+`results.by_outcome.*.sensitivity.analyses` **does** exist in `sglt2-hf`
+(`sglt2-hf.json:1338-1403`) and does **not** reach Statistics. Chain:
+`projectors2.py:476-483` reads it inside `visual_abstract()` →
+`build_tabbed.py:673-677` assigns it to `d["figures"]` → `projectors.py:33-35` binds
+`figures` to the `analysis` tab → `projectors.py:38-39` shows Statistics accepts only
+`stats`, `counttabs`, `crossengine`, `panels` → `projectors.py:1407-1412` appends only
+declared slots. **An asserted routing claim is the same species as a check that asserts a
+PROOF: it marks where the reasoning stopped, not where it concluded.**
+
+---
+
+## The rule enforced downward, violated by the instruction issued (2026-08-18)
+
+The sweep above was specified with three buckets and only three: RENDER-FIXABLE,
+NOTHING-TO-RENDER, NOT-MEASURABLE. The instruction was emphatic on one point —
+**NOT-MEASURABLE is a distinct state from zero, do not collapse it into either.**
+
+**The scheme had no bucket for a tab that holds content and renders it correctly.** So
+`arni-hfref`'s three working cells had nowhere to go, and landed in NOT-MEASURABLE —
+giving that column **two incompatible meanings at once**: "the instrument could not read
+this" and "this works fine". The result was reported as 3 NOT-MEASURABLE when the true
+reading is **0 / 402 / 0, with three cells outside the taxonomy**.
+
+**This defect is the task author's, not the executor's**, and that is the whole reason it
+is worth recording. The same instruction that insisted downward on keeping
+NOT-MEASURABLE distinct from zero **specified a taxonomy that forced a fourth state into
+NOT-MEASURABLE**. The rule was violated by the act of issuing it.
+
+**This is the class-3 pattern at its most awkward angle.** Everywhere else in this ledger
+the collapse happens in an instrument: a census scores an unreadable page zero, a gate
+reports PASS on a check that never emitted, a delegated run that never started reads as
+failure. Here it happened **one level up, in the specification**, where it is far harder
+to see — an instrument can be tested against a known-bad input, but a taxonomy is only
+tested by a case it did not anticipate. **A classification scheme that omits the ordinary
+healthy state will silently route healthy cases into its anomaly bucket, and the count
+that comes back will look like a finding.**
+
+**The rule this earns:** before issuing a classification scheme, ask what the *working*
+case is called. If the scheme has no name for "fine", every fine case becomes evidence of
+something.
+
+### The executor behaved correctly, and that is the control
+
+Codex **refused to file those three cells as NOTHING-TO-RENDER**. It put them in the
+distinct bucket, said in the report that the requested taxonomy has no "already renders"
+state, and named all three explicitly with the routing that makes them fine.
+
+**That is the behaviour we want: an executor that reports the taxonomy does not fit rather
+than choosing the nearest wrong box.** The nearest wrong box was available, cheap, and
+would have produced a clean-looking 0 / 405 / 0 that nobody would have questioned. Every
+collapse recorded in this ledger is what happens when that choice goes the other way.
