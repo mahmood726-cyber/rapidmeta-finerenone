@@ -363,7 +363,56 @@ exists because the defect it hunts is invisible to every internal check.
 
 ---
 
+## 15. 818 silently dropped trials across 360 pages
+
+`silent_exclusion_screen.py`. Measured, not estimated: 1450 pages scanned, **583
+had no readable include list** (UNREAD, never counted as clean), 507 complete,
+**360 with at least one included trial contributing nothing.**
+
+**The bias question came back clean and the scale question did not.** Of 604
+dropped trials with a usable ratio: 352 favour the intervention, 29 null-ish, 223
+favour the control, geometric mean 1.109. No sign of null trials being lost while
+favourable ones are kept. But 818 trials are named and omitted, including MORDOR-I
+(190,000), AVENIR (90,000), TIDES (20,067), ROCKET AF (14,171), SCORED (10,584).
+
+**Owed:**
+
+1. **Say it on the page.** Every dropped trial should appear under the card added
+   for DOAC_AF and DOAC_CANCER_VTE — "Named on this review, contributing nothing
+   to its pool" — with its reason. That card exists and is projected; it is
+   populated by hand on three topics and by nothing anywhere else.
+2. **The 583 UNREAD pages are not clean.** They use a different generation with no
+   `AUTO_INCLUDE_TRIAL_IDS`. Until a reader exists for them, the 818 is a floor.
+3. **91 dropped trials carry a non-ratio value in a field named `publishedHR`** —
+   mean differences in a hazard-ratio slot. Surfaced as a math domain error. A
+   field whose NAME asserts a measure its CONTENTS contradict is the
+   `no_rob_banner` defect in a new place.
+
+---
+
+## 16. Multi-arm registrations that declare no comparison — a gap in the REGISTRY, not in us
+
+Noted while screening for fabricated contrasts. Nine of the nineteen unclearable
+rows are unclearable because **the registration declares three or more arms and
+records NO between-arm analysis at all.** There is nothing to check the extracted
+contrast against, and that is not a defect in this corpus.
+
+Worth stating as a finding rather than only as a blocker: **a registry entry that
+reports arm-level results and no comparison leaves the reader unable to tell which
+arms the trialists actually contrasted.** Every synthesis downstream must then
+guess, and a guess is exactly what produced the Hua Tuo cross-pairing. It is a
+publishable observation about registration practice in its own right, and this
+project now has the numbers to make it: **26 multi-arm rows, 9 with no declared
+comparison — 35 per cent.**
+
+---
+
 ## Closed
+
+- **2026-08-18 — the escaping class is swept and has a checker.**
+  `double_escape_gate`, 1450 pages: found 7, including the FLAGSHIP, via numeric
+  entities the previous named-entity fix could not see. Root cause was PubMed
+  returning pre-encoded text. 6 remain, all in the DTA programme.
 
 - **2026-08-18 — a fabricated contrast has a detector.** `declared_contrast_gate`,
   replayed against Hua Tuo as extracted (FAIL) and the same trial paired as it was

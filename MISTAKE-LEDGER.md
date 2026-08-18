@@ -309,6 +309,48 @@ this comparison?* — not *are these two numbers real?*, which they always are.
 
 ---
 
+## Silent exclusion — measured, and the answer splits in two
+
+**818 trials are named in a page's own include list and contribute nothing to its
+pool, across 360 pages. Not one of those pages says so.**
+
+Found because COLCHICINE_CVD dropped CLEAR SYNERGY — the largest trial in the
+topic at 7,264 randomised, and the only null one — in silence. DOAC_AF dropped
+ROCKET AF the same way and DOAC_CANCER_VTE dropped ADAM VTE. In every case the
+mechanism was MECHANICAL, not chosen: those trials carry no event COUNTS on the
+page, and a pool derived from 2x2 counts drops whatever has none.
+
+**The fear was publication bias without an author.** A pipeline that drops trials
+for a reason correlated with their RESULT manufactures exactly that, and nobody
+has to intend it. So it was measured rather than argued about.
+
+**THE BIAS QUESTION: the answer is reassuring, and it is stated first because it
+is the one everybody expects to be bad.** Of the 604 dropped trials carrying a
+usable ratio: **352 favour the intervention, 29 are null-ish, 223 favour the
+control**, geometric mean **1.109**. Dropped trials are directionally MIXED and
+skew, if anything, slightly AGAINST the intervention. **There is no sign of the
+specific pattern feared — null and unfavourable trials being lost while
+favourable ones are retained.**
+
+**THE SCALE QUESTION: the answer is not reassuring at all.** 818 dropped trials,
+360 affected pages, and the losses include MORDOR-I at 190,000 participants,
+AVENIR at 90,000, TIDES at 20,067, ROCKET AF at 14,171, SCORED at 10,584. **A
+review that names a trial and then silently omits it is misreporting its own
+evidence base regardless of which way that trial pointed.**
+
+**And a third thing fell out of the measurement.** 91 of the dropped trials carry
+a NON-RATIO value in a field named `publishedHR` — mean differences stored in a
+hazard-ratio slot. It surfaced as a `math domain error` when the geometric mean
+was computed, which is the cheapest possible way to learn it.
+
+**The general form.** When an artefact can omit an input without saying so, the
+question is never only "is the omission biased?" — it is also "how much of the
+declared evidence base is missing?" The first question had a comforting answer
+here and the second did not, and a screen that only asked the first would have
+returned a clean bill of health over 818 missing trials.
+
+---
+
 ## An instrument that fails in the way it was built to detect
 
 Four instances on 2026-08-18, which is the point: this is a **pattern**, not four
