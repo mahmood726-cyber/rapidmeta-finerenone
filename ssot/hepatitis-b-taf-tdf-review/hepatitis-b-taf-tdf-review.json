@@ -358,8 +358,8 @@
       "not recorded on the page this object was extracted from"
      ],
      "estimand": [
-      "NOT ESTABLISHED",
-      "not recorded on the page this object was extracted from"
+      "ESTABLISHED",
+      "Both trials register the identical primary -- percentage of participants with HBV DNA < 29 IU/mL -- and both randomise TAF 25 mg against TDF 300 mg at 2:1. Read from both registrations 2026-08-18."
      ]
     },
     "heterogeneity": {
@@ -388,7 +388,19 @@
       "log_se": 0.4126102039306038,
       "estimand_id": "primary",
       "population": "not recorded on the page this object was extracted from",
-      "derivation": "DERIVED by conversion: the extractor recovered an estimate and a variance on the analysis scale; the point and interval are estimate +/- 1.96*sqrt(variance), back-transformed. No source printed this interval."
+      "derivation": "DERIVED by conversion: the extractor recovered an estimate and a variance on the analysis scale; the point and interval are estimate +/- 1.96*sqrt(variance), back-transformed. No source printed this interval.",
+      "as_posted": {
+       "intervention": "TAF 25 mg",
+       "intervention_pct": 94.0,
+       "intervention_n": 285,
+       "comparator": "TDF 300 mg",
+       "comparator_pct": 92.9,
+       "comparator_n": 140,
+       "outcome": "Percentage of participants with HBV DNA < 29 IU/mL",
+       "read_utc": "2026-08-18",
+       "source": "ClinicalTrials.gov posted results"
+      },
+      "arm_roles_established": "RECOVERED FROM THE REGISTRY 2026-08-18. This row previously carried as_posted: null, so the object recorded NO ARM ROLES and the pool could not be adjudicated from its own record. The registry types TAF 25 mg EXPERIMENTAL and TDF 300 mg ACTIVE_COMPARATOR in both trials, and posts the outcome per arm."
      },
      {
       "trial_id": "NCT01940471",
@@ -402,7 +414,19 @@
       "log_se": 0.15131029717234307,
       "estimand_id": "primary",
       "population": "not recorded on the page this object was extracted from",
-      "derivation": "DERIVED by conversion: the extractor recovered an estimate and a variance on the analysis scale; the point and interval are estimate +/- 1.96*sqrt(variance), back-transformed. No source printed this interval."
+      "derivation": "DERIVED by conversion: the extractor recovered an estimate and a variance on the analysis scale; the point and interval are estimate +/- 1.96*sqrt(variance), back-transformed. No source printed this interval.",
+      "as_posted": {
+       "intervention": "TAF 25 mg",
+       "intervention_pct": 63.9,
+       "intervention_n": 581,
+       "comparator": "TDF 300 mg",
+       "comparator_pct": 66.8,
+       "comparator_n": 292,
+       "outcome": "Percentage of participants with HBV DNA < 29 IU/mL",
+       "read_utc": "2026-08-18",
+       "source": "ClinicalTrials.gov posted results"
+      },
+      "arm_roles_established": "RECOVERED FROM THE REGISTRY 2026-08-18. This row previously carried as_posted: null, so the object recorded NO ARM ROLES and the pool could not be adjudicated from its own record. The registry types TAF 25 mg EXPERIMENTAL and TDF 300 mg ACTIVE_COMPARATOR in both trials, and posts the outcome per arm."
      }
     ],
     "pooled": {
@@ -414,8 +438,9 @@
     },
     "source_page_pooled": true,
     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
-    "estimand_established": false,
-    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass."
+    "estimand_established": true,
+    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+    "arm_role_verdict_2026_08_18": "CLEAN. Both rows are correctly oriented and the disagreement between them is REAL, not an inversion. Recomputed from the posted percentages: NCT01940341 gives (0.940/0.060) / (0.929/0.071) = 1.198 against the recorded 1.2127; NCT01940471 gives (0.639/0.361) / (0.668/0.332) = 0.880 against the recorded 0.8788. BOTH MATCH. The outcome is viral suppression, so an odds ratio above 1 favours TAF -- one trial favours TAF and the other favours TDF, and that is a genuine difference between two different populations rather than a mirrored pair. THE MIRROR FLAG WAS CORRECT TO FIRE AND THE ANSWER IS NO."
    }
   }
  },
