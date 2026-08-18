@@ -148,9 +148,27 @@ def paper_studio(canon, res, p):
     cites = canon.get("citations") or {}
     pol = (canon.get("citation_policy") or {}).get("ratio") or {}
     refs = ""
+    # BIBLIOGRAPHIC TEXT ARRIVES PRE-ENCODED AND MUST BE UNESCAPED BEFORE IT IS
+    # ESCAPED. PubMed returns 'Echeverr&#xed;a', an ideographic space as
+    # '&#x3000;', and non-breaking spaces as '&#xa0;'. p() escapes, so the reader
+    # saw the literal characters '&amp;#xed;' -- seven times on ARNI_HF_REVIEW,
+    # the flagship, in its reference list.
+    #
+    # THIRD ORIGIN OF ONE CLASS, and the first that is not our own doing: the
+    # first was markup we generated and escaped twice, the second an entity used
+    # as a fallback string, this one is text that was already encoded when it
+    # reached us. The previous fix addressed NAMED entities; these are NUMERIC.
+    #
+    # unescape-then-escape is the correct normalisation for any field that MAY be
+    # pre-encoded: a plain value passes through untouched and a pre-encoded one is
+    # repaired. scripts/double_escape_gate.py is the check that makes this stick,
+    # because this class has now recurred three times after being written down.
+    def _pre(v):
+        return html.unescape(v) if isinstance(v, str) else v
+
     for i, (pmid, c) in enumerate(sorted(cites.items()), 1):
-        bits = [p(c.get("authors_vancouver", "")), p(c.get("title", "")),
-                p(c.get("journal", "")), pj.fmt(c.get("year"))]
+        bits = [p(_pre(c.get("authors_vancouver", ""))), p(_pre(c.get("title", ""))),
+                p(_pre(c.get("journal", ""))), pj.fmt(c.get("year"))]
         vol = "%s%s%s" % (c.get("volume") or "",
                           "(%s)" % c["issue"] if c.get("issue") else "",
                           ":%s" % c["pages"] if c.get("pages") else "")
@@ -161,7 +179,7 @@ def paper_studio(canon, res, p):
                  % (bits[0], bits[1], bits[2], vol or bits[3],
                     e(c.get("url", "")), e(pmid), e(str(st)),
                     (" <a href='%s'>doi</a>" % e(c["doi_url"])) if c.get("doi_url") else "",
-                    (" <small>%s</small>" % p(note)) if note else "", NL))
+                    (" <small>%s</small>" % p(_pre(note))) if note else "", NL))
     ratio = ("  <p><small>%s of %s references trace to a record this review "
              "adjudicated; %s background. A citation in no screening record is a "
              "claim the review never assessed.</small></p>%s"
