@@ -1,0 +1,241 @@
+"""AUDIT-FIRST TRIAGE -- can this topic produce a pool at all?
+
+WHY THIS EXISTS
+    The instruction is to rebuild each incomplete audit-first cardiology topic from
+    scratch and fully, BUT ONLY WHERE A POOLABLE RESULT IS POSSIBLE. That makes
+    poolability the FIRST question of each topic, not the last, and it is decidable
+    from the registrations before any effect is extracted.
+
+    Deciding it per topic, one at a time, means discovering at the end of each build
+    whether the build was warranted. Deciding it for all of them first tells us how
+    many topics there actually are.
+
+WHAT IT DOES
+    Per audit-first page: pull every registration id the page carries, fetch each
+    registration, read its registered PRIMARY outcome measures, and ask the two
+    questions Handbook 6.5 section 10.10.3 and MECIR C62 ask --
+
+      "Meta-analysis should only be considered when a group of studies is
+       sufficiently homogeneous in terms of participants, interventions and outcomes
+       to provide a meaningful summary."  (10.10.3)
+
+      "Undertake (or display) a meta-analysis only if participants, interventions,
+       comparisons and outcomes are judged to be sufficiently similar to ensure an
+       answer that is clinically meaningful."  (MECIR Box 10.10.a, C62)
+
+    1. are there at least TWO trials with a resolvable registration?
+    2. do at least two of them register a COMPARABLE primary outcome?
+
+WHAT THIS DOES NOT ESTABLISH -- written in advance
+    - NOT that a pool SHOULD be built. It answers whether one is possible on the
+      outcome limb. Participants and interventions still need a human read, and
+      transitivity of the comparator is not assessed here at all.
+    - NOT that a POSSIBLE verdict is a licence to skip the per-topic registry read.
+      This is a triage over titles; the topic protocol still reads each definition
+      word for word.
+    - NOT that an IMPOSSIBLE verdict is final. It means no pool is possible ON THE
+      REGISTERED PRIMARIES. A registered SECONDARY shared across trials can still
+      support one, and the per-topic build is where that is looked for.
+    - NOTHING about a page whose registrations do not resolve. That is UNRESOLVED,
+      never "not poolable".
+
+USAGE
+    python scripts/audit_first_poolability_triage.py            # all audit-first pages
+    python scripts/audit_first_poolability_triage.py PAGE.html  # one
+"""
+from __future__ import annotations
+import io
+import json
+import os
+import re
+import sys
+import time
+import urllib.error
+import urllib.request
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+API = "https://clinicaltrials.gov/api/v2/studies/{}?format=json"
+NCT = re.compile(r"NCT\d{8}")
+CACHE = os.path.join(REPO, ".triage-registry-cache.json")
+
+# Runtime residue: ids that appear on many unrelated pages because they were baked
+# into a shared bundle. Counting them as a page's own trials would invent evidence.
+RESIDUE = {"NCT01920711", "NCT02924727", "NCT05901831", "NCT01035255"}
+
+
+def load_cache():
+    if os.path.exists(CACHE):
+        try:
+            return json.load(io.open(CACHE, encoding="utf-8"))
+        except Exception:
+            return {}
+    return {}
+
+
+def save_cache(c):
+    json.dump(c, io.open(CACHE, "w", encoding="utf-8"), ensure_ascii=False)
+
+
+def fetch(nct, cache):
+    if nct in cache:
+        return cache[nct]
+    try:
+        req = urllib.request.Request(API.format(nct),
+                                     headers={"User-Agent": "rapidmeta-triage"})
+        with urllib.request.urlopen(req, timeout=45) as r:
+            d = json.loads(r.read().decode("utf-8"))
+        ps = d.get("protocolSection", {})
+        om = ps.get("outcomesModule", {})
+        rec = {
+            "title": ps.get("identificationModule", {}).get("briefTitle", ""),
+            "primaries": [o.get("measure", "")
+                          for o in (om.get("primaryOutcomes") or [])],
+            "n_secondary": len(om.get("secondaryOutcomes") or []),
+        }
+    except urllib.error.HTTPError as e:
+        rec = {"error": "HTTP %d" % e.code}
+    except Exception as e:
+        rec = {"error": str(e)[:60]}
+    cache[nct] = rec
+    time.sleep(0.15)
+    return rec
+
+
+def visible(html):
+    t = re.sub(r"<(script|style)[^>]*>.*?</\1>", " ", html, flags=re.S)
+    return re.sub(r"<[^>]+>", " ", t)
+
+
+# Outcome-family keys. Two primaries are COMPARABLE when they reduce to the same
+# family. Deliberately coarse: this is triage, and a coarse key errs toward
+# POSSIBLE, which sends the topic to a human read rather than closing it.
+FAMILY = [
+    ("mace_composite", r"cardiovascular death|cv death|major adverse cardiac|MACE|"
+                       r"death.{0,30}myocardial infarction|myocardial infarction.{0,30}stroke"),
+    ("hf_composite", r"heart failure hospitali|hospitali\w*.{0,20}heart failure|worsening heart failure"),
+    ("vte_recurrence", r"recurrent venous thromboembolism|recurrent VTE|venous thromboembolism"),
+    ("stroke_se", r"stroke or systemic embolism|systemic embolism"),
+    ("bleeding", r"bleed|BARC|ISTH|h[ae]morrhag"),
+    ("ldl_change", r"percent change.{0,30}LDL|LDL-C|low.density lipoprotein"),
+    ("six_min_walk", r"6.minute walk|six.minute walk|6MWD|6MWT"),
+    ("bp_change", r"blood pressure|systolic|diastolic|SBP|DBP"),
+    ("clinical_worsening", r"clinical worsening|time to clinical worsening"),
+    ("exercise_capacity", r"peak (?:VO2|oxygen)|exercise capacity|pVO2"),
+    ("all_cause_death", r"all.cause (?:death|mortality)|overall survival"),
+    ("adverse_events", r"adverse event|treatment.emergent|safety|tolerabilit"),
+    ("symptom_score", r"KCCQ|questionnaire|symptom score|NYHA"),
+]
+
+
+def family_of(measure):
+    m = measure or ""
+    for key, pat in FAMILY:
+        if re.search(pat, m, re.I):
+            return key
+    return None
+
+
+AUTO_SET = re.compile(r"AUTO_INCLUDE_TRIAL_IDS\s*=\s*new Set\(\[(.*?)\]\)", re.S)
+
+
+def page_trials(html):
+    """The trial ids the page actually SEEDS.
+
+    DEFECT FOUND ON THE FIRST RUN, and it reported 0 trials on 22 of 25 pages: these
+    are ~860 KB client-side apps whose trial content is rendered at runtime, so the
+    registration ids live in the MINIFIED SCRIPT and not in visible markup. A screen
+    that strips scripts sees an empty corpus and calls it "fewer than two trials" --
+    a NOT-POOLABLE verdict manufactured entirely by the instrument.
+
+    The seed is declared: `AUTO_INCLUDE_TRIAL_IDS = new Set([...])`. Read that where
+    it exists; otherwise fall back to every id in the file minus the known residue.
+    """
+    m = AUTO_SET.search(html)
+    if m:
+        return sorted(set(NCT.findall(m.group(1))) - RESIDUE)
+    return sorted(set(NCT.findall(html)) - RESIDUE)
+
+
+def triage(page, cache):
+    path = os.path.join(REPO, page)
+    html = io.open(path, encoding="utf-8", errors="replace").read()
+    ids = page_trials(html)
+    if len(ids) < 2:
+        return ("NOT POOLABLE -- fewer than two trials", ids, {}, [])
+
+    fams, detail, errs = {}, [], []
+    for nct in ids:
+        rec = fetch(nct, cache)
+        if rec.get("error"):
+            errs.append((nct, rec["error"]))
+            continue
+        keys = {family_of(p) for p in rec["primaries"]} - {None}
+        detail.append((nct, rec["title"][:60], sorted(keys) or ["(unclassified)"]))
+        for k in keys:
+            fams.setdefault(k, []).append(nct)
+
+    if errs and not detail:
+        return ("UNRESOLVED -- no registration could be read", ids, {}, detail)
+
+    shared = {k: v for k, v in fams.items() if len(v) >= 2 and k != "adverse_events"}
+    if shared:
+        best = max(shared.items(), key=lambda x: len(x[1]))
+        return ("POOL POSSIBLE -- %d trials share a registered primary of family '%s'"
+                % (len(best[1]), best[0]), ids, shared, detail)
+    return ("NOT POOLABLE ON REGISTERED PRIMARIES -- no two trials share an outcome family",
+            ids, shared, detail)
+
+
+def audit_first_pages():
+    idx = io.open(os.path.join(REPO, "index.html"), encoding="utf-8",
+                  errors="replace").read()
+    a = idx.find('id="sp-cardiology"')
+    b = idx.find('id="sp-dermatology"')
+    seg = idx[a:b if b > a else len(idx)]
+    seen, out = set(), []
+    pm = json.load(io.open(os.path.join(REPO, "ssot", "PAGE_MAP.json"), encoding="utf-8"))
+    for m in re.finditer(r'href="([A-Za-z0-9_]+\.html)"', seg):
+        p = m.group(1)
+        if p in seen or p in pm:
+            continue
+        seen.add(p)
+        fp = os.path.join(REPO, p)
+        if os.path.exists(fp) and os.path.getsize(fp) > 100000:
+            out.append(p)
+    return out
+
+
+def main() -> int:
+    cache = load_cache()
+    pages = sys.argv[1:] or audit_first_pages()
+    print("audit-first cardiology pages to triage: %d" % len(pages))
+    print()
+    tally = {}
+    rows = []
+    for p in pages:
+        verdict, ids, shared, detail = triage(p, cache)
+        head = verdict.split(" -- ")[0]
+        tally[head] = tally.get(head, 0) + 1
+        rows.append((p, verdict, len(ids)))
+        print("%-56s %2d trials  %s" % (p[:55], len(ids), verdict))
+        if detail and head.startswith("POOL POSSIBLE"):
+            for k, v in sorted(shared.items(), key=lambda x: -len(x[1])):
+                print("%-58s   shared '%s': %s" % ("", k, ", ".join(v)))
+        save_cache(cache)
+    print()
+    print("TRIAGE RESULT")
+    for k in sorted(tally, key=lambda x: -tally[x]):
+        print("   %-58s %d" % (k, tally[k]))
+    print()
+    print("Authority: Handbook 6.5 section 10.10.3 and MECIR Box 10.10.a C62 -- a pool")
+    print("is undertaken OR DISPLAYED only where participants, interventions,")
+    print("comparisons and outcomes are sufficiently similar. This screen tests the")
+    print("OUTCOME limb only, on registered PRIMARIES, and errs toward POSSIBLE.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
