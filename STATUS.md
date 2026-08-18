@@ -1019,45 +1019,88 @@ numbers is easy to dismiss.
 
 ## Where the next lane picks up
 
-**State at handover.** `HEAD` == `origin/main`; every commit is pushed and every
-page below is verified live, cache-busted, against the bytes on disk.
+**HANDOVER, written 2026-08-18 while there was still room to write it properly
+rather than at the moment of running out. Two lanes have been lost mid-run; the
+one that handed over cleanly cost nothing.**
 
-Live-verified this session: **ARNI, SGLT2_HF, IV_IRON, SOTAGLIFLOZIN, PCSK9,
-SGLT2_CKD, DOAC_AF, DOAC_CANCER_VTE, INCLISIRAN, EVOLOCUMAB_MIXED, COLCHICINE_CVD, BEMPEDOIC_ACID, CANGRELOR_PCI, RIVAROXABAN_VASC, INTENSIVE_BP, APIXABAN_AF, APIXABAN_ACS.** Each was confirmed byte-identical by
-SHA-256 against the served bytes, cache-busted. ALIROCUMAB, FINERENONE_CV and ABLATION_AF were unchanged and needed
-no rebuild.
+### State
 
-**Start here, in this order:**
+`HEAD` == `origin/main`. Every page below is live-verified **byte-identical by
+SHA-256** against the served bytes, cache-busted. **26 of 53 cardiology topics
+done.** The programme began this stretch at 7.
 
-1. **The 1 remaining topic with a live estimate and no object.** These are the
-   dangerous ones and every one examined so far has been withdrawable:
-      HFREF_NMA. Objects already exist
-   under `ssot/` for several of them.
-2. **Rebuild the four earlier topics** so their endpoint definitions are on the
-   page. They were read and are invisible; see the projector defect above.
-3. **The 26 audit-first cardiology topics.** They publish no estimate, so there
-   is no live claim to defend — only identity, endpoint definitions, and a build.
-   The `k>=3` self-contradiction on them was resolved corpus-wide at `abfa6b999`.
-2. **The 11 with a live estimate and no object.** These are the dangerous ones —
-   a published pooled number that nothing in the current standard has checked.
-   Every one that has been looked at so far turned out to be withdrawable.
-3. **Tooling queue item 1.2 — thresholds are not components.** Until the estimand
-   gate can compare a `≥40%` decline against a `≥50%` decline, it will keep
-   returning UNCHECKABLE on renal topics and every verdict there stays manual.
-   The SGLT2_CKD case is its fixture.
+**Nothing is in flight.** No half-built page, no uncommitted object, no page
+installed without its card projected.
 
-**Two habits that earned their keep tonight, both from the ledger:**
+### What is DONE, and what "done" now means
 
+A topic is done when it has an SSOT object in `PAGE_MAP`, is built through the
+tabbed projector, its identity is keyed by registration id, **every contributing
+trial's endpoint definition has been READ FROM THE REGISTRY**, and the pool either
+stands with its justification rendered or is withheld with its reason **and the
+source's own values** on the page. A withdrawal counts as done. **A withdrawal
+whose reason has not been re-verified does not** — that rule was added this session
+and it cost one topic (APIXABAN_ACS) its "done" status until the reason was fixed.
+
+**All 8 withdrawn topics are re-verified. All live-estimate topics are done.**
+There are no unchecked published pooled numbers left in cardiology.
+
+### The three things that are BLOCKED, and on what
+
+1. **26 audit-first topics — blocked on Mahmood's decision** (parked item 7). An
+   audit-first page publishes no estimate, so the harness gate's checks can only
+   pass vacuously and it correctly refuses to certify. MAVACAMTEN_OHCM was built
+   to standard and the push was refused twice. **This gates 26 of the remaining
+   27 topics.** Three options are written out in the parked item.
+2. **HFREF_NMA — blocked on a protocol decision** (parked item 6). The only NMA
+   among the 53. The v1 standard is written for pairwise pools and has no rule for
+   a 15-node network where one contrast is sound and another is not.
+3. **The estimator question** (parked item 5) — quantified, 7 of 28 pools move, 0
+   conclusions change, corpus already mixed. **Mahmood's call, do not pre-empt it.**
+
+### The two REPLACEMENT ANALYSES that are unblocked and should come first
+
+These are the only cases in the programme where a reader can be handed a **correct
+number** rather than a withdrawal, and neither needs an estimand judgement:
+
+- **BOCOCIZUMAB_LIPID** — all three registrations declare the same continuous
+  primary (percent change in LDL-C at week 12). A **mean-difference** synthesis.
+- **INCRETIN_HFpEF** — all three trials share a KCCQ clinical-summary-score
+  primary. A **mean-difference** synthesis of symptom benefit.
+
+Both need each trial's least-squares mean difference read from its **results**
+record — a source step this session did not take. **Do these before more
+withdrawals. A project that only removes numbers is easy to dismiss.**
+
+### Tooling queue, in the order agreed
+
+1. **Item 19 — the false-withdrawal-reason check.** Founding fixtures are ready
+   and unusually good: APIXABAN_ACS (card says "bleeding and efficacy pooled",
+   **both** trials register bleeding → FALSE) and RIVAROXABAN_ACS (**identical
+   card wording**, and there it is TRUE). A detector with a true positive and a
+   true negative from the same sentence.
+2. **Item 18 — the 31 UNCHECKABLE count-provenance rows**, mostly objects with no
+   recorded `outcome_definition`. The three unexplained FAILs are already resolved:
+   all benign, same cause.
+3. **Item 14 — the 19 unclearable multi-arm rows.** Establish the signal each group
+   needs. **Do not close it by relaxing the matcher.**
+4. **Item 2 — the six remaining `&amp;mdash;` instances**, all in the DTA
+   programme, a different generation.
+
+### Working practices that cost real time when ignored
+
+- **Never write a regex through a shell heredoc.** It eats one backslash level and
+  produces literal `0x08` bytes that render as nothing. This happened **three
+  times** in one session, including inside the file that documents the same defect.
+  Use the Write tool.
+- **Read the first corpus run of any new screen before reporting it.** Three
+  separate screens produced spectacular false findings on their first run — 43 of
+  56 cards "wrong", 9 objects wrongly cleared, every included trial "dropped" —
+  and every one was an artefact of the instrument.
 - **Compare the artefact you are about to ship against the one you are replacing,
-  by content.** It caught a rebuild that silently dropped `1.50` and `1.57` from
-  ARNI's page, and it caught the escape defect by counting occurrences after each
-  fix instead of declaring the fix done — 15 → 10 → 1 → 0, three separate sites.
-- **Run the gate before trusting the page, and read what it says rather than
-  routing around it.** The push was blocked once tonight, by a check that was
-  wrong; the fix was to the check, with a constructible failing input, not a
-  bypass.
+  by content.** Numerals present before and absent after is the check that catches
+  a rebuild dropping a finding.
+- **A gate that blocks you is usually right.** Three blocked pushes this session,
+  three correct blocks, three fixes to the object or the exporter and none to the
+  check.
 
-**One habit that did not, and is worth naming:** I piped a long-running batch
-through `tail`, which buffers all output to the end — the exact thing
-`scripts/GATES.md` warns against, quoted in the file I had already read. Knowing a
-rule does not apply it. Only a check does.
