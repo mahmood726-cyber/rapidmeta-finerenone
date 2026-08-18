@@ -6,7 +6,7 @@ section of `index.html` carries 54 page links, one of which
 consolidated at `ce1e9dc0e`. 54 − 1 = 53. Re-derive with
 `python scripts/cardio_program_status.py` rather than quoting this line.
 
-**DONE: 15 of 53.**
+**DONE: 16 of 53.**
 
 A topic is DONE when it has an SSOT object, is built through the tabbed
 projector to the written standard (`scripts/standard_manifest.py`, v1), its
@@ -32,6 +32,7 @@ endpoint does not, whatever the page looks like.
 | 13 | BEMPEDOIC_ACID | v1, **stands** | k=1 and correct: only CLEAR Outcomes registers a CV primary. NCT02973841 is 'Sono-ease', a 40-patient device trial |
 | 14 | CANGRELOR_PCI | **withdrawn** | all-cause-mortality numerators over primary-composite denominators; correcting it reverses the conclusion |
 | 15 | RIVAROXABAN_VASC | **withdrawn** | VOYAGER adds acute limb ischaemia and major amputation; COMMANDER counts all-cause death and registers a rate |
+| 16 | INTENSIVE_BP | **withdrawn** | six trials, six different composites; STEP counts atrial fibrillation, SPS3 counts stroke alone; page holds 1 effect, card said k=5 |
 
 `FINERENONE_CV` is also at v1 and is NOT counted here: it does not sit in the
 cardiology section of the index. Counting it would be the denominator drift this
@@ -39,14 +40,14 @@ file exists to prevent.
 
 ---
 
-## The remaining 38, by what is actually on them today
+## The remaining 37, by what is actually on them today
 
 Measured from the index cards, not assumed:
 
 | state | n | what it means |
 |---|---|---|
 | **Audit-first build** | 26 | no estimate ever published; the topic has never been taken through |
-| **live estimate, no v1 object** | 2 | a number is published that nothing in the current standard has checked |
+| **live estimate, no v1 object** | 1 | a number is published that nothing in the current standard has checked |
 | **withdrawn** | 7 | an estimate was retracted; the reason on the page has NOT been re-verified |
 | **not poolable** | 1 | MITRAL_FUNCMR — COAPT vs MITRA-FR, stated per-trial |
 | **no card at all** | 1 | INCRETIN_HFpEF is linked from the table and has no card |
@@ -837,15 +838,15 @@ perfectly with itself.
 page below is verified live, cache-busted, against the bytes on disk.
 
 Live-verified this session: **ARNI, SGLT2_HF, IV_IRON, SOTAGLIFLOZIN, PCSK9,
-SGLT2_CKD, DOAC_AF, DOAC_CANCER_VTE, INCLISIRAN, EVOLOCUMAB_MIXED, COLCHICINE_CVD, BEMPEDOIC_ACID, CANGRELOR_PCI, RIVAROXABAN_VASC.** Each was confirmed byte-identical by
+SGLT2_CKD, DOAC_AF, DOAC_CANCER_VTE, INCLISIRAN, EVOLOCUMAB_MIXED, COLCHICINE_CVD, BEMPEDOIC_ACID, CANGRELOR_PCI, RIVAROXABAN_VASC, INTENSIVE_BP.** Each was confirmed byte-identical by
 SHA-256 against the served bytes, cache-busted. ALIROCUMAB, FINERENONE_CV and ABLATION_AF were unchanged and needed
 no rebuild.
 
 **Start here, in this order:**
 
-1. **The 2 remaining topics with a live estimate and no object.** These are the
+1. **The 1 remaining topic with a live estimate and no object.** These are the
    dangerous ones and every one examined so far has been withdrawable:
-      HFREF_NMA, INTENSIVE_BP, RIVAROXABAN_VASC. Objects already exist
+      HFREF_NMA. Objects already exist
    under `ssot/` for several of them.
 2. **Rebuild the four earlier topics** so their endpoint definitions are on the
    page. They were read and are invisible; see the projector defect above.
