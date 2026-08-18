@@ -1,0 +1,74 @@
+{
+ "app_id": "dabigatran-af",
+ "schema_version": 2,
+ "title": "Dabigatran in atrial fibrillation: NOT POOLABLE -- k=1 on the efficacy question, and the second trial asks about ADHERENCE",
+ "built": "2026-08-18",
+ "build_mode": "verdict-only",
+ "topic_state": "NOT POOLABLE -- k=1, decided from the registrations",
+ "verification_basis": "Every registration read in full on 2026-08-18, including armsInterventionsModule.armGroups[].type and interventionNames[], and the brief title. Arm TYPE alone was not sufficient on either topic and the reading says why.",
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT00262600",
+    "nct": "NCT00262600",
+    "registration": "NCT00262600",
+    "registry": "ClinicalTrials.gov",
+    "label": "RE-LY -- Randomized Evaluation of Long Term Anticoagulant Therapy",
+    "experimental_arm_as_registered": "Dabigatran dose 1 and dose 2 -- BOTH typed ACTIVE_COMPARATOR by the registrants, though dabigatran is plainly the intervention",
+    "comparator_arm_as_registered": "Warfarin (also typed ACTIVE_COMPARATOR)",
+    "registered_primary": "Yearly Event Rate for Composite Endpoint of Stroke/SEE",
+    "contributes": "CONTRIBUTES -- the drug-efficacy question",
+    "source_url": "https://clinicaltrials.gov/study/NCT00262600",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT04532528",
+    "nct": "NCT04532528",
+    "registration": "NCT04532528",
+    "registry": "ClinicalTrials.gov",
+    "label": "ReAHEAD -- whether education improves adherence to dabigatran",
+    "experimental_arm_as_registered": "Standard of care only, and SOC with advanced educational intervention -- BOTH arms receive dabigatran and NEITHER carries an arm type at all",
+    "comparator_arm_as_registered": "there is no drug comparator; the comparison is between education strategies",
+    "registered_primary": "Number of Patients With High (MMAS-8 Score: 8 Points) Adherence to Dabigatran Treatment",
+    "contributes": "DOES NOT CONTRIBUTE -- an ADHERENCE trial, not a drug-efficacy trial",
+    "source_url": "https://clinicaltrials.gov/study/NCT04532528",
+    "read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "outcomes": [
+  {
+   "id": "stroke_se",
+   "name": "Stroke or systemic embolism",
+   "type": "primary",
+   "definition": "Stroke or systemic embolism"
+  }
+ ],
+ "results": {
+  "by_outcome": {
+   "stroke_se": {
+    "k": 1,
+    "poolable": false,
+    "poolable_reason": "k=1 ON THE QUESTION THIS PAGE ASKS. Read from ClinicalTrials.gov 2026-08-18. NCT00262600 (RE-LY) is the trial that established dabigatran in atrial fibrillation and its registered primary is the yearly event rate for stroke or systemic embolism. NCT04532528 (ReAHEAD) is not a drug trial at all: BOTH its arms receive dabigatran and the randomisation is between an educational intervention and standard care, with a registered primary of 'Number of Patients With High (MMAS-8 Score: 8 Points) Adherence to Dabigatran Treatment'. IT ASKS WHETHER EDUCATION IMPROVES ADHERENCE, NOT WHETHER DABIGATRAN WORKS. Averaging an adherence outcome with a stroke outcome is not a pool of one question, so one trial remains and a single trial is reported as a single trial. WHY THIS TOPIC WAS NEARLY RETIRED FOR THE WRONG REASON, recorded because the near miss matters: subject_is_experimental_gate returned FAIL here, because RE-LY types ALL THREE of its arms ACTIVE_COMPARATOR and ReAHEAD types neither of its arms at all. Read by hand, dabigatran is unambiguously the intervention in RE-LY. THE GATE TOLD US WHERE TO LOOK AND WAS WRONG ABOUT WHAT WE WOULD FIND, which is exactly what a gate is for and exactly why a verdict is not a reading.",
+    "pooled": {
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "withdrawn": true,
+     "withdrawn_reason": "k=1 ON THE QUESTION THIS PAGE ASKS. Read from ClinicalTrials.gov 2026-08-18. NCT00262600 (RE-LY) is the trial that established dabigatran in atrial fibrillation and its registered primary is the yearly event rate for stroke or systemic embolism. NCT04532528 (ReAHEAD) is not a drug trial at all: BOTH its arms receive dabigatran and the randomisation is between an educational intervention and standard care, with a registered primary of 'Number of Patients With High (MMAS-8 Score: 8 Points) Adherence to Dabigatran Treatment'. IT ASKS WHETHER EDUCATION IMPROVES ADHERENCE, NOT WHETHER DABIGATRAN WORKS. Averaging an adherence outcome with a stroke outcome is not a pool of one question, so one trial remains and a single trial is reported as a single trial. WHY THIS TOPIC WAS NEARLY RETIRED FOR THE WRONG REASON, recorded because the near miss matters: subject_is_experimental_gate returned FAIL here, because RE-LY types ALL THREE of its arms ACTIVE_COMPARATOR and ReAHEAD types neither of its arms at all. Read by hand, dabigatran is unambiguously the intervention in RE-LY. THE GATE TOLD US WHERE TO LOOK AND WAS WRONG ABOUT WHAT WE WOULD FIND, which is exactly what a gate is for and exactly why a verdict is not a reading.",
+     "withdrawn_utc": "2026-08-18"
+    },
+    "per_trial": [],
+    "what_this_verdict_does_not_establish": "NOT that the contributing trial is poor -- it is registered, randomised and reports its primary. NOT that the drug is ineffective. NOT that no poolable question exists in this area: only that this page holds one trial that answers the question its title asks."
+   }
+  }
+ },
+ "risk_of_bias_verdict": "Not assessed. A risk-of-bias assessment grades the trials contributing to a pooled result, and this page publishes none.",
+ "handbook_authority": {
+  "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+  "version": "Version 6.5, 2024",
+  "verified_on": "2026-08-18",
+  "sections": "10.10.3; MECIR Box 10.10.a (C62)",
+  "a_review_need_not_pool": "'A systematic review need not contain any meta-analyses.'"
+ }
+}

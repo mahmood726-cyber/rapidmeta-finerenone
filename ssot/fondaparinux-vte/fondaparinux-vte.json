@@ -1,0 +1,74 @@
+{
+ "app_id": "fondaparinux-vte",
+ "schema_version": 2,
+ "title": "Fondaparinux in venous thromboembolism: NOT POOLABLE -- k=1, because the other trial is an edoxaban trial in which fondaparinux is the comparator",
+ "built": "2026-08-18",
+ "build_mode": "verdict-only",
+ "topic_state": "NOT POOLABLE -- k=1, decided from the registrations",
+ "verification_basis": "Every registration read in full on 2026-08-18, including armsInterventionsModule.armGroups[].type and interventionNames[], and the brief title. Arm TYPE alone was not sufficient on either topic and the reading says why.",
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT00789399",
+    "nct": "NCT00789399",
+    "registration": "NCT00789399",
+    "registry": "ClinicalTrials.gov",
+    "label": "Preventive dosing of fondaparinux sodium versus placebo",
+    "experimental_arm_as_registered": "Fondaparinux -- typed ACTIVE_COMPARATOR by the registrants, but the trial's own title says 'Versus Placebo' and the other arm is typed PLACEBO_COMPARATOR, so fondaparinux is unambiguously the tested agent",
+    "comparator_arm_as_registered": "Placebo (PLACEBO_COMPARATOR)",
+    "registered_primary": "Number of Participants With Venous Thromboembolisms and/or Major Hemorrhages to Day 11",
+    "contributes": "CONTRIBUTES",
+    "source_url": "https://clinicaltrials.gov/study/NCT00789399",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT01857583",
+    "nct": "NCT01857583",
+    "registration": "NCT01857583",
+    "registry": "ClinicalTrials.gov",
+    "label": "DU-176b (edoxaban) in patients with severe renal impairment",
+    "experimental_arm_as_registered": "DU-176b (edoxaban) at three doses -- ALL typed EXPERIMENTAL",
+    "comparator_arm_as_registered": "Fondaparinux -- typed ACTIVE_COMPARATOR, and genuinely the control here",
+    "registered_primary": "Incidence of Any Adjudicated Bleeding Events",
+    "contributes": "DOES NOT CONTRIBUTE -- this is an EDOXABAN trial and fondaparinux is its comparator",
+    "source_url": "https://clinicaltrials.gov/study/NCT01857583",
+    "read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "outcomes": [
+  {
+   "id": "vte_events",
+   "name": "Venous thromboembolism and major bleeding events",
+   "type": "primary",
+   "definition": "Venous thromboembolism and major bleeding events"
+  }
+ ],
+ "results": {
+  "by_outcome": {
+   "vte_events": {
+    "k": 1,
+    "poolable": false,
+    "poolable_reason": "k=1, AND THE SECOND TRIAL BELONGS TO A DIFFERENT DRUG. Read from ClinicalTrials.gov 2026-08-18. NCT01857583 tests DU-176b (edoxaban) at three doses, ALL typed EXPERIMENTAL, against fondaparinux as its ACTIVE_COMPARATOR -- so it is an edoxaban trial and fondaparinux appears in it only as the control. That is the OLMESARTAN shape and it is real here for that one trial. NCT00789399 IS a genuine fondaparinux trial: its own title reads 'A Study of the Efficacy of Preventive Dosing of Fondaparinux Sodium Versus Placebo' and its other arm is typed PLACEBO_COMPARATOR, so fondaparinux is unambiguously the tested agent even though its arm is typed ACTIVE_COMPARATOR. SO THIS TOPIC IS NOT COMPARATOR-SHAPED -- it does contain a fondaparinux trial -- but it contains exactly one, and a single trial is reported as a single trial.",
+    "pooled": {
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "withdrawn": true,
+     "withdrawn_reason": "k=1, AND THE SECOND TRIAL BELONGS TO A DIFFERENT DRUG. Read from ClinicalTrials.gov 2026-08-18. NCT01857583 tests DU-176b (edoxaban) at three doses, ALL typed EXPERIMENTAL, against fondaparinux as its ACTIVE_COMPARATOR -- so it is an edoxaban trial and fondaparinux appears in it only as the control. That is the OLMESARTAN shape and it is real here for that one trial. NCT00789399 IS a genuine fondaparinux trial: its own title reads 'A Study of the Efficacy of Preventive Dosing of Fondaparinux Sodium Versus Placebo' and its other arm is typed PLACEBO_COMPARATOR, so fondaparinux is unambiguously the tested agent even though its arm is typed ACTIVE_COMPARATOR. SO THIS TOPIC IS NOT COMPARATOR-SHAPED -- it does contain a fondaparinux trial -- but it contains exactly one, and a single trial is reported as a single trial.",
+     "withdrawn_utc": "2026-08-18"
+    },
+    "per_trial": [],
+    "what_this_verdict_does_not_establish": "NOT that the contributing trial is poor -- it is registered, randomised and reports its primary. NOT that the drug is ineffective. NOT that no poolable question exists in this area: only that this page holds one trial that answers the question its title asks."
+   }
+  }
+ },
+ "risk_of_bias_verdict": "Not assessed. A risk-of-bias assessment grades the trials contributing to a pooled result, and this page publishes none.",
+ "handbook_authority": {
+  "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+  "version": "Version 6.5, 2024",
+  "verified_on": "2026-08-18",
+  "sections": "10.10.3; MECIR Box 10.10.a (C62)",
+  "a_review_need_not_pool": "'A systematic review need not contain any meta-analyses.'"
+ }
+}
