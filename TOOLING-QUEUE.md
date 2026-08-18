@@ -11,42 +11,73 @@ exists, has been run, and blocked.
 
 ---
 
-## 1. THE ESTIMAND GATE — unreliable in both directions
+## 1. THE ESTIMAND GATE — the recognition vocabulary is one specialty wide
 
-`scripts/estimand_definition_gate.py`. It over-read ARNI and under-read
-SOTAGLIFLOZIN. Both directions are already logged, and neither is fixed.
+**Partly closed 2026-08-18** — the structural half is done, the vocabulary half
+is not, and the vocabulary half is now *visible* instead of silent.
 
-**It tells you where to look. It never tells you what you will find.** Every
-verdict has to be checked against the registry text by hand, which means today
-the gate is a search aid wearing a gate's costume.
+Its component list (`COMPONENT`, `_CANON`) is entirely cardiological:
+hospitalisation, CV death, stroke, MI, bleeding, cardiac arrest, ACS, worsening
+heart failure. **Nothing renal, nothing infectious, nothing oncological.** Run on
+SGLT2_CKD it reduced three different composites to `{cv_death}` and reported that
+they agree.
 
-The under-read direction is the dangerous one and the ledger says why:
+What is now true: an over-broad `EVENT_LIKE` hunting list makes any definition
+containing an unrecognised event term **UNCHECKABLE**, naming the terms, and
+UNCHECKABLE outranks both PASS and WITHDRAWN. The gate can no longer report
+agreement from a partial reading.
+
+What is still owed:
+
+1. **Recognition vocabulary per specialty**, added *with* its `_CANON` mapping —
+   widening the finder without the classifier is the same defect in a new place,
+   and this repository has done exactly that twice. Renal first (ESKD, dialysis,
+   transplant, eGFR-decline thresholds, doubling of creatinine, renal death),
+   then infectious disease, which is the next programme.
+2. **Thresholds are not components.** Even with renal terms recognised, a
+   doubling of creatinine, a ≥50% decline and a ≥40% decline would all map to one
+   key and the gate would report agreement again. The comparison needs to carry
+   the THRESHOLD, not only the event type. This is the deepest open item on the
+   queue and the CKD case is its fixture.
+3. **A fixture set from the six under-reads already in the ledger**, replayed:
+   `CV mortality`; `hospitalisation for worsening heart failure`; `worsening
+   heart failure requiring unplanned hospitalization`; `cardiovascular (CV)
+   death`; a bare TITLE with components in the DESCRIPTION;
+   `Total Mortality, Disabling Stroke, Serious Bleeding, or Cardiac Arrest`.
+   Some are already canon cases; the rest are not.
+4. **A third verdict for "the registry record carries no endpoint definition"**,
+   distinct from "the definitions differ". Different facts, and one of them is
+   not the trials' fault.
+
+The under-read direction remains the dangerous one, and the ledger says why:
 
 > Six separate under-reads in one component canon ALL pushed toward withdrawal.
-> Five of the six failed toward alarm — and were still dangerous, because the
-> action each argued for was destructive. Withdrawing a correct estimate destroys
-> a true finding and publishes the destruction as a discovery.
+> Withdrawing a correct estimate destroys a true finding and publishes the
+> destruction as a discovery.
 
-**What is owed, in order:**
-
-1. A **fixture set of registry endpoint texts** with the correct component
-   decomposition recorded beside each, taken from the six under-reads already in
-   the ledger (`CV mortality`; `hospitalisation for worsening heart failure`;
-   `worsening heart failure requiring unplanned hospitalization`;
-   `cardiovascular (CV) death`; a bare TITLE with components in the DESCRIPTION;
-   `Total Mortality, Disabling Stroke, Serious Bleeding, or Cardiac Arrest`).
-   Every one of those is a real string this gate mis-read. Replay them.
-2. **Widening the finder without widening the classifier is not a partial fix.**
-   A phrase matched and then assigned to no key is indistinguishable from never
-   matching it. Two places, one fact — assert that every phrase the finder
-   matches lands in a key, and fail when it does not.
-3. **A third verdict for "the registry record carries no endpoint definition"**,
-   distinct from "the definitions differ". Those are different facts and one of
-   them is not the trials' fault.
+**And now the other direction is on the record too.** The CKD false agreement is
+the first logged under-read that fails toward COMFORT rather than alarm.
 
 ---
 
-## 2. `card_matches_page` corpus-wide — 507 of 514 unmeasured
+## 2. Escaping across the projector boundary — one instance fixed, the class is not swept
+
+`_anchor_headings` returned ESCAPED text and the caller escaped it again, so the
+jump list served readers the literal characters `&middot;` and `&#x27;` and the
+generated anchor ids carried `-middot-`. Fixed at source by unescaping so the
+value is plain text from that point outward and escaped exactly once, at render.
+
+**The class is not swept.** Every other place that extracts text from generated
+markup and re-emits it has the same hazard. It fires only on text containing an
+apostrophe, ampersand, quote or angle bracket, which is why it survived: no
+heading in the corpus had one until a registry title was quoted.
+
+Owed: a check that no built page contains `&amp;` followed by a known entity
+name, wired per build. That is a constructible failing input (any of the four
+pre-fix v1 pages) and it fails toward alarm.
+
+---
+## 3. `card_matches_page` corpus-wide — 507 of 514 unmeasured
 
 Fixed on 2026-08-18 so that a withheld card is checked rather than skipped
 (see `STATUS.md`), but the corpus figure barely moved: **5 comparable, 2 agreeing
@@ -62,7 +93,7 @@ class rather than measuring it.
 
 ---
 
-## 3. `sections_in_both_surfaces` — NOT RUN on 7 of 7 objects
+## 4. `sections_in_both_surfaces` — NOT RUN on 7 of 7 objects
 
 `section_manifest_gate` needs a docmodel and correctly exits 2 rather than
 tracebacking when there is none. Correct behaviour, zero coverage: the property
@@ -73,7 +104,7 @@ Either produce a docmodel per object, or move the property to DECLARED in
 
 ---
 
-## 4. `self_contained` — measured corpus-wide, wired per page nowhere
+## 5. `self_contained` — measured corpus-wide, wired per page nowhere
 
 `external_dependency_census` measures it; `checkbuild` enforces it on new builds
 only; nothing checks a page that already exists. 19 of 21 sampled pages issue
@@ -85,7 +116,7 @@ Wire the census per page so the property has a per-object verdict.
 
 ---
 
-## 5. `tabbed_build` and `estimate_preserved` — checked only inside the build path
+## 6. `tabbed_build` and `estimate_preserved` — checked only inside the build path
 
 Both are marked ENFORCED and both are "checkbuild-equivalent", which means they
 are established for pages built THROUGH the build path and unestablished for
@@ -94,7 +125,7 @@ which is honest and is not coverage.
 
 ---
 
-## 6. `display_change_announced` — UNENFORCEABLE, and correctly so
+## 7. `display_change_announced` — UNENFORCEABLE, and correctly so
 
 No artefact can show that a change was announced; the evidence is a message to a
 reader, outside every file we control. Kept as a rule with a named owner rather
@@ -104,7 +135,7 @@ different claim and the exact substitution this project keeps making.
 
 ---
 
-## 7. Untracked SSOT objects — 20 of them exist in no clone
+## 8. Untracked SSOT objects — 20 of them exist in no clone
 
 Twenty objects under `ssot/*/` were written on 17 Aug and never added. They are
 ledger failure mode #4: a register written into a place git does not carry.
@@ -117,6 +148,16 @@ preserving it.
 ---
 
 ## Closed
+
+- **2026-08-18 — the estimand gate reported three different CKD composites as
+  agreeing.** Structural fix: recognition list decides PASS, hunting list decides
+  whether the gate may decide. Regression across all eight objects: seven
+  verdicts unchanged, one moved, and it was the false one.
+- **2026-08-18 — a constant named `WITHHELD` did not match the word "withheld".**
+  Two live cards classified as published values. `--audit-vocabulary` now hunts
+  the next gap.
+- **2026-08-18 — the jump list double-escaped its own headings.** Live on four of
+  seven v1 pages.
 
 - **2026-08-18 — `card_alignment_gate` reads the wrong tree by construction.**
   `SSOT` was a hardcoded absolute path; run from a sibling clone the gate graded

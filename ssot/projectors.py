@@ -1294,12 +1294,31 @@ def _anchor_headings(body, tid):
     numbers the page ASSERTS, and an echo of an already-projected heading asserts
     nothing. An edited echo can differ from what it claims to point at; a verbatim
     one cannot.
+
+    THE RETURNED TEXT IS PLAIN TEXT, NOT MARKUP, AND THAT DISTINCTION IS THE
+    DEFECT THIS FIXES. `inner` is already-escaped HTML. Stripping its tags yields
+    ESCAPED TEXT -- "(&#x27;as Adjudicated&#x27;)" -- and the caller escapes what
+    it is handed, producing "&amp;#x27;" and putting the literal characters
+    `&#x27;` in front of a reader.
+
+    It went unnoticed because no heading in this corpus had previously contained
+    a character needing escaping. SGLT2_CKD's outcome name quotes EMPA-KIDNEY's
+    registry title, which contains apostrophes -- "('as Adjudicated')" -- and six
+    jump-list entries on one page rendered them raw. The defect is latent
+    everywhere and fires on any heading containing an apostrophe, an ampersand, a
+    quote or an angle bracket.
+
+    Same family as the raw-HTML-versus-rendered-text rule in the ledger: a
+    boundary where the REPRESENTATION changes, crossed without anyone saying
+    which side they were on. Unescaping here means the value is plain text from
+    this point outward, and is escaped exactly once, at render.
     """
     used, heads = set(), []
 
     def repl(m):
         lvl, attrs, inner = m.group(1), m.group(2) or "", m.group(3)
-        text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", inner)).strip(" .·-")
+        text = _html.unescape(
+            re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", inner))).strip(" .·-")
         if not text:
             return m.group(0)
         have = re.search(r'\bid\s*=\s*["\']([^"\']+)["\']', attrs)

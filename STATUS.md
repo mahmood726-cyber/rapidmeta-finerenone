@@ -186,3 +186,63 @@ withholding, which is what they are.
 Corpus-wide the gate is still nearly blind — 5 of 514 cards numerically
 comparable, 2 agreeing by withholding, 507 unmeasured — and it says so inline
 rather than printing 0.0% drift over 1% of the set.
+
+### 2026-08-18 (continued) — ARNI resolved, SGLT2_CKD withdrawn, three gate defects
+
+**ARNI: the open measure question is ANSWERED and the trial stays in.** Identity
+confirmed by NCT04853758 before any number was read. `1.83 (0.72–4.67)` is a
+hazard ratio: JACC Table 2's column header reads verbatim `Effect HR (95% CI)`,
+and the Statistical Analysis section names Cox proportional hazard models with
+treatment group and research site as fixed-effect factors. A third witness needs
+neither sentence — Table 2's all-cause death row is 8/95 against 8/95, crude RR
+and OR both exactly 1.000, and the published value is 1.08; no crude measure
+produces that. **k=4 and HR 0.8715 (0.7461–1.0181) stand.** Dropping the trial
+would have made the result positive and would have been wrong.
+
+The answer was already in the object: `model_statement_quote` held that Cox
+sentence verbatim, in `935cf870a` — the commit that created the open question.
+Two fields never read against each other.
+
+**SGLT2_CKD: estimate WITHDRAWN, on two independent grounds.** The three trials
+count kidney-function decline at three different thresholds, each on its own
+registry record — CREDENCE a doubling of serum creatinine, DAPA-CKD ≥50% eGFR
+decline, EMPA-KIDNEY ≥40%; the ESKD floor differs too (<15 against <10). And
+separately: every stored per-trial value was an **odds ratio we derived from 2×2
+counts**, while all three trials analyse time to first occurrence — and the index
+card published that derived OR under the label **HR**.
+
+Confirmed and stated as prominently: the component *types* agree across all
+three, and all three results point the same way (crude RR 0.72, 0.63, 0.77).
+Agreement of results is not evidence of a common estimand. The component route
+(ESKD as dialysis-or-transplant, and CV death, identically defined in all three)
+is identified as the replacement question and **deliberately not taken** — it
+needs the registry results sections, and a replacement question must be chosen
+before its answer is known. **PARKED.**
+
+SGLT2_CKD **fails `extraction_table`, deliberately and on the record**: three
+values, three links, three read/derived markers and **zero verbatim quotes**. The
+endpoint definitions are quoted from the registry and the withdrawal rests on
+those; the event counts are carried from the extractor and a reader cannot check
+one of them. It is finished as a withdrawal, not at v1.
+
+**SGLT2_CKD is NOT one of the 53.** It sits in the CKD section of the index, like
+FINERENONE_CV. Counting it would be denominator drift.
+
+**Three gate defects, all found by running the gates rather than by an incident:**
+
+1. **A constant named `WITHHELD` did not match the word "withheld".** PCSK9 and
+   SGLT2_CKD were classified as ordinary published values. The gate now hunts its
+   own next gap with `--audit-vocabulary`.
+2. **The estimand gate's component vocabulary is entirely cardiological.** Three
+   different CKD composites all reduced to `{cv_death}` and it reported **PASS —
+   "they agree"**. This is the CABANA under-read with the sign flipped: every
+   previous under-read failed toward alarm, this one manufactures an agreement.
+   Fixed structurally — a recognition list decides PASS, an over-broad hunting
+   list decides whether the gate may decide at all.
+3. **The jump list double-escaped its own headings.** `_anchor_headings` strips
+   tags from already-escaped markup and the caller escapes again, so readers see
+   the literal characters `&middot;` and `&#x27;`. **Live on four of the seven v1
+   pages** — ARNI 15 occurrences, SGLT2_HF 3, IV_IRON 2, SOTAGLIFLOZIN 1 — and it
+   had polluted the anchor ids (`#screen-paragon-hf-nct01920711-middot-pmid-314757`).
+   Latent everywhere; it fires only on a heading containing an apostrophe,
+   ampersand, quote or angle bracket.
