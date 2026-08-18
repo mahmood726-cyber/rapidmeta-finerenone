@@ -60,14 +60,35 @@ if __name__ == "__main__":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
 # A reason ASSERTING that a safety endpoint was pooled with an efficacy one.
+#
+# DEFECT FOUND 2026-08-18: this pattern hard-coded the connective `and`, so it saw
+# "bleeding AND efficacy endpoints pooled" and missed "a harm endpoint was averaged
+# WITH three efficacy composites" -- the same claim, a different preposition. The ACS
+# antiplatelet withdrawal states that claim in terms and the gate returned
+# NOT_APPLICABLE, so the corpus's newest withdrawal was unwitnessed by the gate built
+# to witness withdrawals.
+#
+# DIRECTION MATTERS HERE. A missed match is a SILENT NOT_APPLICABLE -- the gate
+# declines to look and nothing says so. A spurious match merely makes it look at a
+# reason it need not have; the check that follows is still meaningful and its verdict
+# is still reported honestly. So the connective set is broadened deliberately, and the
+# selftest carries negatives to bound the over-fire.
+_CONNECTIVE = r"(?:and|with|alongside|plus|as well as)"
 MIXTURE = re.compile(
-    r"(bleeding|safety|adverse[- ]event|harm)s?\b[^.]{0,80}?\band\b[^.]{0,80}?"
-    r"(efficacy|effectiveness)|"
-    r"(efficacy|effectiveness)\b[^.]{0,80}?\band\b[^.]{0,80}?"
-    r"(bleeding|safety|adverse[- ]event|harm)s?", re.I)
+    r"(bleeding|safety|adverse[- ]event|harm)s?\b[^.]{0,80}?\b" + _CONNECTIVE +
+    r"\b[^.]{0,80}?(efficacy|effectiveness)|"
+    r"(efficacy|effectiveness)\b[^.]{0,80}?\b" + _CONNECTIVE +
+    r"\b[^.]{0,80}?(bleeding|safety|adverse[- ]event|harm)s?", re.I)
 
+# DEFECT FOUND 2026-08-18: a bleeding endpoint NAMED AFTER ITS SCALE carries no
+# safety word. TWILIGHT's registered primary is "Number of Participants With BARC
+# Type 2, 3, or 5" -- Bleeding Academic Research Consortium -- and nothing in that
+# title matches `bleed`. The named scales are added; TIMI is admitted ONLY in its
+# bleeding senses, because bare "TIMI" is also a risk score and a trial name
+# (TRITON-TIMI 38) and would match things that are not safety endpoints at all.
 SAFETY = re.compile(r"bleed|haemorrhag|hemorrhag|adverse event|toxicit|"
-                    r"tolerabilit|safety", re.I)
+                    r"tolerabilit|safety|\bBARC\b|\bISTH\b|\bGUSTO\b|"
+                    r"TIMI\s+(?:major|minor|clinically)", re.I)
 EFFICACY = re.compile(r"stroke|embolism|embolic|infarction|mortality|death|"
                       r"thromboembolism|recurren|revascularis|revasculariz|"
                       r"hospitali|composite of (?:cardiovascular|major)", re.I)
@@ -85,7 +106,23 @@ def endpoint_kinds(obj):
         bo = (t.get("by_outcome") or {}).get(oid) or {}
         d = bo.get("outcome_definition") or ""
         src = bo.get("outcome_definition_source") or {}
-        text = "%s %s" % (d, src.get("components_as_the_registry_states_them") or "")
+        # DEFECT FOUND 2026-08-18: this read the measure TITLE and one optional key,
+        # and never `description_verbatim` -- which is where the registry actually
+        # says what was counted. TWILIGHT's title is "BARC Type 2, 3, or 5" and its
+        # description says "clinically relevant bleeding episode ... Types 2, 3 or 5
+        # bleeding". The object carried the evidence; the gate was not looking at it.
+        #
+        # ONLY REGISTRY-SOURCED FIELDS ARE READ, and that restriction is the point.
+        # An outcome_definition_source block also carries OUR editorial notes, and
+        # several of them discuss efficacy and safety by name. Feeding those to this
+        # gate would let it convict or acquit a withdrawal using the withdrawal's own
+        # prose -- the corpus-echo failure this project has already logged twice.
+        # The gate must read what the REGISTRY said, never what we said about it.
+        text = " ".join([
+            d,
+            src.get("description_verbatim") or "",
+            src.get("components_as_the_registry_states_them") or "",
+        ])
         if not d:
             detail.append((t.get("name") or "?", None, None))
             continue
@@ -151,6 +188,37 @@ def selftest() -> int:
                 "The Percentage of Patients With the Composite Endpoint of Cardiovascular "
                 "Death, Myocardial Infarction, or Stroke"]
     MIX = "bleeding and efficacy endpoints pooled"
+
+    # --- fixtures for the three repairs of 2026-08-18 -----------------------------
+    # THE SECOND MATCHED PAIR, built the same way as the founding one: ONE sentence,
+    # two registration sets, opposite verdicts. It exercises BOTH new capabilities at
+    # once -- the connective is "with" and not "and", and the safety endpoint is named
+    # only by its SCALE. Before the repair this reason returned NOT_APPLICABLE on both
+    # members, which is the failure this pair exists to make impossible again.
+    MIX_WITH = ("a harm endpoint was averaged with three efficacy composites, which "
+                "is the defect this corpus has withdrawn pages for before")
+    BARC_TITLE = "Number of Participants With BARC Type 2, 3, or 5"
+    ISCHAEMIC = ("Participants With Any Event From the Composite of Death From "
+                 "Vascular Causes, Myocardial Infarction (MI), and Stroke")
+
+    def obj_src(reason, rows):
+        """rows: (title, registry description) -- the description is where a scale-named
+        bleeding endpoint actually says the word 'bleeding'."""
+        return {"inputs": {"trials": [
+                    {"name": "T%d" % i,
+                     "by_outcome": {"o": {
+                         "outcome_definition": t,
+                         "outcome_definition_source": {"description_verbatim": d}}}}
+                    for i, (t, d) in enumerate(rows)]},
+                "results": {"by_outcome": {"o": {
+                    "pooled": {"withdrawn": True, "withdrawn_reason": reason}}}}}
+
+    BARC_DESC = ("Number of participants with first occurrence of clinically relevant "
+                 "bleeding episode, defined as Bleeding Academic Research Consortium "
+                 "(BARC) Types 2, 3 or 5 bleeding.")
+    SECOND_BLEED = ("Percentage of Participants Who Had Composite of ISTH-Defined Major "
+                    "and Clinically-relevant Non-major Bleeding Events")
+
     cases = [
         ("FOUNDING APIXABAN_ACS: the reason is FALSE, both trials register bleeding",
          obj(MIX, APIX_ACS), "FAIL"),
@@ -163,6 +231,22 @@ def selftest() -> int:
         ("a live pool is NOT_APPLICABLE",
          {"inputs": {"trials": []},
           "results": {"by_outcome": {"o": {"pooled": {"point": 0.8}}}}}, "NOT_APPLICABLE"),
+
+        # --- the 2026-08-18 repairs, each with an input that can fail ---------------
+        ("REPAIR PAIR A/true: connective is 'with', safety named only as BARC -- TRUE",
+         obj_src(MIX_WITH, [(BARC_TITLE, BARC_DESC), (ISCHAEMIC, "")]), "PASS"),
+        ("REPAIR PAIR A/false: THE SAME SENTENCE, both trials bleeding -- FALSE",
+         obj_src(MIX_WITH, [(BARC_TITLE, BARC_DESC), (SECOND_BLEED, "")]), "FAIL"),
+        ("a scale-named bleeding endpoint with NO description is still not readable "
+         "as safety, and the gate must not invent it",
+         obj_src(MIX_WITH, [(BARC_TITLE, ""), (SECOND_BLEED, "")]), "FAIL"),
+        ("OVER-FIRE BOUND: a reason naming neither family is NOT_APPLICABLE even "
+         "with the broadened connective",
+         obj_src("the four trials compare four different drug pairs",
+                 [(BARC_TITLE, BARC_DESC), (ISCHAEMIC, "")]), "NOT_APPLICABLE"),
+        ("OVER-FIRE BOUND: 'efficacy' alone, with no safety term, is not a mixture claim",
+         obj_src("the efficacy composites are not identical across the trials",
+                 [(ISCHAEMIC, ""), (ISCHAEMIC, "")]), "NOT_APPLICABLE"),
     ]
     for label, o, want in cases:
         v, why, _ = assess(o)
