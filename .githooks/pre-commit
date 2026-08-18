@@ -1,0 +1,11 @@
+#!/bin/sh
+# Refuse a commit whose staged diff net-deletes from an SSOT object.
+#
+# WHY A HOOK AND NOT A HELPER: scripts/rebuild_guard.py was written for this exact
+# defect and committed the day before it recurred. It did not fire, because the
+# offending script used a different write path. A guard that must be remembered is
+# not a guard -- an available mechanism is not an operative one.
+#
+# Override with a reason on the record:
+#   SSOT_ALLOW_NET_DELETION="why" git commit ...
+python "$(git rev-parse --show-toplevel)/scripts/ssot_net_deletion_check.py" || exit 1
