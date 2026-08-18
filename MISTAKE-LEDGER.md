@@ -1880,3 +1880,71 @@ eight-tab spec, so the flagship shares a trial with two other topics and the rec
 so. Nothing here says the sharing is wrong -- a trial can legitimately inform several
 questions -- but an unrecorded shared seed means k is not independent across those topics, and
 any corpus-level count that adds them is double-counting.
+
+---
+
+## The matching-placebo convention makes description text unusable for "is the drug in this arm" (2026-08-19)
+
+**A trap anyone would fall into, and the fix is P11 arriving on a third field.**
+
+`topic_identity.locate()` was corrected so that a drug present in BOTH arms is BACKGROUND
+rather than the intervention — the EASi-HF case, where `vicadrostat/empagliflozin` against
+`placebo/empagliflozin` means the contrast is vicadrostat, not empagliflozin.
+
+**The first fix reclassified the base case as background.** DAPA-HF and DELIVER — true
+two-arm drug-vs-placebo designs — were scored background, because the control arm's
+intervention record is:
+
+```
+name: 'Placebo'   description: 'Placebo matching dapagliflozin 10 mg or 5 mg.'
+```
+
+**The registry's matching-placebo convention names the active drug in essentially every
+placebo description.** So a text test for "is the drug in this arm" returns TRUE for the
+control arm of every properly blinded trial in the database. It is not a tuning problem; the
+field cannot answer the question.
+
+What separates the two cases is **which intervention is attached to the arm**:
+
+| trial | control arm `interventionNames` | drug in control arm? |
+|---|---|---|
+| DAPA-HF | `['Drug: Placebo']` | no |
+| EASi-HF | `['Drug: empagliflozin', 'Drug: placebo']` | **yes** |
+
+**The coded relation answers it; the prose beside it does not.** That is P11 — the coded field
+governs, free text corroborates — arriving for the **third time in one night** on a third
+different field: comparator type, then arm-role vocabulary, now arm-intervention membership.
+Each time the answer was sitting in a coded field beside the text being read.
+
+**The general form.** When a check must decide a *structural* fact — membership, role,
+identity — look for the structure. Free text describing the structure is written for humans
+and follows conventions (matching-placebo, parenthetical abbreviation, verbosity) that are
+invisible until they break the check, and they break it in whichever direction the convention
+happens to point.
+
+---
+
+## Check ORDER determined the reported reason, and the verdict hid it (2026-08-19)
+
+Restating `bempedoic-acid-review`'s 16-trial screen under the two-axis structure changed the
+attribution substantially:
+
+| | one axis, as originally reported | two axes, restated |
+|---|---|---|
+| failing on OUTCOME | **13** | — outcome is not an eligibility limb |
+| ELIGIBLE but not poolable | — | **2** |
+| NOT eligible and not poolable | — | 11 |
+| NOT eligible but poolable | — | 3 |
+
+The original screener checked the outcome limb **first** and returned on the first failure. So
+for a trial failing both outcome and population, it reported OUTCOME — and the limb it named
+was decided by **the order I wrote the checks in**, not by the trial. Only two of the sixteen
+are genuinely eligible-and-unpoolable; the rest fail earlier limbs anyway.
+
+**Every verdict was correct.** Sixteen exclusions, sixteen right answers. The defect was
+entirely in the attributed reason, and nothing that reads verdicts could see it — the third
+instance of that class tonight, and the one that most looked like a finished result.
+
+**Rule:** a check that returns on first failure must either report ALL failing limbs, or state
+that the named limb is the first tested rather than the only one. A single reported reason from
+an ordered sequence of tests is a fact about the sequence.

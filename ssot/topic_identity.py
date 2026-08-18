@@ -88,8 +88,30 @@ def _hay(*parts):
 
 
 def locate(study, syns):
-    """Where does the topic drug appear? Reads the INTERVENTION LIST and the registration's
-    own name records -- never the arm label alone.
+    """WHAT EXACTLY WAS RANDOMISED? -- not "where does the topic drug appear".
+
+    THE QUESTION WAS REFRAMED 2026-08-19 AND TWO DEFECTS DISSOLVED UNDER IT.
+
+    Asked as "where does the drug appear", this function got both of these wrong:
+
+      BOTH ARMS      EASi-HF randomises vicadrostat/empagliflozin against placebo/empagliflozin.
+                     Empagliflozin appears in an EXPERIMENTAL arm, so it was scored
+                     `experimental` -- but it is given to everyone and the randomised contrast
+                     is vicadrostat. 7 of 43 trials on sglt2-hf, a 16% overcount in the ADDING
+                     direction, on exactly the add-on designs that dominate modern cardiology.
+
+      ONE ARM ONLY   NCT03794518 randomises "Pioglitazone Plus dapagliflozin" against placebo.
+                     The drug appears in the experimental arm and IS part of the contrast --
+                     but so is pioglitazone, absent from the control arm, so the estimate is
+                     not attributable to the SGLT2 inhibitor.
+
+    These look like opposite problems and are one question: **what is the difference between
+    the arms?** A drug in both arms is background and is not that difference; a second active
+    agent in one arm only is part of that difference and contaminates it. Both dissolve when
+    the assessor asks what was randomised rather than where a name occurs.
+
+    Reads the INTERVENTION LIST and the registration's own name records -- never the arm label
+    alone, and never a placebo's DESCRIPTION (see the control-arm test below).
 
     Returns (role, evidence). Role is NOT_ASSESSABLE when the drug cannot be located in any
     eligible field, which is a different state from having been excluded.
