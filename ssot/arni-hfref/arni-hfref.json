@@ -690,11 +690,34 @@
       "publication_value": "211/234",
       "registry_pointer": "ClinicalTrials.gov NCT04023227, adverse-events module",
       "publication_pointer": "Lopes RD et al., JAMA 2026;335(1):49-59, PMC12676478",
-      "status": "UNRESOLVED -- both values recorded, neither adopted",
+      "status": "RESOLVED 2026-08-18 -- both values correct, different observation windows",
       "found_by": "blinded head-to-head comparator, 2026-08-12",
       "recorded_utc": "2026-08-12T22:04:54Z",
       "why_it_matters": "Our own multi-source extraction pass did not record this discrepancy at all. A blinded comparator found it. The two sources disagree on both numerator and denominator for the same quantity in the same trial, and we carried only one side without noticing the other existed. Recorded here with both values and both pointers rather than resolved, because resolving it requires reading which population and which window each source is reporting, and picking one now would manufacture the appearance of a resolution.",
-      "lesson": "A multi-source pass that agrees with itself is not the same as a pass that checked both sources. This is the class our own harness names as 'consistency does not authenticate a row'."
+      "lesson": "A multi-source pass that agrees with itself is not the same as a pass that checked both sources. This is the class our own harness names as 'consistency does not authenticate a row'.",
+      "resolution": {
+       "resolved_from": "ClinicalTrials.gov NCT04023227 adverse-events module, read 2026-08-18",
+       "what_the_registry_posts": {
+        "sacubitril_valsartan": {
+         "serious_affected": 169,
+         "at_risk": 462
+        },
+        "enalapril": {
+         "serious_affected": 183,
+         "at_risk": 460
+        },
+        "all_participants": {
+         "serious_affected": 352,
+         "at_risk": 922
+        }
+       },
+       "the_notation_defect_found_first": "THE RECORDED VALUE \"169/183\" WAS NEVER A FRACTION. It is the two PER-ARM counts -- 169 on sacubitril/valsartan and 183 on enalapril -- written with a slash that reads as events-over-denominator. The denominators are 462 and 460, matching this trial's own arms block. Anyone reading it, including a blinded reviewer, would take it as a fraction, and the comparison against \"211/234\" then looks like a mismatch of BOTH numerator and denominator rather than two clean per-arm comparisons. A SLASH BETWEEN TWO SAME-KIND COUNTS IS AMBIGUOUS BY CONSTRUCTION.",
+       "the_cause_in_the_registry_own_words": "\"Adverse events were reported from first dose of study treatment until end of study treatment plus 30 days post treatment, up to a maximum duration of 55 months. Deaths were also collected in the survival follow-up phase from 31 days after last dose of study medication until the end of the study, for an additional 8 months. These were not considered AEs.\" -- ClinicalTrials.gov timeFrame, verbatim, read 2026-08-18.",
+       "what_a_reader_needs": "NEITHER NUMBER IS WRONG. THEY ANSWER DIFFERENT QUESTIONS. The registry counts ON-TREATMENT serious adverse events plus a 30-day window; the publication counts the full study period. The publication figures are higher in BOTH arms (211 vs 169, 234 vs 183), which is exactly what a longer observation window produces. This is a fact about how safety data is reported, NOT a defect in either source, and it is more useful to a reader than either figure alone.",
+       "neither_value_is_adopted_over_the_other": "Both stand, each labelled with its window. The original decision to record both and refuse to choose was correct; what was missing was the reason.",
+       "owed_but_optional": "The JAMA supplementary appendix would state the publication window in the paper's own words and make the statement symmetric. AVAILABLE IF WANTED, NOT NEEDED -- it cannot change the answer. FDA/EMA documents were NOT retrieved and are not required: the registry carries the resolving fact in its own declaration.",
+       "found_by_an_outside_check": "This discrepancy was surfaced by a BLINDED HEAD-TO-HEAD COMPARATOR on 2026-08-12, not by our own multi-source extraction pass, which did not record it at all. Third instance this week of an outside check finding what our own passes missed, after Codex on this object's internal contradiction and Gemini on the SGLT2 withdrawal -- ALL THREE ON PAGES WE HAD AUDITED HARDEST."
+      }
      }
     ],
     "citation_year_basis": "Issue year. JAMA vol 335 no 1 is a 2026 issue; the staged PMC header shows '2025 Dec 3', which is the Epub date, not the issue.",
