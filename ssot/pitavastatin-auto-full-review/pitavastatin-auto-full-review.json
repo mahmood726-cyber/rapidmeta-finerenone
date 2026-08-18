@@ -283,8 +283,8 @@
     },
     "comparator_type": "not recorded on the page this object was extracted from",
     "favours": "control",
-    "poolable": true,
-    "poolable_reason": "The extractor recovered a pooled result from this page, so the page pooled these trials. Whether they SHOULD have been pooled is not established by conversion - several pages in this corpus pooled harm with efficacy, or distinct agents, and their estimates were withdrawn for that reason.",
+    "poolable": false,
+    "poolable_reason": "THE ENDPOINTS AGREE AND THE MEASURE IS WRONG. Both registrations declare a CONTINUOUS primary -- NCT00309738 'Percent Change From Baseline in LDL-C' and NCT00309777 'Percent Change From Baseline in Low Density Lipoprotein-cholesterol (LDL-C) at 12 Weeks', read from ClinicalTrials.gov on 2026-08-18 -- and this object stored an ODDS RATIO for each and pooled them to OR 1.2237 (0.8423-1.7778). AN ODDS RATIO REQUIRES A DICHOTOMY AND A PERCENT CHANGE FROM BASELINE HAS NONE. This is the defect that withdrew BOCOCIZUMAB_LIPID in this corpus, and it is the same shape: the trials agree about what was measured, and the synthesis disagrees with both of them about how to measure it. THE PROVENANCE IS ABSENT AS WELL, by the object's own admission: each per-trial row records 'The point estimate and interval shown here are DERIVED, not read ... No source document was consulted and no source sentence is recorded', and outcome_definition was null on both trials. So the withdrawn value rested on an extractor recovery with no source sentence behind it. AUTHORITY: Cochrane Handbook 6.5 (2024) section 6 governs the choice of effect measure for a continuous outcome, and MECIR Box 10.10.a C62 requires that 'participants, interventions, comparisons and outcomes' be sufficiently similar to give a clinically meaningful answer -- an odds ratio on a continuous endpoint is not an answer to the question the trials asked. WHAT REPLACES IT, and it is a real analysis rather than a gap: a MEAN DIFFERENCE synthesis of percent change in LDL-C at 12 weeks, which both trials support and both registered. It needs each trial's least-squares mean difference read from its results record -- A SOURCE STEP NOT TAKEN HERE -- and is recorded as owed rather than estimated.",
     "estimand_homogeneous_across_cohorts": null,
     "pool_uniformity": {
      "effect_measure": [
@@ -339,10 +339,36 @@
     ],
     "pooled": {
      "measure": "OR",
-     "point": 1.2237114669623697,
-     "ci_low": 0.8423146928058669,
-     "ci_high": 1.7778031977418272,
-     "ci_level": 95
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "ci_level": 95,
+     "scale": "log",
+     "withdrawn": true,
+     "withdrawn_reason": "THE ENDPOINTS AGREE AND THE MEASURE IS WRONG. Both registrations declare a CONTINUOUS primary -- NCT00309738 'Percent Change From Baseline in LDL-C' and NCT00309777 'Percent Change From Baseline in Low Density Lipoprotein-cholesterol (LDL-C) at 12 Weeks', read from ClinicalTrials.gov on 2026-08-18 -- and this object stored an ODDS RATIO for each and pooled them to OR 1.2237 (0.8423-1.7778). AN ODDS RATIO REQUIRES A DICHOTOMY AND A PERCENT CHANGE FROM BASELINE HAS NONE. This is the defect that withdrew BOCOCIZUMAB_LIPID in this corpus, and it is the same shape: the trials agree about what was measured, and the synthesis disagrees with both of them about how to measure it. THE PROVENANCE IS ABSENT AS WELL, by the object's own admission: each per-trial row records 'The point estimate and interval shown here are DERIVED, not read ... No source document was consulted and no source sentence is recorded', and outcome_definition was null on both trials. So the withdrawn value rested on an extractor recovery with no source sentence behind it. AUTHORITY: Cochrane Handbook 6.5 (2024) section 6 governs the choice of effect measure for a continuous outcome, and MECIR Box 10.10.a C62 requires that 'participants, interventions, comparisons and outcomes' be sufficiently similar to give a clinically meaningful answer -- an odds ratio on a continuous endpoint is not an answer to the question the trials asked. WHAT REPLACES IT, and it is a real analysis rather than a gap: a MEAN DIFFERENCE synthesis of percent change in LDL-C at 12 weeks, which both trials support and both registered. It needs each trial's least-squares mean difference read from its results record -- A SOURCE STEP NOT TAKEN HERE -- and is recorded as owed rather than estimated.",
+     "withdrawn_utc": "2026-08-18"
+    },
+    "pooled_superseded_2026_08_18": {
+     "why": "Kept so the withdrawal can be audited against what it replaced. No number is deleted from the record.",
+     "value": {
+      "measure": "OR",
+      "point": 1.2237114669623697,
+      "ci_low": 0.8423146928058669,
+      "ci_high": 1.7778031977418272,
+      "ci_level": 95
+     }
+    },
+    "replacement_analysis_owed": {
+     "what": "A MEAN DIFFERENCE synthesis of percent change from baseline in LDL-C at 12 weeks, k=2, pitavastatin against simvastatin.",
+     "why_it_is_legitimate": "The two trials pass every limb MECIR C62 names: same intervention (pitavastatin), same active comparator (simvastatin), same population, same registered primary on the same scale. This is the only one of the six audit-first candidates that survives all four limbs.",
+     "what_it_needs": "Each trial's least-squares mean difference and its standard error, read from the trial's own results record. NOT AVAILABLE FROM THE OBJECT as it stands, because the stored rows are extractor-derived odds ratios with no source sentence.",
+     "same_step_owed_elsewhere": "BOCOCIZUMAB_LIPID and INCRETIN_HFpEF are owed the identical step and for the identical reason. Three replacement analyses, one source-reading task."
+    },
+    "registered_primaries_verbatim": {
+     "NCT00309738": "Percent Change From Baseline in LDL-C",
+     "NCT00309777": "Percent Change From Baseline in Low Density Lipoprotein-cholesterol (LDL-C) at 12 Weeks",
+     "read_utc": "2026-08-18",
+     "source": "registry"
     }
    }
   }
@@ -358,5 +384,6 @@
   "grade": "No certainty rating was recoverable from the page.",
   "sources": "No source registry was recoverable from the page, so no value on this page carries a resolvable link or a quoted source sentence.",
   "manuscript": "No manuscript exists for this review."
- }
+ },
+ "topic_state": "ESTIMATE WITHDRAWN on a measure defect; a mean-difference replacement analysis is identified and owed"
 }

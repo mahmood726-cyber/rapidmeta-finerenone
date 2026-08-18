@@ -939,3 +939,43 @@ prints the four excluded pools on every run.
 ask of each object not "is this in scope" but **"is the rule the REASON this one
 changes"**. Scope membership and causal attribution are different questions, and only
 the second is what an announcement asserts.
+
+
+---
+
+## The defect is never in the numbers — it is in what the numbers are about
+
+Four topics closed on 2026-08-18, and **not one of them could have been questioned by
+any consistency check this project has or could build.**
+
+| topic | what agrees | what does not |
+|---|---|---|
+| RIOCIGUAT_PAH | same drug, same placebo, same 6MWD primary | **PAH against CTEPH** — two diseases |
+| EDOXABAN_VTE | same drug, both VTE, both count VTE events | **prophylaxis against treatment**, adults against children |
+| MIPOMERSEN_HOFH | same drug, same placebo, same LDL-C primary | **one arm-vs-itself extension**; HoFH against statin-intolerant |
+| OLMESARTAN_HTN | same class, same BP primary, three real trials | **the titled drug is the comparator in all three** |
+
+**Every internal check passes on all four.** The numbers reconcile, the surfaces agree,
+the identifiers resolve, the endpoints match. Arithmetic cannot reach any of it, because
+nothing is wrong with the arithmetic.
+
+> **These are errors of REFERENCE, not of calculation. Only reading the registration
+> finds them, and only the registration can.**
+
+Four instances in one round, in four different shapes, is the strongest argument the
+method has produced for itself. It is also the sharpest statement of what the gate set
+cannot do: **31 gates across 7 kinds, and the kind that catches these is a human reading
+a registration.** The `subject_is_experimental` gate built the same day automates exactly
+one of the four shapes — the OLMESARTAN one — and the other three remain judgement.
+
+### And it reframes the published-meta comparison
+
+If a pool can be wrong in a way no arithmetic reveals, **a published synthesis making the
+same combination would look impeccable too.** Peer review does not recompute; it reads
+prose that describes the pool in the same terms the pool describes itself.
+
+**So where a published review pools the same trials as one of these four, that is now the
+comparison that matters most** — not as a check on our arithmetic, which agrees, but as
+evidence about whether the field has made the same reference error. **This is owed work
+and is not done:** none of the four has been checked against the published literature for
+a synthesis combining the same trials.
