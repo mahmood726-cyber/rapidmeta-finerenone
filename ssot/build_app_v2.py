@@ -606,6 +606,15 @@ def _outcome_section(canon, oid, p, e):
                if pooled.get("split_pools") else "")
             + "</div>" + NL)
     elif pooled:
+        # A POOL THAT STANDS SAYS WHY, WITH THE SAME PROMINENCE AS ONE THAT DOES
+        # NOT. The withdrawal branch above renders its reason first and states
+        # that "the reason is the deliverable". Nothing rendered the symmetric
+        # thing, so this projector showed a reader why an estimate was RETRACTED
+        # and never why one was KEPT -- and after three consecutive withdrawals
+        # that asymmetry is not neutral: it makes destruction legible and
+        # verification invisible.
+        _stands = pooled.get("stands_because")
+        _cav = pooled.get("caveats")
         headline = (
             "<div class='card'>" + NL + "  <h2>Pooled result</h2>" + NL
             + f"  <p class='num'>{e(pooled['measure'])} {fmt(pooled['point'])} "
@@ -637,6 +646,10 @@ def _outcome_section(canon, oid, p, e):
             + ((f"  <p><strong>How to read this:</strong> "
                 f"{p(res['interpretation_caveat'])}</p>" + NL)
                if res.get("interpretation_caveat") else "")
+            + (("  <div class='absent-state' role='note'><strong>Why this pool "
+                "stands.</strong> " + p(_stands) + "</div>" + NL)
+               if _stands else "")
+            + (("  <p><small>" + p(_cav) + "</small></p>" + NL) if _cav else "")
             # AN OPEN QUESTION ON THE ESTIMATE RENDERS FROM THE OBJECT.
             #
             # ARNI's was published as a HAND EDIT of the built page and existed

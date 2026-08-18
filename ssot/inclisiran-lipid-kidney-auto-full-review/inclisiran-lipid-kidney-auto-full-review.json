@@ -350,38 +350,109 @@
     "grade": null,
     "cross_engine": null,
     "sensitivity": {
-     "why": "The house estimator below k=10 is REML or Paule-Mandel, not DerSimonian-Laird, and this pool is k=3. Recomputed under all three rather than asserted to be robust.",
-     "runs": [
+     "method": "leave-one-out, plus a comparison of between-study variance estimators",
+     "authority": "Cochrane Handbook version 6.5.1, section 10.10.4.4: methods other than DerSimonian and Laird estimate the between-study variance better, and restricted maximum likelihood is the RevMan default. Section 10.14 governs the leave-one-out half. Cited to 10.10.4.4 rather than 10.10.4.5 because 10.10.4.5 is about INTERPRETATION with few studies and the method it compares is the confidence interval, not the variance estimator -- a miscitation this repository has already made once and corrected.",
+     "decision_under_test": "Two decisions. First, whether the pooled reduction depends on any single trial. Second, whether it depends on the between-study variance estimator and interval method -- which at k=3, with the house rule against DerSimonian-Laird below k=10, is not a formality but the reason this table exists.",
+     "analyses": [
       {
-       "estimator": "DerSimonian-Laird (as published)",
-       "tau2": 9.5247,
-       "point": -54.0014,
-       "ci_low": -58.1652,
-       "ci_high": -49.8377
+       "omitted": "orion-9",
+       "remaining": [
+        "orion-10",
+        "orion-11"
+       ],
+       "k": 2,
+       "point": -55.559,
+       "ci_low": -59.616,
+       "ci_high": -51.5019,
+       "tau2": 5.9247,
+       "i2": 69.1,
+       "still_excludes_null": true
       },
       {
-       "estimator": "Paule-Mandel",
-       "tau2": 11.3606,
-       "point": -53.9547,
-       "ci_low": -58.3978,
-       "ci_high": -49.5117
+       "omitted": "orion-10",
+       "remaining": [
+        "orion-9",
+        "orion-11"
+       ],
+       "k": 2,
+       "point": -52.1817,
+       "ci_low": -55.8531,
+       "ci_high": -48.5103,
+       "tau2": 2.6473,
+       "i2": 33.4,
+       "still_excludes_null": true
       },
       {
-       "estimator": "REML",
-       "tau2": 10.5954,
-       "point": -53.973,
-       "ci_low": -58.302,
-       "ci_high": -49.644
-      },
-      {
-       "estimator": "DerSimonian-Laird with Hartung-Knapp interval",
-       "tau2": 9.5247,
-       "point": -54.0014,
-       "ci_low": -63.705,
-       "ci_high": -44.298
+       "omitted": "orion-11",
+       "remaining": [
+        "orion-9",
+        "orion-10"
+       ],
+       "k": 2,
+       "point": -53.9036,
+       "ci_low": -61.8358,
+       "ci_high": -45.9715,
+       "tau2": 27.6487,
+       "i2": 83.9,
+       "still_excludes_null": true
       }
      ],
-     "conclusion": "The point estimate moves by 0.05 across estimators. The INTERVAL is the sensitive part: Hartung-Knapp is roughly twice as wide, and at k=3 with I-squared 72 per cent it is the more honest one."
+     "conclusion": "NO SINGLE TRIAL CARRIES THIS RESULT. Omitting each in turn gives -55.56 (-59.62 to -51.50), -52.18 (-55.85 to -48.51) and -53.90 (-61.84 to -45.97). All three exclude no effect and the pooled point moves by at most 1.8 percentage points on a scale of 54.",
+     "between_study_variance_method_comparison": {
+      "methods": [
+       {
+        "between_study_variance_estimator": "DL",
+        "interval_method": "Wald",
+        "point": -54.0014,
+        "ci_low": -58.1652,
+        "ci_high": -49.8377,
+        "tau2": 9.5247
+       },
+       {
+        "between_study_variance_estimator": "DL",
+        "interval_method": "HKSJ",
+        "point": -54.0014,
+        "ci_low": -63.7051,
+        "ci_high": -44.2977,
+        "tau2": 9.5247
+       },
+       {
+        "between_study_variance_estimator": "PM",
+        "interval_method": "Wald",
+        "point": -53.9547,
+        "ci_low": -58.3978,
+        "ci_high": -49.5117,
+        "tau2": 11.3606
+       },
+       {
+        "between_study_variance_estimator": "PM",
+        "interval_method": "HKSJ",
+        "point": -53.9547,
+        "ci_low": -63.7084,
+        "ci_high": -44.201,
+        "tau2": 11.3606
+       },
+       {
+        "between_study_variance_estimator": "REML",
+        "interval_method": "Wald",
+        "point": -53.973,
+        "ci_low": -58.302,
+        "ci_high": -49.644,
+        "tau2": 10.5954
+       },
+       {
+        "between_study_variance_estimator": "REML",
+        "interval_method": "HKSJ",
+        "point": -53.973,
+        "ci_low": -63.7075,
+        "ci_high": -44.2385,
+        "tau2": 10.5954
+       }
+      ],
+      "why": "Three between-study-variance estimators, each with Wald and Hartung-Knapp intervals. This pool is published under DerSimonian-Laird at k=3, and this project's own rule is REML or Paule-Mandel below k=10, so the first question a reader should be able to answer is whether that choice made the answer.",
+      "verdict": "IT DID NOT. The point estimate spans -53.95 to -54.00 across all six combinations -- a range of five hundredths on a scale of fifty-four -- and every one of the six intervals excludes no effect, the widest by more than forty percentage points. THE INTERVAL, NOT THE POINT, IS WHAT THE METHOD CHANGES: Wald gives about -58 to -50 and Hartung-Knapp about -64 to -44, roughly twice the width. At k=3 with I-squared of 72 per cent, HARTUNG-KNAPP IS THE HONEST ONE, and the precision shown on the index card is optimistic even though its direction and magnitude are not in doubt.",
+      "estimator_kept": "The published DerSimonian-Laird value is RETAINED as the headline. It reproduces exactly, and moving a correct published number by five hundredths of a percentage point would break every reader's record for no gain. Whether the corpus headline should move to REML everywhere is a display-change policy question for the whole corpus, not a finding about this topic, and it is parked as such."
+     }
     },
     "single_study_ref": null,
     "per_trial": [
@@ -450,7 +521,7 @@
   "screening": "No screening log was recoverable from the page.",
   "rob2": "No risk-of-bias assessment was recoverable from the page.",
   "grade": "No certainty rating was recoverable from the page.",
-  "sources": "No source registry was recoverable from the page, so no value on this page carries a resolvable link or a quoted source sentence.",
+  "sources": "PARTLY SUPERSEDED 2026-08-18. The blanket statement below was true of the CONVERSION and is no longer true of this object: every trial's PRIMARY OUTCOME VALUE has since been read from its own ClinicalTrials.gov results record and carries a resolvable registration link, and each is the registry's own ANCOVA mean difference. What remains true is that no JOURNAL sentence is quoted for any value. A reader can now check every number against the registry from this page; they still cannot check it against a publication from this page. ORIGINAL CONVERSION STATEMENT, kept because deleting it would hide what this object was: No source registry was recoverable from the page, so no value on this page carries a resolvable link or a quoted source sentence.",
   "manuscript": "No manuscript exists for this review."
  }
 }
