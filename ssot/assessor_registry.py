@@ -146,12 +146,64 @@ def _dedent(src):
 # DETECTORS 1, 3, 4 live in the registry itself.
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# DETECTOR 5: the unit of analysis. The one that is not about absence at all.
+# ---------------------------------------------------------------------------
+#
+# Detector 2 failed its own test in the exact shape of the bug it targets: it inspected
+# each AST NODE's local segment while claiming to check the FUNCTION, so normalisation in
+# one node and comparison in another never met. That is the same error as certifying a
+# per-tab migration with a grand-total check, and as a per-topic sweep that sums across
+# topics.
+#
+# None of these is an absence problem. THE CHECK RAN CORRECTLY ON THE WRONG UNIT. That is
+# a distinct failure class and it is mechanically detectable: make every assessor DECLARE
+# the unit it analyses, then verify the declared unit is the unit it actually iterates.
+
+class UnitMismatch(AssessorRejected):
+    pass
+
+
+def _iterated_expressions(fn):
+    """Every expression this function iterates over, as source text."""
+    try:
+        tree = ast.parse(_dedent(inspect.getsource(fn)))
+    except (OSError, TypeError, SyntaxError):
+        return None
+    out = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.For):
+            out.append(ast.unparse(node.iter))
+        elif isinstance(node, (ast.ListComp, ast.SetComp, ast.GeneratorExp, ast.DictComp)):
+            out.extend(ast.unparse(g.iter) for g in node.generators)
+    return out
+
+
+def check_unit(name, fn, unit, unit_source):
+    """`unit_source` is a token that MUST appear in what the function iterates.
+
+    unit="object" means the assessor judges the object as a whole and iterates no
+    sub-collection to reach its verdict.
+    """
+    iterated = _iterated_expressions(fn)
+    if iterated is None:
+        raise UnitMismatch(f"{name}: source unreadable, cannot verify unit of analysis.")
+    if unit == "object":
+        return
+    if not any(unit_source in expr for expr in iterated):
+        raise UnitMismatch(
+            f"{name}: declares unit={unit!r} but iterates {iterated or 'nothing'} -- none "
+            f"mentions {unit_source!r}. A check that runs on a unit other than the one it "
+            f"declares is the grand-total-versus-per-tab error, and it produces a correct "
+            f"answer to the wrong question.")
+
+
 class Registry:
     def __init__(self):
         self._by_name = {}
         self._paths = {}
 
-    def register(self, name, fn, reads, accepts=None):
+    def register(self, name, fn, reads, accepts=None, unit="object", unit_source=""):
         """DETECTOR 1 (duplicate path) + DETECTOR 2 (text equality) + DETECTOR 3 (types).
 
         `reads`   - every dotted path this assessor reads. Required, non-empty.
@@ -178,19 +230,21 @@ class Registry:
         if seg is None:
             raise AssessorRejected(f"{name}: source unreadable, cannot verify text handling.")
 
+        check_unit(name, fn, unit, unit_source)          # DETECTOR 5
+
         self._paths[key] = name
-        self._by_name[name] = (fn, tuple(reads), dict(accepts or {}))
+        self._by_name[name] = (fn, tuple(reads), dict(accepts or {}), unit)
         return fn
 
-    def assessor(self, name, reads, accepts=None):
+    def assessor(self, name, reads, accepts=None, unit="object", unit_source=""):
         def deco(fn):
-            self.register(name, fn, reads, accepts)
+            self.register(name, fn, reads, accepts, unit, unit_source)
             return fn
         return deco
 
     def type_guard(self, name, obj):
         """DETECTOR 3, applied before the assessor runs."""
-        _fn, _reads, accepts = self._by_name[name]
+        _fn, _reads, accepts, _unit = self._by_name[name]
         for path, types in accepts.items():
             r = read(obj, path)
             if r.state in ("absent", "empty", "unreadable"):
@@ -206,7 +260,7 @@ class Registry:
         """Run every assessor over every object, then DETECTOR 4."""
         results = collections.defaultdict(dict)
         for key, obj in objects.items():
-            for name, (fn, _reads, _acc) in self._by_name.items():
+            for name, (fn, _reads, _acc, _u) in self._by_name.items():
                 guarded = self.type_guard(name, obj)
                 results[name][key] = guarded if guarded else fn(obj)
         return dict(results), self.identical_tally_alarm(results)
