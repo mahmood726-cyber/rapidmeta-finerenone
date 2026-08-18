@@ -109,18 +109,18 @@ for d in BATCH1:
         entry["object_state"] = "UNREADABLE"
         entry["detail"] = unreadable[d]
         entry["verdicts"] = {n: [NOT_ASSESSABLE, f"cannot assess: {unreadable[d]}"]
-                             for n in P.SEVEN}
+                             for n in P.PRECONDITIONS}
     else:
         entry["object_state"] = "READ"
-        entry["verdicts"] = {n: list(matrix[n][d]) for n in P.SEVEN}
+        entry["verdicts"] = {n: list(matrix[n][d]) for n in P.PRECONDITIONS}
 
-    states = [entry["verdicts"][n][0] for n in P.SEVEN]
+    states = [entry["verdicts"][n][0] for n in P.PRECONDITIONS]
     entry["n_pass"] = states.count(PASS)
     entry["n_fail"] = states.count(FAIL)
     entry["n_not_assessable"] = states.count(NOT_ASSESSABLE)
-    entry["failed_preconditions"] = [n for n in P.SEVEN
+    entry["failed_preconditions"] = [n for n in P.PRECONDITIONS
                                      if entry["verdicts"][n][0] == FAIL]
-    entry["unassessable_preconditions"] = [n for n in P.SEVEN
+    entry["unassessable_preconditions"] = [n for n in P.PRECONDITIONS
                                            if entry["verdicts"][n][0] == NOT_ASSESSABLE]
     entry["builds"] = (entry["n_fail"] == 0 and entry["n_not_assessable"] == 0)
 
@@ -167,12 +167,12 @@ with open(out, "w", encoding="utf-8") as fh:
 
 # ---------------------------------------------------------------------------
 print("PRECONDITION MATRIX -- P=pass F=fail N=not-assessable")
-hdr = "".join(f"{n[:11]:>13}" for n in P.SEVEN)
+hdr = "".join(f"{n[:11]:>13}" for n in P.PRECONDITIONS)
 print(f"{'topic':<46}{hdr}")
 for d in BATCH1:
     e = report["topics"][d]
     row = "".join(f"{ {PASS: 'P', FAIL: 'F', NOT_ASSESSABLE: 'N'}[e['verdicts'][n][0]] :>13}"
-                  for n in P.SEVEN)
+                  for n in P.PRECONDITIONS)
     print(f"{d:<46}{row}")
 
 print()
@@ -198,7 +198,7 @@ for d in BATCH1:
 
 print()
 print("PER-PRECONDITION TALLY across the batch")
-for n in P.SEVEN:
+for n in P.PRECONDITIONS:
     st = [report["topics"][d]["verdicts"][n][0] for d in BATCH1]
     print(f"  {n:<30} PASS {st.count(PASS)}  FAIL {st.count(FAIL)}  N/A {st.count(NOT_ASSESSABLE)}")
 

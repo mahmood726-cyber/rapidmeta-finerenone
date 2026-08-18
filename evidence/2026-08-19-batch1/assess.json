@@ -14,7 +14,7 @@
      "PASS",
      "inputs.trials: all 4 trial(s) carry arms with a readable role"
     ],
-    "comparator_identified": [
+    "comparators_identified_and_consistent": [
      "PASS",
      "outcomes.comparator: all 1 outcome(s) name 'not recorded on the page this object was extracted from'"
     ],
@@ -22,9 +22,13 @@
      "PASS",
      "outcomes.estimand: all 1 outcome(s) name a quantity"
     ],
-    "inclusion_criteria_auditable": [
+    "criteria_stated": [
      "FAIL",
      "declared absent: screening.eligibility states its own absence: 'not recorded on the page this object was extracted from'"
+    ],
+    "criteria_predefined": [
+     "FAIL",
+     "no eligibility provenance, and absent_from_source.protocol says: 'No protocol or registration record was recoverable from the page.'. Predefinition cannot be shown without one."
     ],
     "eligibility_met": [
      "NOT-ASSESSABLE",
@@ -36,10 +40,11 @@
     ]
    },
    "n_pass": 5,
-   "n_fail": 1,
+   "n_fail": 2,
    "n_not_assessable": 1,
    "failed_preconditions": [
-    "inclusion_criteria_auditable"
+    "criteria_stated",
+    "criteria_predefined"
    ],
    "unassessable_preconditions": [
     "eligibility_met"
@@ -162,7 +167,7 @@
      "PASS",
      "inputs.trials: all 6 trial(s) carry arms with a readable role"
     ],
-    "comparator_identified": [
+    "comparators_identified_and_consistent": [
      "PASS",
      "outcomes.comparator: all 1 outcome(s) name 'placebo'"
     ],
@@ -170,9 +175,13 @@
      "PASS",
      "outcomes.estimand: all 1 outcome(s) name a quantity"
     ],
-    "inclusion_criteria_auditable": [
+    "criteria_stated": [
      "NOT-ASSESSABLE",
      "cannot assess: no key screening"
+    ],
+    "criteria_predefined": [
+     "NOT-ASSESSABLE",
+     "cannot assess: the object records neither an eligibility provenance block nor a statement about its protocol"
     ],
     "eligibility_met": [
      "NOT-ASSESSABLE",
@@ -185,10 +194,11 @@
    },
    "n_pass": 5,
    "n_fail": 0,
-   "n_not_assessable": 2,
+   "n_not_assessable": 3,
    "failed_preconditions": [],
    "unassessable_preconditions": [
-    "inclusion_criteria_auditable",
+    "criteria_stated",
+    "criteria_predefined",
     "eligibility_met"
    ],
    "builds": false,
@@ -267,7 +277,7 @@
      "NOT-ASSESSABLE",
      "cannot assess: inputs.trials has 2 trial(s) with no readable arms ['NCT02366871', 'NCT02829957'] and 0 with a blank arm role []. Absent role data is not a wrong role."
     ],
-    "comparator_identified": [
+    "comparators_identified_and_consistent": [
      "NOT-ASSESSABLE",
      "cannot assess: 1 of 1 outcome(s) carry no readable comparator ['primary']"
     ],
@@ -275,9 +285,13 @@
      "PASS",
      "outcomes.estimand: all 1 outcome(s) name a quantity"
     ],
-    "inclusion_criteria_auditable": [
+    "criteria_stated": [
      "NOT-ASSESSABLE",
      "cannot assess: no key screening"
+    ],
+    "criteria_predefined": [
+     "NOT-ASSESSABLE",
+     "cannot assess: the object records neither an eligibility provenance block nor a statement about its protocol"
     ],
     "eligibility_met": [
      "NOT-ASSESSABLE",
@@ -290,12 +304,13 @@
    },
    "n_pass": 2,
    "n_fail": 0,
-   "n_not_assessable": 5,
+   "n_not_assessable": 6,
    "failed_preconditions": [],
    "unassessable_preconditions": [
     "arm_role_resolved",
-    "comparator_identified",
-    "inclusion_criteria_auditable",
+    "comparators_identified_and_consistent",
+    "criteria_stated",
+    "criteria_predefined",
     "eligibility_met",
     "contributes_a_randomised_contrast"
    ],
@@ -364,7 +379,7 @@
      "PASS",
      "inputs.trials: all 2 trial(s) carry arms with a readable role"
     ],
-    "comparator_identified": [
+    "comparators_identified_and_consistent": [
      "PASS",
      "outcomes.comparator: all 1 outcome(s) name 'placebo'"
     ],
@@ -372,9 +387,13 @@
      "PASS",
      "outcomes.estimand: all 1 outcome(s) name a quantity"
     ],
-    "inclusion_criteria_auditable": [
+    "criteria_stated": [
      "FAIL",
      "declared absent: screening.eligibility states its own absence: 'not recorded on the page this object was built from'"
+    ],
+    "criteria_predefined": [
+     "FAIL",
+     "no eligibility provenance, and absent_from_source.protocol says: 'No protocol record was recoverable from the page.'. Predefinition cannot be shown without one."
     ],
     "eligibility_met": [
      "NOT-ASSESSABLE",
@@ -386,10 +405,11 @@
     ]
    },
    "n_pass": 5,
-   "n_fail": 1,
+   "n_fail": 2,
    "n_not_assessable": 1,
    "failed_preconditions": [
-    "inclusion_criteria_auditable"
+    "criteria_stated",
+    "criteria_predefined"
    ],
    "unassessable_preconditions": [
     "eligibility_met"
@@ -442,7 +462,7 @@
      "NOT-ASSESSABLE",
      "cannot assess: inputs.trials has 2 trial(s) with no readable arms ['NCT00846365', 'NCT01033071'] and 0 with a blank arm role []. Absent role data is not a wrong role."
     ],
-    "comparator_identified": [
+    "comparators_identified_and_consistent": [
      "PASS",
      "outcomes.comparator: all 1 outcome(s) name 'olmesartan medoxomil plus hydrochlorothiazide'"
     ],
@@ -450,9 +470,13 @@
      "PASS",
      "outcomes.estimand: all 1 outcome(s) name a quantity"
     ],
-    "inclusion_criteria_auditable": [
+    "criteria_stated": [
      "NOT-ASSESSABLE",
      "cannot assess: no key screening"
+    ],
+    "criteria_predefined": [
+     "NOT-ASSESSABLE",
+     "cannot assess: the object records neither an eligibility provenance block nor a statement about its protocol"
     ],
     "eligibility_met": [
      "NOT-ASSESSABLE",
@@ -465,11 +489,12 @@
    },
    "n_pass": 3,
    "n_fail": 0,
-   "n_not_assessable": 4,
+   "n_not_assessable": 5,
    "failed_preconditions": [],
    "unassessable_preconditions": [
     "arm_role_resolved",
-    "inclusion_criteria_auditable",
+    "criteria_stated",
+    "criteria_predefined",
     "eligibility_met",
     "contributes_a_randomised_contrast"
    ],
@@ -538,7 +563,7 @@
      "PASS",
      "inputs.trials: all 1 trial(s) carry arms with a readable role"
     ],
-    "comparator_identified": [
+    "comparators_identified_and_consistent": [
      "PASS",
      "outcomes.comparator: all 1 outcome(s) name 'placebo'"
     ],
@@ -546,24 +571,28 @@
      "PASS",
      "outcomes.estimand: all 1 outcome(s) name a quantity"
     ],
-    "inclusion_criteria_auditable": [
+    "criteria_stated": [
+     "PASS",
+     "present: screening.eligibility carries 704 characters"
+    ],
+    "criteria_predefined": [
      "FAIL",
-     "declared absent: screening.eligibility states its own absence: 'not recorded on the page this object was built from'"
+     "screening.eligibility_provenance.predefined is false: the criteria were DERIVED post hoc from this object's own question and recorded exclusions. That is auditable (R29/R30/R31) and is not pre-specification (C5/C7). This FAIL is permanent and correct."
     ],
     "eligibility_met": [
      "NOT-ASSESSABLE",
-     "cannot assess: criteria are not stated (screening.eligibility states its own absence: 'not recorded on the page this object was built from'), so whether any trial met them cannot be decided"
+     "cannot assess: criteria are stated, but sources is an empty dict -- no full text was available this pass, and inclusion logic is conditional prose"
     ],
     "contributes_a_randomised_contrast": [
      "PASS",
      "inputs.trials.arms: all 1 readable trial(s) contribute one topic-vs-control randomised contrast"
     ]
    },
-   "n_pass": 5,
+   "n_pass": 6,
    "n_fail": 1,
    "n_not_assessable": 1,
    "failed_preconditions": [
-    "inclusion_criteria_auditable"
+    "criteria_predefined"
    ],
    "unassessable_preconditions": [
     "eligibility_met"
@@ -616,7 +645,7 @@
      "PASS",
      "inputs.trials: all 5 trial(s) carry arms with a readable role"
     ],
-    "comparator_identified": [
+    "comparators_identified_and_consistent": [
      "PASS",
      "outcomes.comparator: all 2 outcome(s) name 'placebo'"
     ],
@@ -624,9 +653,13 @@
      "PASS",
      "outcomes.estimand: all 2 outcome(s) name a quantity"
     ],
-    "inclusion_criteria_auditable": [
+    "criteria_stated": [
      "FAIL",
      "declared absent: screening.eligibility states its own absence: 'not recorded on the page this object was built from'"
+    ],
+    "criteria_predefined": [
+     "FAIL",
+     "no eligibility provenance, and absent_from_source.protocol says: 'No protocol record was recoverable from the page.'. Predefinition cannot be shown without one."
     ],
     "eligibility_met": [
      "NOT-ASSESSABLE",
@@ -638,10 +671,11 @@
     ]
    },
    "n_pass": 5,
-   "n_fail": 1,
+   "n_fail": 2,
    "n_not_assessable": 1,
    "failed_preconditions": [
-    "inclusion_criteria_auditable"
+    "criteria_stated",
+    "criteria_predefined"
    ],
    "unassessable_preconditions": [
     "eligibility_met"
@@ -702,7 +736,7 @@
      "NOT-ASSESSABLE",
      "cannot assess: inputs.trials has 2 trial(s) with no readable arms ['NCT00303459', 'NCT00319020'] and 0 with a blank arm role []. Absent role data is not a wrong role."
     ],
-    "comparator_identified": [
+    "comparators_identified_and_consistent": [
      "NOT-ASSESSABLE",
      "cannot assess: 1 of 1 outcome(s) carry no readable comparator ['primary']"
     ],
@@ -710,9 +744,13 @@
      "PASS",
      "outcomes.estimand: all 1 outcome(s) name a quantity"
     ],
-    "inclusion_criteria_auditable": [
+    "criteria_stated": [
      "NOT-ASSESSABLE",
      "cannot assess: no key screening"
+    ],
+    "criteria_predefined": [
+     "NOT-ASSESSABLE",
+     "cannot assess: the object records neither an eligibility provenance block nor a statement about its protocol"
     ],
     "eligibility_met": [
      "NOT-ASSESSABLE",
@@ -725,12 +763,13 @@
    },
    "n_pass": 2,
    "n_fail": 0,
-   "n_not_assessable": 5,
+   "n_not_assessable": 6,
    "failed_preconditions": [],
    "unassessable_preconditions": [
     "arm_role_resolved",
-    "comparator_identified",
-    "inclusion_criteria_auditable",
+    "comparators_identified_and_consistent",
+    "criteria_stated",
+    "criteria_predefined",
     "eligibility_met",
     "contributes_a_randomised_contrast"
    ],

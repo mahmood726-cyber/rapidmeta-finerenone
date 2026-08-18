@@ -33,8 +33,83 @@
  },
  "screening": {
   "search_note": "not recorded on the page this object was built from",
-  "eligibility": "not recorded on the page this object was built from",
-  "known_limitation": "not recorded on the page this object was built from"
+  "eligibility": "Eligible studies are those addressing the review's stated question: Does bempedoic acid reduce major cardiovascular events in statin-intolerant patients? One trial answers this; the other three registrations on this page measure something else, and one of them is not a bempedoic acid trial. Comparator: placebo. Outcome: Number of Participants With First Occurrence of Four Component Major Adverse Cardiovascular Events (MACE). Effect measure: HR. Design as recorded: 2 arms; declared contrast ['Bempedoic Acid 180 mg', 'Placebo Comparator']. DERIVED POST HOC on 2026-08-19 from this object's own recorded fields; NOT pre-specified. See screening.eligibility_provenance for the per-element source paths.",
+  "known_limitation": "not recorded on the page this object was built from",
+  "eligibility_as_extracted": "not recorded on the page this object was built from",
+  "eligibility_as_extracted_means": "The value `screening.eligibility` held BEFORE a criteria block was derived. It describes the SOURCE PAGE and remains true: the page recorded no criteria. It is preserved because `criteria_predefined` depends on it.",
+  "eligibility_provenance": {
+   "state": "DERIVED_FROM_THIS_OBJECT",
+   "predefined": false,
+   "post_hoc": true,
+   "derived_on": "2026-08-19",
+   "topic": "bempedoic-acid-review",
+   "authority_permitting_this": "MECIR R107 'Changes from the protocol' (Mandatory): post hoc decisions about eligibility criteria are permitted where explained, justified, and keeping faith with the objectives of the review rather than being driven by the findings.",
+   "authority_it_satisfies": "MECIR R29/R30/R31 (Mandatory REPORTING standards) -- the review STATES its eligibility criteria. Satisfies precondition `criteria_stated`.",
+   "authority_it_does_NOT_satisfy": "MECIR C5/C7 (Mandatory CONDUCT standards) -- criteria DEFINED IN ADVANCE. A post hoc derivation cannot discharge pre-specification, and precondition `criteria_predefined` therefore FAILS for this topic, permanently and correctly.",
+   "method": "Projected from this object's own recorded fields. Population and intervention from the review's stated objective; comparator, outcome and effect measure from the outcome record; design from registry-derived count fields. Every element names the path it came from.",
+   "what_was_deliberately_not_written": [
+    "'randomised' -- no field in this object asserts randomisation",
+    "any demographic qualifier the question does not state",
+    "any property of an included TRIAL that is not the REVIEW's admission rule"
+   ],
+   "exclusions_not_promoted_to_rules": "Recorded exclusions remain in `eligible_but_not_contributing` with their own reasons. They are NOT generalised into exclusion rules here: inducing a rule from the trials that were dropped is reasoning from the FINDINGS, which is the half R107 forbids.",
+   "elements": [
+    {
+     "limb": "objective",
+     "value": "Does bempedoic acid reduce major cardiovascular events in statin-intolerant patients? One trial answers this; the other three registrations on this page measure something else, and one of them is not a bempedoic acid trial.",
+     "derived_from": "question",
+     "source_text": "Does bempedoic acid reduce major cardiovascular events in statin-intolerant patients? One trial answers this; the other three registrations on this page measure something else, and one of them is not a bempedoic acid trial."
+    },
+    {
+     "limb": "comparator",
+     "value": "placebo",
+     "derived_from": "outcomes[0].comparator",
+     "source_text": "placebo",
+     "corroborated_by": "inputs.trials[0].arms[] carries a control arm labelled 'Placebo Comparator'"
+    },
+    {
+     "limb": "comparator_type",
+     "value": "placebo",
+     "derived_from": "outcomes[0].comparator_type",
+     "source_text": "placebo"
+    },
+    {
+     "limb": "outcome",
+     "value": "Number of Participants With First Occurrence of Four Component Major Adverse Cardiovascular Events (MACE)",
+     "derived_from": "outcomes[0].definition",
+     "source_text": "Number of Participants With First Occurrence of Four Component Major Adverse Cardiovascular Events (MACE)",
+     "corroborated_by": "inputs.trials[0].registered_primaries[] carries this string IDENTICALLY, and that field came from the registry record rather than from the object's own prose -- an independent confirmation"
+    },
+    {
+     "limb": "effect_measure",
+     "value": "HR",
+     "derived_from": "outcomes[0].measure",
+     "source_text": "HR"
+    },
+    {
+     "limb": "effect_scale",
+     "value": "log",
+     "derived_from": "outcomes[0].effect_scale",
+     "source_text": "log"
+    },
+    {
+     "limb": "direction_of_benefit",
+     "value": "lower is better",
+     "derived_from": "outcomes[0].direction_of_benefit",
+     "source_text": "lower is better"
+    },
+    {
+     "limb": "design",
+     "value": "2 arms; declared contrast ['Bempedoic Acid 180 mg', 'Placebo Comparator']",
+     "derived_from": "inputs.trials[0].registration_arm_count + .registration_declared_contrasts",
+     "source_text": "2 / [['Bempedoic Acid 180 mg', 'Placebo Comparator']]"
+    }
+   ],
+   "notes": [
+    "population and intervention are read from question, which is the review's statement of its OWN OBJECTIVE -- the side of R107's line that post hoc derivation is permitted to use",
+    "DESIGN records ONLY arm count and the declared contrast. The word 'randomised' is NOT written, because no field in this object asserts randomisation -- regardless of what is known about the trial elsewhere."
+   ]
+  }
  },
  "screening_names_unresolved": [],
  "eligible_but_not_contributing": {

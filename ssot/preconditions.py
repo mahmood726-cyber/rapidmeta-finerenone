@@ -1,12 +1,15 @@
-"""The seven preconditions a topic must satisfy before it may publish a pooled estimate.
+"""The preconditions a topic must satisfy before it may publish a pooled estimate.
+
+EIGHT of them, as of 2026-08-19. They were authored as SEVEN and `inclusion_criteria_auditable`
+later split into `criteria_stated` + `criteria_predefined` -- see the block above those two.
 
 =============================================================================
-THESE SEVEN WERE AUTHORED IN THIS SESSION. THEY WERE NOT RECOVERED.
+THESE WERE AUTHORED IN THIS SESSION. THEY WERE NOT RECOVERED.
 =============================================================================
 
 `build_queue_v2.tsv` and the registered assessor set both went out with the discarded
 working tree of 2026-08-18. `assessor_registry.Registry()` had ZERO registered assessors
-when this session started. So the seven below are NEW, and that fact is recorded here
+when this session started. So the preconditions below are NEW, and that fact is recorded here
 rather than in a commit message, deliberately.
 
 WHY IT IS RECORDED. Authoring the standard you have been asked to measure against is this
@@ -14,7 +17,7 @@ project's own substitution class, aimed at the refusal list: if the author of th
 preconditions is also the author of the refusals, then a topic's refusal is not evidence
 about the topic. Naming the constraint in the artifact does not remove it. What it does is
 let a later reader **disagree with the standard rather than with the results** -- the
-verdicts below are reproducible from these seven definitions, so replacing a definition
+verdicts below are reproducible from these definitions, so replacing a definition
 replaces its verdicts mechanically, and no re-derivation of the corpus is needed.
 
 Authorised 2026-08-19 under the standing instruction that the Handbook decides. Three
@@ -120,7 +123,7 @@ def population_stated(obj):
     RIOCIGUAT_PAH (PAH pooled with CTEPH) and DABIGATRAN_STROKE (AF pooled with ESUS) both
     STATE a population correctly and then include trials from another one. Catching that
     needs the registry's condition field per trial, and it is a separate check that is not
-    in these seven. This precondition is the weaker, prior question: is there a stated
+    in this set. This precondition is the weaker, prior question: is there a stated
     population to audit against at all. A PASS here is not a claim that the population is
     homogeneous.
     """
@@ -254,23 +257,84 @@ def estimand_named(obj):
 # ---------------------------------------------------------------------------
 # 5. AUDITABILITY -- can the included set be audited at all?
 # ---------------------------------------------------------------------------
+# THIS WAS ONE PRECONDITION AND IS NOW TWO, FOR THE THIRD TIME IN TWO NIGHTS.
+#
+# `inclusion_criteria_auditable` cited MECIR C5/C7. Reading the MECIR manual on 2026-08-19
+# showed those govern PREDEFINITION -- "Define in advance..." -- while the check only asks
+# whether the object can STATE its criteria. MECIR has separate REPORTING standards whose
+# verb is exactly the difference:
+#
+#   R29 "Eligibility criteria for types of participants"  (Mandatory) -- "STATE eligibility
+#       criteria for participants, including any criteria around location, setting, diagnosis
+#       or definition of condition and demographic factors..."
+#   R30 "Eligibility criteria for types of interventions" (Mandatory) -- "STATE eligibility
+#       criteria for interventions and comparators..."
+#   R31 "Role of outcomes" (Mandatory)
+#
+# So STATING and PREDEFINING are two questions, and one name was carrying both -- the same
+# shape as `inclusion_criteria_auditable` vs `eligibility_met`, and as `subject_role`.
+# Splitting them is what lets a DERIVED criteria block discharge the first and honestly fail
+# the second, instead of one verdict having to be wrong either way.
+
 @register_precondition(
-    "inclusion_criteria_auditable",
+    "criteria_stated",
     reads=["screening.eligibility"],
+    handbook_section="MECIR R29 'Eligibility criteria for types of participants', R30 "
+                     "'...types of interventions', R31 'Role of outcomes' -- ALL Mandatory "
+                     "REPORTING standards (READ 2026-08-19). Their verb is STATE. A block "
+                     "DERIVED post hoc satisfies this if it is labelled post hoc per R107.",
+    unit="object")
+def criteria_stated(obj):
+    """Can the OBJECT state the criteria its included set was chosen by, however arrived at?
+
+    A declared "not recorded on the page this object was built from" is a readable, definite
+    NO -- FAIL. No `screening` key at all is silence -- NOT_ASSESSABLE.
+
+    This does NOT ask whether the criteria were predefined. `criteria_predefined` asks that,
+    and a derived block cannot discharge it.
+    """
+    return judge(read(obj, "screening.eligibility"), declared_absence_is_failure=True)
+
+
+@register_precondition(
+    "criteria_predefined",
+    reads=["screening.eligibility_provenance", "absent_from_source.protocol"],
     handbook_section="MECIR C5 'Predefining unambiguous criteria for participants' AND C7 "
                      "'...for interventions and comparators', BOTH Mandatory (READ "
                      "2026-08-19): 'Predefined, unambiguous eligibility criteria are a "
-                     "fundamental prerequisite for a systematic review.'",
+                     "fundamental prerequisite for a systematic review.' C5/C7 govern "
+                     "PREDEFINITION and CANNOT be discharged by a post hoc derivation.",
     unit="object")
-def inclusion_criteria_auditable(obj):
-    """Can the OBJECT state the criteria its included set was chosen by?
+def criteria_predefined(obj):
+    """Were the criteria defined IN ADVANCE? A derived block is definitively NOT.
 
-    A declared "not recorded on the page this object was built from" is a readable, definite
-    NO -- FAIL. No `screening` key at all is silence -- NOT_ASSESSABLE. These are different
-    states and the 2026-08-18 split of this name from `eligibility_met` exists because one
-    word was carrying both questions.
+    THIS PRECONDITION EXISTS TO BE UNDISCHARGEABLE WHERE IT SHOULD BE. C5/C7 exist precisely
+    to stop an author reading the included trials and then writing criteria that fit them.
+    A block derived from the object's own recorded question and recorded exclusions is exactly
+    that shape -- legitimate for auditability under R107, and NOT pre-specification.
+
+    So a derived block sets `predefined: false` and this returns FAIL, permanently and
+    correctly. Recording that as a PASS would be the substitution class, wearing the
+    derivation as cover.
     """
-    return judge(read(obj, "screening.eligibility"), declared_absence_is_failure=True)
+    prov = read(obj, "screening.eligibility_provenance")
+    if prov.readable:
+        flag = read_scalar(prov.value, "predefined")
+        if flag.readable and flag.value is False:
+            return FAIL, ("screening.eligibility_provenance.predefined is false: the criteria "
+                          "were DERIVED post hoc from this object's own question and recorded "
+                          "exclusions. That is auditable (R29/R30/R31) and is not "
+                          "pre-specification (C5/C7). This FAIL is permanent and correct.")
+        if flag.readable and flag.value is True:
+            return PASS, "screening.eligibility_provenance.predefined is true"
+    # No provenance block: fall back to whether a PROTOCOL was recoverable at all. A protocol
+    # is the artefact in which predefinition would live.
+    proto = read(obj, "absent_from_source.protocol")
+    if proto.readable:
+        return FAIL, (f"no eligibility provenance, and absent_from_source.protocol says: "
+                      f"{str(proto.value)[:90]!r}. Predefinition cannot be shown without one.")
+    return NOT_ASSESSABLE, ("cannot assess: the object records neither an eligibility "
+                            "provenance block nor a statement about its protocol")
 
 
 # ---------------------------------------------------------------------------
@@ -488,8 +552,20 @@ def contributes_a_randomised_contrast(obj):
         f"topic-vs-control randomised contrast")
 
 
-SEVEN = ("population_stated", "arm_role_resolved", "comparators_identified_and_consistent", "estimand_named",
-         "inclusion_criteria_auditable", "eligibility_met", "contributes_a_randomised_contrast")
+# EIGHT, NOT SEVEN, AND THE COUNT CHANGED FOR A REASON WORTH KEEPING.
+#
+# `inclusion_criteria_auditable` split into `criteria_stated` (R29/R30/R31, dischargeable by
+# a derivation) and `criteria_predefined` (C5/C7, not dischargeable post hoc) on 2026-08-19.
+# The name SEVEN is retained as an alias so nothing that imported it breaks silently, but the
+# canonical name is PRECONDITIONS and the count is 8. A constant whose name asserts a count
+# that is no longer true is the stale-prose defect in identifier form.
+PRECONDITIONS = ("population_stated", "arm_role_resolved",
+                 "comparators_identified_and_consistent", "estimand_named",
+                 "criteria_stated", "criteria_predefined", "eligibility_met",
+                 "contributes_a_randomised_contrast")
 
-assert len(REGISTRY._by_name) == 7, f"expected 7 registered, got {len(REGISTRY._by_name)}"
-assert set(REGISTRY._by_name) == set(SEVEN), "registered names disagree with SEVEN"
+SEVEN = PRECONDITIONS      # deprecated alias; the set is now eight
+
+assert len(REGISTRY._by_name) == len(PRECONDITIONS), (
+    f"expected {len(PRECONDITIONS)} registered, got {len(REGISTRY._by_name)}")
+assert set(REGISTRY._by_name) == set(PRECONDITIONS), "registered names disagree with PRECONDITIONS"

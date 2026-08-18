@@ -1755,3 +1755,69 @@ And "unresolved" still cannot carry a rate. Decomposed by PublicationType the la
 bucket is **OTHER / uncategorised (35)**, against RESOLVED 22, not-a-trial 12,
 unregistered 4, and **genuinely unresolved trials: 2**. A denominator whose biggest class
 is uncategorised is not a denominator.
+
+---
+
+## A Handbook section cited from memory is a registration number cited from memory (2026-08-19)
+
+**The methodological instance of identifiers-by-lookup-never-recall.** This project already
+treats trial IDs, PMIDs, DOIs and dates as typed fields that must be checked against a source
+rather than recalled. On 2026-08-19 the same defect appeared one level up, in the authority
+layer, and it took four instances in one session before it was named.
+
+| cited from recall | what the source actually says |
+|---|---|
+| Handbook 6.5 s23.1 = multi-arm trials | s23.1 is **cluster-randomized trials** |
+| Handbook 6.5 s23.2 = factorial trials | s23.2 is **crossover trials** |
+| MECIR "Box 10.10.a C62" | there is no Box 10.10.a in the MECIR manual |
+| Handbook 6.5 s10.10.3 as the PICO-limb rule | it is "Strategies for addressing heterogeneity" |
+| MECIR C5/C7 for `inclusion_criteria_auditable` | C5/C7 govern PREDEFINITION; the check asks about STATING, which is R29/R30/R31 |
+| MECIR C7 for `arm_role_resolved` / `comparators_identified...` | C7 governs predefinition; those checks read whether a field is populated |
+
+**Six citations, and not one of them was fixed by thinking harder.** Every one was fixed by
+opening the source. The first three were caught by fetching the chapters; the fourth by
+extracting the MECIR PDF locally; the fifth and sixth by a cross-family reviewer reading the
+verbatim standard text that had been pasted in front of it.
+
+**The sharper half.** A wrong section NUMBER is caught by looking it up. A wrong RULE is only
+caught by READING WHAT THE SECTION SAYS. `one_randomised_comparison` required exactly one
+topic-vs-control comparison per trial; Handbook 6.5 s23.3.4 says the recommended method is to
+COMBINE all relevant experimental groups and all relevant comparator groups, and that
+selecting a single pair "results in a loss of information and is open to results-related
+choices, so is not generally recommended." The check demanded the strategy the Handbook
+discourages and FAILED trials it says to include. Checking that the number resolved would not
+have caught it.
+
+**The rule.** Cite no section that has not been read in the current edition in the current
+session. `HANDBOOK_AUTHORITY` and `SECTION_VERIFIED_ON` fail closed for exactly this, and
+`verdict_is_publishable()` gates publication on both. A citation is an identifier; an
+identifier from memory is a guess wearing a number.
+
+---
+
+## The derivation refused three of the four topics it was built for (2026-08-19)
+
+An eligibility-criteria block was DERIVED by projection from each object's own recorded
+fields, under MECIR R107, which permits post hoc eligibility decisions where they are
+labelled, explained, justified, and keep faith with the OBJECTIVES rather than the FINDINGS.
+
+**The first dry run built blocks for all four, and two of those were wrong.** Both defects
+were caught before anything was written, and both are the house classes:
+
+1. **A declared absence became a criterion.** Element values were read with
+   `treat_declared_absent=False`, so `ablation-af-review`'s comparator -- literally *"not
+   recorded on the page this object was extracted from"* -- was rendered into the criteria
+   prose as `Comparator: not recorded on the page...`. The topic would then have PASSED
+   `criteria_stated` **while stating nothing**. Manufacturing a pass, which is the one thing
+   a derivation may never do.
+2. **A finding about the page was accepted as an objective.** Three of the four questions are
+   not admission rules at all -- `bococizumab`'s is *"this page derived an odds ratio from
+   counts"*, `attr-cm`'s is *"the two hierarchies are not the same hierarchy"*. Rendering
+   *"Eligible studies are those addressing: [a complaint about the page's arithmetic]"* is
+   not a criteria statement. The mechanical discriminator adopted: **a criteria statement
+   that never NAMES the intervention is not an admission rule for that intervention**, tested
+   against the topic's declared synonym set.
+
+**Result: 1 derived, 3 refused.** That ratio is the evidence the guards work. A derivation
+engine that succeeded on all four would have been the fabrication the exercise was designed
+to avoid.
