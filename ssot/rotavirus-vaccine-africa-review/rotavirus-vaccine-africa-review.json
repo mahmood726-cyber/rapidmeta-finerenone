@@ -501,8 +501,8 @@
     "estimand_id": "primary",
     "estimand_id_means": "not recorded on the page this object was extracted from",
     "model": "random-effects",
-    "estimator": "DerSimonian-Laird inverse-variance on extracted effect estimates",
-    "estimator_used": "DerSimonian-Laird inverse-variance on extracted effect estimates",
+    "estimator": "REML (restricted maximum likelihood)",
+    "estimator_used": "REML (restricted maximum likelihood)",
     "handbook": {
      "decision": "NOT RECORDED - no methods decision was recoverable from the page",
      "sections": [],
@@ -580,10 +580,35 @@
     ],
     "pooled": {
      "measure": "OR",
-     "point": 0.4939682351614559,
-     "ci_low": 0.34548503614830084,
-     "ci_high": 0.7062668185830875,
+     "point": 0.4940987113879037,
+     "ci_low": 0.34655627026666563,
+     "ci_high": 0.7044556902904479,
      "ci_level": 95
+    },
+    "display_change_announced": {
+     "changed_utc": "2026-08-18",
+     "what_changed": "The between-study variance estimator moved from DerSimonian-Laird to REML, so the pooled point estimate and its interval both move.",
+     "from": {
+      "point": 0.4939682351614559,
+      "ci_low": 0.34548503614830084,
+      "ci_high": 0.7062668185830875,
+      "estimator": "DerSimonian-Laird inverse-variance on extracted effect estimates"
+     },
+     "to": {
+      "point": 0.4940987113879037,
+      "ci_low": 0.34655627026666563,
+      "ci_high": 0.7044556902904479,
+      "estimator": "REML (restricted maximum likelihood)"
+     },
+     "shift_percent": 0.0264,
+     "tau2": {
+      "dersimonian_laird": 0.05718327995238217,
+      "reml": 0.05567600846615663
+     },
+     "conclusion_unchanged": true,
+     "authority": "Cochrane Handbook 6.5 (2024) section 10.10.4.4",
+     "why": "REML is Cochrane's own current default and the Handbook states that 'no single approach is universally preferable'. THE CORPUS WAS ALREADY MIXED -- ARNI published the REML value while others published DL -- so this was never a choice between changing and not changing, it was a choice between one estimator and two.",
+     "a_reader_who_wrote_down_the_old_value": "The previous value is recorded above in full. A reader who noted the old number can see exactly what it was, what it is now, and why -- which is the whole point of announcing a display change rather than letting a refinement look like a retraction."
     }
    }
   }
