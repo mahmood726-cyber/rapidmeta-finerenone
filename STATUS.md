@@ -216,7 +216,37 @@ none of them blocks the rest of the programme.
    estimator on every card. **Not decided here: (a) and (b) both change published
    numbers, which is his call.**
 
-6. **SGLT2_CKD's replacement question.** ESKD as dialysis-or-transplant, and
+6. **HFREF_NMA needs a PROTOCOL decision before it can be worked at all, and
+   the v1 standard does not contain one.** It is a NETWORK meta-analysis: 28
+   trials, 15 nodes. Every rule in the standard is written for a pairwise pool.
+   "Identity by registration id" applies per trial (28 of them); "the pool stands
+   or is withheld with its reason" applies per CONTRAST, and a 15-node network has
+   many. **There is no rule for what a withdrawal means when one contrast is sound
+   and another is not.**
+
+   **Measured before parking, because a park needs evidence too: the network's 28
+   trials are not keyed to registrations.** The page carries **12 distinct NCT
+   strings for 28 trials**, and several of those twelve — `NCT01920711`,
+   `NCT02924727`, `NCT05901831`, `NCT01035255` — are the shared runtime residue
+   that appears on unrelated pages. So the protocol's **first** step cannot be
+   satisfied from this page as it stands.
+
+   **Credit where the page has already earned it, and it has:** its own embedded
+   verdict states that the per-trial integrity gates have **not** been run and that
+   *"absence of findings here is absence of testing, not a clean bill"*; that the
+   network fit reproduces its anchor **to 8 decimal places in R 4.6.0 / netmeta
+   3.6.1**; that **no inconsistency test is fitted**, with the reason (the direct
+   Placebo–ARB leg carries 9 events, minimum detectable inconsistency 8.06-fold);
+   and that its **AMSTAR-2 confidence is CRITICALLY LOW, stated on the face of the
+   app.** That is more self-disclosure than most pages in this corpus.
+
+   **Options:** (a) extend the standard to networks first, then work it — the
+   honest order, and it is a real piece of design; (b) work it as 28 pairwise
+   identity reads and leave the contrast-level verdict undefined; (c) leave it and
+   take the remaining pairwise topics first. **Not decided here.** It is roughly
+   two to three topics of work at this depth and it is the only NMA among the 53.
+
+7. **SGLT2_CKD's replacement question.** ESKD as dialysis-or-transplant, and
    cardiovascular death, are defined identically across CREDENCE, DAPA-CKD and
    EMPA-KIDNEY and reported separately by all three. Same rule as ABLATION_AF:
    the question must be chosen before its answer is known.
