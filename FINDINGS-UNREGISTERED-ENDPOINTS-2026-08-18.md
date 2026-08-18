@@ -79,3 +79,55 @@ flag high risk, sensitivity-analyse, do not exclude on eligibility.**
   unreadable ones behave the same way.
 - **NOT a criticism of trialists.** See above; for more than half the cases the
   registration is doing exactly what it should.
+
+
+---
+
+# COMPLETED: cardiology read whole, and the hypothesis still does not survive
+
+The 29 pages the seed reader could not see hold their trials in `inputs.trials[]` rather
+than in an embedded JavaScript seed. Reading those from the SSOT objects — same question,
+same rank coverage — completes the section.
+
+| | seed-based | object-based | **cardiology TOTAL** | infectious disease |
+|---|---|---|---|---|
+| pages read | 24 | 27 | **51** | 58 |
+| **ALL trials register no clinical endpoint** | 6 | 7 | **13** | **12** |
+| MIXED | 7 | 3 | **10** | 6 |
+| every trial registers one | 11 | 17 | **28** | 40 |
+
+**On complete sections: cardiology 13 of 51 (25%); infectious disease 12 of 58 (21%).**
+
+**The hypothesis is now refuted on full data rather than on a subset.** The class is not
+systematic to infectious disease. It occurs at a similar rate in both specialties, and if
+anything slightly more often in cardiology.
+
+---
+
+## The correction to our own work, which is the sharper result
+
+**Cardiology was closed having found THREE instances of this class by hand.**
+**The systematic read finds 13 ALL and 10 MIXED — 23 topics carrying it.**
+
+> **Our own closed section was under-counted by a factor of four to eight, by us, using
+> the method we had been implicitly trusting.**
+
+That is a stronger argument for systematic screening than any defect this programme has
+found in anyone else's work — and it is an argument against the reliability of its entire
+hand-read portion. **A hand search finds instances. It does not measure a class.**
+
+**It does not mean cardiology must be redone.** It means every count in
+`FINDINGS-CARDIOLOGY-PROGRAMME-2026-08-18.md` that came from a reading rather than a
+screen is a **floor**, and that document is now labelled accordingly.
+
+---
+
+## The framing stays exactly where it is
+
+Across both sections, **27 of the 45 trials in the ALL group have a registration whose own
+title says safety, immunogenicity, pharmacokinetics or extension study** — 15 of 30 in
+infectious disease, 12 of 15 in cardiology.
+
+**Those trials did nothing wrong.** A phase-3 immunogenicity study registering
+immunogenicity endpoints is behaving exactly as it should. **The error is a synthesis
+treating it as an efficacy trial**, and the criticism belongs there and nowhere else.

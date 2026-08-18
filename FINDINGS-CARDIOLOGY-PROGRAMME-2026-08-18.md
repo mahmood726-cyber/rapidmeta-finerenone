@@ -25,7 +25,23 @@ doing it.
 
 ---
 
-## The classes found, with denominators
+## How to read the counts below — HAND COUNTS ARE FLOORS
+
+**Added 2026-08-18, after a calibration result that changes what these numbers mean.**
+
+The same quantity was measured on this section by two methods: **hand reading** during the
+programme, and a **systematic every-rank screen** afterwards. On the unregistered-endpoint
+class they disagree by a factor of four to eight — **3 found by hand; 13 ALL plus 10 MIXED
+found by the screen.**
+
+> **A count from a screen and a count from a reading are different kinds of number.**
+> Every figure in the table below came from **readings**, so every one of them is a
+> **FLOOR** — the number of instances found, not the number that exist.
+
+The endpoint-definitions-differ figure of 12 and the k<2 figure of 13 are the most exposed,
+because both were accumulated topic by topic and neither has been screened.
+
+## The classes found — ALL HAND COUNTS, THEREFORE FLOORS
 
 | class | n | what it is |
 |---|---|---|
@@ -39,7 +55,7 @@ doing it.
 | **endpoint types incommensurable** | 2 | SOTATERCEPT_PAH (continuous PVR vs time-to-event), ETRIPAMIL (proportion converted vs time to conversion) |
 | **numerator/denominator mismatch** | 1 | CANGRELOR_PCI — all-cause-mortality numerators over primary-composite denominators; **correcting it reverses the conclusion** |
 | **a fabricated contrast** | 1 | EVOLOCUMAB_MIXED_DYSL — a fortnightly placebo arm paired against a monthly drug arm; the values are in no source |
-| **an endpoint absent from its own registration** | 3 | ANSWER-HF on the ARNI flagship; all seven V114 trials on prevnar15; `NCT00436007` on malaria-vaccines, whose **eighteen outcome measures never mention malaria** |
+| **an endpoint absent from its own registration** | 3 hand -> **13 ALL + 10 MIXED screened** | ANSWER-HF on the ARNI flagship; all seven V114 trials on prevnar15; `NCT00436007` on malaria-vaccines, whose **eighteen outcome measures never mention malaria** |
 | **withdrawal reason FALSE** | 1 | APIXABAN_ACS — the card said "bleeding and efficacy pooled"; **both** trials register bleeding |
 
 ---
