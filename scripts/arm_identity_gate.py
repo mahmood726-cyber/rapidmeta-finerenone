@@ -70,6 +70,51 @@ def core_tokens(label):
     return {w for w in re.findall(r"[a-z][a-z]{2,}", txt) if w not in STOP}
 
 
+# A DOUBLE-DUMMY ARM LABEL NAMES A DRUG THE ARM DID NOT RECEIVE.
+# 'Warfarin/placebo edoxaban' is the WARFARIN arm; 'edoxaban' in it is the dummy.
+# Any test reading the raw label sees both drugs on both sides and can no longer
+# tell the arms apart -- which is how the inverted-roles check was defeated on
+# ENGAGE AF-TIMI 48. This strips every drug the label names ONLY as a placebo, so
+# what remains is what the arm ACTUALLY RECEIVED.
+#
+# WHAT IT DOES NOT ESTABLISH, written in advance: not that the label was right in
+# the first place, and not that the arm sizes agree with it. It rewrites nothing
+# and decides nothing about the object; it only stops a dummy drug name from
+# being read as a received one. A label naming NO placebo is returned untouched,
+# so every single-dummy trial in the corpus takes the identical path it did
+# before -- which is why the four existing selftest cases are unmoved.
+PLACEBOED = re.compile(r"\bplacebo[\s-]+(?:for[\s-]+)?([a-z][a-z0-9-]{2,})|"
+                       r"\b([a-z][a-z0-9-]{2,})[\s-]+placebo\b", re.I)
+
+
+def received_label(label):
+    """The label minus every drug it names only as a placebo/dummy."""
+    txt = label or ""
+    dummies = set()
+    for m in PLACEBOED.finditer(txt):
+        for g in m.groups():
+            if g:
+                dummies.add(g.lower())
+    if not dummies:
+        return txt
+    out = PLACEBOED.sub(" ", txt)
+    # a drug named ONLY as a dummy must not survive elsewhere in the label
+    for d in dummies:
+        out = re.sub(r"\b%s\b" % re.escape(d), " ", out, flags=re.I)
+    out = re.sub(r"[\s/,-]+", " ", out).strip()
+    # A PURE PLACEBO ARM MUST COME BACK UNTOUCHED.
+    # 'Colchicine placebo' and 'Matching placebo' resolve to nothing at all --
+    # they name no received drug because there is none. The first cut of this
+    # helper returned that empty string, which deleted the control word, and the
+    # INVERTED arrangement of the commonest control label in this corpus went
+    # from a correct FAIL to a bare PASS. A fix that fails toward comfort while
+    # repairing a defect that fails toward comfort. Replayed against the two
+    # labels core_tokens' own docstring names.
+    if not re.search(r"[a-z]", out, re.I):
+        return txt
+    return out
+
+
 def assess(trial):
     arms = {a.get("role"): a for a in (trial.get("arms") or [])}
     i, c = arms.get("intervention"), arms.get("control")
@@ -115,7 +160,32 @@ def assess(trial):
     # were not."
     CTRL = re.compile(r"\bplacebo\b|\bsham\b|\bvehicle\b|\busual care\b|"
                       r"\bstandard care\b|\bwarfarin\b", re.I)
-    ci, cc = bool(CTRL.search(li)), bool(CTRL.search(lc))
+    #
+    # DEFECT THREE, FOUND 2026-08-18 WHILE READING ENGAGE AF-TIMI 48's REGISTRY
+    # ARM TITLES. In a DOUBLE-DUMMY trial every arm label names BOTH drugs:
+    # 'High Dose Edoxaban/Placebo Warfarin' against 'Warfarin/Placebo Edoxaban'.
+    # The control words then sit on BOTH sides, so ci and cc are both true, BOTH
+    # direction branches below are skipped, and the token fallback returns a bare
+    # PASS having established NOTHING about which arm is which.
+    #
+    # Verified by construction rather than by reading: with the two labels
+    # SWAPPED -- roles inverted, the exact defect DEFECT TWO was repaired for --
+    # this gate returned PASS. It is the sixth instrument defect logged this week
+    # and the sixth to fail toward COMFORT.
+    #
+    # The fix is semantic, not a wider word list: in a double-dummy label
+    # 'placebo X' means THIS ARM DID NOT RECEIVE X. Resolve the label to what the
+    # arm actually received, THEN ask which side the control word is on.
+    # SYMMETRY GATE ON THE RESOLUTION ITSELF. Resolve only when BOTH labels name
+    # a placebo -- that is what a double dummy IS. When only one does, that arm is
+    # the placebo arm and the word is the most informative token present; deleting
+    # it is how the second cut of this fix turned eight correct FAILs green.
+    PBO = re.compile(r"\bplacebo\b", re.I)
+    if PBO.search(li) and PBO.search(lc):
+        li_r, lc_r = received_label(li), received_label(lc)
+    else:
+        li_r, lc_r = li, lc
+    ci, cc = bool(CTRL.search(li_r)), bool(CTRL.search(lc_r))
     if ci and not cc:
         return ("FAIL",
                 "THE ROLES ARE INVERTED: the arm carrying role INTERVENTION is "
@@ -171,6 +241,36 @@ def page_verdict(path):
 
 def selftest() -> int:
     ok = True
+    # LABEL-LEVEL CASES -- these need no fixture on disk, so they run everywhere,
+    # including in a clone that does not carry the corpus extract the four
+    # object-level cases below depend on. Every INVERTED row is the constructible
+    # failing input for the row above it: if the gate cannot tell the two apart it
+    # is not establishing direction, whatever it prints.
+    LABELS = [
+        ("double-dummy, correct",  "High Dose Edoxaban/Placebo Warfarin",
+                                    "Warfarin/Placebo Edoxaban", "PASS"),
+        ("double-dummy, INVERTED", "Warfarin/Placebo Edoxaban",
+                                    "High Dose Edoxaban/Placebo Warfarin", "FAIL"),
+        ("registry casing, correct", "high dose edoxaban/placebo warfarin",
+                                      "Warfarin/placebo edoxaban", "PASS"),
+        ("registry casing, INVERTED", "Warfarin/placebo edoxaban",
+                                       "high dose edoxaban/placebo warfarin", "FAIL"),
+        ("drug vs warfarin",        "Dabigatran 150 mg", "Warfarin", "PASS"),
+        ("drug vs warfarin, INVERTED", "Warfarin", "Dabigatran 150 mg", "FAIL"),
+        ("pure placebo arm",        "Colchicine", "Colchicine placebo", "PASS"),
+        ("pure placebo, INVERTED",  "Colchicine placebo", "Colchicine", "FAIL"),
+        ("matching placebo + SOC",  "MK-3415 + SOC", "Placebo + SOC", "PASS"),
+        ("matching placebo, INVERTED", "Placebo + SOC", "MK-3415 + SOC", "FAIL"),
+        ("same drug, two doses",    "Dabigatran dose 2", "Dabigatran dose 1", "FAIL"),
+    ]
+    for name, li, lc, want in LABELS:
+        v, why = assess({"arms": [{"role": "intervention", "label": li},
+                                  {"role": "control", "label": lc}]})
+        good = v == want
+        ok &= good
+        print("  %-48s -> %-11s (want %s) %s"
+              % (name, v, want, "correct" if good else "WRONG"))
+    print("")
     cases = [("POSITIVE DOAC_AF (RE-LY dabigatran vs dabigatran)", "DOAC_AF_REVIEW", "FAIL"),
              ("POSITIVE HEPATITIS_B (TAF vs TAF, no TDF arm)", "HEPATITIS_B_TAF_TDF_REVIEW", "FAIL"),
              ("NEGATIVE sotagliflozin trials (drug vs placebo)", "SOTAGLIFLOZIN_HF_REVIEW", "PASS"),
@@ -188,6 +288,10 @@ def selftest() -> int:
                 print("        %s: %s" % (rv, why[:96]))
     print("\nWHAT A FAILURE WOULD LOOK LIKE: DOAC_AF passing, which would leave a review "
           "titled DOAC-versus-warfarin containing no such comparison in any trial.")
+    print("AND, since 2026-08-18: any INVERTED row above passing. A double-dummy trial "
+          "names both drugs in both arm labels, so a reader of the raw label cannot "
+          "tell the arms apart -- and neither could this gate until it was asked to "
+          "resolve what each arm actually RECEIVED.")
     print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
     return 0 if ok else 1
 
