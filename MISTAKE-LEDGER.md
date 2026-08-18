@@ -1656,3 +1656,53 @@ state, and named all three explicitly with the routing that makes them fine.
 than choosing the nearest wrong box.** The nearest wrong box was available, cheap, and
 would have produced a clean-looking 0 / 405 / 0 that nobody would have questioned. Every
 collapse recorded in this ledger is what happens when that choice goes the other way.
+
+---
+
+## Five distinct defects, one direction, and the reason is structural (2026-08-18)
+
+Five mechanically different failures in one night, in five layers: a taxonomy with no name
+for the healthy case; a sweep assigning state from a tab NAME without reading the object;
+an assessor scoring `arms: []` as FAIL; a helper swallowing a raising predicate as
+NOT_ASSESSABLE; a classifier scoring an unlocatable drug as `not_eligible`.
+
+**Every one substitutes in the same direction — it makes the corpus look more decided than
+it is.** absent→zero, unclassifiable→excluded, unreadable→failed, undecidable→different,
+broken-instrument→no-reading.
+
+**That is not coincidence. The failure that hides is the failure that survives, because
+nothing in a system is built to notice silence.** A wrong claim eventually meets a reader
+who knows better. A hidden finding meets nobody. So a codebase accumulates its quiet errors,
+and its apparent confidence rises while its actual knowledge does not.
+
+**Corollary, found live:** an incomplete category list makes a real difference INVISIBLE
+while publishing nothing false. An estimand families list missing `6MWT` returned
+UNDECIDABLE instead of DIFFERENT on `attr-cm-review` — safe, and exactly how a finding
+disappears. **A missing category degrades to silence rather than to error, and only one of
+those two leaves a trace.**
+
+---
+
+## Documentation failed as a control under ideal conditions (2026-08-18)
+
+`ssot/assessment.py` put the three-state rule in ONE function so it could not be re-derived
+incorrectly. It was imported. It was used. **The same author reproduced the same defect
+class FOUR MORE TIMES in a single script within hours** — including writing `subject_role`
+as a byte-identical copy of `inclusion_criteria_auditable`, hours after committing a fix
+whose entire subject was one NAME carrying two CHECKS.
+
+One page, freshly written, by its own author, minutes earlier. **These are the most
+favourable conditions a written rule will ever get, and it did not work.**
+
+What worked was **mechanical rejection**: five detectors that refuse registration, so a
+defective assessor cannot run and therefore cannot emit a number. Duplicate path · text
+equality without `text_match` · undeclared type on a polymorphic field · identical tally ·
+**unit of analysis**.
+
+**Detector 2 failed its own test on the first attempt, in the exact shape of the bug it
+targets** — it inspected each AST node's local segment while claiming to check the
+function, so normalisation in one node and comparison in another never met. That is the
+same error as certifying a per-tab cell migration with a grand-total check: **the check ran
+correctly on the wrong unit.** It became detector 5.
+
+**Stop treating documentation as a defence.** Full writeup: `SESSION-2026-08-18-INSTRUMENTS.md`.
