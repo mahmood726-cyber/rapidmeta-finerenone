@@ -1,0 +1,371 @@
+{
+ "app_id": "apixaban-af-review",
+ "schema_version": "2-authored-from-source",
+ "title": "Apixaban in atrial fibrillation",
+ "question": "Does apixaban reduce stroke and systemic embolism in atrial fibrillation? The four trials on this page do not answer one question: two register an efficacy endpoint and two register bleeding.",
+ "built": "2026-08-18T00:00Z",
+ "build_mode": "AUTHORED",
+ "_estimand_rule": "Every endpoint definition below was READ FROM THE REGISTRY, word for word, when this withdrawal was RE-VERIFIED on 2026-08-18.",
+ "source_links_enforced": true,
+ "source_links_enforced_means": "every trial row carries its registration link",
+ "cited_total": null,
+ "completeness_statement": "not recorded on the page this object was built from",
+ "verification_basis": {
+  "what_verifies_this_object": "ClinicalTrials.gov protocol records, read 2026-08-18",
+  "what_is_not_claimed": "that any per-trial count was checked against a results record",
+  "families": [],
+  "bar": "not recorded on the page this object was built from"
+ },
+ "methodological_authority": {
+  "reference": "not recorded on the page this object was built from",
+  "version": "not recorded on the page this object was built from",
+  "version_checked_on": "not recorded on the page this object was built from",
+  "version_checked_how": "not recorded on the page this object was built from",
+  "version_note": "not recorded on the page this object was built from",
+  "scope_of_this_rule": "not recorded on the page this object was built from",
+  "url": "not recorded on the page this object was built from",
+  "note": "not recorded on the page this object was built from"
+ },
+ "config": {
+  "model": "random-effects",
+  "method": "not pooled -- withdrawn",
+  "scale": "log"
+ },
+ "screening": {
+  "search_note": "not recorded on the page this object was built from",
+  "eligibility": "not recorded on the page this object was built from",
+  "known_limitation": "not recorded on the page this object was built from"
+ },
+ "screening_names_unresolved": [],
+ "eligible_but_not_contributing": {
+  "note": "All included registrations carry a row in this object.",
+  "studies": []
+ },
+ "reconciliation": {
+  "why_this_step_exists": "not recorded on the page this object was built from",
+  "clean": null,
+  "clean_because": "not recorded on the page this object was built from",
+  "trial_list_diffs": [],
+  "matches": [],
+  "corrections": [],
+  "unresolved": []
+ },
+ "claims_corrected": [],
+ "scope_decisions": {},
+ "conversion_note": "AUTHORED, not converted. This topic's estimate was withdrawn BEFORE the current detector set existed; the withdrawal was re-verified against the registry on 2026-08-18.",
+ "sources": {},
+ "outcomes": [
+  {
+   "id": "primary",
+   "name": "Stroke or systemic embolism in two trials, and major or clinically relevant non-major BLEEDING in the other two",
+   "definition": "NOT ONE DEFINITION. ARISTOTLE and AVERROES register an EFFICACY endpoint -- stroke or systemic embolism. PACIFIC-AF and RENAL-AF register a SAFETY endpoint -- ISTH major or clinically relevant non-major bleeding. Each is recorded per trial below.",
+   "definition_note": "Authored rather than converted, so this name states the finding: an efficacy endpoint and a bleeding endpoint were averaged as one quantity.",
+   "measure": "OR",
+   "effect_scale": "log",
+   "type": "primary",
+   "estimand": {
+    "id": "primary",
+    "family": "first event",
+    "model": "random-effects"
+   },
+   "comparator": "warfarin, aspirin or another DOAC, depending on the trial",
+   "comparator_type": "mixed -- see per-trial notes",
+   "direction_of_benefit": "lower is better",
+   "null_value": 1
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT00412984",
+    "name": "ARISTOTLE",
+    "nct": "NCT00412984",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "1",
+      "role": "treatment",
+      "events": 212,
+      "participants": 9120
+     },
+     {
+      "label": "2",
+      "role": "control",
+      "events": 265,
+      "participants": 9081
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'1', '2'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT00412984",
+      "analysed": {
+       "treatment": 9120,
+       "control": 9081
+      },
+      "outcome_definition": "Number of Participants With First Event of Ischemic/Unspecified Stroke, Hemorrhagic Stroke, or Systemic Embolism (SE) During the Intended Treatment Period",
+      "outcome_definition_source": {
+       "time_frame": "Time to first event in \"Intended Treatment Period\": started on day of randomization, ended at efficacy cut-off date (date target number of primary efficacy events [448] was expected to have occurred; set to 30-Jan-2011, prior to unblinding).",
+       "description_verbatim": "All suspected efficacy events were adjudicated by the Central Events Committee (CEC). Diagnosis of stroke=the nontraumatic focal neurological deficit lasting at least 24 hours, and includes ischemic stroke, hemorrhagic stroke, ischemic stroke with hemorrhagic conversion, stroke of uncertain type, and retinal ischemic event (embolism, infarction). Diagnosis of SE=clinical history consistent with an acute loss of blood flow to a peripheral artery (or arteries), supported by evidence of embolism from surgical specimens, autopsy, angiography, vascular imaging, or other objective testing.",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT00412984",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "ischaemic or unspecified stroke; haemorrhagic stroke; systemic embolism. AN EFFICACY ENDPOINT.",
+       "analysis_set_as_the_registry_states_it": "Intended Treatment Period: randomisation to a pre-set efficacy cut-off date fixed before unblinding."
+      }
+     }
+    }
+   },
+   {
+    "id": "NCT00496769",
+    "name": "AVERROES",
+    "nct": "NCT00496769",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "Apixaban",
+      "role": "treatment",
+      "events": 51,
+      "participants": 2808
+     },
+     {
+      "label": "Acetylasalicylic acid",
+      "role": "control",
+      "events": 113,
+      "participants": 2791
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'Apixaban', 'Acetylasalicylic acid'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT00496769",
+      "analysed": {
+       "treatment": 2808,
+       "control": 2791
+      },
+      "outcome_definition": "Event Rate of Stroke/Systemic Embolism During the Intended-treatment Period",
+      "outcome_definition_source": {
+       "time_frame": "Randomization to efficacy cutoff date of May 28, 2010 (date revised following cessation of study for superior efficacy)",
+       "description_verbatim": "Event rate=percent of participants with an event divided by the total participants in the arm. Intended-treatment period=date of randomization to the efficacy cutoff date, which was to be the date on which at least 226 unrefuted original primary efficacy events occurred (date revised to May 28, 2010 following cessation of study for superior efficacy.)",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT00496769",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "stroke; systemic embolism. AN EFFICACY ENDPOINT -- and registered as an EVENT RATE, not a count of participants.",
+       "analysis_set_as_the_registry_states_it": "Intended-treatment period. The registered quantity is a RATE, so a count-derived odds ratio is not the registered estimand even before the efficacy/safety mismatch is considered."
+      }
+     }
+    }
+   },
+   {
+    "id": "NCT04218266",
+    "name": "PACIFIC-AF",
+    "nct": "NCT04218266",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "BAY2433334 50mg+Apixaban matching placebo",
+      "role": "treatment",
+      "events": 3,
+      "participants": 249
+     },
+     {
+      "label": "BAY2433334 matching placebo+Apixaban",
+      "role": "control",
+      "events": 1,
+      "participants": 254
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'BAY2433334 50mg+Apixaban matching placebo', 'BAY2433334 20mg+Apixaban matching placebo', 'BAY2433334 matching placebo+Apixaban'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT04218266",
+      "analysed": {
+       "treatment": 249,
+       "control": 254
+      },
+      "outcome_definition": "Number of Participants With Composite of International Society on Thrombosis and Hemostasis (ISTH) Major Bleeding or Clinically Relevant Non-major (CRNM) Bleeding",
+      "outcome_definition_source": {
+       "time_frame": "After the first administration of study intervention with an average administration of 12 weeks (but not starting after more than 2 days after the last administration)",
+       "description_verbatim": "ISTH Major Bleeding criteria: 1. Fatal bleeding, and/or 2. Symptomatic bleeding in a critical area or organ (intracranial, intraocular, intraspinal, pericardial, retroperitoneal, intraarticular, or intramuscular with compartment syndrome), and/or 3. Clinically overt bleeding associated with a recent decrease in the hemoglobin level of ≥ 2 g/dL (20 g/L; 1.24 mmol/L) compared to the most recent hemoglobin value available before the event, and/or 4. Clinically overt bleeding leading to transfusion of 2 or more units of packed red blood cells or whole blood.\n\nISTH Clinically Relevant Non-Major Bleeding is considered any sign or symptom of hemorrhage that does not fit the criteria for the ISTH definition of major bleeding, but does meet at least one of the following criteria 1. requiring medical intervention by a healthcare professional. 2. leading to hospitalization or increased level of care. 3. prompting a face to face (i.e. not just a telephone or electronic communication) evaluation.",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT04218266",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "ISTH MAJOR BLEEDING or CLINICALLY RELEVANT NON-MAJOR BLEEDING. A SAFETY ENDPOINT. No stroke, no embolism, no efficacy component at all.",
+       "analysis_set_as_the_registry_states_it": "A small phase-2 trial: 249 against 254 participants."
+      }
+     }
+    }
+   },
+   {
+    "id": "NCT02942407",
+    "name": "RENAL-AF",
+    "nct": "NCT02942407",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "apixaban",
+      "role": "treatment",
+      "events": 21,
+      "participants": 82
+     },
+     {
+      "label": "warfarin",
+      "role": "control",
+      "events": 13,
+      "participants": 72
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'apixaban', 'warfarin'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT02942407",
+      "analysed": {
+       "treatment": 82,
+       "control": 72
+      },
+      "outcome_definition": "Number of Participants Experiencing ISTH (International Society on Thrombosis and Haemostasis) Major or Clinically Relevant Non-major Bleeding",
+      "outcome_definition_source": {
+       "time_frame": "Randomization up to Month 15/Final Visit",
+       "description_verbatim": "Assess the safety of apixaban versus warfarin regarding ISTH major bleeding or clinically relevant non-major bleeding events in patients with NVAF (nonvalvular atrial fibrillation) and ESRD (end-stage renal disease) on hemodialysis.\n\nMajor bleeding event is defined as:Acute clinically overt bleeding (including access site related bleeding) accompanied by 1 or more of the following: Decrease in Hgb of 2g/dL or more with overt bleeding; Transfusion of 2 or more units of packed RBCs in the setting of an overt bleeding event; Bleeding within a critical site. Hemorrhagic stroke (primary or infarction with hemorrhagic conversion) were classified as major bleeds.\n\nNon-major bleeding event is defined as: Acute or sub-acute clinically overt bleeding (including access site related bleeding) that does not meet criteria for major bleeding \\& results in Hospital admission for bleeding, physician guided medical or surgical treatment for bleeding, or change in antithrombotic therapy",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT02942407",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "ISTH MAJOR or CLINICALLY RELEVANT NON-MAJOR BLEEDING. A SAFETY ENDPOINT.",
+       "analysis_set_as_the_registry_states_it": "A small trial in haemodialysis patients: 82 against 72 participants."
+      }
+     }
+    }
+   }
+  ]
+ },
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 4,
+    "estimand_id": "primary",
+    "model": "random-effects",
+    "estimator": "not pooled -- the estimate is withdrawn",
+    "estimator_used": "none",
+    "handbook": {
+     "decision": "not recorded on the page this object was built from",
+     "sections": [],
+     "conformance": "not recorded on the page this object was built from"
+    },
+    "comparator_type": "mixed -- see per-trial notes",
+    "favours": null,
+    "poolable": false,
+    "poolable_reason": "TWO OF THESE FOUR TRIALS REGISTER AN EFFICACY ENDPOINT AND TWO REGISTER BLEEDING, AND THE TWO POINT IN OPPOSITE DIRECTIONS. Verbatim from the registry: ARISTOTLE's primary is 'Number of Participants With First Event of Ischemic/Unspecified Stroke, Hemorrhagic Stroke, or Systemic Embolism (SE) During the Intended Treatment Period'; AVERROES's is 'Event Rate of Stroke/Systemic Embolism During the Intended-treatment Period'. PACIFIC-AF's is 'Number of Participants With Composite of International Society on Thrombosis and Hemostasis (ISTH) Major Bleeding or Clinically Relevant Non-major (CRNM) Bleeding'; RENAL-AF's is 'Number of Participants Experiencing ISTH Major or Clinically Relevant Non-major Bleeding'. A stroke prevented and a bleed caused are not the same event, and for an anticoagulant they move in OPPOSITE directions -- so averaging them does not produce a weaker estimate of either, it produces a number that estimates neither and whose direction depends on the mix of trials. SEPARATELY: AVERROES registers an event RATE rather than a count of participants, so a count-derived odds ratio is not its registered estimand even before the efficacy-safety mismatch is reached. SEPARATELY AGAIN: the two bleeding trials are small -- PACIFIC-AF 249 against 254, RENAL-AF 82 against 72 -- beside ARISTOTLE's 9,120 against 9,081, so the pooled direction was always going to be set by the efficacy trials while the estimand was contaminated by the safety ones.",
+    "pool_uniformity": {
+     "effect_measure": [
+      "NOT ESTABLISHED",
+      "the page derived odds ratios from counts, while AVERROES registers a rate"
+     ],
+     "estimand": [
+      "REFUTED",
+      "two trials register stroke or systemic embolism and two register bleeding; these are opposite directions of benefit"
+     ]
+    },
+    "heterogeneity": null,
+    "heterogeneity_status": "not recorded on the page this object was built from",
+    "grade": null,
+    "cross_engine": null,
+    "sensitivity": null,
+    "single_study_ref": null,
+    "per_trial": [],
+    "pooled": {
+     "measure": "OR",
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "ci_level": 95,
+     "scale": "log",
+     "withdrawn": true,
+     "withdrawn_reason": "TWO OF THESE FOUR TRIALS REGISTER AN EFFICACY ENDPOINT AND TWO REGISTER BLEEDING, AND THE TWO POINT IN OPPOSITE DIRECTIONS. Verbatim from the registry: ARISTOTLE's primary is 'Number of Participants With First Event of Ischemic/Unspecified Stroke, Hemorrhagic Stroke, or Systemic Embolism (SE) During the Intended Treatment Period'; AVERROES's is 'Event Rate of Stroke/Systemic Embolism During the Intended-treatment Period'. PACIFIC-AF's is 'Number of Participants With Composite of International Society on Thrombosis and Hemostasis (ISTH) Major Bleeding or Clinically Relevant Non-major (CRNM) Bleeding'; RENAL-AF's is 'Number of Participants Experiencing ISTH Major or Clinically Relevant Non-major Bleeding'. A stroke prevented and a bleed caused are not the same event, and for an anticoagulant they move in OPPOSITE directions -- so averaging them does not produce a weaker estimate of either, it produces a number that estimates neither and whose direction depends on the mix of trials. SEPARATELY: AVERROES registers an event RATE rather than a count of participants, so a count-derived odds ratio is not its registered estimand even before the efficacy-safety mismatch is reached. SEPARATELY AGAIN: the two bleeding trials are small -- PACIFIC-AF 249 against 254, RENAL-AF 82 against 72 -- beside ARISTOTLE's 9,120 against 9,081, so the pooled direction was always going to be set by the efficacy trials while the estimand was contaminated by the safety ones.",
+     "withdrawn_note": "WHAT IS CONFIRMED, STATED AS PROMINENTLY AS WHAT IS WRONG. (1) THE ORIGINAL WITHDRAWAL WAS RIGHT, and it is confirmed here against the registry rather than accepted on trust: the card's one-line reason, 'bleeding and efficacy endpoints pooled', is exactly what the four registered primaries say. This re-verification could have reversed it and did not. (2) ARISTOTLE'S ROW IS EXACTLY CORRECT: 212 of 9,120 against 265 of 9,081 are the registry's own primary-outcome counts, and 212 = 159 + 38 + 15 and 265 = 173 + 76 + 16 across its three reported categories. (3) THE FOUR TRIAL IDENTITIES ARE CORRECT. WHAT THIS WITHDRAWAL DOES NOT ESTABLISH: NOT that apixaban does not prevent stroke. ARISTOTLE and AVERROES both favour it on their own registered efficacy endpoints, and those two are the trials that were powered for it. What cannot stand is a single pooled number built from two efficacy trials and two bleeding trials. THE REPLACEMENT QUESTION IS IDENTIFIED AND DELIBERATELY NOT TAKEN: ARISTOTLE and AVERROES share an efficacy estimand and could be synthesised, but their comparators differ -- warfarin in one, aspirin in the other -- and choosing whether that is one question is an estimand decision. PARKED.",
+     "withdrawn_on": "2026-08-18",
+     "reverification": "RE-VERIFIED 2026-08-18 against the registry. The withdrawal was made before the current detector set existed and its reason was a single line on a card. VERDICT: CONFIRMED, and now sourced -- all four registered primary outcomes are quoted verbatim on this page, and the efficacy/safety split is visible to a reader rather than asserted.",
+     "card_note": "CONFIRMED on re-verification: ARISTOTLE and AVERROES register stroke or systemic embolism; PACIFIC-AF and RENAL-AF register ISTH major or clinically relevant non-major BLEEDING. For an anticoagulant those move in opposite directions. All four registered primaries are now quoted on the page"
+    }
+   }
+  }
+ },
+ "manuscript": null,
+ "risk_of_bias_verdict": null,
+ "carried_contrasts": [],
+ "absent_from_source": {
+  "protocol": "No protocol record was recoverable from the page.",
+  "search": "No search strategy was recoverable from the page.",
+  "screening": "No screening log was recoverable from the page.",
+  "rob2": "No risk-of-bias assessment was recoverable from the page.",
+  "grade": "No certainty rating was recoverable from the page.",
+  "sources": "Every ENDPOINT DEFINITION on this page is verbatim from the trial's own ClinicalTrials.gov record and carries a resolvable link. The per-trial counts are the page's own and carry no quoted source sentence."
+ }
+}
