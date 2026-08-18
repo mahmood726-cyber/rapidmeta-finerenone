@@ -1948,3 +1948,61 @@ instance of that class tonight, and the one that most looked like a finished res
 **Rule:** a check that returns on first failure must either report ALL failing limbs, or state
 that the named limb is the first tested rather than the only one. A single reported reason from
 an ordered sequence of tests is a fact about the sequence.
+
+---
+
+## The guard against the contamination class was destroyed by the mangling class (2026-08-19)
+
+**Sixth heredoc mangling, and the most instructive, because of what it broke.**
+
+Four times in one file a per-topic value was carried as a module constant and reached another
+topic's object: `search`, `prisma`, `extraction`, and a prose string inside
+`duplicate_seeding_check`. Each fix was aimed at the block just caught, so each was partial.
+The right response was to stop fixing mechanisms and check the **outcome**: after building,
+every registration id appearing anywhere in the object must be one the topic actually cites.
+
+That guard was written through a shell heredoc. `\b` became a literal **BACKSPACE byte**:
+
+```
+re.findall(r"\x08NCT\d{8}\x08", blob)
+```
+
+It compiled. It imported. It ran. The build reported `HELD 7 / REFUSING 1` and success. **It
+could never match anything.** Only a planted foreign id — `NCT99999999` — revealed that the
+guard against contamination was itself incapable of firing.
+
+**A guard that cannot fire is worse than no guard, because it reports success.** The pattern
+is now compiled once at module level as `NCT_RE`, and the repair was done at byte level with
+the backslash built from its codepoint, because every previous attempt to write it through a
+shell reintroduced the same corruption.
+
+**Then it fired on a clean object** — `NCT04157751` (EMPULSE), sitting legitimately in
+`screening.records`, which the guard's "own" set had not listed. A guard whose vocabulary is
+narrower than the object's reports contamination that is not there, which is how a guard stops
+being read. Both directions are now pinned: planted id aborts, clean object builds.
+
+**Three properties a guard needs, all learned here:** it must be able to fire; it must not fire
+on the correct case; and neither can be established by the build reporting success.
+
+---
+
+## An asserted negative was not merely unchecked — it was false (2026-08-19)
+
+`duplicate_seeding_check` was written as a constant:
+
+```json
+{"shared_with_other_topics": false,
+ "checked_against": "... 51 shared ids corpus-wide; NCT02993406 is not among them"}
+```
+
+Two defects in one field. The prose named **bempedoic's** trial and reached the **sglt2-hf**
+object — the fourth contamination layer. And the boolean was a **negative claim asserted
+without being computed**.
+
+Computed for sglt2-hf's actual trials, it returns **true**: `NCT03057977` and `NCT03057951`
+(EMPEROR-Reduced and EMPEROR-Preserved) are also seeded by `empagliflozin-hf-auto-full-review`.
+The hardcoded `false` was hiding a real k-identity fact — the same class as the sacubitril
+finding, discovered the same way, in a field that claimed to have checked.
+
+**A negative claim is the one most worth computing.** "Not shared", "no conflicts", "none
+found" all read as diligence, and all are free to assert.

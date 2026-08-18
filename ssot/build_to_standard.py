@@ -8,7 +8,14 @@ Run: python -W error ssot/build_to_standard.py bempedoic-acid-review
 """
 import json
 import os
+import re
 import sys
+
+# Compiled ONCE, at module level, and never written inline again. An inline \b in this
+# pattern has now been destroyed twice by shell-heredoc round-tripping -- it became a literal
+# BACKSPACE byte (0x08), the regex still compiled, the guard still ran, and it could never
+# match anything. A guard that cannot fire is worse than no guard, because it reports success.
+NCT_RE = re.compile(r"\bNCT\d{8}\b")
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -523,11 +530,8 @@ def build(topic):
         "trials": [{"nct": t.get("nct"), "verified": True,
                     "link": f"https://clinicaltrials.gov/study/{t.get('nct')}"}
                    for t in ((obj.get("inputs") or {}).get("trials") or [])],
-        "duplicate_seeding_check": {
-            "shared_with_other_topics": False,
-            "checked_against": "evidence/2026-08-19-corpus/reconcile.json (51 shared ids "
-                               "corpus-wide); NCT02993406 is not among them",
-        },
+        "duplicate_seeding_check": _duplicate_check(
+            [t.get("nct") for t in ((obj.get("inputs") or {}).get("trials") or [])]),
     }
     _n = len(obj["registration_identity"]["trials"])
     props["P8_registration_identity"] = prop(
@@ -573,8 +577,64 @@ def _p6_refuse(obj, spec, props):
                   "absence is recorded as a finding with its cause and its trigger.")
 
 
+
+def _duplicate_check(ncts):
+    """COMPUTED for THIS topic's trials, never asserted.
+
+    The previous version hardcoded `shared_with_other_topics: False` together with a prose
+    string naming NCT02993406 -- bempedoic's trial -- and that string reached the sglt2-hf
+    object. Two defects in one field: a per-topic claim carried as a constant (the FOURTH
+    layer of that contamination in this file), and a NEGATIVE CLAIM asserted without being
+    checked at all.
+    """
+    path = os.path.join(os.path.dirname(ROOT), "evidence", "2026-08-19-corpus", "reconcile.json")
+    if not os.path.exists(path):
+        return {"state": "NOT_ASSESSABLE",
+                "reason": f"{path} absent, so cross-topic sharing cannot be checked. NOT the "
+                          f"same as 'not shared'."}
+    with open(path, "r", encoding="utf-8") as fh:
+        rec = json.load(fh)
+    shared = {}
+    for r in (rec.get("duplicate_seeding") or {}).get("records") or []:
+        shared[r.get("nct")] = r.get("topics")
+    hits = {n: shared[n] for n in ncts if n in shared}
+    return {"state": "CHECKED",
+            "checked_against": "evidence/2026-08-19-corpus/reconcile.json",
+            "n_trials_checked": len(ncts),
+            "shared_with_other_topics": bool(hits),
+            "shared": hits or None}
+
+
 def _finish(obj, path, original, before_keys, props):
     """Everything after the property block: stamp, additive check, write."""
+    # GUARD: NO FOREIGN REGISTRATION ID ANYWHERE IN THE OBJECT.
+    #
+    # Four times in this file a per-topic value was carried as a module constant and reached
+    # another topic's object: search, prisma, extraction, and a prose string inside
+    # duplicate_seeding_check. Each fix was partial because each was aimed at the block that
+    # had just been caught. This checks the OUTCOME instead of the mechanism: after building,
+    # every NCT mentioned anywhere in the object must be one this topic actually cites.
+    own = {t.get("nct") for t in ((obj.get("inputs") or {}).get("trials") or [])}
+    # EVERY place this object legitimately records a trial it CONSIDERED, not only the ones
+    # it included. `screening` was missing from the first version and the guard then flagged
+    # NCT04157751 (EMPULSE) -- a trial sglt2-hf screened and recorded in screening.records.
+    # A guard whose "own" set is narrower than the object's real vocabulary reports
+    # contamination that is not there, which is how a guard stops being read.
+    for extra_key in ("eligible_but_not_contributing", "screening", "screening_of_remainder",
+                      "prisma_flow", "reconciliation", "removed_citations",
+                      "withholding_question", "search", "published_comparison",
+                      "count_recovery", "citations"):
+        blob = json.dumps(obj.get(extra_key) or {})
+        own |= set(re.findall(NCT_RE, blob))
+    foreign = sorted(set(re.findall(NCT_RE, json.dumps(obj))) - own)
+    if foreign:
+        with open(path, "wb") as fh:
+            fh.write(original)
+        raise SystemExit(
+            f"ABORTED: foreign registration id(s) {foreign} appear in {os.path.basename(path)} "
+            f"but are cited nowhere this topic declares. That is cross-topic contamination -- "
+            f"the class that reached disk four times tonight. Original restored.")
+
     # --- additive assertion, MOVE-AWARE AND THE MOVE IS VERIFIED --------------------------
     # --- P9 build stamp -----------------------------------------------------------------
     obj["build_stamp"] = {
