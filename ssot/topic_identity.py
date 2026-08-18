@@ -49,6 +49,19 @@ TOPIC_SYNONYMS = {
                        "etc-1002", "etc 1002", "esp15228"],
     "bococizumab": ["bococizumab", "pf-04950615", "pf 04950615", "rn316", "rn-316"],
     "bosentan": ["bosentan", "tracleer", "ro 47-0203", "ro47-0203"],
+    # A CLASS TOPIC, ENUMERATED AS MOLECULES. The topic is "SGLT2 inhibitors", but searching
+    # or matching on the class name is the error `lessons.md` records under CT.gov queries:
+    # registries name the drug, not the class. So the class is expanded here into its members
+    # plus their brands and development codes, and the class strings are ALSO listed because
+    # a minority of records genuinely label an arm "SGLT2 inhibitor" with no molecule named --
+    # in which case the arm is located but the molecule is not, and that is a real state.
+    "sglt2 inhibitors": ["dapagliflozin", "forxiga", "farxiga", "bms-512148",
+                         "empagliflozin", "jardiance", "bi 10773", "bi-10773",
+                         "sotagliflozin", "zynquista", "inpefa", "lx4211", "lx-4211",
+                         "canagliflozin", "invokana", "jnj-28431754",
+                         "ertugliflozin", "steglatro", "pf-04971729", "mk-8835",
+                         "sglt2 inhibitor", "sglt-2 inhibitor",
+                         "sodium-glucose cotransporter 2", "sodium glucose cotransporter 2"],
 }
 
 # Codes carried in from the identifier work. Kept here so the general lesson stays visible

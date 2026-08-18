@@ -1,6 +1,6 @@
 # The page standard, versioned
 
-**`PAGE_STANDARD_VERSION = "1.1.0-2026-08-19"`**
+**`PAGE_STANDARD_VERSION = "1.2.0-2026-08-19"`**
 
 Until tonight this standard existed only as practice and as one exemplary object
 (`arni-hfref`). It had **no version marker anywhere in the repo** — `grep` for `build_stamp`
@@ -34,6 +34,8 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P10 | **Served-bytes verification** | the property is confirmed in bytes served over HTTP, not in a source file and not by an exit code |
 | P11 | **Coded field governs** | where the object holds BOTH a coded field and a free-text label for the same thing, the verdict is taken from the CODE; the text only corroborates. Where the code is absent and the verdict falls back to text, **the verdict says so on its face** |
 | P12 | **The known-answer suite ran** | the suite executed and passed in this build. An import error is a BUILD FAILURE, not a skipped test |
+| P13 | **Keyed by entity, never by module constant** | a function that accepts an identifier must REFUSE when it holds no record keyed to it. Per-entity data is keyed by entity; it is never reached for from whichever constant is in scope |
+| P14 | **No substring matching over clinical text** | identity is decided by a declared, enumerated term set or a coded field. Registry text carries parenthetical abbreviations — `Cardiovascular (CV) Death` — so substring containment is a KNOWN-BROKEN method, not a shortcut |
 
 ## The ratchet
 
@@ -51,6 +53,26 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.2.0-2026-08-19
+Adds P13 and P14. Both are the same family as P11: the check ran, and it ran on the wrong
+thing.
+
+**P13 — keyed by entity.** `build_to_standard.py` accepted a topic argument and held
+bempedoic-acid-review's executed queries, dates and record counts as MODULE CONSTANTS,
+assigning them to whatever topic was passed. Run on another topic it would have written one
+topic's executed search onto another — a **fabricated provenance record, on the property whose
+entire purpose is provenance**. It did not ship only because it crashed first on an unrelated
+hardcoded key and because the write happens at the end. **Luck, not design.** A parameter a
+function does not honour is worse than no parameter: the signature advertises a generality the
+body lacks, and it fails silently wherever the shapes happen to line up.
+
+**P14 — no substring matching over clinical text.** Screening sglt2-hf's trials for a
+two-component endpoint by substring returned ZERO for both EMPEROR trials, whose primaries ARE
+that endpoint, because the registry writes `Cardiovascular (CV) Death` and the matcher wanted
+contiguous `cardiovascular death`. It produced the right answer for one trial for the wrong
+reason and the wrong answer for two others; trusted, it implies the pool was k=1 rather than
+k=3. Parenthetical abbreviations are ubiquitous in registry outcome names.
 
 ### 1.1.0-2026-08-19
 Adds P11 and P12, both from live defects on 2026-08-19.

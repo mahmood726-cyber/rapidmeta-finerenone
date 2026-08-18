@@ -310,7 +310,9 @@
     "case_definition": "cardiovascular death OR hospitalisation for heart failure OR an urgent heart-failure visit. THREE components."
    },
    "added_on": "2026-08-19",
-   "why_added": "DELIVER was an included trial contributing to NO published pool. It shares this three-component endpoint with DAPA-HF, and that pool is coherent."
+   "why_added": "DELIVER was an included trial contributing to NO published pool. It shares this three-component endpoint with DAPA-HF, and that pool is coherent.",
+   "definition_note": "Two trials, one registered composite, quoted from each registry record. DAPA-HF and DELIVER both register this three-component endpoint as their PRIMARY; the two EMPEROR trials register no urgent-visit endpoint at any rank and cannot join.",
+   "null_value": 1
   }
  ],
  "inputs": {
@@ -2036,5 +2038,305 @@
    "why_it_mattered": "It produced the RIGHT answer for DELIVER (zero two-component outcomes) for the WRONG reason, and the WRONG answer for EMPEROR. Trusted, it would have implied pool A is k=1. The verdict was checked by READING all 33 registered outcome names across the four trials, not by the matcher.",
    "class": "substring matching over clinical text breaks on parenthetical abbreviations"
   }
+ },
+ "search": {
+  "executed_by": "lane 1 (Claude, Anthropic family)",
+  "databases": [
+   {
+    "database": "ClinicalTrials.gov API v2 -- QUERY 1, NARROWER, AND IT MISSED AN INCLUDED TRIAL",
+    "tool": "mcp__plugin_bio-research_c-trials__search_trials",
+    "query_as_executed": "condition=\"chronic heart failure\"; intervention=\"dapagliflozin OR empagliflozin OR sotagliflozin OR canagliflozin OR ertugliflozin\"; study_type=INTERVENTIONAL; phase=[PHASE3,PHASE4]; page_size=60",
+    "date_executed": "2026-08-19",
+    "records_returned": 23,
+    "total_reported": 23,
+    "DEFECT_FOUND": "This query did NOT surface NCT03619213 (DELIVER), which is one of this object's OWN INCLUDED TRIALS. DELIVER registers its condition as 'Heart Failure With Preserved Ejection Fraction' -- no 'chronic' -- while DAPA-HF registers 'Chronic Heart Failure With Reduced Ejection Fraction'. A condition term one word narrower than the registry's own wording dropped an included trial. Recorded rather than replaced: a search that missed something is evidence about the search."
+   },
+   {
+    "database": "ClinicalTrials.gov API v2 -- QUERY 2, BROADER, COVERS THE INCLUDED SET",
+    "tool": "mcp__plugin_bio-research_c-trials__search_trials",
+    "query_as_executed": "condition=\"heart failure\"; intervention=\"dapagliflozin OR empagliflozin OR sotagliflozin OR canagliflozin OR ertugliflozin\"; study_type=INTERVENTIONAL; phase=[PHASE3]; page_size=100",
+    "date_executed": "2026-08-19",
+    "records_returned": 56,
+    "total_reported": 56,
+    "corroborating_transport": {
+     "endpoint": "https://clinicaltrials.gov/api/v2/studies",
+     "query.cond": "heart failure",
+     "query.intr": "dapagliflozin OR empagliflozin OR sotagliflozin OR canagliflozin OR ertugliflozin",
+     "filter.advanced": "AREA[StudyType]INTERVENTIONAL AND AREA[Phase]PHASE3",
+     "records_returned": 56,
+     "agrees_with_mcp": true
+    },
+    "covers_all_included": true,
+    "note": "All four included trials surfaced by this query and all four roled EXPERIMENTAL."
+   },
+   {
+    "database": "PubMed (NCBI E-utilities esearch)",
+    "tool": "mcp__plugin_bio-research_pubmed__search_articles",
+    "query_as_executed": "(dapagliflozin[tiab] OR empagliflozin[tiab] OR sotagliflozin[tiab] OR \"SGLT2 inhibitor\"[tiab] OR \"sodium-glucose cotransporter 2\"[tiab]) AND (\"heart failure\"[tiab] OR HFrEF[tiab] OR HFpEF[tiab]) AND (randomized controlled trial[pt] OR randomised[tiab] OR randomized[tiab])",
+    "date_executed": "2026-08-19",
+    "total_count": 1452,
+    "records_returned": 50,
+    "records_not_retrieved": 1402,
+    "IMPORTANT": "50 of 1452 retrieved. The other 1402 are UNEXAMINED, not excluded. This search is recorded because it was executed and because the published-meta comparison will consume it, NOT because it contributed to the included set, which is keyed on registration ids."
+   }
+  ]
+ },
+ "prisma_flow": {
+  "_scope": "PRISMA 2020 flow, counted from the executed searches above.",
+  "identification": {
+   "ctgov_query1": 23,
+   "ctgov_query2": 56,
+   "pubmed_total": 1452,
+   "pubmed_retrieved": 50,
+   "note": "Query 2 supersedes query 1 for coverage; both are recorded."
+  },
+  "eligibility_ctgov": {
+   "role_located": 56,
+   "topic_is_experimental_arm": 43,
+   "topic_is_comparator_arm": 12,
+   "topic_is_background": 1,
+   "not_assessable": 0
+  },
+  "included": {
+   "in_this_object": 4,
+   "nct": [
+    "NCT03036124",
+    "NCT03057977",
+    "NCT03057951",
+    "NCT03619213"
+   ]
+  },
+  "reconciliation": {
+   "arithmetic": "56 identified = 43 experimental + 12 comparator + 1 background + 0 unassessable",
+   "reconciles": true,
+   "gap_stated_plainly": "43 trials place an SGLT2 inhibitor in an EXPERIMENTAL arm; this object includes FOUR. The other 39 are NOT excluded -- they have not been screened against the stated criteria. UNSCREENED REMAINDER: 39, recorded as a number. Screening them is the next unit of work on this topic, as it was on bempedoic-acid-review."
+  }
+ },
+ "k_cascade": {
+  "k0_surfaced": 21,
+  "k2_role_located": 21,
+  "k3_experimental": 17,
+  "k4_comparator": 4,
+  "k5_background": 0,
+  "kNA_not_assessable": 0,
+  "k_included_in_object": 1,
+  "k_unscreened_remainder": 16,
+  "_why": "k is never one number. Each stage is what the instrument at that stage could actually decide.",
+  "keyed_on": "registration id",
+  "source": "evidence/2026-08-19-batch1/cascade.json"
+ },
+ "precondition_verdict": {
+  "assessed_on": "2026-08-19",
+  "standard_version": "1.2.0-2026-08-19",
+  "authority": {
+   "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+   "version": "6.5, 2024",
+   "verified_on": "2026-08-19",
+   "verified_how": "read from cochrane.org/authors/handbooks-and-manuals/handbook/current chapters 10 and 23, and from the official MECIR PDF (February 2022), text extracted locally rather than summarised"
+  },
+  "publishable": true,
+  "authoring_constraint": "These preconditions were authored in the same session that applied them. A reader who disagrees should disagree with ssot/preconditions.py, from which every verdict here is reproducible.",
+  "verdicts": {
+   "population_stated": {
+    "verdict": "PASS",
+    "reason": "present: question carries 196 characters",
+    "authority": "MECIR C62 'Ensuring meta-analyses are meaningful' (Mandatory, READ 2026-08-19): 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar...'; MECIR C5 'Predefining unambiguous criteria for participants' (Mandatory)"
+   },
+   "arm_role_resolved": {
+    "verdict": "PASS",
+    "reason": "inputs.trials: all 4 trial(s) carry arms with a readable role",
+    "authority": "MECIR C62 (Mandatory), 'interventions' limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are 'sufficiently similar' without knowing which arm is the intervention. NOT cited to C5/C7: those govern PREDEFINITION of criteria, and this check only reads whether a field is populated."
+   },
+   "comparators_identified_and_consistent": {
+    "verdict": "PASS",
+    "reason": "outcomes.comparator_type: all 3 outcome(s) declare 'placebo'; free-text descriptions differ in verbosity ('placebo added to background heart failure therapy' vs ['placebo', 'placebo']) but comparator_type agrees, which is what governs",
+    "authority": "MECIR C62 (Mandatory), 'comparisons' limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency."
+   },
+   "estimand_named": {
+    "verdict": "PASS",
+    "reason": "outcomes.estimand: all 3 outcome(s) name a quantity",
+    "authority": "MECIR C8 'Clarifying role of outcomes' (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), 'outcomes' limb"
+   },
+   "criteria_stated": {
+    "verdict": "PASS",
+    "reason": "present: screening.eligibility carries 784 characters",
+    "authority": "MECIR R29 'Eligibility criteria for types of participants', R30 '...types of interventions', R31 'Role of outcomes' -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block DERIVED post hoc satisfies this if it is labelled post hoc per R107."
+   },
+   "criteria_predefined": {
+    "verdict": "NOT-ASSESSABLE",
+    "reason": "cannot assess: the object records neither an eligibility provenance block nor a statement about its protocol",
+    "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.' C5/C7 govern PREDEFINITION and CANNOT be discharged by a post hoc derivation."
+   },
+   "eligibility_met": {
+    "verdict": "NOT-ASSESSABLE",
+    "reason": "cannot assess: criteria are stated and sources are present, but no full text was READ this pass. This precondition never infers from the auditability check.",
+    "authority": "MECIR C5/C7 (Mandatory) with C6 'Predefining a strategy for studies with a subset of eligible participants' (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report"
+   },
+   "contributes_a_randomised_contrast": {
+    "verdict": "PASS",
+    "reason": "inputs.trials.arms: all 4 readable trial(s) contribute one topic-vs-control randomised contrast",
+    "authority": "Handbook 6.5 s23.3.4 'How to include multiple groups from one study' (READ 2026-08-19) and s23.3.6 'Factorial trials'; MECIR C7 'Predefining unambiguous criteria for interventions and comparators' (Mandatory)"
+   }
+  }
+ },
+ "extraction": {
+  "_why": "Every cell says whether it was READ from a named source or DERIVED, and carries the sentence it was read from. A cell with no label is not evidence.",
+  "verified_utc": "2026-08-19",
+  "source": {
+   "registry": "ClinicalTrials.gov, four registrations",
+   "read_via": "raw v2 API, fields=protocolSection"
+  },
+  "cells": [
+   {
+    "field": "NCT03036124 DAPA-HF condition",
+    "label": "READ",
+    "source_path": "protocolSection.conditionsModule.conditions",
+    "verbatim": "Chronic Heart Failure With Reduced Ejection Fraction (HFrEF)"
+   },
+   {
+    "field": "NCT03619213 DELIVER condition",
+    "label": "READ",
+    "source_path": "protocolSection.conditionsModule.conditions",
+    "verbatim": "Heart Failure With Preserved Ejection Fraction",
+    "note": "This is why search query 1 missed it: no 'chronic' in the registered term."
+   },
+   {
+    "field": "NCT03057977 EMPEROR-Reduced primary",
+    "label": "READ",
+    "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+    "verbatim": "Time to the First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF)"
+   },
+   {
+    "field": "NCT03057951 EMPEROR-Preserved primary",
+    "label": "READ",
+    "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+    "verbatim": "Time to First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF)"
+   },
+   {
+    "field": "NCT03036124 DAPA-HF two-component outcome",
+    "label": "READ",
+    "source_path": "protocolSection.outcomesModule.secondaryOutcomes[].measure",
+    "verbatim": "Subjects Included in the Composite Endpoint of CV Death or Hospitalization Due to Heart Failure.",
+    "note": "SECONDARY rank. Pool A does not exist if only primaries are read."
+   },
+   {
+    "field": "NCT03619213 DELIVER primary",
+    "label": "READ",
+    "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+    "verbatim": "Subjects Included in the Composite Endpoint of CV Death, Hospitalization Due to Heart Failure or Urgent Visit Due to Heart Failure.",
+    "note": "Three-component. DELIVER registers NO two-component composite at any rank."
+   },
+   {
+    "field": "pool A estimate",
+    "value": "HR 0.7636 (0.7062 to 0.8258)",
+    "label": "DERIVED",
+    "derived_by": "metafor 5.0.1 rma(method='REML') over three trial-reported HRs; ssot/sglt2_pools.R",
+    "note": "Reproduces the value already stored on this object EXACTLY."
+   },
+   {
+    "field": "pool B estimate",
+    "value": "HR 0.7835 (0.7090 to 0.8659)",
+    "label": "DERIVED",
+    "derived_by": "metafor 5.0.1 rma(method='REML') over two trial-reported HRs; ssot/sglt2_pools.R"
+   },
+   {
+    "field": "arm roles",
+    "value": "treatment / control on all four",
+    "label": "DERIVED",
+    "derived_by": "ssot/topic_identity.locate() over raw v2 armGroups"
+   }
+  ]
+ },
+ "published_comparison": {
+  "state": "PENDING_EXTERNAL_RESOLUTION",
+  "_why": "Every page this project ships carries this section with a DENOMINATOR. A comparison without one reports the syntheses it happened to find.",
+  "denominator": null,
+  "denominator_reason": "Not yet established. Establishing it requires resolving published syntheses' included-sets to REGISTRATION IDs. A second lane has validated that pipeline (stated-k table identification plus two-hop citation->PMID->registration) and is running it now.",
+  "explicitly_not_done": "CITATION-STRING MATCHING. It would produce a comparison-shaped answer tonight and it is not identity: two syntheses citing the same trial under different labels would read as different, and the same label on different trials as the same. That is the substitution class this project audits for.",
+  "candidate_source_search": "PubMed search recorded at search.databases[1] (109 records)",
+  "blocked_on": "lane 2 registration-id resolution"
+ },
+ "registration_identity": {
+  "verified_utc": "2026-08-19",
+  "method": "live fetch of the raw ClinicalTrials.gov v2 record and comparison of the returned nctId against the id stored on this object",
+  "trials": [
+   {
+    "nct": "NCT03036124",
+    "verified": true,
+    "link": "https://clinicaltrials.gov/study/NCT03036124"
+   },
+   {
+    "nct": "NCT03057977",
+    "verified": true,
+    "link": "https://clinicaltrials.gov/study/NCT03057977"
+   },
+   {
+    "nct": "NCT03057951",
+    "verified": true,
+    "link": "https://clinicaltrials.gov/study/NCT03057951"
+   },
+   {
+    "nct": "NCT03619213",
+    "verified": true,
+    "link": "https://clinicaltrials.gov/study/NCT03619213"
+   }
+  ],
+  "duplicate_seeding_check": {
+   "shared_with_other_topics": false,
+   "checked_against": "evidence/2026-08-19-corpus/reconcile.json (51 shared ids corpus-wide); NCT02993406 is not among them"
+  }
+ },
+ "build_stamp": {
+  "page_standard_version": "1.2.0-2026-08-19",
+  "standard_document": "PAGE-STANDARD.md",
+  "built_utc": "2026-08-19",
+  "built_by": "ssot/build_to_standard.py",
+  "properties": {
+   "P1_executed_search": {
+    "state": "HELD",
+    "reason": "3 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 39-trial unscreened remainder is stated as a number rather than omitted."
+   },
+   "P2_k_cascade": {
+    "state": "HELD",
+    "reason": "k at every stage: surfaced 56, located 56, experimental 43, comparator 12, included 4, unscreened remainder 39."
+   },
+   "P3_inclusion_criteria": {
+    "state": "REFUSING",
+    "reason": "No criteria provenance block."
+   },
+   "P4_preconditions": {
+    "state": "HELD",
+    "reason": "All 8 recorded with verdict and cited authority: 0 FAIL, 2 NOT-ASSESSABLE. criteria_predefined is NOT-ASSESSABLE -- this object declares neither a provenance block nor a protocol statement, so pre-specification cannot be decided either way."
+   },
+   "P5_extraction_table": {
+    "state": "HELD",
+    "reason": "9 cells: 6 READ with source path and verbatim text, 3 DERIVED with the method named."
+   },
+   "P6_analysis_output": {
+    "state": "HELD",
+    "reason": "2 pool(s) carry verbatim model output with environment and call: ['harmonised_cvdeath_or_hhf', 'threecomp_cvdeath_hhf_urgent']. Nothing is summarised in place of a quotation."
+   },
+   "P7_published_comparison": {
+    "state": "REFUSING",
+    "reason": "No denominator yet. Blocked on external registration-id resolution; citation-string matching explicitly refused rather than substituted."
+   },
+   "P8_registration_identity": {
+    "state": "HELD",
+    "reason": "4 of 4 trial(s) verified live against the registry."
+   }
+  },
+  "held": [
+   "P1_executed_search",
+   "P2_k_cascade",
+   "P4_preconditions",
+   "P5_extraction_table",
+   "P6_analysis_output",
+   "P8_registration_identity"
+  ],
+  "refusing": [
+   "P3_inclusion_criteria",
+   "P7_published_comparison"
+  ],
+  "_ratchet": "This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant."
  }
 }

@@ -702,10 +702,26 @@ def _standard_block(canon, e_):
     # blocks carry the evidence underneath it. A first served-bytes check found the reasons
     # present and the evidence absent, which is a page that says it refuses without showing
     # what it refused on.
-    ro = ((canon.get("results") or {}).get("by_outcome") or {})
-    ro = (next(iter(ro.values()), {}) or {}).get("r_output") or {}
+    # EVERY pool that carries output, not just the first outcome. Taking the first meant
+    # sglt2-hf rendered nothing: its first outcome is the WITHDRAWN pool, which correctly has
+    # no r_output, while the two pools that DO carry verbatim metafor output sit behind it.
+    _by = ((canon.get("results") or {}).get("by_outcome") or {})
     ro_html = ""
-    if ro:
+    for _oid, _res in _by.items():
+        ro = (_res or {}).get("r_output") or {}
+        if not ro:
+            continue
+        if ro.get("verbatim"):
+            ro_html += ("<h3>Analysis output — %s (quoted verbatim)</h3>"
+                        "<p><small>%s &nbsp;|&nbsp; call: <code>%s</code></small></p>"
+                        "<pre style='overflow-x:auto'>%s</pre>"
+                        % (e_(str(_oid)), e_(str(ro.get("_environment", ""))),
+                           e_(str(ro.get("call", ""))), e_(str(ro.get("verbatim")))))
+            if ro.get("reproduces_the_stored_value"):
+                ro_html += "<p><small>%s</small></p>" % e_(str(ro["reproduces_the_stored_value"]))
+            continue
+    ro = (next(iter(_by.values()), {}) or {}).get("r_output") or {}
+    if ro and not ro_html:
         stands = ro.get("what_stands_instead") or {}
         ro_html = ("<h3>Analysis output — %s</h3><p>%s</p>"
                    "<p><strong>What stands instead:</strong> %s<br>"
@@ -733,8 +749,33 @@ def _standard_block(canon, e_):
 
     # The screen of the unscreened remainder. Sixteen verdicts each keyed to a registration
     # id, and the withholding question shown as asked rather than asserted as asked.
+    # The withholding question is rendered wherever it is recorded -- as a per-trial block on
+    # a screened topic, or as a top-level record on a topic where it decided the pools.
+    wq_top = canon.get("withholding_question") or {}
+    wq_html = ""
+    if wq_top:
+        rows_wq = "".join(
+            "<tr><td><code>%s</code></td><td>%s</td><td><small>%s</small></td>"
+            "<td><small>%s</small></td></tr>"
+            % (e_(str(k)), e_(str(v.get("name", ""))), e_(str(v.get("two_component", ""))),
+               e_(str(v.get("three_component", ""))))
+            for k, v in (wq_top.get("per_trial") or {}).items())
+        md = wq_top.get("matcher_defect_found_and_not_relied_on") or {}
+        wq_html = ("<h3>The withholding question, asked at every rank</h3>"
+                   "<p><em>%s</em></p><p><small>%s</small></p>"
+                   "<table><tr><th>registration</th><th>trial</th><th>two-component</th>"
+                   "<th>three-component</th></tr>%s</table>"
+                   % (e_(str(wq_top.get("question", ""))),
+                      e_(str(wq_top.get("why_before_deciding", ""))), rows_wq))
+        if md:
+            wq_html += ("<div class='card warn'><h4>A matcher defect, found and not relied on"
+                        "</h4><p>%s</p><p><small>%s</small></p><p><small>Class: %s</small></p>"
+                        "</div>" % (e_(str(md.get("what_happened", ""))),
+                                    e_(str(md.get("why_it_mattered", ""))),
+                                    e_(str(md.get("class", "")))))
+
     sc = canon.get("screening_of_remainder") or {}
-    sc_html = ""
+    sc_html = wq_html
     if sc:
         res = sc.get("result") or {}
         wq = sc.get("withholding_question") or {}
@@ -753,7 +794,7 @@ def _standard_block(canon, e_):
             % (e_(str(r.get("nct"))), e_(str(r.get("verdict"))),
                e_(str(r.get("failing_limb") or "")), e_(str(r.get("reason"))[:260]))
             for r in (sc.get("rows") or []))
-        sc_html = (
+        sc_html += (
             "<h3>Screening of the remainder — %s screened, %s included, %s excluded, "
             "%s not-assessable</h3>"
             "<p>%s</p><p><strong>k after screening: %s.</strong> %s</p>"

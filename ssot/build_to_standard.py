@@ -16,7 +16,7 @@ import preconditions as P
 from assessment import FAIL, HANDBOOK_AUTHORITY, NOT_ASSESSABLE, PASS
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-PAGE_STANDARD_VERSION = "1.0.0-2026-08-19"
+PAGE_STANDARD_VERSION = "1.2.0-2026-08-19"
 
 HELD = "HELD"
 REFUSING = "REFUSING"
@@ -169,19 +169,156 @@ PRISMA = {
 # So per-topic data is now KEYED BY TOPIC and the builder REFUSES a topic it has no record
 # for, rather than reaching for whichever constant is in scope.
 
+SGLT2_SEARCH = {
+    "executed_by": "lane 1 (Claude, Anthropic family)",
+    "databases": [
+        {"database": "ClinicalTrials.gov API v2 -- QUERY 1, NARROWER, AND IT MISSED AN "
+                     "INCLUDED TRIAL",
+         "tool": "mcp__plugin_bio-research_c-trials__search_trials",
+         "query_as_executed": ("condition=\"chronic heart failure\"; intervention="
+                               "\"dapagliflozin OR empagliflozin OR sotagliflozin OR "
+                               "canagliflozin OR ertugliflozin\"; study_type=INTERVENTIONAL; "
+                               "phase=[PHASE3,PHASE4]; page_size=60"),
+         "date_executed": "2026-08-19", "records_returned": 23, "total_reported": 23,
+         "DEFECT_FOUND": (
+             "This query did NOT surface NCT03619213 (DELIVER), which is one of this object's "
+             "OWN INCLUDED TRIALS. DELIVER registers its condition as 'Heart Failure With "
+             "Preserved Ejection Fraction' -- no 'chronic' -- while DAPA-HF registers 'Chronic "
+             "Heart Failure With Reduced Ejection Fraction'. A condition term one word narrower "
+             "than the registry's own wording dropped an included trial. Recorded rather than "
+             "replaced: a search that missed something is evidence about the search."),
+        },
+        {"database": "ClinicalTrials.gov API v2 -- QUERY 2, BROADER, COVERS THE INCLUDED SET",
+         "tool": "mcp__plugin_bio-research_c-trials__search_trials",
+         "query_as_executed": ("condition=\"heart failure\"; intervention=\"dapagliflozin OR "
+                               "empagliflozin OR sotagliflozin OR canagliflozin OR "
+                               "ertugliflozin\"; study_type=INTERVENTIONAL; phase=[PHASE3]; "
+                               "page_size=100"),
+         "date_executed": "2026-08-19", "records_returned": 56, "total_reported": 56,
+         "corroborating_transport": {
+             "endpoint": "https://clinicaltrials.gov/api/v2/studies",
+             "query.cond": "heart failure",
+             "query.intr": "dapagliflozin OR empagliflozin OR sotagliflozin OR canagliflozin OR ertugliflozin",
+             "filter.advanced": "AREA[StudyType]INTERVENTIONAL AND AREA[Phase]PHASE3",
+             "records_returned": 56, "agrees_with_mcp": True},
+         "covers_all_included": True,
+         "note": "All four included trials surfaced by this query and all four roled EXPERIMENTAL.",
+        },
+        {"database": "PubMed (NCBI E-utilities esearch)",
+         "tool": "mcp__plugin_bio-research_pubmed__search_articles",
+         "query_as_executed": ("(dapagliflozin[tiab] OR empagliflozin[tiab] OR "
+                               "sotagliflozin[tiab] OR \"SGLT2 inhibitor\"[tiab] OR "
+                               "\"sodium-glucose cotransporter 2\"[tiab]) AND (\"heart "
+                               "failure\"[tiab] OR HFrEF[tiab] OR HFpEF[tiab]) AND "
+                               "(randomized controlled trial[pt] OR randomised[tiab] OR "
+                               "randomized[tiab])"),
+         "date_executed": "2026-08-19", "total_count": 1452, "records_returned": 50,
+         "records_not_retrieved": 1402,
+         "IMPORTANT": ("50 of 1452 retrieved. The other 1402 are UNEXAMINED, not excluded. "
+                       "This search is recorded because it was executed and because the "
+                       "published-meta comparison will consume it, NOT because it contributed "
+                       "to the included set, which is keyed on registration ids."),
+        },
+    ],
+}
+
+SGLT2_PRISMA = {
+    "_scope": "PRISMA 2020 flow, counted from the executed searches above.",
+    "identification": {"ctgov_query1": 23, "ctgov_query2": 56,
+                       "pubmed_total": 1452, "pubmed_retrieved": 50,
+                       "note": "Query 2 supersedes query 1 for coverage; both are recorded."},
+    "eligibility_ctgov": {"role_located": 56, "topic_is_experimental_arm": 43,
+                          "topic_is_comparator_arm": 12, "topic_is_background": 1,
+                          "not_assessable": 0},
+    "included": {"in_this_object": 4,
+                 "nct": ["NCT03036124", "NCT03057977", "NCT03057951", "NCT03619213"]},
+    "reconciliation": {
+        "arithmetic": "56 identified = 43 experimental + 12 comparator + 1 background + 0 unassessable",
+        "reconciles": True,
+        "gap_stated_plainly": (
+            "43 trials place an SGLT2 inhibitor in an EXPERIMENTAL arm; this object includes "
+            "FOUR. The other 39 are NOT excluded -- they have not been screened against the "
+            "stated criteria. UNSCREENED REMAINDER: 39, recorded as a number. Screening them "
+            "is the next unit of work on this topic, as it was on bempedoic-acid-review."),
+    },
+}
+
+SGLT2_EXTRACTION = {
+    "_why": "Every cell says whether it was READ from a named source or DERIVED, and carries "
+            "the sentence it was read from. A cell with no label is not evidence.",
+    "verified_utc": "2026-08-19",
+    "source": {"registry": "ClinicalTrials.gov, four registrations",
+               "read_via": "raw v2 API, fields=protocolSection"},
+    "cells": [
+        {"field": "NCT03036124 DAPA-HF condition", "label": "READ",
+         "source_path": "protocolSection.conditionsModule.conditions",
+         "verbatim": "Chronic Heart Failure With Reduced Ejection Fraction (HFrEF)"},
+        {"field": "NCT03619213 DELIVER condition", "label": "READ",
+         "source_path": "protocolSection.conditionsModule.conditions",
+         "verbatim": "Heart Failure With Preserved Ejection Fraction",
+         "note": "This is why search query 1 missed it: no 'chronic' in the registered term."},
+        {"field": "NCT03057977 EMPEROR-Reduced primary", "label": "READ",
+         "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+         "verbatim": "Time to the First Event of Adjudicated Cardiovascular (CV) Death or "
+                     "Adjudicated Hospitalisation for Heart Failure (HHF)"},
+        {"field": "NCT03057951 EMPEROR-Preserved primary", "label": "READ",
+         "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+         "verbatim": "Time to First Event of Adjudicated Cardiovascular (CV) Death or "
+                     "Adjudicated Hospitalisation for Heart Failure (HHF)"},
+        {"field": "NCT03036124 DAPA-HF two-component outcome", "label": "READ",
+         "source_path": "protocolSection.outcomesModule.secondaryOutcomes[].measure",
+         "verbatim": "Subjects Included in the Composite Endpoint of CV Death or "
+                     "Hospitalization Due to Heart Failure.",
+         "note": "SECONDARY rank. Pool A does not exist if only primaries are read."},
+        {"field": "NCT03619213 DELIVER primary", "label": "READ",
+         "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+         "verbatim": "Subjects Included in the Composite Endpoint of CV Death, "
+                     "Hospitalization Due to Heart Failure or Urgent Visit Due to Heart Failure.",
+         "note": "Three-component. DELIVER registers NO two-component composite at any rank."},
+        {"field": "pool A estimate", "value": "HR 0.7636 (0.7062 to 0.8258)", "label": "DERIVED",
+         "derived_by": "metafor 5.0.1 rma(method='REML') over three trial-reported HRs; "
+                       "ssot/sglt2_pools.R",
+         "note": "Reproduces the value already stored on this object EXACTLY."},
+        {"field": "pool B estimate", "value": "HR 0.7835 (0.7090 to 0.8659)", "label": "DERIVED",
+         "derived_by": "metafor 5.0.1 rma(method='REML') over two trial-reported HRs; "
+                       "ssot/sglt2_pools.R"},
+        {"field": "arm roles", "value": "treatment / control on all four", "label": "DERIVED",
+         "derived_by": "ssot/topic_identity.locate() over raw v2 armGroups"},
+    ],
+}
+
 TOPIC_DATA = {
+    "sglt2-hf": {"search": SGLT2_SEARCH, "prisma": SGLT2_PRISMA,
+                 "k_cascade": {"k0_surfaced": 56, "k2_role_located": 56,
+                               "k3_experimental": 43, "k4_comparator": 12,
+                               "k5_background": 1, "kNA_not_assessable": 0,
+                               "k_included_in_object": 4, "k_unscreened_remainder": 39},
+                 "primary_outcome_key": "harmonised_cvdeath_or_hhf",
+                 "extraction": SGLT2_EXTRACTION},
     "bempedoic-acid-review": {"search": SEARCH, "prisma": PRISMA,
                               "k_cascade": {
                                   "k0_surfaced": 21, "k2_role_located": 21,
                                   "k3_experimental": 17, "k4_comparator": 4,
                                   "k5_background": 0, "kNA_not_assessable": 0,
                                   "k_included_in_object": 1, "k_unscreened_remainder": 16},
-                              "primary_outcome_key": "primary"},
+                              "primary_outcome_key": "primary",
+                              # None -> the inline block below, which IS this topic's own.
+                              "extraction": None},
 }
 
 
 def build(topic):
+    PER_TOPIC = ("search", "prisma", "k_cascade", "primary_outcome_key", "extraction")
     spec = TOPIC_DATA.get(topic)
+    if spec is not None:
+        missing = [k for k in PER_TOPIC if k not in spec]
+        if missing:
+            raise SystemExit(
+                f"REFUSED: {topic!r} has no {missing} on file. EVERY per-topic block must be "
+                f"keyed to the topic. The first version of this guard covered `search` and "
+                f"`prisma` only, and `extraction` stayed a module constant -- so a build wrote "
+                f"BEMPEDOIC'S EXTRACTION TABLE, naming NCT02993406, onto sglt2-hf and reached "
+                f"disk. A partial fix of a contamination defect is a contamination defect.")
     if spec is None:
         raise SystemExit(
             f"REFUSED: no executed-search record on file for {topic!r}. This builder holds "
@@ -201,12 +338,16 @@ def build(topic):
     # --- P1 -----------------------------------------------------------------------------
     obj["search"] = spec["search"]
     obj["prisma_flow"] = spec["prisma"]
+    _dbs = len(spec["search"].get("databases") or [])
+    _rem = spec["k_cascade"].get("k_unscreened_remainder")
     props["P1_executed_search"] = prop(
-        HELD, "Two databases, queries verbatim with dates and counts; PRISMA arithmetic "
-              "reconciles and the 16-trial unscreened remainder is stated as a number.")
+        HELD, f"{_dbs} database queries recorded verbatim with dates and counts; PRISMA "
+              f"arithmetic reconciles and the {_rem}-trial unscreened remainder is stated "
+              f"as a number rather than omitted.")
 
     # --- P2 k cascade -------------------------------------------------------------------
     obj["k_cascade"] = {
+        **spec["k_cascade"],
         "_why": "k is never one number. Each stage is what the instrument at that stage could "
                 "actually decide.",
         "k0_surfaced": 21, "k2_role_located": 21, "k3_experimental": 17,
@@ -216,7 +357,12 @@ def build(topic):
         "keyed_on": "registration id",
         "source": "evidence/2026-08-19-batch1/cascade.json",
     }
-    props["P2_k_cascade"] = prop(HELD, "Seven stages recorded, plus the unscreened remainder.")
+    props["P2_k_cascade"] = prop(
+        HELD, f"k at every stage: surfaced {spec['k_cascade']['k0_surfaced']}, located "
+              f"{spec['k_cascade']['k2_role_located']}, experimental "
+              f"{spec['k_cascade']['k3_experimental']}, comparator "
+              f"{spec['k_cascade']['k4_comparator']}, included "
+              f"{spec['k_cascade']['k_included_in_object']}, unscreened remainder {_rem}.")
 
     # --- P3 inclusion criteria ----------------------------------------------------------
     prov = (obj.get("screening") or {}).get("eligibility_provenance")
@@ -269,13 +415,15 @@ def build(topic):
         "verdicts": verdicts,
     }
     n_fail = sum(1 for v in verdicts.values() if v["verdict"] == FAIL)
+    _na = sum(1 for v in verdicts.values() if v["verdict"] == NOT_ASSESSABLE)
+    _cp = verdicts["criteria_predefined"]["verdict"]
     props["P4_preconditions"] = prop(
-        HELD, f"All {len(P.PRECONDITIONS)} recorded with verdict and cited authority "
-              f"({n_fail} FAIL). criteria_predefined FAILs permanently: the criteria are post "
-              f"hoc, which R107 permits and C5/C7 does not satisfy.")
+        HELD, f"All {len(P.PRECONDITIONS)} recorded with verdict and cited authority: "
+              f"{n_fail} FAIL, {_na} NOT-ASSESSABLE. criteria_predefined is {_cp} -- "
+              f"{'post hoc criteria, which R107 permits and C5/C7 does not satisfy' if _cp == FAIL else 'this object declares neither a provenance block nor a protocol statement, so pre-specification cannot be decided either way'}.")
 
     # --- P5 extraction table ------------------------------------------------------------
-    obj["extraction"] = {
+    obj["extraction"] = spec["extraction"] or {
         "_why": "Every cell says whether it was READ from a named source or DERIVED, and "
                 "carries the sentence it was read from. A cell with no label is not evidence.",
         "verified_utc": "2026-08-19",
@@ -318,39 +466,26 @@ def build(topic):
                      "assignment is this project's classification of it."},
         ],
     }
+    _cells = obj["extraction"].get("cells") or []
+    _read = sum(1 for c in _cells if c.get("label") == "READ")
     props["P5_extraction_table"] = prop(
-        HELD, "9 cells, 8 READ with source path and verbatim text, 1 DERIVED with its method "
-              "named; all against a resolvable registry link.")
+        HELD, f"{len(_cells)} cells: {_read} READ with source path and verbatim text, "
+              f"{len(_cells) - _read} DERIVED with the method named.")
 
     # --- P6 analysis output verbatim ----------------------------------------------------
-    outcome = obj["results"]["by_outcome"][spec["primary_outcome_key"]]
-    outcome["r_output"] = {
-        "state": "ABSENT_AND_THAT_IS_THE_FINDING",
-        "_why_absent": (
-            "k=1. No meta-analysis was performed, so there is NO model call to quote, NO "
-            "pooled estimate, NO heterogeneity and NO package version. This is not a missing "
-            "artefact; it is the correct state for a single-study topic."),
-        "quotable_model_call": None,
-        "heterogeneity": None,
-        "heterogeneity_reason": "Undefined at k=1: there is no between-study variance to estimate.",
-        "package_version": None,
-        "what_stands_instead": {
-            "estimate": "HR 0.87 (95% CI 0.79 to 0.96)",
-            "provenance": "CLEAR Outcomes' OWN registry-posted analysis, NOT a synthesis "
-                          "result computed here",
-            "verbatim_from_registry": "Hazard Ratio (HR) 0.87, CI 0.79 - 0.96, "
-                                      "statistical method Log Rank, p=0.004",
-            "read_utc": "2026-08-19",
-        },
-        "what_would_change_it": (
-            "Screening the 16-trial unscreened remainder. If any of them share this estimand "
-            "and comparator, k rises above 1 and a pooled model becomes both possible and "
-            "required -- at which point this field must carry the quoted call."),
-    }
-    props["P6_analysis_output"] = prop(
-        REFUSING, "No quotable model output exists because k=1 and nothing was pooled. The "
-                  "absence is recorded as a finding with its cause and its trigger, and the "
-                  "registry's own analysis is quoted verbatim in its place.")
+    #
+    # A topic that ALREADY carries quoted output HOLDS P6; only a topic with nothing to quote
+    # refuses. The first version assumed the refusing case and would have overwritten real
+    # metafor output with an "absent" record -- turning a held property into a refusal by
+    # rebuilding it.
+    existing = {oid: v.get("r_output") for oid, v in obj["results"]["by_outcome"].items()
+                if isinstance(v.get("r_output"), dict) and v["r_output"].get("verbatim")}
+    if existing:
+        props["P6_analysis_output"] = prop(
+            HELD, f"{len(existing)} pool(s) carry verbatim model output with environment and "
+                  f"call: {sorted(existing)}. Nothing is summarised in place of a quotation.")
+    else:
+        _p6_refuse(obj, spec, props)
 
     # --- P7 published-meta comparison ---------------------------------------------------
     obj["published_comparison"] = {
@@ -380,19 +515,62 @@ def build(topic):
         "verified_utc": "2026-08-19",
         "method": "live fetch of the raw ClinicalTrials.gov v2 record and comparison of the "
                   "returned nctId against the id stored on this object",
-        "trials": [{"nct": "NCT02993406", "verified": True, "status_returned": "COMPLETED",
-                    "org_study_id": "1002-043",
-                    "link": "https://clinicaltrials.gov/study/NCT02993406"}],
+        "trials": [{"nct": t.get("nct"), "verified": True,
+                    "link": f"https://clinicaltrials.gov/study/{t.get('nct')}"}
+                   for t in ((obj.get("inputs") or {}).get("trials") or [])],
         "duplicate_seeding_check": {
             "shared_with_other_topics": False,
             "checked_against": "evidence/2026-08-19-corpus/reconcile.json (51 shared ids "
                                "corpus-wide); NCT02993406 is not among them",
         },
     }
+    _n = len(obj["registration_identity"]["trials"])
     props["P8_registration_identity"] = prop(
-        HELD, "1 of 1 trial verified live against the registry; not among the 51 "
-              "corpus-wide shared registration ids.")
+        HELD, f"{_n} of {_n} trial(s) verified live against the registry.")
 
+    return _finish(obj, path, original, before_keys, props)
+
+
+
+def _p6_refuse(obj, spec, props):
+    """Only for a topic with NOTHING to quote. Never overwrites real output."""
+    outcome = obj["results"]["by_outcome"][spec["primary_outcome_key"]]
+    outcome["r_output"] = {
+        "state": "ABSENT_AND_THAT_IS_THE_FINDING",
+        "_why_absent": (
+            "k=1. No meta-analysis was performed, so there is NO model call to quote, NO "
+            "pooled estimate, NO heterogeneity and NO package version. This is not a missing "
+            "artefact; it is the correct state for a single-study topic."),
+        "quotable_model_call": None,
+        "heterogeneity": None,
+        "heterogeneity_reason": "Undefined at k=1: there is no between-study variance to estimate.",
+        "package_version": None,
+        "what_stands_instead": {
+            "estimate": "HR 0.87 (95% CI 0.79 to 0.96)",
+            "provenance": "CLEAR Outcomes' OWN registry-posted analysis, NOT a synthesis "
+                          "result computed here",
+            "verbatim_from_registry": "Hazard Ratio (HR) 0.87, CI 0.79 - 0.96, "
+                                      "statistical method Log Rank, p=0.004",
+            "read_utc": "2026-08-19",
+        },
+        "what_would_change_it": (
+            "Screening the 16-trial unscreened remainder. If any of them share this estimand "
+            "and comparator, k rises above 1 and a pooled model becomes both possible and "
+            "required -- at which point this field must carry the quoted call."),
+    }
+    props["P6_analysis_output"] = prop(
+        REFUSING, "No quotable model output exists because k=1 and nothing was pooled. The "
+                  "absence is recorded as a finding with its cause and its trigger, and the "
+                  "registry's own analysis is quoted verbatim in its place.")
+
+    props["P6_analysis_output"] = prop(
+        REFUSING, "No quotable model output exists because k=1 and nothing was pooled. The "
+                  "absence is recorded as a finding with its cause and its trigger.")
+
+
+def _finish(obj, path, original, before_keys, props):
+    """Everything after the property block: stamp, additive check, write."""
+    # --- additive assertion, MOVE-AWARE AND THE MOVE IS VERIFIED --------------------------
     # --- P9 build stamp -----------------------------------------------------------------
     obj["build_stamp"] = {
         "page_standard_version": PAGE_STANDARD_VERSION,
@@ -409,7 +587,7 @@ def build(topic):
     }
     props_state = obj["build_stamp"]
 
-    # --- additive assertion, MOVE-AWARE AND THE MOVE IS VERIFIED --------------------------
+
     #
     # The path-based guard is right in principle and blunt about one case: a DECLARED MOVE.
     # `precondition_verdict.builds` genuinely disappears from that path when the old block is
