@@ -237,7 +237,7 @@
     "window": "from randomisation to the end of the trial's own follow-up",
     "follow_up_months": null,
     "follow_up_note": "The contributing trials ran to different median lengths, and no single figure is given here because there is no single figure. Each trial's median is quoted in the uniformity table under `follow_up_length`, which is also where the difference is recorded as a crossed dimension rather than averaged away.",
-    "analysis_population": "each trial's own full analysis set, which in two of the three is smaller than the randomised total for reasons the trial states and this object reproduces"
+    "analysis_population": "each trial's own full analysis set, which in two of the four is smaller than the randomised total for reasons the trial states and this object reproduces"
    },
    "comparator": "enalapril",
    "comparator_type": "active",
@@ -362,7 +362,18 @@
        "source_pointer": "CT.gov results Outcome Measure 1, row 'Primary Composite'; independently confirmed in NEJM 2014 Results text: '914 patients (21.8%) ... 1117 patients (26.5%)'.",
        "read_or_derived": "read"
       },
-      "denominator_note": "Randomised 4209 / 4233. The full analysis set is 4187 / 4212 after 37 participants at sites closed for serious GCP violations and 6 inadvertently randomised who never received drug. The 2x2 uses the FAS. A separate registry table, 'Adjudicated Primary Causes of Death', posts 714 / 837 deaths on the RANDOMISED denominator 4209 / 4233 -- the same endpoint on a different population. Pulling that pair into this 2x2 would silently mix populations."
+      "denominator_note": "Randomised 4209 / 4233. The full analysis set is 4187 / 4212 after 37 participants at sites closed for serious GCP violations and 6 inadvertently randomised who never received drug. The 2x2 uses the FAS. A separate registry table, 'Adjudicated Primary Causes of Death', posts 714 / 837 deaths on the RANDOMISED denominator 4209 / 4233 -- the same endpoint on a different population. Pulling that pair into this 2x2 would silently mix populations.",
+      "outcome_definition": "Number of Participants That Had First Occurrence of the Composite Endpoint, Which is Defined as Either Cardiovascular (CV) Death or Heart Failure (HF) Hospitalization",
+      "outcome_definition_source": {
+       "description_verbatim": "Number of participants that had first occurrence of the composite endpoint, which is defined as either CV death or HF hospitalization due to HF.",
+       "time_frame": "up to 51 months",
+       "endpoint_rank": "PRIMARY",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+       "source_url": "https://clinicaltrials.gov/study/NCT01035255",
+       "read_utc": "2026-08-18",
+       "agrees_with_the_others": "Cardiovascular death or heart-failure hospitalisation, counted at the FIRST occurrence. The registry's own title says “First Occurrence” in words, so this row establishes the first-event structure of the pooled estimand rather than assuming it. Identical in components and in first-event structure to PARALLEL-HF and to PARACHUTE-HF's first secondary. The row previously stood on a publication sentence, which happened to say the same thing; the registry says it in the record that fixes what was counted."
+      }
      }
     },
     "risk_of_bias": {
@@ -591,7 +602,19 @@
        "source_pointer": "JAMA 2026 Table 2, 'First hospitalization for HF or cardiovascular death', 155 (33.5) vs 169 (36.7), read at PMC12676478. ClinicalTrials.gov posts this outcome as PERCENTAGES ONLY, so no registry count exists to confirm it and none was manufactured from the percentage.",
        "read_or_derived": "read"
       },
-      "denominator_note": "The full analysis set is 'all participants to whom study treatment was assigned at randomization' = 462 / 460, identical to the randomised totals. For this trial alone, analysed equals randomised."
+      "denominator_note": "The full analysis set is 'all participants to whom study treatment was assigned at randomization' = 462 / 460, identical to the randomised totals. For this trial alone, analysed equals randomised.",
+      "outcome_definition": "Percentage of Participants With First Hospitalization Due to Heart Failure or Death From Cardiovascular Causes",
+      "outcome_definition_source": {
+       "description_verbatim": "NO DESCRIPTION IS RECORDED IN THIS REGISTRY FIELD. The registration carries a description for its primary win-ratio endpoint and none for this secondary. The title and the time frame are the whole of what the registry states, and they are quoted here in full rather than supplemented from the publication.",
+       "time_frame": "From the date of randomization to the first occurrence (total follow up time up to approximately 36 months)",
+       "endpoint_rank": "SECONDARY (the first of six secondary outcomes)",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.secondaryOutcomes[0].measure",
+       "source_url": "https://clinicaltrials.gov/study/NCT04023227",
+       "read_utc": "2026-08-18",
+       "agrees_with_the_others": "Cardiovascular death or heart-failure hospitalisation, counted to the first occurrence -- which the time frame states in words. Same components and same first-event structure as PARADIGM-HF and PARALLEL-HF. The registry's MEASURE is a percentage of participants and this object stores a hazard ratio taken from the publication; those are two analyses of the same registered endpoint, not two endpoints. The registry's posted results give 33.5% against 36.7%, which is 155/462 and 169/460 -- the counts this object already held, confirmed digit for digit against a source it had not used.",
+       "registry_results_confirm_the_stored_counts": "resultsSection outcome “Percentage of Participants With First Hospitalization Due to Heart Failure or Death From Cardiovascular Causes”: 33.5 in the sacubitril/valsartan group, 36.7 in the enalapril group. 155/462 = 33.55% and 169/460 = 36.74%. The stored arm sizes and event counts are the registry's own."
+      }
      }
     },
     "risk_of_bias": {
@@ -1353,7 +1376,20 @@
        "divergences": [],
        "agreement_note": "Single tier for this row: the JACC primary publication, Table 2, obtained by institutional access and transcribed. No registry results record was available."
       },
-      "denominator_note": "randomised 95/95 selected; mITT 87/87 recorded, not selected"
+      "denominator_note": "randomised 95/95 selected; mITT 87/87 recorded, not selected",
+      "outcome_definition": "NOT REGISTERED. NCT04853758 registers no outcome measure -- primary, secondary or other -- that is a first-event union of cardiovascular death and heart-failure hospitalisation. The quantity this object pools from this trial exists only in the publication.",
+      "outcome_definition_source": {
+       "description_verbatim": "There is no field to quote. The registration's TWO primary outcome measures are “Change of left ventricular ejection fraction (LVEF)” and “Win Ratio Analysis”, the latter described as “Hierarchical composite analysis composed of: 1. Time to cardiovascular death; 2. Time to first heart failure hospitalization; 3. Relative change in NT-proBNP from baseline to final visit; 4. Relative change in left ventricular ejection fraction from baseline to final visit”. Its EIGHTEEN secondary outcome measures are Holter, echocardiographic, functional-class and biomarker measures: premature ventricular beats (count and percentage), ventricular arrhythmia density, sustained ventricular tachycardia rate, NYHA class, six ventricular-remodelling measurements, urea, creatinine, potassium, sodium, systemic cytokines, microRNA and NT-proBNP. There are no “other” outcome measures. None of the twenty is the endpoint pooled here.",
+       "time_frame": "not applicable -- the endpoint is not registered",
+       "endpoint_rank": "NOT REGISTERED AT ANY RANK",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule -- primaryOutcomes (2), secondaryOutcomes (18), otherOutcomes (0), enumerated in full and none matching",
+       "source_url": "https://clinicaltrials.gov/study/NCT04853758",
+       "read_utc": "2026-08-18",
+       "registry_state_when_read": "overallStatus UNKNOWN, hasResults false, enrolment 200 (ESTIMATED), last update 2024-04-03. No results are posted, so the registry cannot be asked for this trial's counts the way PARACHUTE-HF's were.",
+       "agrees_with_the_others": "IT CANNOT BE ASKED TO. The other three trials' endpoint definitions agree with each other in the registry; this one has no registry definition to agree or disagree. The publication's Table 2 row is “Cardiovascular death and heart failure hospitalization 12/95 (12.6) 8/95 (8.4) 1.83 (0.72-4.67) 0.205”, and the row is a first-event UNION despite the caption's “and”: Table 2's own arithmetic gives cardiovascular death 7 plus heart-failure hospitalisation 7 against a composite of 12, so two patients had both and are counted once. The COMPONENTS therefore match the other three and the STRUCTURE matches them. What does not match is the status of the endpoint: theirs were fixed before the data, this one was not.",
+       "what_this_costs_the_pool": "This is a selective-reporting exposure, not an estimand mismatch. An endpoint absent from the registration cannot be shown to have been specified before the results were seen, and the protection every other row in this table has, this row does not. It is carried into risk of bias and stated on the face of the page. It is NOT treated as grounds for removing the trial: removing it moves the pooled hazard ratio from 0.8715 (0.7461-1.0181) to 0.8333 (0.7473-0.9292), turning a result that crosses one into one that does not. Dropping the only trial that disagrees, on a defect that argues for disclosure, would manufacture the positive finding this review does not have."
+      }
      }
     },
     "component_endpoints": {
@@ -1560,7 +1596,7 @@
       "log_point": 0.60431596685,
       "log_se": 0.47696364663,
       "population": "adults with HFrEF and chronic Chagas cardiomyopathy",
-      "endpoint_rank_in_its_own_trial": "a secondary endpoint; the trial's primary is change in left ventricular ejection fraction",
+      "endpoint_rank_in_its_own_trial": "NOT REGISTERED AT ANY RANK. NCT04853758 registers two primary outcomes -- change in left ventricular ejection fraction, and a four-level hierarchical win ratio -- and eighteen secondary outcomes, none of which is this composite. The endpoint pooled here appears only in the publication. The object previously recorded this row as “a secondary endpoint”, which the registration refutes.",
       "derivation": "the published hazard ratio, stored on the log scale with the standard error its published interval implies",
       "provenance": {
        "source": "JACC 2026;87(10):1220-1232, Table 2, Clinical Endpoints at 6 Months",
@@ -1571,7 +1607,8 @@
        "tier": "T1",
        "note": "Caption says 'and'; the arithmetic proves a first-event union. See inputs.trials[answer-hf].caption_trap."
       },
-      "estimand_id": "cvdeath_or_hfh_first-estimand"
+      "estimand_id": "cvdeath_or_hfh_first-estimand",
+      "endpoint_rank_in_its_own_trial_superseded": "a secondary endpoint; the trial's primary is change in left ventricular ejection fraction"
      }
     ],
     "poolable": true,
@@ -1581,23 +1618,27 @@
     "pool_uniformity": {
      "effect_measure": [
       "identical",
-      "All three report a hazard ratio for the time to a first event of the same composite. No conversion is performed and none would be valid: the trials excluded from this pool are excluded largely because their quantities cannot be converted into this one."
+      "All FOUR report a hazard ratio for the time to a first event of the same composite. No conversion is performed and none would be valid: the trials excluded from this pool are excluded largely because their quantities cannot be converted into this one. This row read “all three” until 2026-08-18, when the pool had been k=4 for a day; the whole of this table described the pool as it stood before ANSWER-HF was resolved into it, which is the table that justifies the pool describing a different pool from the one published."
      ],
      "comparator": [
       "identical",
-      "All three randomised against enalapril at a target of 10 mg twice daily. This is the axis on which PARAGON-HF, PARAGLIDE-HF and PARADISE-MI fail, and it is checked rather than assumed."
+      "All four randomised against enalapril at a target of 10 mg twice daily. ANSWER-HF's own registration names enalapril as the comparator. This is the axis on which PARAGON-HF, PARAGLIDE-HF and PARADISE-MI fail, and it is checked rather than assumed."
      ],
      "outcome_definition": [
-      "identical",
-      "Cardiovascular death or hospitalization for heart failure, whichever comes first, with adjudication by a central committee in each trial."
+      "identical in the three that register it",
+      "Cardiovascular death or hospitalization for heart failure, whichever comes first. PARADIGM-HF's registered title says “First Occurrence of the Composite Endpoint, Which is Defined as Either Cardiovascular (CV) Death or Heart Failure (HF) Hospitalization”; PARALLEL-HF's registered description says “either cardiovascular (CV) death or heart failure (HF) hospitalization”; PARACHUTE-HF's registered secondary says “First Hospitalization Due to Heart Failure or Death From Cardiovascular Causes”, counted “to the first occurrence”. All three are read from the registry and quoted in full in the endpoint-definition table. ANSWER-HF REGISTERS NO SUCH ENDPOINT, so on that trial there is nothing to compare and this row does not claim there is. Its publication reports the same two components in the same first-event structure, which is agreement of the reported quantity and not of the registered one."
+     ],
+     "endpoint_registered_in_its_own_trial": [
+      "differs",
+      "THREE OF THE FOUR TRIALS REGISTERED THIS ENDPOINT BEFORE THEY RAN; ONE DID NOT. PARADIGM-HF and PARALLEL-HF register it as their primary outcome and PARACHUTE-HF as the first of six secondaries. ANSWER-HF registers neither it nor anything equivalent, at any rank, and its registration is not silent by omission -- it declares twenty outcome measures and this is not among them. A quarter of this pool therefore has no protection against selective outcome reporting, and the trial concerned is the one whose estimate is furthest from the rest. It stays in, because removing it would convert a null into a positive result, and a withdrawal needs the same evidence as a claim."
      ],
      "aetiology_of_heart_failure": [
       "differs",
-      "PARACHUTE-HF admitted only chronic Chagas cardiomyopathy, confirmed serologically at entry -- a distinct disease with a different natural history and a high burden of conduction disease. Neither of the other trials restricted aetiology at all, so the pool crosses a narrow-aetiology trial with two unrestricted ones, and that is the most substantive thing it crosses. What the contributing trials' own sources say about their aetiology MIX differs in how much they say, and this row says only what they support: the EPAR records ischaemic cardiac disease as the primary cause of heart failure in the majority of PARADIGM-HF participants, and the staged sources for PARALLEL-HF characterise its population by ejection fraction and functional class without describing its aetiology mix at all. An earlier version of this row described both unrestricted trials as largely ischaemic or idiopathic; a review leg was right that the second half of that had no basis in anything staged, and it is the more serious kind of over-claim for sitting inside the table that justifies pooling across aetiology."
+      "PARACHUTE-HF and ANSWER-HF admitted only chronic Chagas cardiomyopathy, confirmed serologically at entry -- a distinct disease with a different natural history and a high burden of conduction disease. Neither PARADIGM-HF nor PARALLEL-HF restricted aetiology at all, so the pool crosses two narrow-aetiology trials with two unrestricted ones, and that is the most substantive thing it crosses. It is also HALF the pool rather than a third, which is what this row said before ANSWER-HF was counted into it. What the contributing trials' own sources say about their aetiology MIX differs in how much they say, and this row says only what they support: the EPAR records ischaemic cardiac disease as the primary cause of heart failure in the majority of PARADIGM-HF participants, and the staged sources for PARALLEL-HF characterise its population by ejection fraction and functional class without describing its aetiology mix at all. An earlier version of this row described both unrestricted trials as largely ischaemic or idiopathic; a review leg was right that the second half of that had no basis in anything staged, and it is the more serious kind of over-claim for sitting inside the table that justifies pooling across aetiology."
      ],
      "ejection_fraction_ceiling": [
       "differs",
-      "40% or less in PARADIGM-HF and PARACHUTE-HF; 35% or less in PARALLEL-HF. Both are within the reduced-ejection-fraction population the question fixes, and they are not the same entry criterion."
+      "40% or less in PARADIGM-HF and PARACHUTE-HF; 35% or less in PARALLEL-HF; ANSWER-HF enrolled Chagas cardiomyopathy with reduced ejection fraction. All are within the reduced-ejection-fraction population the question fixes, and they are not the same entry criterion."
      ],
      "blinding": [
       "differs",
@@ -1605,15 +1646,15 @@
      ],
      "endpoint_rank_within_its_own_trial": [
       "differs",
-      "This composite is the PRIMARY endpoint of PARADIGM-HF and of PARALLEL-HF. In PARACHUTE-HF it is the first SECONDARY endpoint, the primary there being a hierarchical composite analysed by win ratio. A trial is not powered for its secondary endpoints, and the pool crosses that."
+      "This composite is the PRIMARY endpoint of PARADIGM-HF and of PARALLEL-HF. In PARACHUTE-HF it is the first SECONDARY endpoint, the primary there being a hierarchical composite analysed by win ratio. A trial is not powered for its secondary endpoints, and the pool crosses that. IN ANSWER-HF IT HAS NO RANK, because it is not registered: that trial's registered primaries are change in ejection fraction and a four-level hierarchical win ratio. “Unregistered” is a fourth state on this axis and not a third kind of secondary."
      ],
      "follow_up_length": [
       "differs",
-      "Medians of 27 months, 25.2 months and 33.9 months. PARADIGM-HF's follow-up ended early by prespecified rule when a boundary for overwhelming benefit was crossed, which is a different reason for a follow-up length than the other two have."
+      "Medians of 27 months, 25.2 months and 33.9 months in the three trials that report one; ANSWER-HF's registered outcome window is 6 months, the shortest in the pool by a factor of four. PARADIGM-HF's follow-up ended early by prespecified rule when a boundary for overwhelming benefit was crossed, which is a different reason for a follow-up length than the others have. A composite counted to first event over 6 months and the same composite counted over 34 months are not the same exposure to risk, and this is the dimension on which the pool's shortest trial is also its most discrepant estimate."
      ],
      "analysis_population": [
       "differs",
-      "All three use the trial's own full analysis set. In PARACHUTE-HF that equals the randomised total; in PARADIGM-HF and PARALLEL-HF it is smaller, and each cell shows the arithmetic from the randomised total rather than leaving the difference unexplained."
+      "All four use the trial's own full analysis set. In PARACHUTE-HF and ANSWER-HF that equals the randomised total; in PARADIGM-HF and PARALLEL-HF it is smaller, and each cell shows the arithmetic from the randomised total rather than leaving the difference unexplained."
      ]
     },
     "model": "random",
@@ -1626,7 +1667,8 @@
      "ci_high": 1.0180821077,
      "ci_level": 95,
      "scale": "log",
-     "card_note": "RESOLVED 2026-08-18: the open question is answered. ANSWER-HF’s 1.83 (0.72–4.67) IS a hazard ratio — JACC Table 2 is headed “Effect HR (95% CI)” and the Methods name Cox proportional hazard models with treatment group and research site as fixed effects. The trial stays in, k remains 4, and no displayed value changed. The k=3 alternative, HR 0.8333 (0.7473–0.9292), is retained on the page as a sensitivity"
+     "card_note": "Measure question RESOLVED 2026-08-18: ANSWER-HF’s 1.83 (0.72–4.67) IS a hazard ratio — JACC Table 2 is headed “Effect HR (95% CI)” and the Methods name Cox proportional hazard models. The trial stays in, k remains 4, no displayed value changed, and the k=3 alternative HR 0.8333 (0.7473–0.9292) is on the page as a sensitivity. ENDPOINT DEFINITIONS NOW READ FROM THE REGISTRY FOR ALL FOUR TRIALS, and three of the four agree exactly — PARADIGM-HF and PARALLEL-HF register this composite as their primary, PARACHUTE-HF as its first secondary. ANSWER-HF REGISTERS NO SUCH ENDPOINT AT ANY RANK: NCT04853758 declares two primary and eighteen secondary outcome measures and none is this composite, so a quarter of the pool rests on a quantity that appears only in a publication. It is disclosed and NOT removed — removing it would turn a null into a positive result, and a withdrawal needs the same evidence as a claim.",
+     "card_note_superseded_2026_08_18": "RESOLVED 2026-08-18: the open question is answered. ANSWER-HF’s 1.83 (0.72–4.67) IS a hazard ratio — JACC Table 2 is headed “Effect HR (95% CI)” and the Methods name Cox proportional hazard models with treatment group and research site as fixed effects. The trial stays in, k remains 4, and no displayed value changed. The k=3 alternative, HR 0.8333 (0.7473–0.9292), is retained on the page as a sensitivity"
     },
     "favours": "treatment",
     "heterogeneity": {
@@ -2779,6 +2821,47 @@
      "composite_definition_confirmed": "The row is a FIRST-EVENT UNION despite a caption reading \"and\", and Table 2's own arithmetic proves it: cardiovascular death 7 and heart-failure hospitalisation 7 sum to 14 while the composite counts 12, so two patients had both and are counted once; in the control arm 6 and 5 sum to 11 against a composite of 8. The caption_trap recorded on this trial is confirmed, not assumed.",
      "history": "The open question was published at 935cf870a as a hand edit of the built page, existing in no object, and the first rebuild deleted it -- caught only because the new page's numerals were counted against the served page before pushing. It was moved into the object at 777a8393f. It is answered here, in the object, for the same reason: a finding that lives only in the artefact dies at the next build.",
      "sensitivity_stated": "SENSITIVITY, RETAINED RATHER THAN DELETED. With ANSWER-HF: HR 0.8715 (0.7461 to 1.0181), k=4 -- NULL. Without it: 0.8333 (0.7473 to 0.9292), k=3 -- NOT NULL. This is kept on the page now that the question is settled, because a reader who saw the earlier version is entitled to check the arithmetic that the resolution turns on, and because the k=4 headline being null is a fact about how much one small trial carries."
+    },
+    "pool_uniformity_superseded_2026_08_18": {
+     "why": "Every row of the previous table described THREE trials while the pool published FOUR. ANSWER-HF appeared in none of the nine rows. The table that justifies the pool was describing a different pool from the one on the page. Kept here so the change can be read rather than taken on trust; no pooled number changed.",
+     "rows": {
+      "effect_measure": [
+       "identical",
+       "All three report a hazard ratio for the time to a first event of the same composite. No conversion is performed and none would be valid: the trials excluded from this pool are excluded largely because their quantities cannot be converted into this one."
+      ],
+      "comparator": [
+       "identical",
+       "All three randomised against enalapril at a target of 10 mg twice daily. This is the axis on which PARAGON-HF, PARAGLIDE-HF and PARADISE-MI fail, and it is checked rather than assumed."
+      ],
+      "outcome_definition": [
+       "identical",
+       "Cardiovascular death or hospitalization for heart failure, whichever comes first, with adjudication by a central committee in each trial."
+      ],
+      "aetiology_of_heart_failure": [
+       "differs",
+       "PARACHUTE-HF admitted only chronic Chagas cardiomyopathy, confirmed serologically at entry -- a distinct disease with a different natural history and a high burden of conduction disease. Neither of the other trials restricted aetiology at all, so the pool crosses a narrow-aetiology trial with two unrestricted ones, and that is the most substantive thing it crosses. What the contributing trials' own sources say about their aetiology MIX differs in how much they say, and this row says only what they support: the EPAR records ischaemic cardiac disease as the primary cause of heart failure in the majority of PARADIGM-HF participants, and the staged sources for PARALLEL-HF characterise its population by ejection fraction and functional class without describing its aetiology mix at all. An earlier version of this row described both unrestricted trials as largely ischaemic or idiopathic; a review leg was right that the second half of that had no basis in anything staged, and it is the more serious kind of over-claim for sitting inside the table that justifies pooling across aetiology."
+      ],
+      "ejection_fraction_ceiling": [
+       "differs",
+       "40% or less in PARADIGM-HF and PARACHUTE-HF; 35% or less in PARALLEL-HF. Both are within the reduced-ejection-fraction population the question fixes, and they are not the same entry criterion."
+      ],
+      "blinding": [
+       "differs",
+       "PARADIGM-HF and PARALLEL-HF were double-blind. PARACHUTE-HF was OPEN-LABEL with blinded endpoint adjudication. Blinded adjudication protects the outcome ascertainment and does not protect the management decisions that lead to a hospitalization, so the difference is carried into the GRADE risk-of-bias domain rather than dismissed here."
+      ],
+      "endpoint_rank_within_its_own_trial": [
+       "differs",
+       "This composite is the PRIMARY endpoint of PARADIGM-HF and of PARALLEL-HF. In PARACHUTE-HF it is the first SECONDARY endpoint, the primary there being a hierarchical composite analysed by win ratio. A trial is not powered for its secondary endpoints, and the pool crosses that."
+      ],
+      "follow_up_length": [
+       "differs",
+       "Medians of 27 months, 25.2 months and 33.9 months. PARADIGM-HF's follow-up ended early by prespecified rule when a boundary for overwhelming benefit was crossed, which is a different reason for a follow-up length than the other two have."
+      ],
+      "analysis_population": [
+       "differs",
+       "All three use the trial's own full analysis set. In PARACHUTE-HF that equals the randomised total; in PARADIGM-HF and PARALLEL-HF it is smaller, and each cell shows the arithmetic from the randomised total rather than leaving the difference unexplained."
+      ]
+     }
     }
    }
   }
