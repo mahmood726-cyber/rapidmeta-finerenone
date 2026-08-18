@@ -6,7 +6,7 @@ section of `index.html` carries 54 page links, one of which
 consolidated at `ce1e9dc0e`. 54 − 1 = 53. Re-derive with
 `python scripts/cardio_program_status.py` rather than quoting this line.
 
-**DONE: 8 of 53.**
+**DONE: 9 of 53.**
 
 A topic is DONE when it has an SSOT object, is built through the tabbed
 projector to the written standard (`scripts/standard_manifest.py`, v1), its
@@ -25,6 +25,7 @@ endpoint does not, whatever the page looks like.
 | 6 | ABLATION_AF | v1, **withheld** | four trials, four different primary composites |
 | 7 | PCSK9 | **withdrawn** | one composite counts revascularization, the other does not |
 | 8 | DOAC_AF | **withdrawn** | the headline was this page's own Ruff 2014 comparator; k said 4, the pool had 3 |
+| 9 | DOAC_CANCER_VTE | **withdrawn** | a bleeding endpoint averaged with two efficacy endpoints; one registration names a different trial |
 
 `FINERENONE_CV` is also at v1 and is NOT counted here: it does not sit in the
 cardiology section of the index. Counting it would be the denominator drift this
@@ -32,14 +33,14 @@ file exists to prevent.
 
 ---
 
-## The remaining 45, by what is actually on them today
+## The remaining 44, by what is actually on them today
 
 Measured from the index cards, not assumed:
 
 | state | n | what it means |
 |---|---|---|
 | **Audit-first build** | 26 | no estimate ever published; the topic has never been taken through |
-| **live estimate, no v1 object** | 9 | a number is published that nothing in the current standard has checked |
+| **live estimate, no v1 object** | 8 | a number is published that nothing in the current standard has checked |
 | **withdrawn** | 7 | an estimate was retracted; the reason on the page has NOT been re-verified |
 | **not poolable** | 1 | MITRAL_FUNCMR — COAPT vs MITRA-FR, stated per-trial |
 | **no card at all** | 1 | INCRETIN_HFpEF is linked from the table and has no card |
@@ -162,7 +163,19 @@ none of them blocks the rest of the programme.
    tested so far the answer was the same: label wrong, role right, magnitude
    unaffected.** That is the pattern to expect, not a result to assume.
 
-4. **SGLT2_CKD's replacement question.** ESKD as dialysis-or-transplant, and
+4. **DOAC_CANCER_VTE: `NCT02583191` names the wrong trial — repair it how?**
+   The registration is CONKO-011 / AIO-SUP-0115 (AIO-Studien-gGmbH, Germany,
+   enrolment 246, primary endpoint *patient-reported treatment satisfaction*
+   measured to 4 weeks). **Everything else on that row is SELECT-D** — pmid
+   29746227, JCO 2018;36:2017-2023, 8/101 vs 18/102 matching the 7.9% and 17.6%
+   in its own quoted sentence. The data is right; the key is wrong. **Options:**
+   re-key to `ISRCTN86712308` — which puts a non-ClinicalTrials.gov registration
+   into an object where every other trial is an NCT, and the registry-read
+   tooling speaks only ClinicalTrials.gov — or treat the row as CONKO-011 and
+   re-extract, which discards correct SELECT-D data. **A schema decision, not a
+   data one.**
+
+5. **SGLT2_CKD's replacement question.** ESKD as dialysis-or-transplant, and
    cardiovascular death, are defined identically across CREDENCE, DAPA-CKD and
    EMPA-KIDNEY and reported separately by all three. Same rule as ABLATION_AF:
    the question must be chosen before its answer is known.
@@ -476,6 +489,100 @@ contributing nothing to its pool*. Every page built from now on carries them;
   k mismatch still reads as a k claim. It was right; the note was reworded rather
   than declared `_STALE`.
 
+### 2026-08-18 (continued) — DOAC_CANCER_VTE withdrawn, and an identity the flagship gate cannot see
+
+**Topic 9 of 53. DONE, live-verified byte-identical by SHA-256 on both surfaces.**
+
+**Four independent grounds**, and the first two are the substantive ones:
+
+1. **A safety endpoint averaged with two efficacy endpoints.** Hokusai
+   VTE-Cancer's registered primary counts *recurrent VTE **or major bleeding***;
+   CARAVAGGIO's counts recurrent VTE only, and its registry description spells
+   out the contents (proximal DVT, upper-limb DVT, PE) with no bleeding.
+   **The direction is known**: edoxaban bled more, so including bleeding moves
+   Hokusai from 0.71 to the registry's own Cox 0.97 (0.696–1.359). Averaging it
+   with efficacy-only endpoints **drags the pool toward the null.**
+2. **`NCT02583191` is CONKO-011, not SELECT-D** — see parked item 4.
+3. **`HR 0.55 (0.30–1.00)` is reconstructable from nothing.** Object: OR 0.7290
+   (0.4914–1.0817) k=3. Benchmark block: 0.63 and 0.71, **so the DOAC_AF
+   comparator-leak mechanism did NOT repeat.** Ten candidate pools of the page's
+   own four published HRs give 0.60, 0.58, 0.64, 0.49, 0.54, 0.75. The string
+   occurs on the page only in CSS and a chart legend. Search bounded, and
+   reported as bounded.
+4. **k=4 with a pool of 3, for the second topic running.**
+
+**Confirmed as prominently:** Hokusai's counts (67/522, 71/524) and CARAVAGGIO's
+(32/576, 46/579) are the registry's own, exactly; Hokusai's page HR matches the
+registry Cox digit for digit; the SELECT-D row's numbers are right *for
+SELECT-D*; and **every arm role and label is correct on all three trials** —
+worth saying, because the two topics before this had every label on the wrong
+arm.
+
+#### Two findings that generalise beyond this topic
+
+**A count-derived pool silently drops any trial whose registered primary is a
+RATE.** ADAM VTE registers "the rate (percentage) of patients experiencing major
+bleeding at 6 months" — 0% of 145 against 2.1% of 142, cumulative incidence with
+death as a competing risk. **There are no counts to have**, so it vanishes from a
+2×2-derived pool and k falls from 4 to 3 with no surface saying so. **This is the
+second topic in a row with that exact shape** (ROCKET AF on DOAC_AF), which makes
+it a class: *the published k is a function of which trials happen to have counts,
+and nothing declares it.*
+
+**`identity_by_registration_gate` PASSES a row whose registration names a
+different trial.** It checks that a registration is *recorded* and *unique per
+row* — never that the registration **is** that trial. So the flagship identity
+property passed on a row pointing at a German satisfaction study. **It closes the
+label→identity direction and leaves registration→identity wide open**, and it
+fails toward comfort. The detector is owed and is next.
+
+#### The estimand gate's hunting list fired productively for the first time
+
+It saw `venous thromboembolism`, could not classify it, and returned
+**UNCHECKABLE naming the term** rather than comparing two partial readings — on a
+topic whose endpoints genuinely disagree. That mechanism has been a promise since
+the CKD fix; this is the first time it has been a working check, and it refused
+toward *alarm*. The classifier half went in the same commit, and the gate then
+reached **WITHDRAWN** independently: `{serious_bleeding, vte}` against `{vte}`
+and `{vte}` — the same conclusion I had reached by hand, which is corroboration
+rather than substitution. One object moves across the 34; no object gained a pass.
+
+### 2026-08-18 (continued) — the detector owed by topic 9, built before topic 10
+
+`scripts/registration_identity_gate.py`. The ratchet rule is that a defect found
+on page N becomes a detector before page N+1, and topic 9's defect was that **the
+flagship identity property never checks that the registration IS the trial.**
+
+It screens participants **analysed** against the enrolment the **registration**
+records — the two sides state that number independently, so a row keyed to the
+wrong trial is a row whose halves were sized by different studies. Verdict is
+**`REVIEW`, never `FAIL`**: analysed is legitimately below randomised, and a gate
+that convicts on this arithmetic would be switched off within a week.
+
+**Corpus screen, 11 v1 objects, 38 rows: 34 ok, 3 REVIEW, 1 DECLARED.** The three
+are DOAC_AF's and all three are correct — two are three-arm trials pooled two arms
+at a time, which the gate now states on the line rather than leaving as a bare
+shortfall.
+
+**Two defects in my own first cuts, both caught before commit, and both worth
+more than the gate:**
+
+- **The threshold excluded its own founding case.** I picked 0.75 to keep
+  per-protocol analyses quiet. The SELECT-D row is at 0.825 — *above* it — so the
+  one defect the gate exists for would have passed silently. **Choosing a
+  threshold that excludes your own fixture is the exact shape of a check built to
+  pass.** The selftest now asserts the threshold contains the founding ratio.
+- **It read one arm and called it the total.** The v1 objects key analysed
+  `treatment`/`control`; I read `intervention`/`control` and summed the control
+  arm alone, so **thirteen correctly-keyed rows came back at 46–50%** on the first
+  corpus run. `arm_identity_gate` carries a comment about hitting this exact wrong
+  key, which I had read. Caught only because the ratios formed a **signature**
+  rather than a spread — 49.9, 49.9, 49.8, 50.0, 50.1, 49.9, 50.0. Thirteen
+  independent trials do not analyse exactly half their enrolment.
+
+That is now four instrument defects of my own in two topics, every one caught by
+running the thing against real data rather than by reading it.
+
 ---
 
 ## Where the next lane picks up
@@ -484,16 +591,16 @@ contributing nothing to its pool*. Every page built from now on carries them;
 page below is verified live, cache-busted, against the bytes on disk.
 
 Live-verified this session: **ARNI, SGLT2_HF, IV_IRON, SOTAGLIFLOZIN, PCSK9,
-SGLT2_CKD, DOAC_AF.** DOAC_AF and the index were confirmed byte-identical by
+SGLT2_CKD, DOAC_AF, DOAC_CANCER_VTE.** Each was confirmed byte-identical by
 SHA-256 against the served bytes, cache-busted. ALIROCUMAB, FINERENONE_CV and ABLATION_AF were unchanged and needed
 no rebuild.
 
 **Start here, in this order:**
 
-1. **The 9 remaining topics with a live estimate and no object.** These are the
+1. **The 8 remaining topics with a live estimate and no object.** These are the
    dangerous ones and every one examined so far has been withdrawable:
    BEMPEDOIC_ACID (k=1 — a "pool" over one trial), CANGRELOR_PCI, COLCHICINE_CVD,
-   DOAC_CANCER_VTE, EVOLOCUMAB_MIXED_DYSLIPIDEMIA, HFREF_NMA,
+   EVOLOCUMAB_MIXED_DYSLIPIDEMIA, HFREF_NMA,
    INCLISIRAN_LIPID_KIDNEY, INTENSIVE_BP, RIVAROXABAN_VASC. Objects already exist
    under `ssot/` for several of them.
 2. **Rebuild the four earlier topics** so their endpoint definitions are on the

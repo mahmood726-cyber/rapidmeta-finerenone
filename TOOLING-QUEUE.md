@@ -304,7 +304,40 @@ does not carry.
 
 ---
 
+## 13. `identity_by_registration_gate` cannot see a registration that names the wrong trial — PARTIALLY CLOSED 2026-08-18
+
+It asks whether a registration is **recorded** and **unique per row**. It never
+asks whether the registration **is** that trial. It passed
+`NCT02583191 = 'SELECT-D'`, a row pointing at a German treatment-satisfaction
+study. It closes LABEL→IDENTITY, the PARACHUTE-HF defect, and leaves
+REGISTRATION→IDENTITY open — and that direction fails toward comfort.
+
+`scripts/registration_identity_gate.py` now screens it by comparing participants
+analysed against the enrolment the registration records. **34 of 38 rows across
+the 11 v1 objects come back clean**; the three listed are DOAC_AF's and are all
+correct (two are three-arm trials pooled two arms at a time, which the gate now
+says on the line).
+
+**Still owed:**
+
+1. **A wrong registration of the SAME SIZE is invisible.** The screen is
+   arithmetic; two trials of similar enrolment defeat it. A second signal is
+   needed — sponsor, country, or completion year against what the object records
+   — and none of those is currently stored.
+2. **Fold it into `run_all_checks.py`.** It runs standalone today, which means it
+   runs when someone remembers.
+3. **The other 500+ corpus objects have no `registration_enrolment`.** They
+   report UNMEASURED, correctly and uselessly. `--fetch` is one call per trial.
+
+---
+
 ## Closed
+
+- **2026-08-18 — venous thromboembolism recognised, classifier added with it.**
+  The hunting list fired productively for the first time: it refused to compare
+  `venous thromboembolism` rather than reporting agreement from a partial
+  reading, on a topic whose endpoints genuinely disagree. One object moves; no
+  object gained a pass.
 
 - **2026-08-18 — systemic embolism was invisible to `COMPONENT`, `_CANON` AND
   `EVENT_LIKE`.** Four registry composites reading "stroke or systemic embolism"
