@@ -1,0 +1,266 @@
+{
+ "app_id": "apixaban-acs-review",
+ "schema_version": "2-authored-from-source",
+ "title": "Apixaban after acute coronary syndrome",
+ "question": "What did the apixaban acute-coronary-syndrome trials on this page actually measure? Both register BLEEDING as their primary outcome, which is not what the withdrawal on this page said.",
+ "built": "2026-08-18T00:00Z",
+ "build_mode": "AUTHORED",
+ "_estimand_rule": "Every endpoint definition below was READ FROM THE REGISTRY, word for word, when this withdrawal was RE-VERIFIED on 2026-08-18.",
+ "source_links_enforced": true,
+ "source_links_enforced_means": "every trial row carries its registration link",
+ "cited_total": null,
+ "completeness_statement": "not recorded on the page this object was built from",
+ "verification_basis": {
+  "what_verifies_this_object": "ClinicalTrials.gov protocol records, read 2026-08-18",
+  "what_is_not_claimed": "that any per-trial count was checked against a results record",
+  "families": [],
+  "bar": "not recorded on the page this object was built from"
+ },
+ "methodological_authority": {
+  "reference": "not recorded on the page this object was built from",
+  "version": "not recorded on the page this object was built from",
+  "version_checked_on": "not recorded on the page this object was built from",
+  "version_checked_how": "not recorded on the page this object was built from",
+  "version_note": "not recorded on the page this object was built from",
+  "scope_of_this_rule": "not recorded on the page this object was built from",
+  "url": "not recorded on the page this object was built from",
+  "note": "not recorded on the page this object was built from"
+ },
+ "config": {
+  "model": "random-effects",
+  "method": "not pooled -- withdrawn",
+  "scale": "log"
+ },
+ "screening": {
+  "search_note": "not recorded on the page this object was built from",
+  "eligibility": "not recorded on the page this object was built from",
+  "known_limitation": "not recorded on the page this object was built from"
+ },
+ "screening_names_unresolved": [],
+ "eligible_but_not_contributing": {
+  "note": "All included registrations carry a row in this object.",
+  "studies": []
+ },
+ "reconciliation": {
+  "why_this_step_exists": "not recorded on the page this object was built from",
+  "clean": null,
+  "clean_because": "not recorded on the page this object was built from",
+  "trial_list_diffs": [],
+  "matches": [],
+  "corrections": [],
+  "unresolved": []
+ },
+ "claims_corrected": [
+  {
+   "claim": "Estimate withdrawn -- bleeding and efficacy endpoints pooled",
+   "where": "index.html card",
+   "what_it_actually_is": "both trials register a bleeding composite as their primary outcome; there was no efficacy endpoint in this pool",
+   "evidence": "APPRAISE-1 primary: 'Event Rate of Composite of Adjudicated Major Bleeding and Clinically Relevant Non-Major Bleeding'; APPRAISE-J primary: 'Percentage of Participants Who Had Composite of ISTH-Defined Major and Clinically-relevant Non-major (CRNM) Bleeding Events'",
+   "corrected_to": "withdrawal confirmed, reason replaced with the three grounds the registry supports",
+   "on": "2026-08-18"
+  }
+ ],
+ "scope_decisions": {},
+ "conversion_note": "AUTHORED, not converted. This topic's estimate was withdrawn BEFORE the current detector set existed; the withdrawal was re-verified against the registry on 2026-08-18.",
+ "sources": {},
+ "outcomes": [
+  {
+   "id": "primary",
+   "name": "Major and clinically relevant non-major BLEEDING -- the registered primary of both trials",
+   "definition": "BOTH trials register a bleeding composite as their PRIMARY outcome. They are not an efficacy trial and a safety trial; they are two safety trials measured on different scales.",
+   "definition_note": "Authored on re-verification. The previous withdrawal reason asserted an efficacy/safety mixture that the registry records do not support.",
+   "measure": "OR",
+   "effect_scale": "log",
+   "type": "primary",
+   "estimand": {
+    "id": "primary",
+    "family": "bleeding events during the treatment period",
+    "model": "random-effects"
+   },
+   "comparator": "placebo",
+   "comparator_type": "placebo",
+   "direction_of_benefit": "lower is better",
+   "null_value": 1
+  }
+ ],
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT00313300",
+    "name": "APPRAISE-1",
+    "nct": "NCT00313300",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "A1",
+      "role": "treatment",
+      "events": 18,
+      "participants": 315
+     },
+     {
+      "label": "A4",
+      "role": "control",
+      "events": 18,
+      "participants": 599
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'A1', 'A2', 'A3', 'A4'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT00313300",
+      "analysed": {
+       "treatment": 315,
+       "control": 599
+      },
+      "outcome_definition": "Event Rate of Composite of Adjudicated Major Bleeding and Clinically Relevant Non-Major Bleeding During the Treatment Period- Treated Participants With Placebo or Apixaban Low Doses",
+      "outcome_definition_source": {
+       "time_frame": "From first dose of study drug (Day 1) to last dose plus 2 days, up to Year 2 of the Study",
+       "description_verbatim": "Bleeding was assessed using the International Society on Thrombosis and Hemostasis (ISTH) guidelines. Events were adjudicated by the Clinical Events Committee (CEC). Event rate was number of participants with events divided by the number of participants treated, measured as a percentage (%). The primary outcome is based on data for the placebo and 2 apixaban low-dose groups (2.5 mg BID and 10 mg QD) combined across Phase A and Phase B. The analyses of Phase B data across all doses of apixaban are secondary because of the premature termination of the apixaban high-dose groups (10mg BID, 20mg QD) and the resulting lower duration of exposure for these groups.",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT00313300",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "adjudicated MAJOR BLEEDING and CLINICALLY RELEVANT NON-MAJOR BLEEDING. A SAFETY endpoint -- there is no efficacy component in this registration's primary at all.",
+       "analysis_set_as_the_registry_states_it": "Registered as an EVENT RATE during the treatment period, in treated participants receiving placebo or apixaban LOW doses -- a dose-restricted subset, not the whole randomised population."
+      }
+     }
+    }
+   },
+   {
+    "id": "NCT00852397",
+    "name": "APPRAISE-J",
+    "nct": "NCT00852397",
+    "pmid": null,
+    "arms": [
+     {
+      "label": "Apixaban 2.5 mg",
+      "role": "treatment",
+      "events": 4,
+      "participants": 99
+     },
+     {
+      "label": "Placebo",
+      "role": "control",
+      "events": 1,
+      "participants": 52
+     }
+    ],
+    "arms_as_the_registry_lists_them": "'Apixaban 2.5 mg', 'Apixaban 5.0 mg', 'Placebo'",
+    "by_outcome": {
+     "primary": {
+      "effect": {
+       "measure": "OR",
+       "scale": "log",
+       "point": null,
+       "ci_low": null,
+       "ci_high": null,
+       "ci_level": 95,
+       "derived_from": "not carried forward -- the estimate is withdrawn",
+       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+      },
+      "provenance": {
+       "tag": "REGISTRY-READ",
+       "source_quotes": [],
+       "quote_note": "the endpoint definition is verbatim from the registry"
+      },
+      "source_url": "https://clinicaltrials.gov/study/NCT00852397",
+      "analysed": {
+       "treatment": 99,
+       "control": 52
+      },
+      "outcome_definition": "Percentage of Participants Who Had Composite of International Society on Thrombosis and Haemostasis (ISTH)-Defined Major and Clinically-relevant Non-major (CRNM) Bleeding Events Occurring During the Treatment Period.",
+      "outcome_definition_source": {
+       "time_frame": "Week 0 to Week 24",
+       "description_verbatim": "Major bleeding event was acute clinically overt bleeding accompanied by decrease in hemoglobin of 2 g/dL or more over a 24-hour period, transfusion of 2 or more units of packed red blood cells, or bleeding that occurs in critical site (e.g., intracranial). Fatal bleeding was also major bleeding event. CRNM bleeding was acute or sub-acute clinically overt bleeding that did not satisfy the criteria for major bleeding and that led to either hospital admission for bleeding, physician guided medical or surgical treatment for bleeding or a change in antithrombotic therapy.",
+       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+       "source": "registry",
+       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+       "source_url": "https://clinicaltrials.gov/study/NCT00852397",
+       "read_utc": "2026-08-18",
+       "components_as_the_registry_states_them": "ISTH-defined MAJOR and CLINICALLY RELEVANT NON-MAJOR BLEEDING. A SAFETY endpoint.",
+       "analysis_set_as_the_registry_states_it": "Registered as a PERCENTAGE of participants during the treatment period. A small Japanese trial: 99 against 52 participants."
+      }
+     }
+    }
+   }
+  ]
+ },
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 2,
+    "estimand_id": "primary",
+    "model": "random-effects",
+    "estimator": "not pooled -- the estimate is withdrawn",
+    "estimator_used": "none",
+    "handbook": {
+     "decision": "not recorded on the page this object was built from",
+     "sections": [],
+     "conformance": "not recorded on the page this object was built from"
+    },
+    "comparator_type": "placebo",
+    "favours": null,
+    "poolable": false,
+    "poolable_reason": "THE WITHDRAWAL STANDS AND ITS REASON WAS WRONG. The card said 'bleeding and efficacy endpoints pooled'. BOTH TRIALS REGISTER BLEEDING. Verbatim: APPRAISE-1's primary is 'Event Rate of Composite of Adjudicated Major Bleeding and Clinically Relevant Non-Major Bleeding During the Treatment Period', and APPRAISE-J's is 'Percentage of Participants Who Had Composite of International Society on Thrombosis and Haemostasis (ISTH)-Defined Major and Clinically-relevant Non-major (CRNM) Bleeding Events Occurring During the Treatment Period'. Neither registration's primary contains an efficacy component. There was no efficacy endpoint in this pool to mix with a safety one. THE ESTIMATE STILL CANNOT STAND, FOR TWO DIFFERENT REASONS THAT THE REGISTRY DOES SUPPORT. FIRST, THE TWO TRIALS REGISTER DIFFERENT QUANTITIES: APPRAISE-1 registers an EVENT RATE and APPRAISE-J a PERCENTAGE OF PARTICIPANTS. A rate and a proportion are not the same measure, and this page derived an ODDS RATIO from 2x2 counts, which is neither. SECOND, AND MORE SERIOUSLY, APPRAISE-1'S REGISTERED PRIMARY IS RESTRICTED TO A DOSE SUBSET: 'Treated Participants With Placebo or Apixaban LOW Doses'. Its arm sizes on this page, 315 against 599, are not a randomised comparison of the whole trial -- the control arm is nearly twice the treatment arm, which is what pooling several placebo strata against one dose stratum looks like. AND SEPARATELY: A REVIEW WHOSE TITLE PROMISES AN ANTITHROMBOTIC'S EFFECT AFTER ACUTE CORONARY SYNDROME, WHOSE ONLY POOLED QUANTITY IS BLEEDING, IS ANSWERING A DIFFERENT QUESTION FROM THE ONE IT ASKS. That is a scope problem rather than an arithmetic one, and it is the one a reader is most likely to be misled by.",
+    "pool_uniformity": {
+     "effect_measure": [
+      "NOT ESTABLISHED",
+      "one trial registers an event RATE and the other a PERCENTAGE of participants; neither is a count-derived odds ratio"
+     ],
+     "estimand": [
+      "REFUTED",
+      "both trials register BLEEDING, so the previous reason -- that an efficacy endpoint was pooled with a safety one -- is not what these records say"
+     ]
+    },
+    "heterogeneity": null,
+    "heterogeneity_status": "not recorded on the page this object was built from",
+    "grade": null,
+    "cross_engine": null,
+    "sensitivity": null,
+    "single_study_ref": null,
+    "per_trial": [],
+    "pooled": {
+     "measure": "OR",
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "ci_level": 95,
+     "scale": "log",
+     "withdrawn": true,
+     "withdrawn_reason": "THE WITHDRAWAL STANDS AND ITS REASON WAS WRONG. The card said 'bleeding and efficacy endpoints pooled'. BOTH TRIALS REGISTER BLEEDING. Verbatim: APPRAISE-1's primary is 'Event Rate of Composite of Adjudicated Major Bleeding and Clinically Relevant Non-Major Bleeding During the Treatment Period', and APPRAISE-J's is 'Percentage of Participants Who Had Composite of International Society on Thrombosis and Haemostasis (ISTH)-Defined Major and Clinically-relevant Non-major (CRNM) Bleeding Events Occurring During the Treatment Period'. Neither registration's primary contains an efficacy component. There was no efficacy endpoint in this pool to mix with a safety one. THE ESTIMATE STILL CANNOT STAND, FOR TWO DIFFERENT REASONS THAT THE REGISTRY DOES SUPPORT. FIRST, THE TWO TRIALS REGISTER DIFFERENT QUANTITIES: APPRAISE-1 registers an EVENT RATE and APPRAISE-J a PERCENTAGE OF PARTICIPANTS. A rate and a proportion are not the same measure, and this page derived an ODDS RATIO from 2x2 counts, which is neither. SECOND, AND MORE SERIOUSLY, APPRAISE-1'S REGISTERED PRIMARY IS RESTRICTED TO A DOSE SUBSET: 'Treated Participants With Placebo or Apixaban LOW Doses'. Its arm sizes on this page, 315 against 599, are not a randomised comparison of the whole trial -- the control arm is nearly twice the treatment arm, which is what pooling several placebo strata against one dose stratum looks like. AND SEPARATELY: A REVIEW WHOSE TITLE PROMISES AN ANTITHROMBOTIC'S EFFECT AFTER ACUTE CORONARY SYNDROME, WHOSE ONLY POOLED QUANTITY IS BLEEDING, IS ANSWERING A DIFFERENT QUESTION FROM THE ONE IT ASKS. That is a scope problem rather than an arithmetic one, and it is the one a reader is most likely to be misled by.",
+     "withdrawn_note": "WHY THIS MATTERS MORE THAN A CORRECTED SENTENCE. Tonight's rule is that a withdrawal is a published claim and needs the same evidence as an estimate. This one was made before the current detector set existed, its reason was a single line on a card, and RE-VERIFICATION SHOWED THAT LINE TO BE FALSE. The estimate should still not stand -- but not for the stated reason, and a reader who accepted the card's explanation was told something the source records contradict. That is the failure mode this re-verification pass exists to catch, and this is the first confirmed instance of it. WHAT IS CONFIRMED: both trial identities are correct, and both registered primaries are now quoted verbatim on the page so a reader can check the correction rather than trust it. WHAT THIS DOES NOT ESTABLISH: NOT that apixaban causes more bleeding after acute coronary syndrome, and NOT that it does not. Both trials were designed to measure bleeding and both are small on this page's numbers; nothing here estimates its effect on ischaemic events, which is what the topic title implies. THE REPLACEMENT QUESTION IS IDENTIFIED AND DELIBERATELY NOT TAKEN: the two trials could be compared on bleeding IF the rate and the percentage were reconciled to one scale and APPRAISE-1's dose subset were resolved against its randomised arms. Both are source-document questions that the protocol-only registry endpoint cannot settle. PARKED.",
+     "withdrawn_on": "2026-08-18",
+     "reverification": "RE-VERIFIED 2026-08-18 against the registry. VERDICT: WITHDRAWAL CONFIRMED, REASON REPLACED. The stated reason -- 'bleeding and efficacy endpoints pooled' -- is refuted by both registration records, which register bleeding in both trials. The estimate remains withdrawn on three grounds the registry does support: a rate pooled with a percentage as if both were counts; APPRAISE-1's primary being restricted to a dose subset rather than its randomised arms; and a review whose title promises an ischaemic-outcome question answering a bleeding one.",
+     "card_note": "withdrawal CONFIRMED but its REASON REPLACED on re-verification: the card said an efficacy endpoint was pooled with a safety one, and BOTH trials register BLEEDING. It still cannot stand -- APPRAISE-1 registers an event RATE over a DOSE SUBSET and APPRAISE-J a PERCENTAGE, and neither is the odds ratio this page derived"
+    }
+   }
+  }
+ },
+ "manuscript": null,
+ "risk_of_bias_verdict": null,
+ "carried_contrasts": [],
+ "absent_from_source": {
+  "protocol": "No protocol record was recoverable from the page.",
+  "search": "No search strategy was recoverable from the page.",
+  "screening": "No screening log was recoverable from the page.",
+  "rob2": "No risk-of-bias assessment was recoverable from the page.",
+  "grade": "No certainty rating was recoverable from the page.",
+  "sources": "Every ENDPOINT DEFINITION on this page is verbatim from the trial's own ClinicalTrials.gov record and carries a resolvable link. The per-trial counts are the page's own and carry no quoted source sentence."
+ }
+}
