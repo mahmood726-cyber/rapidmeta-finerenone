@@ -382,6 +382,35 @@ uppercase page names, held for over 1,400 pages, and broke on one.
 
 ---
 
+## An idempotency failure produces a well-formed object
+
+Found 2026-08-18 on the bococizumab replacement. A patch helper **appends** to
+`outcomes[]`; I re-ran it while adding two missing trials, so the same outcome
+definition was appended **three times**.
+
+**Every gate passed.** The `results` block is keyed by outcome id and therefore
+held exactly one copy; the page rendered correctly; the card projected correctly;
+`build_stamp`, `card_matches_page` and `headline_reproducible` were all green. The
+object was internally consistent and externally correct **and still wrong**.
+
+> **An idempotency failure produces a well-formed artefact, so no validity check
+> can see it. Only a diff against the EXPECTED CHANGE reveals it.**
+
+This is the sharpest form of a pattern this file already carries in other clothes:
+`git push` exits 0, the editor saves, the detector runs. **Validity and delta are
+different questions**, and every check in this repository asks the first one.
+
+**The rule, and it is cheap: after any patch, verify the DELTA, not the validity.**
+What did this change add, and is that what I meant to add? A `git diff --stat` on
+the object would have shown 19 insertions where 7 were intended.
+
+It was caught only because the card read `k=3` where the analysis was `k=5` — a
+number that disagreed with something I already knew. **Had the trial count
+happened to be right, three duplicate outcome definitions would have shipped and
+nothing in the harness would ever have mentioned them.**
+
+---
+
 ## An instrument that fails in the way it was built to detect
 
 Four instances on 2026-08-18, which is the point: this is a **pattern**, not four

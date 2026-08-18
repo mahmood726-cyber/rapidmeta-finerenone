@@ -1064,6 +1064,38 @@ noticing two headline numbers were not comparable.** That ratio is the argument
 for the harness, and the single exception is the argument against trusting it
 completely.
 
+### 2026-08-18 — every reported figure re-run after the filename-regex fix
+
+**I said every count those eight scripts produced was suspect. That overstated it,
+and the correction is smaller and more precise than the claim.** Re-measured:
+
+| figure as reported | re-run | moved? |
+|---|---|---|
+| cardiology denominator, **53 topics** | 53 | **no** |
+| headline reproduction, **514 of 514** | 514 of 514, 0 failures | **no — that screen never used a filename pattern** |
+| multi-arm rows, **26 of 109** | 29 of 154 | **no — the object corpus grew from 34 to 49; the original was right at the time** |
+| silent exclusion, **818 trials / 360 pages** | **811 / 355** | **YES — corrected below** |
+| card drift | 0.0% over 9 comparable of 522 | **no — but see the blast radius** |
+
+**THE ONE CORRECTION: 818 dropped trials across 360 pages should read 811 across
+355.** And the cause is **not** the regex: it is **my own rebuilds**. Pages
+rebuilt through the tabbed projector do not carry an `AUTO_INCLUDE_TRIAL_IDS`
+block, so they moved from measurable into UNREAD, which rose from 583 to 598.
+**Isolating the regex alone accounts for 1 trial and 1 page** (810 / 354 with a
+case-insensitive key).
+
+**THE BLAST RADIUS OF THE FILENAME BUG IS ONE PAGE, not the corpus.** Only **19 of
+~1,500 files carry a lowercase letter in the stem**, and of those only
+`INCRETIN_HFpEF_REVIEW.html` is a review page with a card — the rest are
+dashboards and landing pages with no card to compare. So the defect was real,
+consequential on the page it hit (a card publishing `HR 0.41, k=3` against an
+object holding `OR 0.4846, k=2`, never once compared), and **narrow**.
+
+**Both halves of that are worth carrying: the bug mattered, and my estimate of how
+much it mattered was wrong in the alarming direction.** A sweep that finds a
+pattern in eight files invites the inference that eight files' worth of numbers
+are wrong; measuring showed one. **The inference was mine, not the measurement's.**
+
 ## Where the next lane picks up
 
 **HANDOVER, written 2026-08-18 while there was still room to write it properly
