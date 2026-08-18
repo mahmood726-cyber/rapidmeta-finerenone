@@ -27,6 +27,7 @@ FAILS CLOSED: any assertion that cannot be evaluated is a FAIL, never a skip. A 
 cannot fail reports success without having checked.
 """
 from __future__ import annotations
+import html
 import io
 import json
 import os
@@ -103,8 +104,9 @@ def check(page, obj_rel, bust):
         if nb != lb:
             fails.append("served %d bytes, built file is %d -- STALE DEPLOY, not a content "
                          "result" % (nb, lb))
+    flat = html.unescape(served)   # see verdict_gate: normalise before matching
     for key, forms in want:
-        if not any(f in served for f in forms):
+        if not any(f in flat for f in forms):
             fails.append("%s not found as literal text (looked for %s)"
                          % (key, " or ".join(repr(f) for f in forms)))
     return (not fails), fails

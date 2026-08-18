@@ -3207,7 +3207,8 @@
     "reason": "ANSWER-HF -- fails measure",
     "detail": "This is the hardest exclusion in the table and the only one that passes the population and the comparator: 190 patients with heart failure with reduced ejection fraction due to Chagas cardiomyopathy, randomised double-blind against ENALAPRIL. It fails on the MEASURE. Its primary endpoint is the change in left-ventricular ejection fraction at six months, and its only composite analysis of cardiovascular death and heart failure hospitalization is inside a hierarchical endpoint analysed by WIN RATIO, reported as 1.80 with a 95% interval of 1.27 to 2.63. No time-to-first hazard ratio for the composite is separately reported. The registry record is consistent with all of this and posts no results of its own, which is why this row is sourced to the publication.",
     "source_tier": "primary_oa",
-    "source_url": "https://pubmed.ncbi.nlm.nih.gov/41396086/"
+    "source_url": "https://pubmed.ncbi.nlm.nih.gov/41396086/",
+    "SUPERSEDED_2026_08_18": "SUPERSEDED 2026-08-18. THIS RECORDS A DECISION THAT WAS REVERSED. ANSWER-HF IS IN THE POOL, k=4. The measure question was resolved against the source: JACC Table 2 is headed 'Effect HR (95% CI)' and the Methods name Cox proportional hazard models, so the 1.83 (0.72-4.67) IS a hazard ratio and the exclusion ground fell away. Kept rather than deleted because a record showing a decision being corrected is worth more than one that was always right. FOUND BY AN INDEPENDENT BLINDED REVIEW, not by us."
    },
    {
     "reason": "PIONEER-HF -- fails measure",
@@ -13550,7 +13551,8 @@
     "3.2.4",
     "10.9"
    ],
-   "conformance": "Section 3.2.4 makes the outcome a defining criterion of the review rather than a reporting preference, and section 10.9 fixes the hazard ratio as the measure for time-to-event data and the generic inverse-variance method as the way to combine log hazard ratios. Together they make the measure part of the question. This is the decision that produces most of the exclusion table, and it is applied symmetrically: it excludes PARAGON-HF's rate ratio of 0.87, which is the number most likely to be mistaken for a hazard ratio because it is a plausible one, and it excludes ANSWER-HF even though ANSWER-HF has the right population and the right comparator. A criterion that bends for a trial one wants is not a criterion."
+   "conformance": "Section 3.2.4 makes the outcome a defining criterion of the review rather than a reporting preference, and section 10.9 fixes the hazard ratio as the measure for time-to-event data and the generic inverse-variance method as the way to combine log hazard ratios. Together they make the measure part of the question. This is the decision that produces most of the exclusion table, and it is applied symmetrically: it excludes PARAGON-HF's rate ratio of 0.87, which is the number most likely to be mistaken for a hazard ratio because it is a plausible one, and it excludes ANSWER-HF even though ANSWER-HF has the right population and the right comparator. A criterion that bends for a trial one wants is not a criterion.",
+   "SUPERSEDED_2026_08_18": "SUPERSEDED 2026-08-18. THIS RECORDS A DECISION THAT WAS REVERSED. ANSWER-HF IS IN THE POOL, k=4. The measure question was resolved against the source: JACC Table 2 is headed 'Effect HR (95% CI)' and the Methods name Cox proportional hazard models, so the 1.83 (0.72-4.67) IS a hazard ratio and the exclusion ground fell away. Kept rather than deleted because a record showing a decision being corrected is worth more than one that was always right. FOUND BY AN INDEPENDENT BLINDED REVIEW, not by us."
   },
   "SCOPE:secondary-endpoints-are-eligible-when-they-are-the-quantity-asked-for": {
    "decision": "A trial may contribute a SECONDARY endpoint if that endpoint is the quantity the frozen question names and is separately reported with its own interval. The rank is recorded on the row and carried into GRADE.",
@@ -15328,26 +15330,30 @@
    "name": "Cardiovascular death or hospitalization for heart failure, whichever comes first, as a hazard ratio",
    "measure": "HR",
    "k": 3,
-   "status": "POOLED -- the primary result"
+   "status": "POOLED -- the primary result",
+   "k_SUPERSEDED_2026_08_18": "This said k=3 while results.by_outcome.cvdeath_or_hfh_first.k says 4. THE RESULTS BLOCK IS AUTHORITATIVE: ANSWER-HF is in, k=4. Left visible rather than silently rewritten."
   },
   "secondary_now_pooled": [
    {
     "name": "Cardiovascular death",
     "measure": "RR",
     "k": 3,
-    "status": "POOLED as secondary 2026-08-13"
+    "status": "POOLED as secondary 2026-08-13",
+    "k_SUPERSEDED_2026_08_18": "Stale k. The pool is k=4 with ANSWER-HF included."
    },
    {
     "name": "First heart-failure hospitalisation",
     "measure": "RR",
     "k": 3,
-    "status": "POOLED as secondary 2026-08-13"
+    "status": "POOLED as secondary 2026-08-13",
+    "k_SUPERSEDED_2026_08_18": "Stale k. The pool is k=4 with ANSWER-HF included."
    },
    {
     "name": "All-cause death",
     "measure": "RR",
     "k": 3,
-    "status": "POOLED as secondary 2026-08-13"
+    "status": "POOLED as secondary 2026-08-13",
+    "k_SUPERSEDED_2026_08_18": "Stale k. The pool is k=4 with ANSWER-HF included."
    }
   ],
   "considered_and_not_pooled": [
@@ -15571,5 +15577,14 @@
    "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
    "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
   }
- ]
+ ],
+ "INTERNAL_CONSISTENCY_2026_08_18": {
+  "found_by": "An INDEPENDENT BLINDED REVIEW run on OpenAI's GPT-5 via Codex, given this object cold with no knowledge of any conclusion reached here.",
+  "what_it_found": "The object simultaneously INCLUDED and EXCLUDED ANSWER-HF -- the trial whose presence decides whether the pooled interval crosses 1. results.per_trial included it; screening, scope_decisions and outcomes_considered still recorded the superseded exclusion.",
+  "the_decision_every_field_now_states": "ANSWER-HF IS IN THE POOL. k=4. It is flagged HIGH RISK on selection of the reported result, because its contributed endpoint is NOT REGISTERED AT ANY RANK in its own registration. k=3 stands as the SENSITIVITY analysis, not the primary.",
+  "why_this_matters_more_than_a_tidy_up": "Omitting ANSWER-HF gives HR 0.8333 (0.7473-0.9292); including it gives 0.8715 (0.7461-1.0181). THE INTERVAL CROSSES 1 ONLY WITH IT IN. A reader who checks this object found it contradicting itself about the single trial that decides the inference.",
+  "fields_marked_superseded": 6,
+  "nothing_deleted": "Every superseded verdict is kept and labelled with its date and reason. The same treatment given to the 852-empty-templates retraction and the projection vocabulary: a record that shows a decision being corrected is worth more than one that was always right.",
+  "the_general_finding": "This is the object-page divergence law operating INSIDE A SINGLE OBJECT. Three surfaces had already been found drifting from what they report on -- a commit message from its diff, a batch report from its gate, a page from its object. This is the fourth, and the closest to home."
+ }
 }

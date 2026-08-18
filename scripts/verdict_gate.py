@@ -28,6 +28,7 @@ NO OVERRIDE AND FAILS CLOSED, for the reason every guard in this repository now 
 the only ones that have stopped a real defect are the ones that cannot be bypassed.
 """
 from __future__ import annotations
+import html
 import io
 import json
 import os
@@ -90,7 +91,13 @@ def check(page, obj_rel, bust="vg"):
     for m in V2:
         if served.count(m):
             fails.append("V2 marker %r present -- the page computes client-side" % m)
-    flat = re.sub(r"\s+", " ", STRIP.sub("", served))
+    # UNESCAPE BEFORE MATCHING. The page HTML-escapes apostrophes to &#x27; and
+    # ampersands to &amp;, so a verbatim match against the object's own prose fails
+    # on text that IS present. THIRD MATCHING DEFECT THIS WEEK, after a
+    # case-sensitive grep and the substring errors -- all three are the same shape:
+    # A MATCH AGAINST TEXT YOU DO NOT CONTROL, WITHOUT NORMALISING IT FIRST.
+    # It reported five rebuilt pages as content failures when the content was there.
+    flat = re.sub(r"\s+", " ", html.unescape(STRIP.sub("", served)))
     if want not in flat:
         fails.append("THE OBJECT'S OWN VERDICT TEXT IS NOT ON THE PAGE. Looked for: %r"
                      % want)
