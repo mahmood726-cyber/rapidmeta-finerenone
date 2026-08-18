@@ -336,3 +336,45 @@ escaped twice, and an em-dash fallback escaped when it should not have been.
 
 **Every one of them failed toward comfort.** That is the ledger's selection
 argument reproducing itself inside a single night's work.
+
+---
+
+## Where the next lane picks up
+
+**State at handover.** `HEAD` == `origin/main`; every commit is pushed and every
+page below is verified live, cache-busted, against the bytes on disk.
+
+Live-verified this session: **ARNI, SGLT2_HF, IV_IRON, SOTAGLIFLOZIN, PCSK9,
+SGLT2_CKD.** ALIROCUMAB, FINERENONE_CV and ABLATION_AF were unchanged and needed
+no rebuild.
+
+**Start here, in this order:**
+
+1. **The 26 audit-first cardiology topics.** They publish no estimate, so there
+   is no live claim to defend — only identity, endpoint definitions, and a build.
+   They should be the cheapest topics in the programme. Start by resolving the
+   self-contradiction logged above: 13 of those 26 cards say `2 trials` and
+   `k>=3` in the same string.
+2. **The 11 with a live estimate and no object.** These are the dangerous ones —
+   a published pooled number that nothing in the current standard has checked.
+   Every one that has been looked at so far turned out to be withdrawable.
+3. **Tooling queue item 1.2 — thresholds are not components.** Until the estimand
+   gate can compare a `≥40%` decline against a `≥50%` decline, it will keep
+   returning UNCHECKABLE on renal topics and every verdict there stays manual.
+   The SGLT2_CKD case is its fixture.
+
+**Two habits that earned their keep tonight, both from the ledger:**
+
+- **Compare the artefact you are about to ship against the one you are replacing,
+  by content.** It caught a rebuild that silently dropped `1.50` and `1.57` from
+  ARNI's page, and it caught the escape defect by counting occurrences after each
+  fix instead of declaring the fix done — 15 → 10 → 1 → 0, three separate sites.
+- **Run the gate before trusting the page, and read what it says rather than
+  routing around it.** The push was blocked once tonight, by a check that was
+  wrong; the fix was to the check, with a constructible failing input, not a
+  bypass.
+
+**One habit that did not, and is worth naming:** I piped a long-running batch
+through `tail`, which buffers all output to the end — the exact thing
+`scripts/GATES.md` warns against, quoted in the file I had already read. Knowing a
+rule does not apply it. Only a check does.
