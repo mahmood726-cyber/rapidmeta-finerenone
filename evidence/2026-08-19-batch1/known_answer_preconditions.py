@@ -113,17 +113,17 @@ check("2 arm_role: {'role': ''} -> NOT_ASSESSABLE (agy D1)",
 check("2 arm_role: no inputs at all -> NOT_ASSESSABLE",
       P.arm_role_resolved({})[0], NOT_ASSESSABLE)
 
-# --- 3. comparator_identified -----------------------------------------------------------
+# --- 3. comparators_identified_and_consistent -----------------------------------------------------------
 # THE COMPARATOR ARTIFACT: a schedule is not part of a comparator's identity.
 check("3 comparator: 'Placebo Q2W' == 'Placebo' -> PASS (was FAIL, the defect)",
-      P.comparator_identified({"outcomes": [{"id": "a", "comparator": "Placebo Q2W"},
+      P.comparators_identified_and_consistent({"outcomes": [{"id": "a", "comparator": "Placebo Q2W"},
                                             {"id": "b", "comparator": "Placebo"}]})[0], PASS)
 # ...and normalisation must NOT collapse genuinely different comparators.
 check("3 comparator: warfarin vs aspirin -> FAIL",
-      P.comparator_identified({"outcomes": [{"id": "a", "comparator": "warfarin"},
+      P.comparators_identified_and_consistent({"outcomes": [{"id": "a", "comparator": "warfarin"},
                                             {"id": "b", "comparator": "aspirin"}]})[0], FAIL)
 check("3 comparator: unnamed -> NOT_ASSESSABLE",
-      P.comparator_identified({"outcomes": [{"id": "a"}]})[0], NOT_ASSESSABLE)
+      P.comparators_identified_and_consistent({"outcomes": [{"id": "a"}]})[0], NOT_ASSESSABLE)
 
 # --- 4. estimand_named ------------------------------------------------------------------
 check("4 estimand: named",
@@ -220,6 +220,27 @@ unk = P.contributes_a_randomised_contrast(
 check("7b unknown role vocabulary -> NOT_ASSESSABLE, never FAIL", unk[0], NOT_ASSESSABLE)
 check("7b the refusal NAMES the unrecognised value", "Arm A" in unk[1], True)
 check("7b classify_arm_role: unknown is 'unknown'", P.classify_arm_role("Arm A"), "unknown")
+
+# --- 7c. THE AMBIGUOUS-TOKEN CASE, predicted by cross-family review and reproduced --------
+#
+# `"active"` and `"intervention"` were in TOPIC_ARM_ROLES. Gemini 3.1 Pro predicted the
+# failure without running anything: "Active" is routine shorthand for ACTIVE COMPARATOR, so
+# a trial coded treatment/active sorted BOTH arms into the topic bucket, leaving zero control
+# arms and a FAIL of "no control arm" on a perfectly good active-controlled trial.
+#
+# Reproduced exactly before the fix. This is the SAME rare, damaging direction as the
+# `experimental` hardcoding: it MANUFACTURES a false FAIL rather than hiding a real one.
+# An ambiguous token must fall through to unknown -> NOT_ASSESSABLE, never into either bucket.
+for ambiguous in ("active", "Active", "intervention"):
+    check(f"7c ambiguous role {ambiguous!r} -> unknown, not topic",
+          P.classify_arm_role(ambiguous), "unknown")
+check("7c treatment vs 'active' -> NOT_ASSESSABLE, not a false FAIL",
+      P.contributes_a_randomised_contrast(
+          {"inputs": {"trials": [{"nct": "NCTX", "arms": [
+              {"role": "treatment"}, {"role": "active"}]}]}})[0], NOT_ASSESSABLE)
+# ...while the UNAMBIGUOUS multi-word form is still correctly a control.
+check("7c 'active comparator' is still control",
+      P.classify_arm_role("active comparator"), "control")
 
 # --- DETECTOR 4: no two of the seven may be byte-identical across a real object set ------
 print()

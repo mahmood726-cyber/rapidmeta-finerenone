@@ -136,9 +136,11 @@ def population_stated(obj):
 @register_precondition(
     "arm_role_resolved",
     reads=["inputs.trials"],
-    handbook_section="MECIR C7 'Predefining unambiguous criteria for interventions and "
-                     "comparators' (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), "
-                     "'interventions' limb",
+    handbook_section="MECIR C62 (Mandatory), 'interventions' limb -- this is a PRECONDITION "
+                     "FOR ASSESSING C62, not an enforcement of it: you cannot judge whether "
+                     "interventions are 'sufficiently similar' without knowing which arm is "
+                     "the intervention. NOT cited to C5/C7: those govern PREDEFINITION of "
+                     "criteria, and this check only reads whether a field is populated.",
     unit="trial", unit_source="trials")
 def arm_role_resolved(obj):
     """Does EVERY included trial carry arms with a readable role?
@@ -175,13 +177,13 @@ def arm_role_resolved(obj):
 # 3. COMPARATOR -- the C limb. Identity, after normalisation, never raw display text.
 # ---------------------------------------------------------------------------
 @register_precondition(
-    "comparator_identified",
+    "comparators_identified_and_consistent",
     reads=["outcomes.comparator", "outcomes.comparator_type"],
-    handbook_section="MECIR C7 (Mandatory, READ 2026-08-19): 'Specification of comparator "
-                     "interventions requires particular clarity'; MECIR C62 (Mandatory), "
-                     "'comparisons' limb",
+    handbook_section="MECIR C62 (Mandatory), 'comparisons' limb -- a synthesis pools one "
+                     "contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check "
+                     "reads recorded comparator fields and tests them for consistency.",
     unit="outcome", unit_source="outcomes")
-def comparator_identified(obj):
+def comparators_identified_and_consistent(obj):
     """Does every outcome name a comparator, and do they agree ACROSS outcomes?
 
     Routed through `text_match`, which is what keeps `Placebo Q2W` == `Placebo` (a schedule
@@ -336,8 +338,23 @@ def eligibility_met(obj):
 # NOT_ASSESSABLE -- never silently sorted into "not the topic arm", which is what produced
 # the false FAILs.
 
+# ONLY STRICTLY UNAMBIGUOUS TERMS. An ambiguous role falls through to `unknown` and becomes
+# NOT_ASSESSABLE, which is the safe direction; putting it here is the unsafe one.
+#
+# `"active"` and `"intervention"` WERE on this list and were removed 2026-08-19 after a
+# cross-family review (Gemini 3.1 Pro) predicted the failure and a test reproduced it exactly:
+#
+#     arms = [{"role": "treatment"}, {"role": "active"}]
+#       -> "active" classified TOPIC -> the trial has 2 topic arms and 0 control arms
+#       -> FAIL "no control arm"
+#
+# "Active" is routine shorthand for ACTIVE COMPARATOR, i.e. a CONTROL arm. So the ambiguity
+# ran in the direction that MANUFACTURES a false FAIL on a trial that has a perfectly good
+# active-controlled contrast -- the same rare, damaging direction as the `experimental`
+# hardcoding this list was written to fix. Note `"active comparator"` is exact-matched into
+# CONTROL_ARM_ROLES below and is unaffected; it is the BARE token that is unsafe.
 TOPIC_ARM_ROLES = frozenset({
-    "experimental", "treatment", "intervention", "active", "active treatment", "topic",
+    "experimental", "treatment", "active treatment", "topic",
 })
 CONTROL_ARM_ROLES = frozenset({
     "control", "comparator", "active comparator", "active_comparator", "placebo",
@@ -471,7 +488,7 @@ def contributes_a_randomised_contrast(obj):
         f"topic-vs-control randomised contrast")
 
 
-SEVEN = ("population_stated", "arm_role_resolved", "comparator_identified", "estimand_named",
+SEVEN = ("population_stated", "arm_role_resolved", "comparators_identified_and_consistent", "estimand_named",
          "inclusion_criteria_auditable", "eligibility_met", "contributes_a_randomised_contrast")
 
 assert len(REGISTRY._by_name) == 7, f"expected 7 registered, got {len(REGISTRY._by_name)}"
