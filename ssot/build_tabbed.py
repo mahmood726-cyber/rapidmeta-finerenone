@@ -731,6 +731,62 @@ def _standard_block(canon, e_):
                       e_(str(pc.get("explicitly_not_done", ""))),
                       e_(str(pc.get("blocked_on", "")))))
 
+    # The screen of the unscreened remainder. Sixteen verdicts each keyed to a registration
+    # id, and the withholding question shown as asked rather than asserted as asked.
+    sc = canon.get("screening_of_remainder") or {}
+    sc_html = ""
+    if sc:
+        res = sc.get("result") or {}
+        wq = sc.get("withholding_question") or {}
+        limb_rows = "".join(
+            "<tr><td>%s</td><td>%s</td><td><small>%s</small></td></tr>"
+            % (e_(str(k)), e_(str(v.get("n"))), e_(", ".join(v.get("ncts") or [])))
+            for k, v in (sc.get("exclusions_by_failing_limb") or {}).items())
+        mace_rows = "".join(
+            "<tr><td>%s</td><td>%s</td><td>%s</td></tr>"
+            % (e_(str(h.get("nct"))), e_(str(hit.get("rank"))), e_(str(hit.get("measure"))))
+            for h in (wq.get("trials_with_a_mace_matching_outcome_at_some_rank") or [])
+            for hit in (h.get("hits") or []))
+        trial_rows = "".join(
+            "<tr><td><code>%s</code></td><td><strong>%s</strong></td><td>%s</td>"
+            "<td><small>%s</small></td></tr>"
+            % (e_(str(r.get("nct"))), e_(str(r.get("verdict"))),
+               e_(str(r.get("failing_limb") or "")), e_(str(r.get("reason"))[:260]))
+            for r in (sc.get("rows") or []))
+        sc_html = (
+            "<h3>Screening of the remainder — %s screened, %s included, %s excluded, "
+            "%s not-assessable</h3>"
+            "<p>%s</p><p><strong>k after screening: %s.</strong> %s</p>"
+            "<table><tr><th>failing limb</th><th>n</th><th>registrations</th></tr>%s</table>"
+            "<h4>The withholding question, asked at every rank</h4><p><em>%s</em></p>"
+            "<p><small>%s</small></p>"
+            "<table><tr><th>registration</th><th>rank</th><th>matching outcome</th></tr>%s</table>"
+            "<h4>Every trial, with its reason</h4>"
+            "<table><tr><th>registration</th><th>verdict</th><th>limb</th><th>reason</th></tr>"
+            "%s</table>"
+            % (e_(str(sc.get("n_screened"))), e_(str(res.get("include"))),
+               e_(str(res.get("exclude"))), e_(str(res.get("not_assessable"))),
+               e_(str(sc.get("screened_against", ""))),
+               e_(str(sc.get("k_after_screening"))),
+               e_(str(sc.get("k_unchanged_because", ""))),
+               limb_rows, e_(str(wq.get("asked", ""))),
+               e_(str(wq.get("why_asked_before_deciding_not_to_pool", ""))),
+               mace_rows, trial_rows))
+        # A correction to a recorded exclusion reason belongs on the page, not only in the
+        # object: the page previously carried the wrong reason.
+        for st in ((canon.get("eligible_but_not_contributing") or {}).get("studies") or []):
+            corr = st.get("why_not_contributing_CORRECTED_2026_08_19")
+            if corr:
+                sc_html += ("<div class='card warn'><h4>Correction — %s</h4>"
+                            "<p>%s</p><p><small>How it happened: %s</small></p>"
+                            "<p><small>Verdict: %s</small></p>"
+                            "<p><small>Class: %s</small></p></div>"
+                            % (e_(str(st.get("id"))),
+                               e_(str(corr.get("the_recorded_reason_was_wrong", ""))),
+                               e_(str(corr.get("how_the_error_happened", ""))),
+                               e_(str(corr.get("the_verdict_still_stands_but_on_a_different_limb", ""))),
+                               e_(str(corr.get("class", "")))))
+
     auth = pv.get("authority") or {}
     return (
         "<div class='card'><h2>Page standard %s</h2>"
@@ -739,7 +795,7 @@ def _standard_block(canon, e_):
         "generated to fill a slot.</p>"
         "<table><tr><th>property</th><th>state</th><th>reason</th></tr>%s</table>"
         "<h3>k at every stage</h3><table><tr><th>stage</th><th>k</th></tr>%s</table>"
-        "%s%s%s"
+        "%s%s%s%s"
         "<h3>Preconditions</h3><p><small>Authority: %s %s, verified %s. Publishable: %s.</small></p>"
         "<table><tr><th>precondition</th><th>verdict</th><th>reason</th><th>authority</th></tr>"
         "%s</table>"
@@ -747,7 +803,7 @@ def _standard_block(canon, e_):
         % (e_(str(stamp.get("page_standard_version"))), e_(str(stamp.get("built_utc"))),
            e_(str(stamp.get("built_by"))), e_(str(stamp.get("standard_document"))),
            len(stamp.get("held") or []), len(stamp.get("refusing") or []),
-           "".join(rows), casc_rows, prov_html, ro_html, pc_html,
+           "".join(rows), casc_rows, prov_html, sc_html, ro_html, pc_html,
            e_(str(auth.get("handbook", ""))), e_(str(auth.get("version", ""))),
            e_(str(auth.get("verified_on", ""))), e_(str(pv.get("publishable"))),
            pre_rows, e_(str(stamp.get("_ratchet", "")))))
