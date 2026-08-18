@@ -91,3 +91,42 @@ intervention-coherence limb would have caught OLMESARTAN_HTN without a human rea
 *removes* a topic rather than adding one. Nothing about this makes a result more
 significant; it stops two pools from being built that would have averaged different
 drugs.
+
+
+---
+
+## The intervention limb was attempted, FAILED ITS OWN FOUNDING CASE, and was reverted
+
+Added to the triage, run, and **it returned POOL POSSIBLE for OLMESARTAN_HTN** — the
+exact page it was written to catch.
+
+**Why:** ClinicalTrials.gov lists **every** drug in a trial, comparators included, in
+`protocolSection.armsInterventionsModule.interventions[]`. So "is the subject drug in
+the interventions list" is true for a comparator as well, and the check cannot separate
+them. The brief title made it worse: matching against *"…Compared to **Olmesartan**…"*
+passes too.
+
+**It was reverted rather than shipped.** A check that returns PASS on its own founding
+case is the failure this repository catalogues most often, and shipping it would have
+put a green limb in front of the defect it was built for.
+
+**The level that CAN decide, confirmed on `NCT00846365`:**
+
+```
+armGroups[].type = EXPERIMENTAL       Azilsartan Medoxomil 20-40mg plus Chlorthalidone
+armGroups[].type = EXPERIMENTAL       Azilsartan Medoxomil 40-80mg plus Chlorthalidone
+armGroups[].type = ACTIVE_COMPARATOR  Olmesartan medoxomil 20-40mg/hydrochlorothiazide
+```
+
+**The rule that would work:** resolve the subject drug to the ARM that carries it via
+`armGroups[].interventionNames`, and require that arm's `type` to be `EXPERIMENTAL`. On
+this trial olmesartan resolves to `ACTIVE_COMPARATOR`, which is the finding.
+
+**Not implemented here** — it needs a fixture pair (a topic whose subject is
+experimental, and this one, whose subject is a comparator) before it can be trusted, and
+that is the promotion bar this project applies to every detector. **Logged as work, not
+claimed as done.**
+
+**So the count stands where the human read left it: the six are AT MOST FOUR, with two
+confirmed failures and four unread.** The screen still tests only the outcome limb, and
+its own "what this does not establish" still says so honestly.
