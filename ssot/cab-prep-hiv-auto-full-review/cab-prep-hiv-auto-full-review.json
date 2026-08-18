@@ -1,0 +1,127 @@
+{
+ "app_id": "cab-prep-hiv-auto-full-review",
+ "schema_version": 2,
+ "title": "Long-acting injectable cabotegravir versus daily oral TDF/FTC for HIV pre-exposure prophylaxis",
+ "built": "2026-08-18",
+ "build_mode": "full",
+ "topic_state": "POOLED -- risk ratio, k=2, direction consistent, magnitude not established",
+ "provenance": "REGISTRY THROUGHOUT. Every count and denominator is read from ClinicalTrials.gov posted results. No publication figure is used.",
+ "verification_basis": "Both registrations read on 2026-08-18: conditions, arm groups with types, registered primaries, posted results counts.",
+ "inputs": {
+  "trials": [
+   {
+    "trial_id": "NCT02720094",
+    "nct": "NCT02720094",
+    "label": "HPTN 083",
+    "registry": "ClinicalTrials.gov",
+    "source_url": "https://clinicaltrials.gov/study/NCT02720094",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "trial_id": "NCT03164564",
+    "nct": "NCT03164564",
+    "label": "HPTN 084",
+    "registry": "ClinicalTrials.gov",
+    "source_url": "https://clinicaltrials.gov/study/NCT03164564",
+    "read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "measure": "RR",
+    "comparator": "daily oral TDF/FTC",
+    "outcome": "documented incident HIV infection",
+    "k": 2,
+    "model": "random-effects",
+    "estimator": "REML",
+    "pooled": {
+     "point": 0.2081,
+     "ci_low": 0.0715,
+     "ci_high": 0.6057,
+     "ci_level": 95
+    },
+    "pooled_hartung_knapp": {
+     "point": 0.2081,
+     "ci_low": 0.0002,
+     "ci_high": 211.7767,
+     "df": 1,
+     "t_critical": 12.7062047,
+     "variance_inflation_applied": 1.0,
+     "why_it_is_shown": "Handbook 6.5 section 10.10.4.5 recommends Hartung-Knapp where k is small. Shown ALONGSIDE, not instead. A floor of 1 on the inflation factor means it can never narrow the interval below the unadjusted one."
+    },
+    "heterogeneity": {
+     "tau2": 0.417574,
+     "q": 3.2081,
+     "df": 1,
+     "i2_percent": 68.8,
+     "how_to_read_this_at_k2": "At k=2 these statistics are WEAK evidence about consistency in either direction. Two points cannot demonstrate agreement."
+    },
+    "per_trial": [
+     {
+      "trial_id": "NCT02720094",
+      "nct": "NCT02720094",
+      "label": "HPTN 083",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT02720094",
+      "read_utc": "2026-08-18",
+      "population_as_registered": "men who have sex with men and transgender women who have sex with men",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "as_posted": {
+       "cabotegravir_events": 13,
+       "cabotegravir_n": 2280,
+       "tdf_ftc_events": 39,
+       "tdf_ftc_n": 2281
+      },
+      "measure": "RR",
+      "point": 0.3335,
+      "ci_low": 0.1785,
+      "ci_high": 0.623,
+      "se_log_rr": 0.318884,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. Counts read from the registry; the arithmetic is ours and the formula is shown."
+     },
+     {
+      "trial_id": "NCT03164564",
+      "nct": "NCT03164564",
+      "label": "HPTN 084",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT03164564",
+      "read_utc": "2026-08-18",
+      "population_as_registered": "women",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "as_posted": {
+       "cabotegravir_events": 4,
+       "cabotegravir_n": 1614,
+       "tdf_ftc_events": 36,
+       "tdf_ftc_n": 1610
+      },
+      "measure": "RR",
+      "point": 0.1108,
+      "ci_low": 0.0395,
+      "ci_high": 0.3107,
+      "se_log_rr": 0.525868,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. Counts read from the registry; the arithmetic is ours and the formula is shown."
+     }
+    ],
+    "the_population_difference_stated_on_the_face": "THE TWO TRIALS ENROL DIFFERENT PEOPLE AND A READER SHOULD SEE THAT BEFORE THE POOLED NUMBER. HPTN 083 enrols men who have sex with men and transgender women; HPTN 084 enrols women. The intervention, the comparator and the registered primary outcome are identical, and the question -- does long-acting injectable cabotegravir prevent HIV infection better than daily oral TDF/FTC -- is the same question in both. THE POOL IS PRESENTED AS AN HIV PRE-EXPOSURE PROPHYLAXIS QUESTION, which is what the title asks, AND NOT as evidence that the effect is the same in both populations. Mode of acquisition and adherence patterns differ between these groups, and k=2 cannot test whether the effect does.",
+    "published_synthesis_comparison": {
+     "status": "NOT DONE -- recorded as owed rather than claimed",
+     "what_is_owed": "No published synthesis or regulatory review pooling HPTN 083 and 084 has been searched for or read. Until it is, this estimate has not been checked against anyone else's."
+    },
+    "what_this_does_not_establish": "NOT that either trial is free of bias -- NO RISK-OF-BIAS ASSESSMENT IS RECORDED. NOT that the effect is equal in men and in women; see the population note above. NOT anything about adherence, which is the mechanism most likely to drive a difference between an injectable and a daily oral regimen and is not an outcome in this pool. NOT reliability of the interval at k=2 -- see Hartung-Knapp.",
+    "handbook_authority": {
+     "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+     "version": "Version 6.5, 2024",
+     "verified_on": "2026-08-18",
+     "sections": "6.4.1; 10.10.3; 10.10.4.4-5; MECIR Box 10.10.a (C62)",
+     "c62": "'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.'"
+    },
+    "HETEROGENEITY_AND_HOW_IT_DIFFERS_FROM_THE_GEPOTIDACIN_CASE": "I-squared is 68.8% and tau-squared 0.418, which is substantial -- BUT IT IS HETEROGENEITY OF MAGNITUDE, NOT OF DIRECTION, and the distinction changes what may be said. HPTN 083 gives RR 0.33 (0.18-0.62) and HPTN 084 gives RR 0.11 (0.04-0.31). BOTH INTERVALS EXCLUDE 1 AND BOTH FAVOUR CABOTEGRAVIR; the trials disagree about HOW MUCH, not about WHETHER. Contrast the gepotidacin topic built the same day, where one trial excluded 1 and the other did not -- there the pooled point genuinely could not be read as an answer. HERE THE DIRECTION IS CONSISTENT AND THE MAGNITUDE IS NOT ESTABLISHED. The pooled RR 0.21 should be read as: both trials found substantially fewer infections on cabotegravir, and these two trials do not pin down the size of that difference.",
+    "the_likely_source_of_the_magnitude_difference_NOT_CHECKED": "The two trials enrol different populations with different modes of HIV acquisition and, plausibly, different adherence to a DAILY ORAL comparator -- which is the arm whose performance determines the ratio. That is a HYPOTHESIS. It has NOT been checked against the registrations or any publication, and it is recorded as a hypothesis so that it is not mistaken later for a finding."
+   }
+  }
+ }
+}
