@@ -53,8 +53,15 @@ def fetch(page, bust):
 
 def expected(obj):
     """Literal strings the page must carry, drawn ONLY from the object."""
+    # Reads the object's declared headline; see verdict_gate for why.
     bo = (obj.get("results") or {}).get("by_outcome") or {}
-    oid = "primary" if "primary" in bo else (list(bo)[0] if bo else None)
+    declared = obj.get("headline_outcome")
+    oid = (declared if declared in bo
+           else ("primary" if "primary" in bo
+                 else (list(bo)[0] if bo else None)))
+    if len(bo) > 1 and not declared:
+        return None, ("this object has %d outcome blocks and DECLARES NO headline_outcome. "
+                      "Refusing rather than choosing." % len(bo))
     if not oid:
         return None, "object has no outcome block -- cannot state what the page must show"
     blk = bo[oid]

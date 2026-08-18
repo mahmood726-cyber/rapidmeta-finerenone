@@ -47,8 +47,19 @@ STRIP = re.compile(r"<[^>]+>")
 
 def phrase(obj):
     """A distinctive run of words from the object's own recorded reason."""
+    # THE OBJECT DECLARES THE HEADLINE; THIS READS THE DECLARATION. Taking the first
+    # block asserted a different outcome than the page leads with on every multi-outcome
+    # object -- the FIFTH "took the first of several" defect in this project, all inside
+    # tools built to prevent it. CHOOSING IS NO LONGER THIS GATE'S JOB.
     bo = (obj.get("results") or {}).get("by_outcome") or {}
-    oid = "primary" if "primary" in bo else (list(bo)[0] if bo else None)
+    declared = obj.get("headline_outcome")
+    oid = (declared if declared in bo
+           else ("primary" if "primary" in bo
+                 else (list(bo)[0] if bo else None)))
+    if len(bo) > 1 and not declared:
+        return None, ("this object has %d outcome blocks and DECLARES NO headline_outcome. "
+                      "Refusing rather than choosing: a gate that picks one asserts the "
+                      "wrong outcome silently." % len(bo))
     if not oid:
         return None, "object has no outcome block"
     blk = bo[oid]
@@ -56,7 +67,15 @@ def phrase(obj):
         return None, ("this object PUBLISHES AN ESTIMATE -- use content_gate.py. Reported "
                       "rather than passed, because the wrong gate silently succeeding is "
                       "how a page goes live unchecked.")
-    reason = blk.get("poolable_reason") or (blk.get("pooled") or {}).get("withdrawn_reason")
+    # AUTHORITATIVE FIELD FIRST. Two objects carried poolable_reason AND
+    # pooled.withdrawn_reason with DIFFERENT text; the PAGE renders the withdrawn_reason,
+    # so that is what a reader has been shown and what this must assert.
+    auth = blk.get("authoritative_reason_field")
+    pooled_blk = blk.get("pooled") or {}
+    if auth == "pooled.withdrawn_reason":
+        reason = pooled_blk.get("withdrawn_reason") or blk.get("poolable_reason")
+    else:
+        reason = blk.get("poolable_reason") or pooled_blk.get("withdrawn_reason")
     if not reason:
         return None, "object records no poolable_reason -- nothing to assert"
     words = re.sub(r"\s+", " ", reason).strip()
