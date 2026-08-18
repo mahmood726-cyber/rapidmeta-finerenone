@@ -1745,6 +1745,19 @@
       "why_that_one_could_not_stand": ""
      },
      "card_wording_note": "The card avoids the word 'withdrawn' deliberately. card_alignment_gate treats a card declaring a withheld state beside a page publishing a value as the SGLT2_HF defect -- an announced withdrawal never performed -- and it fired here on a card that merely DESCRIBED what this analysis replaces. The gate's rule is right and was not weakened; the card was reworded. The withdrawn outcome is still on this object in full, with its reason."
+    },
+    "registry_source_verification_2026_08_18": {
+     "what_was_done": "Every one of the five per-trial values was re-read INDEPENDENTLY from the ClinicalTrials.gov results record on 2026-08-18 -- the LS mean difference the registry posts in each outcome measure's own analyses block, with the statistical method the registry names.",
+     "result": "ALL FIVE REPRODUCE EXACTLY, and so does the pool: MD -55.459 (-58.844, -52.074) recomputed under REML against the stored -55.4593 (-58.844, -52.0745). This is a CONFIRMATION, not a correction, and is recorded as prominently as a correction would be.",
+     "registry_methods_named": {
+      "NCT01968967": "MMRM; registry paramType 'LS Mean Difference'; -56.2 (-58.3, -54.0)",
+      "NCT02100514": "MMRM; 'LS mean difference compared to placebo'; -49.9 (-54.0, -45.8)",
+      "NCT01968954": "Mixed Model Repeated Measures (MMRM); 'Least Square (LS) Mean Difference'; -57.0 (-61.0, -53.1)",
+      "NCT02458287": "Mixed Models Repeated Measures (MMRM); 'LS Mean Difference'; -63.4 (-72.0, -54.7)",
+      "NCT02135029": "MMRM; 'Least Square (LS) Mean Difference'; -54.5 (-60.1, -49.0)"
+     },
+     "why_this_matters": "The source step was recorded as OWED for this topic and for three others. It is now taken here, and the finding is that the existing values were already read correctly. THE DEBT WAS IN THE RECORD, NOT IN THE NUMBERS -- the object held the right values without recording where they came from, which is a provenance gap and not an arithmetic one.",
+     "a_near_miss_worth_recording": "This object was briefly OVERWRITTEN rather than patched while taking that step: a rebuild wrote 152 lines over 1,626, destroying the withdrawn `primary` outcome with its reason, the sources, the screening record and the risk-of-bias verdict. Caught by reading the diff stat -- 1,626 deletions for a change that should have ADDED -- and reverted. The replacement analysis already existed; only the PAGE_MAP registration was missing."
     }
    }
   },

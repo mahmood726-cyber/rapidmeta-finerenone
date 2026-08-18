@@ -1,0 +1,179 @@
+{
+ "app_id": "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+ "schema_version": 2,
+ "title": "Azilsartan medoxomil plus chlorthalidone against olmesartan medoxomil plus hydrochlorothiazide on change in clinic systolic blood pressure: the two trials that share both arms",
+ "built": "2026-08-18",
+ "build_mode": "full",
+ "topic_state": "POOLED -- mean difference, values read from registry analyses",
+ "verification_basis": "Every point estimate and interval is the value ClinicalTrials.gov posts in the outcome's own analyses block, read on 2026-08-18, with the statistical method the registry names. Nothing is derived from arm means.",
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT00846365",
+    "nct": "NCT00846365",
+    "registration": "NCT00846365",
+    "registry": "ClinicalTrials.gov",
+    "label": "Azilsartan + chlorthalidone vs olmesartan + HCTZ",
+    "source_url": "https://clinicaltrials.gov/study/NCT00846365",
+    "read_utc": "2026-08-18",
+    "by_outcome": {
+     "sbp_change_wk8": {
+      "outcome_definition": "Change From Baseline to Week 8 in Trough, Sitting, Clinic Systolic Blood Pressure.",
+      "outcome_definition_source": {
+       "source": "registry",
+       "read_utc": "2026-08-18",
+       "source_url": "https://clinicaltrials.gov/study/NCT00846365",
+       "endpoint_rank": "PRIMARY",
+       "source_field": "resultsSection.outcomeMeasuresModule -- the primary outcome of this title, with its analyses block"
+      },
+      "effect": {
+       "measure": "MD",
+       "scale": "linear",
+       "point": -6.1,
+       "ci_low": -8.4,
+       "ci_high": -3.8,
+       "ci_level": 95,
+       "se": 1.1734909506513205,
+       "registry_paramType": "Mean Difference (Final Values)",
+       "registry_statistical_method": "ANCOVA",
+       "derived_here": false,
+       "read_not_derived": "This is the registry's own posted analysis value. The standard error is recovered from the posted interval."
+      }
+     }
+    }
+   },
+   {
+    "id": "NCT01033071",
+    "nct": "NCT01033071",
+    "registration": "NCT01033071",
+    "registry": "ClinicalTrials.gov",
+    "label": "Azilsartan + chlorthalidone vs olmesartan + HCTZ",
+    "source_url": "https://clinicaltrials.gov/study/NCT01033071",
+    "read_utc": "2026-08-18",
+    "by_outcome": {
+     "sbp_change_wk8": {
+      "outcome_definition": "Change From Baseline in Trough, Sitting, Clinic Systolic Blood Pressure.",
+      "outcome_definition_source": {
+       "source": "registry",
+       "read_utc": "2026-08-18",
+       "source_url": "https://clinicaltrials.gov/study/NCT01033071",
+       "endpoint_rank": "PRIMARY",
+       "source_field": "resultsSection.outcomeMeasuresModule -- the primary outcome of this title, with its analyses block"
+      },
+      "effect": {
+       "measure": "MD",
+       "scale": "linear",
+       "point": -5.3,
+       "ci_low": -7.6,
+       "ci_high": -3.1,
+       "ci_level": 95,
+       "se": 1.1479802778110741,
+       "registry_paramType": "Mean Difference (Final Values)",
+       "registry_statistical_method": "ANCOVA",
+       "derived_here": false,
+       "read_not_derived": "This is the registry's own posted analysis value. The standard error is recovered from the posted interval."
+      }
+     }
+    }
+   }
+  ]
+ },
+ "outcomes": [
+  {
+   "id": "sbp_change_wk8",
+   "type": "primary",
+   "measure": "MD",
+   "name": "mmHg change from baseline in trough, sitting, clinic systolic blood pressure",
+   "definition": "mmHg change from baseline in trough, sitting, clinic systolic blood pressure",
+   "direction_of_benefit": "lower",
+   "null_value": 0,
+   "effect_scale": "linear"
+  }
+ ],
+ "results": {
+  "by_outcome": {
+   "sbp_change_wk8": {
+    "k": 2,
+    "poolable": true,
+    "model": "random-effects",
+    "estimator": "REML (restricted maximum likelihood)",
+    "estimator_used": "REML (restricted maximum likelihood)",
+    "estimator_authority": "Cochrane Handbook 6.5 (2024) section 10.10.4.4 -- REML is RevMan's current default. Applied corpus-wide on 2026-08-18.",
+    "pooled": {
+     "measure": "MD",
+     "point": -5.6912,
+     "ci_low": -7.2996,
+     "ci_high": -4.0828,
+     "ci_level": 95
+    },
+    "heterogeneity": {
+     "tau2": 0.0,
+     "q": 0.2375,
+     "df": 1,
+     "i2_percent": 0.0
+    },
+    "per_trial": [
+     {
+      "trial_id": "NCT00846365",
+      "nct": "NCT00846365",
+      "measure": "MD",
+      "point": -6.1,
+      "ci_low": -8.4,
+      "ci_high": -3.8,
+      "se": 1.17349,
+      "registry_paramType": "Mean Difference (Final Values)",
+      "registry_statistical_method": "ANCOVA",
+      "derived_here": false
+     },
+     {
+      "trial_id": "NCT01033071",
+      "nct": "NCT01033071",
+      "measure": "MD",
+      "point": -5.3,
+      "ci_low": -7.6,
+      "ci_high": -3.1,
+      "se": 1.14798,
+      "registry_paramType": "Mean Difference (Final Values)",
+      "registry_statistical_method": "ANCOVA",
+      "derived_here": false
+     }
+    ],
+    "poolable_reason": "BOTH VALUES ARE READ from the registries' own posted ANCOVA analyses. THE TOPIC IS RENAMED, and the rename is the point. The page it replaces was titled 'azilsartan in hypertension' over FOUR trials with THREE different comparators -- one of which compared azilsartan against ITSELF on a different partner diuretic. Four trials, three questions. These two share BOTH arms and are the only coherent contrast in that set, so the page is named for the contrast it actually answers. MULTI-ARM HANDLING, stated because it changes the number: each trial randomised TWO azilsartan dose ranges against ONE olmesartan arm. Taking both contrasts would double-count the shared control. ONE contrast per trial is used -- the 20-40 mg range, which is the dose range both trials share -- and the higher range (-6.7 and -6.9) is recorded but not pooled.",
+    "small_k_interval_note": "Handbook 6.5 sections 10.10.4.4-10.10.4.5: with two or three studies a sensitivity comparison of interval methods is advised. Hartung-Knapp is not adopted as the primary interval here; the corpus rule is that it is reported as a sensitivity analysis at k<=3.",
+    "what_this_does_not_establish": "NOT that the trials are free of bias -- no RoB-2 assessment is recorded on this object. NOT that the pooled value transfers outside the populations these trials enrolled. NOT that the registry's posted analysis is itself correct: it is READ, and reading it faithfully is a different claim from endorsing it.",
+    "multi_arm_contrast_not_pooled": [
+     {
+      "nct": "NCT00846365",
+      "point": -6.7,
+      "ci_low": -9.1,
+      "ci_high": -4.4,
+      "why": "The higher azilsartan dose range against the same olmesartan arm. Pooling both contrasts from one trial would double-count the shared control, so one contrast per trial is used and this one is recorded rather than combined."
+     },
+     {
+      "nct": "NCT01033071",
+      "point": -6.9,
+      "ci_low": -9.2,
+      "ci_high": -4.6,
+      "why": "The higher azilsartan dose range against the same olmesartan arm. Pooling both contrasts from one trial would double-count the shared control, so one contrast per trial is used and this one is recorded rather than combined."
+     }
+    ]
+   }
+  }
+ },
+ "handbook_authority": {
+  "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+  "version": "Version 6.5, 2024",
+  "verified_on": "2026-08-18",
+  "sections": "10.10.3 and MECIR Box 10.10.a C62 (poolability); 10.10.4.4 (estimator)"
+ },
+ "eligible_but_not_contributing": [
+  {
+   "nct": "NCT00591578",
+   "reason": "Azilsartan medoxomil against VALSARTAN -- a different comparator, so not the contrast this page answers."
+  },
+  {
+   "nct": "NCT00818883",
+   "reason": "Azilsartan + chlorthalidone against azilsartan + hydrochlorothiazide -- the drug against ITSELF on a different partner diuretic. A within-drug question, not a comparison against another agent."
+  }
+ ]
+}
