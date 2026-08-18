@@ -39,7 +39,24 @@ if __name__ == "__main__":
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 Z = 1.959963985
-RATIO = {"HR", "RR", "OR", "IRR"}
+# RATE_RATIO was MISSING here and iv-iron-hf was pooled on the natural scale instead of
+# the log scale as a result -- reported as a non-reproducing estimate when the object was
+# correct. Any ratio measure added to the corpus must be added here.
+RATIO = {"HR", "RR", "OR", "IRR", "RATE_RATIO", "RATERATIO", "IRR_", "HAZARD_RATIO",
+         "RISK_RATIO", "ODDS_RATIO"}
+
+
+def dl(y, v):
+    """DerSimonian-Laird. THE OBJECT'S DECLARED ESTIMATOR IS AUTHORITATIVE, not ours."""
+    W = [1 / x for x in v]
+    SW = sum(W)
+    mu0 = sum(a * b for a, b in zip(W, y)) / SW
+    q = sum(a * (b - mu0) ** 2 for a, b in zip(W, y))
+    c = SW - sum(x * x for x in W) / SW
+    t2 = max(0.0, (q - (len(y) - 1)) / c) if c > 0 else 0.0
+    w = [1 / (vi + t2) for vi in v]
+    sw = sum(w)
+    return sum(a * b for a, b in zip(w, y)) / sw, math.sqrt(1 / sw), t2, q
 
 
 def reml(y, v, it=800):
@@ -134,23 +151,30 @@ def main() -> int:
             unck.append((topic, "per_trial n=%d but k=%s -- pool membership unclear"
                          % (len(y), blk.get("k"))))
             continue
-        mu, se, t2, q = reml(y, v)
+        # RE-DERIVE WITH THE ESTIMATOR THE OBJECT DECLARES. The first version of this
+        # script used REML unconditionally and reported three DerSimonian-Laird topics as
+        # non-reproducing. An audit that ignores the method under audit is not an audit.
+        est = (blk.get("estimator") or blk.get("estimator_used") or "").lower()
+        fn = dl if ("dersimonian" in est or est.strip() in ("dl", "d-l")) else reml
+        mu, se, t2, q = fn(y, v)
+        rec_est = "DL" if fn is dl else "REML"
         log_scale = measure.upper() in RATIO
         pt_r = math.exp(mu) if log_scale else mu
         lo_r = math.exp(mu - Z * se) if log_scale else mu - Z * se
         hi_r = math.exp(mu + Z * se) if log_scale else mu + Z * se
         dp = abs(pt_r - pl["point"]) / max(1e-12, abs(pl["point"]))
-        dl = (abs(lo_r - pl["ci_low"]) / max(1e-12, abs(pl["ci_low"]))
-              if pl.get("ci_low") is not None else 0)
-        dh = (abs(hi_r - pl["ci_high"]) / max(1e-12, abs(pl["ci_high"]))
-              if pl.get("ci_high") is not None else 0)
+        d_lo = (abs(lo_r - pl["ci_low"]) / max(1e-12, abs(pl["ci_low"]))
+                if pl.get("ci_low") is not None else 0)
+        d_hi = (abs(hi_r - pl["ci_high"]) / max(1e-12, abs(pl["ci_high"]))
+                if pl.get("ci_high") is not None else 0)
         rec = {"topic": topic, "outcome": name, "measure": measure, "k": len(y),
                "published": [pl["point"], pl.get("ci_low"), pl.get("ci_high")],
                "rederived": [round(pt_r, 8), round(lo_r, 8), round(hi_r, 8)],
-               "rel_delta": [dp, dl, dh],
+               "rel_delta": [dp, d_lo, d_hi],
                "inputs_derived_here": sum(derived),
-               "input_integrity_max_abs": (max(integ) if integ else None)}
-        (ok if max(dp, dl, dh) < 1e-3 else bad).append(rec)
+               "input_integrity_max_abs": (max(integ) if integ else None),
+               "estimator_declared": blk.get("estimator"), "estimator_used": rec_est}
+        (ok if max(dp, d_lo, d_hi) < 1e-3 else bad).append(rec)
 
     print("RE-DERIVED OK (relative difference < 1e-3): %d" % len(ok))
     for r in ok:

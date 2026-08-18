@@ -1240,3 +1240,37 @@ object agree with itself.**
 neither implies the other. When a topic has been examined hard, that is a reason to check
 whether the examination ever touched the number — the depth of scrutiny on one axis is
 what makes it feel unnecessary on the other.
+
+---
+
+## An audit that ignores the method under audit is not an audit (2026-08-18)
+
+`rederive_pooled.py` reported **4 of 18 pooled estimates as non-reproducing** and I
+escalated them as possible wrong numbers on live pages. **All four were the check, not the
+objects. All 18 re-derive.**
+
+Two causes, both mine:
+
+1. **The script pooled with REML unconditionally.** Three of the four —
+   `alirocumab-lipid`, `attr-pn-review`, `inclisiran-lipid-kidney` — **declare
+   `estimator: DerSimonian-Laird` on the object**, in a field the script read for its
+   report and ignored for its arithmetic. Re-derived with DL they match to 8e-05, 2e-12 and
+   2e-11.
+2. **`RATE_RATIO` was missing from the log-scale measure list**, so `iv-iron-hf` was pooled
+   on the natural scale. On the log scale it matches to 7e-05, the residual being the
+   published display rounded to four significant figures.
+
+**The object told me which estimator it used and I overrode it with one of my own choosing,
+then reported the disagreement as the object's defect.** That is the whole failure in one
+sentence.
+
+**This is the FOURTH instrument artefact** — after PAGE_MAP's "0 of 28 reproducible", the
+Class 4 screen's 18 flags, and the pending classifier's 31. **And it is the most dangerous
+of the four**, because the other three produced counts, and this one produced an accusation
+against four specific named pages.
+
+**How to apply:** when re-deriving a recorded result, the recorded METHOD is part of the
+record being audited and is authoritative for the recomputation. Read the declared
+estimator, scale, correction and interval method from the object and use them. If the
+object declares no method, that is itself the finding — report the absence, do not
+substitute a default and call the difference an error.
