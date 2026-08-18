@@ -1,0 +1,106 @@
+{
+ "app_id": "apixaban-vte",
+ "schema_version": 2,
+ "title": "Apixaban Vte: NOT POOLABLE AS POSED -- the COMPARATOR and PARTICIPANTS and OUTCOME limb fails",
+ "built": "2026-08-18",
+ "build_mode": "verdict-only",
+ "topic_state": "NOT POOLABLE -- decided from the registrations before any effect was extracted",
+ "which_limb_fails": "COMPARATOR and PARTICIPANTS and OUTCOME",
+ "verification_basis": "Every seeded registration read from ClinicalTrials.gov on 2026-08-18: brief title, conditions, arm groups with their TYPES and interventions, and the registered primary outcome measures.",
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT02366871",
+    "nct": "NCT02366871",
+    "registration": "NCT02366871",
+    "registry": "ClinicalTrials.gov",
+    "label": "Oral Apixaban (Eliquis) Versus Enoxaparin (Lovenox) for Thromboprophylaxis in Women With Suspected Pelvic Malignancy",
+    "conditions_as_registered": [
+     "Gynecologic Cancer",
+     "Venous Thromboembolism"
+    ],
+    "arms_as_registered": [
+     {
+      "type": "EXPERIMENTAL",
+      "label": "Oral apixaban",
+      "interventions": "Drug: Oral apixaban"
+     },
+     {
+      "type": "ACTIVE_COMPARATOR",
+      "label": "Subcutaneous enoxaparin",
+      "interventions": "Drug: Subcutaneous enoxaparin"
+     }
+    ],
+    "registered_primaries": [
+     "Number of Participants With Incidence of Major Bleeding",
+     "Number of Participants With Incidence of Clinically Relevant Non Major Bleeding Events"
+    ],
+    "source_url": "https://clinicaltrials.gov/study/NCT02366871",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT02829957",
+    "nct": "NCT02829957",
+    "registration": "NCT02829957",
+    "registry": "ClinicalTrials.gov",
+    "label": "RAMBLE - Rivaroxaban vs. Apixaban for Heavy Menstrual Bleeding",
+    "conditions_as_registered": [
+     "Venous Thromboembolism",
+     "Menstruation"
+    ],
+    "arms_as_registered": [
+     {
+      "type": "ACTIVE_COMPARATOR",
+      "label": "Rivaroxaban",
+      "interventions": "Drug: Rivaroxaban"
+     },
+     {
+      "type": "ACTIVE_COMPARATOR",
+      "label": "Apixaban",
+      "interventions": "Drug: Apixaban"
+     }
+    ],
+    "registered_primaries": [
+     "PBAC Scores"
+    ],
+    "source_url": "https://clinicaltrials.gov/study/NCT02829957",
+    "read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "outcomes": [
+  {
+   "id": "primary",
+   "type": "primary",
+   "name": "each trial's own registered primary outcome",
+   "definition": "Recorded per trial in inputs.trials[].registered_primaries, verbatim."
+  }
+ ],
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 0,
+    "poolable": false,
+    "poolable_reason": "THREE LIMBS DIFFER AT ONCE. NCT02366871 is apixaban against ENOXAPARIN for thromboprophylaxis in women with GYNAECOLOGIC CANCER, and its registered primaries are BLEEDING outcomes -- major bleeding and clinically relevant non-major bleeding. NCT02829957 (RAMBLE) is rivaroxaban against apixaban in HEAVY MENSTRUAL BLEEDING, n=19, and its registered primary is the PBAC score -- a pictorial menstrual blood-loss chart. Different comparators, different populations, different outcomes. RAMBLE also types BOTH its arms ACTIVE_COMPARATOR, so apixaban is not even the declared intervention there. No two of these can be averaged into one answer.",
+    "pooled": {
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "withdrawn": true,
+     "withdrawn_reason": "THREE LIMBS DIFFER AT ONCE. NCT02366871 is apixaban against ENOXAPARIN for thromboprophylaxis in women with GYNAECOLOGIC CANCER, and its registered primaries are BLEEDING outcomes -- major bleeding and clinically relevant non-major bleeding. NCT02829957 (RAMBLE) is rivaroxaban against apixaban in HEAVY MENSTRUAL BLEEDING, n=19, and its registered primary is the PBAC score -- a pictorial menstrual blood-loss chart. Different comparators, different populations, different outcomes. RAMBLE also types BOTH its arms ACTIVE_COMPARATOR, so apixaban is not even the declared intervention there. No two of these can be averaged into one answer.",
+     "withdrawn_utc": "2026-08-18"
+    },
+    "per_trial": [],
+    "what_this_verdict_does_not_establish": "NOT that any of these trials is poor -- each is registered, randomised where it says so, and reports its primary. NOT that the drug is ineffective. NOT that no poolable question exists in this area: only that the question this page's title asks cannot be answered by pooling the trials this page carries. If a further eligible trial is identified, this verdict should be revisited."
+   }
+  }
+ },
+ "risk_of_bias_verdict": "Not assessed. A risk-of-bias assessment grades trials contributing to a pooled result, and this page publishes none.",
+ "handbook_authority": {
+  "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+  "version": "Version 6.5, 2024",
+  "verified_on": "2026-08-18",
+  "sections": "10.10.3; MECIR Box 10.10.a (C62)",
+  "c62": "'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.'"
+ }
+}

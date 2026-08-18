@@ -1,0 +1,105 @@
+{
+ "app_id": "bosentan-pah",
+ "schema_version": 2,
+ "title": "Bosentan Pah: NOT POOLABLE AS POSED -- the OUTCOME and DESIGN limb fails",
+ "built": "2026-08-18",
+ "build_mode": "verdict-only",
+ "topic_state": "NOT POOLABLE -- decided from the registrations before any effect was extracted",
+ "which_limb_fails": "OUTCOME and DESIGN",
+ "verification_basis": "Every seeded registration read from ClinicalTrials.gov on 2026-08-18: brief title, conditions, arm groups with their TYPES and interventions, and the registered primary outcome measures.",
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT00303459",
+    "nct": "NCT00303459",
+    "registration": "NCT00303459",
+    "registry": "ClinicalTrials.gov",
+    "label": "Effects of the Combination of Bosentan and Sildenafil Versus Sildenafil Monotherapy on Pulmonary Arterial Hypertension (PAH)",
+    "conditions_as_registered": [
+     "Pulmonary Arterial Hypertension"
+    ],
+    "arms_as_registered": [
+     {
+      "type": "EXPERIMENTAL",
+      "label": "A",
+      "interventions": "Drug: bosentan"
+     },
+     {
+      "type": "PLACEBO_COMPARATOR",
+      "label": "B",
+      "interventions": "Drug: placebo"
+     }
+    ],
+    "registered_primaries": [
+     "Time to First Confirmed Morbidity/Mortality Event up to the End of Study"
+    ],
+    "source_url": "https://clinicaltrials.gov/study/NCT00303459",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT00319020",
+    "nct": "NCT00319020",
+    "registration": "NCT00319020",
+    "registry": "ClinicalTrials.gov",
+    "label": "Bosentan in Children With Pulmonary Arterial Hypertension Extension Study",
+    "conditions_as_registered": [
+     "Pulmonary Arterial Hypertension"
+    ],
+    "arms_as_registered": [
+     {
+      "type": "EXPERIMENTAL",
+      "label": "Bosentan",
+      "interventions": "Drug: Bosentan"
+     }
+    ],
+    "registered_primaries": [
+     "Change From Baseline to End of Study (EOS) in Height for Age.",
+     "Change From Baseline to End of Study (EOS) in Body Weight",
+     "Change From Baseline to End of Study (EOS) in Systolic Blood Pressure (SBP)",
+     "Change From Baseline to End of Study (EOS) in Diastolic Blood Pressure (DBP)",
+     "Change From Baseline to End of Study (EOS) in Pulse Rate",
+     "Proportion of Patients With Treatment-emergent Liver Function Abnormalities",
+     "Proportion of Patients With Treatment-emergent Hemoglobin Abnormalities",
+     "Number of Subjects With Adverse Events Leading to Premature Discontinuation of Study Treatment"
+    ],
+    "source_url": "https://clinicaltrials.gov/study/NCT00319020",
+    "read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "outcomes": [
+  {
+   "id": "primary",
+   "type": "primary",
+   "name": "each trial's own registered primary outcome",
+   "definition": "Recorded per trial in inputs.trials[].registered_primaries, verbatim."
+  }
+ ],
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 0,
+    "poolable": false,
+    "poolable_reason": "ONE TRIAL HAS NO CONTROL ARM AND ITS PRIMARY OUTCOME IS GROWTH. NCT00303459 is bosentan added to sildenafil against sildenafil alone in adults with pulmonary arterial hypertension, registered primary 'Time to First Confirmed Morbidity/Mortality Event'. NCT00319020 is a PAEDIATRIC EXTENSION STUDY with a single EXPERIMENTAL arm and no comparator, whose registered primaries are 'Change From Baseline to End of Study in HEIGHT FOR AGE' and 'Change From Baseline to End of Study in BODY WEIGHT'. A growth measurement in an uncontrolled extension cannot be averaged with a morbidity-mortality time-to-event endpoint; they are not the same kind of quantity, and one of them has nothing to be compared against.",
+    "pooled": {
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "withdrawn": true,
+     "withdrawn_reason": "ONE TRIAL HAS NO CONTROL ARM AND ITS PRIMARY OUTCOME IS GROWTH. NCT00303459 is bosentan added to sildenafil against sildenafil alone in adults with pulmonary arterial hypertension, registered primary 'Time to First Confirmed Morbidity/Mortality Event'. NCT00319020 is a PAEDIATRIC EXTENSION STUDY with a single EXPERIMENTAL arm and no comparator, whose registered primaries are 'Change From Baseline to End of Study in HEIGHT FOR AGE' and 'Change From Baseline to End of Study in BODY WEIGHT'. A growth measurement in an uncontrolled extension cannot be averaged with a morbidity-mortality time-to-event endpoint; they are not the same kind of quantity, and one of them has nothing to be compared against.",
+     "withdrawn_utc": "2026-08-18"
+    },
+    "per_trial": [],
+    "what_this_verdict_does_not_establish": "NOT that any of these trials is poor -- each is registered, randomised where it says so, and reports its primary. NOT that the drug is ineffective. NOT that no poolable question exists in this area: only that the question this page's title asks cannot be answered by pooling the trials this page carries. If a further eligible trial is identified, this verdict should be revisited."
+   }
+  }
+ },
+ "risk_of_bias_verdict": "Not assessed. A risk-of-bias assessment grades trials contributing to a pooled result, and this page publishes none.",
+ "handbook_authority": {
+  "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+  "version": "Version 6.5, 2024",
+  "verified_on": "2026-08-18",
+  "sections": "10.10.3; MECIR Box 10.10.a (C62)",
+  "c62": "'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.'"
+ }
+}

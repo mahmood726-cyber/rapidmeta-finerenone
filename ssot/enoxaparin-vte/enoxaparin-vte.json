@@ -1,0 +1,135 @@
+{
+ "app_id": "enoxaparin-vte",
+ "schema_version": 2,
+ "title": "Enoxaparin Vte: NOT POOLABLE AS POSED -- the INTERVENTION limb fails",
+ "built": "2026-08-18",
+ "build_mode": "verdict-only",
+ "topic_state": "NOT POOLABLE -- decided from the registrations before any effect was extracted",
+ "which_limb_fails": "INTERVENTION",
+ "verification_basis": "Every seeded registration read from ClinicalTrials.gov on 2026-08-18: brief title, conditions, arm groups with their TYPES and interventions, and the registered primary outcome measures.",
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT00362232",
+    "nct": "NCT00362232",
+    "registration": "NCT00362232",
+    "registry": "ClinicalTrials.gov",
+    "label": "Regulation of Coagulation in Orthopedic Surgery to Prevent Deep Vein Thromboembolism (DVT) and Pulmonary Embolism (PE). A Study of BAY59-7939 in the Prevention of Venous Thrombo Embolism (VTE) in Subjects Undergoing Elective Total Knee Replacement.",
+    "conditions_as_registered": [
+     "Venous Thromboembolism"
+    ],
+    "arms_as_registered": [
+     {
+      "type": "EXPERIMENTAL",
+      "label": "Rivaroxaban 10 mg Once Daily (OD) ((Xare",
+      "interventions": "Drug: Rivaroxaban (Xarelto, BAY59-7939) Drug: Placeb"
+     },
+     {
+      "type": "ACTIVE_COMPARATOR",
+      "label": "Enoxaparin 30 mg twice a day (bid)",
+      "interventions": "Drug: Enoxaparin Drug: Placebo: tablet of Rivaroxaba"
+     }
+    ],
+    "registered_primaries": [
+     "Composite Endpoint of Total Venous Thrombo Embolism (VTE) i.e.: Any Deep Vein Thromboembolism (DVT) (Proximal and/or Distal), Non Fatal Pulmonary Embolism (PE), Death of All Causes Per Protocol Population",
+     "Composite Endpoint of Total VTE i.e.: Any DVT (Proximal and/or Distal), Non Fatal PE, Death of All Causes Per Modified Intent to Treat Population."
+    ],
+    "source_url": "https://clinicaltrials.gov/study/NCT00362232",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT01573169",
+    "nct": "NCT01573169",
+    "registration": "NCT01573169",
+    "registry": "ClinicalTrials.gov",
+    "label": "PREvention of VENous Thromboembolism In Hemorrhagic Stroke Patients",
+    "conditions_as_registered": [
+     "Hemorrhagic Stroke",
+     "Venous Thromboembolism",
+     "Deep Venous Thrombosis"
+    ],
+    "arms_as_registered": [
+     {
+      "type": "EXPERIMENTAL",
+      "label": "low weight molecular heparin",
+      "interventions": "Drug: Enoxaparin"
+     },
+     {
+      "type": "PLACEBO_COMPARATOR",
+      "label": "standard therapy",
+      "interventions": "Other: Graduated compression stockings and/or interm"
+     }
+    ],
+    "registered_primaries": [
+     "Number of Participants With Symptomatic and Asymptomatic Venous Thromboembolism"
+    ],
+    "source_url": "https://clinicaltrials.gov/study/NCT01573169",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT02366871",
+    "nct": "NCT02366871",
+    "registration": "NCT02366871",
+    "registry": "ClinicalTrials.gov",
+    "label": "Oral Apixaban (Eliquis) Versus Enoxaparin (Lovenox) for Thromboprophylaxis in Women With Suspected Pelvic Malignancy",
+    "conditions_as_registered": [
+     "Gynecologic Cancer",
+     "Venous Thromboembolism"
+    ],
+    "arms_as_registered": [
+     {
+      "type": "EXPERIMENTAL",
+      "label": "Oral apixaban",
+      "interventions": "Drug: Oral apixaban"
+     },
+     {
+      "type": "ACTIVE_COMPARATOR",
+      "label": "Subcutaneous enoxaparin",
+      "interventions": "Drug: Subcutaneous enoxaparin"
+     }
+    ],
+    "registered_primaries": [
+     "Number of Participants With Incidence of Major Bleeding",
+     "Number of Participants With Incidence of Clinically Relevant Non Major Bleeding Events"
+    ],
+    "source_url": "https://clinicaltrials.gov/study/NCT02366871",
+    "read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "outcomes": [
+  {
+   "id": "primary",
+   "type": "primary",
+   "name": "each trial's own registered primary outcome",
+   "definition": "Recorded per trial in inputs.trials[].registered_primaries, verbatim."
+  }
+ ],
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 0,
+    "poolable": false,
+    "poolable_reason": "ENOXAPARIN IS THE INTERVENTION IN ONLY ONE OF THREE TRIALS. NCT00362232 tests RIVAROXABAN against enoxaparin after orthopaedic surgery -- a rivaroxaban trial. NCT02366871 tests APIXABAN against enoxaparin in gynaecologic cancer -- an apixaban trial. In both, enoxaparin sits in the ACTIVE_COMPARATOR arm. Only NCT01573169 tests enoxaparin itself, against graduated compression stockings, in haemorrhagic stroke. So this is k=1 for the question the title asks, and it is the OLMESARTAN shape in part: two of the three trials belong to other drugs.",
+    "pooled": {
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "withdrawn": true,
+     "withdrawn_reason": "ENOXAPARIN IS THE INTERVENTION IN ONLY ONE OF THREE TRIALS. NCT00362232 tests RIVAROXABAN against enoxaparin after orthopaedic surgery -- a rivaroxaban trial. NCT02366871 tests APIXABAN against enoxaparin in gynaecologic cancer -- an apixaban trial. In both, enoxaparin sits in the ACTIVE_COMPARATOR arm. Only NCT01573169 tests enoxaparin itself, against graduated compression stockings, in haemorrhagic stroke. So this is k=1 for the question the title asks, and it is the OLMESARTAN shape in part: two of the three trials belong to other drugs.",
+     "withdrawn_utc": "2026-08-18"
+    },
+    "per_trial": [],
+    "what_this_verdict_does_not_establish": "NOT that any of these trials is poor -- each is registered, randomised where it says so, and reports its primary. NOT that the drug is ineffective. NOT that no poolable question exists in this area: only that the question this page's title asks cannot be answered by pooling the trials this page carries. If a further eligible trial is identified, this verdict should be revisited."
+   }
+  }
+ },
+ "risk_of_bias_verdict": "Not assessed. A risk-of-bias assessment grades trials contributing to a pooled result, and this page publishes none.",
+ "handbook_authority": {
+  "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+  "version": "Version 6.5, 2024",
+  "verified_on": "2026-08-18",
+  "sections": "10.10.3; MECIR Box 10.10.a (C62)",
+  "c62": "'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.'"
+ }
+}

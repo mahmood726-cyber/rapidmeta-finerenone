@@ -1,0 +1,123 @@
+{
+ "app_id": "etripamil-psvt",
+ "schema_version": 2,
+ "title": "Etripamil Psvt: NOT POOLABLE AS POSED -- the OUTCOME limb fails",
+ "built": "2026-08-18",
+ "build_mode": "verdict-only",
+ "topic_state": "NOT POOLABLE -- decided from the registrations before any effect was extracted",
+ "which_limb_fails": "OUTCOME",
+ "verification_basis": "Every seeded registration read from ClinicalTrials.gov on 2026-08-18: brief title, conditions, arm groups with their TYPES and interventions, and the registered primary outcome measures.",
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT02296190",
+    "nct": "NCT02296190",
+    "registration": "NCT02296190",
+    "registry": "ClinicalTrials.gov",
+    "label": "Efficacy and Safety of Intranasal MSP-2017 (Etripamil) for the Conversion of PSVT to Sinus Rhythm",
+    "conditions_as_registered": [
+     "Paroxysmal Supraventricular Tachycardia (PSVT)"
+    ],
+    "arms_as_registered": [
+     {
+      "type": "EXPERIMENTAL",
+      "label": "Etripamil",
+      "interventions": "Drug: Etripamil"
+     },
+     {
+      "type": "PLACEBO_COMPARATOR",
+      "label": "Placebo",
+      "interventions": "Drug: Placebo"
+     }
+    ],
+    "registered_primaries": [
+     "The Percentage of Subjects Successfully Converted From PSVT to Sinus Rhythm Within 15 Minutes of Study Drug Administration"
+    ],
+    "source_url": "https://clinicaltrials.gov/study/NCT02296190",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT03464019",
+    "nct": "NCT03464019",
+    "registration": "NCT03464019",
+    "registry": "ClinicalTrials.gov",
+    "label": "Efficacy and Safety of Etripamil for the Termination of Spontaneous Paroxysmal Supraventricular Tachycardia (PSVT).",
+    "conditions_as_registered": [
+     "Paroxysmal Supraventricular Tachycardia"
+    ],
+    "arms_as_registered": [
+     {
+      "type": "EXPERIMENTAL",
+      "label": "Part 1: Etripamil 70 mg Single Dose",
+      "interventions": "Drug: Etripamil"
+     },
+     {
+      "type": "PLACEBO_COMPARATOR",
+      "label": "Part 1: Placebo Single Dose",
+      "interventions": "Drug: Placebo"
+     },
+     {
+      "type": "OTHER",
+      "label": "Part 1: Test dose only (etripamil 70 mg)",
+      "interventions": "Drug: Etripamil Test Dose"
+     },
+     {
+      "type": "EXPERIMENTAL",
+      "label": "Part 2 & Part 3: Etripamil 70 mg with Op",
+      "interventions": "Drug: Etripamil"
+     },
+     {
+      "type": "PLACEBO_COMPARATOR",
+      "label": "Part 2 & Part 3: Placebo with Optional S",
+      "interventions": "Drug: Placebo"
+     },
+     {
+      "type": "OTHER",
+      "label": "Part 2 & Part 3: Test dose only (etripam",
+      "interventions": "Drug: Etripamil Test Dose"
+     }
+    ],
+    "registered_primaries": [
+     "The Time to Conversion of an Episode of PSVT to Sinus Rhythm (SR) After Study Drug Administration."
+    ],
+    "source_url": "https://clinicaltrials.gov/study/NCT03464019",
+    "read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "outcomes": [
+  {
+   "id": "primary",
+   "type": "primary",
+   "name": "each trial's own registered primary outcome",
+   "definition": "Recorded per trial in inputs.trials[].registered_primaries, verbatim."
+  }
+ ],
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 0,
+    "poolable": false,
+    "poolable_reason": "THIS IS THE CLOSEST OF THE SEVEN TO POOLABLE, AND IT STILL IS NOT. Both trials test etripamil against placebo in paroxysmal supraventricular tachycardia -- intervention, comparator and population all match, which is rare in this set. But the registered primaries are different KINDS of quantity: NCT02296190 registers 'The Percentage of Subjects Successfully Converted From PSVT to Sinus Rhythm Within 15 Minutes' -- a proportion at a fixed time -- and NCT03464019 registers 'The Time to Conversion of an Episode of PSVT to Sinus Rhythm' -- a time-to-event. A proportion and a survival time are not two measurements of one estimand, and converting between them requires assumptions neither registration supports. THIS IS THE TOPIC MOST WORTH REVISITING if a common outcome is reported in both publications.",
+    "pooled": {
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "withdrawn": true,
+     "withdrawn_reason": "THIS IS THE CLOSEST OF THE SEVEN TO POOLABLE, AND IT STILL IS NOT. Both trials test etripamil against placebo in paroxysmal supraventricular tachycardia -- intervention, comparator and population all match, which is rare in this set. But the registered primaries are different KINDS of quantity: NCT02296190 registers 'The Percentage of Subjects Successfully Converted From PSVT to Sinus Rhythm Within 15 Minutes' -- a proportion at a fixed time -- and NCT03464019 registers 'The Time to Conversion of an Episode of PSVT to Sinus Rhythm' -- a time-to-event. A proportion and a survival time are not two measurements of one estimand, and converting between them requires assumptions neither registration supports. THIS IS THE TOPIC MOST WORTH REVISITING if a common outcome is reported in both publications.",
+     "withdrawn_utc": "2026-08-18"
+    },
+    "per_trial": [],
+    "what_this_verdict_does_not_establish": "NOT that any of these trials is poor -- each is registered, randomised where it says so, and reports its primary. NOT that the drug is ineffective. NOT that no poolable question exists in this area: only that the question this page's title asks cannot be answered by pooling the trials this page carries. If a further eligible trial is identified, this verdict should be revisited."
+   }
+  }
+ },
+ "risk_of_bias_verdict": "Not assessed. A risk-of-bias assessment grades trials contributing to a pooled result, and this page publishes none.",
+ "handbook_authority": {
+  "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+  "version": "Version 6.5, 2024",
+  "verified_on": "2026-08-18",
+  "sections": "10.10.3; MECIR Box 10.10.a (C62)",
+  "c62": "'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.'"
+ }
+}

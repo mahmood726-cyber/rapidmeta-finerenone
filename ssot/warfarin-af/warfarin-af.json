@@ -1,0 +1,110 @@
+{
+ "app_id": "warfarin-af",
+ "schema_version": 2,
+ "title": "Warfarin Af: NOT POOLABLE AS POSED -- the INTERVENTION and OUTCOME limb fails",
+ "built": "2026-08-18",
+ "build_mode": "verdict-only",
+ "topic_state": "NOT POOLABLE -- decided from the registrations before any effect was extracted",
+ "which_limb_fails": "INTERVENTION and OUTCOME",
+ "verification_basis": "Every seeded registration read from ClinicalTrials.gov on 2026-08-18: brief title, conditions, arm groups with their TYPES and interventions, and the registered primary outcome measures.",
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT00262600",
+    "nct": "NCT00262600",
+    "registration": "NCT00262600",
+    "registry": "ClinicalTrials.gov",
+    "label": "Randomized Evaluation of Long Term Anticoagulant Therapy (RE-LY) With Dabigatran Etexilate",
+    "conditions_as_registered": [
+     "Atrial Fibrillation",
+     "Stroke"
+    ],
+    "arms_as_registered": [
+     {
+      "type": "ACTIVE_COMPARATOR",
+      "label": "Dabigatran dose 2",
+      "interventions": "Drug: Dabigatran dose 2"
+     },
+     {
+      "type": "ACTIVE_COMPARATOR",
+      "label": "Warfarin",
+      "interventions": "Drug: warfarin"
+     },
+     {
+      "type": "ACTIVE_COMPARATOR",
+      "label": "Dabigatran dose 1",
+      "interventions": "Drug: Dabigatran dose 1"
+     }
+    ],
+    "registered_primaries": [
+     "Yearly Event Rate for Composite Endpoint of Stroke/SEE"
+    ],
+    "source_url": "https://clinicaltrials.gov/study/NCT00262600",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT02942407",
+    "nct": "NCT02942407",
+    "registration": "NCT02942407",
+    "registry": "ClinicalTrials.gov",
+    "label": "Trial to Evaluate Anticoagulation Therapy in Hemodialysis Patients With Atrial Fibrillation",
+    "conditions_as_registered": [
+     "Atrial Fibrillation",
+     "End Stage Renal Disease"
+    ],
+    "arms_as_registered": [
+     {
+      "type": "EXPERIMENTAL",
+      "label": "apixaban",
+      "interventions": "Drug: apixaban"
+     },
+     {
+      "type": "EXPERIMENTAL",
+      "label": "warfarin",
+      "interventions": "Drug: warfarin"
+     }
+    ],
+    "registered_primaries": [
+     "Number of Participants Experiencing ISTH (International Society on Thrombosis and Haemostasis) Major or Clinically Relevant Non-major Bleeding"
+    ],
+    "source_url": "https://clinicaltrials.gov/study/NCT02942407",
+    "read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "outcomes": [
+  {
+   "id": "primary",
+   "type": "primary",
+   "name": "each trial's own registered primary outcome",
+   "definition": "Recorded per trial in inputs.trials[].registered_primaries, verbatim."
+  }
+ ],
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 0,
+    "poolable": false,
+    "poolable_reason": "WARFARIN IS THE COMPARATOR IN BOTH TRIALS, AND THE OUTCOMES DIFFER AS WELL. NCT00262600 is RE-LY, which tests DABIGATRAN against warfarin in atrial fibrillation with a registered primary of 'Yearly Event Rate for Composite Endpoint of Stroke/SEE'. NCT02942407 tests APIXABAN against warfarin in haemodialysis patients with atrial fibrillation, with a registered primary of ISTH-defined BLEEDING. So the page's own titled drug is the control in both, the two experimental drugs are different, and one primary is an efficacy composite while the other is a safety endpoint. THE OLMESARTAN SHAPE, confirmed by reading rather than by a gate verdict -- and note that RE-LY types every arm ACTIVE_COMPARATOR, so an arm-type check alone would have called warfarin a comparator here for the wrong reason.",
+    "pooled": {
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "withdrawn": true,
+     "withdrawn_reason": "WARFARIN IS THE COMPARATOR IN BOTH TRIALS, AND THE OUTCOMES DIFFER AS WELL. NCT00262600 is RE-LY, which tests DABIGATRAN against warfarin in atrial fibrillation with a registered primary of 'Yearly Event Rate for Composite Endpoint of Stroke/SEE'. NCT02942407 tests APIXABAN against warfarin in haemodialysis patients with atrial fibrillation, with a registered primary of ISTH-defined BLEEDING. So the page's own titled drug is the control in both, the two experimental drugs are different, and one primary is an efficacy composite while the other is a safety endpoint. THE OLMESARTAN SHAPE, confirmed by reading rather than by a gate verdict -- and note that RE-LY types every arm ACTIVE_COMPARATOR, so an arm-type check alone would have called warfarin a comparator here for the wrong reason.",
+     "withdrawn_utc": "2026-08-18"
+    },
+    "per_trial": [],
+    "what_this_verdict_does_not_establish": "NOT that any of these trials is poor -- each is registered, randomised where it says so, and reports its primary. NOT that the drug is ineffective. NOT that no poolable question exists in this area: only that the question this page's title asks cannot be answered by pooling the trials this page carries. If a further eligible trial is identified, this verdict should be revisited."
+   }
+  }
+ },
+ "risk_of_bias_verdict": "Not assessed. A risk-of-bias assessment grades trials contributing to a pooled result, and this page publishes none.",
+ "handbook_authority": {
+  "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+  "version": "Version 6.5, 2024",
+  "verified_on": "2026-08-18",
+  "sections": "10.10.3; MECIR Box 10.10.a (C62)",
+  "c62": "'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.'"
+ }
+}
