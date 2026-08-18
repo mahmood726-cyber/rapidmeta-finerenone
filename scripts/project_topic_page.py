@@ -138,16 +138,35 @@ def project(page_path: str, obj_path: str, *, commit: str, dry_run: bool = True)
                 os.path.relpath(obj_path, REPO), commit))
     if STAMP_ID in out:
         out = re.sub(r'<div id="%s".*?</div>' % STAMP_ID, stamp, out, flags=re.S)
-    elif "</body>" in out:
-        out = out.replace("</body>", stamp + "</body>", 1)
     else:
-        raise Refused("no </body> and no existing stamp -- nowhere to record provenance, "
-                      "and an unstamped page cannot be told from a hand-edited one.")
+        # THE LAST </body>, NOT THE FIRST, AND ONLY IF IT IS OUTSIDE <script>.
+        # This page holds FOUR "</body>" strings and the first sits inside a
+        # JavaScript string literal. Inserting there produced
+        # "Unexpected identifier 'projector'" and the page rendered zero studies.
+        # The pre-push regression gate caught it. FIRST MATCH IS NOT THE RIGHT
+        # MATCH -- the same family as substring-is-not-identity.
+        idx = -1
+        for m in re.finditer(r"</body>", out):
+            i = m.start()
+            if out.rfind("<script", 0, i) <= out.rfind("</script>", 0, i):
+                idx = i          # outside any script block
+        if idx < 0:
+            raise Refused("no </body> outside a <script> block, and no existing stamp. "
+                          "This page holds %d </body> strings, all inside script; there "
+                          "is nowhere safe to record provenance, and an unstamped page "
+                          "cannot be told from a hand-edited one."
+                          % out.count("</body>"))
+        out = out[:idx] + stamp + out[idx:]
 
     if out.count("\r\n") != raw.decode("utf-8", "replace").count("\r\n"):
         raise Refused("line-ending count changed")
     if out.count("</script>") != html.count("</script>"):
         raise Refused("script count changed")
+    si = out.find(STAMP_ID)
+    if si >= 0 and out.rfind("<script", 0, si) > out.rfind("</script>", 0, si):
+        raise Refused("the build stamp landed INSIDE a <script> block -- this is the "
+                      "defect the regression gate caught on 2026-08-18 and it is now "
+                      "structurally refused rather than merely avoided.")
 
     # MEASURE IN BYTES ON BOTH SIDES. The first version compared len(str) to
     # len(bytes) and reported a 16,291-byte "shrink" on a page that grew by 45 --
