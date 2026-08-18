@@ -105,7 +105,12 @@ Every topic was searched by **named intervention**, per `require_named_intervent
 | bempedoic-acid-review | 21 | 21 | ✓ | 21 | 21 | **17** | 4 | 0 | 0 | 5 |
 | bococizumab-lipid-review | 21 | 21 | ✓ | 21 | 21 | **21** | 0 | 0 | 0 | 5 |
 | bosentan-pah | 42 | 42 | ✓ | 42 | 40 | **28** | 7 | 5 | 2 | 2 |
-| **batch** | | | **8/8** | **358** | **344** | **244** | **86** | **14** | **14** | **36** |
+| **batch** | | | **8/8** | **358** | **344** | **244** | **86** | **14** | **14** | ~~36~~ **24** |
+
+> **The `old k` column above is WITHDRAWN and superseded by the addendum.** It came from a
+> regex over the whole object, which counted each object's `removed_citations` bookkeeping
+> as included trials. Corrected batch old k is **24**, not 36; per-topic corrections are in
+> the addendum's reconciliation table. The k0–kNA columns are unaffected.
 
 **Two independent transports agree on all eight totals.** MCP `search_trials` and the raw v2
 `/studies` endpoint were run as separate instruments and their totals reported side by side
@@ -171,3 +176,143 @@ followed. Write the file directly.**
 - **The two missing batch-1 topics** remain unrecoverable.
 
 Nothing was written to `ssot/**/*.json`. No object was modified.
+
+---
+
+# Addendum — the seven ran. Zero build, and two of my own checks were wrong first.
+
+Authorised 2026-08-19. `ssot/preconditions.py` carries the authorship notice in its own
+header; sections are cited as **claimed**, `SECTION_VERIFIED_ON` is `None`, and
+`verdict_is_publishable()` returns **False**. Verdicts below are **computed, not
+publishable**: no topic may be refused on Handbook grounds until the cited edition is read.
+
+## The matrix — 8 topics x 7 preconditions
+
+| topic | pop | arm-role | comp | estimand | auditable | elig-met | one-RC |
+|---|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
+| ablation-af-review | P | P | P | P | **F** | N | P |
+| alirocumab-lipid | P | P | P | P | N | N | P |
+| apixaban-vte | P | N | N | P | N | N | N |
+| attr-cm-review | P | P | P | P | **F** | N | P |
+| azilsartan-…-olmesartan-hctz | P | N | P | P | N | N | N |
+| bempedoic-acid-review | P | P | P | P | **F** | N | P |
+| bococizumab-lipid-review | P | P | P | P | **F** | N | P |
+| bosentan-pah | P | N | N | P | N | N | N |
+
+| precondition | PASS | FAIL | NOT-ASSESSABLE |
+|---|---:|---:|---:|
+| population_stated | 8 | 0 | 0 |
+| arm_role_resolved | 5 | 0 | 3 |
+| comparator_identified | 6 | 0 | 2 |
+| estimand_named | 8 | 0 | 0 |
+| **inclusion_criteria_auditable** | **0** | **4** | **4** |
+| eligibility_met | 0 | 0 | 8 |
+| one_randomised_comparison | 5 | 0 | 3 |
+
+**Topics built: 0. Refused on a real FAIL: 4. Blocked NOT-ASSESSABLE: 3+1** (apixaban-vte,
+azilsartan, bosentan-pah carry no `inputs.trials`; all three are objects that already
+publish a verdict rather than an estimate).
+
+**Not one object in batch 1 can state who was eligible.** Four say so outright; four are
+silent. `eligibility_met` is NOT-ASSESSABLE 8/8 by construction — it is unanswerable from
+JSON, and it never degrades into the auditability check beside it.
+
+## Reconciliation, keyed on registration id
+
+| topic | old k | kept | gone | new k3 exp | appeared |
+|---|---:|---:|---:|---:|---:|
+| ablation-af-review | 4 | 1 | 3 | 71 | 70 |
+| alirocumab-lipid | 6 | 6 | 0 | 33 | 27 |
+| apixaban-vte | 2 | 0 | 2 | 25 | 25 |
+| attr-cm-review | 2 | 2 | 0 | 16 | 14 |
+| azilsartan-…-olmesartan-hctz | 2 | 2 | 0 | 33 | 31 |
+| bempedoic-acid-review | 1 | 1 | 0 | 17 | 16 |
+| bococizumab-lipid-review | 5 | 5 | 0 | 21 | 16 |
+| bosentan-pah | 2 | 2 | 0 | 28 | 26 |
+| **batch** | **24** | **19** | **5** | **244** | **225** |
+
+All five disappearances carry a reason. **`NCT02829957` (apixaban-vte) is the one that
+matters**: it disappears because the topic drug resolves to a **comparator** arm. The
+registry declares **two ACTIVE_COMPARATOR arms and no experimental arm at all**. The
+object's own recorded verdict — *"the COMPARATOR limb fails"* — is corroborated here by a
+route that never read the object's prose. **A fifth vindication**, on the same pattern as
+the four of 2026-08-18.
+
+## Two of my own checks were wrong, and both were caught before reporting
+
+### 1. A false FAIL on five live topics — the check asked a question the field does not answer
+
+`one_randomised_comparison` hardcoded `experimental` as the topic-arm role. **The corpus
+writes `treatment` / `control`.** Every object therefore had zero topic arms, and the
+precondition returned *"NO randomised comparison of the topic against a non-topic arm"* —
+a confident FAIL, on **five live topics, all five false**. Each is a clean
+one-treatment-one-control design that PASSes once the vocabulary is right.
+
+This is the drug-name-matcher error at the object layer, and it ran in the **rarer and more
+damaging direction**: it manufactured defects rather than hiding them. A false defect claim
+on a live page is the outcome `estimand_identity` exists to prevent.
+
+Fixed by declaring `TOPIC_ARM_ROLES` / `CONTROL_ARM_ROLES` explicitly, with **any
+unrecognised role → NOT_ASSESSABLE, never silently sorted into "not the topic arm"**.
+
+> **The known-answer test passed while this was true, and that is the lesson.** I invented
+> the fixtures (`experimental` / `placebo`) *and* wrote the code, from the same wrong
+> assumption. **A known-answer test built from synthetic data tests the code against its
+> author, not against the corpus.** The fixture is now taken from the corpus, and the
+> general rule is: **the known answer must come from the data.**
+
+### 2. The reconciliation counted an object's audit trail as its contents
+
+Old k came from a regex over the whole document. `alirocumab-lipid` records
+`removed_citations` — including `NCT12345678`, documented as *"not a registration number.
+It resolves to nothing."* The sweep counted that placeholder and five other
+already-removed citations as included trials, then reported them as **disappearances**.
+The object had done the removal correctly and written it down; the reconciliation was
+reading its bookkeeping as its contents.
+
+Corrected to `inputs.trials[].nct`. **Batch old k: 36 → 24** — the 36 in the first half of
+this document is withdrawn. Same family as the unit-of-analysis error: the count ran over
+the wrong unit.
+
+## Served bytes
+
+Four pages fetched over HTTP, byte counts from the wire:
+
+| page | HTTP | served bytes | states "not recorded" | 95% CI markers |
+|---|---:|---:|---:|---:|
+| ABLATION_AF_REVIEW.html | 200 | 859,352 | 6 | 24 |
+| ATTR_CM_REVIEW.html | 200 | 466,173 | 4 | 0 |
+| BEMPEDOIC_ACID_REVIEW.html | 200 | 1,241,814 | 4 | 4 |
+| BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html | 200 | 1,473,270 | 4 | 10 |
+
+**The auditability FAIL does reach the reader** — all four pages state in served bytes that
+eligibility was not recorded. **Three of the four also publish a pooled estimate beside it.**
+
+**Nothing was rebuilt and no estimate was removed, and that is the fail-closed rule working
+in the conservative direction.** `verdict_is_publishable()` is False, so I do not have
+verified authority to strip a live estimate. The discrepancy is reported; the pages are
+untouched. Removing a published estimate on an unverified citation would be the same error
+as publishing one on unverified authority, pointed the other way.
+
+## Ledger
+
+- **An instrument must assert the shape of its input.** A transport that silently omits a
+  field is indistinguishable from data that lacks it. The MCP tool's flattened record made
+  the arm-role instrument return NOT_ASSESSABLE on **every** trial — a broken instrument
+  producing the **most conservative-looking possible output**, so nothing about it looked
+  wrong. That is the session's bias in its purest form. Fix: require the raw record, and
+  **raise** rather than return a verdict.
+- **A cross-instrument disagreement is evidence about the instruments only if both were
+  asked the same question.** Otherwise it is evidence about whoever wrote the queries. Same
+  family as the unit-of-analysis error, one level up: wrong *question*, not wrong *unit*.
+  **The diagnosis came from the two agreements, not the six disagreements** — the controls
+  identified the variable.
+- **The known answer must come from the data, not from the author.** Synthetic fixtures
+  written by the author of the code test the code against its author's assumptions. Five
+  false FAILs passed a green known-answer suite.
+- **An object's record of what it excluded is not what it included.** A whole-document
+  regex reads bookkeeping as contents.
+- **Write files directly.** The heredoc string-substitution corruption happened *within an
+  hour* of reading the handoff that names that exact path, and failed loudly only because
+  `ast.parse` came next. Both halves belong here: the rule was read and not followed, and
+  it was survivable only by luck of ordering.

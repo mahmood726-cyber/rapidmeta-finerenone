@@ -186,6 +186,30 @@ check("7 design: blank roles -> NOT_ASSESSABLE",
       P.one_randomised_comparison(
           {"inputs": {"trials": [{"nct": "NCT3", "arms": [{"role": ""}]}]}})[0], NOT_ASSESSABLE)
 
+# --- 7b. THE FIXTURE THAT COMES FROM THE CORPUS, NOT FROM THE AUTHOR --------------------
+#
+# The cases above use roles I invented -- "experimental" / "placebo". The corpus writes
+# `treatment` / `control`. The first version of precondition 7 hardcoded "experimental",
+# found ZERO topic arms in every real object, and returned "NO randomised comparison" as a
+# confident FAIL on FIVE LIVE TOPICS. All five were clean one-treatment-one-control designs.
+#
+# The synthetic cases above all PASSED while that was true, because the test data and the
+# code carried the same wrong assumption. A known-answer test written from invented data
+# tests the code against its author. THE KNOWN ANSWER MUST COME FROM THE DATA.
+CORPUS_VOCAB = {"inputs": {"trials": [
+    {"nct": "NCT01994889", "arms": [{"role": "treatment"}, {"role": "control"}]},
+    {"nct": "NCT03860935", "arms": [{"role": "treatment"}, {"role": "control"}]}]}}
+check("7b CORPUS vocabulary treatment/control -> PASS (was FAIL on 5 live topics)",
+      P.one_randomised_comparison(CORPUS_VOCAB)[0], PASS)
+check("7b classify_arm_role reads the corpus vocabulary",
+      (P.classify_arm_role("treatment"), P.classify_arm_role("control")), ("topic", "control"))
+# An unrecognised role must REFUSE, never be sorted into "not the topic arm".
+unk = P.one_randomised_comparison(
+    {"inputs": {"trials": [{"nct": "NCT9", "arms": [{"role": "Arm A"}, {"role": "Arm B"}]}]}})
+check("7b unknown role vocabulary -> NOT_ASSESSABLE, never FAIL", unk[0], NOT_ASSESSABLE)
+check("7b the refusal NAMES the unrecognised value", "Arm A" in unk[1], True)
+check("7b classify_arm_role: unknown is 'unknown'", P.classify_arm_role("Arm A"), "unknown")
+
 # --- DETECTOR 4: no two of the seven may be byte-identical across a real object set ------
 print()
 print("=" * 78)

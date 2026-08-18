@@ -285,6 +285,50 @@ def eligibility_met(obj):
 # ---------------------------------------------------------------------------
 # 7. DESIGN -- exactly one randomised comparison the review asks about.
 # ---------------------------------------------------------------------------
+#
+# THE ROLE VOCABULARY IS DECLARED, AND AN UNKNOWN VALUE IS NOT_ASSESSABLE.
+#
+# The first version of this precondition hardcoded `experimental` as the topic-arm role. The
+# corpus writes `treatment` / `control`. Every object therefore had ZERO topic arms, and the
+# precondition returned "NO randomised comparison of the topic against a non-topic arm" --
+# a confident FAIL, on five live topics, all five false. Each was in fact a clean
+# one-treatment-one-control design.
+#
+# That is the drug-name-matcher error again: THE CHECK ASKED A QUESTION THE DATA DOES NOT
+# ANSWER IN THAT FIELD. And it failed in the direction that manufactures defects rather than
+# hiding them, which is the rarer and more damaging direction -- a false defect claim on a
+# live page.
+#
+# WHY THE KNOWN-ANSWER TEST DID NOT CATCH IT: the test data was INVENTED by the author of the
+# code, using the same wrong vocabulary. A known-answer test built from synthetic data tests
+# the code against its author's assumptions, not against the corpus. The fixture below is
+# taken from the corpus, and the general rule is now in the ledger: THE KNOWN ANSWER MUST
+# COME FROM THE DATA, NOT FROM THE AUTHOR.
+#
+# So the vocabulary is enumerated and inspectable, and anything not on either list is
+# NOT_ASSESSABLE -- never silently sorted into "not the topic arm", which is what produced
+# the false FAILs.
+
+TOPIC_ARM_ROLES = frozenset({
+    "experimental", "treatment", "intervention", "active", "active treatment", "topic",
+})
+CONTROL_ARM_ROLES = frozenset({
+    "control", "comparator", "active comparator", "active_comparator", "placebo",
+    "placebo comparator", "placebo_comparator", "sham", "sham comparator",
+    "usual care", "standard of care", "no intervention", "standard care",
+})
+
+
+def classify_arm_role(value):
+    """Topic side, control side, or UNKNOWN. Never guesses; the lists above are the whole rule."""
+    for known in TOPIC_ARM_ROLES:
+        if text_match(value, known):
+            return "topic"
+    for known in CONTROL_ARM_ROLES:
+        if text_match(value, known):
+            return "control"
+    return "unknown"
+
 @register_precondition(
     "one_randomised_comparison",
     reads=["inputs.trials.arms"],
@@ -308,28 +352,43 @@ def one_randomised_comparison(obj):
     if not r.readable:
         return judge(r)
     trials = r.value
-    silent, none_found, multi = [], [], []
+    silent, none_found, multi, unknown_vocab = [], [], [], []
     for t in trials:
         ident = t.get("nct") or t.get("id") or "<unidentified>"
         ar = read_scalar(t, "arms")
         if not ar.readable:
             silent.append(ident)
             continue
-        roles = []
+        topic, control, unknown = 0, 0, []
         for a in ar.value:
             rr = read_scalar(a, "role")
-            if rr.readable:
-                roles.append(rr.value)
-        if not roles:
+            if not rr.readable:
+                continue
+            side = classify_arm_role(rr.value)
+            if side == "topic":
+                topic += 1
+            elif side == "control":
+                control += 1
+            else:
+                unknown.append(rr.value)
+        if unknown:
+            unknown_vocab.append(f"{ident}:{unknown[:2]}")
+            continue
+        if not topic and not control:
             silent.append(ident)
             continue
-        topic = [x for x in roles if text_match(x, "experimental")]
-        control = [x for x in roles if not text_match(x, "experimental")]
-        n = len(topic) * len(control)
+        n = topic * control
         if n < 1:
             none_found.append(ident)
         elif n > 1:
             multi.append(f"{ident}({n})")
+    # An UNRECOGNISED role vocabulary is a fact about the schema, not about the trial. It
+    # must never be sorted into "not the topic arm" -- that is what produced five false FAILs.
+    if unknown_vocab:
+        return NOT_ASSESSABLE, (
+            f"cannot assess: {len(unknown_vocab)} trial(s) carry arm roles outside the "
+            f"declared vocabulary {unknown_vocab[:4]}. Extend TOPIC_ARM_ROLES / "
+            f"CONTROL_ARM_ROLES deliberately; do not let an unknown role count as a non-match.")
     if silent and not (none_found or multi):
         return NOT_ASSESSABLE, (
             f"cannot assess: {len(silent)} of {len(trials)} trial(s) carry no readable arm "
