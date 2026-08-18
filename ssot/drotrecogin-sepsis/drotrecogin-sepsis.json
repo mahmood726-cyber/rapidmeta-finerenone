@@ -1,0 +1,106 @@
+{
+ "app_id": "drotrecogin-sepsis",
+ "schema_version": 2,
+ "title": "Drotrecogin Sepsis: NOT POOLABLE -- OUTCOME",
+ "built": "2026-08-18",
+ "build_mode": "verdict-only",
+ "topic_state": "NOT POOLABLE -- decided from the registrations",
+ "which_limb_fails": "OUTCOME",
+ "verification_basis": "Every seeded registration read from ClinicalTrials.gov on 2026-08-18: brief title, registered primary outcome measures, secondary count, and arm groups with types.",
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT00386425",
+    "nct": "NCT00386425",
+    "registration": "NCT00386425",
+    "registry": "ClinicalTrials.gov",
+    "label": "Evaluate Protein C Levels in Severe Sepsis Patients on Drotrecogin Alfa (Activated)",
+    "ranks_read": [
+     "primary"
+    ],
+    "registered_primaries": [
+     "Mean Change in Protein C Levels From Day 1 to Day 7"
+    ],
+    "registered_secondary_count": 6,
+    "arms_as_registered": [
+     {
+      "type": "EXPERIMENTAL",
+      "interventions": "Drug: Drotrecogin alfa (activated) Standard therapy"
+     },
+     {
+      "type": "EXPERIMENTAL",
+      "interventions": "Drug: Drotrecogin alfa (activated) Alternative therapy:moderate protein C deficiency"
+     },
+     {
+      "type": "EXPERIMENTAL",
+      "interventions": "Drug: Drotrecogin alfa (activated) Alternative therapy:severe protein C deficiency"
+     }
+    ],
+    "source_url": "https://clinicaltrials.gov/study/NCT00386425",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT00604214",
+    "nct": "NCT00604214",
+    "registration": "NCT00604214",
+    "registry": "ClinicalTrials.gov",
+    "label": "Efficacy and Safety of Drotrecogin Alfa (Activated) in Adult Patients With Septic Shock",
+    "ranks_read": [
+     "primary"
+    ],
+    "registered_primaries": [
+     "28-Day All-Cause Mortality"
+    ],
+    "registered_secondary_count": 11,
+    "arms_as_registered": [
+     {
+      "type": "EXPERIMENTAL",
+      "interventions": "Drug: Drotrecogin alfa (activated) Drotrecogin alfa (activated)"
+     },
+     {
+      "type": "PLACEBO_COMPARATOR",
+      "interventions": "Drug: Placebo Placebo"
+     }
+    ],
+    "source_url": "https://clinicaltrials.gov/study/NCT00604214",
+    "read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "outcomes": [
+  {
+   "id": "primary",
+   "type": "primary",
+   "name": "each trial's own registered primary outcome",
+   "definition": "Recorded per trial in inputs.trials[].registered_primaries."
+  }
+ ],
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 0,
+    "poolable": false,
+    "poolable_reason": "2 TRIALS, AND NO TWO SHARE A REGISTERED PRIMARY OUTCOME FAMILY. Registrations read from ClinicalTrials.gov on 2026-08-18: NCT00386425, NCT00604214. Their registered primaries are recorded per trial on this object and do not reduce to a common quantity, so there is nothing for two of them to estimate in common. AUTHORITY: MECIR Box 10.10.a C62 -- 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.' -- and Handbook 6.5 section 10.10.3, 'A systematic review need not contain any meta-analyses.'",
+    "pooled": {
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "withdrawn": true,
+     "withdrawn_reason": "2 TRIALS, AND NO TWO SHARE A REGISTERED PRIMARY OUTCOME FAMILY. Registrations read from ClinicalTrials.gov on 2026-08-18: NCT00386425, NCT00604214. Their registered primaries are recorded per trial on this object and do not reduce to a common quantity, so there is nothing for two of them to estimate in common. AUTHORITY: MECIR Box 10.10.a C62 -- 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.' -- and Handbook 6.5 section 10.10.3, 'A systematic review need not contain any meta-analyses.'",
+     "withdrawn_utc": "2026-08-18"
+    },
+    "per_trial": [],
+    "what_this_verdict_does_not_establish": "NOT that any trial here is poor -- each is registered and reports its own primary. NOT that the drug or intervention is ineffective. NOT that no poolable question exists in this area: only that the question this page's title asks cannot be answered by pooling the trials this page carries. THE CRITICISM IS OF THE POOLING AND OF NOTHING ELSE -- a trial that registers the endpoints it was designed to measure is behaving correctly. The registry is a live document and this reads its contents on the date recorded; a later amendment could change it. If a further eligible trial is identified, this verdict should be revisited."
+   }
+  }
+ },
+ "risk_of_bias_verdict": "Not assessed. A risk-of-bias assessment grades trials contributing to a pooled result; this page publishes none.",
+ "handbook_authority": {
+  "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+  "version": "Version 6.5, 2024",
+  "verified_on": "2026-08-18",
+  "sections": "10.10.3; MECIR Box 10.10.a (C62)",
+  "c62": "'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.'",
+  "need_not_pool": "'A systematic review need not contain any meta-analyses.'"
+ }
+}

@@ -1,0 +1,101 @@
+{
+ "app_id": "doripenem",
+ "schema_version": 2,
+ "title": "Doripenem: NOT POOLABLE -- OUTCOME",
+ "built": "2026-08-18",
+ "build_mode": "verdict-only",
+ "topic_state": "NOT POOLABLE -- decided from the registrations",
+ "which_limb_fails": "OUTCOME",
+ "verification_basis": "Every seeded registration read from ClinicalTrials.gov on 2026-08-18: brief title, registered primary outcome measures, secondary count, and arm groups with types.",
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT00589693",
+    "nct": "NCT00589693",
+    "registration": "NCT00589693",
+    "registry": "ClinicalTrials.gov",
+    "label": "To Compare Safety and Efficacy of Doripenem Versus Imipenem-Cilastatin in Patients With Ventilator-Associated Pneumonia",
+    "ranks_read": [
+     "primary"
+    ],
+    "registered_primaries": [
+     "Clinical Cure Rate at the End-of-treatment (EOT) Visit"
+    ],
+    "registered_secondary_count": 4,
+    "arms_as_registered": [
+     {
+      "type": "EXPERIMENTAL",
+      "interventions": "Drug: Doripenem Drug: Placebo Doripenem"
+     },
+     {
+      "type": "ACTIVE_COMPARATOR",
+      "interventions": "Drug: Imipenem-Cilastatin Drug: Placebo Imipenem-Cilastatin"
+     }
+    ],
+    "source_url": "https://clinicaltrials.gov/study/NCT00589693",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT00986102",
+    "nct": "NCT00986102",
+    "registration": "NCT00986102",
+    "registry": "ClinicalTrials.gov",
+    "label": "PROUD Study: A Prospective Study on the Usage Patterns of Doripenem in the Asia Pacific Region",
+    "ranks_read": [
+     "primary"
+    ],
+    "registered_primaries": [
+     "Number of Participants With the Usage of Doripenem as Per the Approved Indication",
+     "Number of Participants With Different Mode of Usage of Doripenem",
+     "Duration of Antibiotic Therapy",
+     "Number of Participants With Acute Physiology and Chronic Health Evaluation II (APACHE II) Score"
+    ],
+    "registered_secondary_count": 6,
+    "arms_as_registered": [
+     {
+      "type": "OTHER",
+      "interventions": "Drug: doripenem 001"
+     }
+    ],
+    "source_url": "https://clinicaltrials.gov/study/NCT00986102",
+    "read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "outcomes": [
+  {
+   "id": "primary",
+   "type": "primary",
+   "name": "each trial's own registered primary outcome",
+   "definition": "Recorded per trial in inputs.trials[].registered_primaries."
+  }
+ ],
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 0,
+    "poolable": false,
+    "poolable_reason": "2 TRIALS, AND NO TWO SHARE A REGISTERED PRIMARY OUTCOME FAMILY. Registrations read from ClinicalTrials.gov on 2026-08-18: NCT00589693, NCT00986102. Their registered primaries are recorded per trial on this object and do not reduce to a common quantity, so there is nothing for two of them to estimate in common. AUTHORITY: MECIR Box 10.10.a C62 -- 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.' -- and Handbook 6.5 section 10.10.3, 'A systematic review need not contain any meta-analyses.'",
+    "pooled": {
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "withdrawn": true,
+     "withdrawn_reason": "2 TRIALS, AND NO TWO SHARE A REGISTERED PRIMARY OUTCOME FAMILY. Registrations read from ClinicalTrials.gov on 2026-08-18: NCT00589693, NCT00986102. Their registered primaries are recorded per trial on this object and do not reduce to a common quantity, so there is nothing for two of them to estimate in common. AUTHORITY: MECIR Box 10.10.a C62 -- 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.' -- and Handbook 6.5 section 10.10.3, 'A systematic review need not contain any meta-analyses.'",
+     "withdrawn_utc": "2026-08-18"
+    },
+    "per_trial": [],
+    "what_this_verdict_does_not_establish": "NOT that any trial here is poor -- each is registered and reports its own primary. NOT that the drug or intervention is ineffective. NOT that no poolable question exists in this area: only that the question this page's title asks cannot be answered by pooling the trials this page carries. THE CRITICISM IS OF THE POOLING AND OF NOTHING ELSE -- a trial that registers the endpoints it was designed to measure is behaving correctly. The registry is a live document and this reads its contents on the date recorded; a later amendment could change it. If a further eligible trial is identified, this verdict should be revisited."
+   }
+  }
+ },
+ "risk_of_bias_verdict": "Not assessed. A risk-of-bias assessment grades trials contributing to a pooled result; this page publishes none.",
+ "handbook_authority": {
+  "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+  "version": "Version 6.5, 2024",
+  "verified_on": "2026-08-18",
+  "sections": "10.10.3; MECIR Box 10.10.a (C62)",
+  "c62": "'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.'",
+  "need_not_pool": "'A systematic review need not contain any meta-analyses.'"
+ }
+}

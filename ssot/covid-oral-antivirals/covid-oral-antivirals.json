@@ -1,0 +1,120 @@
+{
+ "app_id": "covid-oral-antivirals",
+ "schema_version": 2,
+ "title": "Covid Oral Antivirals: NOT POOLABLE -- OUTCOME",
+ "built": "2026-08-18",
+ "build_mode": "verdict-only",
+ "topic_state": "NOT POOLABLE -- decided from the registrations",
+ "which_limb_fails": "OUTCOME",
+ "verification_basis": "Every seeded registration read from ClinicalTrials.gov on 2026-08-18: brief title, registered primary outcome measures, secondary count, and arm groups with types.",
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT04575597",
+    "nct": "NCT04575597",
+    "registration": "NCT04575597",
+    "registry": "ClinicalTrials.gov",
+    "label": "Efficacy and Safety of Molnupiravir (MK-4482) in Non-Hospitalized Adult Participants With COVID-19 (MK-4482-002)",
+    "ranks_read": [
+     "primary"
+    ],
+    "registered_primaries": [
+     "Percentage of Participants Who Were Hospitalized and/or Died Through Day 29 (Primary Pre-specified Analysis)",
+     "Number of Participants With an Adverse Event (AE)",
+     "Number of Participants Who Discontinued Study Intervention Due to an AE"
+    ],
+    "registered_secondary_count": 35,
+    "arms_as_registered": [
+     {
+      "type": "EXPERIMENTAL",
+      "interventions": "Drug: Molnupiravir Part 1: Molnupiravir 200 mg"
+     },
+     {
+      "type": "EXPERIMENTAL",
+      "interventions": "Drug: Molnupiravir Part 1: Molnupiravir 400 mg"
+     },
+     {
+      "type": "EXPERIMENTAL",
+      "interventions": "Drug: Molnupiravir Part 1: Molnupiravir 800 mg"
+     },
+     {
+      "type": "PLACEBO_COMPARATOR",
+      "interventions": "Drug: Placebo Part 1: Placebo"
+     },
+     {
+      "type": "EXPERIMENTAL",
+      "interventions": "Drug: Molnupiravir Part 2: Molnupiravir 800 mg"
+     },
+     {
+      "type": "PLACEBO_COMPARATOR",
+      "interventions": "Drug: Placebo Part 2: Placebo"
+     }
+    ],
+    "source_url": "https://clinicaltrials.gov/study/NCT04575597",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT04960202",
+    "nct": "NCT04960202",
+    "registration": "NCT04960202",
+    "registry": "ClinicalTrials.gov",
+    "label": "EPIC-HR: Study of Oral PF-07321332/Ritonavir Compared With Placebo in Nonhospitalized High Risk Adults With COVID-19",
+    "ranks_read": [
+     "primary"
+    ],
+    "registered_primaries": [
+     "Percentage of Participants With Covid-19 Related Hospitalization or Death From Any Cause Through Day 28- Modified Intent-To-Treat (mITT) Population"
+    ],
+    "registered_secondary_count": 37,
+    "arms_as_registered": [
+     {
+      "type": "EXPERIMENTAL",
+      "interventions": "Drug: PF-07321332 Drug: Ritonavir PF-07321332/ritonavir"
+     },
+     {
+      "type": "PLACEBO_COMPARATOR",
+      "interventions": "Drug: Placebo Placebo"
+     }
+    ],
+    "source_url": "https://clinicaltrials.gov/study/NCT04960202",
+    "read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "outcomes": [
+  {
+   "id": "primary",
+   "type": "primary",
+   "name": "each trial's own registered primary outcome",
+   "definition": "Recorded per trial in inputs.trials[].registered_primaries."
+  }
+ ],
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 0,
+    "poolable": false,
+    "poolable_reason": "2 TRIALS, AND NO TWO SHARE A REGISTERED PRIMARY OUTCOME FAMILY. Registrations read from ClinicalTrials.gov on 2026-08-18: NCT04575597, NCT04960202. Their registered primaries are recorded per trial on this object and do not reduce to a common quantity, so there is nothing for two of them to estimate in common. AUTHORITY: MECIR Box 10.10.a C62 -- 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.' -- and Handbook 6.5 section 10.10.3, 'A systematic review need not contain any meta-analyses.'",
+    "pooled": {
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "withdrawn": true,
+     "withdrawn_reason": "2 TRIALS, AND NO TWO SHARE A REGISTERED PRIMARY OUTCOME FAMILY. Registrations read from ClinicalTrials.gov on 2026-08-18: NCT04575597, NCT04960202. Their registered primaries are recorded per trial on this object and do not reduce to a common quantity, so there is nothing for two of them to estimate in common. AUTHORITY: MECIR Box 10.10.a C62 -- 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.' -- and Handbook 6.5 section 10.10.3, 'A systematic review need not contain any meta-analyses.'",
+     "withdrawn_utc": "2026-08-18"
+    },
+    "per_trial": [],
+    "what_this_verdict_does_not_establish": "NOT that any trial here is poor -- each is registered and reports its own primary. NOT that the drug or intervention is ineffective. NOT that no poolable question exists in this area: only that the question this page's title asks cannot be answered by pooling the trials this page carries. THE CRITICISM IS OF THE POOLING AND OF NOTHING ELSE -- a trial that registers the endpoints it was designed to measure is behaving correctly. The registry is a live document and this reads its contents on the date recorded; a later amendment could change it. If a further eligible trial is identified, this verdict should be revisited."
+   }
+  }
+ },
+ "risk_of_bias_verdict": "Not assessed. A risk-of-bias assessment grades trials contributing to a pooled result; this page publishes none.",
+ "handbook_authority": {
+  "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+  "version": "Version 6.5, 2024",
+  "verified_on": "2026-08-18",
+  "sections": "10.10.3; MECIR Box 10.10.a (C62)",
+  "c62": "'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.'",
+  "need_not_pool": "'A systematic review need not contain any meta-analyses.'"
+ }
+}
