@@ -1303,3 +1303,32 @@ to test the mechanism, never a substitute for testing it. Open one instance and 
 proposed mechanism is actually operating before the hypothesis is reported as a finding.
 **Where a cohort differs on the candidate variable, ask what else that cohort differs on** —
 here, age and estimator travelled together with input format.
+
+---
+
+## The verifier decoded git output as cp1252 and accused six intact files (2026-08-18)
+
+The definition-stamping run produced a **21,341-line diff across 29 objects** — far more
+than the additions warranted — so a value-level check was written before committing:
+parse old and new, strip the new fields, compare. **It reported six files with changed
+values and two unparseable.** I stopped.
+
+**The check was wrong.** `subprocess.run(..., text=True)` decodes with the Windows console
+codepage. Every object containing an em-dash or a non-ASCII character came back mangled or
+`None`, so the comparison was between a **corrupted old** and a correct new. Decoding the
+bytes as UTF-8 explicitly: **0 value-level differences across all 29.** The 21k-line diff
+is re-serialisation — key order and whitespace — exactly as it should have been.
+
+**cp1252 is in `rules/lessons.md` under Data Handling and I wrote the verifier without
+applying it.** The rule existed, was mine, and did not fire.
+
+**Fifth instrument artefact, and the first one in a VERIFIER rather than a measurement.**
+That is worse in one specific way: a broken measurement produces a wrong finding, but a
+broken verifier attacks work that is correct — and its failure mode is to stop good changes
+rather than pass bad ones, which feels like caution and reads like diligence.
+
+**How to apply:** decode subprocess bytes explicitly (`capture_output=True` then
+`.stdout.decode("utf-8")`), never `text=True`, when the content may hold non-ASCII. And
+when a verifier fails, **check the verifier against a case you can inspect by hand before
+believing it** — the same rule as for measurements, which had not been extended to the
+things that check them.

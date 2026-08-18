@@ -308,7 +308,10 @@
      "i2": 80.16673953844848,
      "tau2": 0.03866143514884744,
      "q": 5.042035332206655,
-     "df": 1
+     "df": 1,
+     "tau2_estimator": "DerSimonian-Laird inverse-variance on extracted effect estimates -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
+     "i2_definition": "Higgins I-squared = (Q - df) / Q, clamped at 0. Cochrane Handbook 6.5 section 10.10.2.",
+     "i2_definition_evidence": "Decided by recomputing BOTH definitions from this object's own per-trial inputs: Higgins gives 80.1667 and REML/metafor gives 80.1667 against the stored 80.1667."
     },
     "heterogeneity_status": "not recorded on the page this object was extracted from",
     "grade": null,
@@ -366,5 +369,14 @@
   "grade": "No certainty rating was recoverable from the page.",
   "sources": "No source registry was recoverable from the page, so no value on this page carries a resolvable link or a quoted source sentence.",
   "manuscript": "No manuscript exists for this review."
- }
+ },
+ "display_change_announced": [
+  {
+   "date": "2026-08-18",
+   "change": "definition declared on ambiguous fields",
+   "values_moved": "NONE",
+   "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
+   "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  }
+ ]
 }

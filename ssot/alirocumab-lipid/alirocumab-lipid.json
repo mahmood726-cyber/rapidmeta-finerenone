@@ -1877,7 +1877,10 @@
      "tau2": 47.42,
      "i2": 87.9,
      "q": 41.41,
-     "df": 5
+     "df": 5,
+     "tau2_estimator": "DerSimonian-Laird -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
+     "i2_definition": "Higgins I-squared = (Q - df) / Q, clamped at 0. Cochrane Handbook 6.5 section 10.10.2.",
+     "i2_definition_evidence": "Decided by recomputing BOTH definitions from this object's own per-trial inputs: Higgins gives 87.9256 and REML/metafor gives 87.9237 against the stored 87.9000."
     },
     "heterogeneity_status": "high",
     "interpretation_caveat": "Between-trial variation is high: I-squared is {res.by_outcome.ldlc_pct_change_wk24.heterogeneity.i2} per cent. The trials differ in background statin therapy, in population, and in dose regimen, so the pooled figure summarises a range of settings rather than estimating one common effect. A fixed-effect summary of the same data gives a narrower interval and would overstate what is known.",
@@ -2173,6 +2176,15 @@
    "was": "build-to-core",
    "changed_utc": "2026-08-17",
    "why": "'build-to-core' was a label no checker recognised, so the no-synthesised-absence gate returned UNCHECKABLE on this page -- a v1 property unmeasured because of a vocabulary, not because of anything about the page. The label is now REBUILT_FROM_SOURCE, which is what this object is: every contributing value, every endpoint definition and every comparator on it was read from the trial's own registry record on 2026-08-17. NOTHING A READER SEES CHANGES. The absent-state vocabulary a page renders is selected by whether the mode is CONVERTED, and this object was not CONVERTED under either label, so the same sentences render before and after. The change makes the property checkable; it does not make the page different."
+  }
+ ],
+ "display_change_announced": [
+  {
+   "date": "2026-08-18",
+   "change": "definition declared on ambiguous fields",
+   "values_moved": "NONE",
+   "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
+   "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
   }
  ]
 }

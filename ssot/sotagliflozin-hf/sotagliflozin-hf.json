@@ -1046,7 +1046,9 @@
      "tau2": 0.0,
      "i2": 0.0,
      "q": 0.4296,
-     "df": 1
+     "df": 1,
+     "tau2_estimator": "REML -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
+     "i2_definition": "UNDECIDABLE from this object. I-squared is 0 and Q is below the degrees of freedom, where the Higgins form is negative-and-clamped and the REML/metafor form is exactly zero -- BOTH DEFINITIONS GIVE 0 and nothing here distinguishes them. Recorded as undecidable rather than guessed."
     },
     "heterogeneity_status": "Computed from Q and its single degree of freedom. With TWO studies this statistic has almost no power to detect heterogeneity, so a low value is consistent both with agreement and with not being able to tell, and it is reported with that caveat rather than as reassurance. The difference these two trials genuinely have is in their POPULATIONS, and no statistic computed from two effect estimates can see it -- the uniformity table is the only place it is visible.",
     "single_study_ref": null,
@@ -1277,7 +1279,9 @@
      "tau2": 0.0,
      "i2": 0.0,
      "q": 0.8841,
-     "df": 1
+     "df": 1,
+     "tau2_estimator": "REML -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
+     "i2_definition": "UNDECIDABLE from this object. I-squared is 0 and Q is below the degrees of freedom, where the Higgins form is negative-and-clamped and the REML/metafor form is exactly zero -- BOTH DEFINITIONS GIVE 0 and nothing here distinguishes them. Recorded as undecidable rather than guessed."
     },
     "heterogeneity_status": "Computed from Q and its single degree of freedom. With TWO studies this statistic has almost no power to detect heterogeneity, so a low value is consistent both with agreement and with not being able to tell, and it is reported with that caveat rather than as reassurance. The difference these two trials genuinely have is in their POPULATIONS, and no statistic computed from two effect estimates can see it -- the uniformity table is the only place it is visible.",
     "single_study_ref": null,
@@ -1808,5 +1812,14 @@
    "statement": "7 checks were applied and 4 came back clean, 0 found an error, 1 found something absent and 2 could not be settled at the layer available. The denominator is stated because a list of only the failures is not a finding, it is a selection.",
    "symmetry": "Confirmations are listed in the same table, in the same detail, as errors. Across the cardiology topics reconciled so far the published literature has been implicated in none of them: where a defect existed it was ours. A comparison with room only for their errors could not have found that out."
   }
- }
+ },
+ "display_change_announced": [
+  {
+   "date": "2026-08-18",
+   "change": "definition declared on ambiguous fields",
+   "values_moved": "NONE",
+   "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
+   "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  }
+ ]
 }

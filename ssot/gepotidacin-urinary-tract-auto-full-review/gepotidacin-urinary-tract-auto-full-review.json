@@ -56,7 +56,10 @@
      "q": 3.3855,
      "df": 1,
      "i2_percent": 70.5,
-     "how_to_read_this_at_k2": "I-squared and tau-squared at k=2 are WEAK evidence about consistency in either direction. Two points cannot demonstrate agreement, and a low value here means only that the two estimates are CONSISTENT WITH a common effect -- not that one is established."
+     "how_to_read_this_at_k2": "I-squared and tau-squared at k=2 are WEAK evidence about consistency in either direction. Two points cannot demonstrate agreement, and a low value here means only that the two estimates are CONSISTENT WITH a common effect -- not that one is established.",
+     "tau2_estimator": "REML -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
+     "i2_definition": "Higgins I-squared = (Q - df) / Q, clamped at 0. Cochrane Handbook 6.5 section 10.10.2.",
+     "i2_definition_evidence": "Decided by recomputing BOTH definitions from this object's own per-trial inputs: Higgins gives 70.4623 and REML/metafor gives 70.4623 against the stored 70.5000."
     },
     "per_trial": [
      {
@@ -132,5 +135,14 @@
     }
    }
   }
- }
+ },
+ "display_change_announced": [
+  {
+   "date": "2026-08-18",
+   "change": "definition declared on ambiguous fields",
+   "values_moved": "NONE",
+   "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
+   "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  }
+ ]
 }

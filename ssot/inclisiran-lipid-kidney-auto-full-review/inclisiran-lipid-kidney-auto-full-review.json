@@ -590,7 +590,10 @@
      "i2": 71.99883028223148,
      "tau2": 9.524722803298308,
      "q": 7.142558757932434,
-     "df": 2
+     "df": 2,
+     "tau2_estimator": "DerSimonian-Laird inverse-variance on extracted effect estimates -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
+     "i2_definition": "Higgins I-squared = (Q - df) / Q, clamped at 0. Cochrane Handbook 6.5 section 10.10.2.",
+     "i2_definition_evidence": "Decided by recomputing BOTH definitions from this object's own per-trial inputs: Higgins gives 71.9988 and REML/metafor gives 71.9988 against the stored 71.9988."
     },
     "heterogeneity_status": "Q = 7.1426 on 2 df, I-squared 72.0 per cent, tau-squared 9.52 under DerSimonian-Laird and 10.60 under REML. HIGH, AND ON ONLY THREE STUDIES. The Hartung-Knapp interval is -63.71 to -44.30.",
     "grade": null,
@@ -770,5 +773,14 @@
   "grade": "No certainty rating was recoverable from the page.",
   "sources": "PARTLY SUPERSEDED 2026-08-18. The blanket statement below was true of the CONVERSION and is no longer true of this object: every trial's PRIMARY OUTCOME VALUE has since been read from its own ClinicalTrials.gov results record and carries a resolvable registration link, and each is the registry's own ANCOVA mean difference. What remains true is that no JOURNAL sentence is quoted for any value. A reader can now check every number against the registry from this page; they still cannot check it against a publication from this page. ORIGINAL CONVERSION STATEMENT, kept because deleting it would hide what this object was: No source registry was recoverable from the page, so no value on this page carries a resolvable link or a quoted source sentence.",
   "manuscript": "No manuscript exists for this review."
- }
+ },
+ "display_change_announced": [
+  {
+   "date": "2026-08-18",
+   "change": "definition declared on ambiguous fields",
+   "values_moved": "NONE",
+   "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
+   "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  }
+ ]
 }

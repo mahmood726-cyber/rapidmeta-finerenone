@@ -1676,7 +1676,10 @@
      "i2": 32.8939087126,
      "q": 5.1612775488,
      "df": 3,
-     "q_p": 0.16036143174
+     "q_p": 0.16036143174,
+     "tau2_estimator": "REML -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
+     "i2_definition": "REML/metafor I-squared = tau-squared / (tau-squared + typical within-study variance), where the typical variance is the Higgins-Thompson s-squared. This is what metafor's rma() reports and it is NOT (Q - df) / Q.",
+     "i2_definition_evidence": "Decided by recomputing BOTH definitions from this object's own per-trial inputs: REML/metafor gives 32.8940 and Higgins gives 41.8749 against the stored 32.8939. THIS OBJECT CARRIES THE MINORITY DEFINITION IN THIS CORPUS -- 10 blocks carry Higgins and this is the only decidable block carrying the other."
     },
     "heterogeneity_status": "I-squared is 32.9% under the registered REML estimator, 41.9% under DerSimonian-Laird and 55.7% under Paule-Mandel, and Q is 5.16 on 3 degrees of freedom (p=0.16). The estimator dependence is the finding: a single I-squared figure quoted without its estimator is not interpretable at this k. The prediction interval spans 0.686 to 1.107, which is the honest statement of how much the trials disagree.",
     "single_study_ref": null,
@@ -15559,5 +15562,14 @@
    "theirs": "RR 0.76 (0.66 to 0.86) for cardiovascular hospitalisation and RR 0.75 (0.62 to 0.91) for cardiovascular mortality, reported as separate outcomes.",
    "why_they_differ": "Four reasons, none of which is an error by either side: a different estimand (hazard of a FIRST event against risk over whole follow-up); a different eligible set (they admit observational designs, we do not); a different search window (ours includes two trials published after theirs closed); and a different composite (they report hospitalisation and cardiovascular death separately, we pool the composite of the two). Decomposed rather than asserting ours is right: on the trials and the quantity the two reviews share, they agree."
   }
- }
+ },
+ "display_change_announced": [
+  {
+   "date": "2026-08-18",
+   "change": "definition declared on ambiguous fields",
+   "values_moved": "NONE",
+   "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
+   "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  }
+ ]
 }

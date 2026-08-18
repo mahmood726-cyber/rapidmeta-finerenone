@@ -636,7 +636,10 @@
      "tau2": 2.5e-05,
      "i2": 7.2866,
      "q": 2.1572,
-     "df": 2
+     "df": 2,
+     "tau2_estimator": "REML -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
+     "i2_definition": "Higgins I-squared = (Q - df) / Q, clamped at 0. Cochrane Handbook 6.5 section 10.10.2.",
+     "i2_definition_evidence": "Decided by recomputing BOTH definitions from this object's own per-trial inputs: Higgins gives 7.2872 and REML/metafor gives 1.1684 against the stored 7.2866."
     },
     "heterogeneity_status": "tau-squared and I-squared are recorded beside this line, on the measure actually used. They are NOT the grounds on which that measure was chosen.",
     "single_study_ref": null,
@@ -896,6 +899,15 @@
    "claim_made_by": "the earlier app this object replaces",
    "settled_by": "PAY_BABINCHAK2005, whose abstract states it is a pooled analysis of two trials and publishes only pooled figures",
    "source_id": "PAY_BABINCHAK2005"
+  }
+ ],
+ "display_change_announced": [
+  {
+   "date": "2026-08-18",
+   "change": "definition declared on ambiguous fields",
+   "values_moved": "NONE",
+   "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
+   "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
   }
  ]
 }
