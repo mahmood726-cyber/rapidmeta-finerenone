@@ -1,0 +1,162 @@
+"""Does the arm assigned as INTERVENTION match the registry's own typing?
+
+THE FOUNDING CASE, introduced and caught the same day. `fcm-hf-review`'s harmonised pool
+assigned IRONMAN's `arms[0]` to the intervention. `arms[0]` IS THE CONTROL: the object
+labels it "Standard care" (336/569) against "Standard care plus IV iron infusion"
+(411/568), and the registry types the first NO_INTERVENTION and the second EXPERIMENTAL.
+
+POSITION IN A LIST IS NOT A ROLE. Both the label and `armGroups[].type` said which arm was
+which, and neither was read.
+
+THE TELL, and it is counter-intuitive enough to be worth encoding. Inverted, the pool read
+RR 0.7987 with I-SQUARED 0%. Corrected, it read 0.976 with I-SQUARED 97.9% and the two
+trials pointing in OPPOSITE directions. INVERTING ONE ARM TURNS DISAGREEMENT INTO
+AGREEMENT -- a mirrored pair looks like perfect consistency. SO A SUSPICIOUSLY CLEAN
+HETEROGENEITY ON k=2 IS ITSELF A REASON TO CHECK THE ARMS, because the inversion improves
+every statistic a reviewer would look at.
+
+An older inverted row would therefore make its pool look BETTER, not worse, and nothing
+downstream would flag it.
+
+TWO CHECKS, both cheap:
+
+  ROLE   for every per-trial row carrying arm-level counts, compare the events assigned to
+         the intervention against the registry's EXPERIMENTAL arm and the control against
+         its comparator. Registry typing is authoritative; the object's list order is not.
+         ARM TYPES ARE NOT ALWAYS RELIABLE -- RE-LY typed all three of its arms
+         ACTIVE_COMPARATOR -- so a disagreement is a FLAG TO READ, never a verdict.
+
+  MIRROR flag any k=2 pool whose I-squared is 0 and whose per-trial effects sit on opposite
+         sides of the null once one row is inverted. That is the inversion signature.
+
+THIS IS A TRIAGE. A flag means read the trial; it never means the row is wrong.
+"""
+from __future__ import annotations
+import io
+import json
+import os
+import sys
+import time
+import urllib.request
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+API = "https://clinicaltrials.gov/api/v2/studies/{}?format=json"
+CACHE = os.path.join(REPO, ".armrole-cache.json")
+cache = json.load(io.open(CACHE, encoding="utf-8")) if os.path.exists(CACHE) else {}
+EXPERIMENTAL = ("EXPERIMENTAL",)
+CONTROL = ("PLACEBO_COMPARATOR", "NO_INTERVENTION", "SHAM_COMPARATOR")
+
+
+def arms_of(nct):
+    if nct in cache:
+        return cache[nct]
+    out = None
+    try:
+        req = urllib.request.Request(API.format(nct), headers={"User-Agent": "rm-arm"})
+        with urllib.request.urlopen(req, timeout=45) as r:
+            d = json.loads(r.read().decode("utf-8"))
+        out = [{"type": a.get("type") or "", "label": (a.get("label") or "")}
+               for a in (((d.get("protocolSection") or {})
+                          .get("armsInterventionsModule") or {}).get("armGroups") or [])]
+    except Exception:
+        out = None
+    cache[nct] = out
+    time.sleep(0.06)
+    return out
+
+
+def norm(s):
+    return " ".join(str(s or "").lower().split())
+
+
+def main() -> int:
+    ss = os.path.join(REPO, "ssot")
+    role_flags, mirror_flags, checked = [], [], 0
+    for d in sorted(os.listdir(ss)):
+        f = os.path.join(ss, d, d + ".json")
+        if not os.path.exists(f):
+            continue
+        try:
+            o = json.load(io.open(f, encoding="utf-8"))
+        except Exception:
+            continue
+
+        # ROLE: object arms[] order against registry typing
+        for t in ((o.get("inputs") or {}).get("trials") or []):
+            if not isinstance(t, dict):
+                continue
+            arms = [a for a in (t.get("arms") or []) if isinstance(a, dict)]
+            nct = str(t.get("nct") or "")
+            if len(arms) < 2 or not nct.startswith("NCT"):
+                continue
+            reg = arms_of(nct)
+            json.dump(cache, io.open(CACHE, "w", encoding="utf-8", newline="\n"),
+                      ensure_ascii=False)
+            if not reg:
+                continue
+            checked += 1
+            exp_labels = [norm(a["label"]) for a in reg if a["type"] in EXPERIMENTAL]
+            ctl_labels = [norm(a["label"]) for a in reg if a["type"] in CONTROL]
+            if not exp_labels or not ctl_labels:
+                continue          # arm types unusable here; RE-LY shape
+            first = norm(arms[0].get("label"))
+            # arms[0] is treated as the intervention by every builder in this tree
+            if any(first == c for c in ctl_labels):
+                role_flags.append((d, nct, arms[0].get("label"),
+                                   arms[0].get("events"), arms[1].get("label"),
+                                   arms[1].get("events")))
+
+        # MIRROR: k=2, I2 == 0, effects on opposite sides once one is inverted
+        for name, blk in ((o.get("results") or {}).get("by_outcome") or {}).items():
+            if not isinstance(blk, dict):
+                continue
+            rows = [r for r in (blk.get("per_trial") or [])
+                    if isinstance(r, dict) and isinstance(r.get("point"), (int, float))]
+            het = blk.get("heterogeneity") or {}
+            i2 = het.get("i2") if het.get("i2") is not None else het.get("i2_percent")
+            if len(rows) == 2 and i2 is not None and float(i2) < 0.5:
+                a, b = rows[0]["point"], rows[1]["point"]
+                if a > 0 and b > 0:
+                    # NARROWED, AND THE REASON MATTERS MORE THAN THE THRESHOLD. The first
+                    # version fired whenever a pair straddled once one row was inverted.
+                    # ANY VALUE NEAR 1 STRADDLES ONCE INVERTED -- invert 0.97 and you get
+                    # 1.03 -- so it flagged both lefamulin pools, which are two SUCCESSFUL
+                    # NON-INFERIORITY trials sitting exactly where such trials sit. That is
+                    # the commonest sound result in an antibiotics corpus, and a check that
+                    # fires on it trains a reader to skim.
+                    #
+                    # A PAIR ALREADY NEAR THE NULL CARRIES NO INFORMATION EITHER WAY. The
+                    # fcm-hf signature is different: two trials that DISAGREE SUBSTANTIALLY
+                    # and would AGREE if one were flipped -- 0.776 against 1.225. So both
+                    # rows must sit a real distance from the null, and inverting one must
+                    # bring them together.
+                    MARGIN = 0.15          # 15% from the null on the ratio scale
+                    far = abs(a - 1) > MARGIN and abs(b - 1) > MARGIN
+                    if far and (a - 1) * ((1.0 / b) - 1) > 0:
+                        mirror_flags.append((d, name, a, b))
+
+    print("trials with usable registry arm typing checked: %d" % checked)
+    print()
+    print("ROLE FLAGS -- arms[0] matches a CONTROL arm in the registry: %d" % len(role_flags))
+    for d, nct, l0, e0, l1, e1 in role_flags:
+        print("   %-34s %s" % (d[:33], nct))
+        print("        arms[0] %-40s events=%s" % (str(l0)[:40], e0))
+        print("        arms[1] %-40s events=%s" % (str(l1)[:40], e1))
+    print()
+    print("MIRROR FLAGS -- k=2 with I2 under 0.5%% whose pair straddles once inverted: %d"
+          % len(mirror_flags))
+    for d, name, a, b in mirror_flags:
+        print("   %-34s %-16s %.4f / %.4f" % (d[:33], name[:15], a, b))
+    print()
+    print("TRIAGE, NEVER A VERDICT. Registry arm types are not always reliable -- RE-LY")
+    print("typed all three of its arms ACTIVE_COMPARATOR -- so a flag means READ THE TRIAL.")
+    print("But an inversion IMPROVES every statistic a reviewer looks at, so nothing")
+    print("downstream will ever flag it. This is the only place it can be caught.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
