@@ -348,6 +348,16 @@ def _endpoint_definitions(canon, oid, p, e):
                  "no description is recorded in this registry field"),
                p(src.get("analysis_set_as_the_registry_states_it")
                  or src.get("time_frame") or "&mdash;")))
+        # A CONFLICT ABOUT A TRIAL BELONGS BESIDE THAT TRIAL. On DOAC_CANCER_VTE
+        # the fact that NCT02583191 names a different study from the one whose
+        # data sits on the row reached the page ONLY inside the withdrawal prose,
+        # eleven lines from the table. The reader who follows the registration
+        # link is looking at the ROW.
+        conflict = t.get("identity_conflict")
+        if conflict:
+            rows += ("    <tr><td colspan='4' class='absent-state' role='note'>"
+                     "<strong>Identity conflict on this row.</strong> %s</td></tr>\n"
+                     % p(conflict))
     if not rows:
         return ""
     read_on = sorted({(((t.get("by_outcome") or {}).get(oid) or {})
