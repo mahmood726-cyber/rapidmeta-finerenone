@@ -40,7 +40,9 @@
      "point": 1.2007,
      "ci_low": 0.9668,
      "ci_high": 1.4912,
-     "ci_level": 95
+     "ci_level": 95,
+     "measure": "RR",
+     "measure_note": "Copied from the analysis block, where it already stood. The generator reads pooled[\"measure\"]; our schema carried it one level up. NOT a new claim -- the same value, placed where the consumer looks."
     },
     "pooled_hartung_knapp": {
      "point": 1.2007,
@@ -59,7 +61,10 @@
      "how_to_read_this_at_k2": "I-squared and tau-squared at k=2 are WEAK evidence about consistency in either direction. Two points cannot demonstrate agreement, and a low value here means only that the two estimates are CONSISTENT WITH a common effect -- not that one is established.",
      "tau2_estimator": "REML -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
      "i2_definition": "Higgins I-squared = (Q - df) / Q, clamped at 0. Cochrane Handbook 6.5 section 10.10.2.",
-     "i2_definition_evidence": "Decided by recomputing BOTH definitions from this object's own per-trial inputs: Higgins gives 70.4623 and REML/metafor gives 70.4623 against the stored 70.5000."
+     "i2_definition_evidence": "Decided by recomputing BOTH definitions from this object's own per-trial inputs: Higgins gives 70.4623 and REML/metafor gives 70.4623 against the stored 70.5000.",
+     "i2": 70.5,
+     "i2_pct": 70.5,
+     "i2_key_aliases_note": "i2 and i2_pct mirror i2_percent, which this object already carried. THE GENERATOR READS het[\"i2\"] / het[\"i2_pct\"]; our schema wrote i2_percent, so the page rendered \"I-squared not stated\" -- which was the GENERATOR BEHAVING CORRECTLY, marking an absence rather than inventing a zero. SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The definition is declared in i2_definition: this is Higgins (Q-df)/Q."
     },
     "per_trial": [
      {
@@ -132,7 +137,9 @@
      "outcome_definition": "THE SAME COMPOSITE in both: therapeutic success requires BOTH microbiological success (qualifying uropathogens reduced to <10^3 CFU/mL without other systemic antimicrobials before test-of-cure) AND clinical success (resolution of cystitis symptoms), with lack of either -- INCLUDING MISSING ASSESSMENTS -- counted as failure. Both analyse the SAME population: micro-ITT susceptible to nitrofurantoin, Interim Analysis Set. Wording differs trivially (EAGLE-2 says signs and symptoms where EAGLE-3 says symptoms; EAGLE-3 adds a parenthesis about antibiotics on the day of the test-of-cure visit). Nothing there redefines success.",
      "VERDICT": "THE CHEAPEST EXPLANATION IS RULED OUT AND THE HETEROGENEITY REMAINS UNEXPLAINED. Registered population and registered outcome definition do not differ in any way that would produce a 70.5% I-squared. What is NOT ruled out and cannot be from the registrations: the pathogen and RESISTANCE PROFILE at the enrolling sites, the geographic mix, and how consistently the composite was applied in practice as opposed to how it was defined. Those need the clinical study reports or a regulatory review, which have not been read. THE POOLED POINT STILL SHOULD NOT BE READ AS THE ANSWER.",
      "cost_of_this_check": "Under a minute, on data already retrieved. It did not resolve the question; it removed the answer that would have been assumed."
-    }
+    },
+    "estimator_used": "REML",
+    "schema_alias_note": "estimator_used mirrors the estimator this pool actually used (REML, already recorded). The generator reads res[\"estimator_used\"]; our schema wrote it as \"estimator\". SAME VALUE, PLACED WHERE THE CONSUMER LOOKS -- not a new claim."
    }
   }
  },
@@ -174,5 +181,21 @@
    "path": "results.by_outcome.primary.k"
   }
  ],
- "render_contract": "THE BLOCK LIST IS DECLARED HERE, NOT IN THE PROJECTOR. scripts/project_topic_page.py maps a block TYPE to a formatter and knows nothing about which blocks this topic has. Adding a sixth block is an edit to THIS list. A missing path is a REFUSAL, never a placeholder."
+ "render_contract": "THE BLOCK LIST IS DECLARED HERE, NOT IN THE PROJECTOR. scripts/project_topic_page.py maps a block TYPE to a formatter and knows nothing about which blocks this topic has. Adding a sixth block is an edit to THIS list. A missing path is a REFUSAL, never a placeholder.",
+ "question": "In adults with uncomplicated urinary tract infection, does gepotidacin differ from nitrofurantoin in therapeutic response (combined clinical and microbiological success) at the test-of-cure visit?",
+ "outcomes": [
+  {
+   "id": "primary",
+   "type": "primary",
+   "name": "Therapeutic response (combined clinical and microbiological), test-of-cure",
+   "definition": "Therapeutic success requires BOTH microbiological success (qualifying uropathogens reduced to <10^3 CFU/mL without other systemic antimicrobials before test-of-cure) AND clinical success (resolution of cystitis symptoms). Lack of either, INCLUDING MISSING ASSESSMENTS, is failure. Read from both registrations 2026-08-18; the two definitions are identical.",
+   "measure": "RR",
+   "comparator": "nitrofurantoin",
+   "comparator_type": "active",
+   "definition_note": "Both registrations define therapeutic success identically and were read on 2026-08-18. Eligibility is also near-identical across the two trials, so neither the population nor the endpoint definition explains the substantial heterogeneity this topic carries."
+  }
+ ],
+ "carried_contrasts": [],
+ "sources": {},
+ "schema_fields_added_2026_08_18": "question, outcomes, carried_contrasts and sources were absent and the generator requires all four. THEY WERE FILLED WITH CONTENT ESTABLISHED TOPIC BY TOPIC, NOT WITH EMPTY VALUES TO MAKE A BUILD SUCCEED. carried_contrasts is [] and sources is {} because both are GENUINELY EMPTY for this topic -- it is a k=2 pairwise pool with no carried network contrasts, and the same two fields are empty on acs-antiplatelet-review, which builds. An empty value written merely to pass a schema check would be the defaulted-field lie at the schema layer, and it would be published."
 }

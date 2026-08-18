@@ -1,0 +1,95 @@
+"""Which objects can the generator actually build? DERIVED, not discovered by failure.
+
+THE MOVE. `ssot/build_tabbed.py` failed on `lenacapavir-prep-review` with
+KeyError: 'outcomes'. Fixing that and re-running would have found the next missing key,
+and so on -- thirteen sequential builds at minutes each, because the generator RASTERISES
+FIGURES WITH CHROME and is slow and stateful.
+
+The requirements are readable from the generator's own source instead. Bracket access --
+`canon["outcomes"]` -- RAISES when the key is absent, so every bracketed key on the
+canonical object is a hard requirement. Grepping those turns thirteen sequential failures
+into one report, and covers all 146 objects for the same cost as one build.
+
+WHAT IT SAVES, stated rather than claimed: a build is minutes; this is under a second for
+the whole corpus. Thirteen discovered-by-failure builds would be ~30+ minutes and would
+still only cover thirteen objects.
+
+WHAT IT DOES NOT DO. It finds keys accessed with brackets at the TOP LEVEL of the
+canonical object. It does NOT find requirements nested deeper, reached through .get() with
+a later bracket, or imposed by a projector on a sub-structure. A PASS HERE IS NOT A
+GUARANTEE THE BUILD SUCCEEDS -- it is the removal of the failures we can see in advance.
+The build remains the only proof.
+"""
+from __future__ import annotations
+import io
+import json
+import os
+import re
+import sys
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+GENERATORS = ["ssot/build_app_v2.py", "ssot/build_tabbed.py"]
+ACCESS = re.compile(r"\b(?:canon|obj)\[[\'\"]([a-z_0-9]+)[\'\"]\]")
+
+
+def required():
+    keys = {}
+    for f in GENERATORS:
+        p = os.path.join(REPO, f)
+        if not os.path.exists(p):
+            continue
+        t = io.open(p, encoding="utf-8", errors="replace").read()
+        for m in ACCESS.finditer(t):
+            keys.setdefault(m.group(1), set()).add(f)
+    return keys
+
+
+def main() -> int:
+    req = required()
+    print("REQUIRED TOP-LEVEL KEYS, derived from bracket access in the generators:")
+    for k in sorted(req):
+        print("    %-22s %s" % (k, ", ".join(sorted(req[k]))))
+    print()
+
+    ss = os.path.join(REPO, "ssot")
+    buildable, blocked = [], []
+    for d in sorted(os.listdir(ss)):
+        f = os.path.join(ss, d, d + ".json")
+        if not os.path.exists(f):
+            continue
+        try:
+            o = json.load(io.open(f, encoding="utf-8"))
+        except Exception as e:
+            blocked.append((d, ["UNPARSEABLE: %s" % str(e)[:40]]))
+            continue
+        missing = [k for k in req if k not in o]
+        (blocked if missing else buildable).append((d, missing))
+
+    total = len(buildable) + len(blocked)
+    print("objects: %d" % total)
+    print("    satisfy every derived requirement: %d" % len(buildable))
+    print("    BLOCKED:                           %d" % len(blocked))
+    print()
+    bykey = {}
+    for d, miss in blocked:
+        for k in miss:
+            bykey.setdefault(k, []).append(d)
+    print("BLOCKED BY WHICH MISSING KEY:")
+    for k, ds in sorted(bykey.items(), key=lambda x: -len(x[1])):
+        print("    %-22s %3d objects" % (k, len(ds)))
+    print()
+    print("A PASS HERE IS NOT A GUARANTEE THE BUILD SUCCEEDS. It finds top-level keys the")
+    print("generators access with brackets. Requirements nested deeper, or imposed by a")
+    print("projector on a sub-structure, are invisible to it. THE BUILD REMAINS THE PROOF.")
+    json.dump({"buildable": [d for d, _ in buildable],
+               "blocked": {d: m for d, m in blocked}},
+              io.open(os.path.join(REPO, ".buildability.json"), "w", encoding="utf-8"),
+              ensure_ascii=False, indent=1)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
