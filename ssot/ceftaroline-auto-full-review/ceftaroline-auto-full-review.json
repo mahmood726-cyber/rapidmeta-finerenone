@@ -1,0 +1,156 @@
+{
+ "app_id": "ceftaroline-auto-full-review",
+ "schema_version": 2,
+ "title": "Ceftaroline fosamil versus ceftriaxone in bacterial pneumonia",
+ "built": "2026-08-18",
+ "build_mode": "full",
+ "topic_state": "POOLED -- risk ratio, k=3, one seeded trial excluded and stated",
+ "provenance": "REGISTRY THROUGHOUT. Every count and denominator read from ClinicalTrials.gov posted results.",
+ "verification_basis": "All FOUR seeded registrations read on 2026-08-18; three pooled, one excluded on the grounds stated in the analysis block.",
+ "inputs": {
+  "trials": [
+   {
+    "trial_id": "NCT00509106",
+    "nct": "NCT00509106",
+    "label": "FOCUS 1",
+    "registry": "ClinicalTrials.gov",
+    "source_url": "https://clinicaltrials.gov/study/NCT00509106",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "trial_id": "NCT00621504",
+    "nct": "NCT00621504",
+    "label": "FOCUS 2",
+    "registry": "ClinicalTrials.gov",
+    "source_url": "https://clinicaltrials.gov/study/NCT00621504",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "trial_id": "NCT01371838",
+    "nct": "NCT01371838",
+    "label": "CAP China",
+    "registry": "ClinicalTrials.gov",
+    "source_url": "https://clinicaltrials.gov/study/NCT01371838",
+    "read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "measure": "RR",
+    "k": 3,
+    "model": "random-effects",
+    "estimator": "REML",
+    "pooled": {
+     "point": 1.1049,
+     "ci_low": 1.0494,
+     "ci_high": 1.1633,
+     "ci_level": 95
+    },
+    "pooled_hartung_knapp": {
+     "point": 1.1049,
+     "ci_low": 0.9868,
+     "ci_high": 1.2371,
+     "df": 2,
+     "t_critical": 4.3026527,
+     "variance_inflation_applied": 1.0,
+     "why_it_is_shown": "Handbook 6.5 section 10.10.4.5 recommends Hartung-Knapp where k is small. Shown ALONGSIDE the unadjusted interval, not instead of it. A FLOOR OF 1 is applied to the variance-inflation factor so the adjustment can never NARROW the interval below the unadjusted one."
+    },
+    "heterogeneity": {
+     "tau2": 0.0,
+     "q": 0.6562,
+     "df": 2,
+     "i2_percent": 0.0,
+     "DIRECTION_TEST": "NOT APPLICABLE -- I-squared is 0.0%, below the threshold at which the direction test is informative. The trials are consistent with a common effect and no heterogeneity caution is warranted. Applying one here would manufacture doubt the data do not support, which is the mirror failure of ignoring heterogeneity that matters.",
+     "how_to_read_this_at_low_k": "At k=2 or k=3 these statistics are weak evidence about consistency in EITHER direction. A low value means the estimates are CONSISTENT WITH a common effect, not that one is demonstrated."
+    },
+    "per_trial": [
+     {
+      "trial_id": "NCT00509106",
+      "nct": "NCT00509106",
+      "label": "FOCUS 1",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT00509106",
+      "read_utc": "2026-08-18",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "as_posted": {
+       "ceftaroline_events": 235,
+       "ceftaroline_n": 315,
+       "ceftriaxone_events": 206,
+       "ceftriaxone_n": 307
+      },
+      "measure": "RR",
+      "point": 1.1118,
+      "ci_low": 1.0046,
+      "ci_high": 1.2305,
+      "se_log_rr": 0.051747,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. Counts read from the registry; only the arithmetic is ours and the formula is shown."
+     },
+     {
+      "trial_id": "NCT00621504",
+      "nct": "NCT00621504",
+      "label": "FOCUS 2",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT00621504",
+      "read_utc": "2026-08-18",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "as_posted": {
+       "ceftaroline_events": 244,
+       "ceftaroline_n": 291,
+       "ceftriaxone_events": 233,
+       "ceftriaxone_n": 300
+      },
+      "measure": "RR",
+      "point": 1.0796,
+      "ci_low": 0.9977,
+      "ci_high": 1.1682,
+      "se_log_rr": 0.040255,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. Counts read from the registry; only the arithmetic is ours and the formula is shown."
+     },
+     {
+      "trial_id": "NCT01371838",
+      "nct": "NCT01371838",
+      "label": "CAP China",
+      "registry": "ClinicalTrials.gov",
+      "source_url": "https://clinicaltrials.gov/study/NCT01371838",
+      "read_utc": "2026-08-18",
+      "provenance": "REGISTRY -- ClinicalTrials.gov posted results",
+      "as_posted": {
+       "ceftaroline_events": 217,
+       "ceftaroline_n": 258,
+       "ceftriaxone_events": 178,
+       "ceftriaxone_n": 240
+      },
+      "measure": "RR",
+      "point": 1.134,
+      "ci_low": 1.0348,
+      "ci_high": 1.2428,
+      "se_log_rr": 0.046729,
+      "derived_here": true,
+      "how": "RR = (e1/n1)/(e2/n2); SE(log RR) = sqrt(1/e1 - 1/n1 + 1/e2 - 1/n2), Handbook 6.5 section 6.4.1. Counts read from the registry; only the arithmetic is ours and the formula is shown."
+     }
+    ],
+    "comparator": "intravenous ceftriaxone",
+    "outcome": "clinical cure at test-of-cure",
+    "the_fourth_trial_EXCLUDED_and_why": "NCT04198571 IS SEEDED ON THIS PAGE AND IS NOT IN THIS POOL. Two reasons, either sufficient. FIRST, its condition is 'Community Acquired Pneumonia; Complicated Skin and Soft tissue' -- two indications under one registration. SECOND AND DECISIVE, its posted primary is not a randomised comparison at all: the two groups are 'Participants With CAP' (151/185) and 'Participants With cSSTI' (118/132), which is a DESCRIPTIVE SPLIT BY INDICATION, not an intervention against a comparator. There is no ceftriaxone arm to contrast. It is excluded and the exclusion is stated rather than left to inference.",
+    "why_the_other_three_cohere": "All three randomise ceftaroline fosamil against intravenous ceftriaxone in bacterial pneumonia and register CLINICAL CURE AT TEST-OF-CURE as the primary. Same intervention, same comparator, same outcome, same infection -- the four limbs the eleven 2026-08-18 closures failed.",
+    "published_synthesis_comparison": {
+     "status": "NOT DONE -- owed, not claimed",
+     "what_is_owed": "No published meta-analysis or regulatory review pooling the FOCUS programme has been read. These are registration trials, so an FDA or EMA review almost certainly pools them and would be a STRONGER comparator than a journal synthesis: it has access to data no journal reviewer holds. Any DIVERGENCE from it would be more informative than agreement."
+    },
+    "what_this_does_not_establish": "NOT that any trial is free of bias -- NO RISK-OF-BIAS ASSESSMENT IS RECORDED, and a pooled estimate without one is arithmetic, not a graded finding. NOT superiority: these are non-inferiority trials against an active comparator, and a risk ratio near 1 is the EXPECTED result of a successful one rather than evidence of equivalence. NOT anything about the fourth seeded trial, which is excluded above. NOT agreement with any published synthesis; none has been read.",
+    "handbook_authority": {
+     "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+     "version": "Version 6.5, 2024",
+     "verified_on": "2026-08-18",
+     "sections": "6.4.1; 10.10.3; 10.10.4.4-5; MECIR Box 10.10.a (C62)",
+     "c62": "'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.'"
+    },
+    "analysis_code": "scripts/ctg_binary_pool.py::pool_rr -- shared, so the arithmetic is one implementation checked once rather than N hand copies."
+   }
+  }
+ }
+}

@@ -88,6 +88,51 @@ names its trials — not the randomised total, the **analysed** total, per trial
 
 ---
 
+## Class 4 — NON-RANDOMISED COMPARATOR INSIDE A RANDOMISED TRIAL'S REGISTERED PRIMARY
+
+**Instance, found in our own corpus rather than in the literature.** Both lenacapavir
+pre-exposure-prophylaxis trials register, as their **primary outcome**, HIV-1 incidence
+compared against a **background incidence estimate derived from screened participants**
+by a recent-infection testing algorithm. PURPOSE 2 posts 0.103 against 2.374 from 4,634
+screened; PURPOSE 1 posts 0.000 against 2.407 from 8,094.
+
+**Why it is hard to catch.** These are large, well-conducted randomised trials, and every
+internal check passes — the arithmetic is fine, the registration is complete, the arms
+are typed correctly. **The comparator named in the registered primary is simply not a
+randomised arm.** A synthesis that pools the contrast would present non-randomised
+comparisons as randomised results, and nothing in the numbers would show it.
+
+**The check we run on ourselves.** Before pooling any contrast, confirm the comparator is
+a **randomised arm of the same trial** and not an external, historical, or
+screening-derived estimate. **Nothing in our corpus currently looks for this**, and it may
+exist elsewhere — a corpus-wide screen is owed.
+
+---
+
+## The heterogeneity direction test — a standing rule, not a per-topic judgement
+
+**When I-squared is high, check whether the trial intervals agree in DIRECTION before
+choosing what to say about the pooled estimate.** Two topics built on the same day have
+nearly identical I-squared and opposite meanings:
+
+| | I-squared | intervals | what it is |
+|---|---|---|---|
+| gepotidacin | 70.5% | EAGLE-2 spans 1, EAGLE-3 excludes 1 | **substantive disagreement** |
+| cabotegravir | 68.8% | both exclude 1, both favour the drug | **precision problem** |
+
+- **All intervals exclude the null and point the same way → a PRECISION problem.** The
+  trials agree on *whether* and disagree on *how much*. The pooled direction may be
+  reported; the magnitude may not be treated as established.
+- **Intervals straddle the null, or point opposite ways → a SUBSTANTIVE disagreement.**
+  The trials disagree on *whether*. The pooled point is a number and not a conclusion.
+
+**This exists to stop a reflex warning being pasted onto a sound result**, which is the
+mirror-image failure of Class 2 and just as wrong. Class 2 ignores heterogeneity that
+matters; pasting a boilerplate caution onto consistent trials manufactures doubt that the
+data do not support. **Both are failures to read what the statistic means.**
+
+---
+
 ## What this file is not
 
 **Not a claim that published syntheses are unreliable.** Three named instances against a
