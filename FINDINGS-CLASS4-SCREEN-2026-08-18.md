@@ -55,8 +55,16 @@ on the pattern you already know finds only what you already know. The structural
 costs nothing to run and would catch an external comparator given a neutral group title —
 which is failure mode 1 in the script's own docstring and the mode the lexical signal is
 blind to. **Its false-positive rate is the price of that coverage, and 16 flags a reader
-can dismiss in two minutes is a cheap price.** What it must not do is be reported as 18
-findings.
+can dismiss in two minutes is a cheap price.**
+
+> ### THIS SCREEN MUST NEVER BE REPORTED AS 18 FINDINGS.
+> It found **two**, and both were already known. A reader who sees `FLAGGED: 18` in the
+> script output and a serious-sounding screen name will draw the obvious wrong conclusion.
+> The 18 is a triage count. The finding count is 2.
+
+> ### THE 35 UNSCREENABLE TRIALS ARE A HOLE, NOT A PASS.
+> They post no results, so the screen cannot see them and says nothing about them. They
+> are not "clear"; they are unexamined.
 
 ## What this screen does not establish
 

@@ -1149,3 +1149,48 @@ the test — not in the shared understanding of the two people who discussed it.
 **How to apply:** when writing down any conditional rule, state the condition first and
 the action second, and give the rule a name that includes the condition. Then write the
 test for the case where the condition is FALSE, before the case where it is true.
+
+---
+
+## `git add -A` in a shared tree: the message and the diff disagree (2026-08-18)
+
+Commit `8bd645e8d` carried a message describing four topic builds and a diff containing
+**249 files of another session's untracked work** — a DOI-resolution script, a MetaGuard
+corpus, manifests. Nothing was lost; every file was an addition. **But the message and the
+diff described different things**, which is the same class as the earlier
+commit-without-content, where a `&&` chain let `git commit` run after the Python step died
+and the message described findings the diff lacked.
+
+**Twice now, from the same underlying cause: the commit was assembled by a command that
+did not name what it was committing.**
+
+Not pushed, so it was split: `3a7c02855` holds the topic work staged by path, and
+`59363e766` holds the foreign files with a message saying plainly that they are not mine,
+that I did not review them, and that they are committed rather than deleted because
+deleting another session's work is not mine to do.
+
+**The rule: stage by path, never `-A`, in a shared tree.** If `git status` is too noisy to
+stage by path, that is the signal to fix `.gitignore` first — not to reach for `-A`, which
+is how the noise becomes permanent.
+
+---
+
+## The classifier searched the whole file and I nearly shipped the number (2026-08-18)
+
+`scripts/pending_vs_impossible.py` first reported **31 topics PENDING**. A spot-check of
+five before reporting found `acs-antiplatelet-review` and `colchicine-cvd-review` in that
+bucket — both of which carry recorded verdicts saying plainly that their trials answer
+different questions. **They are IMPOSSIBLE, not PENDING.**
+
+Cause: the data-gap regex was run against the **entire raw object text**, so any topic that
+merely *mentioned* absent results — including inside a "what this does not establish" note
+— matched. The fix reads only `topic_state`, `which_limb_fails` and `poolable_reason`.
+
+**This is the third instrument artefact in this programme**, after the PAGE_MAP screen that
+claimed "0 of 28 reproducible" and the unregistered-endpoint hand count that was 4–8× low.
+All three had the same shape: **a measurement whose failure mode is to look like a finding.**
+
+**How to apply:** before reporting any number a new script produces, hand-check the three or
+four cases you already know the answer to. Not a sample — the ones you can independently
+verify. A screen that agrees with you on known cases has earned the unknown ones; a screen
+that has never been checked against a known answer has produced a number, not a finding.
