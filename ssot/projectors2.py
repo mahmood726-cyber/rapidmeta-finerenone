@@ -228,7 +228,15 @@ def corpus_card(canon, p):
                     p(str(r.get("title", ""))),
                     p(str(r.get("journal_or_status", ""))),
                     e(str(r.get("year_or_start", ""))), e(str(r.get("stage", ""))),
-                    e(dec), e(str(r.get("axis_failed") or "&mdash;")),
+                    # THE FALLBACK IS MARKUP AND MUST NOT GO THROUGH THE ESCAPER.
+                    # This read e(str(r.get("axis_failed") or "&mdash;")), so
+                    # every screening row with no failed axis served a reader the
+                    # literal characters "&mdash;" -- ten of them on ARNI's
+                    # screening table. Every other em-dash default in these
+                    # projectors sits OUTSIDE e()/p(); this one was inside.
+                    # Escape the DATA, never the markup you have chosen to emit.
+                    e(dec),
+                    (e(str(r["axis_failed"])) if r.get("axis_failed") else "&mdash;"),
                     p(str(r.get("quantity_reported_instead") or "")), NL))
     return ("<div class='card'>%s  <h3>Every record the search retrieved</h3>%s"
             "  <p>%s</p>%s  <table>%s%s  </table>%s  <table>%s"
