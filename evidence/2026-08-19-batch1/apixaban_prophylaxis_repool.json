@@ -1,0 +1,79 @@
+{
+ "topic": "apixaban-vte-prophylaxis",
+ "repooled_utc": "2026-08-19",
+ "estimand_reported": {
+  "definition": "proximal DVT, non-fatal pulmonary embolism, or VTE-related death",
+  "rank_in_each_trial": "SECONDARY in all four",
+  "found_by": "asking the withholding question at EVERY registered rank before concluding the trials do not pool -- the sglt2-hf recovery shape",
+  "titles_read": {
+   "NCT00457002": "Incidence of Adjudicated Proximal DVT, Non-Fatal PE or VTE-Related Death",
+   "NCT00423319": "Rate of Composite of Adjudicated Proximal DVT, Nonfatal PE, VTE-related death",
+   "NCT00371683": "Event Rate for Participants With Proximal DVT/Non-Fatal PE/VTE-Related Death",
+   "NCT00452530": "Rate of Adjudicated Proximal DVT, Nonfatal PE, and VTE-related death"
+  },
+  "k": 4,
+  "rr": 0.7469,
+  "ci_low": 0.4532,
+  "ci_high": 1.2309,
+  "q": 9.314,
+  "df": 3,
+  "tau2": 0.17148,
+  "i2_pct": 67.8,
+  "per_trial": [
+   {
+    "trial": "ADOPT",
+    "events_apixaban": 60,
+    "n_apixaban": 2211,
+    "events_enoxaparin": 67,
+    "n_enoxaparin": 2283,
+    "rr": 0.9247,
+    "ci_low": 0.6559,
+    "ci_high": 1.3036
+   },
+   {
+    "trial": "ADVANCE-3",
+    "events_apixaban": 10,
+    "n_apixaban": 2199,
+    "events_enoxaparin": 25,
+    "n_enoxaparin": 2195,
+    "rr": 0.3993,
+    "ci_low": 0.1922,
+    "ci_high": 0.8293
+   },
+   {
+    "trial": "ADVANCE-1",
+    "events_apixaban": 25,
+    "n_apixaban": 1268,
+    "events_enoxaparin": 17,
+    "n_enoxaparin": 1213,
+    "rr": 1.4068,
+    "ci_low": 0.7636,
+    "ci_high": 2.5919
+   },
+   {
+    "trial": "ADVANCE-2",
+    "events_apixaban": 13,
+    "n_apixaban": 1195,
+    "events_enoxaparin": 26,
+    "n_enoxaparin": 1199,
+    "rr": 0.5017,
+    "ci_low": 0.259,
+    "ci_high": 0.9715
+   }
+  ]
+ },
+ "estimand_declined": {
+  "definition": "each trial's own primary composite -- FOUR DIFFERENT ONES",
+  "why": "ADOPT counts VTE-related death, ADVANCE-1 counts ALL-CAUSE death, and the primary event rates span 1.39% to 8.99% across one drug for one indication. That spread is a fact about what each counted and which surgery, not about apixaban.",
+  "k": 4,
+  "rr": 0.658,
+  "ci_low": 0.4056,
+  "ci_high": 1.0672,
+  "q": 18.3195,
+  "df": 3,
+  "tau2": 0.19574,
+  "i2_pct": 83.6
+ },
+ "what_this_replaces": "THIS REVIEW PREVIOUSLY REPORTED ONE TRIAL'S RESULT AND NOT A POOLED ESTIMATE. Its single included trial, NCT02366871, is n=400 and its registered primaries are MAJOR BLEEDING and clinically relevant non-major bleeding -- so the previous figure was not an estimate of this review's question at all. It now pools four trials and 13,570 participants on an efficacy estimand all four register. This is NOT a delta and must not be presented as one.",
+ "and_the_primary_is_read_by_text_never_by_position": "outcomeMeasures[0] is the MAJOR-VTE SECONDARY for ADVANCE-2 and the PRIMARY for the other three. Taking element zero would have pooled one trial's secondary against three trials' primaries, with nothing malformed anywhere."
+}
