@@ -2209,7 +2209,7 @@
  },
  "precondition_verdict": {
   "assessed_on": "2026-08-19",
-  "standard_version": "1.10.0-2026-08-19",
+  "standard_version": "1.12.0-2026-08-19",
   "authority": {
    "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
    "version": "6.5, 2024",
@@ -2381,7 +2381,7 @@
   }
  },
  "build_stamp": {
-  "page_standard_version": "1.10.0-2026-08-19",
+  "page_standard_version": "1.12.0-2026-08-19",
   "standard_document": "PAGE-STANDARD.md",
   "built_utc": "2026-08-19",
   "built_by": "ssot/build_to_standard.py",
@@ -2435,8 +2435,8 @@
     "reason": "This object records no split provenance. That is CORRECT for a topic whose question was never ambiguous and it is NOT a pass: this builder cannot tell the two apart, so the property is refused with the reason rather than held on an absence. What would settle it: a `split_provenance` block, or an explicit statement that the question admits one reading."
    },
    "P22_sharing_recorded": {
-    "state": "REFUSING",
-    "reason": "2 trial(s) appear in other topics' included sets without being recorded here: {'NCT03057977': ['empagliflozin-hf-auto-full-review'], 'NCT03057951': ['empagliflozin-hf-auto-full-review']}. Sharing is legitimate; UNRECORDED sharing is not, because a corpus-level k obtained by summing per-topic k then double-counts without saying so."
+    "state": "HELD",
+    "reason": "2 shared trial(s), each recorded with the topics holding it and why: NCT03057951 in ['empagliflozin-hf-auto-full-review']; NCT03057977 in ['empagliflozin-hf-auto-full-review']. The object also states that summing per-topic k double-counts."
    },
    "P23_recall_measured": {
     "state": "REFUSING",
@@ -2448,6 +2448,7 @@
    "P19_promotion_reaches_derived_blocks",
    "P1_executed_search",
    "P20_cascade_reconciles",
+   "P22_sharing_recorded",
    "P2_k_cascade",
    "P3_inclusion_criteria",
    "P4_preconditions",
@@ -2457,7 +2458,6 @@
   ],
   "refusing": [
    "P21_ambiguous_question_split",
-   "P22_sharing_recorded",
    "P23_recall_measured",
    "P7_published_comparison"
   ],
@@ -3107,5 +3107,25 @@
     }
    }
   }
+ },
+ "shared_with_other_topics": {
+  "_rule": "P22 -- sharing is legitimate; UNRECORDED sharing is not.",
+  "computed_against": "every other topic object's inputs.trials, recomputed by scripts/record_p22_sharing_2026_08_19.py at write time",
+  "why_this_overlap_exists": "`empagliflozin-hf-auto-full-review` is a single-molecule review inside the class this object pools. EMPEROR-Reduced and EMPEROR-Preserved appear in both by design: they are empagliflozin trials AND SGLT2-inhibitor trials. Legitimate, and unrecorded until P22 computed it.",
+  "shared": {
+   "NCT03057951": {
+    "also_in": [
+     "empagliflozin-hf-auto-full-review"
+    ],
+    "why": "`empagliflozin-hf-auto-full-review` is a single-molecule review inside the class this object pools. EMPEROR-Reduced and EMPEROR-Preserved appear in both by design: they are empagliflozin trials AND SGLT2-inhibitor trials. Legitimate, and unrecorded until P22 computed it."
+   },
+   "NCT03057977": {
+    "also_in": [
+     "empagliflozin-hf-auto-full-review"
+    ],
+    "why": "`empagliflozin-hf-auto-full-review` is a single-molecule review inside the class this object pools. EMPEROR-Reduced and EMPEROR-Preserved appear in both by design: they are empagliflozin trials AND SGLT2-inhibitor trials. Legitimate, and unrecorded until P22 computed it."
+   }
+  },
+  "a_corpus_level_k_must_not_be_obtained_by_summing": "Measured corpus-wide on 2026-08-19: 259 distinct registration identities across 136 objects, 53 of them shared (20.5%), and the sum of per-topic k is 319 against 259 distinct -- SIXTY DOUBLE-COUNTED. This object contributes 2 of that overlap."
  }
 }

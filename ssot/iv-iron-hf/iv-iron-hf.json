@@ -4027,7 +4027,7 @@
  },
  "precondition_verdict": {
   "assessed_on": "2026-08-19",
-  "standard_version": "1.10.0-2026-08-19",
+  "standard_version": "1.12.0-2026-08-19",
   "authority": {
    "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
    "version": "6.5, 2024",
@@ -4219,7 +4219,7 @@
   }
  },
  "build_stamp": {
-  "page_standard_version": "1.10.0-2026-08-19",
+  "page_standard_version": "1.12.0-2026-08-19",
   "standard_document": "PAGE-STANDARD.md",
   "built_utc": "2026-08-19",
   "built_by": "ssot/build_to_standard.py",
@@ -4273,8 +4273,8 @@
     "reason": "This object records no split provenance. That is CORRECT for a topic whose question was never ambiguous and it is NOT a pass: this builder cannot tell the two apart, so the property is refused with the reason rather than held on an absence. What would settle it: a `split_provenance` block, or an explicit statement that the question admits one reading."
    },
    "P22_sharing_recorded": {
-    "state": "REFUSING",
-    "reason": "3 trial(s) appear in other topics' included sets without being recorded here: {'NCT02937454': ['fcm-hf-review'], 'NCT02642562': ['fcm-hf-review'], 'NCT01453608': ['fcm-hf-review']}. Sharing is legitimate; UNRECORDED sharing is not, because a corpus-level k obtained by summing per-topic k then double-counts without saying so."
+    "state": "HELD",
+    "reason": "3 shared trial(s), each recorded with the topics holding it and why: NCT01453608 in ['fcm-hf-review']; NCT02642562 in ['fcm-hf-review']; NCT02937454 in ['fcm-hf-review']. The object also states that summing per-topic k double-counts."
    },
    "P23_recall_measured": {
     "state": "REFUSING",
@@ -4286,6 +4286,7 @@
    "P19_promotion_reaches_derived_blocks",
    "P1_executed_search",
    "P20_cascade_reconciles",
+   "P22_sharing_recorded",
    "P2_k_cascade",
    "P3_inclusion_criteria",
    "P4_preconditions",
@@ -4296,7 +4297,6 @@
   ],
   "refusing": [
    "P21_ambiguous_question_split",
-   "P22_sharing_recorded",
    "P23_recall_measured"
   ],
   "_ratchet": "This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant."
@@ -4576,5 +4576,31 @@
     "ELIGIBLE_NOT_POOLABLE": 6
    }
   }
+ },
+ "shared_with_other_topics": {
+  "_rule": "P22 -- sharing is legitimate; UNRECORDED sharing is not.",
+  "computed_against": "every other topic object's inputs.trials, recomputed by scripts/record_p22_sharing_2026_08_19.py at write time",
+  "why_this_overlap_exists": "`fcm-hf-review` is a ferric-carboxymaltose review over the same heart-failure trial programme. THE OVERLAP IS REAL AND WAS UNRECORDED ON BOTH SIDES: two objects, three shared trials, neither aware of the other. It is not a duplicate of this review -- its question is narrower, one preparation rather than the intravenous-iron class -- but any count that adds the two together counts AFFIRM-AHF and its companions twice.",
+  "shared": {
+   "NCT01453608": {
+    "also_in": [
+     "fcm-hf-review"
+    ],
+    "why": "`fcm-hf-review` is a ferric-carboxymaltose review over the same heart-failure trial programme. THE OVERLAP IS REAL AND WAS UNRECORDED ON BOTH SIDES: two objects, three shared trials, neither aware of the other. It is not a duplicate of this review -- its question is narrower, one preparation rather than the intravenous-iron class -- but any count that adds the two together counts AFFIRM-AHF and its companions twice."
+   },
+   "NCT02642562": {
+    "also_in": [
+     "fcm-hf-review"
+    ],
+    "why": "`fcm-hf-review` is a ferric-carboxymaltose review over the same heart-failure trial programme. THE OVERLAP IS REAL AND WAS UNRECORDED ON BOTH SIDES: two objects, three shared trials, neither aware of the other. It is not a duplicate of this review -- its question is narrower, one preparation rather than the intravenous-iron class -- but any count that adds the two together counts AFFIRM-AHF and its companions twice."
+   },
+   "NCT02937454": {
+    "also_in": [
+     "fcm-hf-review"
+    ],
+    "why": "`fcm-hf-review` is a ferric-carboxymaltose review over the same heart-failure trial programme. THE OVERLAP IS REAL AND WAS UNRECORDED ON BOTH SIDES: two objects, three shared trials, neither aware of the other. It is not a duplicate of this review -- its question is narrower, one preparation rather than the intravenous-iron class -- but any count that adds the two together counts AFFIRM-AHF and its companions twice."
+   }
+  },
+  "a_corpus_level_k_must_not_be_obtained_by_summing": "Measured corpus-wide on 2026-08-19: 259 distinct registration identities across 136 objects, 53 of them shared (20.5%), and the sum of per-topic k is 319 against 259 distinct -- SIXTY DOUBLE-COUNTED. This object contributes 3 of that overlap."
  }
 }

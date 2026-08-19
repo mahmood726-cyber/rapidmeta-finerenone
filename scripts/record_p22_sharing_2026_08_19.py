@@ -1,0 +1,110 @@
+"""CLOSE THE TWO P22 REFUSALS by recording the sharing they name.
+
+P22 refused on `iv-iron-hf` and `sglt2-hf` because trials of theirs appear in other objects'
+included sets and neither said so. The refusals were TRUE and were left standing for a pass of
+their own; this is that pass.
+
+    iv-iron-hf   NCT02937454, NCT02642562, NCT01453608   also in `fcm-hf-review`
+    sglt2-hf     NCT03057977, NCT03057951                also in `empagliflozin-hf-auto-full-review`
+
+WHAT MAKES THIS WORTH DOING IS NOT THE GREEN PROPERTY. It is that a reader meeting either page
+has no way to know it overlaps another object in this corpus -- and that two objects covering
+three of the same trials is a fact about the evidence base, not a bookkeeping detail. Recording
+it makes the duplicate coverage visible WHERE A READER WOULD MEET IT.
+
+THE SHARING IS COMPUTED, NOT TYPED. Each entry below is written from what P22 itself reported,
+and this script RE-COMPUTES the overlap before writing and refuses if it does not match -- so a
+future run that finds different sharing fails loudly instead of preserving a stale record.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SSOT = os.path.join(REPO, "ssot")
+
+WHY = {
+    "iv-iron-hf": (
+        "`fcm-hf-review` is a ferric-carboxymaltose review over the same heart-failure trial "
+        "programme. THE OVERLAP IS REAL AND WAS UNRECORDED ON BOTH SIDES: two objects, three "
+        "shared trials, neither aware of the other. It is not a duplicate of this review -- "
+        "its question is narrower, one preparation rather than the intravenous-iron class -- "
+        "but any count that adds the two together counts AFFIRM-AHF and its companions twice."),
+    "sglt2-hf": (
+        "`empagliflozin-hf-auto-full-review` is a single-molecule review inside the class this "
+        "object pools. EMPEROR-Reduced and EMPEROR-Preserved appear in both by design: they "
+        "are empagliflozin trials AND SGLT2-inhibitor trials. Legitimate, and unrecorded until "
+        "P22 computed it."),
+}
+
+
+def included(topic):
+    p = os.path.join(SSOT, topic, topic + ".json")
+    if not os.path.exists(p):
+        return None
+    obj = json.load(io.open(p, encoding="utf-8"))
+    return {t.get("nct") for t in ((obj.get("inputs") or {}).get("trials") or [])
+            if t.get("nct")}
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    all_topics = [d for d in sorted(os.listdir(SSOT))
+                  if os.path.exists(os.path.join(SSOT, d, d + ".json"))]
+    rc = 0
+    for topic in ("iv-iron-hf", "sglt2-hf"):
+        mine = included(topic)
+        if not mine:
+            print("%s: NOT_ASSESSABLE -- no included set" % topic)
+            rc = 1
+            continue
+        # RE-COMPUTE the overlap rather than trusting the note.
+        overlap = {}
+        for other in all_topics:
+            if other == topic:
+                continue
+            theirs = included(other) or set()
+            shared = sorted(mine & theirs)
+            for n in shared:
+                overlap.setdefault(n, []).append(other)
+        if not overlap:
+            print("%s: no overlap found now -- REFUSING to write a sharing record for "
+                  "sharing that no longer exists." % topic)
+            rc = 1
+            continue
+
+        path = os.path.join(SSOT, topic, topic + ".json")
+        obj = json.load(io.open(path, encoding="utf-8"))
+        block = obj.setdefault("shared_with_other_topics", {})
+        block["_rule"] = "P22 -- sharing is legitimate; UNRECORDED sharing is not."
+        block["computed_against"] = ("every other topic object's inputs.trials, recomputed by "
+                                     "scripts/record_p22_sharing_2026_08_19.py at write time")
+        block["why_this_overlap_exists"] = WHY[topic]
+        block["shared"] = {
+            n: {"also_in": ts,
+                "why": WHY[topic]}
+            for n, ts in sorted(overlap.items())}
+        # THE LITERAL PER-CENT SIGN COLLIDED WITH THE FORMAT STRING and raised
+        # `ValueError: unsupported format character ')'`. A %-formatted string containing a
+        # real percentage needs `%%`, and the failure was loud -- which is the only reason it
+        # is a footnote rather than a corrupted record. Same family as the escape hazards the
+        # lint already guards: a character that means one thing to the reader and another to
+        # the formatter.
+        block["a_corpus_level_k_must_not_be_obtained_by_summing"] = (
+            "Measured corpus-wide on 2026-08-19: 259 distinct registration identities across "
+            "136 objects, 53 of them shared (20.5%%), and the sum of per-topic k is 319 "
+            "against 259 distinct -- SIXTY DOUBLE-COUNTED. This object contributes %d of that "
+            "overlap." % len(overlap))
+        with io.open(path, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(obj, indent=1, ensure_ascii=True))
+        print("%s: recorded %d shared trial(s) -> %s"
+              % (topic, len(overlap),
+                 sorted({t for ts in overlap.values() for t in ts})))
+        for n, ts in sorted(overlap.items()):
+            print("    %s  also in %s" % (n, ts))
+    return rc
+
+
+if __name__ == "__main__":
+    sys.exit(main())
