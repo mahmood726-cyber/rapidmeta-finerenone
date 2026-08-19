@@ -51,6 +51,49 @@ TOPIC_SYNONYMS = {
                        "etc-1002", "etc 1002", "esp15228"],
     "bococizumab": ["bococizumab", "pf-04950615", "pf 04950615", "rn316", "rn-316"],
     "bosentan": ["bosentan", "tracleer", "ro 47-0203", "ro47-0203"],
+    # A STRATEGY TOPIC, AND THE THIRD KIND IN THIS TABLE.
+    #
+    # `sglt2 inhibitors` and `intravenous iron` are CLASS topics enumerated as molecules.
+    # This is different again: the intervention is a MANAGEMENT STRATEGY that may be delivered
+    # by a drug, by a procedure, or by both in the same arm.
+    #
+    #     EAST-AFNET 4  'Other: early standardised rhythm control'   -- the strategy, named
+    #     RAFT-AF       'Procedure: Rhythm control'                  -- the strategy, named
+    #     CASTLE-AF     'Procedure: Radiofrequency ablation'         -- a COMPONENT
+    #     CABANA        'Device: Left atrial ablation'               -- a COMPONENT
+    #
+    # WHY THIS EXISTS AT ALL: all three reviews split out of `ablation-af-review` were given
+    # the SAME topic key, `catheter ablation`. For the rhythm-control review that is the wrong
+    # identity set, and the symptom was measured before it was diagnosed -- kNA of 202 against
+    # the sibling's 45 over a near-identical surfaced set. ASKING AN ABLATION QUESTION OF
+    # STRATEGY TRIALS, and the refusals were the instrument saying so.
+    #
+    # THE SET COVERS THE STRATEGY AND ITS COMPONENTS, AND THAT IS DELIBERATE. A trial that
+    # delivers rhythm control BY ablation is a rhythm-control trial; identity must find it.
+    # WHETHER THE STRATEGY IS WHAT WAS RANDOMISED IS A SCREENING QUESTION, NOT AN IDENTITY
+    # ONE -- a trial of sedation during an ablation contains a component and is not a
+    # rhythm-control trial, and no synonym set can tell those apart. That division is why the
+    # criteria block carries the contrast test and this table does not.
+    #
+    # BARE `ablation` IS DELIBERATELY ABSENT. It is in the `catheter ablation` set and it cost
+    # 150 false movements in one topic on 2026-08-19, because it appears in the arm labels of
+    # most trials in the field -- and here it would additionally pull in AV-node ablation,
+    # which is RATE control and the opposite of this strategy.
+    "rhythm control strategy": [
+        # the strategy, as registrants name it
+        "rhythm control", "rhythm-control", "early rhythm control",
+        "early standardised rhythm control", "early standardized rhythm control",
+        "sinus rhythm restoration", "restoration of sinus rhythm", "maintenance of sinus rhythm",
+        # delivered by ablation -- QUALIFIED forms only
+        "catheter ablation", "pulmonary vein isolation", "left atrial ablation",
+        "radiofrequency ablation", "cryoballoon ablation", "cryoablation",
+        "pulsed field ablation", "pulsed-field ablation",
+        # delivered by cardioversion
+        "cardioversion", "electrical cardioversion", "direct current cardioversion",
+        # delivered by drugs
+        "antiarrhythmic", "anti-arrhythmic", "amiodarone", "dronedarone", "flecainide",
+        "propafenone", "sotalol", "dofetilide",
+    ],
     # A CLASS TOPIC, ENUMERATED AS MOLECULES. The topic is "SGLT2 inhibitors", but searching
     # or matching on the class name is the error `lessons.md` records under CT.gov queries:
     # registries name the drug, not the class. So the class is expanded here into its members
