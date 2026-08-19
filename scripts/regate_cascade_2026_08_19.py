@@ -152,7 +152,15 @@ def raw_search(expr, page_size=1000):
                 ids.append(nct)
         pages += 1
         token = payload.get("nextPageToken")
-        total = payload.get("totalCount")
+        # FROM THE FIRST PAGE ONLY. `countTotal=true` populates totalCount on the first
+        # response and returns null on later ones, so reading it here reported
+        # `returned==totalCount: False` on a complete multi-page fetch. Every query this file
+        # runs fits in one page, so the last page WAS the first and the defect could not
+        # show -- it was found on a two-page query in scripts/search_ablation_split.
+        # A guard that has only ever run on single-page inputs has not been tested on the
+        # case it exists for.
+        if pages == 1:
+            total = payload.get("totalCount")
         if not token:
             return (X.OK, ids,
                     f"{len(ids)} ids over {pages} page(s), totalCount={total}, "
