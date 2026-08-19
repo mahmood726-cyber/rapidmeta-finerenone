@@ -169,6 +169,72 @@ difference here is 3 versus 135.
 
 ---
 
+## A NULL CURSOR IS NOT A PROOF — the converse of class 20, and it was never tested
+
+**Read this beside the transport finding.** Class 20 established one direction and the corpus
+then assumed the other for free.
+
+| | |
+|---|---|
+| **established** (class 20) | a **live** `next_page_token` means the search is **incomplete** |
+| **assumed ever since** | a **null** token means the search is **complete** |
+
+**The second was never tested**, because on `colchicine-cvd-review` both proofs agreed —
+`100 + 37 = 137 == totalCount`, cursor null — so the weaker one always had the stronger one
+standing behind it.
+
+> **On `acs-antiplatelet-review` they disagreed.** `100 + 100 + 3 = 203` records returned with
+> the cursor **null**, against a reported `totalCount` of **430**.
+>
+> **227 records the pagination never returned, while the cursor said it was done.**
+
+**THE PROOF IS THE SUM ACROSS PAGES RECONCILED AGAINST `totalCount`. THE NULL CURSOR IS
+CORROBORATION AND NEVER THE PROOF.** *Why* the API stopped early is **not diagnosed** — a
+server-side cap, a differently-scoped total, something else. The discrepancy is recorded rather
+than explained, because writing down a guessed cause is worse than naming the gap.
+
+**And it is P16's fourth clause once more:** the reconciliation check existed and had never had
+an opportunity to fail. A guard whose triggering condition has never arisen is unproven however
+green it reads.
+
+### The damage was bounded before anything else was built
+
+`scripts/audit_null_cursor_evidence.py` re-checked **every search row in the corpus** — 46 rows
+across 18 objects and 6 evidence records — asking which evidence each one actually rests on:
+
+| state | rows |
+|---|---:|
+| **RECONCILES** — `returned == total`, so the proof holds regardless of the cursor | **30** |
+| SHORTFALL_DECLARED — legitimate under class 20 | 8 |
+| NOT_EXECUTED — a database the row records as not searched | 6 |
+| NOT_ASSESSABLE — states neither count | 2 |
+| **CURSOR_ONLY_UNPROVEN** | **0** |
+| **SHORTFALL_UNDECLARED** | **0** |
+| **topics with a built page resting on an unproven row** | **0** |
+
+**No delivered page rests on a null cursor alone.** The exposure is confined to
+`acs-antiplatelet-review`, which declared its shortfall and on which **nothing was built**.
+
+`scripts/verify_search_record_reconciles.py` gains the verdict
+`CURSOR_SAID_DONE_BUT_THE_SUM_DOES_NOT_RECONCILE`, which runs even when a record lists no
+identifiers — page counts and a total are enough. **And an absent token field is not a null
+one:** reading a missing `next_page_token` as *"the cursor said done"* would convict a record of
+a proof it never offered. Silence is not a claim.
+
+### The audit's own five false readings, kept as the lesson
+
+Its first run reported **five NOT_ASSESSABLE rows** — `arni-hfref` twice and three colchicine
+records. **All five were the audit failing to look**, not the corpus failing to record:
+`arni-hfref` spells them `hit_count` / `records_retrieved`, and two records nest theirs under
+`counts` and `PAGINATION_SHORTFALL_DECLARED`.
+
+> **That is class 25 inside the instrument written to bound class 20.** Chasing key names is
+> endless and is itself the trap, so the durable fix is the one that works on every form of it:
+> **a NOT_ASSESSABLE now prints the keys the row actually has and the keys it looked for.** An
+> unassessable verdict that does not say what it looked at is not refutable.
+
+---
+
 ## THE SECOND HEADLINE — 80 of 135 topics state a question at all
 
 **Measured 2026-08-19, and measured only because a blind cross-family reader said so without
