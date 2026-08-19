@@ -1,0 +1,645 @@
+{
+ "audited_utc": "2026-08-19",
+ "the_reasoning_this_generalises": "A timestamp answers WHEN WAS THIS MADE, which is not the question. The question is DO THE SOURCES STILL SAY WHAT THIS WAS BUILT FROM. A regenerated snapshot with a fresh timestamp and a stale withdrawal passes a date check and fails a fingerprint check.",
+ "why_the_first_number_was_wrong": "A first pass counted 2,210 artefacts carrying a date and no fingerprint. Almost all are `evidence/` moment-records -- a search executed on a date, a screen run on a date. FOR A MOMENT-RECORD A DATE IS THE WHOLE POINT and going out of date is the passage of time, not a defect. 2,210 would have been a large alarming number measuring nothing.",
+ "artefacts_consumed_by_code": 55,
+ "moment_records_excluded_by_path": 5,
+ "carrying_a_fingerprint": 1,
+ "DEFENDED_ONLY_BY_A_DATE": 6,
+ "carrying_neither": 48,
+ "what_this_undercounts": "Consumption is detected from STRING LITERALS in .py and .html. A path built by concatenation, a glob, or a variable is invisible here. A clean run is a FLOOR.",
+ "and_what_it_does_NOT_claim": "NOT that every artefact listed needs a fingerprint. An artefact whose sources cannot change, or that is regenerated on every read, does not. The list is the question, never the verdict -- the same rule this corpus applies to an identical trial set.",
+ "rows": [
+  {
+   "artefact": "PUBLISHED_META_BENCHMARKS.json",
+   "consumers": [
+    "index.html",
+    "scripts\\audit_derived_artefact_staleness.py",
+    "scripts\\benchmark_served_as_own_result_sweep.py",
+    "scripts\\lint_pmid_names_two_trials.py"
+   ],
+   "n_consumers": 4,
+   "carries_a_date": true,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": true,
+   "bytes": 95680
+  },
+  {
+   "artefact": "cardiology_mortality_atlas.json",
+   "consumers": [
+    "cardiology_mortality_atlas.py",
+    "ctgov_deep_mining.py",
+    "ctgov_integration_report.py",
+    "cv_death_subatlas.py"
+   ],
+   "n_consumers": 4,
+   "carries_a_date": true,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": true,
+   "bytes": 37452
+  },
+  {
+   "artefact": "outputs/r_validation/index.json",
+   "consumers": [
+    "dashboard.html",
+    "scripts\\audit_unvalidated.py",
+    "scripts\\cleanup_orphan_r_badge.py",
+    "scripts\\inject_r_validation.py"
+   ],
+   "n_consumers": 4,
+   "carries_a_date": true,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": true,
+   "bytes": 242
+  },
+  {
+   "artefact": "ssot/arni-hfref/arni-hfref.json",
+   "consumers": [
+    "scripts\\prove_vanish_invariant.py",
+    "ssot\\add_availability_blocks.py",
+    "ssot\\add_f1000_fields.py",
+    "ssot\\apply_k4.py"
+   ],
+   "n_consumers": 4,
+   "carries_a_date": true,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": true,
+   "bytes": 723598
+  },
+  {
+   "artefact": "ctgov_mining_results.json",
+   "consumers": [
+    "ctgov_deep_mining.py",
+    "ctgov_integration_report.py",
+    "cv_death_subatlas.py"
+   ],
+   "n_consumers": 3,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 123638
+  },
+  {
+   "artefact": "outputs/aact_baselines.json",
+   "consumers": [
+    "scripts\\aact_baselines.py",
+    "scripts\\build_portfolio_index.py",
+    "scripts\\inject_aact_baselines.py"
+   ],
+   "n_consumers": 3,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 20937
+  },
+  {
+   "artefact": "outputs/portfolio_index.json",
+   "consumers": [
+    "dashboard.html",
+    "scripts\\audit_derived_artefact_staleness.py",
+    "scripts\\build_portfolio_index.py"
+   ],
+   "n_consumers": 3,
+   "carries_a_date": true,
+   "carries_a_fingerprint": true,
+   "defended_only_by_a_date": false,
+   "bytes": 755000
+  },
+  {
+   "artefact": "outputs/trial_integrity.json",
+   "consumers": [
+    "dashboard.html",
+    "scripts\\build_portfolio_index.py",
+    "scripts\\compute_trial_integrity.py"
+   ],
+   "n_consumers": 3,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 211461
+  },
+  {
+   "artefact": "STANDARD_EXCEPTIONS.json",
+   "consumers": [
+    "scripts\\durable_artefact_gate.py",
+    "scripts\\regression_check.py"
+   ],
+   "n_consumers": 2,
+   "carries_a_date": true,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": true,
+   "bytes": 7281
+  },
+  {
+   "artefact": "ctgov_ptau217_ad_pack_2026-04-28.json",
+   "consumers": [
+    "HSCTN_NSTEMI_DTA_REVIEW.html",
+    "PTAU217_AD_DTA_REVIEW.html"
+   ],
+   "n_consumers": 2,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 1888
+  },
+  {
+   "artefact": "pending_config_updates.json",
+   "consumers": [
+    "apply_pending_updates.py",
+    "review_extractions.py"
+   ],
+   "n_consumers": 2,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 4107
+  },
+  {
+   "artefact": "pubmed_ptau217_ad_abstracts_2026-04-28.json",
+   "consumers": [
+    "HSCTN_NSTEMI_DTA_REVIEW.html",
+    "PTAU217_AD_DTA_REVIEW.html"
+   ],
+   "n_consumers": 2,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 10813
+  },
+  {
+   "artefact": "r_validation_log_ptau217_ad.json",
+   "consumers": [
+    "HSCTN_NSTEMI_DTA_REVIEW.html",
+    "PTAU217_AD_DTA_REVIEW.html"
+   ],
+   "n_consumers": 2,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 1620
+  },
+  {
+   "artefact": "ssot/PAGE_MAP.json",
+   "consumers": [
+    "scripts\\audit_derived_artefact_staleness.py",
+    "scripts\\durable_artefact_gate.py"
+   ],
+   "n_consumers": 2,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 11395
+  },
+  {
+   "artefact": "/tmp/regression_results.json",
+   "consumers": [
+    "scripts\\regression_check.py"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 527
+  },
+  {
+   "artefact": "ARTEFACT-MANIFEST.json",
+   "consumers": [
+    "scripts\\artefact_registry.py"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 64770
+  },
+  {
+   "artefact": "cross_validation_report.json",
+   "consumers": [
+    "cross_validate.py"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": true,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": true,
+   "bytes": 3171
+  },
+  {
+   "artefact": "ctgov_covid_antigen_pack_2026-04-28.json",
+   "consumers": [
+    "COVID_ANTIGEN_DTA_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 1326
+  },
+  {
+   "artefact": "ctgov_ddimer_pe_pack_2026-04-28.json",
+   "consumers": [
+    "DDIMER_PE_DTA_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 2518
+  },
+  {
+   "artefact": "ctgov_genexpert_ultra_pack_2026-04-27.json",
+   "consumers": [
+    "GENEXPERT_ULTRA_TB_DTA_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 9736
+  },
+  {
+   "artefact": "ctgov_mining_inventory.json",
+   "consumers": [
+    "ctgov_deep_mining.py"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 5160
+  },
+  {
+   "artefact": "ctgov_mpmri_prostate_pack_2026-04-28.json",
+   "consumers": [
+    "MPMRI_PROSTATE_DTA_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 2420
+  },
+  {
+   "artefact": "cv_death_subatlas.json",
+   "consumers": [
+    "cv_death_subatlas.py"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 7447
+  },
+  {
+   "artefact": "evidence/LEDGER.json",
+   "consumers": [
+    "scripts\\migrate_effect_keys.py"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 1637620
+  },
+  {
+   "artefact": "findings/pmid_groups.json",
+   "consumers": [
+    "scripts\\audit_pmid_groups.py"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 48479
+  },
+  {
+   "artefact": "outputs/corpus_partition.json",
+   "consumers": [
+    "scripts\\audit_surface_census.py"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 45650
+  },
+  {
+   "artefact": "outputs/k4_registered_analysis.json",
+   "consumers": [
+    "ssot\\apply_k4.py"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 1647
+  },
+  {
+   "artefact": "outputs/new_topics/AVACINCAPTAD_GA_AUTO_2.json",
+   "consumers": [
+    "AVACINCAPTAD_GA_AUTO_2.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 8190
+  },
+  {
+   "artefact": "outputs/new_topics/AVACOPAN_ANCA_REVIEW.json",
+   "consumers": [
+    "AVACOPAN_ANCA_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 4264
+  },
+  {
+   "artefact": "outputs/new_topics/DACOMITINIB_LUNG_AUTO_2.json",
+   "consumers": [
+    "DACOMITINIB_LUNG_AUTO_2.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 9732
+  },
+  {
+   "artefact": "outputs/new_topics/ELRANATAMAB_MM_REVIEW.json",
+   "consumers": [
+    "ELRANATAMAB_MM_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 5359
+  },
+  {
+   "artefact": "outputs/new_topics/LIGELIZUMAB_URTICARIA_AUTO_2.json",
+   "consumers": [
+    "LIGELIZUMAB_URTICARIA_AUTO_2.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 13718
+  },
+  {
+   "artefact": "outputs/new_topics/MARALIXIBAT_PFIC_REVIEW.json",
+   "consumers": [
+    "MARALIXIBAT_PFIC_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 4141
+  },
+  {
+   "artefact": "outputs/new_topics/MIRVETUXIMAB_OVARIAN_REVIEW.json",
+   "consumers": [
+    "MIRVETUXIMAB_OVARIAN_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 3996
+  },
+  {
+   "artefact": "outputs/new_topics/MOMELOTINIB_MF_AUTO_2.json",
+   "consumers": [
+    "MOMELOTINIB_MF_AUTO_2.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 10431
+  },
+  {
+   "artefact": "outputs/new_topics/NEMOLIZUMAB_PRURIGO_REVIEW.json",
+   "consumers": [
+    "NEMOLIZUMAB_PRURIGO_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 3291
+  },
+  {
+   "artefact": "outputs/new_topics/ODEVIXIBAT_PFIC_REVIEW.json",
+   "consumers": [
+    "ODEVIXIBAT_PFIC_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 4124
+  },
+  {
+   "artefact": "outputs/new_topics/OLUTASIDENIB_AML_REVIEW.json",
+   "consumers": [
+    "OLUTASIDENIB_AML_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 2753
+  },
+  {
+   "artefact": "outputs/new_topics/PACRITINIB_MF_AUTO_2.json",
+   "consumers": [
+    "PACRITINIB_MF_AUTO_2.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 9577
+  },
+  {
+   "artefact": "outputs/new_topics/PEMBROLIZUMAB_KIDNEY_ADJ_AUTO_2.json",
+   "consumers": [
+    "PEMBROLIZUMAB_KIDNEY_ADJ_AUTO_2.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 9886
+  },
+  {
+   "artefact": "outputs/new_topics/RELUGOLIX_FIBROIDS_AUTO_2.json",
+   "consumers": [
+    "RELUGOLIX_FIBROIDS_AUTO_2.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 13831
+  },
+  {
+   "artefact": "outputs/new_topics/SELPERCATINIB_RET_REVIEW.json",
+   "consumers": [
+    "SELPERCATINIB_RET_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 3786
+  },
+  {
+   "artefact": "outputs/new_topics/SUTIMLIMAB_CAD_REVIEW.json",
+   "consumers": [
+    "SUTIMLIMAB_CAD_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 4071
+  },
+  {
+   "artefact": "outputs/new_topics/TEZEPELUMAB_ASTHMA_REVIEW.json",
+   "consumers": [
+    "TEZEPELUMAB_ASTHMA_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 7759
+  },
+  {
+   "artefact": "outputs/new_topics/TOFERSEN_SOD1_ALS_REVIEW.json",
+   "consumers": [
+    "TOFERSEN_SOD1_ALS_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 3729
+  },
+  {
+   "artefact": "outputs/new_topics/VAMOROLONE_DMD_REVIEW.json",
+   "consumers": [
+    "VAMOROLONE_DMD_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 3758
+  },
+  {
+   "artefact": "outputs/new_topics/VOXELOTOR_SCD_AUTO_2.json",
+   "consumers": [
+    "VOXELOTOR_SCD_AUTO_2.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 10717
+  },
+  {
+   "artefact": "outputs/new_topics/ZURANOLONE_PPD_MDD_REVIEW.json",
+   "consumers": [
+    "ZURANOLONE_PPD_MDD_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 4249
+  },
+  {
+   "artefact": "pubmed_covid_antigen_abstracts_2026-04-28.json",
+   "consumers": [
+    "COVID_ANTIGEN_DTA_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 9309
+  },
+  {
+   "artefact": "pubmed_ddimer_pe_abstracts_2026-04-28.json",
+   "consumers": [
+    "DDIMER_PE_DTA_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 11610
+  },
+  {
+   "artefact": "pubmed_genexpert_ultra_abstracts_2026-04-27.json",
+   "consumers": [
+    "GENEXPERT_ULTRA_TB_DTA_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 7534
+  },
+  {
+   "artefact": "pubmed_mpmri_prostate_abstracts_2026-04-28.json",
+   "consumers": [
+    "MPMRI_PROSTATE_DTA_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 9777
+  },
+  {
+   "artefact": "r_validation_log.json",
+   "consumers": [
+    "GENEXPERT_ULTRA_TB_DTA_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 3669
+  },
+  {
+   "artefact": "r_validation_log_genexpert_ultra_tb.json",
+   "consumers": [
+    "GENEXPERT_ULTRA_TB_DTA_REVIEW.html"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 3669
+  },
+  {
+   "artefact": "scripts/pmid_results/lookup.json",
+   "consumers": [
+    "scripts\\lint_pmid_names_two_trials.py"
+   ],
+   "n_consumers": 1,
+   "carries_a_date": false,
+   "carries_a_fingerprint": false,
+   "defended_only_by_a_date": false,
+   "bytes": 32704
+  }
+ ]
+}
