@@ -30,6 +30,7 @@ from apx_topic_data import APX_CASCADE, APX_EXTRACTION, APX_PRISMA, APX_SEARCH
 from apx_split_topic_data import (APXP_CASCADE, APXP_EXTRACTION, APXP_PRISMA, APXP_SEARCH,
                                   APXT_CASCADE, APXT_EXTRACTION, APXT_PRISMA, APXT_SEARCH)
 from boco_topic_data import BOCO_CASCADE, BOCO_EXTRACTION, BOCO_PRISMA, BOCO_SEARCH
+from azl_topic_data import AZL_CASCADE, AZL_EXTRACTION, AZL_PRISMA, AZL_SEARCH
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 PAGE_STANDARD_VERSION = "1.14.0-2026-08-19"
@@ -522,6 +523,11 @@ TOPIC_DATA = {
                                  "k_cascade": BOCO_CASCADE,
                                  "primary_outcome_key": "ldlc_pct_change_wk12",
                                  "extraction": BOCO_EXTRACTION},
+    # SEARCHED FOR THE FIRST TIME 2026-08-19. Its question was already a question and its
+    # estimate did not move; what it gained is evidence that its two trials are the only two.
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz": {
+        "search": AZL_SEARCH, "prisma": AZL_PRISMA, "k_cascade": AZL_CASCADE,
+        "primary_outcome_key": "sbp_change_wk8", "extraction": AZL_EXTRACTION},
     "iv-iron-hf": {"search": IVI_SEARCH, "prisma": IVI_PRISMA,
                    "k_cascade": IVI_CASCADE,
                    "primary_outcome_key": "hfh_cvd_recurrent",
