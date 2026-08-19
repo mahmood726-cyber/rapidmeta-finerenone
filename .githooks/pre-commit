@@ -23,6 +23,13 @@ R="$(git rev-parse --show-toplevel)"
 python "$R/scripts/lint_control_chars.py"   >/dev/null || { echo "REFUSED: control characters in tracked text (scripts/lint_control_chars.py)"; exit 1; }
 python "$R/scripts/lint_escape_hazards.py"  >/dev/null || { echo "REFUSED: escape hazards in pattern literals (scripts/lint_escape_hazards.py)"; exit 1; }
 
+# RESTRAINT (E4). Every other check here catches overreach. This one catches an instrument
+# REFUSING where an independent instrument decides -- the class that silently shrank evidence
+# bases corpus-wide and that no guard could see, because withholding leaves no trace in the
+# object. A ratchet: findings are DISAGREEMENTS to adjudicate, not proven defects, so it blocks
+# on an increase rather than on a nonzero count.
+python "$R/scripts/lint_restraint.py" >/dev/null || { echo "REFUSED: new restraint candidate(s) -- an instrument refuses where an independent one decides (scripts/lint_restraint.py)"; exit 1; }
+
 # IDENTIFIERS FROM RECALL. A recalled id in a build makes a wrong value; in an AUDIT it makes
 # an accusation, and nothing audits the auditor. Exit 2 = empty vocabulary, which is a broken
 # instrument, not a pass.

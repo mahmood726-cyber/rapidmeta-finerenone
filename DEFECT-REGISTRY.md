@@ -13,6 +13,45 @@ The night's central finding is the reason this file exists:
 So the exposures below are weighted toward instruments, and the proof standard is aimed at
 instruments: an instrument that has never been observed to fail is not known to be able to.
 
+---
+
+## The transport finding — read this before anything else here
+
+**The single most useful result of the night, because it explains eight separate instances at
+once and overturns every previous account of them.**
+
+Heredoc mangling had been recorded eight times as an *author* failure: someone wrote `\b`
+through a shell, the shell ate the escape, the rule says don't do that. Every previous write-up
+of this class — including ones written by the author who then breached it again — located the
+fault in the person.
+
+That account is **wrong**, and it was tested rather than argued:
+
+| What was written | How | Bytes that arrived |
+|---|---|---|
+| `\\b` inside `<<'PY'` — a **quoted** heredoc, which **cannot shell-expand** | shell transport | `0x08` — mangled |
+| the same two characters | file-writing tool | `\` `b` — intact, confirmed by `od -c` |
+
+**The corruption is in the transport, not in the shell.** A quoted delimiter is the standard
+remedy for escape mangling and it does not work here, because expansion was never the mechanism.
+
+Three things follow, and they are the reason this sits at the top:
+
+1. **It explains the recurrence.** The class kept being breached by people who knew the rule
+   because knowing the rule did not help — the remedy everyone reaches for (quote the
+   delimiter) is ineffective against the actual mechanism.
+2. **It converts a discipline into a mechanism.** "Write files directly" was previously advice,
+   and advice failed eight times. It is now the only transport observed to preserve the bytes,
+   which is a *fact about the tools*, not a request for care.
+3. **It relocates the blame correctly.** Eight instances were recorded against authors who had
+   done nothing wrong except use a channel that silently corrupts. Any registry entry that
+   blames an author for this class is misfiled.
+
+The class reproduced itself **live, in this repo, while the detector for it was being written**
+— which is how the diagnosis was obtained at all.
+
+Detectors §1 and §2 below cover the two halves of what this transport produces.
+
 ## The proof standard
 
 Every entry claiming a detector must satisfy three parts, **each a command someone else can
@@ -282,8 +321,45 @@ string nothing ever writes and passing everything forever.
 compared against object fields, and report any that appear zero times in `ssot/**/*.json`.
 Not built tonight; named rather than implied.
 
-### E4. Withholding
+### E4. Withholding — **now PARTIAL, no longer open**
 > **Every guard we have catches overreach; nothing catches restraint.**
+
+That sentence was written as a limitation. `scripts/lint_restraint.py` is the attempt to stop it
+being one, built on the only method that has actually worked against this class: **two
+independent instruments over the same object, where a refusal by one and a decision by the
+other is a candidate for review rather than a safe default.**
+
+`NOT_ASSESSABLE` remains the correct third state. The claim is narrower: a refusal is safe only
+where *nothing else can decide*. Where something else **has** decided, the refusal is a
+disagreement, and an unexamined disagreement is indistinguishable from a silent loss.
+
+- **Lane 1** the object *includes* a trial (a recorded screening decision); `locate()`
+  independently classifies the same registration from the raw payload. Anything but
+  `experimental` is the AFFIRM-AHF/HEART-FID signature
+- **Lane 2** a precondition returns `NOT_ASSESSABLE` citing absence while the field it names is
+  present and non-empty — a read failure wearing the third state's clothes, which is how §8c
+  happened
+- **Fires** the discriminator was disabled to restore the *historical* classifier, and the
+  detector returned exactly **NCT02937454 (AFFIRM-AHF)** and **NCT03037931 (HEART-FID)** — the
+  two trials that were in fact being withheld. **The known answer came from the data, not from
+  a fixture the author invented**, which is the standard §10 exists to enforce
+- **Silent** current corpus → 0 candidates, exit 0
+- **Ratchet, and the reason is stated**: findings are disagreements, not proven defects — some
+  will be the classifier right and the inclusion wrong, which is equally worth having. Blocking
+  on nonzero would force every one to be adjudicated before any unrelated commit
+
+**WHAT IT DOES NOT COVER, AND IT IS THE LARGER HALF.** Lane 1 reads a topic's *included* trials.
+It reproduces the `iv-iron-hf` shape exactly and would **not** have caught the `sglt2-hf` ten —
+those were withheld at the *surfaced* stage, so they never entered the included set.
+
+> **The larger half of a withholding defect is invisible to a check that reads the object,
+> because withholding is precisely what keeps things out of the object.**
+
+Closing it needs the executed search payload per topic as instrument A (surfaced set vs
+classifier verdict); that payload is currently stored for one topic. And coverage is small and
+says so: **2 topics checked, 133 unchecked**, each unchecked topic named rather than skipped.
+
+The original limitation, which stands as the reason this entry is PARTIAL and not CLOSED:
 
 The arm-role classifier read registry arm types literally and was silently *shrinking* evidence
 bases corpus-wide — ten trials on `sglt2-hf` alone. It was found only because two instruments
@@ -310,6 +386,30 @@ discarded can degrade without anyone noticing.
 warning. Named because the alternative is discovering it by luck a second time.
 
 ---
+
+### E8. A build path nobody can name
+Two pages were rebuilt and re-gated in served bytes on 2026-08-19. Hours later, in the same
+session, **the route used to build them could not be stated** — `project_topic_page.py` refused
+(no `render` list on the object) and `build_to_standard.py` writes only JSON. The path had to be
+recovered from the commit diff by identifying which module emits the `Page standard` card.
+
+> **A build path nobody can name is a build path nobody can audit.** It is also one nobody can
+> reproduce, which makes every artefact it produced unverifiable in principle.
+
+The route is:
+
+```sh
+python ssot/build_tabbed.py <object.json> <out.html>      # object -> page
+python ssot/build_to_standard.py <topic>                  # object only, no HTML
+python scripts/project_topic_page.py <page> <object>      # REFUSES without a `render` list
+```
+
+**Why this is an exposure and not just a note:** nothing in the repository records which module
+builds a page, so the knowledge lived only in a session. Recorded here now, but **not
+mechanised** — no check asserts that a shipped page was produced by a named, runnable command.
+The buildable form is a stamp on the page naming the module and argv that produced it, verified
+against a re-run. `build_tabbed.py` already emits a generator stamp (`_generator_stamp`), so the
+gap is the *verification*, not the recording.
 
 ### E7. Asserted verdicts — a property whose value is a constant
 The general form of §8c. A `prop(REFUSING, "...")` or `prop(HELD, "...")` with no branch on

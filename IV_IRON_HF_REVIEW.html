@@ -131,6 +131,7 @@
  #rt-protocol:focus-visible ~ .tabnav label[for="rt-protocol"]{outline:3px solid var(--accent);outline-offset:2px}
  #rt-search:checked ~ .panels > #pn-search{height:auto;overflow:visible}
  #rt-search:checked ~ .tabnav label[for="rt-search"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-search:focus-visible ~ .tabnav label[for="rt-search"]{outline:3px solid var(--accent);outline-offset:2px}
  #rt-screen:checked ~ .panels > #pn-screen{height:auto;overflow:visible}
  #rt-screen:checked ~ .tabnav label[for="rt-screen"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  #rt-screen:focus-visible ~ .tabnav label[for="rt-screen"]{outline:3px solid var(--accent);outline-offset:2px}
@@ -220,7 +221,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <input type="radio" name="rmtab" id="rt-statistics">
 <nav class="tabnav" aria-label="Review sections">
   <label for="rt-protocol">1. Protocol</label>
- <label for="rt-search">2. Search</label>
+  <label for="rt-search">2. Search</label>
   <label for="rt-screen">3. Screening</label>
   <label for="rt-extract">4. Extraction</label>
   <label for="rt-analysis">5. Analysis Suite</label>
@@ -263,9 +264,27 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p>FULL BUILD, with a stated boundary on the search and with a REDISCOVERY TEST behind it rather than an assertion that a search ran. Every randomised trial the staged search record ENUMERATES -- the trials this review contains, the trials the two prior syntheses name in their own lists, and the ongoing trials at or above the enrolment threshold that record applies -- is either contributing here, or in ONE screening log with the eligibility criterion it fails and the quantity it reports instead, or listed as eligible and not yet reporting. What is NOT claimed, and what an earlier version of this sentence did claim, is a disposition for every hit the class-keyed query returns: that query returns far more records than this object classifies, and the staged record scopes its own enumeration by size rather than silently. A reader who wants the unenumerated tail should read the query in that record and run it. There is exactly ONE source list, `screening.records`; `screening.excluded` is a view COMPUTED from it at build time, row for row, so it cannot say anything the records do not. What this statement does NOT claim is a systematic multi-database search: none was run, the limitation is recorded in the screening block, and SOME of the screened-out records are characterised from a prior synthesis&#x27;s table rather than from the trials&#x27; own reports. How many is deliberately NOT asserted in this sentence: it is COMPUTED from the records at build time into the screening block, and each of those rows says on itself that it rests on that table. An earlier version typed a count here that was wrong by one against the object&#x27;s own array, which is what a prose copy of a countable fact does.</p>
 </div>
   </section>
-<!--end-protocol--> <section class="panel" id="pn-search">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No search record is held in this object. The included set was reconciled against published syntheses rather than produced by a database search, so no query, date or yield can be shown. Treat the included set as a convenience sample, not a systematic one.</div>
- </section>
+<!--end-protocol-->  <section class="panel" id="pn-search">
+  <p class='toc'><strong>In this section:</strong> <a href="#search-clinicaltrials-gov-api-v2-query-1-narrowe">ClinicalTrials.gov API v2 -- QUERY 1, NARROWER, AND IT MISSED TWO INCLUDED TRIALS</a> &middot; <a href="#search-clinicaltrials-gov-api-v2-query-2-broader">ClinicalTrials.gov API v2 -- QUERY 2, BROADER, FULL RECALL ON THE INCLUDED SET</a></p>
+<div class='card'>
+  <h3 id="search-clinicaltrials-gov-api-v2-query-1-narrowe">ClinicalTrials.gov API v2 -- QUERY 1, NARROWER, AND IT MISSED TWO INCLUDED TRIALS</h3>
+  <p><small>Query as executed:</small></p>
+  <pre>query.cond=&quot;chronic heart failure&quot;; query.intr=&quot;ferric carboxymaltose OR iron sucrose OR ferric derisomaltose OR iron isomaltoside&quot;; filter.advanced=AREA[StudyType]INTERVENTIONAL; pageSize=100; countTotal=true</pre>
+  <div class='tscroll'><table>
+    <caption>Table 2. ClinicalTrials.gov API v2 -- QUERY 1, NARROWER, AND IT MISSED TWO INCLUDED TRIALS</caption>
+
+  </table></div>
+</div>
+<div class='card'>
+  <h3 id="search-clinicaltrials-gov-api-v2-query-2-broader">ClinicalTrials.gov API v2 -- QUERY 2, BROADER, FULL RECALL ON THE INCLUDED SET</h3>
+  <p><small>Query as executed:</small></p>
+  <pre>query.cond=&quot;heart failure&quot;; query.intr=&quot;ferric carboxymaltose OR iron sucrose OR ferric derisomaltose OR iron isomaltoside OR intravenous iron&quot;; filter.advanced=AREA[StudyType]INTERVENTIONAL; pageSize=200; countTotal=true</pre>
+  <div class='tscroll'><table>
+    <caption>Table 3. ClinicalTrials.gov API v2 -- QUERY 2, BROADER, FULL RECALL ON THE INCLUDED SET</caption>
+
+  </table></div>
+</div>
+  </section>
 <!--end-search-->  <section class="panel" id="pn-screen">
   <p class='toc'><strong>In this section:</strong> <a href="#screen-fair-hf-nct00520780">FAIR-HF NCT00520780</a> &middot; <a href="#screen-effect-hf-nct01394562">EFFECT-HF NCT01394562</a> &middot; <a href="#screen-toblli-2007">Toblli 2007</a> &middot; <a href="#screen-ferric-hf-2008">FERRIC-HF 2008</a> &middot; <a href="#screen-practice-asia-hf-2018">PRACTICE-ASIA-HF 2018</a> &middot; <a href="#screen-dhoot-2020">Dhoot 2020</a> &middot; <a href="#screen-iron-crt-2021">IRON-CRT 2021</a> &middot; <a href="#screen-oral-iron-protein-succinylate-nct03344523">Oral iron protein succinylate NCT03344523</a></p>
 <div class='card rec'>
@@ -334,12 +353,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
   </section>
 <!--end-screen-->  <section class="panel" id="pn-extract">
-  <p class='toc'><strong>In this section:</strong> <a href="#extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</a> &middot; <a href="#extract-sources">Sources</a> &middot; <a href="#extract-recurrent-hospitalisations-for-heart-fai">Recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio</a> &middot; <a href="#extract-recurrent-hospitalisations-for-heart-fai-2">Recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio</a> &middot; <a href="#extract-what-was-measured">What was measured</a> &middot; <a href="#extract-pooled-result">Pooled result</a> &middot; <a href="#extract-what-this-pool-holds-constant">What this pool holds constant</a> &middot; <a href="#extract-contributing-trials">Contributing trials</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision">The methods rule governing this decision</a> &middot; <a href="#extract-leave-one-out-sensitivity">Leave-one-out sensitivity</a> &middot; <a href="#extract-does-the-answer-depend-on-the-pooling-me">Does the answer depend on the pooling method?</a> &middot; <a href="#extract-time-to-a-first-cardiovascular-death-or-">Time to a FIRST cardiovascular death or hospitalisation for heart failure, as a hazard ratio</a> &middot; <a href="#extract-time-to-a-first-cardiovascular-death-or--2">Time to a FIRST cardiovascular death or hospitalisation for heart failure, as a hazard ratio</a> &middot; <a href="#extract-what-was-measured-2">What was measured</a> &middot; <a href="#extract-pooled-result-2">Pooled result</a> &middot; <a href="#extract-what-this-pool-holds-constant-2">What this pool holds constant</a> &middot; <a href="#extract-contributing-trials-2">Contributing trials</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision-2">The methods rule governing this decision</a> &middot; <a href="#extract-leave-one-out-sensitivity-2">Leave-one-out sensitivity</a> &middot; <a href="#extract-does-the-answer-depend-on-the-pooling-me-2">Does the answer depend on the pooling method?</a> &middot; <a href="#extract-recurrent-hospitalisations-for-heart-fai-3">Recurrent hospitalisations for heart failure ALONE, with no death component, as a rate ratio</a> &middot; <a href="#extract-recurrent-hospitalisations-for-heart-fai-4">Recurrent hospitalisations for heart failure ALONE, with no death component, as a rate ratio</a> &middot; <a href="#extract-what-was-measured-3">What was measured</a> &middot; <a href="#extract-pooled-result-3">Pooled result</a> &middot; <a href="#extract-what-this-pool-holds-constant-3">What this pool holds constant</a> &middot; <a href="#extract-contributing-trials-3">Contributing trials</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision-3">The methods rule governing this decision</a> &middot; <a href="#extract-leave-one-out-sensitivity-3">Leave-one-out sensitivity</a> &middot; <a href="#extract-does-the-answer-depend-on-the-pooling-me-3">Does the answer depend on the pooling method?</a> &middot; <a href="#extract-time-to-death-from-any-cause-as-a-hazard">Time to death from ANY cause, as a hazard ratio</a> &middot; <a href="#extract-time-to-death-from-any-cause-as-a-hazard-2">Time to death from ANY cause, as a hazard ratio</a> &middot; <a href="#extract-what-was-measured-4">What was measured</a> &middot; <a href="#extract-pooled-result-4">Pooled result</a> &middot; <a href="#extract-what-this-pool-holds-constant-4">What this pool holds constant</a> &middot; <a href="#extract-contributing-trials-4">Contributing trials</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision-4">The methods rule governing this decision</a> &middot; <a href="#extract-leave-one-out-sensitivity-4">Leave-one-out sensitivity</a> &middot; <a href="#extract-does-the-answer-depend-on-the-pooling-me-4">Does the answer depend on the pooling method?</a> &middot; <a href="#extract-a-hierarchical-composite-of-death-hospit">A hierarchical composite of death, hospitalisations for heart failure and change in walk distance, as an unmatched win ratio</a> &middot; <a href="#extract-a-hierarchical-composite-of-death-hospit-2">A hierarchical composite of death, hospitalisations for heart failure and change in walk distance, as an unmatched win ratio</a> &middot; <a href="#extract-what-was-measured-5">What was measured</a> &middot; <a href="#extract-single-cohort-no-synthesis">Single cohort — no synthesis</a> &middot; <a href="#extract-contributing-trials-5">Contributing trials</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision-5">The methods rule governing this decision</a> &middot; <a href="#extract-leave-one-out-sensitivity-5">Leave-one-out sensitivity</a> &middot; <a href="#extract-change-in-six-minute-walk-distance-at-th">Change in six-minute walk distance at the primary timepoint, in metres</a> &middot; <a href="#extract-change-in-six-minute-walk-distance-at-th-2">Change in six-minute walk distance at the primary timepoint, in metres</a> &middot; <a href="#extract-what-was-measured-6">What was measured</a> &middot; <a href="#extract-single-cohort-no-synthesis-2">Single cohort — no synthesis</a> &middot; <a href="#extract-contributing-trials-6">Contributing trials</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision-6">The methods rule governing this decision</a> &middot; <a href="#extract-leave-one-out-sensitivity-6">Leave-one-out sensitivity</a></p>
+  <p class='toc'><strong>In this section:</strong> <a href="#extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</a> &middot; <a href="#extract-sources">Sources</a> &middot; <a href="#extract-recurrent-hospitalisations-for-heart-fai">Recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio</a> &middot; <a href="#extract-recurrent-hospitalisations-for-heart-fai-2">Recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio</a> &middot; <a href="#extract-what-was-measured">What was measured</a> &middot; <a href="#extract-pooled-result">Pooled result</a> &middot; <a href="#extract-what-this-pool-holds-constant">What this pool holds constant</a> &middot; <a href="#extract-contributing-trials">Contributing trials</a> &middot; <a href="#extract-endpoint-definitions-read-from-the-regis">Endpoint definitions, read from the registry</a> &middot; <a href="#extract-named-on-this-review-contributing-nothin">Named on this review, contributing nothing to its pool</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision">The methods rule governing this decision</a> &middot; <a href="#extract-leave-one-out-sensitivity">Leave-one-out sensitivity</a> &middot; <a href="#extract-does-the-answer-depend-on-the-pooling-me">Does the answer depend on the pooling method?</a> &middot; <a href="#extract-time-to-a-first-cardiovascular-death-or-">Time to a FIRST cardiovascular death or hospitalisation for heart failure, as a hazard ratio</a> &middot; <a href="#extract-time-to-a-first-cardiovascular-death-or--2">Time to a FIRST cardiovascular death or hospitalisation for heart failure, as a hazard ratio</a> &middot; <a href="#extract-what-was-measured-2">What was measured</a> &middot; <a href="#extract-pooled-result-2">Pooled result</a> &middot; <a href="#extract-what-this-pool-holds-constant-2">What this pool holds constant</a> &middot; <a href="#extract-contributing-trials-2">Contributing trials</a> &middot; <a href="#extract-endpoint-definitions-read-from-the-regis-2">Endpoint definitions, read from the registry</a> &middot; <a href="#extract-named-on-this-review-contributing-nothin-2">Named on this review, contributing nothing to its pool</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision-2">The methods rule governing this decision</a> &middot; <a href="#extract-leave-one-out-sensitivity-2">Leave-one-out sensitivity</a> &middot; <a href="#extract-does-the-answer-depend-on-the-pooling-me-2">Does the answer depend on the pooling method?</a> &middot; <a href="#extract-recurrent-hospitalisations-for-heart-fai-3">Recurrent hospitalisations for heart failure ALONE, with no death component, as a rate ratio</a> &middot; <a href="#extract-recurrent-hospitalisations-for-heart-fai-4">Recurrent hospitalisations for heart failure ALONE, with no death component, as a rate ratio</a> &middot; <a href="#extract-what-was-measured-3">What was measured</a> &middot; <a href="#extract-pooled-result-3">Pooled result</a> &middot; <a href="#extract-what-this-pool-holds-constant-3">What this pool holds constant</a> &middot; <a href="#extract-contributing-trials-3">Contributing trials</a> &middot; <a href="#extract-endpoint-definitions-read-from-the-regis-3">Endpoint definitions, read from the registry</a> &middot; <a href="#extract-named-on-this-review-contributing-nothin-3">Named on this review, contributing nothing to its pool</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision-3">The methods rule governing this decision</a> &middot; <a href="#extract-leave-one-out-sensitivity-3">Leave-one-out sensitivity</a> &middot; <a href="#extract-does-the-answer-depend-on-the-pooling-me-3">Does the answer depend on the pooling method?</a> &middot; <a href="#extract-time-to-death-from-any-cause-as-a-hazard">Time to death from ANY cause, as a hazard ratio</a> &middot; <a href="#extract-time-to-death-from-any-cause-as-a-hazard-2">Time to death from ANY cause, as a hazard ratio</a> &middot; <a href="#extract-what-was-measured-4">What was measured</a> &middot; <a href="#extract-pooled-result-4">Pooled result</a> &middot; <a href="#extract-what-this-pool-holds-constant-4">What this pool holds constant</a> &middot; <a href="#extract-contributing-trials-4">Contributing trials</a> &middot; <a href="#extract-endpoint-definitions-read-from-the-regis-4">Endpoint definitions, read from the registry</a> &middot; <a href="#extract-named-on-this-review-contributing-nothin-4">Named on this review, contributing nothing to its pool</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision-4">The methods rule governing this decision</a> &middot; <a href="#extract-leave-one-out-sensitivity-4">Leave-one-out sensitivity</a> &middot; <a href="#extract-does-the-answer-depend-on-the-pooling-me-4">Does the answer depend on the pooling method?</a> &middot; <a href="#extract-a-hierarchical-composite-of-death-hospit">A hierarchical composite of death, hospitalisations for heart failure and change in walk distance, as an unmatched win ratio</a> &middot; <a href="#extract-a-hierarchical-composite-of-death-hospit-2">A hierarchical composite of death, hospitalisations for heart failure and change in walk distance, as an unmatched win ratio</a> &middot; <a href="#extract-what-was-measured-5">What was measured</a> &middot; <a href="#extract-single-cohort-no-synthesis">Single cohort — no synthesis</a> &middot; <a href="#extract-contributing-trials-5">Contributing trials</a> &middot; <a href="#extract-endpoint-definitions-read-from-the-regis-5">Endpoint definitions, read from the registry</a> &middot; <a href="#extract-named-on-this-review-contributing-nothin-5">Named on this review, contributing nothing to its pool</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision-5">The methods rule governing this decision</a> &middot; <a href="#extract-leave-one-out-sensitivity-5">Leave-one-out sensitivity</a> &middot; <a href="#extract-change-in-six-minute-walk-distance-at-th">Change in six-minute walk distance at the primary timepoint, in metres</a> &middot; <a href="#extract-change-in-six-minute-walk-distance-at-th-2">Change in six-minute walk distance at the primary timepoint, in metres</a> &middot; <a href="#extract-what-was-measured-6">What was measured</a> &middot; <a href="#extract-single-cohort-no-synthesis-2">Single cohort — no synthesis</a> &middot; <a href="#extract-contributing-trials-6">Contributing trials</a> &middot; <a href="#extract-endpoint-definitions-read-from-the-regis-6">Endpoint definitions, read from the registry</a> &middot; <a href="#extract-named-on-this-review-contributing-nothin-6">Named on this review, contributing nothing to its pool</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision-6">The methods rule governing this decision</a> &middot; <a href="#extract-leave-one-out-sensitivity-6">Leave-one-out sensitivity</a></p>
 <div class='card'>
   <h2 id="extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</h2>
   <p>One row per extracted value. Every row carries the value, the verbatim sentence it was read from, a resolvable link to the source, and whether the number was read or derived. Where any of those is absent the row says so rather than omitting the value.</p>
   <div class='tscroll'><table>
-    <caption>Table 2. Extracted values, and where each came from</caption>
+    <caption>Table 4. Extracted values, and where each came from</caption>
 
     <tr><th>Trial / outcome</th><th>Value as extracted</th><th>Verbatim source sentence</th><th>Source links</th><th>Read or derived</th></tr>
     <tr><td>AFFIRM-AHF<br><small>hfh_cvd_recurrent</small></td><td><strong>RATE_RATIO 0.79</strong> (95% CI 0.62 to 1.01)</td><td><blockquote><small>&ldquo;The primary outcome was a composite of total hospitalisations for heart failure and cardiovascular death up to 52 weeks after randomisation&rdquo;</small></blockquote><blockquote><small>&ldquo;293 primary events (57·2 per 100 patient-years) occurred in the ferric carboxymaltose group and 372 (72·5 per 100 patient-years) occurred in the placebo group (rate ratio [RR] 0·79, 95% CI 0·62-1·01, p=0·059)&rdquo;</small></blockquote></td><td><a href='https://clinicaltrials.gov/study/NCT02937454' rel='noopener'>NCT02937454</a> &middot; PMID <a href='https://pubmed.ncbi.nlm.nih.gov/33197395/' rel='noopener'>33197395</a> &middot; <a href='https://pubmed.ncbi.nlm.nih.gov/33197395/' rel='noopener'>source</a> &middot; <a href='https://pubmed.ncbi.nlm.nih.gov/33197395/' rel='noopener'>primary_oa</a> &middot; <a href='https://clinicaltrials.gov/study/NCT02937454' rel='noopener'>registry</a></td><td><strong>READ</strong> from the source as printed<br><small>The point estimate and interval are stored as the source prints them, at the interval level the source prints them at. The log point and the log standard error are DERIVED here, the standard error from the width of the printed interval on the log scale using the multiplier that belongs to that interval&#x27;s own level, and neither is claimed to appear in any source.</small></td></tr>
@@ -363,7 +382,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h2 id="extract-sources">Sources</h2>
   <div class='tscroll'><table>
-    <caption>Table 3. Sources</caption>
+    <caption>Table 5. Sources</caption>
 
     <tr><th>Layer</th><th>Source</th><th>How it was obtained</th></tr>
     <tr><td>Regulator: FDA approved label</td><td>INJECTAFER (ferric carboxymaltose) US prescribing information<br><small>https://www.accessdata.fda.gov/drugsatfda_docs/label/2025/203565s027lbl.pdf</small></td><td><small>Discovered from the product&#x27;s Drugs@FDA overview page and staged as text. There IS a heart-failure indication and it is narrow: iron deficiency in adults with NYHA class II or III heart failure TO IMPROVE EXERCISE CAPACITY. Its clinical studies section rests on a SINGLE trial and a SINGLE endpoint. A scan of the whole document for hazard, rate ratio, odds ratio, risk ratio, win ratio and relative risk returns nothing, so this layer holds no event estimate to check anything against.</small></td></tr>
@@ -389,7 +408,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h3 id="extract-what-was-measured">What was measured</h3>
   <div class='tscroll'><table>
-    <caption>Table 4. What was measured</caption>
+    <caption>Table 6. What was measured</caption>
 
     <tr><th>Comparator</th><td>a saline placebo, except on the recurrent-composite estimand where one contributing trial randomised against usual care</td></tr>
     <tr><th>Estimand</th><td>recurrent_event_rate &mdash; a recurrent-event rate model over first and subsequent events, reported by each contributing trial as a rate ratio</td></tr>
@@ -397,7 +416,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th>Case definition</th><td>every occurrence, first and subsequent, of a hospitalisation for heart failure or a cardiovascular death. Both contributing trials designate this as their own PRIMARY endpoint, and their abstracts do NOT word the counting the same way: one names the endpoint as TOTAL hospitalisations for heart failure and cardiovascular death, the other as RECURRENT hospital admissions for heart failure and cardiovascular death, and only the second of those says first-and-subsequent on its face. What settles it for BOTH is the registered text of each trial&#x27;s own primary outcome: one record states that the total included first and recurrent events, the other that the analysis will include first and recurrent hospitalisations. An earlier version of this field credited both ABSTRACTS with naming the recurrent counting explicitly, which is the shape of over-reading this batch has been caught by before, and the registry readings are what make the claim true rather than nearly true. What they do NOT share is the comparator, the molecule or the masking, and the uniformity table carries every one of those axes.</td></tr>
     <tr><th>Window</th><td>from randomisation to the end of each trial&#x27;s own follow-up</td></tr>
     <tr><th>Analysis population</th><td>each contributing trial&#x27;s own analysis set, which on some of them is smaller than the randomised total and on others equals it; each cell stores its own denominators and states which of the two it is</td></tr>
-    <tr><th>Effect scale</th><td>pooled on the log scale</td></tr>
+    <tr><th>Effect scale</th><td>combined on the log scale; ESTIMAND UNIFORMITY NOT ESTABLISHED -- the contributing trials have not been shown to measure the same quantity</td></tr>
   </table></div>
 </div>
 <div class='card'>
@@ -409,7 +428,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Computed from Q and its single degree of freedom. With TWO trials this statistic has almost no power to detect heterogeneity, so a low value is consistent both with agreement and with not being able to tell, and it is reported with that caveat rather than as reassurance. What the statistic cannot see at all are the dimensions the uniformity table records, because those are differences in the question each trial answered rather than in its answer.</small></p>
   <h3 id="extract-what-this-pool-holds-constant">What this pool holds constant</h3>
   <div class='tscroll'><table>
-    <caption>Table 5. What this pool holds constant</caption>
+    <caption>Table 7. What this pool holds constant</caption>
 
     <tr><th>Dimension</th><th>Across the pooled cohorts</th><th>If it differs, why it is crossed anyway</th></tr>
     <tr><td>effect measure</td><td>identical</td><td><small>Both contributing trials report this endpoint as a rate ratio over recurrent events and no conversion is performed.</small></td></tr>
@@ -428,7 +447,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class="card">
   <h3 id="extract-contributing-trials">Contributing trials</h3>
   <div class='tscroll'><table>
-    <caption>Table 6. Contributing trials</caption>
+    <caption>Table 8. Contributing trials</caption>
 
     <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
         <th>RATE_RATIO (95% CI), or events</th>
@@ -437,6 +456,36 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><td>IRONMAN<br><small>NCT02642562 &middot; the trial&#x27;s own primary endpoint</small></td><td class='num'>569 / 568<br><small><em>All validly randomly assigned patients, 569 and 568, which is the population the trial states for its primary outcome and which sums to its randomised total. This is the only contributing trial in this object whose analysis set and randomised total coincide AND whose registry record posts no results to check that against; the coincidence is read from the publication.</em></small></td><td class='num'>0.82 (0.66 to 1.02)<br><small>on the log scale: -0.1985 (standard error 0.1111)</small></td><td><small><a href='https://pubmed.ncbi.nlm.nih.gov/36347265/'>Primary paper (abstract, open)</a>: <br><q>The primary outcome was recurrent hospital admissions for heart failure and cardiovascular death, assessed in all validly randomly assigned patients.</q><br><q>336 primary endpoints (22·4 per 100 patient-years) occurred in the ferric derisomaltose group and 411 (27·5 per 100 patient-years) occurred in the usual care group (rate ratio [RR] 0·82 [95% CI 0·66 to 1·02]; p=0·070)</q><br><em>Randomised, as the trial reports. The arm sizes below sum to it exactly. Arm-level EVENT counts are absent for the same reason as on the other trial in this pool: the endpoint counts recurrent events, and the sources print event rates rather than participant counts.</em></small></td></tr>
   </table></div>
   <p><small>The contributing trials share no participant and no control group.</small></p>
+</div>
+<div class="card">
+  <h3 id="extract-endpoint-definitions-read-from-the-regis">Endpoint definitions, read from the registry</h3>
+  <p><small>What each trial COUNTED, in its own registry record's words, before
+  anything here was pooled. A sentence saying what HAPPENED is not a sentence
+  saying what was COUNTED, and only the second one licenses a pool. Read from the registry on 2026-08-17. Follow the
+  registration link to disagree with any row.</small></p>
+  <div class='tscroll'><table>
+    <caption>Table 9. Endpoint definitions, read from the registry</caption>
+
+    <tr><th>Trial</th><th>Rank in its own trial</th>
+        <th>Registered outcome measure</th>
+        <th>Description, verbatim</th><th>Analysis set / window</th></tr>
+    <tr><td><strong>AFFIRM-AHF</strong><br><small><a href="https://clinicaltrials.gov/study/NCT02937454" rel="noopener">NCT02937454</a></small></td><td>PRIMARY</td><td>HF Hospitalizations and CV Death</td><td>The composite of recurrent HF hospitalizations and CV death up to 52 weeks after randomization. Total hospitalisations included first and recurrent events. If a participant was hospitalised for heart failure and died within 24 h from any cardiovascular event, this was counted as one event.</td><td>up to 52 weeks after randomization</td></tr>
+    <tr><td><strong>IRONMAN</strong><br><small><a href="https://clinicaltrials.gov/study/NCT02642562" rel="noopener">NCT02642562</a></small></td><td>PRIMARY</td><td>CV mortality or hospitalisation for worsening heart failure (analysis will include first and recurrent hospitalisations)</td><td>no description is recorded in this registry field</td><td>Minimum of 3 months follow-up from last patient recruited</td></tr>
+  </table></div>
+</div>
+<div class="card">
+  <h3 id="extract-named-on-this-review-contributing-nothin">Named on this review, contributing nothing to its pool</h3>
+  <p><small>Four trials meet this review&#x27;s population, intervention and comparator criteria and contribute nothing, because they have not reported. They are listed rather than left absent so that a reader can tell the category was considered and can see what this review will have to revisit. Each was surfaced by the corrected class-keyed query recorded in the staged search record.</small></p>
+  <div class='tscroll'><table>
+    <caption>Table 10. Named on this review, contributing nothing to its pool</caption>
+
+    <tr><th>Trial</th><th>Why it contributes nothing</th>
+        <th>What the registry holds</th></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT07467668" rel="noopener"></a></small></td><td>no results posted and no publication</td><td>—</td></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT06929806" rel="noopener"></a></small></td><td>no results posted. Worth naming specifically: its comparator is no intravenous iron rather than a placebo, and its primary endpoint is cardiovascular death and worsening heart failure, so when it reports it will contribute to a composite estimand here.</td><td>—</td></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT05759078" rel="noopener"></a></small></td><td>no results posted. Its primary endpoint is the time to death from any cause, which is an estimand this object already holds and which currently rests on the smallest trial pair here.</td><td>—</td></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT07686692" rel="noopener"></a></small></td><td>not yet recruiting. Its population is heart failure with preserved ejection fraction, which no CONTRIBUTING trial here enrolled -- every one of them set an ejection-fraction ceiling -- and its primary is a hierarchical composite, which makes it the second trial in this object to designate one and the only one besides the contributing trial that reports it. The ejection-fraction range of the trials characterised from a prior synthesis&#x27;s table is not established here, so the claim is scoped to the contributing set rather than to every trial this object names.</td><td>—</td></tr>
+  </table></div>
 </div>
 <div class='card'>
   <h3 id="extract-the-methods-rule-governing-this-decision">The methods rule governing this decision</h3>
@@ -448,7 +497,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <h3 id="extract-leave-one-out-sensitivity">Leave-one-out sensitivity</h3>
   <p>Whether the pooled estimate depends on either single trial, and whether it depends on the choice of between-study variance estimator and interval method.</p>
   <div class='tscroll'><table>
-    <caption>Table 7. Leave-one-out sensitivity</caption>
+    <caption>Table 11. Leave-one-out sensitivity</caption>
 
     <tr><th>Cohort omitted</th><th>k</th><th>RATE_RATIO (95% CI)</th></tr>
     <tr><td>affirm-ahf</td><td class='num'>1</td><td class='num'>0.82 (0.6596 to 1.019)</td></tr>
@@ -459,7 +508,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <h3 id="extract-does-the-answer-depend-on-the-pooling-me">Does the answer depend on the pooling method?</h3>
   <p>Section 10.10.4.4 records restricted maximum likelihood as the current default and that estimators other than DerSimonian and Laird perform better; that is the whole of the authority for running this comparison. Nothing in the Handbook instructs a review to run it at a particular number of studies, and running it here is a choice made under section 10.14 because with two trials the choice is plausibly influential.</p>
   <div class='tscroll'><table>
-    <caption>Table 8. Does the answer depend on the pooling method?</caption>
+    <caption>Table 12. Does the answer depend on the pooling method?</caption>
 
     <tr><th>Between-study variance</th><th>Interval</th><th>Summary (95% CI)</th><th>&tau;&sup2;</th></tr>
     <tr><td>DerSimonian-Laird (DL)</td><td>ordinary (Wald)</td><td class='num'>0.8066 (0.6856 to 0.9488)</td><td class='num'>0</td></tr>
@@ -477,7 +526,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h3 id="extract-what-was-measured-2">What was measured</h3>
   <div class='tscroll'><table>
-    <caption>Table 9. What was measured</caption>
+    <caption>Table 13. What was measured</caption>
 
     <tr><th>Comparator</th><td>a saline placebo</td></tr>
     <tr><th>Estimand</th><td>time_to_first &mdash; Cox proportional hazards on the time to a first event</td></tr>
@@ -485,7 +534,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th>Case definition</th><td>the FIRST occurrence, per participant, of a cardiovascular death or a hospitalisation for heart failure. This is not the recurrent composite with a different model fitted to it: it is a different endpoint counted a different way, and one of the two contributing trials reports BOTH, with different numbers, which is the clearest demonstration available that the two are not interchangeable. The two rows do NOT stand in the same relation to their trials: for one it is a designated secondary and for the other it is the first of three co-primary endpoints, and that asymmetry is on the uniformity table.</td></tr>
     <tr><th>Window</th><td>from randomisation to the end of each trial&#x27;s own follow-up</td></tr>
     <tr><th>Analysis population</th><td>each contributing trial&#x27;s own analysis set, which on some of them is smaller than the randomised total and on others equals it; each cell stores its own denominators and states which of the two it is</td></tr>
-    <tr><th>Effect scale</th><td>pooled on the log scale</td></tr>
+    <tr><th>Effect scale</th><td>combined on the log scale; ESTIMAND UNIFORMITY NOT ESTABLISHED -- the contributing trials have not been shown to measure the same quantity</td></tr>
   </table></div>
 </div>
 <div class='card'>
@@ -497,7 +546,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Computed from Q and its single degree of freedom. With TWO trials this statistic has almost no power to detect heterogeneity, so a low value is consistent both with agreement and with not being able to tell, and it is reported with that caveat rather than as reassurance. What the statistic cannot see at all are the dimensions the uniformity table records, because those are differences in the question each trial answered rather than in its answer.</small></p>
   <h3 id="extract-what-this-pool-holds-constant-2">What this pool holds constant</h3>
   <div class='tscroll'><table>
-    <caption>Table 10. What this pool holds constant</caption>
+    <caption>Table 14. What this pool holds constant</caption>
 
     <tr><th>Dimension</th><th>Across the pooled cohorts</th><th>If it differs, why it is crossed anyway</th></tr>
     <tr><td>effect measure</td><td>identical</td><td><small>Both contributing trials report this endpoint as a Cox hazard ratio for the time to a first event, and no conversion is performed.</small></td></tr>
@@ -517,7 +566,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class="card">
   <h3 id="extract-contributing-trials-2">Contributing trials</h3>
   <div class='tscroll'><table>
-    <caption>Table 11. Contributing trials</caption>
+    <caption>Table 15. Contributing trials</caption>
 
     <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
         <th>HR (95% CI), or events</th>
@@ -526,6 +575,36 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><td>FAIR-HF2<br><small>NCT03036462 &middot; the FIRST of the trial&#x27;s three co-primary endpoints, whose joint significance is governed by a multiplicity procedure</small></td><td class='num'>558 / 547<br><small><em>The 558 and 547 the trial reports for its two arms, which sum to its randomised total of 1105. No participant randomised in this trial is absent from the analyses stored here.</em></small></td><td class='num'>0.79 (0.63 to 0.99)<br><small>on the log scale: -0.2357 (standard error 0.1153)</small></td><td><small><a href='https://pubmed.ncbi.nlm.nih.gov/40159390/'>Primary paper (abstract, open)</a>: <br><q>cardiovascular death or first heart failure hospitalization (first primary outcome) occurred in 141 in the ferric carboxymaltose group vs 166 in the placebo group (hazard ratio, 0.79 [95% CI, 0.63-0.99]; P = .04)</q><br><q>The end points would be considered statistically significant if they fulfilled at least 1 of the following conditions: (1) P ≤ .05 for all 3 of the end point comparisons, (2) P ≤ .025 for 2 of the end point comparisons, or (3) P ≤ .0167 for any of the 3 end point comparisons (Hochberg procedure).</q><br><em>Randomised, as the trial and its registry record both report, and the arm sizes below sum to it exactly. Arm-level EVENT counts are absent because one of this trial&#x27;s two rows here counts recurrent events, and printing participant counts beside a rate ratio would invite the reading this object exists to prevent.</em></small></td></tr>
   </table></div>
   <p><small>The contributing trials share no participant and no control group.</small></p>
+</div>
+<div class="card">
+  <h3 id="extract-endpoint-definitions-read-from-the-regis-2">Endpoint definitions, read from the registry</h3>
+  <p><small>What each trial COUNTED, in its own registry record's words, before
+  anything here was pooled. A sentence saying what HAPPENED is not a sentence
+  saying what was COUNTED, and only the second one licenses a pool. Read from the registry on 2026-08-17. Follow the
+  registration link to disagree with any row.</small></p>
+  <div class='tscroll'><table>
+    <caption>Table 16. Endpoint definitions, read from the registry</caption>
+
+    <tr><th>Trial</th><th>Rank in its own trial</th>
+        <th>Registered outcome measure</th>
+        <th>Description, verbatim</th><th>Analysis set / window</th></tr>
+    <tr><td><strong>AFFIRM-AHF</strong><br><small><a href="https://clinicaltrials.gov/study/NCT02937454" rel="noopener">NCT02937454</a></small></td><td>SECONDARY</td><td>Composite of HF Hospitalisations or CV Death</td><td>Analysed as time to first event at 52 weeks after randomisation. The number of participants with at least one HF Hospitalisation or CV Death is presented below.</td><td>at 52 weeks after randomisation</td></tr>
+    <tr><td><strong>FAIR-HF2</strong><br><small><a href="https://clinicaltrials.gov/study/NCT03036462" rel="noopener">NCT03036462</a></small></td><td>PRIMARY -- the first of three, under a Hochberg procedure</td><td>Time-to-first event of CV death or HF hospitalisation</td><td>Show that treatment of patients with systolic heart failure (HF) and iron deficiency (ID) with i.v. iron (Ferric Carboxymaltose, FCM) versus placebo (i.v. NaCl) can extend the time-to-first-event of heart failure hospitalisations and cardiovascular (CV) death.</td><td>The whole follow-up period. We aim for a minimum average follow-up of &gt;2 years.</td></tr>
+  </table></div>
+</div>
+<div class="card">
+  <h3 id="extract-named-on-this-review-contributing-nothin-2">Named on this review, contributing nothing to its pool</h3>
+  <p><small>Four trials meet this review&#x27;s population, intervention and comparator criteria and contribute nothing, because they have not reported. They are listed rather than left absent so that a reader can tell the category was considered and can see what this review will have to revisit. Each was surfaced by the corrected class-keyed query recorded in the staged search record.</small></p>
+  <div class='tscroll'><table>
+    <caption>Table 17. Named on this review, contributing nothing to its pool</caption>
+
+    <tr><th>Trial</th><th>Why it contributes nothing</th>
+        <th>What the registry holds</th></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT07467668" rel="noopener"></a></small></td><td>no results posted and no publication</td><td>—</td></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT06929806" rel="noopener"></a></small></td><td>no results posted. Worth naming specifically: its comparator is no intravenous iron rather than a placebo, and its primary endpoint is cardiovascular death and worsening heart failure, so when it reports it will contribute to a composite estimand here.</td><td>—</td></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT05759078" rel="noopener"></a></small></td><td>no results posted. Its primary endpoint is the time to death from any cause, which is an estimand this object already holds and which currently rests on the smallest trial pair here.</td><td>—</td></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT07686692" rel="noopener"></a></small></td><td>not yet recruiting. Its population is heart failure with preserved ejection fraction, which no CONTRIBUTING trial here enrolled -- every one of them set an ejection-fraction ceiling -- and its primary is a hierarchical composite, which makes it the second trial in this object to designate one and the only one besides the contributing trial that reports it. The ejection-fraction range of the trials characterised from a prior synthesis&#x27;s table is not established here, so the claim is scoped to the contributing set rather than to every trial this object names.</td><td>—</td></tr>
+  </table></div>
 </div>
 <div class='card'>
   <h3 id="extract-the-methods-rule-governing-this-decision-2">The methods rule governing this decision</h3>
@@ -537,7 +616,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <h3 id="extract-leave-one-out-sensitivity-2">Leave-one-out sensitivity</h3>
   <p>Whether the pooled estimate depends on either single trial, and whether it depends on the choice of between-study variance estimator and interval method.</p>
   <div class='tscroll'><table>
-    <caption>Table 12. Leave-one-out sensitivity</caption>
+    <caption>Table 18. Leave-one-out sensitivity</caption>
 
     <tr><th>Cohort omitted</th><th>k</th><th>HR (95% CI)</th></tr>
     <tr><td>affirm-ahf</td><td class='num'>1</td><td class='num'>0.79 (0.6302 to 0.9903)</td></tr>
@@ -548,7 +627,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <h3 id="extract-does-the-answer-depend-on-the-pooling-me-2">Does the answer depend on the pooling method?</h3>
   <p>Section 10.10.4.4 records restricted maximum likelihood as the current default and that estimators other than DerSimonian and Laird perform better; that is the whole of the authority for running this comparison. Nothing in the Handbook instructs a review to run it at a particular number of studies, and running it here is a choice made under section 10.14 because with two trials the choice is plausibly influential.</p>
   <div class='tscroll'><table>
-    <caption>Table 13. Does the answer depend on the pooling method?</caption>
+    <caption>Table 19. Does the answer depend on the pooling method?</caption>
 
     <tr><th>Between-study variance</th><th>Interval</th><th>Summary (95% CI)</th><th>&tau;&sup2;</th></tr>
     <tr><td>DerSimonian-Laird (DL)</td><td>ordinary (Wald)</td><td class='num'>0.7957 (0.6857 to 0.9233)</td><td class='num'>0</td></tr>
@@ -566,7 +645,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h3 id="extract-what-was-measured-3">What was measured</h3>
   <div class='tscroll'><table>
-    <caption>Table 14. What was measured</caption>
+    <caption>Table 20. What was measured</caption>
 
     <tr><th>Comparator</th><td>a saline placebo</td></tr>
     <tr><th>Estimand</th><td>recurrent_event_rate &mdash; a recurrent-event rate model over first and subsequent hospitalisations, reported by each contributing trial as a rate ratio</td></tr>
@@ -574,7 +653,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th>Case definition</th><td>every occurrence, first and subsequent, of a hospitalisation for heart failure, with NO death component of any kind. This estimand exists because an adversary brief instructed that one of these two values be pooled with the composite primaries of two other trials, which would have merged an endpoint containing cardiovascular death with one that does not. Both contributing trials describe this endpoint in words that name hospitalisations and nothing else, and so does the registered outcome text in BOTH registry records -- one describing it as hospitalisations analysed as a recurrent event, the other as a rate of total first and recurrent events of hospitalisations for heart failure. Neither publication and neither registry record mentions a death component, so the separation rests on four independent readings rather than on one.</td></tr>
     <tr><th>Window</th><td>from randomisation to the end of each trial&#x27;s own follow-up</td></tr>
     <tr><th>Analysis population</th><td>each contributing trial&#x27;s own analysis set, which on some of them is smaller than the randomised total and on others equals it; each cell stores its own denominators and states which of the two it is</td></tr>
-    <tr><th>Effect scale</th><td>pooled on the log scale</td></tr>
+    <tr><th>Effect scale</th><td>combined on the log scale; ESTIMAND UNIFORMITY NOT ESTABLISHED -- the contributing trials have not been shown to measure the same quantity</td></tr>
   </table></div>
 </div>
 <div class='card'>
@@ -586,7 +665,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Computed from Q and its single degree of freedom. With TWO trials this statistic has almost no power to detect heterogeneity, so a low value is consistent both with agreement and with not being able to tell, and it is reported with that caveat rather than as reassurance. What the statistic cannot see at all are the dimensions the uniformity table records, because those are differences in the question each trial answered rather than in its answer.</small></p>
   <h3 id="extract-what-this-pool-holds-constant-3">What this pool holds constant</h3>
   <div class='tscroll'><table>
-    <caption>Table 15. What this pool holds constant</caption>
+    <caption>Table 21. What this pool holds constant</caption>
 
     <tr><th>Dimension</th><th>Across the pooled cohorts</th><th>If it differs, why it is crossed anyway</th></tr>
     <tr><td>effect measure</td><td>identical</td><td><small>Both contributing trials report this endpoint as a rate ratio over recurrent hospitalisations.</small></td></tr>
@@ -606,7 +685,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class="card">
   <h3 id="extract-contributing-trials-3">Contributing trials</h3>
   <div class='tscroll'><table>
-    <caption>Table 16. Contributing trials</caption>
+    <caption>Table 22. Contributing trials</caption>
 
     <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
         <th>RATE_RATIO (95% CI), or events</th>
@@ -615,6 +694,36 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><td>FAIR-HF2<br><small>NCT03036462 &middot; the SECOND of the trial&#x27;s three co-primary endpoints, under the same multiplicity procedure</small></td><td class='num'>not stated / not stated</td><td class='num'>0.8 (0.6 to 1.06)<br><small>on the log scale: -0.2231 (standard error 0.1452)</small></td><td><small><a href='https://pubmed.ncbi.nlm.nih.gov/40159390/'>Primary paper (abstract, open)</a>: <br><q>The second primary outcome (total heart failure hospitalizations) occurred 264 times in the ferric carboxymaltose group vs 320 times in the placebo group (rate ratio, 0.80 [95% CI, 0.60-1.06]; P = .12).</q><br><em>Randomised, as the trial and its registry record both report, and the arm sizes below sum to it exactly. Arm-level EVENT counts are absent because one of this trial&#x27;s two rows here counts recurrent events, and printing participant counts beside a rate ratio would invite the reading this object exists to prevent.</em></small></td></tr>
   </table></div>
   <p><small>The contributing trials share no participant and no control group.</small></p>
+</div>
+<div class="card">
+  <h3 id="extract-endpoint-definitions-read-from-the-regis-3">Endpoint definitions, read from the registry</h3>
+  <p><small>What each trial COUNTED, in its own registry record's words, before
+  anything here was pooled. A sentence saying what HAPPENED is not a sentence
+  saying what was COUNTED, and only the second one licenses a pool. Read from the registry on 2026-08-17. Follow the
+  registration link to disagree with any row.</small></p>
+  <div class='tscroll'><table>
+    <caption>Table 23. Endpoint definitions, read from the registry</caption>
+
+    <tr><th>Trial</th><th>Rank in its own trial</th>
+        <th>Registered outcome measure</th>
+        <th>Description, verbatim</th><th>Analysis set / window</th></tr>
+    <tr><td><strong>AFFIRM-AHF</strong><br><small><a href="https://clinicaltrials.gov/study/NCT02937454" rel="noopener">NCT02937454</a></small></td><td>SECONDARY</td><td>HF Hospitalisations</td><td>HF hospitalisations up to 52 weeks after randomisation analysed as recurrent event.</td><td>up to 52 weeks after randomisation</td></tr>
+    <tr><td><strong>FAIR-HF2</strong><br><small><a href="https://clinicaltrials.gov/study/NCT03036462" rel="noopener">NCT03036462</a></small></td><td>PRIMARY -- the second of three, under a Hochberg procedure</td><td>Rate of total (first and recurrent) events of hospitalisations for heart failure (HF)</td><td>Show that treatment of patients with systolic heart failure (HF) and iron deficiency (ID) with i.v. iron (Ferric Carboxymaltose, FCM) versus placebo (i.v. NaCl) reduces the rate of recurrent events of heart failure hospitalisations.</td><td>—</td></tr>
+  </table></div>
+</div>
+<div class="card">
+  <h3 id="extract-named-on-this-review-contributing-nothin-3">Named on this review, contributing nothing to its pool</h3>
+  <p><small>Four trials meet this review&#x27;s population, intervention and comparator criteria and contribute nothing, because they have not reported. They are listed rather than left absent so that a reader can tell the category was considered and can see what this review will have to revisit. Each was surfaced by the corrected class-keyed query recorded in the staged search record.</small></p>
+  <div class='tscroll'><table>
+    <caption>Table 24. Named on this review, contributing nothing to its pool</caption>
+
+    <tr><th>Trial</th><th>Why it contributes nothing</th>
+        <th>What the registry holds</th></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT07467668" rel="noopener"></a></small></td><td>no results posted and no publication</td><td>—</td></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT06929806" rel="noopener"></a></small></td><td>no results posted. Worth naming specifically: its comparator is no intravenous iron rather than a placebo, and its primary endpoint is cardiovascular death and worsening heart failure, so when it reports it will contribute to a composite estimand here.</td><td>—</td></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT05759078" rel="noopener"></a></small></td><td>no results posted. Its primary endpoint is the time to death from any cause, which is an estimand this object already holds and which currently rests on the smallest trial pair here.</td><td>—</td></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT07686692" rel="noopener"></a></small></td><td>not yet recruiting. Its population is heart failure with preserved ejection fraction, which no CONTRIBUTING trial here enrolled -- every one of them set an ejection-fraction ceiling -- and its primary is a hierarchical composite, which makes it the second trial in this object to designate one and the only one besides the contributing trial that reports it. The ejection-fraction range of the trials characterised from a prior synthesis&#x27;s table is not established here, so the claim is scoped to the contributing set rather than to every trial this object names.</td><td>—</td></tr>
+  </table></div>
 </div>
 <div class='card'>
   <h3 id="extract-the-methods-rule-governing-this-decision-3">The methods rule governing this decision</h3>
@@ -626,7 +735,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <h3 id="extract-leave-one-out-sensitivity-3">Leave-one-out sensitivity</h3>
   <p>Whether the pooled estimate depends on either single trial, and whether it depends on the choice of between-study variance estimator and interval method.</p>
   <div class='tscroll'><table>
-    <caption>Table 17. Leave-one-out sensitivity</caption>
+    <caption>Table 25. Leave-one-out sensitivity</caption>
 
     <tr><th>Cohort omitted</th><th>k</th><th>RATE_RATIO (95% CI)</th></tr>
     <tr><td>affirm-ahf</td><td class='num'>1</td><td class='num'>0.8 (0.6019 to 1.063)</td></tr>
@@ -637,7 +746,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <h3 id="extract-does-the-answer-depend-on-the-pooling-me-3">Does the answer depend on the pooling method?</h3>
   <p>Section 10.10.4.4 records restricted maximum likelihood as the current default and that estimators other than DerSimonian and Laird perform better; that is the whole of the authority for running this comparison. Nothing in the Handbook instructs a review to run it at a particular number of studies, and running it here is a choice made under section 10.14 because with two trials the choice is plausibly influential.</p>
   <div class='tscroll'><table>
-    <caption>Table 18. Does the answer depend on the pooling method?</caption>
+    <caption>Table 26. Does the answer depend on the pooling method?</caption>
 
     <tr><th>Between-study variance</th><th>Interval</th><th>Summary (95% CI)</th><th>&tau;&sup2;</th></tr>
     <tr><td>DerSimonian-Laird (DL)</td><td>ordinary (Wald)</td><td class='num'>0.7645 (0.636 to 0.9191)</td><td class='num'>0</td></tr>
@@ -655,7 +764,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h3 id="extract-what-was-measured-4">What was measured</h3>
   <div class='tscroll'><table>
-    <caption>Table 19. What was measured</caption>
+    <caption>Table 27. What was measured</caption>
 
     <tr><th>Comparator</th><td>a saline placebo</td></tr>
     <tr><th>Estimand</th><td>time_to_first &mdash; Cox proportional hazards on the time to death</td></tr>
@@ -663,7 +772,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th>Case definition</th><td>death from any cause, counted once per participant as a time to event. It is deliberately distinct from cardiovascular death, which one contributing trial reports and which is held NOWHERE in this object: an all-cause row and a cardiovascular row are DIFFERENT outcomes, and a value from one standing in a field belonging to the other is the defect class this batch has met most often. The contributing rows come from different LAYERS -- one from a registry results record and one from a publication&#x27;s own table -- which the uniformity table records as a dimension the pool crosses.</td></tr>
     <tr><th>Window</th><td>from randomisation to the end of each trial&#x27;s own follow-up</td></tr>
     <tr><th>Analysis population</th><td>each contributing trial&#x27;s own analysis set, which on some of them is smaller than the randomised total and on others equals it; each cell stores its own denominators and states which of the two it is</td></tr>
-    <tr><th>Effect scale</th><td>pooled on the log scale</td></tr>
+    <tr><th>Effect scale</th><td>combined on the log scale; ESTIMAND UNIFORMITY NOT ESTABLISHED -- the contributing trials have not been shown to measure the same quantity</td></tr>
   </table></div>
 </div>
 <div class='card'>
@@ -675,7 +784,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Computed from Q and its single degree of freedom. With TWO trials this statistic has almost no power to detect heterogeneity, so a low value is consistent both with agreement and with not being able to tell, and it is reported with that caveat rather than as reassurance. What the statistic cannot see at all are the dimensions the uniformity table records, because those are differences in the question each trial answered rather than in its answer.</small></p>
   <h3 id="extract-what-this-pool-holds-constant-4">What this pool holds constant</h3>
   <div class='tscroll'><table>
-    <caption>Table 20. What this pool holds constant</caption>
+    <caption>Table 28. What this pool holds constant</caption>
 
     <tr><th>Dimension</th><th>Across the pooled cohorts</th><th>If it differs, why it is crossed anyway</th></tr>
     <tr><td>effect measure</td><td>identical</td><td><small>Both contributing rows are Cox hazard ratios for the time to death from any cause.</small></td></tr>
@@ -695,7 +804,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class="card">
   <h3 id="extract-contributing-trials-4">Contributing trials</h3>
   <div class='tscroll'><table>
-    <caption>Table 21. Contributing trials</caption>
+    <caption>Table 29. Contributing trials</caption>
 
     <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
         <th>HR (95% CI), or events</th>
@@ -711,6 +820,36 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   </table></div>
   <p><small>The contributing trials share no participant and no control group.</small></p>
 </div>
+<div class="card">
+  <h3 id="extract-endpoint-definitions-read-from-the-regis-4">Endpoint definitions, read from the registry</h3>
+  <p><small>What each trial COUNTED, in its own registry record's words, before
+  anything here was pooled. A sentence saying what HAPPENED is not a sentence
+  saying what was COUNTED, and only the second one licenses a pool. Read from the registry on 2026-08-17. Follow the
+  registration link to disagree with any row.</small></p>
+  <div class='tscroll'><table>
+    <caption>Table 30. Endpoint definitions, read from the registry</caption>
+
+    <tr><th>Trial</th><th>Rank in its own trial</th>
+        <th>Registered outcome measure</th>
+        <th>Description, verbatim</th><th>Analysis set / window</th></tr>
+    <tr><td><strong>AFFIRM-AHF</strong><br><small><a href="https://clinicaltrials.gov/study/NCT02937454" rel="noopener">NCT02937454</a></small></td><td>OTHER PRE-SPECIFIED, as the registry&#x27;s own record classifies it; this trial&#x27;s publication does not report this outcome at all</td><td>All-cause Mortality</td><td>Number of participants who died up to 52 weeks after randomisation</td><td>—</td></tr>
+    <tr><td><strong>CONFIRM-HF</strong><br><small><a href="https://pubmed.ncbi.nlm.nih.gov/25176939/" rel="noopener">NCT01453608</a></small></td><td>a designated secondary outcome-related endpoint, adjudicated by the trial&#x27;s independent endpoint committee</td><td>all-cause death, analysed as time to first event</td><td>The incidence of all-cause death was similar in both groups</td><td>—</td></tr>
+  </table></div>
+</div>
+<div class="card">
+  <h3 id="extract-named-on-this-review-contributing-nothin-4">Named on this review, contributing nothing to its pool</h3>
+  <p><small>Four trials meet this review&#x27;s population, intervention and comparator criteria and contribute nothing, because they have not reported. They are listed rather than left absent so that a reader can tell the category was considered and can see what this review will have to revisit. Each was surfaced by the corrected class-keyed query recorded in the staged search record.</small></p>
+  <div class='tscroll'><table>
+    <caption>Table 31. Named on this review, contributing nothing to its pool</caption>
+
+    <tr><th>Trial</th><th>Why it contributes nothing</th>
+        <th>What the registry holds</th></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT07467668" rel="noopener"></a></small></td><td>no results posted and no publication</td><td>—</td></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT06929806" rel="noopener"></a></small></td><td>no results posted. Worth naming specifically: its comparator is no intravenous iron rather than a placebo, and its primary endpoint is cardiovascular death and worsening heart failure, so when it reports it will contribute to a composite estimand here.</td><td>—</td></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT05759078" rel="noopener"></a></small></td><td>no results posted. Its primary endpoint is the time to death from any cause, which is an estimand this object already holds and which currently rests on the smallest trial pair here.</td><td>—</td></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT07686692" rel="noopener"></a></small></td><td>not yet recruiting. Its population is heart failure with preserved ejection fraction, which no CONTRIBUTING trial here enrolled -- every one of them set an ejection-fraction ceiling -- and its primary is a hierarchical composite, which makes it the second trial in this object to designate one and the only one besides the contributing trial that reports it. The ejection-fraction range of the trials characterised from a prior synthesis&#x27;s table is not established here, so the claim is scoped to the contributing set rather than to every trial this object names.</td><td>—</td></tr>
+  </table></div>
+</div>
 <div class='card'>
   <h3 id="extract-the-methods-rule-governing-this-decision-4">The methods rule governing this decision</h3>
   <p><strong>Decision:</strong> POOL the trials that report THIS estimand in THIS form, and combine the result with no other estimand in this object</p>
@@ -721,7 +860,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <h3 id="extract-leave-one-out-sensitivity-4">Leave-one-out sensitivity</h3>
   <p>Whether the pooled estimate depends on either single trial, and whether it depends on the choice of between-study variance estimator and interval method.</p>
   <div class='tscroll'><table>
-    <caption>Table 22. Leave-one-out sensitivity</caption>
+    <caption>Table 32. Leave-one-out sensitivity</caption>
 
     <tr><th>Cohort omitted</th><th>k</th><th>HR (95% CI)</th></tr>
     <tr><td>affirm-ahf</td><td class='num'>1</td><td class='num'>0.89 (0.4102 to 1.931)</td></tr>
@@ -732,7 +871,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <h3 id="extract-does-the-answer-depend-on-the-pooling-me-4">Does the answer depend on the pooling method?</h3>
   <p>Section 10.10.4.4 records restricted maximum likelihood as the current default and that estimators other than DerSimonian and Laird perform better; that is the whole of the authority for running this comparison. Nothing in the Handbook instructs a review to run it at a particular number of studies, and running it here is a choice made under section 10.14 because with two trials the choice is plausibly influential.</p>
   <div class='tscroll'><table>
-    <caption>Table 23. Does the answer depend on the pooling method?</caption>
+    <caption>Table 33. Does the answer depend on the pooling method?</caption>
 
     <tr><th>Between-study variance</th><th>Interval</th><th>Summary (95% CI)</th><th>&tau;&sup2;</th></tr>
     <tr><td>DerSimonian-Laird (DL)</td><td>ordinary (Wald)</td><td class='num'>0.978 (0.7523 to 1.271)</td><td class='num'>0</td></tr>
@@ -750,7 +889,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h3 id="extract-what-was-measured-5">What was measured</h3>
   <div class='tscroll'><table>
-    <caption>Table 24. What was measured</caption>
+    <caption>Table 34. What was measured</caption>
 
     <tr><th>Comparator</th><td>a saline placebo</td></tr>
     <tr><th>Estimand</th><td>hierarchical_win_ratio &mdash; an unmatched win-ratio comparison over a prespecified hierarchy, tested by a rank test</td></tr>
@@ -771,7 +910,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class="card">
   <h3 id="extract-contributing-trials-5">Contributing trials</h3>
   <div class='tscroll'><table>
-    <caption>Table 25. Contributing trials</caption>
+    <caption>Table 35. Contributing trials</caption>
 
     <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
         <th>WIN_RATIO (99% CI), or events</th>
@@ -779,6 +918,35 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><td>HEART-FID<br><small>NCT03037931 &middot; the trial&#x27;s own primary endpoint</small></td><td class='num'>1532 / 1533<br><small><em>The 1532 and 1533 the trial reports, summing to its randomised total of 3065, and they are the denominators the win ratio itself is computed over. The registry does NOT post that pair on every component it publishes, and an earlier version of this field said it did. Two of the three components -- the deaths and the heart-failure hospitalisations -- post 1532 and 1533 against an intention-to-treat population. The WALK-DISTANCE component posts 1285 and 1295, against a population its own record describes as the participants within that set who contributed walk-test data. That is worth stating rather than smoothing: the third level of this trial&#x27;s hierarchy rests on roughly two hundred and fifty fewer participants per arm than the two levels above it, which is a fact about how a hierarchical endpoint accumulates evidence and is invisible in the win ratio it produces.</em></small></td><td class='num'>1.1 (0.99 to 1.23)<br><small>99% interval</small><br><small>on the log scale: 0.09531 (standard error 0.04213)</small></td><td><small><a href='https://pubmed.ncbi.nlm.nih.gov/37632463/'>Primary paper (abstract, open)</a>: <br><q>The primary outcome was a hierarchical composite of death within 12 months after randomization, hospitalizations for heart failure within 12 months after randomization, or change from baseline to 6 months in the 6-minute walk distance. The significance level was set at 0.01.</q><br><q>(Wilcoxon-Mann-Whitney P = 0.02; unmatched win ratio, 1.10; 99% confidence interval, 0.99 to 1.23)</q><br><em>Randomised, as the trial and its registry record both report, and the arm sizes below sum to it exactly. Arm-level EVENT counts are absent from the arms because this trial&#x27;s endpoint here is a hierarchical comparison over PAIRS of participants, so no per-arm count is the numerator of the stored ratio; the component counts the trial does report are on the cell&#x27;s quotes.</em></small></td></tr>
   </table></div>
   <p><small>The contributing trials share no participant and no control group.</small></p>
+</div>
+<div class="card">
+  <h3 id="extract-endpoint-definitions-read-from-the-regis-5">Endpoint definitions, read from the registry</h3>
+  <p><small>What each trial COUNTED, in its own registry record's words, before
+  anything here was pooled. A sentence saying what HAPPENED is not a sentence
+  saying what was COUNTED, and only the second one licenses a pool. Read from the registry on 2026-08-17. Follow the
+  registration link to disagree with any row.</small></p>
+  <div class='tscroll'><table>
+    <caption>Table 36. Endpoint definitions, read from the registry</caption>
+
+    <tr><th>Trial</th><th>Rank in its own trial</th>
+        <th>Registered outcome measure</th>
+        <th>Description, verbatim</th><th>Analysis set / window</th></tr>
+    <tr><td><strong>HEART-FID</strong><br><small><a href="https://clinicaltrials.gov/study/NCT03037931" rel="noopener">NCT03037931</a></small></td><td>PRIMARY, all three</td><td>Number of Deaths; Number of Hospitalizations for Heart Failure; Change in 6MWT (Six Minute Walk Test) Distance -- the registry posts these as THREE separate primary outcome measures, and the publication reports them combined as one hierarchical composite analysed by unmatched win ratio</td><td>The number of participants who died out of the total treated group. / The number of participants who were hospitalized for heart failure out of the total treated group. / The change in meters walked at baseline compared to 6 months later.</td><td>1 year for death and hospitalisation; 6 months for the walk distance</td></tr>
+  </table></div>
+</div>
+<div class="card">
+  <h3 id="extract-named-on-this-review-contributing-nothin-5">Named on this review, contributing nothing to its pool</h3>
+  <p><small>Four trials meet this review&#x27;s population, intervention and comparator criteria and contribute nothing, because they have not reported. They are listed rather than left absent so that a reader can tell the category was considered and can see what this review will have to revisit. Each was surfaced by the corrected class-keyed query recorded in the staged search record.</small></p>
+  <div class='tscroll'><table>
+    <caption>Table 37. Named on this review, contributing nothing to its pool</caption>
+
+    <tr><th>Trial</th><th>Why it contributes nothing</th>
+        <th>What the registry holds</th></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT07467668" rel="noopener"></a></small></td><td>no results posted and no publication</td><td>—</td></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT06929806" rel="noopener"></a></small></td><td>no results posted. Worth naming specifically: its comparator is no intravenous iron rather than a placebo, and its primary endpoint is cardiovascular death and worsening heart failure, so when it reports it will contribute to a composite estimand here.</td><td>—</td></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT05759078" rel="noopener"></a></small></td><td>no results posted. Its primary endpoint is the time to death from any cause, which is an estimand this object already holds and which currently rests on the smallest trial pair here.</td><td>—</td></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT07686692" rel="noopener"></a></small></td><td>not yet recruiting. Its population is heart failure with preserved ejection fraction, which no CONTRIBUTING trial here enrolled -- every one of them set an ejection-fraction ceiling -- and its primary is a hierarchical composite, which makes it the second trial in this object to designate one and the only one besides the contributing trial that reports it. The ejection-fraction range of the trials characterised from a prior synthesis&#x27;s table is not established here, so the claim is scoped to the contributing set rather than to every trial this object names.</td><td>—</td></tr>
+  </table></div>
 </div>
 <div class='card'>
   <h3 id="extract-the-methods-rule-governing-this-decision-5">The methods rule governing this decision</h3>
@@ -799,7 +967,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h3 id="extract-what-was-measured-6">What was measured</h3>
   <div class='tscroll'><table>
-    <caption>Table 26. What was measured</caption>
+    <caption>Table 38. What was measured</caption>
 
     <tr><th>Comparator</th><td>a saline placebo</td></tr>
     <tr><th>Estimand</th><td>continuous_change_from_baseline &mdash; a least-squares mean difference between arms in the change from baseline, from the trial&#x27;s own repeated-measures model</td></tr>
@@ -820,7 +988,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class="card">
   <h3 id="extract-contributing-trials-6">Contributing trials</h3>
   <div class='tscroll'><table>
-    <caption>Table 27. Contributing trials</caption>
+    <caption>Table 39. Contributing trials</caption>
 
     <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
         <th>MD (95% CI), or events</th>
@@ -828,6 +996,35 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><td>CONFIRM-HF<br><small>NCT01453608 &middot; the trial&#x27;s own primary endpoint</small></td><td class='num'>150 / 151<br><small><em>This trial&#x27;s FULL ANALYSIS SET, 150 and 151, which is NOT its randomised total. 304 patients were enrolled and 152 were randomised to each arm; three were excluded from the full analysis set for having no post-baseline efficacy assessment. The pair stored here is the one printed in the paper&#x27;s own baseline and outcome tables and in the United States label, and it is the population every estimate on this trial&#x27;s rows was computed in. An adversary brief asserted that 150 and 151 match neither arm of this trial; reading the full text refutes that, and the correction is carried in this object&#x27;s corrections block. Note also, because it is a real inconsistency between two layers and not a typing error here: the label calls 150 and 151 the numbers RANDOMISED, while the paper calls them the numbers analysed out of 152 and 152 randomised.</em></small></td><td class='num'>33 (11.44 to 54.56)</td><td><small><a href='https://pubmed.ncbi.nlm.nih.gov/25176939/'>Primary paper (abstract and full text, open)</a>: <br><q>The primary end-point was the change in 6-min-walk-test (6MWT) distance from baseline to Week 24.</q><br><q>Treatment with FCM significantly prolonged 6MWT distance at Week 24 (difference FCM vs. placebo: 33 ± 11 m, P = 0.002)</q><br><em>Enrolled and randomised. The arm sizes below do NOT sum to it: a small number of participants were excluded from the full analysis set for having no post-baseline efficacy assessment, and every row here is computed in that set. Both figures are real and they are not interchangeable, which is the subject of a correction this object carries. Arm-level EVENT counts are absent from the arms because this trial contributes one continuous endpoint and one time-to-event endpoint, neither of which has a two-by-two table behind the stored value.</em></small></td></tr>
   </table></div>
   <p><small>The contributing trials share no participant and no control group.</small></p>
+</div>
+<div class="card">
+  <h3 id="extract-endpoint-definitions-read-from-the-regis-6">Endpoint definitions, read from the registry</h3>
+  <p><small>What each trial COUNTED, in its own registry record's words, before
+  anything here was pooled. A sentence saying what HAPPENED is not a sentence
+  saying what was COUNTED, and only the second one licenses a pool. Read from the registry on 2026-08-17. Follow the
+  registration link to disagree with any row.</small></p>
+  <div class='tscroll'><table>
+    <caption>Table 40. Endpoint definitions, read from the registry</caption>
+
+    <tr><th>Trial</th><th>Rank in its own trial</th>
+        <th>Registered outcome measure</th>
+        <th>Description, verbatim</th><th>Analysis set / window</th></tr>
+    <tr><td><strong>CONFIRM-HF</strong><br><small><a href="https://clinicaltrials.gov/study/NCT01453608" rel="noopener">NCT01453608</a></small></td><td>PRIMARY</td><td>Change in six minute walk test from baseline to week 24</td><td>no description is recorded in this registry field</td><td>24 weeks</td></tr>
+  </table></div>
+</div>
+<div class="card">
+  <h3 id="extract-named-on-this-review-contributing-nothin-6">Named on this review, contributing nothing to its pool</h3>
+  <p><small>Four trials meet this review&#x27;s population, intervention and comparator criteria and contribute nothing, because they have not reported. They are listed rather than left absent so that a reader can tell the category was considered and can see what this review will have to revisit. Each was surfaced by the corrected class-keyed query recorded in the staged search record.</small></p>
+  <div class='tscroll'><table>
+    <caption>Table 41. Named on this review, contributing nothing to its pool</caption>
+
+    <tr><th>Trial</th><th>Why it contributes nothing</th>
+        <th>What the registry holds</th></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT07467668" rel="noopener"></a></small></td><td>no results posted and no publication</td><td>—</td></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT06929806" rel="noopener"></a></small></td><td>no results posted. Worth naming specifically: its comparator is no intravenous iron rather than a placebo, and its primary endpoint is cardiovascular death and worsening heart failure, so when it reports it will contribute to a composite estimand here.</td><td>—</td></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT05759078" rel="noopener"></a></small></td><td>no results posted. Its primary endpoint is the time to death from any cause, which is an estimand this object already holds and which currently rests on the smallest trial pair here.</td><td>—</td></tr>
+    <tr><td><strong>?</strong><br><small><a href="https://clinicaltrials.gov/study/NCT07686692" rel="noopener"></a></small></td><td>not yet recruiting. Its population is heart failure with preserved ejection fraction, which no CONTRIBUTING trial here enrolled -- every one of them set an ejection-fraction ceiling -- and its primary is a hierarchical composite, which makes it the second trial in this object to designate one and the only one besides the contributing trial that reports it. The ejection-fraction range of the trials characterised from a prior synthesis&#x27;s table is not established here, so the claim is scoped to the contributing set rather than to every trial this object names.</td><td>—</td></tr>
+  </table></div>
 </div>
 <div class='card'>
   <h3 id="extract-the-methods-rule-governing-this-decision-6">The methods rule governing this decision</h3>
@@ -1893,7 +2090,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h3 id="report-summary-of-findings">Summary of findings</h3>
   <div class='tscroll'><table>
-    <caption>Table 28. Summary of findings</caption>
+    <caption>Table 42. Summary of findings</caption>
 
     <tr><th>Outcome</th><th>k</th><th>Pooled effect</th><th>Certainty</th></tr>
     <tr><td>Recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio</td><td class='num'>2</td><td class='num'>RATE_RATIO 0.807 (0.686 to 0.949)</td><td>low</td></tr>
@@ -1907,13 +2104,13 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h3 id="report-reproducibility-artifact">Reproducibility artifact</h3>
   <div class='tscroll'><table>
-    <caption>Table 29. Reproducibility artifact</caption>
+    <caption>Table 43. Reproducibility artifact</caption>
 
     <tr><th scope='col'>Canonical object</th><td><code></code></td></tr>
     <tr><th scope='col'>Registered at</th><td><code></code> </td></tr>
     <tr><th scope='col'>Schema</th><td>2</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-10</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>00a5bfc55</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>bcce1602a</code>, built to STANDARD v1</td></tr>
     <tr><th scope='col'>Statistical engine</th><td>metafor 5.0.1 under R 4.6.0, generic inverse variance on the same log point and log standard error this object stores</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
@@ -1924,7 +2121,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><strong>11 checks were applied and 8 came back clean, 0 found an error, 1 found something absent and 2 could not be settled at the layer available. The denominator is stated because a list of only the failures is not a finding, it is a selection.</strong></p>
   <p><small>Confirmations are listed in the same table, in the same detail, as errors. Across the cardiology topics reconciled so far the published literature has been implicated in none of them: where a defect existed it was ours. A comparison with room only for their errors could not have found that out.</small></p>
   <div class='tscroll'><table>
-    <caption>Table 30. Comparison with published syntheses</caption>
+    <caption>Table 44. Comparison with published syntheses</caption>
 
     <tr><th scope='col'>Check</th><th>Verdict</th><th>What was found</th></tr>
     <tr><td><strong>Our AFFIRM-AHF recurrent-composite input against the registry&#x27;s POSTED RESULT</strong><br><small>affirm-recurrent-vs-registry-results</small></td><td>CONFIRMED<br><small>checked and clean</small></td><td>The registry posts, on the primary outcome whose definition we read, an annualised event rate ratio of 0.79 with a 95% interval of 0.62 to 1.01, from a negative binomial model adjusted for sex, age, HF aetiology, HF duration and country. This object stores 0.79 (0.62 to 1.01). Identical, and taken from the registry&#x27;s analysis record rather than from the publication.<br><small>Quoted: &ldquo;Annualised event rate ratio (RR) = 0.79, CI 0.62-1.01&rdquo; &mdash; ClinicalTrials.gov NCT02937454, resultsSection, primary outcome</small></td></tr>
@@ -1941,7 +2138,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   </table></div>
   <h3 id="report-the-syntheses-reconciled-against">The syntheses reconciled against</h3>
   <div class='tscroll'><table>
-    <caption>Table 31. The syntheses reconciled against</caption>
+    <caption>Table 45. The syntheses reconciled against</caption>
 
     <tr><th scope='col'>37074386</th><td>Efficacy and safety of intravenous iron repletion in patients with heart failure: a systematic review and meta-analysis. Clin Res Cardiol 2023.<br><small>It does not differ. Same two trials, same endpoint, independently computed -- which makes it the only direct external check of a pooled value anywhere in this cardiology lane.</small></td></tr>
     <tr><th scope='col'>40159279</th><td>Systematic review and meta-analysis of intravenous iron therapy for patients with heart failure and iron deficiency. Nat Med 2025.<br><small>It has INDIVIDUAL PARTICIPANT DATA and we have published summaries. That is the whole difference: four of its six trials publish no recurrent-events composite at all, so it could DERIVE the endpoint for them and we could not. Our k=2 is a limit of the layer available to us, not a judgement that the other four are ineligible.</small></td></tr>
@@ -1950,7 +2147,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   </table></div>
   <h3 id="report-where-the-numbers-differ-and-why">Where the numbers differ, and why</h3>
   <div class='tscroll'><table>
-    <caption>Table 32. Where the numbers differ, and why</caption>
+    <caption>Table 46. Where the numbers differ, and why</caption>
 
     <tr><th scope='col'>This review</th><td>Rate ratio 0.8066 (0.6856 to 0.9488) for recurrent heart-failure hospitalisations together with cardiovascular death, k=2, AFFIRM-AHF and IRONMAN, from published summary data.</td></tr>
     <tr><th scope='col'>The published synthesis</th><td>RR 0.81 (0.69 to 0.95) on the same two trials (Clin Res Cardiol 2023); RR 0.81 (0.63 to 0.97) on six trials with individual participant data (Nat Med 2025); RR 0.73 (0.48 to 0.99) on four trials with harmonised definitions (Eur J Heart Fail 2023).</td></tr>
@@ -1965,7 +2162,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p>Started at <strong>high</strong> &mdash; every contributing study is a randomised controlled trial.</p>
   <p><small>start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -&gt; low</small></p>
   <div class='tscroll'><table>
-    <caption>Table 33. Certainty of the evidence (GRADE)</caption>
+    <caption>Table 47. Certainty of the evidence (GRADE)</caption>
 
     <tr><th scope='col'>Domain</th><th>Rating</th><th>Why it was rated that way</th></tr>
     <tr><th scope='col'>Risk of bias</th><td>serious</td><td><small>Both contributing trials are randomised and prospectively registered, and this endpoint is the PRIMARY of both, so none of the selective-reporting exposure a secondary endpoint carries applies to this estimand. What carries the SERIOUS rating is a single fact about one of them: it is OPEN LABEL, with no placebo infusion, so participants and treating clinicians knew the assignment. Its outcome adjudication is masked and its endpoint is adjudicated, which limits that exposure -- a hospitalisation is a harder endpoint than a symptom score -- but the DECISION to admit a patient is made by an unmasked clinician before any adjudicator sees it, and that is the step masking cannot protect. The other trial is double-blind and this domain is not about it. Rating a pool on its weaker member is the conservative reading and it is stated here rather than averaged away.</small></td></tr>
@@ -1982,7 +2179,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p>Started at <strong>high</strong> &mdash; every contributing study is a randomised controlled trial.</p>
   <p><small>start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -&gt; low</small></p>
   <div class='tscroll'><table>
-    <caption>Table 34. Certainty of the evidence (GRADE)</caption>
+    <caption>Table 48. Certainty of the evidence (GRADE)</caption>
 
     <tr><th scope='col'>Domain</th><th>Rating</th><th>Why it was rated that way</th></tr>
     <tr><th scope='col'>Risk of bias</th><td>serious</td><td><small>Both contributing trials are randomised, prospectively registered and masked to participants and investigators. Neither trial&#x27;s staged sources use the word adjudicated about this endpoint, so this domain does not credit either of them with central adjudication -- an earlier version credited both. What carries the SERIOUS rating is endpoint RANK and it applies to one of the two rows: for one trial this is a designated secondary endpoint reported in a trial whose own primary did not reach the conventional level, which is precisely the condition outcome-reporting-bias guidance is about. For the other trial it is a co-primary. The asymmetry is on the uniformity table and it is the reason this domain is not rated as it is on the recurrent-composite estimand, where both rows are primaries.</small></td></tr>
@@ -1999,7 +2196,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p>Started at <strong>high</strong> &mdash; every contributing study is a randomised controlled trial.</p>
   <p><small>start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -&gt; low</small></p>
   <div class='tscroll'><table>
-    <caption>Table 35. Certainty of the evidence (GRADE)</caption>
+    <caption>Table 49. Certainty of the evidence (GRADE)</caption>
 
     <tr><th scope='col'>Domain</th><th>Rating</th><th>Why it was rated that way</th></tr>
     <tr><th scope='col'>Risk of bias</th><td>serious</td><td><small>The same two trials as the first-event estimand, and the same asymmetry in reverse order: one row is a designated secondary of a trial whose primary did not reach the conventional level, and the other is a co-primary. The SERIOUS rating rests on the first of those, for the same outcome-reporting reason. Both trials are randomised, registered and masked to participants and investigators.</small></td></tr>
@@ -2016,7 +2213,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p>Started at <strong>high</strong> &mdash; every contributing study is a randomised controlled trial.</p>
   <p><small>start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -&gt; low</small></p>
   <div class='tscroll'><table>
-    <caption>Table 36. Certainty of the evidence (GRADE)</caption>
+    <caption>Table 50. Certainty of the evidence (GRADE)</caption>
 
     <tr><th scope='col'>Domain</th><th>Rating</th><th>Why it was rated that way</th></tr>
     <tr><th scope='col'>Risk of bias</th><td>serious</td><td><small>NEITHER row is a designated PRIMARY endpoint, and that is what carries the SERIOUS rating on this estimand. The two are not alike beyond that, and this domain no longer treats them as though they were. One is classified by its own registry as an other-prespecified outcome and is not reported in that trial&#x27;s publication at all. The other is a DESIGNATED SECONDARY endpoint, named as such in its trial&#x27;s methods and ADJUDICATED by that trial&#x27;s independent clinical endpoint committee -- an earlier version of this domain called it an undesignated results-table row, which read the endpoint&#x27;s status off the page it is printed on. Both trials are randomised, registered and double-blind, and death from any cause is about as hard an endpoint as exists, so the exposure here is not about ascertainment -- it is about which of many reported quantities a synthesis chooses to carry, which is what outcome-reporting guidance concerns. Reporting the rating without that distinction would let a reader assume this estimand rests on prespecified primaries in the way the recurrent-composite estimand does.</small></td></tr>
@@ -2033,7 +2230,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p>Started at <strong>high</strong> &mdash; every contributing study is a randomised controlled trial.</p>
   <p><small>start high; imprecision serious (-1); total -1 -&gt; moderate</small></p>
   <div class='tscroll'><table>
-    <caption>Table 37. Certainty of the evidence (GRADE)</caption>
+    <caption>Table 51. Certainty of the evidence (GRADE)</caption>
 
     <tr><th scope='col'>Domain</th><th>Rating</th><th>Why it was rated that way</th></tr>
     <tr><th scope='col'>Risk of bias</th><td>not serious</td><td><small>The contributing trial is randomised, prospectively registered, double-blind and reports its own primary endpoint, and this cell IS that primary. It posts the three components of the hierarchy to its registry and those counts agree with the publication. The trial did not meet its endpoint and reports that plainly. Not downgraded, and nothing about the win-ratio form of the analysis is treated as a bias: it is a prespecified analysis of a prespecified hierarchy at a prespecified level.</small></td></tr>
@@ -2050,7 +2247,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p>Started at <strong>high</strong> &mdash; every contributing study is a randomised controlled trial.</p>
   <p><small>start high; indirectness serious (-1), imprecision serious (-1); total -2 -&gt; low</small></p>
   <div class='tscroll'><table>
-    <caption>Table 38. Certainty of the evidence (GRADE)</caption>
+    <caption>Table 52. Certainty of the evidence (GRADE)</caption>
 
     <tr><th scope='col'>Domain</th><th>Rating</th><th>Why it was rated that way</th></tr>
     <tr><th scope='col'>Risk of bias</th><td>not serious</td><td><small>The contributing trial is randomised, double-blind, and reports this cell as its own registered primary endpoint. It is REGISTERED, and this domain does not say prospectively: its registry record was first submitted in the same MONTH its enrolment began and the record gives the start only to that month, so prospective registration cannot be established from the record and is therefore not claimed. That is a limit on what the record can show rather than evidence of a problem, and it is stated because the other estimands here DO claim prospective registration on trials whose records settle it. What is NOT ignored here is that the endpoint is a walk test, which is effort-dependent and therefore more exposed to unmasking than a hospitalisation or a death would be; the trial&#x27;s masking is what answers that, and the masking is real. Not downgraded. The disagreement between this trial&#x27;s own figure and the regulator&#x27;s figure for the same endpoint is NOT counted here: two analyses of the same masked data differing is an analytic difference, and it is recorded as a divergence on the cell rather than converted into a bias rating.</small></td></tr>
@@ -2107,7 +2304,119 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   }
 })();
 </script>
+<div class='card'><h2>Page standard 1.3.0-2026-08-19</h2><p>Built 2026-08-19 by <code>ssot/build_to_standard.py</code> against <code>PAGE-STANDARD.md</code>. <strong>8 held, 0 refusing.</strong> A refusal is a complete outcome; nothing is generated to fill a slot.</p><div class='tscroll'><table>
+    <caption>Table 53. Page standard 1.3.0-2026-08-19</caption>
+<tr><th>property</th><th>state</th><th>reason</th></tr><tr class='ok'><td>P1_executed_search</td><td><strong>HELD</strong></td><td>2 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 29-trial unscreened remainder is stated as a number rather than omitted.</td></tr><tr class='ok'><td>P2_k_cascade</td><td><strong>HELD</strong></td><td>k at every stage: surfaced 47, located 47, experimental 34, comparator 6, included 5, unscreened remainder 29.</td></tr><tr class='ok'><td>P3_inclusion_criteria</td><td><strong>HELD</strong></td><td>Criteria provenance block present with predefined=None on its face (state &#x27;NATIVE_TO_THIS_OBJECT&#x27;).</td></tr><tr class='ok'><td>P4_preconditions</td><td><strong>HELD</strong></td><td>All 8 recorded with verdict and cited authority: 0 FAIL, 2 NOT-ASSESSABLE. criteria_predefined is NOT-ASSESSABLE -- this object declares neither a provenance block nor a protocol statement, so pre-specification cannot be decided either way.</td></tr><tr class='ok'><td>P5_extraction_table</td><td><strong>HELD</strong></td><td>12 cells: 10 READ with source path and verbatim text, 2 DERIVED with the method named.</td></tr><tr class='ok'><td>P6_analysis_output</td><td><strong>HELD</strong></td><td>4 pool(s) carry verbatim model output with environment and call: [&#x27;acm&#x27;, &#x27;hfh_cvd_first&#x27;, &#x27;hfh_cvd_recurrent&#x27;, &#x27;hfh_recurrent&#x27;]. Nothing is summarised in place of a quotation.</td></tr><tr class='ok'><td>P7_published_comparison</td><td><strong>HELD</strong></td><td>11 check(s) applied against published syntheses with a STATED DENOMINATOR: 8 confirmed, 0 error(s), 1 absent, 2 unresolved. Confirmations are listed in the same detail as errors -- a comparison with room only for their errors could not report that the defects were ours.</td></tr><tr class='ok'><td>P8_registration_identity</td><td><strong>HELD</strong></td><td>5 of 5 trial(s) verified live against the registry.</td></tr></table></div><h3>k at every stage</h3><div class='tscroll'><table>
+    <caption>Table 54. k at every stage</caption>
+<tr><th>stage</th><th>k</th></tr><tr><td>k0_surfaced</td><td>47</td></tr><tr><td>k2_role_located</td><td>47</td></tr><tr><td>k3_experimental</td><td>34</td></tr><tr><td>k4_comparator</td><td>6</td></tr><tr><td>k5_background</td><td>5</td></tr><tr><td>kNA_not_assessable</td><td>2</td></tr><tr><td>k_included_in_object</td><td>5</td></tr><tr><td>k_unscreened_remainder</td><td>29</td></tr><tr><td>k3_corrected_from</td><td>The placebo-discriminator (ssot/topic_identity.locate, 2026-08-19) is load-bearing here: AFFIRM-AHF and HEART-FID type their IRON arm ACTIVE_COMPARATOR against a PLACEBO_COMPARATOR saline arm and declare NO arm typed EXPERIMENTAL AT ALL. Read literally, 2 of this object&#x27;s 5 included trials would be scored &#x27;comparator&#x27; and the evidence base would shrink silently -- the WITHHOLDING direction.</td></tr><tr><td>keyed_on</td><td>registration id</td></tr></table></div><h3>Inclusion criteria — derived, post hoc</h3><p><strong>predefined: None &nbsp;|&nbsp; post_hoc: None</strong> — derived None</p><p><small></small></p><div class='tscroll'><table>
+    <caption>Table 55. Inclusion criteria — derived, post hoc</caption>
+<tr><th>limb</th><th>value</th><th>derived from</th></tr><tr><td>None</td><td>None</td><td><code>None</code></td></tr><tr><td>None</td><td>None</td><td><code>None</code></td></tr><tr><td>None</td><td>None</td><td><code>None</code></td></tr><tr><td>None</td><td>None</td><td><code>None</code></td></tr><tr><td>None</td><td>None</td><td><code>None</code></td></tr><tr><td>None</td><td>None</td><td><code>None</code></td></tr></table></div><h3>Analysis output — hfh_cvd_recurrent (quoted verbatim)</h3><p><small>R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1 &nbsp;|&nbsp; call: <code>rma(yi = log(est), sei = (log(hi)-log(lo))/(2*qnorm(0.975)), method = &quot;REML&quot;)</code></small></p><pre style='overflow-x:auto'>hfh_cvd_recurrent -- recurrent HF hospitalisations WITH CV death, rate ratio
+  unit of analysis: event: each participant contributes every qualifying event
+==============================================================================
 
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0197)
+tau (square root of estimated tau^2 value):      0
+I^2 (total heterogeneity / total variability):   0.00%
+H^2 (total variability / sampling variability):  1.00
+
+Test for Heterogeneity:
+Q(df = 1) = 0.0499, p-val = 0.8232
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb    ci.ub     
+ -0.2150  0.0829  -2.5940  0.0095  -0.3774  -0.0525  ** 
+
+---
+Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
+
+
+Back-transformed:
+
+   pred  ci.lb  ci.ub  pi.lb  pi.ub 
+ 0.8066 0.6856 0.9488 0.6856 0.9488</pre><p><small>The stored pooled point was 0.8066. This independent run reproduces it EXACTLY, digit for digit, from the per-trial estimates already on the object.</small></p><h3>Analysis output — hfh_cvd_first (quoted verbatim)</h3><p><small>R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1 &nbsp;|&nbsp; call: <code>rma(yi = log(est), sei = (log(hi)-log(lo))/(2*qnorm(0.975)), method = &quot;REML&quot;)</code></small></p><pre style='overflow-x:auto'>hfh_cvd_first -- FIRST CV death or HF hospitalisation, hazard ratio
+  unit of analysis: participant: time to the first component event
+==============================================================================
+
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0166)
+tau (square root of estimated tau^2 value):      0
+I^2 (total heterogeneity / total variability):   0.00%
+H^2 (total variability / sampling variability):  1.00
+
+Test for Heterogeneity:
+Q(df = 1) = 0.0067, p-val = 0.9346
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb    ci.ub     
+ -0.2286  0.0759  -3.0114  0.0026  -0.3774  -0.0798  ** 
+
+---
+Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
+
+
+Back-transformed:
+
+   pred  ci.lb  ci.ub  pi.lb  pi.ub 
+ 0.7957 0.6857 0.9233 0.6857 0.9233</pre><p><small>The stored pooled point was 0.7957. This independent run reproduces it EXACTLY, digit for digit, from the per-trial estimates already on the object.</small></p><h3>Analysis output — hfh_recurrent (quoted verbatim)</h3><p><small>R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1 &nbsp;|&nbsp; call: <code>rma(yi = log(est), sei = (log(hi)-log(lo))/(2*qnorm(0.975)), method = &quot;REML&quot;)</code></small></p><pre style='overflow-x:auto'>hfh_recurrent -- recurrent HF hospitalisations ALONE, no death component, rate ratio
+  unit of analysis: hospitalisation: each participant contributes every hospitalisation
+==============================================================================
+
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0256)
+tau (square root of estimated tau^2 value):      0
+I^2 (total heterogeneity / total variability):   0.00%
+H^2 (total variability / sampling variability):  1.00
+
+Test for Heterogeneity:
+Q(df = 1) = 0.1677, p-val = 0.6822
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb    ci.ub     
+ -0.2685  0.0939  -2.8583  0.0043  -0.4526  -0.0844  ** 
+
+---
+Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
+
+
+Back-transformed:
+
+   pred  ci.lb  ci.ub  pi.lb  pi.ub 
+ 0.7645 0.6360 0.9191 0.6360 0.9191</pre><p><small>The stored pooled point was 0.7645. This independent run reproduces it EXACTLY, digit for digit, from the per-trial estimates already on the object.</small></p><h3>Analysis output — acm (quoted verbatim)</h3><p><small>R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1 &nbsp;|&nbsp; call: <code>rma(yi = log(est), sei = (log(hi)-log(lo))/(2*qnorm(0.975)), method = &quot;REML&quot;)</code></small></p><pre style='overflow-x:auto'>acm -- death from ANY cause, hazard ratio
+  unit of analysis: participant: time to death from any cause
+==============================================================================
+
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.1247)
+tau (square root of estimated tau^2 value):      0
+I^2 (total heterogeneity / total variability):   0.00%
+H^2 (total variability / sampling variability):  1.00
+
+Test for Heterogeneity:
+Q(df = 1) = 0.0643, p-val = 0.7999
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb   ci.ub    
+ -0.0223  0.1339  -0.1663  0.8679  -0.2846  0.2401    
+
+---
+Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
+
+
+Back-transformed:
+
+   pred  ci.lb  ci.ub  pi.lb  pi.ub 
+ 0.9780 0.7523 1.2714 0.7523 1.2714</pre><p><small>The stored pooled point was 0.978. This independent run reproduces it EXACTLY, digit for digit, from the per-trial estimates already on the object.</small></p><h3>Preconditions</h3><p><small>Authority: Cochrane Handbook for Systematic Reviews of Interventions 6.5, 2024, verified 2026-08-19. Publishable: True.</small></p><div class='tscroll'><table>
+    <caption>Table 56. Preconditions</caption>
+<tr><th>precondition</th><th>verdict</th><th>reason</th><th>authority</th></tr><tr><td>population_stated</td><td><strong>PASS</strong></td><td><small>present: question carries 429 characters</small></td><td><small>MECIR C62 &#x27;Ensuring meta-analyses are meaningful&#x27; (Mandatory, READ 2026-08-19): &#x27;Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be s</small></td></tr><tr><td>arm_role_resolved</td><td><strong>PASS</strong></td><td><small>inputs.trials: all 5 trial(s) carry arms with a readable role</small></td><td><small>MECIR C62 (Mandatory), &#x27;interventions&#x27; limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are &#x27;sufficiently similar&#x27; without knowing whi</small></td></tr><tr><td>comparators_identified</td><td><strong>PASS</strong></td><td><small>every outcome names a comparator type; 1 DECLARE &#x27;mixed&#x27; [&#x27;hfh_cvd_recurrent&#x27;] -- the object reporting within-outcome comparator heterogeneity itself, which is the state this check exists to surface, not a failure. Types</small></td><td><small>MECIR C62 (Mandatory), &#x27;comparisons&#x27; limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency.</small></td></tr><tr><td>estimand_named</td><td><strong>PASS</strong></td><td><small>outcomes.estimand: all 6 outcome(s) name a quantity</small></td><td><small>MECIR C8 &#x27;Clarifying role of outcomes&#x27; (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), &#x27;outcomes&#x27; limb</small></td></tr><tr><td>criteria_stated</td><td><strong>PASS</strong></td><td><small>present: screening.eligibility carries 1518 characters</small></td><td><small>MECIR R29 &#x27;Eligibility criteria for types of participants&#x27;, R30 &#x27;...types of interventions&#x27;, R31 &#x27;Role of outcomes&#x27; -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block</small></td></tr><tr><td>criteria_predefined</td><td><strong>NOT-ASSESSABLE</strong></td><td><small>cannot assess: the object records neither an eligibility provenance block nor a statement about its protocol</small></td><td><small>MECIR C5 &#x27;Predefining unambiguous criteria for participants&#x27; AND C7 &#x27;...for interventions and comparators&#x27;, BOTH Mandatory (READ 2026-08-19): &#x27;Predefined, unambiguous eligibility criteria are a fundam</small></td></tr><tr><td>eligibility_met</td><td><strong>NOT-ASSESSABLE</strong></td><td><small>cannot assess: criteria are stated and sources are present, but no full text was READ this pass. This precondition never infers from the auditability check.</small></td><td><small>MECIR C5/C7 (Mandatory) with C6 &#x27;Predefining a strategy for studies with a subset of eligible participants&#x27; (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report</small></td></tr><tr><td>contributes_a_randomised_contrast</td><td><strong>PASS</strong></td><td><small>inputs.trials.arms: all 5 readable trial(s) contribute one topic-vs-control randomised contrast</small></td><td><small>Handbook 6.5 s23.3.4 &#x27;How to include multiple groups from one study&#x27; (READ 2026-08-19) and s23.3.6 &#x27;Factorial trials&#x27;; MECIR C7 &#x27;Predefining unambiguous criteria for interventions and comparators&#x27; (Ma</small></td></tr></table></div><p><small>This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant.</small></p></div>
 <p><small>Every number on this page is projected from a single canonical object,
 and each measured cell names the source analysis it was read from. That is what is
 machine-checked. It does not establish that the underlying sources are right, only
