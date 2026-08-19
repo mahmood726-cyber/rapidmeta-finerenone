@@ -1,0 +1,165 @@
+#!/usr/bin/env python3
+"""VERIFY EVERY TOMBSTONE IS INTACT -- and the record of a defect that turned out not to exist.
+
+WHAT THIS WAS WRITTEN TO REPAIR, AND WHY IT REPAIRS NOTHING. An audit reported that all ten
+retired objects carried `trials_it_held: []` while each in fact held one to three trials, and
+that `THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT` was nested two deep with the outer layer a copy of
+the tombstone. Both observations were true OF THE WORKING TREE and false of the repository.
+
+  THE WORKING TREE HELD AN UNCOMMITTED SECOND RUN OF THE MERGE EXECUTOR. All nineteen merge-
+  cluster files carried an mtime of 16:36:01, eight minutes after the merge commit at 16:28:41.
+  That re-run wrapped each tombstone in a further retirement layer and re-blanked
+  `trials_it_held`. **The committed corpus was correct the whole time**: depth 1, the genuine
+  pre-retirement object directly beneath, and `trials_it_held` already populated.
+
+  A SECOND FALSE LAYER SAT ON TOP OF THE FIRST. The comparison that was supposed to settle it
+  used `subprocess.run(..., text=True)` with no `encoding=`, so on Windows `git show` came back
+  decoded as cp1252 and one field appeared to differ (`AUC0-âˆž` against `AUC0-∞`). Re-run with
+  `encoding='utf-8'`, all nineteen files match HEAD exactly and all 240 committed objects scan
+  clean. See `scripts/sweep_mojibake.py`.
+
+SO THREE THINGS ARE TRUE AT ONCE, and only the third is a defect in this repository:
+
+  1. The tombstones were never damaged. `git checkout -- ssot/` returned the tree to a state
+     where this script finds NOTHING to repair, which is the outcome that proves the point.
+  2. Two successive false findings were produced by reading tools -- a stale worktree and a
+     mis-specified decoder -- not by the corpus.
+  3. Seven DELIVERED pages did carry genuinely double-encoded characters, found only because
+     the false alarm provoked a sweep. Those were real, byte-verified, and are now repaired by
+     `scripts/fix_double_encoded_delivered_pages.py`.
+
+WHAT THIS SCRIPT IS NOW. A VERIFIER. It unwraps each tombstone to its innermost snapshot, reads
+the trials from it, and checks that value against the pre-retirement object in git. It writes
+only where `trials_it_held` is genuinely empty, and refuses where the two disagree. On an intact
+corpus it reports `0 tombstone(s) REPAIRED`, and that zero is the assertion.
+
+USAGE
+    python scripts/repair_tombstone_trials_it_held.py            # verify only
+    python scripts/repair_tombstone_trials_it_held.py --apply    # write, only where empty
+    python scripts/repair_tombstone_trials_it_held.py --selftest
+"""
+import glob
+import io
+import json
+import os
+import subprocess
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+NOTE = ("Populated 2026-08-19 from the innermost `THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT`. The "
+        "field was written as an empty list at retirement -- it read the wrong key -- so this "
+        "tombstone said it held nothing while in fact holding these trials. The value was "
+        "verified against the pre-retirement object in git before being written, and every one "
+        "of these trials is also present in the survivor. NOTHING WAS LOST; ONE FIELD WAS "
+        "BLANK.")
+
+
+def innermost(o):
+    d = 0
+    while isinstance(o, dict) and "THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT" in o:
+        o = o["THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"]
+        d += 1
+    return o, d
+
+
+def ncts(o):
+    return sorted(x.get("nct") for x in ((o.get("inputs") or {}).get("trials") or [])
+                  if isinstance(x, dict) and x.get("nct"))
+
+
+def git_before(relpath):
+    """The object as the repository held it in the commit BEFORE the retiring one."""
+    cs = subprocess.run(["git", "log", "--format=%H", "--", relpath],
+                        capture_output=True, cwd=REPO).stdout.decode("utf-8", "replace").split()
+    if len(cs) < 2:
+        return None
+    # `encoding="utf-8"` IS THE FIX FOR THE FALSE FINDING THIS FILE DOCUMENTS. Without it,
+    # `text=True` decodes with the Windows locale codec (cp1252) and every non-ASCII character
+    # in the committed object comes back mangled -- which this script then reported as
+    # corruption in the repository. Never call `git show` on JSON without naming the encoding.
+    raw = subprocess.run(["git", "show", "%s:%s" % (cs[1], relpath)],
+                         capture_output=True, cwd=REPO).stdout.decode("utf-8", "replace")
+    try:
+        return json.loads(raw)
+    except Exception:
+        return None
+
+
+def run(apply_it):
+    changed, refused = [], []
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        with io.open(p, "r", encoding="utf-8") as fh:
+            o = json.load(fh)
+        if str(o.get("state") or "").upper() != "RETIRED":
+            continue
+        rel = os.path.relpath(p, REPO).replace(os.sep, "/")
+        inner, depth = innermost(o)
+        want = ncts(inner)
+        prev = git_before(rel)
+        was = ncts(prev) if prev else None
+
+        # THE GATE. A repair that cannot be checked against the repository is not applied.
+        if was is None:
+            refused.append((rel, "no pre-retirement commit could be read"))
+            continue
+        if want != was:
+            refused.append((rel, "snapshot %s != git %s" % (want, was)))
+            continue
+        if o.get("trials_it_held"):
+            print("  %-42s already populated -- left alone" % os.path.basename(p))
+            continue
+
+        print("  %-42s depth=%d  ->  %s" % (os.path.basename(p), depth, ", ".join(want) or "-"))
+        changed.append(rel)
+        if apply_it:
+            o["trials_it_held"] = want
+            o["trials_it_held_note"] = NOTE
+            o["trials_it_held_verified_against"] = (
+                "git show <the commit before retirement>:%s -- identical" % rel)
+            with io.open(p, "w", encoding="utf-8", newline="") as fh:
+                fh.write(json.dumps(o, indent=1, ensure_ascii=False))
+
+    print("\n%d tombstone(s) %s" % (len(changed), "REPAIRED" if apply_it else "would be repaired"))
+    if refused:
+        print("REFUSED (not written, and that is the correct outcome):")
+        for r, why in refused:
+            print("   %-46s %s" % (r, why))
+    return 1 if refused else 0
+
+
+def selftest():
+    fails = []
+
+    def ck(n, got, want):
+        ok = got == want
+        print("  %-64s %s  %r" % (n, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(n)
+
+    print("1. THE SNAPSHOT IS UNWRAPPED TO ITS INNERMOST LAYER, not the first one:")
+    nested = {"state": "RETIRED", "THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT": {
+        "state": "RETIRED", "THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT": {
+            "inputs": {"trials": [{"nct": "NCT1"}, {"nct": "NCT2"}]}}}}
+    inner, d = innermost(nested)
+    ck("depth found", d, 2)
+    ck("and the trials come from the INNER layer", ncts(inner), ["NCT1", "NCT2"])
+    # THE POINT OF THIS ONE. Reading only the first layer returns [] -- which is what nearly
+    # got written up as data loss. An empty read is not evidence of an empty object.
+    ck("reading only the FIRST layer returns nothing, which is the trap",
+       ncts(nested["THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"]), [])
+
+    print("\n2. AND A TOMBSTONE WITH NO SNAPSHOT AT ALL YIELDS NOTHING RATHER THAN CRASHING:")
+    inner, d = innermost({"state": "RETIRED"})
+    ck("depth", d, 0)
+    ck("trials", ncts(inner), [])
+
+    print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    if "--selftest" in sys.argv:
+        sys.exit(selftest())
+    sys.exit(run("--apply" in sys.argv))

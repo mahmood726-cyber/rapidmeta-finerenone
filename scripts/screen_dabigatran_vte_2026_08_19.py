@@ -271,10 +271,25 @@ def selftest():
         ck("%s -> %s" % (nct, want), assign(s)[0], want)
 
     print("\n2. THE GUARD CAN FIRE, and does not fire on the correct case (P16):")
-    # THE FIXTURE CARRIES EVERY KNOWN MEMBER, because `assert_known` checks all of them and a
-    # one-row list reports the other six as ABSENT. The first version asserted 1 and got 7 --
-    # the test was wrong and the guard was right, which is the failure mode a control exists to
-    # tell apart from the opposite.
+    # ---------------------------------------------------------------------------------------
+    # READ THIS BEFORE ASSUMING THE GUARD WAS LOOSENED. It was not. `assert_known` was never
+    # changed; the ASSERTION was.
+    #
+    # The first version of this block passed a ONE-ROW list to `assert_known`, which checks all
+    # seven declared members. Six were legitimately reported ABSENT, so the call returned 7
+    # while the assertion expected 1, and the selftest failed.
+    #
+    #   THE TEST WAS WRONG AND THE GUARD WAS RIGHT.
+    #
+    # That is the harder of the two cases a control exists to tell apart, and the tempting fix
+    # -- relax `assert_known` until the number comes back 1 -- would have silently destroyed the
+    # only thing protecting the partition: its ability to notice a member that is missing rather
+    # than merely misplaced. The fixture was corrected instead, so it now carries EVERY known
+    # member and misplaces exactly one.
+    #
+    # A future reader who finds a guard and a test disagreeing should establish which one is
+    # wrong before changing either. Here it was the TEST.
+    # ---------------------------------------------------------------------------------------
     allright = [{"nct": n, "reading": w} for n, (w, _y) in KNOWN_MEMBERS.items()]
     ck("all seven in their declared readings is NOT refused", assert_known(allright), [])
     one_wrong = [dict(r, reading=("SURGICAL" if r["nct"] == "NCT00291330" else r["reading"]))

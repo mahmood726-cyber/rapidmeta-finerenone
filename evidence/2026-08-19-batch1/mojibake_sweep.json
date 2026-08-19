@@ -1,0 +1,85 @@
+{
+ "swept_utc": "2026-08-19",
+ "files_scanned": 2501,
+ "files_flagged": 5,
+ "unreadable": [],
+ "what_this_does_not_do": "It does not repair. A character can only be restored from the source that produced it. Guessing the intended glyph from mangled bytes is an approximation, and this project reports unresolvable rather than approximating.",
+ "flagged": [
+  {
+   "file": "evidence/2026-08-19-batch1/mojibake_sweep.json",
+   "signatures": {
+    "∞  INFINITY": 1,
+    "—  EM DASH": 8,
+    "–  EN DASH": 1,
+    "’  RIGHT SINGLE QUOTE": 1,
+    "α  GREEK ALPHA": 1,
+    "é  E ACUTE": 1
+   },
+   "context": "T00074984:{name:\\\"Fabrazyme (Agalsidase Beta) â€” Banikazemi 2007\\\",pmid:\\\"17179052\\\",phase:\\\"I"
+  },
+  {
+   "file": "scripts/audit_40_checks.py",
+   "signatures": {
+    "’  RIGHT SINGLE QUOTE": 1,
+    "é  E ACUTE": 1
+   },
+   "context": "     \"\"\"P3: outcome titles with mojibake (â€, â€™, Ã©, etc.).\"\"\"     out = []     if re.search("
+  },
+  {
+   "file": "scripts/fix_double_encoded_delivered_pages.py",
+   "signatures": {
+    "∞  INFINITY": 2,
+    "—  EM DASH": 7,
+    "–  EN DASH": 1,
+    "’  RIGHT SINGLE QUOTE": 1,
+    "“  LEFT DOUBLE QUOTE": 1,
+    "…  ELLIPSIS": 1,
+    "≥  GREATER-THAN OR EQUAL": 1,
+    "≤  LESS-THAN OR EQUAL": 1,
+    "µ  MICRO SIGN": 1,
+    "±  PLUS-MINUS": 1,
+    "°  DEGREE SIGN": 1,
+    "α  GREEK ALPHA": 2,
+    "β  GREEK BETA": 1,
+    "τ  GREEK TAU": 1,
+    "é  E ACUTE": 1,
+    "ö  O UMLAUT": 1,
+    "ü  U UMLAUT": 1
+   },
+   "context": "A-1\"'  Those bytes are the UTF-8 encoding of `â€”`, which is itself cp1252's misreading of the "
+  },
+  {
+   "file": "scripts/sentinel_check.py",
+   "signatures": {
+    "—  EM DASH": 1
+   },
+   "context": "s rule blocks regression. MOJIBAKE_EM_DASH = \"â€”\"   def r7_mojibake_em_dash(path: Path, txt: s"
+  },
+  {
+   "file": "scripts/sweep_mojibake.py",
+   "signatures": {
+    "∞  INFINITY": 3,
+    "—  EM DASH": 5,
+    "–  EN DASH": 1,
+    "’  RIGHT SINGLE QUOTE": 1,
+    "“  LEFT DOUBLE QUOTE": 1,
+    "”  RIGHT DOUBLE QUOTE": 1,
+    "…  ELLIPSIS": 1,
+    "≥  GREATER-THAN OR EQUAL": 1,
+    "≤  LESS-THAN OR EQUAL": 1,
+    "µ  MICRO SIGN": 1,
+    "±  PLUS-MINUS": 1,
+    "°  DEGREE SIGN": 1,
+    "α  GREEK ALPHA": 1,
+    "β  GREEK BETA": 1,
+    "τ  GREEK TAU": 1,
+    "≈  ALMOST EQUAL": 1,
+    "‰  PER MILLE": 1,
+    "é  E ACUTE": 1,
+    "ö  O UMLAUT": 1,
+    "ü  U UMLAUT": 1
+   },
+   "context": "RA-1'  Those bytes are the UTF-8 encoding of `â€”`, which is itself cp1252's misreading of the "
+  }
+ ]
+}

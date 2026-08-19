@@ -692,6 +692,40 @@ NOT_ASSESSABLE reasons broken out, for exactly this reason.
 in principle and is not written; what is written is the discipline above, and discipline is not
 a command. Recorded honestly as the weakest entry in this file.
 
+#### And it reproduced TWICE MORE the same day, in the selftests of the instruments written after it
+
+Both after this entry existed, both by the author of this entry, both in the **selftest** — the
+part of a file whose entire purpose is to catch this:
+
+| # | where | the comparison | against |
+|---|---|---|---|
+| 3 | `resolve_primary_publications.py` selftest | `"does not search" in why` | a string reading **"DOES NOT SEARCH"** |
+| 4 | `estimand_screen_dabigatran_vte_2026_08_19.py` selftest | `"not a finding that the trials pool" in note` | a string reading **"That is NOT a finding…"** |
+
+In both, **the code under test was correct and the test failed.** Had the polarity been the other
+way — assertion passing on a string it never matched — neither would have been noticed.
+
+> **The class was known, written down, and reproduced by the person who wrote it down, inside
+> the hour.** That is the finding, not the two typos.
+
+#### The ledger this belongs to
+
+Three entries now share that exact shape, and they are the argument for everything mechanical in
+this repository:
+
+| the rule | where it was written down | how it was broken |
+|---|---|---|
+| **never use a heredoc for file content** — the transport corrupts escapes | the handover brief, first paragraph | **eleven instances**, the last of them after ten prior corrections |
+| **a merge must never net-delete** | the merge instrument's own contract | broken **inside the instrument that enforces it** |
+| **fold case on any comparison over free text** | this entry, class 25 | reproduced **twice, in selftests written after it** |
+
+**Knowing a rule does not execute it.** Each of these was understood, stated in writing, and
+violated anyway by the party who stated it — so the corrective that works is never *"remember
+harder"*. It is the pre-commit hook, the assertion that fails closed, the guard whose triggering
+condition must be shown to have occurred. **Mechanism catches what understanding does not**, and
+that is why this file's weakest entries are the ones with no detector rather than the ones with
+no explanation.
+
 ### 24. THE DASHBOARD SERVED 92 ESTIMATES THE OBJECTS HAD WITHDRAWN
 
 **Surfaced by the Codex seat (openai family) while running a different task, verified here
