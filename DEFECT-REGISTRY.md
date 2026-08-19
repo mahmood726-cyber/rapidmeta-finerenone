@@ -743,7 +743,7 @@ reported only the lost pairs — the more natural design — the revert would ha
 would have caught this at step one — an audit that refuses to report on files with uncommitted
 modifications until it says so. Recorded as not written.
 
-### 31. A COMPOSITE REFUSAL IS TRUE OF SOME PAGES AND FALSE OF OTHERS — *and it reads identically on both*
+### 30. A COMPOSITE REFUSAL IS TRUE OF SOME PAGES AND FALSE OF OTHERS — *and it reads identically on both*
 
 **Found 2026-08-19, while applying the fix for class 29.** The third projector state was written
 to replace a false refusal with a true one. Its sentence for the screening tab denies **three
@@ -785,7 +785,7 @@ sentence came back would pass on the defect.
 `protocol` still carry literal composite sentences. They are not known to be wrong; they are
 known to be **unchecked**, which after this class is a different statement from "fine".
 
-### 32. A PAGE'S HONEST STATEMENT WAS DECIDED BY A CHARACTER COUNT — *and the longer page said less*
+### 31. A PAGE'S HONEST STATEMENT WAS DECIDED BY A CHARACTER COUNT — *and the longer page said less*
 
 **Found 2026-08-19, in our own rebuild, before delivery.** The report tab's sentence —
 
