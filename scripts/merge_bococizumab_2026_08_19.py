@@ -152,12 +152,42 @@ def main():
     # ---- the pool ------------------------------------------------------------------
     b = obj["results"]["by_outcome"]["ldlc_pct_change_wk12"]
     b["k"] = cur["k"]
-    b["pooled"] = {"measure": "MD", "point": cur["REML"]["md"],
-                   "ci_low": cur["REML"]["ci_low"], "ci_high": cur["REML"]["ci_high"],
+    # THE STORED NUMBER MUST BE THE DISPLAYED NUMBER, AND FOR THIS MEASURE IT WAS NOT.
+    #
+    # `ssot/build_tabbed.py` renders four SIGNIFICANT FIGURES; the pool was stored at four
+    # DECIMAL PLACES. For a ratio near 0.78 those are the same thing, which is why every
+    # apixaban and SGLT2 pool in this corpus survived. FOR A MEAN DIFFERENCE OF ABOUT -55 THEY
+    # ARE NOT: four significant figures is TWO decimals, so the object held -55.2406 and the
+    # page rendered -55.24, and the string -55.2406 appeared NOWHERE in 1.6 MB of shipped HTML.
+    #
+    # `scripts/verify_delivered_bytes.py` refused the delivery on exactly that, which is the
+    # content check earning its keep: the bytes matched the build perfectly and the BUILD did
+    # not match the OBJECT. A hash alone would have passed it.
+    #
+    # This is the defect build_tabbed's own docstring records at THREE figures -- sotagliflozin
+    # 0.7171 rendering as 0.717 -- recurring at FOUR, one order of magnitude up. A fixed
+    # significant-figure display and a fixed decimal-place store cannot both be honoured; WHICH
+    # ONE WINS DEPENDS ON THE MAGNITUDE OF THE ESTIMATE, and a corpus of ratio measures never
+    # had to find out.
+    #
+    # Fixed at the source: the object stores what the page can display. Full precision is kept
+    # in evidence/2026-08-19-batch1/bococizumab_repool.json, which is what a re-derivation reads.
+    sys.path.insert(0, os.path.join(REPO, "ssot"))
+    import projectors as _pj
+    _s4 = lambda x: float(_pj.sig(x, 4))          # noqa: E731
+    b["pooled"] = {"measure": "MD", "point": _s4(cur["REML"]["md"]),
+                   "ci_low": _s4(cur["REML"]["ci_low"]),
+                   "ci_high": _s4(cur["REML"]["ci_high"]),
+                   "stored_at_display_precision": (
+                       "Four significant figures, matching what the page renders, so the "
+                       "published number and the verified number are the same string. Full "
+                       "precision -- %.4f (%.4f to %.4f) -- is in "
+                       "evidence/2026-08-19-batch1/bococizumab_repool.json."
+                       % (cur["REML"]["md"], cur["REML"]["ci_low"], cur["REML"]["ci_high"])),
                    "ci_level": 95, "scale": "natural", "withdrawn": False,
-                   "previous_values": [{"measure": "MD", "point": prev["REML"]["md"],
-                                        "ci_low": prev["REML"]["ci_low"],
-                                        "ci_high": prev["REML"]["ci_high"],
+                   "previous_values": [{"measure": "MD", "point": _s4(prev["REML"]["md"]),
+                                        "ci_low": _s4(prev["REML"]["ci_low"]),
+                                        "ci_high": _s4(prev["REML"]["ci_high"]),
                                         "ci_level": 95, "scale": "natural",
                                         "superseded_on": "2026-08-19",
                                         "superseded_because": "SPIRE-FH joined; k=5 -> 6"}]}
