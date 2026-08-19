@@ -125,6 +125,119 @@ def _fmt_ci(p):
     return "%.4g (%.4g to %.4g)" % (p["point"], lo, hi) if lo is not None else "%.4g" % p["point"]
 
 
+# ===========================================================================================
+# THE PROSE LAYER. Three rules, each from a defect read off our own output beside ARNI's.
+# ===========================================================================================
+
+def outcome_text(obj, oid):
+    """The REGISTERED outcome text, or None. NEVER the database key.
+
+    RULE 1. Our Results section opened "For hfh_cvd_recurrent (k = 2), the pooled estimate
+    was ..." -- the subject of the sentence was a dict key. ARNI's reads "The pooled hazard
+    ratio was 0.872 ... favouring sacubitril/valsartan over enalapril."
+
+    The registered text is held, on every one of these objects, at `outcomes[].name`:
+
+        hfh_cvd_recurrent -> "Recurrent hospitalisations for heart failure together with
+                              cardiovascular death, as a rate ratio"
+
+    So this was never a content gap. It was a lookup nobody did, and the fallback
+    `blk.get("outcome") or oid` made the omission invisible by always producing something.
+
+    Returns None when the object holds no registered text, so the CALLER REFUSES the
+    sentence and names the field. A subject that reads as an internal identifier is worse
+    than an absent sentence: the reader cannot tell it is not the outcome's name.
+    """
+    for o in (obj.get("outcomes") or []):
+        if isinstance(o, dict) and o.get("id") == oid:
+            for key in ("name", "registered_text", "definition"):
+                if o.get(key):
+                    return str(o[key])
+    return None
+
+
+def disp(x, sig=3):
+    """A number at DISPLAY precision, for prose only.
+
+    RULE 2. Our prose printed 0.8066 where ARNI's prints 0.872. That is not a different
+    convention, it is storage precision reaching the page: ARNI's OBJECT holds
+    0.87153524291 and its manuscript rounds it, which is what a paper does.
+
+    THIS DOES NOT CONFLICT WITH THE FOUR-SIGNIFICANT-FIGURE RULE in build_tabbed, and the
+    distinction matters because that rule exists for a real defect. That rule governs the
+    POOLED RESULT CARD, where the displayed number must equal the verified number or the
+    three-surface check fails. This governs PROSE, where the exact value is carried
+    verbatim two sections away under "Statistical output, quoted verbatim". ARNI's
+    delivered page already carries both precisions, on the same page, today.
+    """
+    if x is None:
+        return None
+    try:
+        f = float(x)
+    except (TypeError, ValueError):
+        return str(x)
+    if f == int(f) and abs(f) < 1e6:
+        return str(int(f))
+    return "%.*g" % (sig, f)
+
+
+def strip_measure_suffix(name, measure):
+    """Drop a trailing ", as a <measure>" from a registered outcome name.
+
+    THE OBJECTS NAME THEIR OUTCOMES WITH THE MEASURE INSIDE THE NAME:
+
+        "Recurrent hospitalisations for heart failure together with cardiovascular death,
+         as a rate ratio"
+
+    so a sentence that leads with the measure -- which is what a paper does -- says it
+    twice: "The pooled rate ratio for recurrent hospitalisations ..., as a rate ratio was
+    0.807". This removes the duplicate ONLY when the trailing clause names the SAME measure
+    already being stated. It removes nothing otherwise, and it never removes anything that
+    is not a trailing measure clause.
+
+    This is a de-duplication, not an edit of the field: the full registered text is still
+    what is matched against, and where the two disagree the name is left untouched, because
+    a name that says "as a hazard ratio" beside a rate-ratio estimate is a FINDING, not a
+    formatting problem.
+    """
+    if not name or not measure:
+        return name
+    words = measure_words(measure)
+    for tail in (", as an %s" % words, ", as a %s" % words):
+        if name.lower().endswith(tail.lower()):
+            return name[: -len(tail)]
+    return name
+
+
+def ci_prose(p, sig=3):
+    """`0.872 (0.746 to 1.02)` -- the form a reader expects, at display precision."""
+    pt = disp(p.get("point"), sig)
+    lo, hi = disp(p.get("ci_low"), sig), disp(p.get("ci_high"), sig)
+    return "%s (%s to %s)" % (pt, lo, hi) if lo is not None else str(pt)
+
+
+MEASURE_WORDS = {"HR": "hazard ratio", "RR": "risk ratio", "OR": "odds ratio",
+                 "RATE_RATIO": "rate ratio", "IRR": "incidence rate ratio",
+                 "MD": "mean difference", "SMD": "standardised mean difference",
+                 "LSMD": "least-squares mean difference", "RD": "risk difference"}
+
+
+def measure_words(measure):
+    """`HR` -> `hazard ratio`. A manuscript does not print an enum.
+
+    The first prose pass rendered "the pooled hr was 0.796" -- lower-casing an abbreviation
+    is not the same as expanding it, and it reads as a typing error rather than a measure.
+    An unmapped code is returned unchanged rather than mangled: a code we do not know is
+    better shown as it is stored than guessed at.
+    """
+    if not measure:
+        return "estimate"
+    key = str(measure).strip().upper()
+    if key in MEASURE_WORDS:
+        return MEASURE_WORDS[key]
+    return str(measure).replace("_", " ").lower() if "_" in str(measure) else str(measure)
+
+
 def _trials_by_identity(obj):
     """{registration id -> trial record}. IDENTITY, NEVER POSITION.
 
@@ -314,12 +427,22 @@ def project(obj, journal="generic", length="standard"):
                         % (rb["tool"], rb.get("version", ""), rb.get("handbook", ""),
                            rb.get("unit_of_assessment", ""), n, rb.get("default_rule", "")),
                         ["risk_of_bias.tool", "risk_of_bias.by_outcome"]))
-        # THE CEILING, ON THE PAGE. Without it a reader takes SOME CONCERNS as a verdict on the
-        # trials, when it is a bound set by what this review could read.
+        # THE CEILING IS STATED ONCE, IN THE RISK-OF-BIAS SECTION.
+        #
+        # It used to be emitted here as well, and once a dedicated `risk_of_bias` section
+        # existed the SAME 300-CHARACTER PARAGRAPH APPEARED TWICE in the manuscript, on
+        # every object that records a ceiling. Neither site was wrong on its own; the
+        # duplication only came into being when the second section was added, which is why
+        # it was invisible to whoever wrote either one.
+        #
+        # Caught by a test asserting that no long paragraph is emitted more than once --
+        # not by reading, and not by any check that looks at one section at a time.
+        # Methods points at the assessment; the assessment states the bound.
         ceil = rb.get("ceiling") or {}
         if ceil.get("statement"):
-            s.paras.append((ceil["statement"] + " " + ceil.get("what_would_change_it", ""),
-                            ["risk_of_bias.ceiling"]))
+            s.paras.append(("A ceiling applies to every risk-of-bias judgement in this "
+                            "review; it is stated with the assessment itself rather than "
+                            "summarised here.", ["risk_of_bias.ceiling"]))
     else:
         s.refusals.append(("the claim that risk of bias was assessed with a named tool",
                            ["risk_of_bias.tool"]))
@@ -372,36 +495,115 @@ def project(obj, journal="generic", length="standard"):
 
     if not reported and not declined:
         s.refusals.append(("the entire results section", ["results.by_outcome"]))
+    _het_caveats_said = {}                 # caveat text -> the outcome that first stated it
+    _grounds_said = {}                     # poolable_reason text -> already stated
+    # PROSE, NOT A RECORD. What changed here, and why each change is a projection and not
+    # an invention:
+    #
+    #   the SUBJECT is the registered outcome text (`outcomes[].name`), never the dict key
+    #   NUMBERS are at display precision; the exact values are quoted two sections away
+    #   NO SENTENCE ADDRESSES A MAINTAINER -- "stored verbatim on the object rather than
+    #     re-typed here" is a note to us, and it was in the manuscript
+    #   THE REASONING FIELDS ARE THE ARGUMENT, not a list appended after the numbers.
+    #     `heterogeneity_status` on these objects already says what ARNI's manuscript says
+    #     in prose -- that Q on one degree of freedom carries almost no information -- so
+    #     the because-clause is PROJECTED, exactly like the estimate is.
     for oid, blk in reported:
         p, het = blk["pooled"], (blk.get("heterogeneity") or {})
-        outcome_txt = blk.get("outcome") or oid
-        txt = ("For %s (k = %s), the pooled estimate was %s"
-               % (outcome_txt, blk.get("k", "?"), _fmt_ci(p)))
-        f = ["results.by_outcome.%s.pooled" % oid]
-        if het.get("i2") is not None:
-            txt += ", with I-squared %.4g%%" % float(het["i2"])
-            f.append("results.by_outcome.%s.heterogeneity.i2" % oid)
+        name = outcome_text(obj, oid)
+        if not name:
+            s.refusals.append(("the result sentence for the outcome recorded as `%s` -- its "
+                               "REGISTERED TEXT is not held, and an internal identifier is "
+                               "not an outcome name" % oid,
+                               ["outcomes[id=%s].name" % oid]))
+            continue
+        f = ["outcomes[id=%s].name" % oid, "results.by_outcome.%s.pooled" % oid]
+        # LEAD WITH THE FINDING, as a paper does, with the registered text INSIDE the
+        # sentence rather than standing in front of it as a fragment. The first pass
+        # emitted "<outcome name>. Across 2 trials the pooled ... was ..." -- a heading
+        # and a sentence, which is the shape of a record.
+        _lvl = get(obj, "config.confidence_level")
+        _subject = strip_measure_suffix(name, p.get("measure"))
+        _ci = ci_prose(p)
+        if _lvl:
+            _ci = _ci[:-1] + ", %s%% interval)" % _lvl if _ci.endswith(")") else _ci
+            f.append("config.confidence_level")
+        txt = "The pooled %s for %s was %s across %s trials" % (
+            measure_words(p.get("measure")), _subject[0].lower() + _subject[1:], _ci,
+            blk.get("k", "an unstated number of"))
+        comparator = (next((o.get("comparator") for o in (obj.get("outcomes") or [])
+                            if isinstance(o, dict) and o.get("id") == oid), None))
+        if comparator:
+            txt += ", against %s" % comparator
+            f.append("outcomes[id=%s].comparator" % oid)
         txt += "."
-        if blk.get("r_output"):
-            txt += (" The model output is stored verbatim on the object rather than "
-                    "re-typed here.")
-            f.append("results.by_outcome.%s.r_output" % oid)
         s.paras.append((txt, f))
-        # the estimand reason, which is what makes two pools two pools
-        for reason_field in ("why_k_equals_3_and_not_4", "relationship_to_the_other_pools",
-                             "WHY_THIS_REPLACES_A_WITHDRAWAL", "what_this_does_not_establish"):
+
+        # HETEROGENEITY, WITH THE CAVEAT THE OBJECT ALREADY RECORDS.
+        if het.get("i2") is not None:
+            hf = ["results.by_outcome.%s.heterogeneity.i2" % oid]
+            ht = "Between-trial heterogeneity was I-squared %s%%" % disp(het["i2"])
+            for extra, label in (("tau2", "tau-squared"), ("q", "Q"), ("df", "degrees of "
+                                                                      "freedom")):
+                if het.get(extra) is not None:
+                    ht += ", %s %s" % (label, disp(het[extra]))
+                    hf.append("results.by_outcome.%s.heterogeneity.%s" % (oid, extra))
+            ht += "."
+            # SAY THE CAVEAT ONCE. Every outcome on iv-iron-hf carries the SAME
+            # `heterogeneity_status` text, so the first prose pass printed an identical
+            # 60-word paragraph four times. ARNI states such a caveat once. Repetition is
+            # a property of iterating a dict, not of an argument -- and a reader who meets
+            # the same paragraph four times stops reading it the first time.
+            status = blk.get("heterogeneity_status")
+            if status:
+                if status in _het_caveats_said:
+                    ht += (" The caveat recorded above for %s applies here too."
+                           % _het_caveats_said[status])
+                else:
+                    _het_caveats_said[status] = _subject[0].lower() + _subject[1:]
+                    ht += " %s" % status
+                hf.append("results.by_outcome.%s.heterogeneity_status" % oid)
+            s.paras.append((ht, hf))
+
+        # WHY THIS POOL IS A POOL. The estimand reasoning is the argument of the section.
+        if blk.get("poolable_reason"):
+            # THE FIELD IS A NOUN PHRASE, not a clause. "This pool is a pool because a
+            # single effect measure, a single outcome concept and a single unit of
+            # analysis" is not a sentence, and lower-casing its first letter to force it
+            # into one made it worse. The lead-in names it as recorded grounds instead.
+            _pr = str(blk["poolable_reason"])
+            if _pr in _grounds_said:
+                pass          # said once, for the first outcome that recorded it
+            else:
+                _grounds_said[_pr] = True
+                s.paras.append(("The grounds for pooling are recorded as: %s Where a later "
+                                "pool on this page rests on the same grounds, they are not "
+                                "restated." % _pr,
+                                ["results.by_outcome.%s.poolable_reason" % oid]))
+        for reason_field, lead_in in (
+                ("why_k_equals_3_and_not_4", ""),
+                ("relationship_to_the_other_pools", ""),
+                ("WHY_THIS_REPLACES_A_WITHDRAWAL", ""),
+                ("what_this_does_not_establish", "What this does not establish: ")):
             if blk.get(reason_field):
-                s.paras.append((str(blk[reason_field]),
+                s.paras.append(("%s%s" % (lead_in, blk[reason_field]),
                                 ["results.by_outcome.%s.%s" % (oid, reason_field)]))
+
     for oid, blk in declined:
+        name = outcome_text(obj, oid) or None
         reason = blk.get("poolable_reason")
+        if not name:
+            s.refusals.append(("the declined-pool sentence for `%s` -- no registered outcome "
+                               "text is held" % oid, ["outcomes[id=%s].name" % oid]))
+            continue
         if reason:
-            s.paras.append(("The pool over %s (k = %s) is DECLINED and its reason is stated "
-                            "rather than the pool being quietly omitted: %s"
-                            % (oid, blk.get("k", "?"), reason),
-                            ["results.by_outcome.%s.poolable_reason" % oid]))
+            s.paras.append(("%s. These %s trials are NOT pooled, and the reason is stated "
+                            "rather than the outcome being quietly omitted: %s"
+                            % (name[0].upper() + name[1:], blk.get("k", "?"), reason),
+                            ["outcomes[id=%s].name" % oid,
+                             "results.by_outcome.%s.poolable_reason" % oid]))
         else:
-            s.refusals.append(("the reason the %s pool is declined" % oid,
+            s.refusals.append(("the reason the pool over %s is declined" % name,
                                ["results.by_outcome.%s.poolable_reason" % oid]))
     secs.append(s)
 
@@ -449,10 +651,13 @@ def project(obj, journal="generic", length="standard"):
     _pooled = []
     for oid, blk in sorted((get(obj, "results.by_outcome") or {}).items()):
         p = (blk or {}).get("pooled") or {}
-        if p.get("point") is not None:
-            _pooled.append("%s %s for %s (k = %s)"
-                           % (p.get("measure", "estimate"), _fmt_ci(p),
-                              (blk.get("label") or oid), blk.get("k", "?")))
+        _nm = outcome_text(obj, oid)
+        if p.get("point") is not None and _nm:
+            # THE SUBJECT IS THE REGISTERED OUTCOME TEXT. An abstract that reads
+            # "0.81 for hfh_cvd_recurrent" is a record of a dict, not a finding.
+            _pooled.append("%s: %s %s across %s trials"
+                           % (_nm, measure_words(p.get("measure")), ci_prose(p),
+                              blk.get("k", "an unstated number of")))
     if _pooled:
         s.add(obj, "Findings. %s." % "; ".join(_pooled),
               ["results.by_outcome"])
@@ -755,9 +960,11 @@ def project(obj, journal="generic", length="standard"):
     rows = []
     for oid, blk in sorted((get(obj, "results.by_outcome") or {}).items()):
         p = (blk or {}).get("pooled") or {}
-        rows.append([oid, "Forest plot",
-                     ("%s %s, k = %s" % (p.get("measure", "estimate"), _fmt_ci(p),
-                                         (blk or {}).get("k", "?"))
+        rows.append([outcome_text(obj, oid) or ("(no registered text held for `%s`)" % oid),
+                     "Forest plot",
+                     ("%s %s across %s trials"
+                      % (measure_words(p.get("measure")), ci_prose(p),
+                         (blk or {}).get("k", "?"))
                       if p.get("point") is not None
                       else "not pooled; the reason is given in Results")])
     if rows:

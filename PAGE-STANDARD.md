@@ -1,6 +1,6 @@
 # The page standard, versioned
 
-**`PAGE_STANDARD_VERSION = "1.17.0-2026-08-19"`**
+**`PAGE_STANDARD_VERSION = "1.18.0-2026-08-20"`**
 
 > **This line was `1.6.0` while the version log below already ran to `1.12.0` and
 > `ssot/build_to_standard.py` stamped `1.13.0`.** The marker whose entire purpose is to make
@@ -76,6 +76,7 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P41 | **A search must not be built from its own answer** | a query assembled from the terms the included set already shares can only return that set, so it CANNOT DISCOVER and its recall of 100% is a tautology. `azilsartan-chlorthalidone-vs-olmesartan-hctz` asks about one fixed-dose combination against one other; a query naming azilsartan AND chlorthalidone AND olmesartan would have returned exactly the two trials already on the page. **The query is built from the DRUG and the CONTRAST is applied at SCREENING, where every limb is auditable and every exclusion names what it randomised instead.** 53 of 57 exclusions on that topic fail the comparator limb, which is a fact about a narrow question asked of a whole programme — not a criticism of the query, and only visible because the query was wider than the answer |
 | P42 | **A coded field can be CORRECT and still not answer the question asked of it** | distinct from P11, which governs code-versus-text where both speak. Here the code speaks truly about something else. `conditions: ["Safety"]` names a study OBJECTIVE where the disease belongs; `conditions: ["Pulmonary Hypertension"]` names the SYNDROME on a trial titled *"in Sickle Cell Disease (SCD) Patients"*, where the review needs the WHO GROUP. Neither field is absent and neither is wrong. **A limb reading such a field must fall back to the declared text and RECORD WHICH READING THE VERDICT RESTS ON** — and the fallback must still exclude, or it is not a limb: a bioequivalence record whose title says *"in Chinese Healthy Volunteers"* stays out |
 | P40 | **A rule you have APPLIED is not a rule you have PUBLISHED** | the complement of the registry's opening line. The criterion separating `apixaban-vte-treatment` from `apixaban-vte-prophylaxis` — *prior event means treatment* — decided which review sixteen trials belong to and existed only inside an adjudication file. A criterion that decides inclusion must appear on the page of **every review it decides**, or the reader cannot check it and the next lane cannot apply it. **And it was not applied everywhere either:** it reached the sixteen adjudicated trials and not the nine admitted by the mechanical screen on the coded field the criteria themselves say does not settle the question |
+| P46 | **A topic is complete only if its OBJECT holds the substance** | a risk-of-bias assessment PER RESULT, a GRADE rating PER POOLED OUTCOME, a published comparison CARRYING A DENOMINATOR, and the model output QUOTED VERBATIM -- or a stated reason for each absence. **Refusing by name is honest for a PAGE and is not sufficient for a TOPIC that claims to be finished.** Measured 2026-08-20: a perfect renderer over today's objects reproduces 10.9% of ARNI's manuscript, and RoB/GRADE/comparison/verbatim output exist on 19%/14%/12%/12% of the 43 cardiology topics |
 
 ## Reading the remainder — the same number, opposite diagnoses
 
@@ -130,6 +131,49 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.18.0-2026-08-20
+Adds **P46**, and it is a CONTENT clause rather than a rendering one. Every property before
+it governs what a PAGE must show. This one governs what an OBJECT must HOLD, and it exists
+because the distinction between those two was measured and found to be where the work
+actually is.
+
+**P46 — a topic is not complete because its page refuses honestly.**
+
+| | |
+|---|---:|
+| ARNI's authored manuscript | **100,825 chars** |
+| what the projector produces from ARNI's OWN OBJECT, with every slot built | **10,989 chars** |
+| | **10.9%** |
+
+A perfect renderer over today's objects gives a tenth of the flagship. So the distance from
+the corpus to ARNI is **neither a renderer gap nor a prose gap**. Measured across the 43
+cardiology topics, the substance a paper is made of exists on a small minority of them:
+
+| the object holds | topics |
+|---|---:|
+| risk of bias per result | **8 / 43 (19%)** |
+| a GRADE rating per pooled outcome | **6 / 43 (14%)** |
+| a published comparison with a denominator | **5 / 43 (12%)** |
+| model output quoted verbatim | **5 / 43 (12%)** |
+
+> **"Refusing by name" is honest for a PAGE and is not sufficient for a TOPIC that claims to
+> be finished.** A page that says *no GRADE rating is carried* has met the page standard and
+> told the reader the truth. A topic in that state has not been finished — it has been
+> accurately described as unfinished.
+
+**So a topic is complete when its object holds, or states a reason for the absence of, each
+of:** a risk-of-bias assessment **per result**; a GRADE rating **per pooled outcome**; a
+published comparison **carrying a denominator**; and the model output **quoted verbatim**.
+
+**This is not new work to invent — it is work already done four times.** RoB per outcome and
+GRADE per pooled outcome were produced earlier in this run, and the per-topic unit exists. It
+has simply only been run on `arni-hfref`, `attr-cm-review`, `iv-iron-hf` and `sglt2-hf`.
+
+> **The blueprint is four topics wide because only four topics have the content.** Every
+> count that made the corpus look nearly finished — 43 of 43 tabs resolved, every property
+> held or refusing — was measuring the description and not the thing described.
+
 
 ### 1.17.0-2026-08-19
 Adds P45, from the bosentan monotherapy reading.
