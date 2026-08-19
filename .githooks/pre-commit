@@ -27,6 +27,11 @@ python "$R/scripts/lint_escape_hazards.py"  >/dev/null || { echo "REFUSED: escap
 # The stamp was always honest; nothing ever asserted it named something real.
 python "$R/scripts/generator_stamp_gate.py" >/dev/null || { echo "REFUSED: a gated page carries a generator stamp that names nothing checkable (scripts/generator_stamp_gate.py)"; exit 1; }
 
+# A FILE NAMED *_gate.py MUST BE ABLE TO FAIL. The name is a promise. Four files named gate had
+# no reachable non-zero exit -- they were correctly-built TRIAGE tools wearing the wrong name,
+# and are now *_triage.py. This stops the fifth being written tomorrow.
+python "$R/scripts/lint_gate_can_fail.py" >/dev/null || { echo "REFUSED: a file named *_gate.py cannot fail (scripts/lint_gate_can_fail.py)"; exit 1; }
+
 # RESTRAINT (E4). Every other check here catches overreach. This one catches an instrument
 # REFUSING where an independent instrument decides -- the class that silently shrank evidence
 # bases corpus-wide and that no guard could see, because withholding leaves no trace in the

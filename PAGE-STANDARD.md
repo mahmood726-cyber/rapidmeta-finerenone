@@ -40,6 +40,35 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P16 | **A guard is proven in three parts** | it **must be able to fire**; it **must not fire on the correct case**; and **neither can be established by the build reporting success**. All three are demonstrated, not assumed |
 | P17 | **Negative claims are computed, never asserted** | any field whose name implies a check — `shared_with_other_topics`, `conflicts`, `unresolved`, `discrepancies` — carries a computed value and names what it was computed against. A literal `false` or `[]` in such a field is a claim, not a result |
 
+## Reading the remainder — the same number, opposite diagnoses
+
+**Added 2026-08-19, from screening three topics' remainders to zero.** A `k_unscreened_remainder`
+is not just a backlog count. Once screened, **the shape of its dispositions diagnoses the
+search**, and two topics with identical remainders can mean opposite things:
+
+| remainder dominated by | diagnosis | what to do |
+|---|---|---|
+| **POPULATION failures** | the surfacing query is **too broad** — it is reaching outside the review's own population | narrow the query; the cost is reviewer time spent excluding trials that were never candidates |
+| **ESTIMAND failures** (eligible, not poolable) | the query is well-aimed and the **evidence base is genuinely fragmented** | nothing to fix in the search; the limit is real and belongs in the interpretation |
+| **NOT-YET-REPORTED** | the query is well-aimed and the **field is still in flight** | name the largest pending trials — they are what will change the answer |
+
+Observed, on the same night, on two topics with the same criteria discipline:
+
+- `iv-iron-hf` — 29 screened, **16 of 29 ELIGIBLE**. Only 13 failed a criterion. The base is
+  limited by estimand match and by trials that have not reported.
+- `sglt2-hf` — 10 screened, **7 excluded, six of those on POPULATION**: acute myocardial
+  infarction, heart transplant, diabetic nephropathy, congenital heart disease, acute
+  decompensation. The surfacing query reaches well beyond its own population.
+
+> **This is a fact about our search, not about the evidence — and it was invisible while the
+> remainder was carried as a number rather than screened.** A remainder is not a queue to be
+> drained; it is unread evidence *about the query that produced it*.
+
+**Therefore P1 is not fully held by a search that merely reconciles.** Where a remainder has
+been screened, the disposition split belongs on the page beside the count, because
+`remainder: 29` and `remainder: 10` tell a reader nothing about which of the three situations
+above they are in.
+
 ## The ratchet
 
 Each topic must meet everything learned **up to the moment it is built**. The version string
