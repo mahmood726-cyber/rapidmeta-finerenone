@@ -173,8 +173,13 @@ def subsets_html(pr):
 def review_page(topic, o):
     pr = o["results"]["by_outcome"]["primary"]
     sc = o["screening"]
+    # DOUBLE QUOTES ON EVERY ANCHOR, and it is not cosmetic. The pre-push regression check finds
+    # a page's links with `class="go" href="..."`. These were emitted single-quoted, so the
+    # tombstone read as offering NO link to any survivor -- a correct page reported broken --
+    # and on the review pages the sibling links went UNCHECKED: present, correct, and invisible
+    # to the only thing that verifies they resolve.
     sibs = "".join(
-        "<a class='go' href='%s'>%s &rarr;</a>" % (PAGES[t], esc(load(t)["title"]))
+        '<a class="go" href="%s">%s &rarr;</a>' % (PAGES[t], esc(load(t)["title"]))
         for t in sorted(PAGES) if t != topic)
     return """<!doctype html>
 <html lang="en"><head>
@@ -260,7 +265,7 @@ reported as unresolved rather than approximated.
 
 def tombstone_page(tb):
     succ = "".join(
-        "<a class='go' href='%s'>%s &rarr;</a>" % (PAGES[t], esc(load(t)["title"]))
+        '<a class="go" href="%s">%s &rarr;</a>' % (PAGES[t], esc(load(t)["title"]))
         for t in sorted(PAGES))
     went = "".join(
         "<tr><td><code>%s</code></td><td>%s</td><td>%s</td></tr>"
@@ -399,6 +404,17 @@ def selftest():
        all(p in t for p in PAGES.values()), True)
     ck("the adjudicated-out trial is named", "NCT01505881" in t, True)
     ck("and it is marked retired for machines", 'content="RETIRED"' in t, True)
+
+    print("\n6. EVERY LINK IS EMITTED IN THE FORM THE REGRESSION CHECK CAN SEE:")
+    # The links were correct and INVISIBLE to the checker, which is the worse failure of the
+    # two: a link nothing verifies is a 404 waiting for a reader. Asserted so it cannot recur.
+    import re as _re
+    for label, html in (("review page", h), ("tombstone", t)):
+        found = _re.findall(r'class="go" href="([^"]+)"', html)
+        ck("%s: at least one link is visible to the checker" % label, len(found) > 0, True)
+        ck("%s: no single-quoted anchor remains" % label, "class='go'" in html, False)
+        ck("%s: every visible link resolves on disk" % label,
+           all(os.path.exists(os.path.join(REPO, x)) for x in found), True)
 
     print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
     return 1 if fails else 0
