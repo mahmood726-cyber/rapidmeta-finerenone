@@ -1208,5 +1208,16 @@ if __name__ == "__main__":
     if _leaked:
         raise SystemExit("BUILD REFUSED: unsubstituted placeholder(s) reached the "
                          "rendered page: %s" % ", ".join(_leaked))
+    # WOULD THIS BUILD DESTROY A MANUSCRIPT ALREADY DELIVERED HERE?
+    #
+    # ARNI serves a 100,825-character authored docmodel render. _paper_panel() prefers the
+    # projector, ARNI's object now satisfies the projector, so a rebuild replaces 26
+    # sections with 1 -- a 94% loss that exits 0 and passes the regression check, which
+    # counts studies and pools and has no opinion about manuscripts.
+    #
+    # Checked HERE, before the file is opened for writing, so a refusal leaves the
+    # delivered page untouched.
+    import manuscript_guard as _mg
+    _mg.enforce(_html, out)
     open(out, "w", encoding="utf-8").write(_html)
     print("built %s (%d bytes)" % (out, os.path.getsize(out)))

@@ -1,0 +1,134 @@
+"""Refuse a build that would DESTROY a delivered manuscript.
+
+THE LOADED GUN THIS UNLOADS, and it was live when this file was written.
+
+`ARNI_HF_REVIEW.html` serves a 100,825-character manuscript with 26 sections. It comes from
+`ssot/arni-hfref/manuscript_docmodel.json` -- authored, 119,175 bytes -- rendered by
+`wysiwyg.py`. Every other manuscript in the corpus is projected by `paper_projector`.
+
+`build_tabbed._paper_panel()` PREFERS the projector and falls back to the docmodel. ARNI's
+object now yields six written sections through the projector, so it no longer reaches the
+fallback. Rebuilding ARNI today produces:
+
+    delivered      100,825 chars    26 <h2>     document view
+    rebuilt          5,701 chars     1 <h2>     projected
+                    -94.35%
+
+and the build EXITS 0. The regression check passes -- it counts studies and pools, not
+manuscript sections. Nothing anywhere would have said a word.
+
+    A RENDERING GAP CAN BE FILLED LATER. A DESTROYED DOCMODEL RENDER CANNOT. This guard is
+    therefore worth more than the sections it is protecting.
+
+THE THRESHOLD IS DERIVED, NOT PICKED. Across the ten pages rebuilt on 2026-08-19 the paper
+panel changed by EXACTLY 0.00% on all ten -- the panel is deterministic given the object. So
+legitimate variation is zero and the hazard is -94%. `TOLERANCE = 0.05` sits in a gap four
+thousand times wider than the noise it has to clear, and that gap is stated rather than
+implied.
+
+IT REPORTS THE MARGIN EVERY TIME, PASS OR FAIL (registry class 33). A page 10 characters the
+right side of a threshold has not passed a test; it has found a threshold that stopped
+discriminating. `PASS` alone cannot tell those apart, so this prints the distance.
+
+Deliberate override: `RM_ALLOW_MANUSCRIPT_SHRINK=1`. It is loud, it names what it allowed, and
+it exists because a guard with no override gets deleted by whoever first meets a legitimate
+exception at 2am.
+"""
+import os
+import re
+
+TOLERANCE = 0.05                 # fractional loss of manuscript text that is tolerated
+SECTION_SLACK = 0                # sections may not fall at all
+OVERRIDE = "RM_ALLOW_MANUSCRIPT_SHRINK"
+
+_PANEL_START = 'id="pn-paper"'
+_PANEL_END = "<!--end-paper-->"
+_TAG_RE = re.compile(r"<[^>]+>")
+_WS_RE = re.compile(r"\s+")
+_H2_RE = re.compile(r"<h2[ >]")
+_H3_RE = re.compile(r"<h3[ >]")
+
+OK, REFUSED, NOT_ASSESSABLE = "OK", "REFUSED", "NOT_ASSESSABLE"
+
+
+def paper_shape(html):
+    """(chars, h2, h3) of the manuscript panel, or None when there is no panel.
+
+    None means THE PANEL WAS NOT FOUND -- which is different from an empty panel, and the
+    caller must not collapse the two. A locator that cannot locate refuses.
+    """
+    if html is None:
+        return None
+    i = html.find(_PANEL_START)
+    j = html.find(_PANEL_END)
+    if i < 0 or j <= i:
+        return None
+    seg = html[i:j]
+    text = _WS_RE.sub(" ", _TAG_RE.sub(" ", seg)).strip()
+    return len(text), len(_H2_RE.findall(seg)), len(_H3_RE.findall(seg))
+
+
+def check(new_html, out_path, tolerance=TOLERANCE, slack=SECTION_SLACK):
+    """Would writing `new_html` to `out_path` destroy a manuscript already delivered there?
+
+    Returns (verdict, message). The message ALWAYS names the delivered size and the margin,
+    because a verdict without its distance from the threshold is not readable evidence.
+
+    NOT_ASSESSABLE, and therefore ALLOWED, when there is nothing to compare against: no file
+    at the path, an unreadable one, or no manuscript panel in the delivered copy. An absence
+    reported by the filesystem is not an absence in the world, and it is never a refusal.
+    """
+    if not os.path.exists(out_path):
+        return NOT_ASSESSABLE, ("no delivered copy at %s -- nothing to compare against, so "
+                                "this build is not judged" % out_path)
+    try:
+        old_html = open(out_path, "rb").read().decode("utf-8", "replace")
+    except OSError as exc:
+        return NOT_ASSESSABLE, ("delivered copy at %s could not be read (%s) -- not judged"
+                                % (out_path, exc))
+
+    old = paper_shape(old_html)
+    new = paper_shape(new_html)
+    if old is None:
+        return NOT_ASSESSABLE, ("the delivered copy carries no manuscript panel -- nothing "
+                                "to destroy, so this build is not judged")
+    old_chars, old_h2, old_h3 = old
+
+    if new is None:
+        return REFUSED, ("this build emits NO manuscript panel at all, and the delivered "
+                         "page carries one of %d chars in %d sections. That is total loss."
+                         % (old_chars, old_h2))
+    new_chars, new_h2, new_h3 = new
+
+    lost = (old_chars - new_chars) / float(old_chars) if old_chars else 0.0
+    detail = ("delivered %d chars / %d h2 / %d h3   ->   this build %d chars / %d h2 / %d h3   "
+              "(%+.2f%% text, %+d sections; refuses below -%.0f%% or any section loss)"
+              % (old_chars, old_h2, old_h3, new_chars, new_h2, new_h3,
+                 -100.0 * lost, new_h2 - old_h2, 100.0 * tolerance))
+
+    if lost > tolerance or (old_h2 - new_h2) > slack:
+        if os.environ.get(OVERRIDE) == "1":
+            return OK, ("OVERRIDDEN by %s=1 -- a manuscript shrink was ALLOWED DELIBERATELY. "
+                        "%s" % (OVERRIDE, detail))
+        return REFUSED, detail
+    return OK, detail
+
+
+def enforce(new_html, out_path, printer=print):
+    """Refuse the write, loudly, or report the margin and let it through.
+
+    Raises SystemExit on refusal -- BEFORE the file is opened for writing, so a refused
+    build leaves the delivered page untouched. Validate the argument before the destructive
+    command, not the outcome after it.
+    """
+    verdict, msg = check(new_html, out_path)
+    if verdict == REFUSED:
+        raise SystemExit(
+            "BUILD REFUSED: this build would destroy the manuscript already delivered at "
+            "%s.\n  %s\n  Nothing was written. If this is genuinely intended, re-run with "
+            "%s=1.\n  Before you do: ARNI's manuscript is an AUTHORED docmodel at "
+            "ssot/<topic>/manuscript_docmodel.json, and the projector does not reproduce "
+            "it. A shrink here is not a cosmetic regression."
+            % (out_path, msg, OVERRIDE))
+    printer("[manuscript guard] %s -- %s" % (verdict, msg))
+    return verdict
