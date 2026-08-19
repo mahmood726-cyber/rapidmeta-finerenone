@@ -168,6 +168,27 @@ def export(obj, page_html=None):
         art["page_provenance"] = ("converted" if bm == "CONVERTED"
                                   else "authored-reconciliation")
 
+    # THE ARTEFACT CARRIES ITS OWN STATE, the same way a page carries `rapidmeta:page-state`.
+    # Downstream, `harness_gate.py` sees only artefacts -- it cannot open the object -- so an
+    # artefact from a topic that publishes no estimate looked identical to one from an adapter
+    # that recognised nothing. Two different states, indistinguishable, which is exactly the
+    # confusion this project keeps paying for. The exporter knows the difference and stamps it.
+    _pr = (((obj.get("results") or {}).get("by_outcome") or {}).get("primary") or {})
+    _pl = _pr.get("pooled") or {}
+    _k = _pr.get("k")
+    if _pl.get("point") is None and (_pl.get("withdrawn") or _pl.get("absent")
+                                     or (isinstance(_k, int) and _k < 2)):
+        art["publishes_no_estimate"] = {
+            "k": _k,
+            "because": ("withdrawn" if _pl.get("withdrawn") else
+                        "absent" if _pl.get("absent") else
+                        "k<2 -- one trial is not a meta-analysis"),
+            "means": ("This artefact yielding ZERO check executions is the CORRECT result, not "
+                      "an adapter that recognised nothing. PUBLISHES-NOTHING and UNRECOGNISED "
+                      "are different states and are never summed."),
+            "stamped_by": "scripts/export_artefact.py",
+        }
+
     trials = ((obj.get("inputs") or {}).get("trials")) or []
     data_ids = [t.get("nct") or t.get("id") for t in trials if (t.get("nct") or t.get("id"))]
 

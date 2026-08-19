@@ -99,8 +99,47 @@ def main(argv=None) -> int:
     # already argues this for INVALID; "the adapter recognised nothing" is the
     # same statement one layer earlier, so it takes the same exit code.
     if n_files and total == 0:
+        # THE FOURTH INSTRUMENT TO ASSUME EVERY REVIEW POOLS. The tombstone case was encoded in
+        # the export gate; the no-pool review was encoded in the regression check and then in
+        # the exporter. This is the same missing concept one layer further on: an artefact
+        # exported from a topic that PUBLISHES NO ESTIMATE contains no pool, no per-trial rows
+        # and no poolable verdict, so zero check executions is the CORRECT result rather than
+        # an adapter that recognised nothing.
+        #
+        # ENCODED, NOT EXEMPTED. The artefact must SAY it publishes nothing. An artefact that
+        # claims a pool and yields no checks still returns 2 -- that is the state this gate
+        # exists for, and it stays reachable.
+        declares, silent = [], []
+        for f in args.artefacts:
+            try:
+                with open(f, "r", encoding="utf-8") as fh:
+                    a = json.load(fh)
+            except Exception:
+                silent.append(os.path.basename(f))
+                continue
+            # READ THE ARTEFACT'S OWN STAMP. The gate never sees the SSOT object, so it cannot
+            # re-derive this -- the exporter, which does see the object, writes
+            # `publishes_no_estimate` onto the artefact. An artefact with no stamp that yields
+            # nothing is still a failure, which keeps this branch reachable.
+            pne = a.get("publishes_no_estimate")
+            if pne:
+                declares.append("%s (k=%s, %s)"
+                                % (a.get("page_id") or os.path.basename(f),
+                                   pne.get("k"), pne.get("because")))
+            else:
+                silent.append(a.get("page_id") or os.path.basename(f))
+        if declares and not silent:
+            if not args.quiet:
+                print("[harness-gate] %d artefact(s) yielded zero checks BY DESIGN: %s. "
+                      "PUBLISHES-NOTHING and UNRECOGNISED are different states and are never "
+                      "summed." % (len(declares), ", ".join(declares)))
+            return 0
         print("[harness-gate] %d artefact(s) yielded ZERO check executions. The "
               "adapter recognised nothing in them." % n_files, file=sys.stderr)
+        if silent:
+            print("[harness-gate] These do NOT declare that they publish nothing, so zero "
+                  "checks is a failure rather than a design: %s" % ", ".join(silent),
+                  file=sys.stderr)
         print("[harness-gate] That is not a pass. Nothing was checked.",
               file=sys.stderr)
         return 2
