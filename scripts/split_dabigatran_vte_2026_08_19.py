@@ -1,0 +1,464 @@
+#!/usr/bin/env python3
+"""THE FOUR-WAY SPLIT OF `dabigatran-vte-review` -- the P21 decision executed, not merely recorded.
+
+WHY A SPLIT AND NOT A CHOICE. The parent object holds four trials. Screened against the 38
+surfaced registrations, they land in THREE DIFFERENT READINGS plus one that is not a venous
+thromboembolism trial at all:
+
+    NCT00329238  RE-MEDY         -> EXTENDED
+    NCT02913326  RE-SPECT CVT    -> CEREBRAL
+    NCT00168805  RE-MODEL        -> SURGICAL   (and it was MISSED by the search)
+    NCT01505881  RE-ALIGN f/u    -> no reading; a MECHANICAL HEART VALVE population
+
+Choosing one reading would silently discard the other three questions. Splitting keeps all four
+and states what each can and cannot answer. Every reading has eligible trials, so the empty-
+question test does not fire and none of the four is a boundary.
+
+WHAT EACH SUCCESSOR PUBLISHES: no pooled estimate. The estimand screen returned
+POOL_NOT_ADMISSIBLE on all four, and each successor carries ITS OWN failing limbs verbatim
+rather than a shared summary.
+
+THE UNION IS PROVEN, NOT ASSERTED. Every trial on the parent must appear in a successor, or be
+adjudicated out with a NAMED reason recorded in both the tombstone and this script's output. The
+write is refused if any parent trial is unaccounted for.
+
+  AND RE-MODEL IS THE CASE THAT MAKES THE PROOF WORTH HAVING. It is on the parent and NOT in the
+  surfaced set -- the search missed it. A split built only from the screen would have dropped a
+  trial the predecessor held. It is carried into SURGICAL explicitly, flagged as carried-from-
+  predecessor rather than surfaced.
+
+USAGE
+    python scripts/split_dabigatran_vte_2026_08_19.py [--apply] [--selftest]
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+PARENT = "dabigatran-vte-review"
+
+READINGS = {
+    "dabigatran-vte-treatment": {
+        "reading": "TREATMENT",
+        "title": "Dabigatran for acute symptomatic venous thromboembolism",
+        "question": ("In adults with acute symptomatic venous thromboembolism, does dabigatran "
+                     "reduce recurrent VTE compared with the comparator each trial actually "
+                     "randomised against?"),
+        "why_this_is_its_own_question": (
+            "Treating a clot that has already happened is not the same question as preventing "
+            "one, and the events countable in each are different."),
+    },
+    "dabigatran-vte-extended": {
+        "reading": "EXTENDED",
+        "title": "Dabigatran for extended secondary prevention after venous thromboembolism",
+        "question": ("In adults who have completed anticoagulation for venous thromboembolism, "
+                     "does extended dabigatran reduce recurrence compared with the comparator "
+                     "each trial actually randomised against?"),
+        "why_this_is_its_own_question": (
+            "The population has already been treated. The counterfactual is continuation versus "
+            "stopping, which is why one trial here randomises against placebo and one against "
+            "warfarin -- and why those two cannot be pooled."),
+    },
+    "dabigatran-vte-surgical": {
+        "reading": "SURGICAL",
+        "title": "Dabigatran for thromboprophylaxis after elective arthroplasty",
+        "question": ("In adults undergoing elective hip or knee arthroplasty, does dabigatran "
+                     "prevent venous thromboembolism compared with the comparator each trial "
+                     "actually randomised against?"),
+        "why_this_is_its_own_question": (
+            "Prophylaxis in a surgical population is a different question from treatment, and "
+            "most trials here count venographically detected events that no treatment trial "
+            "looks for."),
+    },
+    "dabigatran-vte-cerebral": {
+        "reading": "CEREBRAL",
+        "title": "Dabigatran for cerebral venous and dural sinus thrombosis",
+        "question": ("In adults with cerebral venous or dural sinus thrombosis, does dabigatran "
+                     "compare favourably with the comparator each trial actually randomised "
+                     "against, on the endpoint that trial registered?"),
+        "why_this_is_its_own_question": (
+            "A cerebral venous thrombosis trial is not a limb-DVT trial whatever its comparator, "
+            "and most trials here register RECANALISATION -- an imaging endpoint no other "
+            "reading uses."),
+    },
+}
+
+# Every parent trial, and where it goes. Declared BEFORE anything is read, so the union proof
+# checks a claim rather than describing an outcome.
+PARENT_TRIAL_DISPOSITION = {
+    "NCT00329238": ("dabigatran-vte-extended", "surfaced and screened into EXTENDED"),
+    "NCT02913326": ("dabigatran-vte-cerebral", "surfaced and screened into CEREBRAL"),
+    "NCT00168805": ("dabigatran-vte-surgical",
+                    "CARRIED FROM THE PREDECESSOR, not surfaced. RE-MODEL is coded with the "
+                    "broader term `Thromboembolism` while the query asked for VENOUS "
+                    "thromboembolism, so the search did not return it. It is an arthroplasty "
+                    "prophylaxis trial and belongs in SURGICAL. Carried explicitly so the split "
+                    "does not drop a trial the predecessor held."),
+    "NCT01505881": (None,
+                    "ADJUDICATED OUT, with the reason named. This is the RE-ALIGN follow-on in a "
+                    "MECHANICAL HEART VALVE population -- conditions `Thromboembolism, Heart "
+                    "Valve Prosthesis` -- whose registered primary is `Percentage of Patients "
+                    "With Any Adverse Event`. It is not a venous thromboembolism trial and not a "
+                    "member of any of the four readings. It is NOT DELETED: the whole trial "
+                    "record is preserved on the tombstone and this reason travels with it."),
+}
+
+
+def load(p):
+    with io.open(p, "r", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def parent_path():
+    return os.path.join(REPO, "ssot", PARENT, PARENT + ".json")
+
+
+def load_parent():
+    """The parent AS IT STOOD, even on a re-run after it has already been retired.
+
+    RE-APPLYING NAIVELY WOULD SNAPSHOT THE TOMBSTONE INTO ITSELF -- exactly the defect found in
+    the merge tombstones earlier today, where `THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT` held a copy
+    of the retirement record rather than the object. If the parent is already RETIRED, its
+    preserved snapshot IS the parent, and the outer record is discarded rather than re-wrapped.
+    """
+    o = load(parent_path())
+    if str(o.get("state") or "").upper() == "RETIRED":
+        snap = o.get("THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT")
+        if not isinstance(snap, dict) or not snap.get("inputs"):
+            raise SystemExit("REFUSED: the parent is RETIRED and carries no usable snapshot. "
+                             "Recover it from git before re-running.")
+        print("NOTE: the parent is already RETIRED; using its preserved snapshot as the parent "
+              "so the tombstone is not wrapped around itself.")
+        print("")
+        return snap
+    return o
+
+
+def build_successor(app_id, spec, screen, estimand, parent, allranks):
+    """One successor object. No estimate is computed and none is carried."""
+    v = estimand["readings"][spec["reading"]]
+    ranks = allranks["ranks"]
+    read_by_nct = {r["nct"]: r for r in v.get("trials", []) if r.get("state") == "READ"}
+
+    trials = []
+    for nct in sorted(read_by_nct):
+        r = read_by_nct[nct]
+        trials.append({
+            "id": nct, "nct": nct, "registration": nct, "registry": "ClinicalTrials.gov",
+            "name": r.get("acronym") or nct,
+            "acronym_the_registration_declares": r.get("acronym"),
+            "brief_title": r.get("brief_title"),
+            "enrollment": r.get("enrollment"),
+            "how_it_entered": "surfaced by the executed search and screened into this reading",
+            "disposition": r.get("disposition"),
+            "arm_labels_as_the_registry_lists_them":
+                r.get("arm_labels_as_the_registry_lists_them"),
+            "comparator_families_present": r.get("comparator_families_present"),
+            "registered_primary_title": r.get("registered_primary_title"),
+            "registered_primary_description_verbatim":
+                r.get("registered_primary_description_verbatim"),
+            "registered_primary_time_frame": r.get("registered_primary_time_frame"),
+            "all_registered_primary_titles": r.get("all_registered_primary_titles"),
+            "source_url": r.get("source_url"),
+            "read_utc": r.get("read_utc"),
+            # EVERY REGISTERED RANK, not the primary alone. A refusal to pool that never looked
+            # below the primary is a withholding (P17), and twice tonight the harmonisable
+            # estimand WAS a secondary.
+            "registered_primaries": (ranks.get(nct) or {}).get("registered_primaries"),
+            "registered_secondaries": (ranks.get(nct) or {}).get("registered_secondaries"),
+            "registered_other_outcomes": (ranks.get(nct) or {}).get("registered_other_outcomes"),
+            "all_ranks_read_utc": (ranks.get(nct) or {}).get("all_ranks_read_utc"),
+            "ranks_read": (ranks.get(nct) or {}).get("ranks_read"),
+            "pmid": None,
+            "pmid_state": ("NOT RESOLVED. `scripts/resolve_primary_publications.py` is the route "
+                           "and has not been run for this topic. Reported unresolved rather "
+                           "than approximated."),
+        })
+
+    # Trials carried from the predecessor that the search did not surface.
+    carried = []
+    for nct, (dest, why) in sorted(PARENT_TRIAL_DISPOSITION.items()):
+        if dest != app_id or nct in read_by_nct:
+            continue
+        src = [t for t in (parent.get("inputs") or {}).get("trials") or []
+               if t.get("nct") == nct]
+        row = dict(src[0]) if src else {"nct": nct}
+        row["how_it_entered"] = "CARRIED FROM THE PREDECESSOR -- not surfaced by the search"
+        row["why"] = why
+        row["counts_on_this_record_are_not_carried_forward"] = (
+            "The predecessor stored per-arm counts that do not reconcile with the registration "
+            "(1 event of 679 against the registry's 183 of 503, and a two-arm reduction of a "
+            "THREE-ARM trial). They are preserved here verbatim as the predecessor held them "
+            "and are NOT used for anything.")
+        carried.append(row)
+        trials.append(row)
+
+    fails = v.get("failing_limbs") or []
+    reasons = " ".join("[%s] %s" % (f["property"], f["finding"]) for f in fails)
+
+    return {
+        "app_id": app_id,
+        "schema_version": "2-authored-from-source",
+        "build_mode": "AUTHORED",
+        "built": "2026-08-19T00:00Z",
+        "title": spec["title"],
+        "question": spec["question"],
+        "why_this_is_its_own_question": spec["why_this_is_its_own_question"],
+        "split_from": {
+            "parent": PARENT,
+            "decision": "DECIDED-dabigatran-vte-2026-08-19.md",
+            "authorised_by": "Mahmood, 2026-08-19",
+            "why": ("The parent's four trials span three different readings plus one that is "
+                    "not a VTE trial. Choosing one reading would have discarded the other "
+                    "questions silently, so the topic was SPLIT rather than narrowed."),
+        },
+        "inputs": {"trials": trials},
+        "k_in_this_reading": len(trials),
+        "k_carried_from_the_predecessor": len(carried),
+        "screening": {
+            "surfaced": screen["surfaced"],
+            "screened": screen["surfaced"],
+            "unscreened_remainder": screen["k_unscreened_remainder"],
+            "record": "evidence/2026-08-19-batch1/dabigatran_vte_screening.json",
+            "precedence": screen.get("precedence"),
+            "recall": screen.get("recall_note"),
+            "registries_not_searched": ("PubMed was NOT searched for this topic, so a trial "
+                                        "reported in the literature and never registered on "
+                                        "ClinicalTrials.gov is outside what was looked at. "
+                                        "Named as not searched rather than implied complete."),
+        },
+        "outcomes": [{
+            "id": "primary",
+            "name": "The registered primary of each trial, read verbatim",
+            "definition": ("NOT ONE DEFINITION. The registered primaries in this reading are "
+                           "recorded per trial on this object and are not reduced to a common "
+                           "quantity here."),
+            "definition_note": "Read from ClinicalTrials.gov on 2026-08-19.",
+            "measure": None,
+            "measure_note": ("This topic publishes no estimate, so there is no measure it was "
+                             "expressed in."),
+            "type": "primary",
+        }],
+        "results": {"by_outcome": {"primary": {
+            "k": len(trials),
+            "poolable": False,
+            "poolable_reason": reasons or "no estimand barrier was found by the three tests run",
+            "estimand_established": False,
+            "estimand_established_means": (
+                "The estimand screen asked three questions -- P37 composite names are not "
+                "definitions, P38 a shared estimand is not a shared comparator, P45 the "
+                "construct is not the measurable endpoint. Its verdict for this reading was "
+                "%s." % v["verdict"]),
+            "estimand_screen_verdict": v["verdict"],
+            "failing_limbs": fails,
+            "all_failing_limbs_reported": True,
+            "endpoints_needing_a_human_read": v.get("endpoints_needing_a_human_read") or {},
+            "restricted_subsets_that_survive_the_named_axis":
+                v.get("restricted_subsets_that_survive_the_named_axis") or [],
+            "pooled": {
+                "measure": None, "point": None, "ci_low": None, "ci_high": None,
+                "ci_level": 95, "scale": "log",
+                "absent": True,
+                "absent_reason": (
+                    "NO ESTIMATE IS PUBLISHED FOR THIS READING. %s "
+                    "AUTHORITY: MECIR Box 10.10.a C62 -- undertake or display a meta-analysis "
+                    "only if participants, interventions, comparisons and outcomes are "
+                    "sufficiently similar to ensure a clinically meaningful answer -- and "
+                    "Handbook 6.5 section 10.10.3, 'A systematic review need not contain any "
+                    "meta-analyses.'" % (reasons or "")),
+            },
+            "the_withholding_question_asked_at_every_rank": {
+                "why": ("A refusal to pool that never looked below the primary is a withholding "
+                        "(P17). Every trial on this object carries its registered PRIMARY, "
+                        "SECONDARY and OTHER outcomes, read 2026-08-19."),
+                "matching": ("EXACT normalised title, case-folded and whitespace-collapsed. "
+                             "Looser matching would compare endpoints by name, which is the "
+                             "error P37 names -- so this is a LOWER BOUND."),
+                "by_comparator_family":
+                    allranks["readings"][spec["reading"]]["by_comparator_family"],
+                "status": ("A shared title at a shared comparator is a CANDIDATE, not a pool. "
+                           "The components still have to be read and no estimate is computed "
+                           "here. What it forecloses is a refusal that never asked."),
+            },
+            "what_this_does_not_establish": (
+                "NOT that any trial here is poor. NOT that dabigatran is ineffective in this "
+                "population. NOT that no poolable question exists in this area -- a "
+                "comparator-restricted subset is named on this object where one exists. Only "
+                "that the trials as they stand do not estimate one common quantity."),
+        }}},
+        "sources": {
+            "screening": "evidence/2026-08-19-batch1/dabigatran_vte_screening.json",
+            "estimand_screen": "evidence/2026-08-19-batch1/dabigatran_vte_estimand_screen.json",
+            "decision": "DECIDED-dabigatran-vte-2026-08-19.md",
+        },
+        "verification_basis": {
+            "what_verifies_this_object": ("ClinicalTrials.gov protocol records read 2026-08-19, "
+                                          "and the screened set of 38 surfaced registrations."),
+            "what_is_not_claimed": ("That any per-trial event count was checked against a "
+                                    "publication. No counts are carried and no estimate is "
+                                    "computed. Primary publications are NOT resolved for this "
+                                    "topic."),
+        },
+        "source_links_enforced": True,
+    }
+
+
+def build_tombstone(parent, successors):
+    return {
+        "app_id": PARENT,
+        "state": "RETIRED",
+        "retired_utc": "2026-08-19",
+        "retired_by": "SPLIT",
+        "split_into": sorted(successors),
+        "authorised_by": "Mahmood, 2026-08-19",
+        "why": ("This topic asked one question of four trials that answer three different ones. "
+                "It was SPLIT rather than narrowed: choosing a single reading would have "
+                "discarded the other questions without saying so. It is retired, not deleted -- "
+                "the entire former object is preserved below and every trial it held is either "
+                "carried into a successor or adjudicated out with a named reason."),
+        "a_tombstone_is_not_an_absence": (
+            "A later auditor must be able to SEE that a split happened rather than infer it "
+            "from a gap. Deleting this file would make the corpus tidier and the history "
+            "unreadable."),
+        "trials_it_held": sorted(t.get("nct") for t in
+                                 ((parent.get("inputs") or {}).get("trials") or [])
+                                 if t.get("nct")),
+        "where_each_trial_went": {
+            nct: {"successor": dest, "why": why}
+            for nct, (dest, why) in sorted(PARENT_TRIAL_DISPOSITION.items())},
+        "adjudicated_out": sorted(n for n, (d, _w) in PARENT_TRIAL_DISPOSITION.items()
+                                  if d is None),
+        "THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT": parent,
+    }
+
+
+def prove_union(parent, built):
+    """Refuse unless every parent trial is in a successor or adjudicated out with a reason."""
+    problems = []
+    held = [t.get("nct") for t in (parent.get("inputs") or {}).get("trials") or []
+            if t.get("nct")]
+    for nct in held:
+        if nct not in PARENT_TRIAL_DISPOSITION:
+            problems.append("%s is on the parent and has NO declared disposition" % nct)
+            continue
+        dest, why = PARENT_TRIAL_DISPOSITION[nct]
+        if dest is None:
+            if not why or len(why) < 40:
+                problems.append("%s adjudicated out with no stated reason" % nct)
+            continue
+        if dest not in built:
+            problems.append("%s routed to %s, which was not built" % (nct, dest))
+            continue
+        ncts = {t.get("nct") for t in built[dest]["inputs"]["trials"]}
+        if nct not in ncts:
+            problems.append("%s declared for %s but is NOT in its trial list" % (nct, dest))
+    for nct in PARENT_TRIAL_DISPOSITION:
+        if nct not in held:
+            problems.append("%s has a disposition but is not on the parent" % nct)
+    return problems
+
+
+def run(apply_it):
+    parent = load_parent()
+    screen = load(os.path.join(EV, "dabigatran_vte_screening.json"))
+    estimand = load(os.path.join(EV, "dabigatran_vte_estimand_screen.json"))
+    allranks = load(os.path.join(EV, "dabigatran_vte_all_ranks.json"))
+
+    built = {a: build_successor(a, s, screen, estimand, parent, allranks)
+             for a, s in READINGS.items()}
+
+    problems = prove_union(parent, built)
+    print("UNION PROOF over the parent's %d trials:"
+          % len((parent.get("inputs") or {}).get("trials") or []))
+    for nct, (dest, why) in sorted(PARENT_TRIAL_DISPOSITION.items()):
+        print("   %-13s -> %-26s %s" % (nct, dest or "ADJUDICATED OUT", why[:64]))
+    if problems:
+        print("\nREFUSED -- the union is not proven:")
+        for p in problems:
+            print("   %s" % p)
+        return 1
+    print("   ...every parent trial accounted for.\n")
+
+    total = 0
+    for a in sorted(built):
+        o = built[a]
+        total += o["k_in_this_reading"]
+        print("  %-26s k=%-3d carried=%d  %s"
+              % (a, o["k_in_this_reading"], o["k_carried_from_the_predecessor"],
+                 o["results"]["by_outcome"]["primary"]["estimand_screen_verdict"]))
+        for t in o["inputs"]["trials"]:
+            print("       %-13s %-14s n=%-7s %s"
+                  % (t.get("nct"), (t.get("name") or "")[:14], t.get("enrollment"),
+                     (t.get("registered_primary_title") or "(carried)")[:60]))
+    print("\n  total trials across the four successors: %d" % total)
+
+    if not apply_it:
+        print("\nDRY RUN -- nothing written. Re-run with --apply.")
+        return 0
+
+    for a in sorted(built):
+        d = os.path.join(REPO, "ssot", a)
+        if not os.path.isdir(d):
+            os.makedirs(d)
+        with io.open(os.path.join(d, a + ".json"), "w", encoding="utf-8", newline="") as fh:
+            fh.write(json.dumps(built[a], indent=1, ensure_ascii=False))
+        print("  wrote ssot/%s/%s.json" % (a, a))
+
+    tomb = build_tombstone(parent, list(built))
+    with io.open(parent_path(), "w", encoding="utf-8", newline="") as fh:
+        fh.write(json.dumps(tomb, indent=1, ensure_ascii=False))
+    print("  wrote the tombstone at ssot/%s/%s.json" % (PARENT, PARENT))
+
+    # POST-WRITE PROOF, read back from disk. The in-memory objects are not the evidence.
+    back = {a: load(os.path.join(REPO, "ssot", a, a + ".json")) for a in built}
+    tb = load(parent_path())
+    again = prove_union(tb["THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"], back)
+    print("\n  re-read from disk: union %s" % ("PROVEN" if not again else "BROKEN %s" % again))
+    return 1 if again else 0
+
+
+def selftest():
+    fails = []
+
+    def ck(n, got, want):
+        ok = got == want
+        print("  %-66s %s  %r" % (n, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(n)
+
+    fake_parent = {"inputs": {"trials": [{"nct": n} for n in PARENT_TRIAL_DISPOSITION]}}
+    good = {a: {"inputs": {"trials": [{"nct": n}]}}
+            for n, (a, _w) in PARENT_TRIAL_DISPOSITION.items() if a}
+
+    print("1. A COMPLETE UNION IS ACCEPTED:")
+    ck("no problems", prove_union(fake_parent, good), [])
+
+    print("\n2. THE PROOF CAN FIRE -- a trial declared for a successor but missing from it:")
+    broken = {a: {"inputs": {"trials": []}} for a in good}
+    p = prove_union(fake_parent, broken)
+    ck("three routed trials are all reported missing", len(p), 3)
+    ck("and each names the trial", all("NCT" in x for x in p), True)
+
+    print("\n3. A PARENT TRIAL WITH NO DECLARED DISPOSITION IS REFUSED:")
+    extra = {"inputs": {"trials": [{"nct": n} for n in PARENT_TRIAL_DISPOSITION] +
+                        [{"nct": "NCT00000000"}]}}
+    p = prove_union(extra, good)
+    ck("refused", len(p), 1)
+    ck("and it says which", "NCT00000000" in p[0], True)
+
+    print("\n4. AND THE ADJUDICATED-OUT TRIAL NEEDS A STATED REASON, not a bare exclusion:")
+    ck("NCT01505881 is routed nowhere", PARENT_TRIAL_DISPOSITION["NCT01505881"][0], None)
+    ck("...and carries a reason long enough to be one",
+       len(PARENT_TRIAL_DISPOSITION["NCT01505881"][1]) > 40, True)
+
+    print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    if "--selftest" in sys.argv:
+        sys.exit(selftest())
+    sys.exit(run("--apply" in sys.argv))

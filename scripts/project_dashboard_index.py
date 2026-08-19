@@ -70,8 +70,22 @@ def object_state(page, pmap):
             o = json.load(fh)
     except ValueError:
         return UNREADABLE, rel
-    if str(o.get("state") or "").upper() == "RETIRED" and o.get("absorbed_by"):
-        return RETIRED, o["absorbed_by"]
+    # RETIRED IS DECIDED BY `state` ALONE. This test used to read
+    #     state == RETIRED **and** o.get("absorbed_by")
+    # which made the successor field a precondition for recognising retirement. The first
+    # topic retired by SPLIT rather than by merge carries `split_into`, not `absorbed_by`, so
+    # it fell straight through to NO_POOL and the dashboard reported a topic that no longer
+    # exists as though it were merely unpooled. **A tombstone the projection cannot see is a
+    # retired topic presented as live** -- the same shape as class 25, a lookup keyed on one
+    # spelling of a field reporting something false about the thing it looked at.
+    #
+    # The successor is now read from EITHER field, and a tombstone with neither is still
+    # RETIRED with the successor reported as unrecorded -- never silently downgraded.
+    if str(o.get("state") or "").upper() == "RETIRED":
+        succ = o.get("absorbed_by") or o.get("split_into")
+        if isinstance(succ, list):
+            succ = ", ".join(succ)
+        return RETIRED, (succ or "RETIRED, and no successor field is recorded on the tombstone")
     res = (o.get("results") or {}).get("by_outcome") or {}
     live, withdrawn, reason = False, False, None
     for b in res.values():
@@ -190,7 +204,17 @@ def selftest():
         pmap = json.load(fh)
 
     print("1. THE STATES ARE DISTINGUISHED ON REAL OBJECTS IN THIS REPOSITORY:")
-    ck("a retired topic", object_state("OMECAMTIV_HF_AUTO_FULL_REVIEW.html", pmap)[0], RETIRED)
+    ck("a topic retired by MERGE (carries `absorbed_by`)",
+       object_state("OMECAMTIV_HF_AUTO_FULL_REVIEW.html", pmap)[0], RETIRED)
+    # THE REGRESSION FOR THE DEFECT THIS TEST DID NOT HAVE. A topic retired by SPLIT carries
+    # `split_into` instead, and the old `state == RETIRED and absorbed_by` test reported it as
+    # NO_POOL -- a topic that no longer exists, shown as merely unpooled. Both retirement
+    # routes are now asserted, so neither can regress without the other noticing.
+    ck("a topic retired by SPLIT (carries `split_into`)",
+       object_state("DABIGATRAN_VTE_AUTO_FULL_REVIEW.html", pmap)[0], RETIRED)
+    ck("...and its successors are named rather than left blank",
+       "dabigatran-vte-treatment" in
+       (object_state("DABIGATRAN_VTE_AUTO_FULL_REVIEW.html", pmap)[1] or ""), True)
     ck("a withdrawn topic", object_state("COLCHICINE_CVD_REVIEW.html", pmap)[0], WITHDRAWN)
     ck("a live pool", object_state("SGLT2_HF_REVIEW.html", pmap)[0], LIVE)
     ck("a page with no object", object_state("NO_SUCH_PAGE.html", pmap)[0], UNMAPPED)
