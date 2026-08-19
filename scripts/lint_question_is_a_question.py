@@ -59,6 +59,26 @@ CACHE = os.environ.get(
 # REFUSES.
 BASELINE = 2
 
+# THE BASELINE IS NAMED, NOT COUNTED, AND IT DOUBLES AS A PERMANENT POSITIVE CONTROL.
+#
+# Found 2026-08-19 by pointing RM_CTGOV_CACHE at a directory that does not exist. The cache
+# default above lives in a DEAD SESSION'S SCRATCHPAD -- outside the repo, deletable by anything
+# that tidies temp files -- and with it gone this check reported:
+#
+#     topics compared ... 0 | COPIED REGISTRY FIELD 0 | not compared 135
+#     "no topic's question is a copy of its own trials' registry text."   exit 0
+#
+# Its own two KNOWN-BAD topics vanished from its own report and it asserted the negative anyway.
+# That is worse than the empty-vocabulary case detector 3 guards with exit 2: there the check
+# merely passes everything; here it also DELETES the evidence that it ever found anything, so
+# the ratchet silently re-baselines to zero and the next real instance reads as the first.
+#
+# A count cannot notice that. A NAMED set can: if a topic known to fail does not fail, the
+# instrument -- not the corpus -- is what changed. This is P16's third clause made structural:
+# a check that cannot be observed to fire is not known to be able to.
+BASELINE_TOPICS = ("ablation-af-review", "bococizumab-lipid-review")
+assert len(BASELINE_TOPICS) == BASELINE, "the named baseline and the count must agree"
+
 PREFIX_MIN = 60           # a shared opening this long is a copy, not a coincidence
 WS = re.compile(r"\s+")
 
@@ -172,6 +192,30 @@ def main():
     print("questions that are a COPIED REGISTRY FIELD                %d" % len(hits))
     print("not compared (reported, never silently skipped)           %d" % len(unchecked))
     print("baseline (known, awaiting a human decision)              %d" % BASELINE)
+
+    # POSITIVE CONTROL, RUN EVERY TIME. The named baseline topics are the only known-bad
+    # instances this check has, so they are also the only evidence it can still fire.
+    hit_names = {h[0] for h in hits}
+    blind = [t for t in BASELINE_TOPICS if t in dict(unchecked)]
+    fixed = [t for t in BASELINE_TOPICS if t not in hit_names and t not in blind]
+    if blind:
+        print()
+        print("REFUSED (exit 2 -- BROKEN INSTRUMENT, NOT A CLEAN CORPUS): the known-bad "
+              "topic(s) %s could not be compared at all." % blind)
+        print("   reason given : %s" % [dict(unchecked)[t] for t in blind])
+        print("   cache read   : %s" % CACHE)
+        print("A check that cannot see its own known answer cannot report an all-clear about")
+        print("anything else. This fires when the registry cache is absent -- and that cache")
+        print("default lives OUTSIDE the repo, so it can disappear without a commit.")
+        return 2
+    if fixed:
+        print()
+        print("REFUSED: %s no longer answers its question with a registry field -- it was "
+              "COMPARED and it is CLEAN." % fixed)
+        print("FIX: remove it from BASELINE_TOPICS and lower BASELINE. A ratchet left at its")
+        print("     old notch permits one NEW instance silently, which is a ceiling, not a")
+        print("     ratchet. This refusal is the tightening step, and it is one line.")
+        return 1
     if len(hits) > BASELINE:
         print()
         print("REFUSED: %d topic(s) answer 'what is the question' with a registry field, "
