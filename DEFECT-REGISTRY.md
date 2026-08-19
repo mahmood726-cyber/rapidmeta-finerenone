@@ -87,6 +87,46 @@ Three things follow, and they are the reason this sits at the top:
 The class reproduced itself **live, in this repo, while the detector for it was being written**
 — which is how the diagnosis was obtained at all.
 
+### The ninth instance — the argument for mechanism, made against its own author
+
+**Twenty minutes after this section was written and promoted to the top of this file, its author
+wrote a regex through a shell heredoc.** The pattern was the fix for E1. Its `\b` arrived as a
+literal `0x08`.
+
+`scripts/lint_control_chars.py` caught it immediately:
+
+```
+ssot/topic_identity.py:90  0x08 BACKSPACE (the heredoc \b signature)
+```
+
+Two things about that are worth more than any argument this file could make:
+
+1. **The detector fired in production, on a live instance, not a planted one.** Every other proof
+   in this registry is a defect someone reconstructed on purpose. This one was real, unnoticed,
+   and would have shipped a pattern that could never match — inside the very fix written to stop
+   evidence being withheld.
+2. **Knowing the rule, writing the rule, and promoting the rule to the top of the registry did
+   not prevent breaching it within half an hour.**
+
+> If the person who diagnosed the transport, wrote the detector for it, and placed it above every
+> other finding in this file still breached it twenty minutes later, then no amount of
+> understanding was ever going to be the control. **The mechanism is the control.** That is the
+> whole case for this document, demonstrated against the one author with the least excuse.
+
+Repaired through a written file — the transport observed to preserve bytes.
+
+**And then a tenth instance, in the paragraph above.** Writing *this section* — the account of
+the ninth breach — through a heredoc put two more `0x08` bytes into the registry, inside the
+sentences describing that exact byte.
+
+The difference is the one that matters: **the pre-commit hook refused the commit.** The tenth
+instance never entered history. Instances one through nine were all found after the fact, by
+reading; this one was stopped at the gate.
+
+> Ten breaches by an author who understood the mechanism completely. Zero of the first nine were
+> prevented by understanding. The tenth was prevented by a hook that does not care whether
+> anyone understands it.
+
 Detectors §1 and §2 below cover the two halves of what this transport produces.
 
 ## The proof standard
@@ -326,14 +366,39 @@ FAILs on live topics**.
 
 ## OPEN — named, with the reason
 
-### E1. Substring is not identity
-Matching a topic drug by substring conflates distinct entities. **Not lintable**: deciding
-whether a match is the same entity is a semantic judgement, which is exactly the property that
-makes §1–§3 lintable and this one not. Handled by explicit synonym sets in
-`ssot/topic_identity.py` with the ambiguity declared, and by regression guards pinning the
-negative cases (apixaban-vs-rivaroxaban, both-arms background).
-**Residual risk: a new topic whose drug name is a substring of an unrelated one, with no guard
-written.** Mitigation is a convention, not a mechanism.
+### E1. Substring is not identity — **FIRED. No longer hypothetical.**
+
+> **An exposure written down and left open is not a managed risk. It is a defect waiting for
+> its turn.**
+
+This entry was recorded as OPEN and "not lintable" — and then caused a real defect **on the very
+next topic built**, in the withholding direction, on **five of six** included trials of a
+canonical drug-versus-placebo review.
+
+`alirocumab-lipid`'s ODYSSEY registrations name the placebo arm's intervention
+`Drug: Placebo (for alirocumab)`. The substring matched, `_drug_named_in_arm` reported the drug
+in **both** arms, and `locate()` classified the randomised contrast as background therapy.
+
+**Worse than the arm-type defect, and the reason is the scale of the convention rather than the
+size of the topic:** 49 of 582 intervention records to hand (**8.4%**) name the drug their
+placebo substitutes for. That is an industry naming convention, not one registry's data entry,
+so the exposure was corpus-wide the whole time it sat in this file marked OPEN.
+
+**Now PARTIAL.** Not lintable in general — deciding whether two strings denote the same entity is
+semantic judgement. Decidable *here*, because a placebo **declares itself in the same field**:
+its name begins with `placebo`/`sham`/`vehicle`/`dummy`. The pattern is **anchored**, so
+`empagliflozin plus placebo` is untouched — there the drug genuinely is present.
+
+- **Fires** alirocumab included set 1/6 → **6/6**; k0 99, experimental 74 → 87, background 18 → 6
+- **Not a loosening**, tested the same way the arm-type fix was: `iv-iron-hf` **unmoved** at
+  34/6/5/2, and EASi-HF still returns BACKGROUND — it really does give empagliflozin in both
+  arms, under its own name, which is what the both-arms rule exists for
+- **Still residual:** the general class. A topic whose drug name is a substring of an unrelated
+  one remains unguarded
+
+**What this entry now means for the rest of the file.** Every OPEN entry below should be read as
+a live hazard with an unknown fuse, not as a risk that has been accepted. This one's fuse was
+one topic long.
 
 ### E2. Citation from recall — the §1–§3 class applied to methodological authority
 Handbook citations were wrong in three ways at once: two sections misnumbered, one box
