@@ -15,6 +15,54 @@ instruments: an instrument that has never been observed to fail is not known to 
 
 ---
 
+## A RULE YOU HAVE WRITTEN IS NOT A RULE YOU HAVE APPLIED
+
+Placed beside the transport finding, because it is the same argument demonstrated in a **second,
+unrelated class** — and that is what turns it from an anecdote into the case for mechanism.
+
+The transport instance: heredoc mangling recurred **eight times in one night** against an author
+who had read the rule, written the rule, and committed the rule.
+
+The second instance, 2026-08-19: `scripts/rob2_assess_2026_08_19.py`, run with a single topic
+argument, **overwrote `rob2.json` with that one topic and silently discarded the other seven**.
+Written by the author of the merge-never-write rule, **inside the instrument that enforces it**,
+**one hour after writing it**. Nothing about understanding the rule prevented breaking it; only
+re-reading the output caught it.
+
+> **Understanding a rule does not execute it. A rule enforced by memory is enforced by nothing.**
+> Both instances were committed by an author who could state the rule correctly at the moment of
+> breaking it — so the failure is not knowledge, and no amount of further explanation addresses
+> it. Only a command that refuses does.
+
+- **Fix** the writer now merges with what is on disk and **refuses if the merge would drop any
+  topic**. Proven by re-running full (8 recorded), then single (merged with 8, still 8)
+
+### And a guard can be inverted: it blocked the disclaimer and passed the assertion
+
+`sig_unsourced_two_human_claim` blocked a push by matching this sentence:
+
+> "The two independent screens were performed by two MODEL FAMILIES, **not by two people**. A
+> reader of 'screened in duplicate' would ordinarily assume **two human reviewers**, so this
+> field says what was actually done."
+
+That sentence exists to prevent *exactly* the misreading the signal guards against.
+
+> **A guard that blocks the disclaimer while passing the assertion is inverted.** A signal built
+> to catch a claim will catch the sentence **denying** the claim unless someone thinks about
+> **polarity**. A mention is not a claim.
+
+**Third instance of that family in one file**, and its own docstring already records the other
+two: `"Submission readiness: READYISH"` containing `READY`, and `\bNone\b` matching the English
+word mid-sentence.
+
+- **Fixed in the guard, not by rewording the page.** The gate has no override, and **a gate with
+  no override must never be satisfied by making a page less truthful** — the honest sentence was
+  the one worth keeping
+- **Proven in four parts**, part 3 load-bearing: the real claim must *still* fire, or the fix has
+  disarmed the guard rather than corrected it
+
+---
+
 ## THE LARGEST INSTANCE IN THIS FILE IS OURS — a delivery check that never left the machine
 
 Found 2026-08-19, when Mahmood opened the live pages and saw nothing. Placed above every other

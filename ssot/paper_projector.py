@@ -201,8 +201,11 @@ def project(obj, journal="generic", length="standard"):
         txt = ("Before deciding which outcomes could be combined, every trial was read at "
                "every registered rank -- primary, secondary and other -- asking: %s"
                % wq["question"])
-        if wq.get("why_before_deciding"):
-            txt += " " + wq["why_before_deciding"]
+        for extra in ("why_before_deciding", "answer",
+                      "why_the_answer_is_decisive_rather_than_unexamined",
+                      "why_this_check_is_a_check_and_not_a_bias"):
+            if wq.get(extra):
+                txt += " " + str(wq[extra])
         s.paras.append((txt, ["withholding_question.question",
                               "withholding_question.why_before_deciding"]))
     else:
