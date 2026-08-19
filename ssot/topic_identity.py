@@ -561,18 +561,56 @@ def locate(study, syns):
         # Where the other arm is an ACTIVE drug -- NCT02829957, apixaban vs rivaroxaban, both
         # typed ACTIVE_COMPARATOR -- the topic drug genuinely is one of two comparators and
         # this branch must NOT fire.
+        # THE INERT-OTHERS TEST IS COMPUTED ONCE AND APPLIES TO EVERY ARM TYPE, NOT ONLY TO
+        # COMPARATOR-TYPED ARMS. That restriction was the defect below.
+        other = [a for a in arms if not _drug_named_in_arm(a)]
+        other_types = [str(a.get("type") or "").upper() for a in other]
+        others_all_inert = bool(other_types) and all(
+            ("PLACEBO" in t) or ("SHAM" in t) or ("NO_INTERVENTION" in t)
+            for t in other_types)
+
         if any("COMPARATOR" in t for t in hit_types):
-            other = [a for a in arms if not _drug_named_in_arm(a)]
-            other_types = [str(a.get("type") or "").upper() for a in other]
-            others_all_inert = bool(other_types) and all(
-                ("PLACEBO" in t) or ("SHAM" in t) or ("NO_INTERVENTION" in t)
-                for t in other_types)
             if others_all_inert:
                 return EXPERIMENTAL, (
                     "typed COMPARATOR by the registration, but every other arm is a "
-                    "placebo/sham, so the topic drug IS the randomised intervention; "
-                    + "; ".join(hit_ev[:2]))
+                    "placebo/sham/no-treatment, so the topic drug IS the randomised "
+                    "intervention; " + "; ".join(hit_ev[:2]))
             return COMPARATOR, "; ".join(hit_ev[:2])
+
+        # A COMPARATOR THAT IS NOTHING -- PLACEBO, SHAM, OR NO_INTERVENTION -- IS NEVER THE
+        # INTERVENTION, SO THE ARM CONTRASTED AGAINST IT IS.
+        #
+        # THE DEFECT THIS CLOSES, found 2026-08-19 on the pivotal trial of a whole review.
+        # EAST-AFNET 4 (NCT01288352) declares:
+        #     NO_INTERVENTION  'Usual care'                        (no interventionNames)
+        #     OTHER            'early standardised rhythm control'  ['Other: early standardised
+        #                                                            rhythm control']
+        # `OTHER` is neither EXPERIMENTAL nor any *COMPARATOR string, so the hit matched no
+        # branch above and fell through to the final `return BACKGROUND`.
+        #
+        #     `background_or_coadministered` ASSERTS THE INTERVENTION WAS GIVEN IN EVERY ARM.
+        #     The registry declares the OPPOSITE in a coded field: one arm is typed
+        #     NO_INTERVENTION, meaning it was given to NOBODY there. THE VERDICT CONTRADICTED
+        #     THE RECORD IT WAS READ FROM.
+        #
+        # The old fallthrough treated "an arm type I do not recognise" as evidence of
+        # background use -- an ABSENCE OF A MATCHING BRANCH reported as a POSITIVE FINDING
+        # about the trial, which is the substitution this whole module exists to remove.
+        #
+        # This is the placebo rule's NON-DRUG ANALOGUE and nothing more. `NO_INTERVENTION` is
+        # what a usual-care control looks like when the intervention is a STRATEGY rather than
+        # a drug -- exactly the design an early-rhythm-control review is built from -- and
+        # `OTHER` is how registrants type a strategy arm that is neither drug nor device.
+        #
+        # IT IS DELIBERATELY NARROW. It fires only when EVERY other arm is inert. Where any
+        # other arm is active the drug really is in more than one arm and BACKGROUND stands,
+        # which is the case the both-arms rule was built for and must not lose.
+        if others_all_inert:
+            return EXPERIMENTAL, (
+                "typed %s by the registration -- neither EXPERIMENTAL nor a comparator -- but "
+                "every other arm is a placebo/sham/no-treatment, so the topic intervention IS "
+                "the randomised contrast; %s"
+                % ("/".join(sorted(set(hit_types))) or "(untyped)", "; ".join(hit_ev[:2])))
         return BACKGROUND, "; ".join(hit_ev[:2])
 
     # 3. Named in the intervention list but tied to no arm -> background.
