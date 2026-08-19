@@ -414,9 +414,23 @@
    }
   ]
  },
+ "shared_with_other_topics": {
+  "computed": true,
+  "computed_against": "every other topic object under ssot/ -- 141 checked -- by reading each one's inputs.trials. Not asserted.",
+  "shared": {
+   "NCT00303459": {
+    "also_in": [
+     "bosentan-pah"
+    ],
+    "why": "The parent `bosentan-pah` has not been retired and still holds this trial. The sharing is a consequence of the split, not of two reviews independently including it."
+   }
+  },
+  "summing_per_topic_k_double_counts": "A CORPUS-LEVEL k OBTAINED BY SUMMING PER-TOPIC k DOUBLE-COUNTS. 1 of this review's 7 trials are also held elsewhere. Measured corpus-wide on 2026-08-19: 354 summed against 286 distinct registrations, 68 double-counted.",
+  "and_the_four_readings_share_NOTHING_with_each_other": "COMPUTED, not asserted: the precedence rule assigns every record to exactly one reading, so the four intersect emptily by construction. Any sharing reported above is with a topic OUTSIDE the split."
+ },
  "precondition_verdict": {
   "assessed_on": "2026-08-19",
-  "standard_version": "1.15.0-2026-08-19",
+  "standard_version": "1.17.0-2026-08-19",
   "authority": {
    "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
    "version": "6.5, 2024",
@@ -526,7 +540,7 @@
   }
  },
  "build_stamp": {
-  "page_standard_version": "1.15.0-2026-08-19",
+  "page_standard_version": "1.17.0-2026-08-19",
   "standard_document": "PAGE-STANDARD.md",
   "built_utc": "2026-08-19",
   "built_by": "ssot/build_to_standard.py",
@@ -580,8 +594,8 @@
     "reason": "Split from 'bosentan-pah' into this review and 3 sibling(s) ['bosentan-pah-monotherapy', 'bosentan-ph-not-group1', 'bosentan-pah-children'], with the decision recorded at None. Nothing was dropped to resolve the ambiguity."
    },
    "P22_sharing_recorded": {
-    "state": "REFUSING",
-    "reason": "1 trial(s) appear in other topics' included sets without being recorded here: {'NCT00303459': ['bosentan-pah']}. Sharing is legitimate; UNRECORDED sharing is not, because a corpus-level k obtained by summing per-topic k then double-counts without saying so."
+    "state": "HELD",
+    "reason": "1 shared trial(s), each recorded with the topics holding it and why: NCT00303459 in ['bosentan-pah']. The object also states that summing per-topic k double-counts."
    },
    "P23_recall_measured": {
     "state": "HELD",
@@ -593,6 +607,7 @@
    "P1_executed_search",
    "P20_cascade_reconciles",
    "P21_ambiguous_question_split",
+   "P22_sharing_recorded",
    "P23_recall_measured",
    "P2_k_cascade",
    "P3_inclusion_criteria",
@@ -602,7 +617,6 @@
   ],
   "refusing": [
    "P18_restatement_is_reproducible",
-   "P22_sharing_recorded",
    "P6_analysis_output",
    "P7_published_comparison"
   ],

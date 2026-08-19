@@ -1,6 +1,6 @@
 # The page standard, versioned
 
-**`PAGE_STANDARD_VERSION = "1.16.0-2026-08-19"`**
+**`PAGE_STANDARD_VERSION = "1.17.0-2026-08-19"`**
 
 > **This line was `1.6.0` while the version log below already ran to `1.12.0` and
 > `ssot/build_to_standard.py` stamped `1.13.0`.** The marker whose entire purpose is to make
@@ -70,6 +70,7 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P37 | **Trials sharing a composite endpoint's NAME do not share its DEFINITION, and matching by name is a method that does not work** | this is a property of REGISTERED TRIALS, not of this corpus's topic selection: six instances across three drug classes and two specialties. The pair that settles it is **AMPLIFY and AMPLIFY-EXT** — same sponsor, same programme, sequential trials, names differing by a hyphenated suffix — where one counts *recurrent VTE or VTE-related death* and the other *recurrent VTE or ALL-CAUSE death*. A review must therefore decompose every endpoint into its components and compare the SETS, and must record the comparison, because a mismatch that is pooled deliberately and a mismatch that was never noticed look identical in the output |
 | P38 | **A shared estimand does not make a shared comparator** | estimand coherence is NECESSARY and it is NOT SUFFICIENT. AMPLIFY and AMPLIFY-EXT both register *recurrent VTE or VTE-related death* — primary in one, secondary in the other — and pooling them is still wrong, because one randomises apixaban against enoxaparin/warfarin and the other against **placebo**. Every axis on which a pool can be incoherent gets its own verdict, and a trial that leaves a pool leaves it for a NAMED axis |
 | P39 | **When matching by text returns more than one posted measure, choosing among the matches by position is P35 one level down** | AMPLIFY-EXT posts its primary composite **twice**, typed PRIMARY both times, under the same registered name, differing only in the trailing *"Randomized Population With Imputation" / "Without Imputation"* — and the arm counts are **32 against 19**. Nothing in the payload is malformed. The choice among matches is an ANALYSIS-POPULATION choice: it is made once, applied to every trial, stated on the page, and the pool is recomputed under the alternative so the choice's cost is measured rather than asserted to be small |
+| P45 | **Count the CONSTRUCT and the MEASURABLE ENDPOINT separately, always** | a thin registration looks exactly like a sound one until both limbs are counted. On `bosentan-pah-monotherapy`, **0 of 4** eligible trials register a walk-distance CHANGE and **2 of 4** name a walk endpoint AT ALL — as a bare construct with no measure, no timepoint and no direction. One number alone tells a reader nothing: report the pooled-estimand limb and the named-at-all limb side by side, and **the gap between them is the measurement**. EARLY's registered primaries are the two-word strings *"exercise capacity"* and *"cardiac hemodynamics"* — **a review cannot pool a construct**, and inferring the analysis from the construct's name is the error the two limbs exist to prevent |
 | P43 | **Anything that PARTITIONS before it JUDGES must have its partition checked against known members first** | a precedence rule applied first is the most damaging place to be wrong, because it **silently removes trials from every downstream reading before any of them gets to judge**, and each reading then looks internally consistent. `bosentan-pah` was partitioned into four readings by `minimumAge < 18`, which is not what a paediatric trial is: EARLY and COMPASS-2 admit adolescents from 12 and are adult trials. That single test **took reading A's anchor trial and reading B's own trial out of their reviews entirely**, and every downstream count inherited it. Before trusting a partition, assert its known members — one real instance per class, named in advance |
 | P44 | **The distinction a reading turns on may be the one the registry does not encode** | COMPASS-2 declares exactly what EARLY declares — `armGroups: bosentan \| placebo`, `interventions: ['bosentan','placebo']` — because **background therapy is not a registered intervention**. Read from the arms alone, a combination trial and a monotherapy trial are indistinguishable, and the *only* declaration of the design is the official title. **A reader will assume monotherapy versus combination is a coded fact; it is not**, so a page whose reading depends on such a distinction states on its face that the distinction is not coded and names the field it was read from instead |
 | P41 | **A search must not be built from its own answer** | a query assembled from the terms the included set already shares can only return that set, so it CANNOT DISCOVER and its recall of 100% is a tautology. `azilsartan-chlorthalidone-vs-olmesartan-hctz` asks about one fixed-dose combination against one other; a query naming azilsartan AND chlorthalidone AND olmesartan would have returned exactly the two trials already on the page. **The query is built from the DRUG and the CONTRAST is applied at SCREENING, where every limb is auditable and every exclusion names what it randomised instead.** 53 of 57 exclusions on that topic fail the comparator limb, which is a fact about a narrow question asked of a whole programme — not a criticism of the query, and only visible because the query was wider than the answer |
@@ -129,6 +130,33 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.17.0-2026-08-19
+Adds P45, from the bosentan monotherapy reading.
+
+**P45 — count the construct and the measurable endpoint separately, always.**
+
+| limb | `bosentan-pah-monotherapy` |
+|---|---:|
+| registers a walk-distance **CHANGE** | **0 of 4** |
+| names a walk endpoint **AT ALL** | **2 of 4** |
+
+Neither number alone is the finding. Reported alone, `0 of 4` reads as *this drug was never
+studied for exercise capacity*, which is false; `2 of 4` reads as *two trials share an
+endpoint*, which is also false. **The gap is the measurement**, and it says the registrations
+are too thin to establish a shared estimand.
+
+EARLY (`NCT00091715`, n=185) registers the two-word primaries *"exercise capacity"* and
+*"cardiac hemodynamics"* — no measure, no timepoint, no direction — and has posted no results.
+
+> **A review cannot pool a construct.** Treating a bare endpoint name as a change endpoint is
+> inferring the analysis from the construct, and the two limbs exist so that inference is never
+> silently made.
+
+This generalises past walk distance: any structural endpoint detector should carry a strict limb
+(the estimand as it would have to be defined to pool) and a permissive limb (the endpoint named
+at all), and report both.
+
 
 ### 1.16.0-2026-08-19
 Adds P43 and P44, both from splitting `bosentan-pah` into four reviews.

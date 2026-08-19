@@ -1,0 +1,224 @@
+#!/usr/bin/env python3
+"""HOW MANY REVIEWS ARE THERE ACTUALLY? P22 asked of the whole corpus at once.
+
+WHY THIS RUNS BEFORE THE NEXT TOPIC IS BUILT. The cardiology queue lists 37 topics not yet in
+the delivery map, and reading their names is enough to raise the question:
+
+    omecamtiv-heartfail    omecamtiv-hf    omecamtiv-hfref          three topics, each k=1
+    sacubitril-heartfail   sacubitril-valsartan-hf   arni-hfref     three topics
+    pcsk9-inhibitors-cv-review   pcsk9-review                       two
+    finerenone-cv   finerenone-review                               two
+    evolocumab-dyslipidemia-review   evolocumab-mixed-dyslipidemia-auto-full-review
+
+BUILDING THE NEXT TOPIC WITHOUT KNOWING THIS WOULD BE BUILDING THE SAME REVIEW TWICE AND
+COUNTING IT AS PROGRESS. P22 already says deliberate sharing is recorded on both sides and that
+a corpus-level k obtained by summing per-topic k double-counts; what it has never had is the
+corpus-wide measurement.
+
+    THIS IS THE OPPOSITE OF P21. P21 splits ONE object that asks SEVERAL questions. This finds
+    SEVERAL objects that may ask ONE question -- and the remedy is not symmetric, because
+    merging discards nothing while splitting recovers evidence. A duplicate pair is a DECISION
+    FOR MAHMOOD, not a defect to be silently collapsed, so this file MEASURES and RECOMMENDS
+    and changes no object.
+
+WHAT IT COMPUTES, all from `inputs.trials`, never from names:
+
+  * identical trial sets      -- topics holding exactly the same registrations
+  * subset relations          -- one topic's trials wholly contained in another's
+  * partial overlap           -- any shared registration at all, with the count
+  * the corpus double-count   -- sum of per-topic k against the number of DISTINCT trials
+
+WHAT IT DOES NOT CLAIM. Two topics holding the same trials are not necessarily the same review:
+`apixaban-vte-treatment` and `apixaban-vte-prophylaxis` share NO trial by construction, and two
+reviews can legitimately hold one trial for different questions -- which is what P22 records.
+An identical trial set is a QUESTION TO ASK, not a verdict. Objects with no `inputs.trials` are
+NOT_ASSESSABLE and are counted as such, never as empty.
+
+USAGE:  python scripts/audit_corpus_duplication_2026_08_19.py
+        python scripts/audit_corpus_duplication_2026_08_19.py --selftest
+"""
+import io
+import itertools
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SSOT = os.path.join(REPO, "ssot")
+DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "corpus_duplication.json")
+
+
+def load():
+    """{topic: set(nct)} plus the topics whose trial list cannot be read."""
+    sets, unreadable = {}, []
+    for d in sorted(os.listdir(SSOT)):
+        p = os.path.join(SSOT, d, d + ".json")
+        if not os.path.exists(p):
+            continue
+        try:
+            with io.open(p, encoding="utf-8") as fh:
+                o = json.load(fh)
+        except (ValueError, OSError):
+            unreadable.append(d)
+            continue
+        trials = (o.get("inputs") or {}).get("trials")
+        if not isinstance(trials, list) or not trials:
+            unreadable.append(d)
+            continue
+        ncts = {t.get("nct") for t in trials if isinstance(t, dict) and t.get("nct")}
+        if not ncts:
+            unreadable.append(d)
+            continue
+        sets[d] = ncts
+    return sets, unreadable
+
+
+def analyse(sets):
+    identical, subset, overlap = [], [], []
+    for a, b in itertools.combinations(sorted(sets), 2):
+        sa, sb = sets[a], sets[b]
+        shared = sa & sb
+        if not shared:
+            continue
+        if sa == sb:
+            identical.append({"topics": [a, b], "n_trials": len(sa),
+                              "trials": sorted(sa)})
+        elif sa < sb or sb < sa:
+            small, big = (a, b) if sa < sb else (b, a)
+            subset.append({"subset": small, "superset": big,
+                           "n_shared": len(shared), "n_superset": len(sets[big]),
+                           "trials": sorted(shared)})
+        else:
+            overlap.append({"topics": [a, b], "n_shared": len(shared),
+                            "n_a": len(sa), "n_b": len(sb), "trials": sorted(shared)})
+    return identical, subset, overlap
+
+
+def clusters(sets):
+    """Connected components over 'shares at least one trial'. Union-find, no recursion."""
+    parent = {t: t for t in sets}
+
+    def find(x):
+        while parent[x] != x:
+            parent[x] = parent[parent[x]]
+            x = parent[x]
+        return x
+
+    for a, b in itertools.combinations(sorted(sets), 2):
+        if sets[a] & sets[b]:
+            ra, rb = find(a), find(b)
+            if ra != rb:
+                parent[rb] = ra
+    out = {}
+    for t in sets:
+        out.setdefault(find(t), []).append(t)
+    return [sorted(v) for v in out.values() if len(v) > 1]
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sets, unreadable = load()
+    identical, subset, overlap = analyse(sets)
+    comps = clusters(sets)
+    summed = sum(len(v) for v in sets.values())
+    distinct = len(set().union(*sets.values())) if sets else 0
+
+    print("topic objects with a readable trial list   %d" % len(sets))
+    print("objects with NO readable trial list        %d   NOT_ASSESSABLE, never counted as 0"
+          % len(unreadable))
+    print("")
+    print("sum of per-topic k                         %d" % summed)
+    print("DISTINCT registrations across the corpus   %d" % distinct)
+    print("DOUBLE-COUNTED BY SUMMING                  %d   (%.1f%% of the sum)"
+          % (summed - distinct, 100.0 * (summed - distinct) / summed if summed else 0.0))
+    print("")
+    print("IDENTICAL trial sets  %d pair(s)  <- the strongest question, never a verdict"
+          % len(identical))
+    for r in identical:
+        print("   %-44s == %-44s  %d trial(s)"
+              % (r["topics"][0], r["topics"][1], r["n_trials"]))
+    print("")
+    print("SUBSET relations      %d" % len(subset))
+    for r in subset[:25]:
+        print("   %-44s subset of %-40s %d of %d"
+              % (r["subset"], r["superset"], r["n_shared"], r["n_superset"]))
+    if len(subset) > 25:
+        print("   ... and %d more, in the evidence file" % (len(subset) - 25))
+    print("")
+    print("PARTIAL overlap       %d pair(s)" % len(overlap))
+    print("connected clusters    %d, largest %d topics"
+          % (len(comps), max((len(c) for c in comps), default=0)))
+    for c in sorted(comps, key=len, reverse=True)[:8]:
+        print("   %d: %s" % (len(c), ", ".join(c)))
+
+    out = {
+        "audited_utc": "2026-08-19",
+        "topics_with_a_readable_trial_list": len(sets),
+        "topics_not_assessable": sorted(unreadable),
+        "summed_per_topic_k": summed,
+        "distinct_registrations": distinct,
+        "double_counted_by_summing": summed - distinct,
+        "identical_trial_sets": identical,
+        "subset_relations": subset,
+        "partial_overlaps": overlap,
+        "connected_clusters": sorted(comps, key=len, reverse=True),
+        "what_an_identical_set_means": (
+            "A QUESTION TO ASK, NEVER A VERDICT. Two topics holding the same registrations are "
+            "not necessarily one review: `apixaban-vte-treatment` and its prophylaxis sibling "
+            "share NO trial by construction, and two reviews may legitimately hold one trial "
+            "for different questions -- which is exactly what P22 records. What an identical "
+            "set does establish is that somebody must look."),
+        "and_this_is_the_OPPOSITE_of_P21": (
+            "P21 splits ONE object asking SEVERAL questions. This finds SEVERAL objects that "
+            "may ask ONE question. THE REMEDIES ARE NOT SYMMETRIC: splitting RECOVERS evidence "
+            "from readings that would otherwise lose it, while merging DISCARDS an object. So "
+            "a split is a build and a merge is a DECISION FOR MAHMOOD. This file measures and "
+            "recommends; it changes no object."),
+    }
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1))
+    print("\nwrote %s" % DEST)
+    return 0
+
+
+def selftest():
+    """Known answers from the corpus itself -- pairs whose relation we already established."""
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sets, _u = load()
+    fails = []
+
+    def check(name, got, want):
+        ok = got == want
+        print("  %-62s %s  %r" % (name, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(name)
+
+    # The apixaban split shares NOTHING by construction -- established today, and it is the
+    # case that proves this audit does not simply flag every sibling pair.
+    a, b = "apixaban-vte-treatment", "apixaban-vte-prophylaxis"
+    if a in sets and b in sets:
+        check("the apixaban split siblings share NO trial", sets[a] & sets[b], set())
+    # The four bosentan readings likewise share nothing with each other.
+    # NAMED EXPLICITLY, NOT GLOBBED. `startswith("bosentan-")` also matches the PARENT
+    # `bosentan-pah`, which legitimately shares COMPASS-2 with the combination reading -- so
+    # the first version of this case failed on a TRUE sharing and called it a defect in the
+    # children. A test whose membership is inferred from a name prefix is testing the prefix.
+    bos = [t for t in ("bosentan-pah-monotherapy", "bosentan-pah-combination",
+                       "bosentan-ph-not-group1", "bosentan-pah-children") if t in sets]
+    if len(bos) > 1:
+        shared = set()
+        for x, y in itertools.combinations(bos, 2):
+            shared |= sets[x] & sets[y]
+        check("the four bosentan readings share NO trial with each other", shared, set())
+    # And the audit must FIND something, or it is not measuring.
+    identical, subset, overlap = analyse(sets)
+    check("the audit finds overlapping pairs to report",
+          (len(identical) + len(subset) + len(overlap)) > 0, True)
+    check("and a readable corpus to compute over", len(sets) > 50, True)
+
+    print("\n%s" % ("ALL KNOWN ANSWERS HELD" if not fails else "FAILED: %s" % fails))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.exit(selftest() if "--selftest" in sys.argv else main())

@@ -100,6 +100,52 @@ def build(topic, title, question, provenance, search, prisma, cascade, extractio
                          "2026-08-19. No journal article was read for any effect estimate."),
         "extraction": extraction,
     }
+    # P22: SHARING, COMPUTED AGAINST THE WHOLE CORPUS. The four readings share nothing with
+    # EACH OTHER by construction, and the combination reading DOES share COMPASS-2 with the
+    # unretired parent `bosentan-pah`. P22 refused that object on the first build and was
+    # right: the sharing is legitimate and unrecorded sharing is not.
+    ssot_dir = os.path.join(REPO, "ssot")
+    mine = [t.get("nct") for t in o["inputs"]["trials"] if t.get("nct")]
+    found, checked = {}, 0
+    for dd in sorted(os.listdir(ssot_dir)):
+        if dd == topic:
+            continue
+        p2 = os.path.join(ssot_dir, dd, dd + ".json")
+        if not os.path.exists(p2):
+            continue
+        checked += 1
+        try:
+            with io.open(p2, encoding="utf-8") as fh:
+                o2 = json.load(fh)
+        except (ValueError, OSError):
+            continue
+        their = {t.get("nct") for t in ((o2.get("inputs") or {}).get("trials") or [])}
+        for n in mine:
+            if n in their:
+                found.setdefault(n, []).append(dd)
+    o["shared_with_other_topics"] = {
+        "computed": True,
+        "computed_against": ("every other topic object under ssot/ -- %d checked -- by reading "
+                             "each one's inputs.trials. Not asserted." % checked),
+        "shared": {n: {"also_in": ts,
+                       "why": ("The parent `bosentan-pah` has not been retired and still holds "
+                               "this trial. The sharing is a consequence of the split, not of "
+                               "two reviews independently including it."
+                               if ts == ["bosentan-pah"] else
+                               "held by another topic; recorded rather than left to a summed "
+                               "corpus k to hide.")}
+                   for n, ts in sorted(found.items())},
+        "summing_per_topic_k_double_counts": (
+            "A CORPUS-LEVEL k OBTAINED BY SUMMING PER-TOPIC k DOUBLE-COUNTS. %d of this "
+            "review's %d trials are also held elsewhere. Measured corpus-wide on 2026-08-19: "
+            "354 summed against 286 distinct registrations, 68 double-counted."
+            % (len(found), len(mine))),
+        "and_the_four_readings_share_NOTHING_with_each_other": (
+            "COMPUTED, not asserted: the precedence rule assigns every record to exactly one "
+            "reading, so the four intersect emptily by construction. Any sharing reported "
+            "above is with a topic OUTSIDE the split."),
+    }
+
     d = os.path.join(REPO, "ssot", topic)
     os.makedirs(d, exist_ok=True)
     dest = os.path.join(d, "%s.json" % topic)
