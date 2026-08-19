@@ -51,6 +51,8 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P27 | **A reframed question travels to every site that asks it** | when a rule is reframed, the reframing must reach **every place the old question is put — including prompts to other models and to humans**, not only the code that was fixed. A fix applied at one site is not a fix of the class, and a question is a site |
 | P28 | **A defective question invalidates every answer it produced, agreements first** | when a question is found unable to make a distinction, **every** answer to it is suspect — *especially the ones that agreed*, because agreement under a bad question is precisely what makes it look settled. A correction that stops at the cases that looked wrong is not a correction of the class |
 | P29 | **A filter asserts an expected count, not merely a successful exit** | any pipe over a subprocess checks `exit == 0` **and** that the filter yielded the expected number of results. An expected-count assertion is the only thing that distinguishes an **empty** result from a **discarded** one |
+| P30 | **Prose is not evidence; a report is not an artefact** | any number stated in a report, a commit message or a page must exist in a file something can recompute. **A claim that exists only in prose is indistinguishable from one that was computed** — until an arithmetic gate demands the parts sum |
+| P31 | **Two correct readings of different questions look exactly like a disagreement** | before treating cross-instrument disagreement as evidence about the instruments, establish that both were asked the **same** question. Disagreement is a property of the question until shown otherwise |
 
 ## Reading the remainder — the same number, opposite diagnoses
 

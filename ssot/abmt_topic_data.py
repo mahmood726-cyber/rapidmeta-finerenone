@@ -1,0 +1,202 @@
+"""Per-topic data for `ablation-af-medical-therapy`, keyed to THIS topic and to no other.
+
+Second of the three reviews `ablation-af-review` was split into on 2026-08-19 (P21). Its
+blocks are shared with NEITHER sibling.
+"""
+
+ABMT_SEARCH = {
+    "executed_by": "lane 1 (Claude, Anthropic family)",
+    "databases": [
+        {
+            "database": "ClinicalTrials.gov API v2 -- CHOSEN QUERY",
+            "tool": "https://clinicaltrials.gov/api/v2/studies (raw)",
+            "query_as_executed": (
+                'query.cond="atrial fibrillation"; query.intr="catheter ablation OR pulmonary '
+                'vein isolation OR cryoballoon ablation"; '
+                "filter.advanced=AREA[StudyType]INTERVENTIONAL; pageSize=1000; countTotal=true"),
+            "date_executed": "2026-08-19",
+            "http_status": 200,
+            "records_returned": 931,
+            "total_reported": 931,
+            "recall_on_included_set": "3/3",
+        },
+        {
+            "database": "ClinicalTrials.gov API v2 -- THE HISTORICAL QUERY, RECORDED BECAUSE "
+                        "IT MISSES",
+            "tool": "https://clinicaltrials.gov/api/v2/studies (raw)",
+            "query_as_executed": (
+                'query.cond="atrial fibrillation"; query.intr="catheter ablation OR pulmonary '
+                'vein isolation OR cryoballoon ablation"; '
+                "filter.advanced=AREA[StudyType]INTERVENTIONAL AND "
+                "AREA[Phase](PHASE3 OR PHASE4)"),
+            "date_executed": "2026-08-19",
+            "http_status": 200,
+            "records_returned": 143,
+            "total_reported": 143,
+            "recall_on_included_set": "1/3",
+            "what_it_cost": (
+                "IT LOST CABANA (n=2204) AND RAFT-AF -- two of this review's three trials, "
+                "including its largest -- because BOTH ARE REGISTERED `phases: [\"NA\"]`. NA "
+                "IS NOT A PHASE: a filter that ENUMERATES phases silently drops every "
+                "registrant who declined to declare one. Recorded rather than replaced, "
+                "because a query's failure is a finding about the search. Corpus-wide "
+                "measurement of this at evidence/2026-08-19-batch1/"
+                "phase_filter_recall_sweep.json; the rule is PAGE-STANDARD P23."),
+        },
+        {
+            "database": "ClinicalTrials.gov API v2 -- WIDER INTERVENTION TERMS, RECORDED AND "
+                        "NOT CHOSEN",
+            "tool": "https://clinicaltrials.gov/api/v2/studies (raw)",
+            "query_as_executed": (
+                'query.cond="atrial fibrillation"; query.intr="catheter ablation OR pulmonary '
+                'vein isolation OR cryoballoon ablation OR left atrial ablation OR '
+                'radiofrequency ablation OR rhythm control"; '
+                "filter.advanced=AREA[StudyType]INTERVENTIONAL"),
+            "date_executed": "2026-08-19",
+            "http_status": 200,
+            "records_returned": 1112,
+            "total_reported": 1112,
+            "recall_on_included_set": "3/3",
+            "why_not_chosen": (
+                "181 MORE RECORDS AND NOT ONE MORE INCLUDED TRIAL. Among queries achieving "
+                "FULL recall the SMALLEST surfaced set is chosen, so the remainder that must "
+                "be screened is not inflated by terms the review does not need. Stated as a "
+                "rule rather than a preference, and this query is recorded so the choice is "
+                "inspectable."),
+        },
+    ],
+    "pagination_verified": (
+        "returned == total_reported on all three queries, with totalCount read FROM THE FIRST "
+        "PAGE -- the only page the API populates it on. The wider query spans TWO pages and is "
+        "the first multi-page fetch this project has run: the earlier check read totalCount "
+        "from the LAST page and reported a false mismatch on it. PAGE-STANDARD P16, fourth "
+        "clause -- a guard whose triggering condition has never occurred is unproven."),
+    "pubmed": {
+        "state": "NOT EXECUTED FOR THIS TOPIC",
+        "why": ("Recorded as an absence rather than omitted. The included set is keyed on "
+                "REGISTRATION IDs and all three trials were reached through the registry. A "
+                "trial published but never registered would be missed here and no count on "
+                "this page would look wrong."),
+    },
+}
+
+ABMT_PRISMA = {
+    "_scope": "PRISMA 2020 flow, counted from the executed search above.",
+    "identification": {"ctgov_chosen": 931, "ctgov_historical_with_phase_filter": 143,
+                       "ctgov_wider": 1112,
+                       "note": "The chosen query is the smallest achieving 3/3 recall."},
+    "eligibility_ctgov": {
+        "role_located": 886, "topic_is_experimental_arm": 421,
+        "topic_is_comparator_arm": 203, "topic_is_background": 262, "not_assessable": 45,
+        "why_experimental_and_comparator_are_added": (
+            "The candidate pool is k3 + k4 = 624, not k3 alone. CABANA and RAFT-AF -- two of "
+            "the three included trials -- type BOTH their arms ACTIVE_COMPARATOR, so the "
+            "registry's typing carries no information about which side is the intervention "
+            "and the classifier correctly declines to invent one. THESE ARE HEAD-TO-HEAD "
+            "STRATEGY TRIALS, which is what an ablation-versus-medical-therapy review is made "
+            "of. A cascade reporting k3 alone would put the two largest trials of the topic "
+            "outside its own count."),
+    },
+    "included": {"in_this_object": 3,
+                 "nct": ["NCT00643188", "NCT00911508", "NCT01420393"]},
+    "reconciliation": {
+        "arithmetic": ("931 identified = 421 experimental + 203 comparator + 262 background "
+                       "+ 45 not_assessable; 886 of the 931 had a role located"),
+        "reconciles": True,
+        "unscreened_remainder": 0,
+        "remainder_means": (
+            "624 trials place ablation in the randomised contrast; 3 are in this object; the "
+            "other 621 were ALL SCREENED. Dispositions: 541 excluded, 12 eligible but not "
+            "poolable, 68 eligible with no results yet, 0 eligible-and-poolable. Computed by "
+            "scripts/consolidate_ablation_medical_screen_2026_08_19.py, which REFUSES if the "
+            "parts do not sum to 621 or if any trial carries two verdicts."),
+    },
+}
+
+ABMT_CASCADE = {
+    "k0_surfaced": 931,
+    "k2_role_located": 886,
+    "k3_experimental": 421,
+    "k4_comparator": 203,
+    "k5_background": 262,
+    "kNA_not_assessable": 45,
+    "k_included_in_object": 3,
+    "k_unscreened_remainder": 0,
+    "candidate_pool_k3_plus_k4": 624,
+    "reproduced_by": (
+        "scripts/search_ablation_split_2026_08_19.py (search, recall measured against this "
+        "review's own included set), scripts/cascade_ablation_split_2026_08_19.py "
+        "(classification), scripts/screen_ablation_medical_remainder_2026_08_19.py (mechanical "
+        "screen) and scripts/consolidate_ablation_medical_screen_2026_08_19.py (the total, "
+        "which refuses if the parts do not sum). Named as COMMANDS, not as files that once "
+        "held numbers -- P18."),
+    "remainder_dispositions": {
+        "EXCLUDED": 541,
+        "ELIGIBLE_NOT_POOLABLE": 12,
+        "ELIGIBLE_NO_RESULTS_YET": 68,
+        "ELIGIBLE_POOLABLE_NOT_INCLUDED": 0,
+        "arithmetic": "624 candidates - 3 included = 621 remainder = 541 + 12 + 68 + 0",
+        "what_this_says": (
+            "THE SAME FOURTH SHAPE AS THE SIBLING REVIEW, AND MUCH LARGER. The dominant "
+            "exclusion limbs are COMPARATOR and INTERVENTION, because 'catheter ablation in "
+            "atrial fibrillation' is a vast DEVICE-AND-TECHNIQUE literature -- ablation "
+            "against ablation -- together with trials of things done AROUND an ablation every "
+            "arm receives: sedation, imaging, cooling, cerebral protection, transseptal "
+            "technique, haemostasis, monitoring, nurse-led follow-up. What distinguishes this "
+            "review is its COMPARATOR, and a comparator is a screening criterion rather than "
+            "a search term. That is a fact about the FIELD's vocabulary, not about the aim of "
+            "the query."),
+        "how_130_of_them_were_decided": (
+            "The mechanical screen could not settle 130 and said so rather than defaulting "
+            "them to EXCLUDED. Those went to TWO INDEPENDENT MODEL FAMILIES, blind, asked to "
+            "CLASSIFY rather than to confirm: Codex (openai) and agy (google). Claude wrote "
+            "the screener and was therefore the instrument under test, not a vote. Full "
+            "record at evidence/2026-08-19-batch1/ablation_adjudication.json, "
+            "ablation_reask.json and ablation_control_types.json."),
+        "forty_four_carry_an_unreliable_reason": (
+            "44 of the 130 were agreed as EXCLUSIONS under a question later shown DEFECTIVE "
+            "and were not re-asked. Under that question an adjunct design yields the RIGHT "
+            "disposition for the WRONG reason. THE VERDICT SURVIVES AND THE ATTRIBUTED LIMB "
+            "DOES NOT, and they are labelled `reason_inherited_from_defective_question` in "
+            "the evidence. P28 was applied to the 16 that could ADMIT a trial -- asymmetric "
+            "effort for asymmetric consequence, stated so the choice can be checked."),
+        "zero_is_computed_not_asserted": (
+            "ELIGIBLE_POOLABLE_NOT_INCLUDED is 0 because every eligible trial in this "
+            "remainder either reports no all-cause-mortality composite at ANY registered rank "
+            "or has posted no results at all. Checked per trial."),
+        "what_would_change_this_answer": (
+            "68 eligible trials have not reported. Four are SHAM-CONTROLLED ablation trials "
+            "(NCT04272762, NCT05717725, NCT06096246, NCT07403760) -- the cleanest available "
+            "form of this review's question -- and they are the ones to watch."),
+    },
+}
+
+ABMT_EXTRACTION = {
+    "_why": ("Every cell says whether it was READ or DERIVED and carries its source path. The "
+             "three effect estimates were carried across from `ablation-af-review`, the object "
+             "this review was split out of, WITH their original provenance rather than "
+             "re-typed."),
+    "cells": [
+        {"trial": "CASTLE-AF", "nct": "NCT00643188", "field": "primary composite HR",
+         "value": "0.62 (0.43 to 0.87)", "label": "READ",
+         "source_path": "ablation-af-review inputs.trials[NCT00643188].by_outcome.primary",
+         "verbatim": "All-cause mortality or worsening heart failure requiring unplanned "
+                     "hospitalization",
+         "link": "https://clinicaltrials.gov/study/NCT00643188"},
+        {"trial": "CABANA", "nct": "NCT00911508", "field": "primary composite HR",
+         "value": "0.86 (0.65 to 1.15)", "label": "READ",
+         "source_path": "ablation-af-review inputs.trials[NCT00911508].by_outcome.primary",
+         "verbatim": "Number of Participants With Composite of Total Mortality, Disabling "
+                     "Stroke, Serious Bleeding, or Cardiac Arrest",
+         "link": "https://clinicaltrials.gov/study/NCT00911508"},
+        {"trial": "RAFT-AF", "nct": "NCT01420393", "field": "primary composite HR",
+         "value": "0.71 (0.49 to 1.03)", "label": "READ",
+         "source_path": "ablation-af-review inputs.trials[NCT01420393].by_outcome.primary",
+         "verbatim": "Composite of All-cause Mortality and Heart Failure Events",
+         "link": "https://clinicaltrials.gov/study/NCT01420393"},
+        {"trial": "ALL THREE", "nct": None, "field": "log-scale standard errors",
+         "value": "0.179776 / 0.145550 / 0.189521", "label": "DERIVED",
+         "source_path": "computed from each printed 95% interval",
+         "verbatim": "se = (ln(upper) - ln(lower)) / (2 x 1.959964)", "link": None},
+    ],
+}

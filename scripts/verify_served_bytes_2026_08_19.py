@@ -39,6 +39,7 @@ PAGES = {
     "iv-iron-hf": "IV_IRON_HF_REVIEW.html",
     "sglt2-hf": "SGLT2_HF_REVIEW.html",
     "ablation-af-heart-failure": "ABLATION_AF_HEART_FAILURE_REVIEW.html",
+    "ablation-af-medical-therapy": "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
 }
 
 FAIL, NA, OK = "FAIL", "NOT_ASSESSABLE", "OK"

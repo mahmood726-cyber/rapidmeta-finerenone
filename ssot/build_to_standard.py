@@ -24,6 +24,7 @@ from assessment import FAIL, HANDBOOK_AUTHORITY, NOT_ASSESSABLE, PASS
 from attr_topic_data import ATTR_CASCADE, ATTR_EXTRACTION, ATTR_PRISMA, ATTR_SEARCH
 from ali_topic_data import ALI_CASCADE, ALI_EXTRACTION, ALI_PRISMA, ALI_SEARCH
 from abhf_topic_data import ABHF_CASCADE, ABHF_EXTRACTION, ABHF_PRISMA, ABHF_SEARCH
+from abmt_topic_data import ABMT_CASCADE, ABMT_EXTRACTION, ABMT_PRISMA, ABMT_SEARCH
 from ivi_topic_data import IVI_CASCADE, IVI_EXTRACTION, IVI_PRISMA, IVI_SEARCH
 from apx_topic_data import APX_CASCADE, APX_EXTRACTION, APX_PRISMA, APX_SEARCH
 
@@ -492,6 +493,10 @@ TOPIC_DATA = {
     # FIRST OF THE THREE REVIEWS `ablation-af-review` WAS SPLIT INTO (P21). Its blocks live in
     # ssot/abhf_topic_data.py and are shared with NEITHER sibling -- three sibling topics built
     # in one session is the exact shape that produced the cross-topic contamination class.
+    "ablation-af-medical-therapy": {"search": ABMT_SEARCH, "prisma": ABMT_PRISMA,
+                                    "k_cascade": ABMT_CASCADE,
+                                    "primary_outcome_key": "primary",
+                                    "extraction": ABMT_EXTRACTION},
     "ablation-af-heart-failure": {"search": ABHF_SEARCH, "prisma": ABHF_PRISMA,
                                   "k_cascade": ABHF_CASCADE,
                                   "primary_outcome_key": "primary",

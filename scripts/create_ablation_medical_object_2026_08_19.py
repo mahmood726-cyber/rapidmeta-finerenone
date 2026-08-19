@@ -1,0 +1,271 @@
+"""CREATE the `ablation-af-medical-therapy` object. Creates; refuses to overwrite."""
+import io
+import json
+import math
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TOPIC = "ablation-af-medical-therapy"
+DEST_DIR = os.path.join(REPO, "ssot", TOPIC)
+DEST = os.path.join(DEST_DIR, TOPIC + ".json")
+SRC = os.path.join(REPO, "ssot", "ablation-af-review", "ablation-af-review.json")
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+Z = 1.959963984540054
+KEEP = ["NCT00643188", "NCT00911508", "NCT01420393"]
+
+QUESTION = ("In adults with atrial fibrillation, what is the effect of catheter ablation "
+            "compared with medical rate- or rhythm-control therapy on death, stroke and "
+            "hospitalisation?")
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    if os.path.exists(DEST):
+        print("REFUSED: %s exists. This script creates; it does not overwrite." % DEST)
+        return 1
+    src = json.load(io.open(SRC, encoding="utf-8"))
+    final = json.load(io.open(os.path.join(EV, "ablation_medical_screen_final.json"),
+                              encoding="utf-8"))
+    trials = [t for t in src["inputs"]["trials"] if t.get("nct") in KEEP]
+    per = [t for t in src["results"]["by_outcome"]["primary"]["per_trial"]
+           if t.get("nct") in KEEP]
+    if len(trials) != 3 or len(per) != 3:
+        print("REFUSED: expected 3 trials, got %d/%d" % (len(trials), len(per)))
+        return 1
+
+    ys = [math.log(t["point"]) for t in per]
+    ses = [(math.log(t["ci_high"]) - math.log(t["ci_low"])) / (2 * Z) for t in per]
+    w = [1.0 / s ** 2 for s in ses]
+    fe = sum(a * b for a, b in zip(w, ys)) / sum(w)
+    q = sum(a * (b - fe) ** 2 for a, b in zip(w, ys))
+    k = 3
+    c = sum(w) - sum(x * x for x in w) / sum(w)
+    tau2 = max(0.0, (q - (k - 1)) / c)
+    w2 = [1.0 / (s ** 2 + tau2) for s in ses]
+    mu = sum(a * b for a, b in zip(w2, ys)) / sum(w2)
+    se = math.sqrt(1.0 / sum(w2))
+    i2 = max(0.0, (q - (k - 1)) / q) * 100.0 if q > 0 else 0.0
+
+    DEFS = {
+        "NCT00643188": "All-cause mortality or worsening heart failure requiring unplanned "
+                       "hospitalization",
+        "NCT00911508": "Total mortality, disabling stroke, serious bleeding, or cardiac arrest",
+        "NCT01420393": "All-cause mortality and heart failure events, where an event includes "
+                       "an outpatient intravenous diuretic visit",
+    }
+
+    obj = {
+        "app_id": TOPIC,
+        "schema_version": src.get("schema_version"),
+        "title": "Catheter ablation of atrial fibrillation against medical rate- or "
+                 "rhythm-control therapy",
+        "question": QUESTION,
+        "question_provenance": {
+            "state": "COMPOSED FOR THIS REVIEW, TRACEABLE TO NAMED REGISTRY FIELDS",
+            "not_a_copied_registry_string": (
+                "The parent object's question WAS a copied registry string -- CABANA's primary "
+                "outcome measure, truncated at 120 characters mid-word, filling title, "
+                "question and both outcome fields at once. This question is composed, and "
+                "every limb points at a field: POPULATION at conditionsModule, INTERVENTION "
+                "and COMPARATOR at armGroups, OUTCOME at each trial's registered primary."),
+            "checkable_by": "scripts/lint_question_is_a_question.py",
+        },
+        "built": "2026-08-19",
+        "build_mode": "split_from_parent",
+        "split_provenance": {
+            "parent": "ablation-af-review",
+            "decision": "DECIDED-ablation-af-review-2026-08-19.md",
+            "why_three_and_not_one": (
+                "The parent's question was ambiguous between three legitimate readings and the "
+                "packet framed the choice as WHICH TRIALS TO DROP. Choosing is a decision to "
+                "withhold evidence from whichever readings lose, and a dropped trial leaves no "
+                "trace in any object. PAGE-STANDARD P21."),
+            "siblings": ["ablation-af-heart-failure", "early-rhythm-control-af"],
+            "and_the_split_earned_its_keep": (
+                "NCT07447297 surfaced in THIS review's remainder and randomises an EARLY "
+                "RHYTHM CONTROL strategy combining drugs, cardioversion and ablation. It is "
+                "EXCLUDED here on INTERVENTION -- no estimate from it is attributable to "
+                "ablation -- and it is IN SCOPE for the sibling `early-rhythm-control-af`. "
+                "OUT OF SCOPE HERE, IN SCOPE THERE, AND DISCARDED BY NEITHER. The single "
+                "blocked topic could not have done that: it would have had to drop the trial "
+                "or drop the question."),
+        },
+        "shared_with_other_topics": {
+            "_rule": "P22 -- sharing is legitimate; UNRECORDED sharing is not.",
+            "computed_against": "the included sets declared in "
+                                "DECIDED-ablation-af-review-2026-08-19.md",
+            "shared": {
+                "NCT00643188": {"acronym": "CASTLE-AF",
+                                "also_in": ["ablation-af-heart-failure", "ablation-af-review",
+                                            "early-rhythm-control-af"],
+                                "why": "it answers all three questions -- ablation against "
+                                       "conventional therapy, a rhythm-control strategy, and "
+                                       "an AF-with-heart-failure population."},
+                "NCT00911508": {"acronym": "CABANA",
+                                "also_in": ["ablation-af-review", "early-rhythm-control-af"],
+                                "why": "ablation against rate-or-rhythm control. NOT in the "
+                                       "heart-failure review: CABANA did not require heart "
+                                       "failure at entry."},
+                "NCT01420393": {"acronym": "RAFT-AF",
+                                "also_in": ["ablation-af-heart-failure", "ablation-af-review",
+                                            "early-rhythm-control-af"],
+                                "why": "same three questions as CASTLE-AF."},
+            },
+            "a_corpus_level_k_must_not_be_obtained_by_summing": (
+                "All three of this review's trials appear in at least two other objects. "
+                "Measured corpus-wide on 2026-08-19: 259 distinct registration identities "
+                "across 136 objects, 53 of them (20.5%) shared, and the sum of per-topic k is "
+                "319 against 259 distinct -- SIXTY DOUBLE-COUNTED. 65 of the 66 objects "
+                "holding a shared trial record none of it."),
+        },
+        "sources": src.get("sources") or {},
+        "outcomes": [{
+            "id": "primary",
+            "name": "Each trial's own registered primary composite",
+            "definition": ("Time to first occurrence of the trial's registered primary "
+                           "composite endpoint."),
+            "definition_note": ("THE THREE TRIALS REGISTER THREE DIFFERENT COMPOSITES and the "
+                                "registry states all three. See "
+                                "results.by_outcome.primary.poolable_reason."),
+            "measure": "HR", "effect_scale": "log", "type": "primary",
+            "estimand": {"id": "primary", "family": "time-to-first-event",
+                         "model": "random-effects"},
+            "comparator": "medical rate- or rhythm-control therapy, or conventional care",
+            "comparator_type": "active",
+            "direction_of_benefit": "lower is better", "null_value": 1,
+        }],
+        "inputs": {"trials": trials},
+        "screening": {
+            "eligibility_provenance": {
+                "state": "DERIVED_POST_HOC", "predefined": False, "post_hoc": True,
+                "derived": True,
+                "predefined_is_false_because": (
+                    "written on 2026-08-19 when the parent was split into three reviews, AFTER "
+                    "the included set existed. `false` is asserted rather than left null "
+                    "because the derivation order is known."),
+                "authority_it_satisfies": "MECIR R29/R30/R31 -- the review STATES its criteria.",
+                "authority_it_does_NOT_establish": "MECIR C5/C7 -- criteria DEFINED IN ADVANCE.",
+                "what_would_settle_it": "a protocol timestamped before the first executed query",
+                "elements": [
+                    {"element": "POPULATION", "criterion": "adults with atrial fibrillation",
+                     "auditable_against": "protocolSection.conditionsModule.conditions",
+                     "settles_it": True,
+                     "evidence": "only 14 of 621 screened trials failed this limb, so the "
+                                 "query is well aimed at its population."},
+                    {"element": "INTERVENTION",
+                     "criterion": "catheter-based ablation of atrial fibrillation as the thing "
+                                  "the randomisation VARIES",
+                     "auditable_against": "protocolSection.armsInterventionsModule.armGroups",
+                     "settles_it": True,
+                     "evidence_and_the_judgements_it_carries": (
+                         "THREE BOUNDARIES, each excluding trials that say `ablation`. (1) "
+                         "AV-node / AV-junction ablation is RATE CONTROL DELIVERED BY ABLATION "
+                         "-- it ablates the conduction system and needs a pacemaker. (2) "
+                         "SURGICAL and thoracoscopic ablation is a different procedure. (3) "
+                         "AND THE LARGEST: where EVERY arm receives an ablation, the ablation "
+                         "is BACKGROUND and the contrast is the adjunct -- sedation, imaging, "
+                         "oesophageal cooling, cerebral protection, transseptal technique, "
+                         "haemostasis, monitoring, nurse-led follow-up, or a drug given after "
+                         "the procedure. A TREATMENT PRESENT IN EVERY ARM IS NOT WHAT "
+                         "DIFFERS."),
+                     },
+                    {"element": "COMPARATOR",
+                     "criterion": "medical therapy -- rate- or rhythm-control drugs, or "
+                                  "conventional / usual / standard care, or a sham",
+                     "auditable_against": "protocolSection.armsInterventionsModule.armGroups",
+                     "settles_it": True,
+                     "evidence": (
+                         "SHAM-CONTROLLED ABLATION TRIALS ARE COUNTED ELIGIBLE, as a stated "
+                         "judgement: a sham arm receives no ablation and continues background "
+                         "medical management, so the contrast is ablation against no ablation "
+                         "on common therapy. Four are affected -- NCT04272762, NCT05717725, "
+                         "NCT06096246, NCT07403760 -- and a reader who requires an actively-"
+                         "managed drug comparator can see exactly which four to remove."),
+                     },
+                    {"element": "ESTIMAND (poolability, NOT eligibility)",
+                     "criterion": "a time-to-first-event composite carrying ALL-CAUSE MORTALITY",
+                     "auditable_against": "protocolSection.outcomesModule, EVERY rank",
+                     "settles_it": True,
+                     "evidence": "eligibility deliberately does NOT turn on the reported "
+                                 "outcome (Handbook s3.2.4); poolability is separate under "
+                                 "s10.9."},
+                ],
+            },
+        },
+        "screening_of_remainder": {"ablation_medical_2026_08_19": final},
+        "results": {"by_outcome": {"primary": {
+            "k": 3, "estimand_id": "primary", "model": "random-effects",
+            "estimator": "DerSimonian-Laird", "estimator_used": "DerSimonian-Laird",
+            "comparator_type": "active", "favours": "treatment",
+            "poolable": False,
+            "poolable_reason": (
+                "THE THREE TRIALS REGISTER THREE DIFFERENT PRIMARY COMPOSITES AND THE REGISTRY "
+                "STATES ALL THREE. CASTLE-AF counts all-cause mortality or worsening heart "
+                "failure requiring unplanned HOSPITALISATION. CABANA counts total mortality, "
+                "DISABLING STROKE, SERIOUS BLEEDING or CARDIAC ARREST. RAFT-AF counts "
+                "all-cause mortality and heart-failure events, where an event includes an "
+                "OUTPATIENT INTRAVENOUS DIURETIC VISIT. No two of the three count the same "
+                "events: one adds stroke and bleeding, one adds outpatient heart-failure "
+                "care, one counts neither. An average over them is an average over three "
+                "questions."),
+            "the_split_did_not_dissolve_this": (
+                "THE SPLIT FIXED THE QUESTION, NOT THE ESTIMAND. The parent refused to pool "
+                "four trials measuring four composites; this review refuses to pool three "
+                "measuring three, and its sibling refuses to pool two measuring two. "
+                "Correctly scoping a review does not make its trials measure the same thing."),
+            "pooled": {"withdrawn": True, "point": None,
+                       "withdrawn_because": "see poolable_reason"},
+            "the_pool_this_refusal_declines_to_report": {
+                "_why_shown": (
+                    "SHOWN SO THE COST OF THE REFUSAL IS INSPECTABLE, and labelled so it "
+                    "cannot be mistaken for this review's answer."),
+                "measure": "HR", "k": 3,
+                "point": round(math.exp(mu), 4),
+                "ci_low": round(math.exp(mu - Z * se), 4),
+                "ci_high": round(math.exp(mu + Z * se), 4),
+                "q": round(q, 4), "df": 2, "tau2": round(tau2, 5), "i2_pct": round(i2, 1),
+                "AND THIS IS THE POINT WORTH TAKING FROM THE PAGE": (
+                    "I-SQUARED IS 3.9 PER CENT AND Q IS 2.08 ON 2 DEGREES OF FREEDOM. Three "
+                    "trials counting three DIFFERENT sets of events -- one including stroke "
+                    "and bleeding, one including outpatient diuretic visits -- produce "
+                    "estimates that agree almost perfectly. HETEROGENEITY STATISTICS CANNOT "
+                    "DETECT AN ESTIMAND MISMATCH: they are computed from the numbers, and the "
+                    "numbers are all that survives extraction. A low I-squared is evidence "
+                    "that estimates AGREE and NO evidence that they answer the same question. "
+                    "Had this review pooled on the strength of I-squared = 3.9, every "
+                    "downstream check in this repository would have passed. The sibling "
+                    "review reached the same finding at I-squared EXACTLY ZERO over two "
+                    "trials; this is the same lesson over three, and the agreement is not "
+                    "reassurance."),
+            },
+            "per_trial": [
+                {"trial_id": t["trial_id"], "nct": t["nct"], "measure": t["measure"],
+                 "point": t["point"], "ci_low": t["ci_low"], "ci_high": t["ci_high"],
+                 "ci_level": t["ci_level"],
+                 "endpoint_rank_in_its_own_trial": "PRIMARY",
+                 "outcome_definition": DEFS[t["nct"]],
+                 "derivation": t["derivation"]}
+                for t in per],
+            "heterogeneity": {"q": round(q, 4), "df": 2, "tau2": round(tau2, 5),
+                              "i2": round(i2, 1),
+                              "i2_definition": "Higgins (Q - df)/Q, clamped at 0",
+                              "note": "computed for the pool this review DECLINES to report."},
+            "heterogeneity_status": "not applicable -- nothing was pooled",
+        }}},
+        "config": src.get("config") or {},
+    }
+
+    os.makedirs(DEST_DIR, exist_ok=True)
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(obj, indent=1, ensure_ascii=True))
+    print("created %s" % DEST)
+    print("   k 3 | remainder %d screened to 0" % final["remainder"])
+    print("   pooling REFUSED -- three different composites")
+    print("   pool declined  HR %.4f (%.4f, %.4f)  Q %.2f df 2  I2 %.1f%%"
+          % (math.exp(mu), math.exp(mu - Z * se), math.exp(mu + Z * se), q, i2))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
