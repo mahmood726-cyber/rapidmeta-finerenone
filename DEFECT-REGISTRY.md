@@ -743,6 +743,42 @@ reported only the lost pairs — the more natural design — the revert would ha
 would have caught this at step one — an audit that refuses to report on files with uncommitted
 modifications until it says so. Recorded as not written.
 
+### 27. A DETECTOR BUILT FROM ONE INSTANCE ENCODES THAT INSTANCE'S SHAPE — and scored it UNCLASSIFIED
+
+**Found 2026-08-19.** A detector was written to find the class *one trial registering its nested
+substudy separately, so a registry-derived k counts it twice*. It was built from a single worked
+case: `NCT01709981` + `NCT02594111`, named together in PMID 32295417.
+
+Its classification table was keyed on an **exact tuple** of the registrations involved. On the
+corpus run, that PMID came back listed by **three** registrations — the pair, plus `NCT05739929`
+citing the same paper as background. The exact-tuple lookup did not match.
+
+> **The confirmed instance scored `UNCLASSIFIED` in the first run of the detector built to find
+> it.** Had the corpus contained nothing else, the count would have been zero and the class
+> would have read as absent.
+
+**The general form.** A detector distilled from one example encodes the *incidental* features of
+that example alongside the essential ones — here, "exactly two registrations" was incidental and
+"a publication naming both" was essential. **Test a detector against the instance it was built
+from before trusting any corpus-wide count it produces.** A zero from an untested detector is
+indistinguishable from a zero from a working one, which is the same shape as the untested query
+returning a null (class 26, rule 3) and as `$?` read through a pipe.
+
+Fixed by matching on **subset** rather than exact tuple. **Status: PARTIAL** — the discipline is
+stated and there is no mechanism that forces a new detector to be run against its own founding
+case.
+
+#### And the same run produced a filter that is wrong in both directions
+
+The raw count was dominated by **background citations** — PMID 9725923 is listed by seven
+registrations and is plainly someone else's landmark paper, not seven trials reported together.
+Stratifying on reference type separates a self-report from a citation. But the same type field
+is unreliable the other way: **CLEAR Outcomes' own primary report is typed `BACKGROUND` on its
+own registration**, so restricting to `RESULT`/`DERIVED` can drop a genuine self-report.
+
+> **A filter that errs in both directions cannot be applied; it can only be reported around.**
+> Both strata are emitted, and the count that would follow from choosing either is not offered.
+
 ### 25. A CASE-SENSITIVE LOOKUP THAT FINDS NOTHING LOOKS EXACTLY LIKE A CLEAN RESULT
 
 **Found 2026-08-19, and it nearly buried a real finding from another instrument.** The Codex

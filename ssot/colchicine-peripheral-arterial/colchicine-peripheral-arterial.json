@@ -63,7 +63,10 @@
     "source_field": "protocolSection.outcomesModule (all ranks)",
     "source_url": "https://clinicaltrials.gov/study/NCT04774159",
     "pmid": null,
-    "pmid_state": "NOT RESOLVED. scripts/resolve_primary_publications.py is the route and has not been run for this topic. Reported unresolved, never approximated."
+    "pmid_state": "NOT RESOLVED. scripts/resolve_primary_publications.py is the route and has not been run for this topic. Reported unresolved, never approximated.",
+    "publication_state": "EXPECTED_UNRESOLVED",
+    "publication_state_why": "overallStatus is RECRUITING. THE TRIAL HAS NOT FINISHED, so the absence of a publication is expected and is NOT the silence this analysis is about. Counting it as silent would inflate the finding with trials that were never due to report.",
+    "overall_status": "RECRUITING"
    },
    {
     "nct": "NCT06212271",
@@ -93,7 +96,10 @@
     "source_field": "protocolSection.outcomesModule (all ranks)",
     "source_url": "https://clinicaltrials.gov/study/NCT06212271",
     "pmid": null,
-    "pmid_state": "NOT RESOLVED. scripts/resolve_primary_publications.py is the route and has not been run for this topic. Reported unresolved, never approximated."
+    "pmid_state": "NOT RESOLVED. scripts/resolve_primary_publications.py is the route and has not been run for this topic. Reported unresolved, never approximated.",
+    "publication_state": "NO_PUBLICATION_RESOLVED",
+    "publication_state_why": "overallStatus is COMPLETED -- DUE to have reported. Route 1 (registration reference list) and route 2 (PubMed by registration identifier) both returned nothing. NOT evidence that no publication exists; publisher search and grey literature were not run.",
+    "overall_status": "COMPLETED"
    },
    {
     "nct": "NCT07536373",
@@ -142,7 +148,10 @@
     "source_field": "protocolSection.outcomesModule (all ranks)",
     "source_url": "https://clinicaltrials.gov/study/NCT07536373",
     "pmid": null,
-    "pmid_state": "NOT RESOLVED. scripts/resolve_primary_publications.py is the route and has not been run for this topic. Reported unresolved, never approximated."
+    "pmid_state": "NOT RESOLVED. scripts/resolve_primary_publications.py is the route and has not been run for this topic. Reported unresolved, never approximated.",
+    "publication_state": "EXPECTED_UNRESOLVED",
+    "publication_state_why": "overallStatus is RECRUITING. THE TRIAL HAS NOT FINISHED, so the absence of a publication is expected and is NOT the silence this analysis is about. Counting it as silent would inflate the finding with trials that were never due to report.",
+    "overall_status": "RECRUITING"
    }
   ]
  },
@@ -178,7 +187,7 @@
     "all_failing_limbs_reported": true,
     "endpoints_needing_a_human_read": {},
     "k_with_posted_results": 0,
-    "absent_is_not_zero": "NO RESULTS POSTED IS NOT NO RESULTS. A completed trial often reports in a journal and never back-fills the registry, and the PubMed limb for this reading HAS NOT BEEN SCREENED -- 523 records stand unscreened. Publication status here is UNKNOWN, not zero.",
+    "absent_is_not_zero": "CHECKED AGAINST THE LITERATURE, not assumed. 0 of 3 trials in this reading have a publication resolved; 1 are DUE to have reported and none was found by two routes; 2 have NOT FINISHED and their absence is expected rather than silent.",
     "the_withholding_question_asked_at_every_rank": {
      "why": "A refusal on the primary alone is a withholding (P17).",
      "matching": "EXACT normalised title -- comparing endpoints by looser name matching is the error P37 names. Therefore a LOWER BOUND.",
@@ -197,7 +206,15 @@
      "absent": true,
      "absent_reason": "0 of 3 eligible trials have posted results to ClinicalTrials.gov. Two are needed before any pool can exist, so THIS IS NOT A REFUSAL TO POOL -- there is nothing yet to pool. The distinction matters: saying these trials do not agree on an estimand would be a claim about them that has not been tested. AUTHORITY: MECIR Box 10.10.a C62, and Handbook 6.5 section 10.10.3, 'A systematic review need not contain any meta-analyses.'"
     },
-    "what_this_verdict_does_not_establish": "NOT that any trial here is poor. NOT that colchicine is ineffective in this population. NOT that no poolable question exists -- most trials in this reading have simply not reported yet, and the literature limb is unscreened."
+    "what_this_verdict_does_not_establish": "NOT that any trial here is poor. NOT that colchicine is ineffective in this population. NOT that no poolable question exists -- most trials in this reading have simply not reported yet, and the literature limb is unscreened.",
+    "literature_limb": {
+     "run_utc": "2026-08-19",
+     "record": "evidence/2026-08-19-batch1/remaining_readings_literature.json",
+     "PUBLISHED": 0,
+     "NO_PUBLICATION_RESOLVED": 1,
+     "EXPECTED_UNRESOLVED_trial_has_not_finished": 2,
+     "why_the_third_state_exists": "An ONGOING trial with no publication is not silent -- it has not finished. Counting it as silent would inflate a finding about silence with trials that were never due to report."
+    }
    }
   }
  },
