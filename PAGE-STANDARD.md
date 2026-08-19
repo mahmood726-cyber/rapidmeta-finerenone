@@ -53,6 +53,8 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P29 | **A filter asserts an expected count, not merely a successful exit** | any pipe over a subprocess checks `exit == 0` **and** that the filter yielded the expected number of results. An expected-count assertion is the only thing that distinguishes an **empty** result from a **discarded** one |
 | P30 | **Prose is not evidence; a report is not an artefact** | any number stated in a report, a commit message or a page must exist in a file something can recompute. **A claim that exists only in prose is indistinguishable from one that was computed** — until an arithmetic gate demands the parts sum |
 | P31 | **Two correct readings of different questions look exactly like a disagreement** | before treating cross-instrument disagreement as evidence about the instruments, establish that both were asked the **same** question. Disagreement is a property of the question until shown otherwise |
+| P32 | **An indicator must be able to move only if the diagnosis is right** | when a fix is proposed, name the quantity that will change **and could not change for another reason**. A number that merely *correlates* with the defect is not a test: a narrower identity set finds fewer things, so a rising `kNA` is consistent with the fix working *and* with it failing |
+| P33 | **A keyword for the name of a thing is not a test for the thing** | detect a property by its structure, not by the word that names it. A composite endpoint is *a mortality term plus another clinical event in one endpoint* — CASTLE-AF's primary is unmistakably one and contains neither the word "composite" nor the phrase the rule searched for |
 
 ## Reading the remainder — the same number, opposite diagnoses
 
@@ -107,6 +109,49 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.11.0-2026-08-19
+Adds P32 and P33, and records the seventh contamination route.
+
+**P32 — an indicator must be able to move only if the diagnosis is right.** Four predictions
+were stated before their runs in this stretch and all four were wrong; each correction was the
+real finding. The fourth is the subtlest and produced this property.
+
+`early-rhythm-control-af` carried `kNA = 202` against a sibling's 45, and that was named as the
+symptom of asking an ablation question of strategy trials. The symptom was real. **The number
+was the wrong indicator.** Under the corrected identity set kNA went **202 → 258** — it rose,
+because that set deliberately excludes bare `ablation` and **a narrower, more precise identity
+set finds fewer things**. A rising kNA is consistent with the fix working *and* with it
+failing, so it could never have tested the claim.
+
+> The indicator that worked was the one that could not move for any other reason: **do the
+> review's own included trials classify correctly?** Three of four became four of four.
+
+Name the quantity that changes *and could not change otherwise*. A number that merely
+correlates with the defect is not a test.
+
+**P33 — a keyword for the name of a thing is not a test for the thing.** CASTLE-AF's registered
+primary is *"All-cause mortality or worsening heart failure requiring unplanned
+hospitalization"* — unmistakably a composite, containing neither the word "composite" nor the
+phrase the rule searched for. The ESTIMAND limb **failed**, toward NOT-POOLABLE, on this
+review's own included trial. Detect the property structurally: a composite is *a mortality term
+plus another clinical event term in one endpoint*, which is what a composite **is**.
+
+This is P14 one level up. P14 says identity is not substring containment over clinical text;
+P33 says a *property* is not the presence of its own name.
+
+**And the seventh contamination route, through a COPY.** The first version of this topic's
+screener was a `sed`-rename of the sibling's. It parsed, ran, and produced a complete set of
+551 verdicts — all answering the sibling's question, because those rules ask whether *ablation*
+is the contrast. **An antiarrhythmic-drug arm is the INTERVENTION for one review and the
+COMPARATOR for the other**, so the verdicts were not merely wrong, they were *invertible*.
+
+> **"I adapted the neighbouring topic's screener" is the single most natural thing anyone will
+> do at scale, and it is the one shape that produces a full, confident, wrong answer set.**
+
+No guard covers it: the file is new, the filename right, the topic key right, and every
+existing contamination check passes. Recorded in DEFECT-REGISTRY as route 7b with the
+detector that would catch it named and not built.
 
 ### 1.10.0-2026-08-19
 Adds P28 and P29. **P28 records a correction to an instruction from the orchestrator, and the

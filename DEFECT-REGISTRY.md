@@ -337,6 +337,31 @@ this file while it was being written.**
 
 ## PARTIAL — a detector exists, and what it misses is named
 
+### 7b. Cross-topic contamination — ROUTE 7, THROUGH A COPY, AND THE MOST ORDINARY YET
+- **Found** 2026-08-19, writing the screener for `early-rhythm-control-af`. The first attempt
+  was a `sed`-rename of the sibling's `screen_ablation_medical_remainder`. **It parsed cleanly,
+  ran, and produced a complete set of 551 verdicts.** Every one answered the *sibling's*
+  question, because its rules ask whether **ablation** is the contrast
+- **Why it is the worst-looking of the seven** the six earlier routes carried one topic's data
+  into another (a module constant, a dict-literal ordering, a prose string, an extraction
+  table). This carries one topic's **criteria**, and the output is not corrupt, empty, or
+  malformed — it is *complete, plausible and confidently wrong*
+- **And the verdicts were invertible, not merely wrong.** An antiarrhythmic-drug arm is the
+  **INTERVENTION** for the rhythm-control review and the **COMPARATOR** for the ablation one.
+  The same arm text means opposite things to the two reviews — which is precisely why they are
+  two reviews
+
+  > **"I adapted the neighbouring topic's screener" is the single most natural thing anyone
+  > will do at scale, and it is the one shape that produces a full, confident, wrong answer
+  > set.**
+
+- **Caught by** writing the known-answer check first and reading what the rules actually asked
+  — not by any detector. **No guard covers this route**, and that is stated rather than
+  implied: the file is new, the filename is right, the topic key is right, and every existing
+  contamination guard passes
+- **What would catch it** a per-topic criteria fingerprint — the screener asserting which
+  review's question it implements and the runner refusing a mismatch. Named, not built
+
 ### 7. Cross-topic contamination
 Five distinct routes found: `search`, `prisma`, `extraction`, prose-inside-the-duplicate-check,
 and **dict-literal ordering** — literal counts placed *below* `**spec["k_cascade"]` in the same
