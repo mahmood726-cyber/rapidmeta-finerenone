@@ -2101,8 +2101,8 @@
   },
   "eligibility_ctgov": {
    "role_located": 56,
-   "topic_is_experimental_arm": 36,
-   "topic_is_comparator_arm": 12,
+   "topic_is_experimental_arm": 46,
+   "topic_is_comparator_arm": 2,
    "topic_is_background": 8,
    "not_assessable": 0
   },
@@ -2116,30 +2116,52 @@
    ]
   },
   "reconciliation": {
-   "arithmetic": "56 identified = 36 experimental + 12 comparator + 8 background + 0 unassessable",
+   "arithmetic": "56 identified = 46 experimental + 2 comparator + 8 background + 0 unassessable",
    "reconciles": true,
    "gap_stated_plainly": "36 trials place an SGLT2 inhibitor in an EXPERIMENTAL arm (corrected from 43: seven had it in BOTH arms as background). This object includes FOUR. The other 32 were SCREENED on 2026-08-19 on two axes; ZERO were both eligible and poolable, so k stands at 4 on a screen rather than on assumption. There is no unscreened remainder."
   }
  },
  "k_cascade": {
-  "k0_surfaced": 21,
-  "k2_role_located": 21,
-  "k3_experimental": 17,
-  "k4_comparator": 4,
-  "k5_background": 0,
+  "k0_surfaced": 56,
+  "k2_role_located": 56,
+  "k3_experimental": 46,
+  "k4_comparator": 2,
+  "k5_background": 8,
   "kNA_not_assessable": 0,
-  "k_included_in_object": 1,
-  "k_unscreened_remainder": 16,
+  "k_included_in_object": 4,
+  "k_unscreened_remainder": 10,
   "_why": "k is never one number. Each stage is what the instrument at that stage could actually decide.",
   "keyed_on": "registration id",
   "source": "evidence/2026-08-19-batch1/cascade.json",
   "k3_corrected_from": 43,
   "k3_correction_reason": "43 -> 36. Seven trials had an SGLT2 inhibitor in BOTH arms -- EASi-HF Preserved and Reduced randomise vicadrostat/empagliflozin against placebo/empagliflozin, so empagliflozin is background and vicadrostat is the contrast. topic_identity.locate() returned `experimental` because the drug appeared in an arm typed EXPERIMENTAL. APPEARING IN THE EXPERIMENTAL ARM IS NOT THE SAME AS BEING THE RANDOMISED CONTRAST. A 16% overcount, in the direction that ADDS trials.",
-  "k_unscreened_remainder_note": "Was 39, then 32 after the role correction; all 32 screened."
+  "k_unscreened_remainder_note": "Was 39, then 32 after the role correction; all 32 screened.",
+  "restated_2026_08_19_placebo_discriminator": {
+   "k3_was": 36,
+   "k3_now": 46,
+   "delta": 10,
+   "why": "topic_identity.locate() read the registry's arm TYPES literally. Some registrations declare NO arm typed EXPERIMENTAL: AFFIRM-AHF and HEART-FID both type their active drug ACTIVE_COMPARATOR against a PLACEBO_COMPARATOR arm. The classifier called the intervention a comparator and silently shrank the evidence base. Rule adopted: PLACEBO IS NEVER THE INTERVENTION, so a drug compared against it is -- but where the other arm is an ACTIVE drug, the topic drug genuinely is one of two comparators and the rule must not fire.",
+   "why_this_is_a_correction_not_a_relaxation": "It moved counts in BOTH directions across the corpus: sglt2-hf +10, bempedoic-acid-review -1. A LOOSENING ONLY EVER ADDS. Four regression guards pin the negative case, including apixaban vs rivaroxaban where both arms are active.",
+   "how_it_was_found": "By CROSS-CHECKING TWO INSTRUMENTS. The executed search surfaced this object's OWN included trials, and the arm-role classifier then refused to recognise two of them as the intervention. Neither instrument found it alone. This is the first defect tonight found in the WITHHOLDING direction by an instrument rather than by a person noticing -- the class we had said has no guard.",
+   "trials_no_longer_experimental": [],
+   "screening_status_after_restatement": "46 experimental, 4 included, 32 already screened, 10 NEWLY UNSCREENED. The screening of this topic was reported COMPLETE and is now INCOMPLETE again. That is the ratchet: no page is grandfathered, including one completed hours ago.",
+   "newly_unscreened_ids": [
+    "NCT03087773",
+    "NCT04600921",
+    "NCT05182658",
+    "NCT05321706",
+    "NCT05424315",
+    "NCT05776043",
+    "NCT06082063",
+    "NCT06217302",
+    "NCT06955260",
+    "NCT07038356"
+   ]
+  }
  },
  "precondition_verdict": {
   "assessed_on": "2026-08-19",
-  "standard_version": "1.2.0-2026-08-19",
+  "standard_version": "1.3.0-2026-08-19",
   "authority": {
    "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
    "version": "6.5, 2024",
@@ -2159,9 +2181,9 @@
     "reason": "inputs.trials: all 4 trial(s) carry arms with a readable role",
     "authority": "MECIR C62 (Mandatory), 'interventions' limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are 'sufficiently similar' without knowing which arm is the intervention. NOT cited to C5/C7: those govern PREDEFINITION of criteria, and this check only reads whether a field is populated."
    },
-   "comparators_identified_and_consistent": {
+   "comparators_identified": {
     "verdict": "PASS",
-    "reason": "outcomes.comparator_type: all 3 outcome(s) declare 'placebo'; free-text descriptions differ in verbosity ('placebo added to background heart failure therapy' vs ['placebo', 'placebo']) but comparator_type agrees, which is what governs",
+    "reason": "every outcome names a comparator type ['placebo']; none declares 'mixed'. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged.",
     "authority": "MECIR C62 (Mandatory), 'comparisons' limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency."
    },
    "estimand_named": {
@@ -2311,18 +2333,18 @@
   }
  },
  "build_stamp": {
-  "page_standard_version": "1.2.0-2026-08-19",
+  "page_standard_version": "1.3.0-2026-08-19",
   "standard_document": "PAGE-STANDARD.md",
   "built_utc": "2026-08-19",
   "built_by": "ssot/build_to_standard.py",
   "properties": {
    "P1_executed_search": {
     "state": "HELD",
-    "reason": "3 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 0-trial unscreened remainder is stated as a number rather than omitted."
+    "reason": "3 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 10-trial unscreened remainder is stated as a number rather than omitted."
    },
    "P2_k_cascade": {
     "state": "HELD",
-    "reason": "k at every stage: surfaced 56, located 56, experimental 36, comparator 12, included 4, unscreened remainder 0."
+    "reason": "k at every stage: surfaced 56, located 56, experimental 46, comparator 2, included 4, unscreened remainder 10."
    },
    "P3_inclusion_criteria": {
     "state": "HELD",

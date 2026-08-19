@@ -418,7 +418,7 @@
       "verbatim_from_registry": "Hazard Ratio (HR) 0.87, CI 0.79 - 0.96, statistical method Log Rank, p=0.004",
       "read_utc": "2026-08-19"
      },
-     "what_would_change_it": "SUPERSEDED 2026-08-19. The 16-trial remainder named here has now been screened, and none of the 16 met all four limbs -- 13 report no MACE outcome at any registered rank, 2 declare no placebo arm, 1 is a different population. k remains 1 and this refusal is now made on a SCREENED basis. What would change it is a NEW trial, not a rescreen of these.",
+     "what_would_change_it": "Screening the unscreened remainder. If any of them share this estimand and comparator, k rises above 1 and a pooled model becomes both possible and required -- at which point this field must carry the quoted call.",
      "refusal_basis": "SCREENED"
     }
    }
@@ -439,7 +439,7 @@
  "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",
  "precondition_verdict": {
   "assessed_on": "2026-08-19",
-  "standard_version": "1.0.0-2026-08-19",
+  "standard_version": "1.3.0-2026-08-19",
   "authority": {
    "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
    "version": "6.5, 2024",
@@ -459,9 +459,9 @@
     "reason": "inputs.trials: all 1 trial(s) carry arms with a readable role",
     "authority": "MECIR C62 (Mandatory), 'interventions' limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are 'sufficiently similar' without knowing which arm is the intervention. NOT cited to C5/C7: those govern PREDEFINITION of criteria, and this check only reads whether a field is populated."
    },
-   "comparators_identified_and_consistent": {
+   "comparators_identified": {
     "verdict": "PASS",
-    "reason": "outcomes.comparator: all 1 outcome(s) name 'placebo'",
+    "reason": "every outcome names a comparator type ['placebo']; none declares 'mixed'. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged.",
     "authority": "MECIR C62 (Mandatory), 'comparisons' limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency."
    },
    "estimand_named": {
@@ -551,9 +551,9 @@
   },
   "eligibility_ctgov": {
    "role_located": 21,
-   "topic_is_experimental_arm": 17,
-   "topic_is_comparator_arm": 4,
-   "topic_is_background": 0,
+   "topic_is_experimental_arm": 16,
+   "topic_is_comparator_arm": 3,
+   "topic_is_background": 2,
    "not_assessable": 0
   },
   "included": {
@@ -579,25 +579,41 @@
    }
   },
   "reconciliation": {
-   "arithmetic": "21 CTGov identified = 17 experimental + 4 comparator + 0 background + 0 unassessable",
+   "arithmetic": "21 CTGov identified = 16 experimental + 3 comparator + 2 background + 0 unassessable",
    "reconciles": true,
    "included_plus_recorded_exclusions": "1 included + 3 recorded exclusions = 4 registrations the page ever carried",
-   "gap_stated_plainly": "17 CTGov trials place bempedoic acid in an EXPERIMENTAL arm. ONE is included. The other 16 were SCREENED on 2026-08-19 against the stated criteria and all 16 were excluded with a reason keyed to its registration id: 13 on the OUTCOME limb, 2 on COMPARATOR, 1 on POPULATION. There is no longer an unscreened remainder."
+   "gap_stated_plainly": "17 CTGov trials place bempedoic acid in an EXPERIMENTAL arm; this object includes ONE. The other 16 are NOT excluded -- they were never screened against the stated criteria. That is an UNSCREENED REMAINDER of 16, and it is recorded as a number rather than omitted. Screening them is the next unit of work on this topic."
   }
  },
  "k_cascade": {
   "_why": "k is never one number. Each stage is what the instrument at that stage could actually decide.",
   "k0_surfaced": 21,
   "k2_role_located": 21,
-  "k3_experimental": 17,
-  "k4_comparator": 4,
-  "k5_background": 0,
+  "k3_experimental": 16,
+  "k4_comparator": 3,
+  "k5_background": 2,
   "kNA_not_assessable": 0,
   "k_included_in_object": 1,
-  "k_unscreened_remainder": 0,
+  "k_unscreened_remainder": 1,
   "keyed_on": "registration id",
   "source": "evidence/2026-08-19-batch1/cascade.json",
-  "k_unscreened_remainder_note": "Was 16. All 16 were screened on 2026-08-19 against the derived criteria block; 0 met all four limbs. See screening_of_remainder."
+  "k_unscreened_remainder_note": "Was 16. All 16 were screened on 2026-08-19 against the derived criteria block; 0 met all four limbs. See screening_of_remainder.",
+  "restated_2026_08_19_placebo_discriminator": {
+   "k3_was": 17,
+   "k3_now": 16,
+   "delta": -1,
+   "why": "topic_identity.locate() read the registry's arm TYPES literally. Some registrations declare NO arm typed EXPERIMENTAL: AFFIRM-AHF and HEART-FID both type their active drug ACTIVE_COMPARATOR against a PLACEBO_COMPARATOR arm. The classifier called the intervention a comparator and silently shrank the evidence base. Rule adopted: PLACEBO IS NEVER THE INTERVENTION, so a drug compared against it is -- but where the other arm is an ACTIVE drug, the topic drug genuinely is one of two comparators and the rule must not fire.",
+   "why_this_is_a_correction_not_a_relaxation": "It moved counts in BOTH directions across the corpus: sglt2-hf +10, bempedoic-acid-review -1. A LOOSENING ONLY EVER ADDS. Four regression guards pin the negative case, including apixaban vs rivaroxaban where both arms are active.",
+   "how_it_was_found": "By CROSS-CHECKING TWO INSTRUMENTS. The executed search surfaced this object's OWN included trials, and the arm-role classifier then refused to recognise two of them as the intervention. Neither instrument found it alone. This is the first defect tonight found in the WITHHOLDING direction by an instrument rather than by a person noticing -- the class we had said has no guard.",
+   "trials_no_longer_experimental": [
+    "NCT06450366",
+    "NCT07614958"
+   ],
+   "screening_status_after_restatement": "16 experimental, 1 included, 14 already screened, 1 NEWLY UNSCREENED. The screening of this topic was reported COMPLETE and is now INCOMPLETE again. That is the ratchet: no page is grandfathered, including one completed hours ago.",
+   "newly_unscreened_ids": [
+    "NCT05263778"
+   ]
+  }
  },
  "precondition_verdict_superseded": {
   "superseded_on": "2026-08-19",
@@ -733,38 +749,41 @@
   ],
   "duplicate_seeding_check": {
    "shared_with_other_topics": false,
-   "checked_against": "evidence/2026-08-19-corpus/reconcile.json (51 shared ids corpus-wide); NCT02993406 is not among them"
+   "checked_against": "evidence/2026-08-19-corpus/reconcile.json",
+   "state": "CHECKED",
+   "n_trials_checked": 1,
+   "shared": null
   }
  },
  "build_stamp": {
-  "page_standard_version": "1.0.0-2026-08-19",
+  "page_standard_version": "1.3.0-2026-08-19",
   "standard_document": "PAGE-STANDARD.md",
   "built_utc": "2026-08-19",
   "built_by": "ssot/build_to_standard.py",
   "properties": {
    "P1_executed_search": {
     "state": "HELD",
-    "reason": "Two databases, queries verbatim with dates and counts; PRISMA arithmetic reconciles and the 16-trial unscreened remainder is stated as a number."
+    "reason": "2 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 1-trial unscreened remainder is stated as a number rather than omitted."
    },
    "P2_k_cascade": {
     "state": "HELD",
-    "reason": "Seven stages recorded, plus the unscreened remainder."
+    "reason": "k at every stage: surfaced 21, located 21, experimental 16, comparator 3, included 1, unscreened remainder 1."
    },
    "P3_inclusion_criteria": {
     "state": "HELD",
-    "reason": "Derived block present with predefined:false and post_hoc:true on its face, each element naming its source field; authorised by MECIR R107."
+    "reason": "Criteria provenance block present with predefined=False on its face (state 'DERIVED_FROM_THIS_OBJECT')."
    },
    "P4_preconditions": {
     "state": "HELD",
-    "reason": "All 8 recorded with verdict and cited authority (1 FAIL). criteria_predefined FAILs permanently: the criteria are post hoc, which R107 permits and C5/C7 does not satisfy."
+    "reason": "All 8 recorded with verdict and cited authority: 1 FAIL, 1 NOT-ASSESSABLE. criteria_predefined is FAIL -- post hoc criteria, which R107 permits and C5/C7 does not satisfy."
    },
    "P5_extraction_table": {
     "state": "HELD",
-    "reason": "9 cells, 8 READ with source path and verbatim text, 1 DERIVED with its method named; all against a resolvable registry link."
+    "reason": "9 cells: 8 READ with source path and verbatim text, 1 DERIVED with the method named."
    },
    "P6_analysis_output": {
     "state": "REFUSING",
-    "reason": "No quotable model output exists because k=1 and nothing was pooled. The absence is recorded as a finding with its cause and its trigger, and the registry's own analysis is quoted verbatim in its place."
+    "reason": "No quotable model output exists because k=1 and nothing was pooled. The absence is recorded as a finding with its cause and its trigger."
    },
    "P7_published_comparison": {
     "state": "REFUSING",
@@ -772,7 +791,7 @@
    },
    "P8_registration_identity": {
     "state": "HELD",
-    "reason": "1 of 1 trial verified live against the registry; not among the 51 corpus-wide shared registration ids."
+    "reason": "1 of 1 trial(s) verified live against the registry."
    }
   },
   "held": [

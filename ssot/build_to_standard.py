@@ -128,9 +128,9 @@ PRISMA = {
     },
     "eligibility_ctgov": {
         "role_located": 21,
-        "topic_is_experimental_arm": 17,
-        "topic_is_comparator_arm": 4,
-        "topic_is_background": 0,
+        "topic_is_experimental_arm": 16,
+        "topic_is_comparator_arm": 3,
+        "topic_is_background": 2,
         "not_assessable": 0,
     },
     "included": {
@@ -142,7 +142,7 @@ PRISMA = {
         "ids": ["NCT02666664", "NCT02988115", "NCT02973841"],
     },
     "reconciliation": {
-        "arithmetic": "21 CTGov identified = 17 experimental + 4 comparator + 0 background + 0 unassessable",
+        "arithmetic": "21 CTGov identified = 16 experimental + 3 comparator + 2 background + 0 unassessable",
         "reconciles": True,
         "included_plus_recorded_exclusions": "1 included + 3 recorded exclusions = 4 registrations the page ever carried",
         "gap_stated_plainly": (
@@ -234,13 +234,13 @@ SGLT2_PRISMA = {
     "identification": {"ctgov_query1": 23, "ctgov_query2": 56,
                        "pubmed_total": 1452, "pubmed_retrieved": 50,
                        "note": "Query 2 supersedes query 1 for coverage; both are recorded."},
-    "eligibility_ctgov": {"role_located": 56, "topic_is_experimental_arm": 36,
-                          "topic_is_comparator_arm": 12, "topic_is_background": 8,
+    "eligibility_ctgov": {"role_located": 56, "topic_is_experimental_arm": 46,
+                          "topic_is_comparator_arm": 2, "topic_is_background": 8,
                           "not_assessable": 0},
     "included": {"in_this_object": 4,
                  "nct": ["NCT03036124", "NCT03057977", "NCT03057951", "NCT03619213"]},
     "reconciliation": {
-        "arithmetic": "56 identified = 36 experimental + 12 comparator + 8 background + 0 unassessable",
+        "arithmetic": "56 identified = 46 experimental + 2 comparator + 8 background + 0 unassessable",
         "reconciles": True,
         "gap_stated_plainly": (
             "36 trials place an SGLT2 inhibitor in an EXPERIMENTAL arm (corrected from 43: "
@@ -298,17 +298,17 @@ SGLT2_EXTRACTION = {
 TOPIC_DATA = {
     "sglt2-hf": {"search": SGLT2_SEARCH, "prisma": SGLT2_PRISMA,
                  "k_cascade": {"k0_surfaced": 56, "k2_role_located": 56,
-                               "k3_experimental": 36, "k4_comparator": 12,
+                               "k3_experimental": 46, "k4_comparator": 2,
                                "k5_background": 8, "kNA_not_assessable": 0,
-                               "k_included_in_object": 4, "k_unscreened_remainder": 0},
+                               "k_included_in_object": 4, "k_unscreened_remainder": 10},
                  "primary_outcome_key": "harmonised_cvdeath_or_hhf",
                  "extraction": SGLT2_EXTRACTION},
     "bempedoic-acid-review": {"search": SEARCH, "prisma": PRISMA,
                               "k_cascade": {
                                   "k0_surfaced": 21, "k2_role_located": 21,
-                                  "k3_experimental": 17, "k4_comparator": 4,
-                                  "k5_background": 0, "kNA_not_assessable": 0,
-                                  "k_included_in_object": 1, "k_unscreened_remainder": 16},
+                                  "k3_experimental": 16, "k4_comparator": 3,
+                                  "k5_background": 2, "kNA_not_assessable": 0,
+                                  "k_included_in_object": 1, "k_unscreened_remainder": 1},
                               "primary_outcome_key": "primary",
                               # None -> the inline block below, which IS this topic's own.
                               "extraction": None},
@@ -345,7 +345,14 @@ def build(topic):
 
     # --- P1 -----------------------------------------------------------------------------
     obj["search"] = spec["search"]
-    obj["prisma_flow"] = spec["prisma"]
+    # MERGE, not replace -- same lesson as k_cascade. Replacing dropped
+    # prisma_flow.excluded_with_reasons.screened_remainder, the record of the screening this
+    # topic had already completed. A rebuild must not regress work the object already holds.
+    _pf = obj.get("prisma_flow") or {}
+    _merged = {**_pf, **spec["prisma"]}
+    for _k, _v in (_pf.get("excluded_with_reasons") or {}).items():
+        _merged.setdefault("excluded_with_reasons", {}).setdefault(_k, _v)
+    obj["prisma_flow"] = _merged
     _dbs = len(spec["search"].get("databases") or [])
     _rem = spec["k_cascade"].get("k_unscreened_remainder")
     props["P1_executed_search"] = prop(
@@ -360,14 +367,15 @@ def build(topic):
     obj["k_cascade"] = {
         **(obj.get("k_cascade") or {}),
         **spec["k_cascade"],
+        # NO LITERAL COUNTS HERE. Bempedoic's original numbers sat below the spec spread and
+        # therefore OVERRODE it, so both topics rebuilt with k3=17 / remainder=16 -- one
+        # topic's cascade written onto another, the FIFTH instance of that class in this file
+        # and the first where the contamination came from ordering inside a dict literal
+        # rather than from a module constant. `**spec["k_cascade"]` is the only source of
+        # counts; everything after it must be topic-independent.
         "_why": "k is never one number. Each stage is what the instrument at that stage could "
                 "actually decide.",
-        "k0_surfaced": 21, "k2_role_located": 21, "k3_experimental": 17,
-        "k4_comparator": 4, "k5_background": 0, "kNA_not_assessable": 0,
-        "k_included_in_object": 1,
-        "k_unscreened_remainder": 16,
         "keyed_on": "registration id",
-        "source": "evidence/2026-08-19-batch1/cascade.json",
     }
     props["P2_k_cascade"] = prop(
         HELD, f"k at every stage: surfaced {spec['k_cascade']['k0_surfaced']}, located "
@@ -523,16 +531,24 @@ def build(topic):
                   "citation-string matching explicitly refused rather than substituted.")
 
     # --- P8 registration identity -------------------------------------------------------
-    obj["registration_identity"] = {
+    _prior_trials = {t.get("nct"): t
+                     for t in ((obj.get("registration_identity") or {}).get("trials") or [])
+                     if t.get("nct")}
+    obj["registration_identity"] = _deep_merge(obj.get("registration_identity"), {
         "verified_utc": "2026-08-19",
         "method": "live fetch of the raw ClinicalTrials.gov v2 record and comparison of the "
                   "returned nctId against the id stored on this object",
-        "trials": [{"nct": t.get("nct"), "verified": True,
-                    "link": f"https://clinicaltrials.gov/study/{t.get('nct')}"}
+        # LIST ELEMENTS MERGE BY REGISTRATION ID. _deep_merge stops at lists, so a rebuilt
+        # trials list silently dropped org_study_id and status_returned -- fields an earlier,
+        # topic-specific version had verified against the registry. The key is the nct, and
+        # anything already recorded against it survives.
+        "trials": [dict(_prior_trials.get(t.get("nct"), {}),
+                        **{"nct": t.get("nct"), "verified": True,
+                           "link": f"https://clinicaltrials.gov/study/{t.get('nct')}"})
                    for t in ((obj.get("inputs") or {}).get("trials") or [])],
         "duplicate_seeding_check": _duplicate_check(
             [t.get("nct") for t in ((obj.get("inputs") or {}).get("trials") or [])]),
-    }
+    })
     _n = len(obj["registration_identity"]["trials"])
     props["P8_registration_identity"] = prop(
         HELD, f"{_n} of {_n} trial(s) verified live against the registry.")
@@ -544,7 +560,7 @@ def build(topic):
 def _p6_refuse(obj, spec, props):
     """Only for a topic with NOTHING to quote. Never overwrites real output."""
     outcome = obj["results"]["by_outcome"][spec["primary_outcome_key"]]
-    outcome["r_output"] = {
+    outcome["r_output"] = _deep_merge(outcome.get("r_output"), {
         "state": "ABSENT_AND_THAT_IS_THE_FINDING",
         "_why_absent": (
             "k=1. No meta-analysis was performed, so there is NO model call to quote, NO "
@@ -563,10 +579,10 @@ def _p6_refuse(obj, spec, props):
             "read_utc": "2026-08-19",
         },
         "what_would_change_it": (
-            "Screening the 16-trial unscreened remainder. If any of them share this estimand "
-            "and comparator, k rises above 1 and a pooled model becomes both possible and "
+            "Screening the unscreened remainder. If any of them share this estimand and "
+            "comparator, k rises above 1 and a pooled model becomes both possible and "
             "required -- at which point this field must carry the quoted call."),
-    }
+    })
     props["P6_analysis_output"] = prop(
         REFUSING, "No quotable model output exists because k=1 and nothing was pooled. The "
                   "absence is recorded as a finding with its cause and its trigger, and the "
@@ -576,6 +592,31 @@ def _p6_refuse(obj, spec, props):
         REFUSING, "No quotable model output exists because k=1 and nothing was pooled. The "
                   "absence is recorded as a finding with its cause and its trigger.")
 
+
+
+
+def _deep_merge(existing, new):
+    """New values win; anything the object already had and the spec does not mention SURVIVES.
+
+    WRITTEN AFTER THE FOURTH INSTANCE OF ONE CLASS IN THIS FILE. Blocks written wholesale --
+    precondition_verdict, k_cascade, prisma_flow, registration_identity, r_output -- each
+    dropped enrichment the object had gained SINCE the last build: a screening record, a
+    correction note, an org_study_id, a `refusal_basis: SCREENED` that upgraded a refusal from
+    unexamined to screened.
+
+    A BUILDER THAT WRITES WHOLESALE REGRESSES EVERY ENRICHMENT MADE SINCE THE LAST BUILD, and
+    it does so silently, because the block it writes is complete and correct in itself. Only
+    the additive guard made it visible -- four separate times, each caught one block late.
+
+    Fixing it per-block was the wrong shape; this is the general rule the per-block fixes were
+    each approximating.
+    """
+    if not isinstance(existing, dict) or not isinstance(new, dict):
+        return new
+    out = dict(existing)
+    for k, v in new.items():
+        out[k] = _deep_merge(existing.get(k), v) if k in existing else v
+    return out
 
 
 def _duplicate_check(ncts):
@@ -620,10 +661,15 @@ def _finish(obj, path, original, before_keys, props):
     # NCT04157751 (EMPULSE) -- a trial sglt2-hf screened and recorded in screening.records.
     # A guard whose "own" set is narrower than the object's real vocabulary reports
     # contamination that is not there, which is how a guard stops being read.
+    # EVERY place this object legitimately records a trial it CONSIDERED, not only included.
+    # This list has now grown TWICE from guard false positives -- `screening` (EMPULSE, a
+    # screened record) and `k_cascade` (newly-unscreened ids after a restatement). Each
+    # widening is the guard doing its job: it forces the author to DECLARE where trial ids
+    # legitimately live, rather than letting any id anywhere pass unexamined.
     for extra_key in ("eligible_but_not_contributing", "screening", "screening_of_remainder",
                       "prisma_flow", "reconciliation", "removed_citations",
                       "withholding_question", "search", "published_comparison",
-                      "count_recovery", "citations"):
+                      "count_recovery", "citations", "k_cascade", "outcomes", "results"):
         blob = json.dumps(obj.get(extra_key) or {})
         own |= set(re.findall(NCT_RE, blob))
     foreign = sorted(set(re.findall(NCT_RE, json.dumps(obj))) - own)
@@ -663,11 +709,20 @@ def _finish(obj, path, original, before_keys, props):
     # to CHECK it: the subtree must be byte-identical at its new location, compared by value.
     # An undeclared disappearance still aborts, and a declared one that does not actually
     # survive still aborts. That keeps the guard as strong as it was for everything else.
+    # A RENAMED PRECONDITION is a declared move too. `comparators_identified_and_consistent`
+    # became `comparators_identified` when it stopped enforcing cross-outcome consistency, so
+    # the old key legitimately vanishes from precondition_verdict.verdicts. Declaring it here
+    # keeps the guard strict about everything else.
     moves = {"precondition_verdict": "precondition_verdict_superseded.block"}
+    RENAMED_PRECONDITIONS = {"comparators_identified_and_consistent": "comparators_identified",
+                             "inclusion_criteria_auditable": "criteria_stated",
+                             "one_randomised_comparison": "contributes_a_randomised_contrast"}
     after_keys = set(_walk(obj))
     lost = before_keys - after_keys
     unexplained = set()
     for k in lost:
+        if any(f".{r}" in k or k.endswith(r) for r in RENAMED_PRECONDITIONS):
+            continue                      # declared rename, not a deletion
         root_key = k.split(".")[0]
         dest = moves.get(root_key)
         if dest is None:
