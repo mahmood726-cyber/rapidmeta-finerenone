@@ -68,6 +68,7 @@ PAGES = {
     "apixaban-vte-treatment": "APIXABAN_VTE_TREATMENT_REVIEW.html",
     "apixaban-vte-prophylaxis": "APIXABAN_VTE_PROPHYLAXIS_REVIEW.html",
     "bococizumab-lipid-review": "BOCOCIZUMAB_LIPID_REVIEW.html",
+    "azilsartan-chlorthalidone-vs-olmesartan-hctz": "AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html",
 }
 
 FAIL, NA, OK, STALE = "FAIL", "NOT_ASSESSABLE", "OK", "STALE"
