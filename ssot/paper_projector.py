@@ -288,6 +288,12 @@ def project(obj, journal="generic", length="standard"):
                         % (rb["tool"], rb.get("version", ""), rb.get("handbook", ""),
                            rb.get("unit_of_assessment", ""), n, rb.get("default_rule", "")),
                         ["risk_of_bias.tool", "risk_of_bias.by_outcome"]))
+        # THE CEILING, ON THE PAGE. Without it a reader takes SOME CONCERNS as a verdict on the
+        # trials, when it is a bound set by what this review could read.
+        ceil = rb.get("ceiling") or {}
+        if ceil.get("statement"):
+            s.paras.append((ceil["statement"] + " " + ceil.get("what_would_change_it", ""),
+                            ["risk_of_bias.ceiling"]))
     else:
         s.refusals.append(("the claim that risk of bias was assessed with a named tool",
                            ["risk_of_bias.tool"]))

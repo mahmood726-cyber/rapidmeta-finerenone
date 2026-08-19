@@ -237,6 +237,33 @@ def main():
                "default_rule": ("A domain that cannot be judged from the registration and the "
                                 "published report is NO_INFORMATION, never LOW. Low-by-default "
                                 "asserts a fact; high-by-default invents a defect."),
+               # THE CEILING, STATED SO IT CANNOT BE MISREAD AS A VERDICT ON THE TRIALS.
+               # Without this sentence every page implies these trials are worse than they may
+               # be -- which is the SAME manufacturing as a low-by-default, pointed the other
+               # way. A rating driven by our reach must say it is driven by our reach.
+               "ceiling": {
+                   "no_result_can_reach_LOW": True,
+                   "statement": (
+                       "NO RESULT IN THIS REVIEW CAN REACH LOW RISK OF BIAS ON THE EVIDENCE WE "
+                       "CAN REACH, AND THAT IS A FACT ABOUT OUR ACCESS RATHER THAN ABOUT THE "
+                       "TRIALS. The two domains that would distinguish LOW from SOME CONCERNS "
+                       "need documents this review does not hold: D1 needs allocation "
+                       "concealment and baseline data, which are in neither the registration "
+                       "nor the published abstract; D5 needs the trial's statistical analysis "
+                       "plan, which is not held for any trial. SOME CONCERNS IS THEREFORE THE "
+                       "CEILING, NOT A FINDING. A trial rated SOME CONCERNS here may well be "
+                       "at low risk of bias -- we cannot show it, and we do not imply the "
+                       "opposite."),
+                   "what_would_change_it": (
+                       "Retrieving each trial's full published report and its statistical "
+                       "analysis plan or protocol. Until then the rating is bounded by what we "
+                       "read, and the bound is reported rather than the reader inferring it."),
+                   "why_this_is_stated_rather_than_left_implicit": (
+                       "A rating of SOME CONCERNS with no explanation reads as a judgement "
+                       "against the trial. Omitting the reason would manufacture a criticism "
+                       "exactly as a low-by-default manufactures a reassurance -- the same "
+                       "defect pointed the other way."),
+               },
                "by_topic": all_out}
     with io.open(DEST, "w", encoding="utf-8") as fh:
         fh.write(json.dumps(payload, indent=1))

@@ -77,6 +77,7 @@ def merge(topic, dup, rob, grade):
                                "handbook": rob["authority"]["handbook"],
                                "unit_of_assessment": rob["authority"]["unit_of_assessment"],
                                "default_rule": rob["default_rule"],
+                               "ceiling": rob["ceiling"],
                                "by_outcome": r}
     g = (grade.get("by_topic") or {}).get(topic)
     if g:
