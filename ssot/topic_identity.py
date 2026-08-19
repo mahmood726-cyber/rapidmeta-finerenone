@@ -91,6 +91,177 @@ KNOWN_DEVELOPMENT_CODES = {
 # "...plus placebo" mid-string is NOT excluded, because there the drug IS present.
 _PLACEBO_NAME = re.compile(r"^\s*(matching\s+)?(placebo|sham|vehicle|dummy)\b")
 
+# ...AND IT ALSO DECLARES ITSELF AT THE END, WHICH THE ANCHORED PATTERN ABOVE CANNOT SEE.
+#
+# FOUND 2026-08-19 ON apixaban-vte, ON THE THREE CANONICAL APIXABAN THROMBOPROPHYLAXIS TRIALS.
+# ADVANCE-2 (NCT00452530), ADVANCE-3 (NCT00423319) and APROPOS (NCT00097357) are double-dummy,
+# and the registry writes the dummy the other way round:
+#
+#     EXPERIMENTAL       ['Drug: Apixaban',   'Drug: Enoxaparin-matching placebo']
+#     ACTIVE_COMPARATOR  ['Drug: Enoxaparin', 'Drug: Apixaban-matching placebo']   <- reads as apixaban
+#
+# `Apixaban-matching placebo` BEGINS with the drug name, so `_PLACEBO_NAME` does not match it,
+# `_drug_named_in_arm` reported apixaban in BOTH arms, and locate() returned
+# background_or_coadministered for three trials whose randomised contrast IS apixaban. THE
+# WITHHOLDING DIRECTION, on the pivotal trials of the topic, exactly as `Placebo (for
+# alirocumab)` did on five of six ODYSSEY trials -- the SAME class (E1, substring is not
+# identity) in a naming convention the earlier fix's anchor could not reach.
+#
+#     A FIX ANCHORED TO WHERE THE LAST INSTANCE PUT THE WORD IS A FIX FOR THAT INSTANCE.
+#
+# Measured rather than assumed: over 1,383 cached registration records / 2,749 intervention
+# name records, 198 lead with a placebo word (the case already handled) and 23 TRAIL with one
+# without leading. Those 23 span apixaban, azilsartan, bococizumab, alirocumab, ezetimibe,
+# valsartan and bempedoic acid -- three of them topics still in the build queue.
+#
+# THE DISCRIMINATOR IS THE JOINING WORD, AND IT IS IN THE DATA, NOT INVENTED. Both shapes end
+# in "placebo"; only one means the drug is absent:
+#
+#     Apixaban-matching placebo   Apixaban Placebo   Alirocumab placebo    -> placebo FOR the drug
+#     Apixaban + Placebo          Sildenafil 20mg and Placebo              -> the drug AND a placebo
+#
+# So a trailing placebo word is a placebo-only record UNLESS the token before it is a
+# conjunction. That keeps `empagliflozin plus placebo` -- the case the original anchoring was
+# written to protect -- reading as drug-present.
+_PLACEBO_WORD = re.compile(r"^(placebo|sham|vehicle|dummy)s?$")
+# Dosage-form noise that may sit after the placebo word: "Apixaban Placebo Tablet".
+_FORM_WORD = re.compile(r"^(tablet|tablets|capsule|capsules|injection|injections|solution|"
+                        r"comparator|oral|iv|sc|infusion)$")
+# "and"/"plus"/"with"/"+"/"&" join TWO things, so the drug is present alongside a placebo.
+# "or" is included on the same reading and it is the WEAKEST member: `Iloprost or placebo` is
+# one record covering both arms, and calling the drug present there errs toward BACKGROUND,
+# which is the withholding direction. Named as residual rather than silently resolved.
+_CONJUNCTION = {"and", "plus", "with", "+", "&", "or"}
+_TOKEN = re.compile(r"[a-z]+|[+&]")
+# `placebo of dapagliflozin`, `placebo (for alirocumab)`, `placebo matching dapagliflozin`,
+# `placebo to match X`. The preposition is what makes it a placebo FOR something rather than a
+# placebo BESIDE something -- `X plus placebo` has no preposition and is left alone.
+_PLACEBO_OF = re.compile(r"\bplacebos?\b\s*\(?\s*(for|of|matching|to match)\b")
+
+
+def _name_is_placebo_record(name):
+    """A record whose NAME BEGINS with a placebo word is a placebo record, entire.
+
+    THE ORIGINAL ANCHORED RULE, RESTORED AFTER THE REFACTOR DROPPED IT AND TWO KNOWN ANSWERS
+    REGRESSED IN THE SAME DIRECTION THE WHOLE CLASS RUNS -- withholding:
+
+        `Placebo Matched to Alirocumab`                     NCT01576484
+        `Placebo for Bococizumab (PF-04950615;RN316)`       NCT02135029
+
+    Neither survives phrase-stripping. The first says "matched to", which is not one of the
+    prepositions the forward pattern lists; the second carries the DEVELOPMENT CODE in
+    parentheses after the phrase, and `pf-04950615` is itself a declared bococizumab synonym,
+    so the drug reappears from the tail of its own placebo's name. Both were correctly handled
+    before by the anchor, and generalising the mechanism quietly discarded the special case
+    that already worked.
+
+        A REWRITE THAT SUBSUMES AN OLD RULE MUST REPRODUCE ITS ANSWERS, and the only reason
+        this was noticed is that the corpus-wide delta was read line by line rather than by
+        its totals: these two are the only pair moving experimental -> background, four rows
+        in a table of forty-three.
+
+    Applied to NAMES only, never to descriptions, and never to a record that merely mentions a
+    placebo later on -- `dapagliflozin 10 mg and matching placebo for X` does not begin with
+    one and is still read for the drug it names.
+    """
+    return bool(_PLACEBO_NAME.match(str(name or "").strip().lower()))
+
+
+def _names_a_placebo(text):
+    """Does this text mention a placebo at all? Deliberately crude: used only to ask whether
+    an arm has ANY placebo record attached, never to decide whether a drug is present."""
+    return bool(re.search(r"\b(placebo|sham|vehicle|dummy)", str(text or "").lower()))
+
+
+# THE SAME CONVENTION IN FREE TEXT, WHERE IT IS WORSE, BECAUSE PROSE HAS NO FIELDS.
+#
+# ADVANCE-3 survived both fixes above. Its EXPERIMENTAL arm -- the ENOXAPARIN arm -- carries
+# the description:
+#
+#     "Participants received enoxaparin, 40 mg QD subcutaneously, and matching
+#      apixaban-placebo tablets BID"
+#
+# So `apixaban` occurs, verbatim, in the description of the arm that did not receive apixaban,
+# and the arm-hit scan reads descriptions. The rule the control-arm test already states --
+# "the matching-placebo convention names the active drug in every placebo's text, so
+# description text cannot answer *is the drug in this arm*" -- is true of ARM descriptions as
+# well as intervention descriptions, and only half of it had been applied.
+#
+# The answer is not to stop reading descriptions: some registrations name the drug ONLY there,
+# and dropping them withholds. It is to remove the PLACEBO PHRASES from the text first, taking
+# the drug token with them when nothing joins the two. What survives is what the arm received.
+# ONE PRIMITIVE, NOT TWO, AND THE SPLIT IS WHAT KEPT BREAKING IT.
+#
+# There were briefly two implementations of the same judgement: a token walk deciding whether a
+# NAME was a placebo record, and a phrase stripper for free TEXT. They disagreed, and every
+# disagreement was a defect:
+#
+#   `Azilsartan medoxomil/placebo`   the walk said placebo-only -- it reads tokens and cannot
+#                                    see that a SLASH joins them -- so azilsartan vanished from
+#                                    an arm LABELLED `Azilsartan medoxomil 40 mg`, and the
+#                                    azilsartan/chlorthalidone FDC trial (NCT01456169), where
+#                                    azilsartan genuinely IS in both arms, was promoted out of
+#                                    background. That is the topic NEXT IN THE BUILD QUEUE.
+#   `dapagliflozin 10 mg and matching placebo for balcinrenone/dapagliflozin`
+#                                    the walk saw `placebo for ...` and called the WHOLE record
+#                                    a placebo, so the ACTIVE_COMPARATOR arm that receives
+#                                    dapagliflozin 10 mg lost it, and NCT06307652 -- a
+#                                    fixed-dose-combination trial where dapagliflozin is in
+#                                    every arm -- was promoted to `experimental`.
+#
+# Both are the same mistake: asking "is this record A PLACEBO" instead of the question that
+# actually matters, which is
+#
+#     DOES THE TOPIC DRUG APPEAR IN THIS TEXT OUTSIDE A PLACEBO PHRASE?
+#
+# One record can name an active drug AND a placebo for a different drug; a yes/no verdict on
+# the record cannot express that, and every attempt to make it do so needed another special
+# case. Stripping the placebo phrases and looking at what remains expresses it directly, and
+# the same code then serves names, labels and descriptions alike.
+# ORDER IS PART OF THE SPECIFICATION, and getting it wrong cost a known answer.
+#
+# `One tablet of placebo of dapagliflozin 10 mg` (NCT07025629). With the trailing pattern first,
+# it matched `one tablet of placebo`, removed the placebo word, and the FORWARD-looking pattern
+# then had nothing to anchor on -- so `of dapagliflozin` survived and the record read as
+# carrying the drug. The forward form must run FIRST: a placebo that names its drug AFTER
+# itself is unambiguous, and consuming it early cannot mislead the later patterns.
+_PLACEBO_PHRASES = (
+    # 1. FORWARD: "placebo (for alirocumab)", "placebo of dapagliflozin", "placebo to match X",
+    #    "placebo for balcinrenone/dapagliflozin".
+    re.compile(r"\bplacebos?[\s\-]*\(?\s*(?:for|of|matching|to match)[\s\-]+"
+               r"((?:[a-z0-9]+[\s\-/]+){0,2}[a-z0-9]*[a-z][a-z0-9]*)\)?"),
+    # 2. "apixaban-matching placebo", "apixaban matching placebo"
+    re.compile(r"\b((?:[a-z0-9]+[\s\-]+){0,2}[a-z0-9]*[a-z][a-z0-9]*)"
+               r"[\s\-]+matching[\s\-]+placebos?\b"),
+    # 3. TRAILING: "matching apixaban-placebo", "apixaban placebo", "bempedoic acid placebo",
+    #    "bococizumab 150mg placebo". Up to three preceding tokens, because a drug name is not
+    #    always one word and a dose may sit between it and the placebo word -- tokens may start
+    #    with a digit (`150mg`), which an earlier version could not step over.
+    re.compile(r"\b(?:matching[\s\-]+)?((?:[a-z0-9]+[\s\-]+){0,2}[a-z0-9]*[a-z][a-z0-9]*)"
+               r"[\s\-]+placebos?\b"),
+    # 4. A bare placebo word left over, including the plural `Placebos` that a `\b` after
+    #    "placebo" cannot match. Nothing to carry away with it.
+    re.compile(r"\b(placebos?|shams?|vehicles?|dummies|dummys?)\b"),
+)
+
+
+def _strip_placebo_phrases(text):
+    """Remove placebo phrases -- and the drug name they are a placebo FOR -- from any text.
+
+    A CONJUNCTION INSIDE THE CAPTURED RUN STOPS THE REMOVAL AT THE CONJUNCTION, because
+    `empagliflozin plus placebo` and `dapagliflozin 10 mg and matching placebo` both name a
+    drug that IS given, joined to a placebo that is also given. Everything up to and including
+    the joining word survives; only what the placebo phrase itself names is taken away.
+    """
+    def _sub(m):
+        toks = (m.group(1) or "").split()
+        keep = [i for i, t in enumerate(toks) if t in _CONJUNCTION]
+        return (" " + " ".join(toks[:keep[-1] + 1]) + " ") if keep else " "
+    out = str(text or "").lower()
+    for pat in _PLACEBO_PHRASES:
+        out = pat.sub(_sub, out)
+    return out
+
 
 def synonyms_for(topic_key):
     """Declared set for a topic. KeyError is deliberate -- an undeclared topic must not
@@ -149,12 +320,35 @@ def locate(study, syns):
         return any(s in blob for s in syns)
 
     # 1. Which arms carry an intervention whose NAME/otherNames/description matches?
+    #
+    # A PLACEBO-FOR-X RECORD IS SKIPPED HERE TOO, AND OMITTING IT WAS A PARTIAL FIX.
+    #
+    # The trailing-placebo repair was first applied only inside `_drug_named_in_arm`, which is
+    # the BOTH-ARMS test. ADVANCE-3 (NCT00423319) stayed wrong, because this scan runs first
+    # and reads the same placebo record: its EXPERIMENTAL arm carries `Drug: Apixaban-matching
+    # placebo`, so this loop recorded an EXPERIMENTAL hit for apixaban IN THE ENOXAPARIN ARM.
+    # exp_hit was then true for the wrong reason, ctrl_hit true for the right one, and the
+    # both-arms rule returned BACKGROUND exactly as before.
+    #
+    #   FIXING THE BRANCH THAT WAS CAUGHT IS NOT FIXING THE CLASS. Caught only because the
+    #   known-answer file listed ADVANCE-3 SEPARATELY from ADVANCE-2 rather than assuming two
+    #   trials of one design behave alike -- they do not: ADVANCE-3 types its apixaban arm
+    #   ACTIVE_COMPARATOR and its enoxaparin arm EXPERIMENTAL, the reverse of ADVANCE-2.
+    #
+    # Skipping by NAME keeps the generosity this scan is for: DAPA-HF's control record is named
+    # `Placebo` and its DESCRIPTION reads "Placebo matching dapagliflozin", so the description
+    # is still never what decides -- the record is simply not consulted at all.
     hit_types, hit_ev = [], []
     for a in arms:
-        arm_intr_blobs = [intr_index.get(str(n).split(":")[-1].strip(), "")
-                          for n in (a.get("interventionNames") or [])]
-        arm_intr_blobs += [intr_index.get(str(n), "") for n in (a.get("interventionNames") or [])]
-        blob = _hay(a.get("description"), *arm_intr_blobs)
+        keys = [str(n) for n in (a.get("interventionNames") or [])
+                if not _name_is_placebo_record(str(n).split(":", 1)[-1])]
+        # Only the LEADING anchor filters a whole record out. Everything else is handled by the
+        # stripper below, which removes placebo phrases wherever they sit and leaves any active
+        # drug the same record also names -- filtering on the wider test discarded
+        # `dapagliflozin 10 mg and matching placebo for balcinrenone/dapagliflozin` entirely.
+        arm_intr_blobs = [intr_index.get(k.split(":")[-1].strip(), "") for k in keys]
+        arm_intr_blobs += [intr_index.get(k, "") for k in keys]
+        blob = _strip_placebo_phrases(_hay(a.get("description"), *keys, *arm_intr_blobs))
         if matches(blob):
             hit_types.append(str(a.get("type") or "").upper())
             hit_ev.append(f"arm {a.get('label')!r} via intervention record")
@@ -223,16 +417,124 @@ def locate(study, syns):
             empagliflozin in both arms, under its own name, and still returns BACKGROUND.
             """
             for n in (a.get("interventionNames") or []):
-                nm = str(n).split(":", 1)[-1].strip().lower()
-                if _PLACEBO_NAME.match(nm):
-                    continue          # a placebo FOR the drug is not the drug
-                if any(s in nm for s in syns):
+                raw = str(n).split(":", 1)[-1]
+                if _name_is_placebo_record(raw):
+                    continue
+                if any(s in _strip_placebo_phrases(raw) for s in syns):
                     return True
             return False
 
+        def _arm_is_placebo_typed(a):
+            t = str(a.get("type") or "").upper()
+            return "PLACEBO" in t or "SHAM" in t
+
+        def _label_declares_drug_not_placebo(a):
+            """The arm's own LABEL says it is the drug arm, and does not say 'placebo'.
+
+            THE SECOND HALF IS LOAD-BEARING AND WAS MISSING FOR ONE RUN. EASi-HF labels its
+            control arm `placebo/empagliflozin` -- naming the drug -- and if a drug-naming
+            label alone disqualified an arm from being a control arm, EASi-HF would flip from
+            BACKGROUND to EXPERIMENTAL and the both-arms rule would be broken by its own
+            repair. A label that declares BOTH is a placebo arm that says which placebo.
+            """
+            lbl = str(a.get("label") or "").lower()
+            if not lbl or not any(s in lbl for s in syns):
+                return False
+            return not re.search(r"\b(placebo|sham|vehicle|dummy)", lbl)
+
+        # A REGISTRATION THAT CONTRADICTS ITSELF IS NOT EVIDENCE OF BACKGROUND USE.
+        #
+        # NCT04128254 attaches ONE intervention record -- `Drug: Apixaban Oral Tablet` -- to
+        # BOTH its EXPERIMENTAL arm labelled 'Apixaban' AND its PLACEBO_COMPARATOR arm labelled
+        # 'Placebo'. Read literally the coded relation says the placebo arm received apixaban,
+        # which is not a design; it is a data-entry artefact. locate() previously returned
+        # background_or_coadministered, i.e. "the drug is given to everyone" -- A DECISION
+        # PRESENTED AS A READING, and in the withholding direction again.
+        #
+        # THREE CLAUSES, AND THE FIRST DRAFT HAD ONLY ONE, WHICH COST 45 FALSE NOT-ASSESSABLES
+        # ACROSS THE CORPUS. Measured before committing, by classifying 1,349 cached
+        # registrations under all 10 declared synonym sets with the old code and the new:
+        #
+        #   (a) the placebo-typed arm carries the topic drug and NO placebo record.
+        #       EASi-HF's control arm carries `['Drug: empagliflozin', 'Drug: placebo']` -- a
+        #       placebo record IS present beside the drug, so the arm is coherent (placebo for
+        #       vicadrostat, empagliflozin for everyone) and still returns BACKGROUND.
+        #   (b) that arm's own LABEL does not declare the drug. NCT01812707 types an arm
+        #       LABELLED 'Alirocumab 150 mg Q2W' as PLACEBO_COMPARATOR: the label and the
+        #       intervention agree with each other and only the TYPE is the outlier, so this is
+        #       a mis-typed ACTIVE arm, not a contradiction. Two signals against one.
+        #   (c) some OTHER arm declares the drug -- by LABEL, or by being typed EXPERIMENTAL
+        #       and carrying it -- so the design really is drug-versus-control. NCT05587621
+        #       randomises a CLOUD-BASED SOFTWARE pathway and attaches one six-drug record to
+        #       both arms; no arm claims a drug, and background is the correct reading there.
+        contradictory = [
+            a for a in arms
+            if _arm_is_placebo_typed(a) and _drug_named_in_arm(a)
+            and not any(_names_a_placebo(str(n))
+                        for n in (a.get("interventionNames") or []))
+            and not _label_declares_drug_not_placebo(a)]
+        if contradictory:
+            claimed_elsewhere = [
+                b for b in arms if b is not contradictory[0]
+                and (_label_declares_drug_not_placebo(b)
+                     or ("EXPERIMENTAL" in str(b.get("type") or "").upper()
+                         and _drug_named_in_arm(b)))]
+            if claimed_elsewhere:
+                return NOT_ASSESSABLE, (
+                    "the registration CONTRADICTS ITSELF: arm %r is typed %s and carries the "
+                    "topic drug with no placebo record, while arm %r declares the drug as its "
+                    "own. Reading that as 'given in both arms' would be a decision, not a "
+                    "reading." % (contradictory[0].get("label"), contradictory[0].get("type"),
+                                  claimed_elsewhere[0].get("label")))
+
+        # AN ARM WHOSE OWN LABEL SAYS IT IS THE DRUG ARM IS NOT A CONTROL ARM, whatever its
+        # type says. NCT01812707 (alirocumab) and NCT00320255 (apixaban) both type a DOSE arm
+        # PLACEBO_COMPARATOR while labelling it with the drug and the dose: read type-literally,
+        # the drug appears in "both" arms and the both-arms rule returns BACKGROUND on a
+        # straightforward dose-ranging trial against placebo. Withholding, again, and this time
+        # produced by the very rule written against withholding.
+        #
+        # `placebo/empagliflozin` is why the label test also requires the absence of a placebo
+        # word: that label names the drug AND declares itself a placebo arm, and it must stay a
+        # control arm or EASi-HF -- the case the both-arms rule exists for -- breaks.
+        # AND THE EXCLUSION APPLIES ONLY TO PLACEBO/SHAM-TYPED ARMS, which is the second time
+        # tonight a rule had to be narrowed by measurement rather than by argument.
+        #
+        # Applied to every control-ish type, this flipped 189 classifications corpus-wide and
+        # 150 OF THEM BELONGED TO ONE TOPIC -- `catheter ablation`, whose synonym set contains
+        # the bare word "ablation", which occurs in the arm labels of essentially every trial in
+        # the field, control arms included. A trial comparing cryoballoon ablation against
+        # conventional ablation genuinely has the intervention in both arms, and the rule was
+        # promoting it to `experimental`.
+        #
+        #     A CHECK THAT FIRES ON MOST OF ONE TOPIC IS MORE LIKELY BROKEN THAN THE TOPIC IS,
+        # and the concentration is what exposed it -- the count alone read as a large recovery.
+        #
+        # An ACTIVE_COMPARATOR arm labelled with the intervention is an ordinary control arm and
+        # says so. A PLACEBO-typed arm labelled `Alirocumab 150 mg Q2W` is the anomaly, because
+        # a placebo arm does not carry a dose of the active drug in its name.
+        #
+        # AND EVEN THAT WAS TOO WIDE, caught on the second measurement rather than the first.
+        # Five ablation trials are ADD-ON designs whose control arm is typed SHAM_COMPARATOR and
+        # labelled with the background procedure:
+        #     SHAM_COMPARATOR  'PVI alone'                  ['Other: Pulmonary vein isolation']
+        #     EXPERIMENTAL     'PVI and RDN'                [renal denervation, PVI]
+        # The label names the intervention because the control arm really does receive it; the
+        # randomised contrast is renal denervation. BACKGROUND was right and the exclusion was
+        # promoting them to `experimental` -- the OVER-counting direction, and on precisely the
+        # add-on designs the both-arms rule was built for.
+        #
+        # What separates the two: a mis-typed dose arm sits in a trial that ALSO has a real,
+        # drug-free placebo arm (NCT01812707 has 'Placebo'; NCT00320255 has 'Cohort 1: Placebo').
+        # An add-on sham design has none -- there is nothing else for the sham to be. So the
+        # exclusion requires a genuine placebo/sham arm to exist elsewhere in the trial.
+        _real_placebo_arm = any(_arm_is_placebo_typed(a) and not _drug_named_in_arm(a)
+                                for a in arms)
         ctrl_arms = [a for a in arms
                      if any(k in str(a.get("type") or "").upper()
-                            for k in ("COMPARATOR", "PLACEBO", "SHAM", "NO_INTERVENTION"))]
+                            for k in ("COMPARATOR", "PLACEBO", "SHAM", "NO_INTERVENTION"))
+                     and not (_real_placebo_arm and _arm_is_placebo_typed(a)
+                              and _label_declares_drug_not_placebo(a))]
         exp_hit = "EXPERIMENTAL" in hit_types
         ctrl_hit = any(_drug_named_in_arm(a) for a in ctrl_arms)
         if exp_hit and ctrl_hit:
@@ -274,7 +576,23 @@ def locate(study, syns):
         return BACKGROUND, "; ".join(hit_ev[:2])
 
     # 3. Named in the intervention list but tied to no arm -> background.
+    #
+    # SPLIT IN TWO 2026-08-19, because these were one branch and are two different facts.
+    # NCT00252005 (Botticelli DVT) is RANDOMIZED, PARALLEL, DOUBLE-blind, n=520, and declares
+    # NO armGroups AT ALL -- the key is absent from the payload. Apixaban is its only listed
+    # intervention. Returning "background_or_coadministered" there says the drug was given to
+    # everyone, which the record does not say; it says nothing, because the field is missing.
+    #
+    #   ABSENT INPUT IS NOT_ASSESSABLE, NEVER A VERDICT. The same law that governs the
+    #   preconditions governs the classifier, and this branch was breaking it.
+    #
+    # Where arms DO exist and the drug is attached to none of them, "tied to no arm" is a
+    # reading of a present field and BACKGROUND stands.
     if any(matches(b) for b in intr_index.values()):
+        if not arms:
+            return NOT_ASSESSABLE, (
+                "named in the intervention list, but the registration declares NO armGroups at "
+                "all -- role cannot be read from an absent field. NOT the same as background.")
         return BACKGROUND, "named in interventions, tied to no arm"
 
     # 4. Named ONLY in the title/registration record. NCT02789917 is exactly this case.
