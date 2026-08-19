@@ -1,3 +1,52 @@
+# DECIDED — `ablation-af-review` becomes THREE reviews
+
+> **RETIRED 2026-08-19, NOT DELETED.** The question below was real and the analysis under it
+> stands. What did not stand is its framing. Kept in full, with the decision at the top, because
+> a packet that asked the wrong question is worth more as a record than as an absence.
+
+## The decision, and why it is better than any option this packet offered
+
+**Mahmood's answer: build all three. Each becomes its own topic, with its own question, its own
+included set, its own search, cascade and screening.**
+
+| new topic | question | k | trials |
+|---|---|---:|---|
+| `ablation-af-medical-therapy` | catheter ablation vs medical rate- or rhythm-control therapy | **3** | CASTLE-AF, CABANA, RAFT-AF |
+| `early-rhythm-control-af` | early rhythm control vs usual care — **a rhythm-control review, not an ablation one** | **4** | CASTLE-AF, CABANA, EAST-AFNET 4, RAFT-AF |
+| `ablation-af-heart-failure` | ablation-based rhythm control in AF **with heart failure** | **2** | CASTLE-AF, RAFT-AF |
+
+**THE PACKET FRAMED THE PROBLEM THE WRONG WAY ROUND, AND ITS OWN SUMMARY TABLE SHOWS IT.** The
+comparison column below is headed `drops` — A drops EAST, B drops none but makes the topic name
+wrong, C drops CABANA and EAST. **Every row is a count of evidence discarded**, and the packet
+presented that as the axis of choice.
+
+> All three questions are legitimate. Each trial genuinely belongs to at least one of them.
+> There was no good answer because *"which do we keep"* has no good answer.
+>
+> **Choosing is a decision to withhold evidence from whichever readings lose, and nothing in
+> this project's guard set catches that.** A dropped trial leaves no trace in any object: it is
+> simply not there, and the page reads as complete.
+
+Three topics discard nothing and give each question its honest answer. Written into the standard
+as **P21**, because the same shape was already queued — `apixaban-vte` was blocked on TREATMENT
+(34) versus PREVENTION (33), two legitimate questions with near-equal evidence, and it is now to
+be built as two.
+
+**What this creates, and it is handled rather than tolerated: deliberate cross-topic sharing.**
+CASTLE-AF and RAFT-AF appear in all three; CABANA in two. Recorded on each object under
+**P22** — which other topics hold each trial and why — and every page states that a corpus-level
+k obtained by summing per-topic k double-counts.
+
+**One thing carries forward unchanged from the analysis below.** The four trials measure four
+different composites, and the object's own `poolable_reason` says so. That does not dissolve
+under the split: within `ablation-af-medical-therapy`, CASTLE-AF, CABANA and RAFT-AF still
+register three different primaries. **The split fixes the question, not the estimand**, and each
+new review reaches its own pooling decision on its own evidence rather than inheriting one.
+
+---
+
+# The original packet, as written
+
 # BLOCKED — `ablation-af-review` needs one decision from Mahmood
 
 **It is blocked on a judgement about what the review asks, not on retrieval.** Everything needed

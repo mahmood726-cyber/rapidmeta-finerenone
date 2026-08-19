@@ -1,6 +1,6 @@
 # The page standard, versioned
 
-**`PAGE_STANDARD_VERSION = "1.4.0-2026-08-19"`**
+**`PAGE_STANDARD_VERSION = "1.5.0-2026-08-19"`**
 
 Until tonight this standard existed only as practice and as one exemplary object
 (`arni-hfref`). It had **no version marker anywhere in the repo** — `grep` for `build_stamp`
@@ -42,6 +42,8 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P18 | **A restated quantity is reproducible by a command** | a number that has been corrected carries the COMMAND that re-derives it, and a gate that refuses the object when it stops reconciling. A `restated_*` note is a claim about a MOMENT and ages silently — its presence shows someone once looked, never that anyone looked last |
 | P19 | **A promotion reaches every derived block, or it is not applied** | when k, the included set, or the headline estimate changes, every quantity DERIVED from them moves in the same pass — prediction interval, estimator sensitivity, PRISMA flow, cascade `k_included`, and the published-meta comparison. A page carrying two answers is worse than a page carrying the old one |
 | P20 | **The cascade reconciles with itself** | `k2_role_located == k3 + k4 + k5`, and `k0 == k3 + k4 + k5 + kNA (+ kUNREACHABLE)`. A stage that does not reconcile with the stages beside it is a number the reader it was written for cannot check |
+| P21 | **An ambiguous question is built as several reviews, never chosen between** | where a topic's question admits more than one legitimate reading, **each reading becomes its own review** with its own question, criteria, search, cascade and screening. Choosing one is a decision to withhold evidence from every reading that loses, and it leaves no trace in any object |
+| P22 | **Deliberate trial sharing is recorded on both sides** | a trial legitimately appearing in more than one topic carries, on each object, **which other topics hold it and why**. Sharing is legitimate; unrecorded sharing is not. Every page that shares states that **a corpus-level k obtained by summing per-topic k double-counts** |
 
 ## Reading the remainder — the same number, opposite diagnoses
 
@@ -96,6 +98,39 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.5.0-2026-08-19
+Adds P21 and P22, from Mahmood's decision on `ablation-af-review` — **and the decision was
+better than any of the three options the packet offered.**
+
+**P21 — an ambiguous question is built as several reviews.** The packet framed the ablation
+question as a choice between three restatements, and tabulated each by *which trials it drops*:
+A drops EAST, B drops none but makes the topic name wrong, C drops CABANA and EAST. Every row of
+that table is a count of evidence discarded.
+
+> **The packet was well-built and it framed the problem the wrong way round.** All three
+> questions are legitimate, and each trial genuinely belongs to at least one of them. There was
+> no good answer because the question "which do we keep" had no good answer — **choosing is a
+> decision to withhold, and nothing in this guard set catches it.** Three reviews discard
+> nothing and give each question its honest answer.
+
+This is why it is a property and not a note on one topic: the same shape is already queued.
+`apixaban-vte` was blocked on TREATMENT versus PREVENTION over pools of 34 and 33 — **two
+legitimate questions with nearly equal evidence, where choosing discards one for no reason but
+tidiness.** Both are now to be built. `bococizumab-lipid` gets the same treatment if its
+truncation resolves into more than one real question, and a packet only if the question cannot
+be recovered from source at all.
+
+The rule does **not** license inventing readings. A reading qualifies when it traces to named
+registry fields of trials the corpus already holds, exactly as the three ablation candidates
+did.
+
+**P22 — deliberate sharing is recorded on both sides.** Splitting one topic into several makes
+cross-topic trial sharing intentional rather than accidental: CASTLE-AF and RAFT-AF will each
+appear in all three ablation reviews by design. Roughly a fifth of the corpus's registration
+identities are already shared across topics, so the rule was already needed and is now
+unavoidable. **Sharing is legitimate; unrecorded sharing is not**, and any corpus-level count
+computed by summing per-topic k double-counts — which every sharing page must say on its face.
 
 ### 1.4.0-2026-08-19
 Adds P18, P19, P20 and strengthens P10. All four come from **re-gating five topics that were
