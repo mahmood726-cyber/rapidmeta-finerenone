@@ -2227,5 +2227,751 @@
    "estimand_named",
    "contributes_a_randomised_contrast"
   ]
+ },
+ "screening_of_remainder": {
+  "alirocumab_2026_08_19": {
+   "screened_utc": "2026-08-19",
+   "criteria_status": "DERIVED POST HOC on 2026-08-19 from this object's own recorded question and estimand; NOT pre-specified. This object records no eligibility block.",
+   "method": "mechanical first pass keyed to named registry fields (scripts/screen_alirocumab_remainder.py); anything the rules could not settle is NEEDS_ADJUDICATION rather than guessed.",
+   "axes_kept_separate": "ELIGIBILITY is P/I/C. POOLABILITY is the estimand (LDL-C change at week 24). A trial can be fully eligible and report a different quantity.",
+   "status_checked_first": "The stronger-ground rule: a trial with no results is settled on status and its contestable limbs are not argued.",
+   "tally": {
+    "EXCLUDED": 33,
+    "ELIGIBLE_POOLABLE_NOT_INCLUDED": 2,
+    "ELIGIBLE_NO_RESULTS_YET": 26,
+    "ELIGIBLE_NOT_POOLABLE": 20
+   },
+   "trials": [
+    {
+     "nct": "NCT01448239",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.interventions",
+     "reason": "no placebo intervention is declared; interventions are ['alirocumab SAR236553 (REGN727)', 'alirocumab SAR236553 (REGN727)']."
+    },
+    {
+     "nct": "NCT03510884",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.interventions",
+     "reason": "no placebo intervention is declared; interventions are ['Alirocumab SAR236553 (REGN727)', 'Rosuvastatin', 'Atorvastatin']."
+    },
+    {
+     "nct": "NCT02642159",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "the control arm gives ['ezetimibe', 'fenofibrate', 'nicotinic acid'], an ACTIVE drug absent from the experimental arm. The contrast is alirocumab vs ezetimibe, not vs placebo -- a placebo is present as the blinding device in a double-dummy design."
+    },
+    {
+     "nct": "NCT02585778",
+     "acronym": null,
+     "verdict": "ELIGIBLE_POOLABLE_NOT_INCLUDED",
+     "axis": "POOLABILITY",
+     "criterion": "ESTIMAND MATCHES",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C AND reports LDL cholesterol at week 24: 'Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-t'. THIS TRIAL COULD JOIN THE POOL and is not in the object -- flagged for review, never silently dropped."
+    },
+    {
+     "nct": "NCT06791031",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status NOT_YET_RECRUITING, enrolment 212 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT03344692",
+     "acronym": "EUTERPE",
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "ESTIMAND",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C; primary is 'Total area under the post-prandial triglycerides concentration-time cu', which is not an LDL-cholesterol quantity."
+    },
+    {
+     "nct": "NCT03480568",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status RECRUITING, enrolment 20 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT01730040",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "the control arm gives ['atorvastatin', 'ezetimibe', 'rosuvastatin'], an ACTIVE drug absent from the experimental arm. The contrast is alirocumab vs atorvastatin, not vs placebo -- a placebo is present as the blinding device in a double-dummy design."
+    },
+    {
+     "nct": "NCT02584504",
+     "acronym": "ODYSSEY-NIPPON",
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "TIMEPOINT",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C and reports LDL cholesterol, but not at week 24: 'Percent Change From Baseline in Calculated LDL-C at Week 12- Intent to'. A different timepoint is a different estimand and s10.9 bars combining them."
+    },
+    {
+     "nct": "NCT03175367",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "the control arm gives ['evinacumab'], an ACTIVE drug absent from the experimental arm. The contrast is alirocumab vs evinacumab, not vs placebo -- a placebo is present as the blinding device in a double-dummy design."
+    },
+    {
+     "nct": "NCT05553834",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status ACTIVE_NOT_RECRUITING, enrolment 60 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT01670734",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.interventions",
+     "reason": "no placebo intervention is declared; interventions are ['alirocumab SAR236553 (REGN727)']."
+    },
+    {
+     "nct": "NCT02979015",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "ESTIMAND",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C; primary is 'Incidence of adverse events based on standard and systematic assessmen', which is not an LDL-cholesterol quantity."
+    },
+    {
+     "nct": "NCT02715726",
+     "acronym": "ODYSSEY EAST",
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "the control arm gives ['ezetimibe'], an ACTIVE drug absent from the experimental arm. The contrast is alirocumab vs ezetimibe, not vs placebo -- a placebo is present as the blinding device in a double-dummy design."
+    },
+    {
+     "nct": "NCT02938949",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "POPULATION",
+     "field_read": "conditionsModule.conditions",
+     "reason": "registered population is 'Myocardial Infarction; Hypercholesterolemia' -- not adults treated for hypercholesterolaemia."
+    },
+    {
+     "nct": "NCT01074372",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "POPULATION",
+     "field_read": "conditionsModule.conditions",
+     "reason": "registered population is 'Healthy Volunteers' -- not adults treated for hypercholesterolaemia."
+    },
+    {
+     "nct": "NCT01443650",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.interventions",
+     "reason": "no placebo intervention is declared; interventions are ['alirocumab SAR236553 (REGN727)']."
+    },
+    {
+     "nct": "NCT06080256",
+     "acronym": "EAST-aICAS",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status UNKNOWN, enrolment 80 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT01644188",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "the control arm gives ['ezetimibe'], an ACTIVE drug absent from the experimental arm. The contrast is alirocumab vs ezetimibe, not vs placebo -- a placebo is present as the blinding device in a double-dummy design."
+    },
+    {
+     "nct": "NCT03537742",
+     "acronym": "CAVIAR",
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "ESTIMAND",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C; primary is 'Plaque Volume', which is not an LDL-cholesterol quantity."
+    },
+    {
+     "nct": "NCT03273972",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.interventions",
+     "reason": "no placebo intervention is declared; interventions are ['Written Informed Consent', 'Inclusion/Exclusion check', 'Full Clinical Chemistry and Ha']."
+    },
+    {
+     "nct": "NCT01576484",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "ESTIMAND",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C; primary is 'Number of Participants Who Experienced Treatment Emergent Adverse Even', which is not an LDL-cholesterol quantity."
+    },
+    {
+     "nct": "NCT03634293",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status UNKNOWN, enrolment 712 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT01954394",
+     "acronym": "ODYSSEY OLE",
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.interventions",
+     "reason": "no placebo intervention is declared; interventions are ['Alirocumab', 'Lipid-Modifying Therapy (LMT)']."
+    },
+    {
+     "nct": "NCT01288443",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "TIMEPOINT",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C and reports LDL cholesterol, but not at week 24: 'Percent Change From Baseline in Calculated LDL-C at Week 12 - On-Treat'. A different timepoint is a different estimand and s10.9 bars combining them."
+    },
+    {
+     "nct": "NCT02957682",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "ESTIMAND",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C; primary is 'Change From Baseline in Cambridge Neuropsychological Test Automated Ba', which is not an LDL-cholesterol quantity."
+    },
+    {
+     "nct": "NCT01663402",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "ESTIMAND",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C; primary is 'Time to First Occurrence of Major Adverse Cardiovascular Event (MACE);', which is not an LDL-cholesterol quantity."
+    },
+    {
+     "nct": "NCT01785329",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.interventions",
+     "reason": "no placebo intervention is declared; interventions are ['alirocumab SAR236553 (REGN727)']."
+    },
+    {
+     "nct": "NCT05469347",
+     "acronym": "PALMS",
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "ESTIMAND",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C; primary is 'Bacterial endotoxin level', which is not an LDL-cholesterol quantity."
+    },
+    {
+     "nct": "NCT04731155",
+     "acronym": "PERFECT-AMI",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status RECRUITING, enrolment 20 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT06381947",
+     "acronym": "BESAFE",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status UNKNOWN, enrolment 130 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT03510715",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.interventions",
+     "reason": "no placebo intervention is declared; interventions are ['Alirocumab SAR236553 (REGN727)', 'Atorvastatin', 'Simvastatin']."
+    },
+    {
+     "nct": "NCT01266876",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "TIMEPOINT",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C and reports LDL cholesterol, but not at week 24: 'Percent Change From Baseline in Calculated LDL-C at Week 12 - On-treat'. A different timepoint is a different estimand and s10.9 bars combining them."
+    },
+    {
+     "nct": "NCT06385262",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status SUSPENDED, enrolment 126 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT03694197",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.interventions",
+     "reason": "no placebo intervention is declared; interventions are ['Praluent']."
+    },
+    {
+     "nct": "NCT07581808",
+     "acronym": "PCSK9-DUO",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status RECRUITING, enrolment 60 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT05043740",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status UNKNOWN, enrolment 1360 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT04851769",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "the control arm gives ['pcsk9 inhibitor plus statin', 'standard statin therapy'], an ACTIVE drug absent from the experimental arm. The contrast is alirocumab vs pcsk9 inhibitor plus statin, not vs placebo -- a placebo is present as the blinding device in a double-dummy design."
+    },
+    {
+     "nct": "NCT03718286",
+     "acronym": "EPIC STEMI",
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "POPULATION",
+     "field_read": "conditionsModule.conditions",
+     "reason": "registered population is 'ST Elevation Myocardial Infarction; Acute Coronary Syndrome;' -- not adults treated for hypercholesterolaemia."
+    },
+    {
+     "nct": "NCT02289963",
+     "acronym": null,
+     "verdict": "ELIGIBLE_POOLABLE_NOT_INCLUDED",
+     "axis": "POOLABILITY",
+     "criterion": "ESTIMAND MATCHES",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C AND reports LDL cholesterol at week 24: 'Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-t'. THIS TRIAL COULD JOIN THE POOL and is not in the object -- flagged for review, never silently dropped."
+    },
+    {
+     "nct": "NCT02890992",
+     "acronym": "ODYSSEY KIDS",
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.interventions",
+     "reason": "no placebo intervention is declared; interventions are ['alirocumab SAR236553 (REGN727)', 'statins', 'ezetimibe']."
+    },
+    {
+     "nct": "NCT02959047",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "ESTIMAND",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C; primary is 'Change in superficial femoral plaque volume (summed from both legs)', which is not an LDL-cholesterol quantity."
+    },
+    {
+     "nct": "NCT03507374",
+     "acronym": "PINNACLE",
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "POPULATION",
+     "field_read": "conditionsModule.conditions",
+     "reason": "registered population is 'Stroke; Intracranial Atherosclerosis; Intraplaque Hemorrhage' -- not adults treated for hypercholesterolaemia."
+    },
+    {
+     "nct": "NCT03529253",
+     "acronym": "ANTARES",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status UNKNOWN, enrolment 30 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT04613167",
+     "acronym": "GEBI",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status UNKNOWN, enrolment 70 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT07174375",
+     "acronym": "PCSK9-PROVE",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status NOT_YET_RECRUITING, enrolment 478 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT04189484",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "the control arm gives ['evolocumab'], an ACTIVE drug absent from the experimental arm. The contrast is alirocumab vs evolocumab, not vs placebo -- a placebo is present as the blinding device in a double-dummy design."
+    },
+    {
+     "nct": "NCT02941016",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status WITHDRAWN, enrolment 0 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT02992301",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status UNKNOWN, enrolment 35 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT03355027",
+     "acronym": "INTENSITY-HIGH",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status UNKNOWN, enrolment 60 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT01288469",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "TIMEPOINT",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C and reports LDL cholesterol, but not at week 24: 'Percent Change From Baseline in Calculated LDL-C at Week 8 - On-treatm'. A different timepoint is a different estimand and s10.9 bars combining them."
+    },
+    {
+     "nct": "NCT01026597",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "POPULATION",
+     "field_read": "conditionsModule.conditions",
+     "reason": "registered population is 'Healthy' -- not adults treated for hypercholesterolaemia."
+    },
+    {
+     "nct": "NCT04781322",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status RECRUITING, enrolment 100 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT06083961",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status NOT_YET_RECRUITING, enrolment 200 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT03552432",
+     "acronym": "ALTAIR",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status UNKNOWN, enrolment 24 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT02476006",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "ESTIMAND",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C; primary is 'Percentage of Participants With Treatment Emergent Adverse Events (TEA', which is not an LDL-cholesterol quantity."
+    },
+    {
+     "nct": "NCT01644474",
+     "acronym": "ODYSSEY MONO",
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "the control arm gives ['ezetimibe'], an ACTIVE drug absent from the experimental arm. The contrast is alirocumab vs ezetimibe, not vs placebo -- a placebo is present as the blinding device in a double-dummy design."
+    },
+    {
+     "nct": "NCT07704918",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status RECRUITING, enrolment 40 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT05001984",
+     "acronym": "TOPICAL-MRI",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status ACTIVE_NOT_RECRUITING, enrolment 60 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT05465278",
+     "acronym": "ARCHITECT",
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.interventions",
+     "reason": "no placebo intervention is declared; interventions are ['Alirocumab']."
+    },
+    {
+     "nct": "NCT03542110",
+     "acronym": "ASAP-SVG",
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "ESTIMAND",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C; primary is 'Nominal change in intermediate SVG lesion percent atheroma volume (PAV', which is not an LDL-cholesterol quantity."
+    },
+    {
+     "nct": "NCT02326220",
+     "acronym": "ODYSSEY ESCAPE",
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "ESTIMAND",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C; primary is 'Change in Standardized Rate of Apheresis Treatments From Week 7 to Wee', which is not an LDL-cholesterol quantity."
+    },
+    {
+     "nct": "NCT01448317",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "ESTIMAND",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C; primary is 'Number of participants with Adverse Events', which is not an LDL-cholesterol quantity."
+    },
+    {
+     "nct": "NCT02984982",
+     "acronym": "ODYSSEY J-IVUS",
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.interventions",
+     "reason": "no placebo intervention is declared; interventions are ['Alirocumab SAR236553', 'Atorvastatin', 'Rosuvastatin']."
+    },
+    {
+     "nct": "NCT04193306",
+     "acronym": "ACAV",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status UNKNOWN, enrolment 126 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT01448304",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.interventions",
+     "reason": "no placebo intervention is declared; interventions are ['alirocumab SAR236553 (REGN727)']."
+    },
+    {
+     "nct": "NCT07477704",
+     "acronym": "ASCEND-QW",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status RECRUITING, enrolment 420 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT01604824",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "TIMEPOINT",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C and reports LDL cholesterol, but not at week 24: 'Percent Change in Measured Serum Low-Density Lipoprotein Cholesterol ('. A different timepoint is a different estimand and s10.9 bars combining them."
+    },
+    {
+     "nct": "NCT01723735",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.interventions",
+     "reason": "no placebo intervention is declared; interventions are ['Alirocumab', 'Ezetimibe', 'Ezetimibe Placebo']."
+    },
+    {
+     "nct": "NCT03207945",
+     "acronym": "EPIC-HIV",
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "POPULATION",
+     "field_read": "conditionsModule.conditions",
+     "reason": "registered population is 'Dyslipidemias; Cardiovascular Diseases; HIV Infections' -- not adults treated for hypercholesterolaemia."
+    },
+    {
+     "nct": "NCT01926782",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "TIMEPOINT",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C and reports LDL cholesterol, but not at week 24: 'Percent Change From Baseline in Calculated LDL-C in Participants Not R'. A different timepoint is a different estimand and s10.9 bars combining them."
+    },
+    {
+     "nct": "NCT01709513",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "the control arm gives ['atorvastatin', 'ezetimibe'], an ACTIVE drug absent from the experimental arm. The contrast is alirocumab vs atorvastatin, not vs placebo -- a placebo is present as the blinding device in a double-dummy design."
+    },
+    {
+     "nct": "NCT04656028",
+     "acronym": "GENMOTIV-FH",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status ACTIVE_NOT_RECRUITING, enrolment 180 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT03415178",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.interventions",
+     "reason": "no placebo intervention is declared; interventions are ['Alirocumab SAR236553', 'Current auto-injector device (', 'New auto-injector device (SYDN']."
+    },
+    {
+     "nct": "NCT04968509",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status RECRUITING, enrolment 160 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT01959971",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "ESTIMAND",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C; primary is 'Percent change in Fractional Clearance Rate of apolipoprotein B (apoB)', which is not an LDL-cholesterol quantity."
+    },
+    {
+     "nct": "NCT05292404",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status RECRUITING, enrolment 160 -- no results to assess. Its P/I/C limbs are not argued, because an uncontestable ground is available."
+    },
+    {
+     "nct": "NCT03014830",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "the control arm gives ['placebos'], an ACTIVE drug absent from the experimental arm. The contrast is alirocumab vs placebos, not vs placebo -- a placebo is present as the blinding device in a double-dummy design."
+    },
+    {
+     "nct": "NCT03156621",
+     "acronym": "ODYSSEY HoFH",
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "TIMEPOINT",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C and reports LDL cholesterol, but not at week 24: 'Percent Change in Low-density Lipoprotein Cholesterol (LDL-C) From Bas'. A different timepoint is a different estimand and s10.9 bars combining them."
+    },
+    {
+     "nct": "NCT01730053",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "the control arm gives ['ezetimibe'], an ACTIVE drug absent from the experimental arm. The contrast is alirocumab vs ezetimibe, not vs placebo -- a placebo is present as the blinding device in a double-dummy design."
+    },
+    {
+     "nct": "NCT01161082",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.interventions",
+     "reason": "no placebo intervention is declared; interventions are ['REGN727(SAR236553)']."
+    }
+   ]
+  }
  }
 }
