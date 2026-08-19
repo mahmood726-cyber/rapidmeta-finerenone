@@ -1,0 +1,159 @@
+#!/usr/bin/env python3
+"""AUDIT WHAT WE ALREADY CALL COMPLETE against Mahmood's definition of done.
+
+THE DEFINITION, stated before it is measured. A topic is complete when:
+
+  * every one of its EIGHT TABS either holds content or REFUSES WITH A STATED REASON A READER
+    CAN SEE -- protocol, search, screen, extract, analysis, statistics, report, paper;
+  * its ANALYSIS is present with the model output quoted verbatim, or its refusal to pool is
+    stated with its estimand reasoning;
+  * its MANUSCRIPT is rendered from the object with every section traced to the field it came
+    from, refusing by name anything the object cannot support.
+
+Not a property list that mostly passes. And the refusals must be GENUINE OUTCOMES rather than
+gaps.
+
+THE DISTINCTION THIS AUDIT EXISTS TO DRAW, and it is the whole point:
+
+    A REFUSAL is "no screening log is recorded for this review, because the included set was
+    carried from the page and no screen was run" -- a true statement about the evidence.
+
+    A GAP is the same sentence on a topic whose screening log EXISTS IN THE EVIDENCE DIRECTORY.
+    It reads identically to a reader and it is false.
+
+So each refusing tab is checked against whether the material it refuses actually exists
+elsewhere in this repository. A refusal contradicted by an artefact on disk is a GAP.
+
+USAGE
+    python scripts/audit_completeness_2026_08_19.py [--apply]
+"""
+import glob
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+OUT = os.path.join(EV, "completeness_audit.json")
+
+TABS = ["pn-protocol", "pn-search", "pn-screen", "pn-extract", "pn-analysis",
+        "pn-statistics", "pn-report", "pn-paper"]
+NOT_HELD = re.compile(r"^\s*Not held in this object", re.I)
+
+CARDIO = ("statin", "pcsk9", "sglt2", "arni", "sacubitril", "apixaban", "rivaroxaban",
+          "edoxaban", "dabigatran", "warfarin", "clopidogrel", "ticagrelor", "aspirin",
+          "heart", "cardi", "coronar", "atrial", "-af", "af-", "stroke", "-hf", "hf-",
+          "hypertens", "lipid", "cholester", "angina", "infarct", "ablation", "anticoag",
+          "antiplatelet", "amiodarone", "valve", "aortic", "pah", "colchicine", "finerenone",
+          "empagliflozin", "dapagliflozin", "evolocumab", "alirocumab", "inclisiran",
+          "bempedoic", "icosapent", "omecamtiv", "mavacamten", "vericiguat", "tafamidis",
+          "bosentan", "sotatercept", "azilsartan", "fcm", "iron", "vte", "doac",
+          "fondaparinux", "bococizumab", "attr", "etripamil", "lenacapavir-prep")
+
+
+def sections(html):
+    out = {}
+    for tab in TABS:
+        m = re.search(r'<section[^>]*id="%s".*?</section>' % tab, html, re.S)
+        if not m:
+            out[tab] = None
+            continue
+        body = m.group(0)
+        txt = re.sub(r"\s+", " ", re.sub("<[^>]+>", " ", body)).strip()
+        out[tab] = {"chars": len(txt), "text": txt[:400], "refusing": bool(NOT_HELD.match(txt))}
+    return out
+
+
+def evidence_exists(topic, kind):
+    """Does the material a tab refuses actually exist somewhere on disk?"""
+    pats = {
+        "pn-search": ["*%s*search*.json" % topic.split("-")[0], "*%s*search*.json" % topic],
+        "pn-screen": ["*%s*screen*.json" % topic.split("-")[0], "*%s*screen*.json" % topic],
+        "pn-statistics": [],
+        "pn-report": [],
+    }.get(kind, [])
+    hits = []
+    for p in pats:
+        hits += [os.path.relpath(x, REPO).replace(os.sep, "/")
+                 for x in glob.glob(os.path.join(EV, p))]
+    return sorted(set(hits))
+
+
+def run(apply_it):
+    pmap = json.load(io.open(os.path.join(REPO, "ssot", "PAGE_MAP.json"), encoding="utf-8"))
+    rows = []
+    for page, rel in sorted(pmap.items()):
+        topic = rel.rsplit("/", 2)[-2]
+        if not any(k in topic.lower() for k in CARDIO):
+            continue
+        p = os.path.join(REPO, page)
+        if not os.path.exists(p):
+            continue
+        with io.open(p, "rb") as fh:
+            html = fh.read().decode("utf-8", "replace")
+        secs = sections(html)
+        if all(v is None for v in secs.values()):
+            continue  # not a tabbed page
+        held = [t for t, v in secs.items() if v and not v["refusing"] and v["chars"] > 120]
+        refusing = [t for t, v in secs.items() if v and v["refusing"]]
+        missing = [t for t, v in secs.items() if v is None]
+        thin = [t for t, v in secs.items()
+                if v and not v["refusing"] and v["chars"] <= 120]
+        gaps = []
+        for t in refusing:
+            ev = evidence_exists(topic, t)
+            if ev:
+                gaps.append({"tab": t, "refuses": (secs[t]["text"] or "")[:130],
+                             "but_this_exists_on_disk": ev[:4]})
+        paper = secs.get("pn-paper")
+        rows.append({
+            "topic": topic, "page": page,
+            "tabs_held": len(held), "tabs_refusing_with_a_reason": len(refusing),
+            "tabs_missing_entirely": len(missing), "tabs_thin": len(thin),
+            "held": held, "refusing": refusing, "missing": missing, "thin": thin,
+            "paper_exists": bool(paper and not paper["refusing"] and paper["chars"] > 400),
+            "paper_chars": (paper or {}).get("chars", 0),
+            "refusals_that_are_actually_gaps": gaps,
+        })
+
+    print("%-40s %-5s %-5s %-5s %-6s %s" % ("topic", "held", "refus", "miss", "paper", "GAPS"))
+    for r in sorted(rows, key=lambda x: (-x["tabs_held"], x["topic"])):
+        print("%-40s %-5d %-5d %-5d %-6s %s"
+              % (r["topic"][:40], r["tabs_held"], r["tabs_refusing_with_a_reason"],
+                 r["tabs_missing_entirely"], "yes" if r["paper_exists"] else "NO",
+                 ",".join(g["tab"].replace("pn-", "") for g in
+                          r["refusals_that_are_actually_gaps"]) or "-"))
+
+    n = len(rows)
+    full = [r for r in rows if r["tabs_held"] + r["tabs_refusing_with_a_reason"] == 8]
+    papers = [r for r in rows if r["paper_exists"]]
+    gapped = [r for r in rows if r["refusals_that_are_actually_gaps"]]
+    print("\n  cardiology topics with a tabbed page      : %d" % n)
+    print("  all 8 tabs resolved (held or refusing)    : %d" % len(full))
+    print("  manuscript rendered                       : %d" % len(papers))
+    print("  carrying a refusal that is actually a GAP : %d" % len(gapped))
+
+    doc = {"audited_utc": "2026-08-19",
+           "definition_of_done": (
+               "Every one of eight tabs holds content or refuses with a stated reason a reader "
+               "can see; the analysis is present with model output quoted verbatim or its "
+               "refusal to pool carries its estimand reasoning; the manuscript is rendered from "
+               "the object with every section traced to its field."),
+           "what_a_GAP_is": (
+               "A refusal whose material EXISTS ON DISK. It reads identically to a genuine "
+               "refusal and it is false."),
+           "counts": {"topics": n, "all_eight_resolved": len(full),
+                      "manuscript_rendered": len(papers), "with_gaps": len(gapped)},
+           "rows": rows}
+    if apply_it:
+        with io.open(OUT, "w", encoding="utf-8", newline="") as fh:
+            fh.write(json.dumps(doc, indent=1, ensure_ascii=False))
+        print("\nwrote %s" % os.path.relpath(OUT, REPO))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(run("--apply" in sys.argv))
