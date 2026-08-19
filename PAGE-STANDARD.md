@@ -49,6 +49,8 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P25 | **A pipe never interprets output it has not proved was produced** | any filter over a subprocess must assert the subprocess **succeeded** before reading its output, and an **empty result from a filter is NOT_ASSESSABLE, never a negative finding**. *A filter over a subprocess's output converts a loud failure into a quiet one* |
 | P26 | **An agreement rate is computed over independent answers only** | repetition by one instrument is not independence. Duplicate answers from a single seat are deduplicated before any agreement is counted, and a seat that returned nothing is **absent, not concurring** |
 | P27 | **A reframed question travels to every site that asks it** | when a rule is reframed, the reframing must reach **every place the old question is put — including prompts to other models and to humans**, not only the code that was fixed. A fix applied at one site is not a fix of the class, and a question is a site |
+| P28 | **A defective question invalidates every answer it produced, agreements first** | when a question is found unable to make a distinction, **every** answer to it is suspect — *especially the ones that agreed*, because agreement under a bad question is precisely what makes it look settled. A correction that stops at the cases that looked wrong is not a correction of the class |
+| P29 | **A filter asserts an expected count, not merely a successful exit** | any pipe over a subprocess checks `exit == 0` **and** that the filter yielded the expected number of results. An expected-count assertion is the only thing that distinguishes an **empty** result from a **discarded** one |
 
 ## Reading the remainder — the same number, opposite diagnoses
 
@@ -103,6 +105,51 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.10.0-2026-08-19
+Adds P28 and P29. **P28 records a correction to an instruction from the orchestrator, and the
+lane was right to refuse it.**
+
+**P28 — a defective question invalidates every answer it produced, agreements first.** The
+standing instruction for the cross-family adjudication was: *where both seats agree and a coded
+field settles it, spot-check rather than re-read.* That is sound in general and **wrong here**,
+because the question itself had already been shown defective.
+
+Sixteen of the sixty-two agreements were `A=YES, B=YES`, mapped ELIGIBLE. An **adjunct** trial
+with a `NO_INTERVENTION` control answers exactly that way — *"mental training vs no
+intervention, in patients who all had an ablation"* has an arm delivering ablation and an arm
+that is not itself an ablation. **The old question cannot distinguish that from
+ablation-against-usual-care**, and it fails in the direction that *admits* trials.
+
+Re-asked under the corrected question: **5 of the 16 flipped to EXCLUDED**, 3 held, 8 disputed.
+
+> **Agreement under a question that cannot make the distinction is not evidence about the
+> distinction.** It is the strongest-looking evidence available and it is worth nothing, which
+> is what makes it dangerous: the sixty-two were the answers nobody would have thought to
+> check.
+
+So: **a correction that stops at the cases that looked wrong is not a correction of the class.**
+When a question is found defective, its agreements are re-asked first, not last.
+
+**P29 — a filter asserts an expected count.** Third instance in one session of one shape. The
+`rc == 0` guard added an hour earlier **worked correctly** and the run still yielded nothing:
+Codex answered without the pipe separators the `grep` required, so a complete, correct answer
+set was discarded by the filter.
+
+| # | what happened | what it looked like |
+|---|---|---|
+| 1 | `codex exec` refused — untrusted directory | zero matching lines |
+| 2 | `ELIGIBLE_NOT_POOLABLE` branch unreachable | a disposition legitimately never used |
+| 3 | answers emitted in an unmatched format | a seat that returned nothing |
+
+> **Something that did not happen looks exactly like something that happened and found
+> nothing.** That names the class more precisely than "silence" does, and it is why an
+> expected-count assertion — not an exit code — is the discriminator.
+
+**And two device names read as the intervention.** Codex read `Device: EPICOR` (an *epicardial
+ultrasound* ablation system) and an oesophageal deviation catheter used *during* an ablation as
+the ablation itself. **A device used during an ablation is not the ablation, and the coded arms
+do not say so.** Same shape as the substring findings, now in device names.
 
 ### 1.9.0-2026-08-19
 Adds P27, and records an empirical asymmetry worth keeping.
