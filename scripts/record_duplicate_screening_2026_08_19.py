@@ -1,0 +1,144 @@
+#!/usr/bin/env python3
+"""DO THE FIRST OF THE FOUR: RECORD DUPLICATE SCREENING WHERE IT WAS ACTUALLY PERFORMED.
+
+THE MANUSCRIPT REFUSED THE CLAIM "records were screened in duplicate by two independent
+reviewers" ON ALL SEVEN PAGES, because no field carried it. Refusing was right; leaving it
+refused would not be, because ON SOME TOPICS IT WAS GENUINELY DONE.
+
+    Two INDEPENDENT MODEL FAMILIES screened the same records against the same criteria, blind
+    to each other, with per-record codes, an agreement rate, and a written adjudication
+    procedure for disagreements. That is duplicate screening with an adjudication procedure.
+    The reviewers are instruments rather than people, AND THE RECORD SAYS SO -- the claim made
+    here is the one that is true, not the one a reader might assume.
+
+WHAT IS WRITTEN, AND WHAT IS REFUSED, PER TOPIC:
+  * how many records were read by BOTH seats, and by which two families
+  * the agreement rate, and the vocabulary it was computed over (P34: the gap between a code
+    rate and a disposition rate measures the VOCABULARY, so both are reported with it)
+  * how disagreements were resolved
+  * WHERE ONLY ONE SEAT READ, THAT IS STATED AS SINGLE-READ. An absent second reading is
+    ABSENT, not concurring, and 88 records on the rhythm topic are exactly that.
+  * topics where no dual screen was run get NOTHING. They are listed as owed, and the honest
+    remedy is to RUN one, not to describe one.
+
+THE HONESTY CONSTRAINT THAT SHAPES EVERY SENTENCE HERE: a reader of "screened in duplicate"
+assumes two humans. So the field says `two_independent_model_families`, names them, and states
+the limitation in the same breath. A true claim phrased to be misread is not a true claim.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+
+FAMILIES = {"claude": "anthropic", "codex": "openai (GPT-5)", "agy": "google (Gemini 3.1 Pro)"}
+
+# topic -> the evidence file that records its dual screen, and how to read it.
+DUAL = {
+    "early-rhythm-control-af": {
+        "file": "rhythm_dual_read_recount.json",
+        "seats": ["codex", "agy"],
+        "both": "dual_read", "single": "agy_only",
+        "code": "code_agreement_pct", "disp": "disposition_agreement_pct",
+        "vocabulary": ["CONTRAST_RHYTHM", "RHYTHM_BOTH_ARMS", "RHYTHM_IN_ALL_ADJUNCT",
+                       "CONTRAST_RATE", "NO_RHYTHM", "NOT_ASSESSABLE"],
+        "resolution": (
+            "Disagreements are held as NEEDS_ADJUDICATION and hand-read against the "
+            "registration; 8 records where ONE SEAT CONTRADICTED ITSELF within its own answer "
+            "stream are NOT_ASSESSABLE for that seat and were not resolved by picking a side."),
+        "caveat": (
+            "Two of eight packets returned two lines instead of forty-four and are "
+            "NOT_ASSESSABLE. Their 88 records were read by ONE seat only and are reported as "
+            "SINGLE-READ, not as agreement."),
+    },
+    "ablation-af-review": {
+        "file": "ablation_adjudication.json",
+        "seats": ["codex", "agy"],
+        "both": "n_to_adjudicate", "single": None,
+        "n_agree": "n_agree",
+        "vocabulary": ["YES", "NO", "UNCLEAR"],
+        "resolution": (
+            "68 of 130 differed and were escalated; 25 hard contradictions were hand-read. "
+            "THE ADJUDICATION THEN FOUND THE QUESTION ITSELF WAS DEFECTIVE for 20 of those 25 "
+            "-- trials of something done AROUND an ablation every arm receives -- so the "
+            "agreement rate substantially measures the question's ambiguity rather than the "
+            "trials. The remaining 43 soft disagreements are RE-ASK, not backlog."),
+        "caveat": (
+            "Reported with P28 applied: a defective question invalidates every answer it "
+            "produced, AGREEMENTS FIRST. The 60 agreements are not treated as settled."),
+    },
+}
+
+# Topics with NO dual screen. Named so the absence is a record rather than a silence.
+OWED = ["sglt2-hf", "iv-iron-hf", "alirocumab-lipid", "attr-cm-review",
+        "bempedoic-acid-review", "ablation-af-heart-failure", "ablation-af-medical-therapy"]
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    out, wrote = {}, 0
+    for topic, spec in sorted(DUAL.items()):
+        p = os.path.join(EV, spec["file"])
+        if not os.path.exists(p):
+            print("%-28s NOT_ASSESSABLE -- %s absent" % (topic, spec["file"]))
+            continue
+        with io.open(p, encoding="utf-8") as fh:
+            d = json.load(fh)
+        both = d.get(spec["both"])
+        single = d.get(spec["single"]) if spec.get("single") else None
+        rec = {
+            "performed": True,
+            "reviewers": "two_independent_model_families",
+            "reviewers_are_not_people": (
+                "The two independent screens were performed by two MODEL FAMILIES, not by two "
+                "people. A reader of 'screened in duplicate' would ordinarily assume two human "
+                "reviewers, so this field says what was actually done. The families are "
+                "independent of each other in training and vendor, which is the property "
+                "duplicate screening is for; they are not independent of the criteria, which "
+                "one author wrote."),
+            "families": {s: FAMILIES[s] for s in spec["seats"]},
+            "blind": ("Each seat received the same packet and the same criteria and saw "
+                      "neither the other's answers nor that a second seat existed."),
+            "records_read_by_both": both,
+            "records_read_by_one_only_NOT_adjudicated": single,
+            "vocabulary": spec["vocabulary"],
+            "vocabulary_note": (
+                "P34 -- the gap between a code agreement rate and a disposition agreement rate "
+                "measures THIS vocabulary's granularity, not the instruments. The rate is "
+                "reported with the vocabulary that produced it and is NOT comparable across "
+                "topics with different vocabularies."),
+            "disagreement_resolution": spec["resolution"],
+            "caveat": spec["caveat"],
+            "source": "evidence/2026-08-19-batch1/%s" % spec["file"],
+        }
+        for k, src in (("code_agreement_pct", spec.get("code")),
+                       ("disposition_agreement_pct", spec.get("disp")),
+                       ("records_agreeing", spec.get("n_agree"))):
+            if src and d.get(src) is not None:
+                rec[k] = d[src]
+        out[topic] = rec
+        wrote += 1
+        print("%-28s DUPLICATE SCREENING RECORDED  both=%s  single=%s  code=%s%%"
+              % (topic, both, single, rec.get("code_agreement_pct", "n/a")))
+
+    for t in OWED:
+        out[t] = {"performed": False,
+                  "why": ("No second independent screen was run for this topic. This is "
+                          "recorded as OWED rather than described: the remedy is to RUN one, "
+                          "and writing a duplicate-screening sentence without one would be the "
+                          "defect this whole exercise exists to prevent."),
+                  "remedy": "run a blind second-family screen over this topic's surfaced set"}
+        print("%-28s OWED -- no dual screen run" % t)
+
+    dest = os.path.join(EV, "duplicate_screening.json")
+    with io.open(dest, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1))
+    print("\n%d topic(s) with duplicate screening RECORDED, %d OWED." % (wrote, len(OWED)))
+    print("wrote %s" % dest)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
