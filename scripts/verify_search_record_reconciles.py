@@ -62,10 +62,64 @@ def _ids(doc):
 def check(doc):
     """(verdict, detail, numbers) for one record."""
     key, ids = _ids(doc)
+    pages = doc.get("pages")
+
+    # A NULL CURSOR IS NOT A PROOF OF COMPLETENESS, and this is the check for it.
+    #
+    # Class 20 established that a LIVE next_page_token means the search is incomplete. Every
+    # search in this corpus then relied on the CONVERSE -- that a NULL token means it is
+    # complete. THE CONVERSE IS FALSE. On `acs-antiplatelet-review` the cursor returned null
+    # after 100 + 100 + 3 = 203 records against a reported totalCount of 430, leaving 227 the
+    # pagination never returned WHILE SAYING IT WAS DONE.
+    #
+    # On colchicine both proofs agreed -- 100 + 37 = 137 == totalCount, cursor null -- so the
+    # weaker one was never tested. THE PROOF IS THE SUM RECONCILED AGAINST totalCount; the null
+    # cursor is corroboration and never the proof.
+    #
+    # This runs even when the record lists no identifiers, because page counts and a total are
+    # enough to catch it and a record with neither is a different failure.
+    if isinstance(pages, list) and pages:
+        last = pages[-1] if isinstance(pages[-1], dict) else {}
+        # AN ABSENT TOKEN FIELD IS NOT A NULL ONE. A record that never wrote down what the
+        # cursor said has made no claim about completeness, and reading its silence as "the
+        # cursor said done" would convict it of a proof it never offered. Only an EXPLICIT
+        # null/exhausted token counts here; absent falls through to the identifier checks.
+        has_token_field = "next_page_token" in last
+        tok = str(last.get("next_page_token") or "").strip().lower()
+        cursor_done = has_token_field and ("null" in tok or "exhaust" in tok or tok == "none")
+        vals = []
+        for p in pages:
+            if isinstance(p, dict):
+                for r in RETURNED:
+                    if isinstance(p.get(r), int):
+                        vals.append(p[r])
+                        break
+        tot = None
+        for p in pages:
+            if isinstance(p, dict):
+                for t in TOTAL:
+                    if isinstance(p.get(t), int):
+                        tot = p[t]
+                        break
+            if tot is not None:
+                break
+        if tot is None:
+            for t in TOTAL:
+                if isinstance(doc.get(t), int):
+                    tot = doc[t]
+                    break
+        if cursor_done and vals and tot is not None and sum(vals) != tot:
+            return ("CURSOR_SAID_DONE_BUT_THE_SUM_DOES_NOT_RECONCILE",
+                    "the pages sum to %d against a reported total of %d -- %d record(s) the "
+                    "pagination never returned WHILE THE CURSOR REPORTED THE SEARCH COMPLETE. "
+                    "A null next_page_token is corroboration, never the proof."
+                    % (sum(vals), tot, tot - sum(vals)),
+                    {"sum_across_pages": sum(vals), "reported_total": tot,
+                     "shortfall": tot - sum(vals), "cursor": "null"})
+
     if not ids:
         return "NOT_ASSESSABLE", "the record lists no identifiers, so nothing can be checked " \
                                  "against it. THIS IS NOT A PASS.", {}
-    pages = doc.get("pages")
     page_sum = None
     if isinstance(pages, list) and pages:
         vals = []
@@ -154,6 +208,26 @@ def selftest():
     print("\n  AN UNEXHAUSTED CURSOR (class 20):")
     short = {"query": "q", "pmids": ["1", "2"], "pages": [{"returned": 2, "total_count": 523}]}
     ck("2 listed against a reported 523 -> REFUSED", check(short)[0], "REFUSED")
+
+    print("\n  A NULL CURSOR THAT DOES NOT RECONCILE IS ITS OWN VERDICT -- the real case that")
+    print("  falsified the proof every search in this corpus was relying on:")
+    acs = {"query": "q",
+           "pages": [{"returned": 100, "total_reported": 430, "next_page_token": "PRESENT"},
+                     {"returned": 100, "next_page_token": "PRESENT"},
+                     {"returned": 3, "next_page_token": "null -- the cursor is exhausted"}]}
+    ck("203 against a reported 430 with a null cursor is REFUSED",
+       check(acs)[0], "CURSOR_SAID_DONE_BUT_THE_SUM_DOES_NOT_RECONCILE")
+    ck("and it names the shortfall", check(acs)[2]["shortfall"], 227)
+    okc = {"query": "q",
+           "pages": [{"returned": 100, "total_reported": 137, "next_page_token": "PRESENT"},
+                     {"returned": 37, "next_page_token": "null -- the cursor is exhausted"}]}
+    ck("and colchicine's 137 == 137 with a null cursor does NOT trip this limb",
+       check(okc)[0] != "CURSOR_SAID_DONE_BUT_THE_SUM_DOES_NOT_RECONCILE", True)
+    print("  AN ABSENT TOKEN FIELD IS NOT A NULL ONE -- silence is not a claim:")
+    silent = {"query": "q", "pmids": ["1", "2"],
+              "pages": [{"returned": 2, "total_count": 523}]}
+    ck("a record that never wrote the token falls through to the identifier checks",
+       check(silent)[0], "REFUSED")
 
     print("\n  A RECORD THAT NAMES NOTHING CANNOT PASS:")
     ck("no identifier list -> NOT_ASSESSABLE",
