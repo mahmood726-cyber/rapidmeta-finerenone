@@ -404,12 +404,22 @@ python ssot/build_to_standard.py <topic>                  # object only, no HTML
 python scripts/project_topic_page.py <page> <object>      # REFUSES without a `render` list
 ```
 
-**Why this is an exposure and not just a note:** nothing in the repository records which module
-builds a page, so the knowledge lived only in a session. Recorded here now, but **not
-mechanised** — no check asserts that a shipped page was produced by a named, runnable command.
-The buildable form is a stamp on the page naming the module and argv that produced it, verified
-against a re-run. `build_tabbed.py` already emits a generator stamp (`_generator_stamp`), so the
-gap is the *verification*, not the recording.
+**Now PARTIAL — `scripts/generator_stamp_gate.py`.** `build_tabbed.py` already emitted an honest
+stamp (it reports DIRTY for uncommitted generator code and UNKNOWN when git is unavailable,
+rather than guessing), so the recording was never the gap. **The gap was the assertion**: nothing
+checked that the stamp on a shipped page named anything real.
+
+The gate asserts, on the page's actual bytes: the stamp is present; the commit it names
+**resolves** via `git cat-file -e`; it is not `UNKNOWN`; and a DIRTY stamp **blocks** rather than
+merely warning — a page built from uncommitted generator code cannot be reproduced from its
+stamp, and that sentence should be a gate, not prose a reader may or may not notice.
+
+- **Fires** on all four failure modes, each planted separately: no stamp; a stamp naming a
+  nonexistent commit (`deadbeef1`); `UNKNOWN`; and built-from-uncommitted
+- **Silent** the 3 gated pages → OK, exit 0
+- **MISSES, named rather than implied:** it asserts the stamp is **traceable**, not that it is
+  **true**. Re-running the generator and comparing bytes would settle it and costs a full page
+  build per page. That is the residual half of E8.
 
 ### E7. Asserted verdicts — a property whose value is a constant
 The general form of §8c. A `prop(REFUSING, "...")` or `prop(HELD, "...")` with no branch on

@@ -303,7 +303,32 @@ TOPIC_DATA = {
                  "k_cascade": {"k0_surfaced": 56, "k2_role_located": 56,
                                "k3_experimental": 46, "k4_comparator": 2,
                                "k5_background": 8, "kNA_not_assessable": 0,
-                               "k_included_in_object": 4, "k_unscreened_remainder": 10},
+                               "k_included_in_object": 4, "k_unscreened_remainder": 0,
+                               "k_unscreened_remainder_note_2026_08_19": (
+                                   "Was 10 after the placebo-discriminator restatement; all 10 "
+                                   "screened 2026-08-19, dispositions at "
+                                   "screening_of_remainder.sglt2_newly_unscreened_2026_08_19."),
+                               "remainder_dispositions": {
+                                   "EXCLUDED": 7, "ELIGIBLE_NOT_POOLABLE": 1,
+                                   "ELIGIBLE_NO_RESULTS_YET": 2,
+                                   "what_this_says": (
+                                       "SEVEN OF TEN FAIL A CRITERION, and six of those seven "
+                                       "fail on POPULATION -- acute myocardial infarction, "
+                                       "heart transplant, diabetic nephropathy, congenital "
+                                       "heart disease, acute decompensation. This is the "
+                                       "OPPOSITE distribution to iv-iron-hf, where 16 of 29 "
+                                       "were eligible. The surfacing query for this topic "
+                                       "reaches well beyond its population, and that is a fact "
+                                       "about the SEARCH rather than about the evidence."),
+                                   "most_consequential_exclusion": (
+                                       "EMPATHY (NCT05776043, n=1364) registers 'Time to first "
+                                       "event of adjudicated cardiovascular death, or "
+                                       "adjudicated hospitalization for heart failure' -- "
+                                       "EXACTLY this object's pooled estimand -- and is "
+                                       "excluded on POPULATION alone, its registered condition "
+                                       "being ACUTE decompensated heart failure where this "
+                                       "review says CHRONIC. It is the single trial most likely "
+                                       "to change this answer if that limb is ever widened.")}},
                  "primary_outcome_key": "harmonised_cvdeath_or_hhf",
                  "extraction": SGLT2_EXTRACTION},
     "bempedoic-acid-review": {"search": SEARCH, "prisma": PRISMA,
@@ -311,7 +336,18 @@ TOPIC_DATA = {
                                   "k0_surfaced": 21, "k2_role_located": 21,
                                   "k3_experimental": 16, "k4_comparator": 3,
                                   "k5_background": 2, "kNA_not_assessable": 0,
-                                  "k_included_in_object": 1, "k_unscreened_remainder": 1},
+                                  "k_included_in_object": 1, "k_unscreened_remainder": 0,
+                                  "k_unscreened_remainder_note_2026_08_19": (
+                                      "Was 1 after the placebo-discriminator restatement; "
+                                      "NCT05263778 screened 2026-08-19 and EXCLUDED on "
+                                      "INTERVENTION -- it randomises a bempedoic "
+                                      "acid/ezetimibe FIXED-DOSE COMBINATION against placebo, "
+                                      "so two agents differ between arms and no estimate is "
+                                      "attributable to bempedoic acid. Population (post-ACS, "
+                                      "not statin-intolerant) and outcome (LDL-C, not MACE) "
+                                      "also fail and are named rather than relied on. "
+                                      "Disposition at screening_of_remainder."
+                                      "bempedoic_newly_unscreened_2026_08_19.")},
                               "primary_outcome_key": "primary",
                               # None -> the inline block below, which IS this topic's own.
                               "extraction": None},

@@ -1,0 +1,148 @@
+#!/usr/bin/env python3
+"""Screen sglt2-hf's 10 and bempedoic-acid-review's 1 on the SAME THREE-WAY DISPOSITION.
+
+The three states, and why the third is not a courtesy:
+
+    EXCLUDED                 fails a stated eligibility criterion
+    ELIGIBLE_NOT_POOLABLE    meets P/I/C; the quantity it reports is not one this object pools
+    ELIGIBLE_NO_RESULTS_YET  recruiting / not yet recruiting / no results posted -- it has NOT
+                             been assessed and rejected, it has nothing to contribute yet
+
+On iv-iron-hf this split turned out to be the substantive result: 16 of 29 were ELIGIBLE and
+only 13 failed a criterion, so the evidence base was limited by ESTIMAND MATCH and by trials
+that had not reported -- not by eligibility. Filing them all as 'excluded' would have been the
+withholding class again, in prose.
+
+sglt2-hf's CRITERIA, quoted from screening.eligibility so each decision can be checked:
+    "a trial is in scope if it randomised adults with CHRONIC heart failure to an SGLT2
+     inhibitor against placebo on top of background therapy. It does NOT turn on which
+     analysis the trial reported, because section 3.2.4 cautions that making eligibility depend
+     on reported outcomes invites outcome reporting bias. What the measure governs is POOLING,
+     under section 10.9: only a time-to-first-event hazard ratio can be combined with the
+     others."
+  So for this topic ELIGIBILITY is P/I/C ONLY, and the outcome lives entirely on the pooling
+  axis. That separation is the topic's own and is preserved here rather than re-litigated.
+
+bempedoic-acid-review's CRITERIA: bempedoic acid vs placebo in STATIN-INTOLERANT patients,
+outcome MACE, effect measure HR.
+"""
+import io
+import json
+import os
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# nct, verdict, axis, criterion, field, reason
+SGLT2 = [
+ ("NCT03087773", "EXCLUDED", "ELIGIBILITY", "POPULATION", "conditionsModule.conditions",
+  "EMMY. Registered condition is 'Acute Myocardial Infarction' -- not chronic heart failure. "
+  "Empagliflozin vs placebo, n=476, COMPLETED. The intervention and comparator limbs pass; the "
+  "population limb does not."),
+ ("NCT04600921", "ELIGIBLE_NOT_POOLABLE", "POOLABILITY", "ESTIMAND (s10.9)",
+  "outcomesModule.primaryOutcomes",
+  "ERASE. Ertugliflozin vs placebo in HFrEF and HFmrEF -- MEETS P/I/C in full. Primary is "
+  "'Change in Number of Supraventricular Tachycardia / Ventricular Fibrillation Episodes': an "
+  "arrhythmia COUNT, not a time-to-first-event hazard ratio, so s10.9 forbids combining it. "
+  "n=55, TERMINATED. Eligible and unpoolable, which is a different fact from excluded."),
+ ("NCT05182658", "ELIGIBLE_NO_RESULTS_YET", "STATUS", "NOT YET REPORTED",
+  "statusModule.overallStatus",
+  "EMPA-REPAIR. Empagliflozin vs placebo, n=250, ACTIVE_NOT_RECRUITING -- no results posted. "
+  "Registers 'Hypertrophic Cardiomyopathy; Heart Failure'. Status settles it before the "
+  "population question has to be argued, and the weaker ground is not leaned on."),
+ ("NCT05321706", "EXCLUDED", "ELIGIBILITY", "POPULATION", "conditionsModule.conditions",
+  "DAPARHT. Registered conditions are 'Heart Transplant Failure; Kidney Failure' and the "
+  "primary is the chronic slope of eGFR. The randomised population is heart-transplant "
+  "recipients, not adults with chronic heart failure."),
+ ("NCT05424315", "EXCLUDED", "ELIGIBILITY", "POPULATION", "conditionsModule.conditions",
+  "DACAMI. Registered condition 'Anterior MI'. Dapagliflozin vs glucose tablet post-STEMI -- "
+  "an acute myocardial-infarction population, not chronic heart failure."),
+ ("NCT05776043", "EXCLUDED", "ELIGIBILITY", "POPULATION", "conditionsModule.conditions",
+  "EMPATHY, and THE MOST CONSEQUENTIAL EXCLUSION IN THIS SET, so the reason is given in full. "
+  "n=1364, and its primary is 'Time to first event of adjudicated cardiovascular death, or "
+  "adjudicated hospitalization for heart failure' -- EXACTLY the estimand this object pools, "
+  "so it would be poolable if it were eligible. It is excluded on POPULATION alone: the "
+  "registered condition is 'Acute Decompensated Heart Failure', and this review's criterion "
+  "says CHRONIC. That is a real and narrow distinction, not a technicality -- but it is also "
+  "the single trial most likely to change this answer if the population limb is ever widened "
+  "to admit acute decompensation. RECORDED HERE SO THAT DECISION IS VISIBLE RATHER THAN "
+  "BURIED IN A TALLY."),
+ ("NCT06082063", "EXCLUDED", "ELIGIBILITY", "INTERVENTION", "armsInterventionsModule.armGroups",
+  "Steno1. The experimental arm is a MULTIFACTORIAL BUNDLE -- aspirin, semaglutide, "
+  "sotagliflozin and finerenone together -- against standard intervention. Four agents differ "
+  "between arms, so no estimate is attributable to the SGLT2 inhibitor. This is the "
+  "one-arm-only defect that topic_identity.locate() was corrected for (pioglitazone plus "
+  "dapagliflozin): appearing in the experimental arm is not the same as being the contrast."),
+ ("NCT06217302", "EXCLUDED", "ELIGIBILITY", "POPULATION", "conditionsModule.conditions",
+  "SUGARNSALT. Registered as diabetic nephropathy / chronic kidney failure / type 1 diabetes, "
+  "with eGFR after wash-out as the primary. The randomised population is a renal one."),
+ ("NCT06955260", "ELIGIBLE_NO_RESULTS_YET", "STATUS", "NOT YET REPORTED",
+  "statusModule.overallStatus",
+  "EMPA-HEART-3. NOT_YET_RECRUITING, n=410. Registered condition is 'Congenital Heart "
+  "Disease', which would very likely fail the population limb -- but the trial has not "
+  "started, so there is nothing to assess and no need to decide it on weaker ground."),
+ ("NCT07038356", "EXCLUDED", "ELIGIBILITY", "POPULATION", "conditionsModule.conditions",
+  "EMPA-CON. Registered condition 'Acute Decompensated Heart Failure (ADHF)' -- same "
+  "population ground as EMPATHY. Its primary is a four-step hierarchical win ratio, which "
+  "s10.9 would bar from the pool in any case, so unlike EMPATHY nothing is lost by the "
+  "population call."),
+]
+
+BEMPEDOIC = [
+ ("NCT05263778", "EXCLUDED", "ELIGIBILITY", "INTERVENTION",
+  "armsInterventionsModule.interventions",
+  "Randomises 'Bempedoic Acid / Ezetimibe Oral Tablet' -- a FIXED-DOSE COMBINATION -- against "
+  "placebo. Two agents differ between the arms, so the estimate is not attributable to "
+  "bempedoic acid. That is the strongest and cleanest ground and it is the one used. Two "
+  "further limbs also fail and are named rather than relied on: the population is post-ACS "
+  "(NSTEMI/STEMI) rather than statin-intolerant, and the primary is LDL-C level rather than "
+  "MACE. n=500, status UNKNOWN."),
+]
+
+WHY = {
+    "screened_utc": "2026-08-19",
+    "axes_kept_separate": (
+        "ELIGIBILITY and POOLABILITY are recorded as separate verdicts. For sglt2-hf the topic's "
+        "own criteria put the outcome ENTIRELY on the pooling axis, citing Handbook s3.2.4: "
+        "making eligibility depend on reported outcomes invites outcome reporting bias. That "
+        "separation is the topic's and is preserved rather than re-litigated here."),
+    "third_state_why": (
+        "ELIGIBLE_NO_RESULTS_YET is neither eligible-and-assessed nor excluded. A trial that has "
+        "not reported has not been assessed and rejected, and recording it as excluded overstates "
+        "what the review has settled -- in the same direction the withholding class runs."),
+    "stronger_ground_rule": (
+        "Where more than one limb fails, the decision is recorded on the STRONGEST ground and the "
+        "others are named rather than leaned on. Where STATUS settles a trial, the population "
+        "question is not argued at all -- deciding a trial on a contestable limb when an "
+        "uncontestable one is available manufactures a firmer verdict than the evidence supports."),
+}
+
+
+def apply(topic, rows, key):
+    p = os.path.join(REPO, "ssot", topic, topic + ".json")
+    with io.open(p, encoding="utf-8") as fh:
+        obj = json.load(fh)
+    from collections import Counter
+    tally = Counter(r[1] for r in rows)
+    block = dict(WHY)
+    block["tally"] = dict(tally)
+    block["trials"] = [{"nct": n, "verdict": v, "axis": ax, "criterion": c,
+                        "field_read": f, "reason": r} for n, v, ax, c, f, r in rows]
+    scr = obj.setdefault("screening_of_remainder", {})
+    before = set(scr.keys())
+    scr[key] = block
+    assert before <= set(scr.keys()), "ADDS only"
+    with io.open(p, "w", encoding="utf-8", newline="") as fh:
+        fh.write(json.dumps(obj, indent=1, ensure_ascii=False) + "\n")
+    print("%-24s %s" % (topic, dict(tally)))
+    return tally
+
+
+def main():
+    a = apply("sglt2-hf", SGLT2, "sglt2_newly_unscreened_2026_08_19")
+    b = apply("bempedoic-acid-review", BEMPEDOIC, "bempedoic_newly_unscreened_2026_08_19")
+    assert sum(a.values()) == 10 and sum(b.values()) == 1
+    print("total screened: %d" % (sum(a.values()) + sum(b.values())))
+
+
+if __name__ == "__main__":
+    main()

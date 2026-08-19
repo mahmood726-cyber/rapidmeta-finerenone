@@ -594,7 +594,7 @@
   "k5_background": 2,
   "kNA_not_assessable": 0,
   "k_included_in_object": 1,
-  "k_unscreened_remainder": 1,
+  "k_unscreened_remainder": 0,
   "keyed_on": "registration id",
   "source": "evidence/2026-08-19-batch1/cascade.json",
   "k_unscreened_remainder_note": "Was 16. All 16 were screened on 2026-08-19 against the derived criteria block; 0 met all four limbs. See screening_of_remainder.",
@@ -613,7 +613,8 @@
    "newly_unscreened_ids": [
     "NCT05263778"
    ]
-  }
+  },
+  "k_unscreened_remainder_note_2026_08_19": "Was 1 after the placebo-discriminator restatement; NCT05263778 screened 2026-08-19 and EXCLUDED on INTERVENTION -- it randomises a bempedoic acid/ezetimibe FIXED-DOSE COMBINATION against placebo, so two agents differ between arms and no estimate is attributable to bempedoic acid. Population (post-ACS, not statin-intolerant) and outcome (LDL-C, not MACE) also fail and are named rather than relied on. Disposition at screening_of_remainder.bempedoic_newly_unscreened_2026_08_19."
  },
  "precondition_verdict_superseded": {
   "superseded_on": "2026-08-19",
@@ -763,11 +764,11 @@
   "properties": {
    "P1_executed_search": {
     "state": "HELD",
-    "reason": "2 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 1-trial unscreened remainder is stated as a number rather than omitted."
+    "reason": "2 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 0-trial unscreened remainder is stated as a number rather than omitted."
    },
    "P2_k_cascade": {
     "state": "HELD",
-    "reason": "k at every stage: surfaced 21, located 21, experimental 16, comparator 3, included 1, unscreened remainder 1."
+    "reason": "k at every stage: surfaced 21, located 21, experimental 16, comparator 3, included 1, unscreened remainder 0."
    },
    "P3_inclusion_criteria": {
     "state": "HELD",
@@ -1323,6 +1324,25 @@
      "mace_at_any_rank": [],
      "original_single_axis_verdict": "EXCLUDE",
      "original_single_axis_limb": "OUTCOME"
+    }
+   ]
+  },
+  "bempedoic_newly_unscreened_2026_08_19": {
+   "screened_utc": "2026-08-19",
+   "axes_kept_separate": "ELIGIBILITY and POOLABILITY are recorded as separate verdicts. For sglt2-hf the topic's own criteria put the outcome ENTIRELY on the pooling axis, citing Handbook s3.2.4: making eligibility depend on reported outcomes invites outcome reporting bias. That separation is the topic's and is preserved rather than re-litigated here.",
+   "third_state_why": "ELIGIBLE_NO_RESULTS_YET is neither eligible-and-assessed nor excluded. A trial that has not reported has not been assessed and rejected, and recording it as excluded overstates what the review has settled -- in the same direction the withholding class runs.",
+   "stronger_ground_rule": "Where more than one limb fails, the decision is recorded on the STRONGEST ground and the others are named rather than leaned on. Where STATUS settles a trial, the population question is not argued at all -- deciding a trial on a contestable limb when an uncontestable one is available manufactures a firmer verdict than the evidence supports.",
+   "tally": {
+    "EXCLUDED": 1
+   },
+   "trials": [
+    {
+     "nct": "NCT05263778",
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "INTERVENTION",
+     "field_read": "armsInterventionsModule.interventions",
+     "reason": "Randomises 'Bempedoic Acid / Ezetimibe Oral Tablet' -- a FIXED-DOSE COMBINATION -- against placebo. Two agents differ between the arms, so the estimate is not attributable to bempedoic acid. That is the strongest and cleanest ground and it is the one used. Two further limbs also fail and are named rather than relied on: the population is post-ACS (NSTEMI/STEMI) rather than statin-intolerant, and the primary is LDL-C level rather than MACE. n=500, status UNKNOWN."
     }
    ]
   }

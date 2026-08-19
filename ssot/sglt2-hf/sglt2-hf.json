@@ -2129,7 +2129,7 @@
   "k5_background": 8,
   "kNA_not_assessable": 0,
   "k_included_in_object": 4,
-  "k_unscreened_remainder": 10,
+  "k_unscreened_remainder": 0,
   "_why": "k is never one number. Each stage is what the instrument at that stage could actually decide.",
   "keyed_on": "registration id",
   "source": "evidence/2026-08-19-batch1/cascade.json",
@@ -2157,6 +2157,14 @@
     "NCT06955260",
     "NCT07038356"
    ]
+  },
+  "k_unscreened_remainder_note_2026_08_19": "Was 10 after the placebo-discriminator restatement; all 10 screened 2026-08-19, dispositions at screening_of_remainder.sglt2_newly_unscreened_2026_08_19.",
+  "remainder_dispositions": {
+   "EXCLUDED": 7,
+   "ELIGIBLE_NOT_POOLABLE": 1,
+   "ELIGIBLE_NO_RESULTS_YET": 2,
+   "what_this_says": "SEVEN OF TEN FAIL A CRITERION, and six of those seven fail on POPULATION -- acute myocardial infarction, heart transplant, diabetic nephropathy, congenital heart disease, acute decompensation. This is the OPPOSITE distribution to iv-iron-hf, where 16 of 29 were eligible. The surfacing query for this topic reaches well beyond its population, and that is a fact about the SEARCH rather than about the evidence.",
+   "most_consequential_exclusion": "EMPATHY (NCT05776043, n=1364) registers 'Time to first event of adjudicated cardiovascular death, or adjudicated hospitalization for heart failure' -- EXACTLY this object's pooled estimand -- and is excluded on POPULATION alone, its registered condition being ACUTE decompensated heart failure where this review says CHRONIC. It is the single trial most likely to change this answer if that limb is ever widened."
   }
  },
  "precondition_verdict": {
@@ -2340,11 +2348,11 @@
   "properties": {
    "P1_executed_search": {
     "state": "HELD",
-    "reason": "3 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 10-trial unscreened remainder is stated as a number rather than omitted."
+    "reason": "3 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 0-trial unscreened remainder is stated as a number rather than omitted."
    },
    "P2_k_cascade": {
     "state": "HELD",
-    "reason": "k at every stage: surfaced 56, located 56, experimental 46, comparator 2, included 4, unscreened remainder 10."
+    "reason": "k at every stage: surfaced 56, located 56, experimental 46, comparator 2, included 4, unscreened remainder 0."
    },
    "P3_inclusion_criteria": {
     "state": "HELD",
@@ -2827,7 +2835,100 @@
     "poolable_reason": "reports no time-to-first-event hazard ratio at any of 14 ranks. Its registered primary is 'Composite rate of cardiovascular disease mortality and recurrent heart failure hospitalizations over study dur' -- a different quantity, which s10.9 does not permit combining. THIS IS NOT AN ELIGIBILITY FAILURE."
    }
   ],
-  "evidence_file": "evidence/2026-08-19-batch1/sglt2_screening.json"
+  "evidence_file": "evidence/2026-08-19-batch1/sglt2_screening.json",
+  "sglt2_newly_unscreened_2026_08_19": {
+   "screened_utc": "2026-08-19",
+   "axes_kept_separate": "ELIGIBILITY and POOLABILITY are recorded as separate verdicts. For sglt2-hf the topic's own criteria put the outcome ENTIRELY on the pooling axis, citing Handbook s3.2.4: making eligibility depend on reported outcomes invites outcome reporting bias. That separation is the topic's and is preserved rather than re-litigated here.",
+   "third_state_why": "ELIGIBLE_NO_RESULTS_YET is neither eligible-and-assessed nor excluded. A trial that has not reported has not been assessed and rejected, and recording it as excluded overstates what the review has settled -- in the same direction the withholding class runs.",
+   "stronger_ground_rule": "Where more than one limb fails, the decision is recorded on the STRONGEST ground and the others are named rather than leaned on. Where STATUS settles a trial, the population question is not argued at all -- deciding a trial on a contestable limb when an uncontestable one is available manufactures a firmer verdict than the evidence supports.",
+   "tally": {
+    "EXCLUDED": 7,
+    "ELIGIBLE_NOT_POOLABLE": 1,
+    "ELIGIBLE_NO_RESULTS_YET": 2
+   },
+   "trials": [
+    {
+     "nct": "NCT03087773",
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "POPULATION",
+     "field_read": "conditionsModule.conditions",
+     "reason": "EMMY. Registered condition is 'Acute Myocardial Infarction' -- not chronic heart failure. Empagliflozin vs placebo, n=476, COMPLETED. The intervention and comparator limbs pass; the population limb does not."
+    },
+    {
+     "nct": "NCT04600921",
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "ESTIMAND (s10.9)",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "ERASE. Ertugliflozin vs placebo in HFrEF and HFmrEF -- MEETS P/I/C in full. Primary is 'Change in Number of Supraventricular Tachycardia / Ventricular Fibrillation Episodes': an arrhythmia COUNT, not a time-to-first-event hazard ratio, so s10.9 forbids combining it. n=55, TERMINATED. Eligible and unpoolable, which is a different fact from excluded."
+    },
+    {
+     "nct": "NCT05182658",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "EMPA-REPAIR. Empagliflozin vs placebo, n=250, ACTIVE_NOT_RECRUITING -- no results posted. Registers 'Hypertrophic Cardiomyopathy; Heart Failure'. Status settles it before the population question has to be argued, and the weaker ground is not leaned on."
+    },
+    {
+     "nct": "NCT05321706",
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "POPULATION",
+     "field_read": "conditionsModule.conditions",
+     "reason": "DAPARHT. Registered conditions are 'Heart Transplant Failure; Kidney Failure' and the primary is the chronic slope of eGFR. The randomised population is heart-transplant recipients, not adults with chronic heart failure."
+    },
+    {
+     "nct": "NCT05424315",
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "POPULATION",
+     "field_read": "conditionsModule.conditions",
+     "reason": "DACAMI. Registered condition 'Anterior MI'. Dapagliflozin vs glucose tablet post-STEMI -- an acute myocardial-infarction population, not chronic heart failure."
+    },
+    {
+     "nct": "NCT05776043",
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "POPULATION",
+     "field_read": "conditionsModule.conditions",
+     "reason": "EMPATHY, and THE MOST CONSEQUENTIAL EXCLUSION IN THIS SET, so the reason is given in full. n=1364, and its primary is 'Time to first event of adjudicated cardiovascular death, or adjudicated hospitalization for heart failure' -- EXACTLY the estimand this object pools, so it would be poolable if it were eligible. It is excluded on POPULATION alone: the registered condition is 'Acute Decompensated Heart Failure', and this review's criterion says CHRONIC. That is a real and narrow distinction, not a technicality -- but it is also the single trial most likely to change this answer if the population limb is ever widened to admit acute decompensation. RECORDED HERE SO THAT DECISION IS VISIBLE RATHER THAN BURIED IN A TALLY."
+    },
+    {
+     "nct": "NCT06082063",
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "INTERVENTION",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "Steno1. The experimental arm is a MULTIFACTORIAL BUNDLE -- aspirin, semaglutide, sotagliflozin and finerenone together -- against standard intervention. Four agents differ between arms, so no estimate is attributable to the SGLT2 inhibitor. This is the one-arm-only defect that topic_identity.locate() was corrected for (pioglitazone plus dapagliflozin): appearing in the experimental arm is not the same as being the contrast."
+    },
+    {
+     "nct": "NCT06217302",
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "POPULATION",
+     "field_read": "conditionsModule.conditions",
+     "reason": "SUGARNSALT. Registered as diabetic nephropathy / chronic kidney failure / type 1 diabetes, with eGFR after wash-out as the primary. The randomised population is a renal one."
+    },
+    {
+     "nct": "NCT06955260",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "EMPA-HEART-3. NOT_YET_RECRUITING, n=410. Registered condition is 'Congenital Heart Disease', which would very likely fail the population limb -- but the trial has not started, so there is nothing to assess and no need to decide it on weaker ground."
+    },
+    {
+     "nct": "NCT07038356",
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "POPULATION",
+     "field_read": "conditionsModule.conditions",
+     "reason": "EMPA-CON. Registered condition 'Acute Decompensated Heart Failure (ADHF)' -- same population ground as EMPATHY. Its primary is a four-step hierarchical win ratio, which s10.9 would bar from the pool in any case, so unlike EMPATHY nothing is lost by the population call."
+    }
+   ]
+  }
  },
  "precondition_verdict_superseded": {
   "superseded_on": "2026-08-19",
