@@ -1,0 +1,57 @@
+{
+  "topic": "dabigatran-vte-review",
+  "executed_utc": "2026-08-19",
+  "state": "COMPLETE -- AND THE PROOF IS THE RECONCILIATION, NOT THE CURSOR",
+  "database": "ClinicalTrials.gov API v2",
+  "tool": "mcp__plugin_bio-research_c-trials__search_trials",
+  "query_as_executed": "intervention=\"dabigatran\"; condition=\"venous thromboembolism OR deep vein thrombosis OR pulmonary embolism\"; study_type=INTERVENTIONAL; page_size=100; count_total=true",
+  "query_was_built_from_the_DRUG_not_the_CONTRAST": "P41. The review's trials compare dabigatran against warfarin, against enoxaparin and against placebo. A query naming any of those comparators could only return the set already held.",
+
+  "pages": [
+    {"page": 1, "returned": 38, "total_reported": 38, "next_page_token": "null -- the cursor is exhausted"}
+  ],
+  "records_returned": 38,
+  "total_reported": 38,
+  "distinct": 38,
+  "pagination_verified": "38 == 38. THE SUM RECONCILES AGAINST totalCount, AND THAT IS THE PROOF. The null cursor agrees with it and is corroboration only -- on `acs-antiplatelet-review` the cursor said done at 203 against a reported 430, so a null token is no longer accepted as evidence of completeness anywhere in this corpus.",
+
+  "RECALL_2_OF_4_AND_BOTH_MISSES_ARE_FINDINGS": {
+    "surfaced": {
+      "NCT00329238": "RE-MEDY -- secondary prevention of VTE, dabigatran vs warfarin",
+      "NCT02913326": "RE-SPECT CVT -- cerebral venous and dural sinus thrombosis"
+    },
+    "NOT_SURFACED": {
+      "NCT01505881": "Follow-on study from RE-ALIGN",
+      "NCT00168805": "RE-MODEL"
+    },
+
+    "MISS_1_IS_NOT_A_RECALL_FAILURE_IT_IS_A_FINDING_ABOUT_THE_REVIEW": {
+      "trial": "NCT01505881",
+      "what_it_actually_is": "'Follow on Study From RE-ALIGN', coded conditions ['Thromboembolism', 'Heart Valve Prosthesis'], arms dabigatran at three doses against warfarin at three doses.",
+      "THE_POINT": "IT IS A MECHANICAL HEART VALVE TRIAL. Not venous thromboembolism, not deep vein thrombosis, not pulmonary embolism. The condition filter excluded it CORRECTLY, and its absence from a VTE search is the search working rather than failing.",
+      "and_this_review_holds_it": "The object includes it as one of four trials, and its registered primary is 'Percentage of Patients With Any Adverse Event (AE)' -- which the object already names as the reason nothing pools. THE SEARCH NOW ADDS THE SHARPER REASON: the trial is not of this review's population at all. A pure safety tally in a prosthetic-valve population was being carried in a venous thromboembolism review.",
+      "what_this_does_NOT_authorise": "It does not remove the trial. Removing it is a screening decision on a screened set, and no screening has been done. The finding is RECORDED so the screen that follows meets it."
+    },
+
+    "MISS_2_IS_THE_QUERY_TERM_NARROWER_THAN_THE_CODED_FIELD": {
+      "trial": "NCT00168805",
+      "what_it_is": "RE-MODEL -- dabigatran versus enoxaparin for VTE prevention after total knee replacement.",
+      "why_it_was_missed": "Its coded conditions are ['Arthroplasty, Replacement, Knee', 'Thromboembolism']. The query asked for 'venous thromboembolism', 'deep vein thrombosis' or 'pulmonary embolism'; the registry codes it as the BROADER 'Thromboembolism'. THE QUERY TERM IS NARROWER THAN THE FIELD IT FILTERS.",
+      "the_class": "P42/P23. The coded field is correct and does not match the term asked of it. Note that RE-MEDY and RE-SPECT CVT are ALSO coded 'Thromboembolism' and WERE surfaced -- because they carry no second condition that anchors them elsewhere, and the API's synonym expansion reached them. The behaviour is not uniform across records that share a coded condition, which is itself worth knowing.",
+      "RECORDED_NOT_REPLACED": "P23. The query is not widened to recover RE-MODEL. A query widened until it returns the answer already held cannot discover anything, and the miss is the only honest measure of recall this search has."
+    }
+  },
+
+  "WHAT_THE_SURFACED_SET_SHOWS_WITHOUT_COUNTING_IT": {
+    "_status": "Observations on the surfaced set. NOT counts, NOT dispositions -- nothing has been screened and no arm roles have been read.",
+    "the_38_contain_at_least_four_distinguishable_questions": "ACUTE TREATMENT of symptomatic VTE (RE-COVER NCT00291330 n=2,564; RE-COVER II NCT00680186 n=2,589); EXTENDED SECONDARY PREVENTION (RE-MEDY NCT00329238 n=2,867 against warfarin; RE-SONATE NCT00558259 n=1,353 against PLACEBO); SURGICAL PROPHYLAXIS after hip or knee replacement (RE-NOVATE NCT00168818 n=3,494; RE-NOVATE II NCT00657150 n=2,055; NCT00152971 n=2,615); and CEREBRAL VENOUS THROMBOSIS (RE-SPECT CVT, and three more). A P21 decision is now askable and IS NOT MADE HERE -- it belongs on a screened set.",
+    "and_the_review_currently_holds_none_of_the_two_largest_treatment_trials": "RE-COVER and RE-COVER II are the acute-treatment anchors of this drug's VTE programme and neither is in the object."
+  },
+
+  "what_has_NOT_been_done": [
+    "NO screening. Not one of the 38 has been dispositioned and no arm roles have been read.",
+    "NO cascade, no PRISMA, no criteria, no estimand screen.",
+    "NO PubMed limb.",
+    "NO P21 decision, and no object or page has been built or changed."
+  ]
+}
