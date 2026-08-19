@@ -679,6 +679,42 @@ def _outcome_section(canon, oid, p, e):
             # object holds the reasoning and the reader is shown the number.
             + ((f"  <p>{p(res['poolable_reason'])}</p>" + NL)
                if res.get("poolable_reason") else "")
+            # WHAT THE CHECK CHANGED -- including when it changed almost nothing.
+            #
+            # A review that reports only the checks which MOVED a number teaches a reader that
+            # checking is worthwhile when it pays, which is the opposite of the lesson. On
+            # bococizumab an executed search found a sixth trial and moved the pooled estimate
+            # by 0.22 percentage points -- and BEFORE that search nobody could distinguish
+            # "right" from "unexamined and lucky", because from the outside the two are
+            # identical. A CONFIRMATION IS A RESULT, and it needs somewhere on the page to be
+            # one.
+            + (("  <div class='card warn'><h3>%s</h3>"
+                "<table><tr><th></th><th>k</th><th>n</th><th>estimate</th><th>I&sup2;</th>"
+                "</tr>"
+                "<tr><td>before the check</td><td class='num'>%s</td><td class='num'>%s</td>"
+                "<td class='num'>%s (%s to %s)</td><td class='num'>%s%%</td></tr>"
+                "<tr><td>after</td><td class='num'>%s</td><td class='num'>%s</td>"
+                "<td class='num'>%s (%s to %s)</td><td class='num'>%s%%</td></tr></table>"
+                "<p>%s</p><p><strong>%s</strong></p><p><small>%s</small></p></div>" + NL)
+               % (p(res["what_the_check_changed"].get("headline", "")),
+                  fmt(res["what_the_check_changed"]["old"].get("k")),
+                  fmt(res["what_the_check_changed"]["old"].get("n")),
+                  fmt(res["what_the_check_changed"]["old"].get("md")),
+                  fmt(res["what_the_check_changed"]["old"].get("ci_low")),
+                  fmt(res["what_the_check_changed"]["old"].get("ci_high")),
+                  fmt(res["what_the_check_changed"]["old"].get("i2")),
+                  fmt(res["what_the_check_changed"]["new"].get("k")),
+                  fmt(res["what_the_check_changed"]["new"].get("n")),
+                  fmt(res["what_the_check_changed"]["new"].get("md")),
+                  fmt(res["what_the_check_changed"]["new"].get("ci_low")),
+                  fmt(res["what_the_check_changed"]["new"].get("ci_high")),
+                  fmt(res["what_the_check_changed"]["new"].get("i2")),
+                  p(res["what_the_check_changed"].get("what_moved", "")),
+                  p(res["what_the_check_changed"].get(
+                      "why_that_is_a_finding_and_not_a_null_result", "")),
+                  p(res["what_the_check_changed"].get("the_third_direction", "")))
+               if isinstance(res.get("what_the_check_changed"), dict)
+               and res["what_the_check_changed"].get("old") else "")
             + ((f"  <p><strong>How to read this:</strong> "
                 f"{p(res['interpretation_caveat'])}</p>" + NL)
                if res.get("interpretation_caveat") else "")

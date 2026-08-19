@@ -29,6 +29,7 @@ from ivi_topic_data import IVI_CASCADE, IVI_EXTRACTION, IVI_PRISMA, IVI_SEARCH
 from apx_topic_data import APX_CASCADE, APX_EXTRACTION, APX_PRISMA, APX_SEARCH
 from apx_split_topic_data import (APXP_CASCADE, APXP_EXTRACTION, APXP_PRISMA, APXP_SEARCH,
                                   APXT_CASCADE, APXT_EXTRACTION, APXT_PRISMA, APXT_SEARCH)
+from boco_topic_data import BOCO_CASCADE, BOCO_EXTRACTION, BOCO_PRISMA, BOCO_SEARCH
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 PAGE_STANDARD_VERSION = "1.14.0-2026-08-19"
@@ -515,6 +516,12 @@ TOPIC_DATA = {
                                   "k_cascade": ABHF_CASCADE,
                                   "primary_outcome_key": "primary",
                                   "extraction": ABHF_EXTRACTION},
+    # SEARCHED FOR THE FIRST TIME 2026-08-19, years after its included set existed on a page.
+    # Its estimate was already correct; nothing about the page could have said so.
+    "bococizumab-lipid-review": {"search": BOCO_SEARCH, "prisma": BOCO_PRISMA,
+                                 "k_cascade": BOCO_CASCADE,
+                                 "primary_outcome_key": "ldlc_pct_change_wk12",
+                                 "extraction": BOCO_EXTRACTION},
     "iv-iron-hf": {"search": IVI_SEARCH, "prisma": IVI_PRISMA,
                    "k_cascade": IVI_CASCADE,
                    "primary_outcome_key": "hfh_cvd_recurrent",

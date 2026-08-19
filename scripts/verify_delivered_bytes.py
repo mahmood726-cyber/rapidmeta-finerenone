@@ -67,6 +67,7 @@ PAGES = {
     "early-rhythm-control-af": "EARLY_RHYTHM_CONTROL_AF_REVIEW.html",
     "apixaban-vte-treatment": "APIXABAN_VTE_TREATMENT_REVIEW.html",
     "apixaban-vte-prophylaxis": "APIXABAN_VTE_PROPHYLAXIS_REVIEW.html",
+    "bococizumab-lipid-review": "BOCOCIZUMAB_LIPID_REVIEW.html",
 }
 
 FAIL, NA, OK, STALE = "FAIL", "NOT_ASSESSABLE", "OK", "STALE"
