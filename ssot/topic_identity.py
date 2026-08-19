@@ -316,6 +316,48 @@ def _hay(*parts):
     return " ".join(str(p or "") for p in parts).lower()
 
 
+class TermsMustBeACollection(TypeError):
+    """A bare string was passed where a collection of terms is required.
+
+    A STRING IS A SEQUENCE OF CHARACTERS, so `any(s in blob for s in syns)` with
+    `syns="bococizumab"` asks whether the text contains the letter "b", or "o", or "c".
+    Every arm of every trial matches. Nothing raises, nothing is null, nothing is malformed,
+    and the function returns a COMPLETE AND PLAUSIBLE SET OF VERDICTS THAT ARE ALL WRONG.
+
+    FOUND 2026-08-19 on `bococizumab-lipid-review`. `locate(study, "bococizumab")` classified
+    SPIRE-SI (NCT02135029) as background_or_coadministered because its ATORVASTATIN arm
+    "contained bococizumab" on the strength of its letters -- excluding one of the review's own
+    five included trials. The cascade read 17 experimental / 0 comparator / 0 background /
+    5 not-assessable, which is a perfectly ordinary-looking cascade.
+
+        IT WAS CAUGHT ONLY BECAUSE A KNOWN INCLUDED TRIAL FELL OUT. There was no other
+        symptom, and there could not have been: the wrong answer has the right shape.
+
+    Deliberately an exception and not a verdict, on the same discipline as
+    `ctgov_transport.WrongPayloadShape`: an instrument that cannot read its input must stop the
+    run, not emit a number. The guard is at the ENTRY POINT because that is the only place it
+    cannot be forgotten -- a rule written in a docstring is a rule the next caller does not read.
+    """
+
+
+def require_terms(value, param_name, func_name):
+    """Refuse a bare string where a collection of terms is required. Returns the value.
+
+    `str` and `bytes` only. Anything else iterable is accepted, because the defect is
+    specifically that a string is silently iterable CHARACTER-WISE -- a tuple, set, list or
+    generator of terms all behave as intended.
+    """
+    if isinstance(value, (str, bytes)):
+        raise TermsMustBeACollection(
+            "%s(%s=...) was given the bare string %r. A string is a sequence of CHARACTERS, so "
+            "every membership test inside would match on single letters and the function would "
+            "return complete, plausible, wrong output. Pass a collection of terms -- for a "
+            "topic, `topic_identity.TOPIC_SYNONYMS[%r]` or `synonyms_for(...)`."
+            % (func_name, param_name, value,
+               value if isinstance(value, str) else value.decode("utf-8", "replace")))
+    return value
+
+
 def locate(study, syns):
     """WHAT EXACTLY WAS RANDOMISED? -- not "where does the topic drug appear".
 
@@ -345,6 +387,7 @@ def locate(study, syns):
     Returns (role, evidence). Role is NOT_ASSESSABLE when the drug cannot be located in any
     eligible field, which is a different state from having been excluded.
     """
+    require_terms(syns, "syns", "topic_identity.locate")
     ps = study.get("protocolSection") or {}
     ai = ps.get("armsInterventionsModule") or {}
     idm = ps.get("identificationModule") or {}

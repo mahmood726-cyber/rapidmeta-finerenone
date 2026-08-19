@@ -381,10 +381,17 @@ def selftest():
     # 1. THE SYNONYM LIST, NOT THE TOPIC NAME. Passing the string makes `any(s in blob ...)`
     #    iterate CHARACTERS, and SPIRE-SI's atorvastatin arm "contains bococizumab".
     good = TI.locate(live["NCT02135029"], TI.TOPIC_SYNONYMS["bococizumab"])[0]
-    bad = TI.locate(live["NCT02135029"], "bococizumab")[0]
     check("SPIRE-SI is experimental under the synonym LIST", good, "experimental")
-    check("...and background under the bare STRING -- the defect, still reproducible",
-          bad, "background_or_coadministered")
+    # The bare string no longer RETURNS a wrong verdict -- `topic_identity.require_terms()`
+    # refuses it at the entry point as of 2026-08-19. This case used to assert the defect was
+    # still reproducible; now it asserts the defect is UNREACHABLE, which is strictly stronger
+    # and is what the runtime guard is for.
+    bare = "bococizumab"          # through a VARIABLE: the path only the runtime guard sees
+    try:
+        TI.locate(live["NCT02135029"], bare)
+        check("...and the bare STRING now RAISES rather than answering", False, True)
+    except TI.TermsMustBeACollection:
+        check("...and the bare STRING now RAISES rather than answering", True, True)
 
     # 2. A PLACEBO FOR THE DRUG IS THE COMPARATOR. SPIRE-AI's control records are named
     #    `Bococizumab 150mg placebo`.

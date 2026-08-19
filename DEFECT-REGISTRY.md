@@ -547,6 +547,59 @@ this file while it was being written.**
   its k fell and pass, which is what `lint_block_contradicts_object.py` is for. A floor, not a
   ceiling
 
+### 19. A bare string where a collection of terms is expected
+- **Found** 2026-08-19, screening `bococizumab-lipid-review`. One character:
+
+  ```python
+  role = TI.locate(study, "bococizumab")      # a STRING, not the synonym list
+  ```
+
+  `locate` tests `any(s in blob for s in syns)`. **A string is a sequence of characters**, so
+  this asked whether each arm's text contains the letter `b`, or `o`, or `c`. Every arm of every
+  trial matched
+- **What it produced** no exception, no null, no missing key, nothing malformed — and a
+  completely ordinary-looking cascade:
+
+  ```
+  17 experimental / 0 comparator / 0 background / 5 not-assessable
+  ```
+
+  with **SPIRE-SI (NCT02135029), one of the review's own five included trials, EXCLUDED on the
+  INTERVENTION limb** because its *atorvastatin* arm "contained bococizumab" on the strength of
+  its letters
+- **Why it is its own class and not an instance of E1** E1 is *substring is not identity*: a
+  record named `Placebo (for alirocumab)` really does contain the drug's name and the question
+  is what that containment MEANS. **Here the containment is of a single letter and means
+  nothing at all.** E1 is a wrong reading of real evidence; this is a reading of no evidence,
+  and it cannot fail
+- **How it was caught** a known included trial fell out. **There was no other symptom and there
+  could not have been** — the wrong answer has exactly the shape of the right one. This is the
+  known-answer rule doing the only thing that could have worked, and it is why known answers
+  come from the real corpus and never from a fixture the author invented
+- **Detector, runtime** `topic_identity.require_terms()`, raising `TermsMustBeACollection`, at
+  the **entry point** of `locate()`. A caller cannot skip it and gets a message naming the fix.
+  Same discipline as `ctgov_transport.WrongPayloadShape`: an instrument that cannot read its
+  input stops the run rather than emitting a number
+- **Detector, static** `scripts/lint_string_where_collection_expected.py`, **wired**. AST scan
+  for the *shape*: functions whose parameter is membership-tested or iterated without a guard,
+  and call sites passing a string literal into one
+- **Proven** `--selftest`, four proofs including that the guard does **not** fire on a correct
+  call, that every non-`str` collection is accepted, and that the static scan still finds
+  at-risk functions — a scan reporting nothing to report is broken, not clean
+- **And the detector's own first two runs were wrong, both toward noise.** It reported **63**
+  findings of which one was real, because definitions were keyed by NAME alone and one
+  `def check(rows, …)` overwrote the `def check(name, got, want)` in fifteen other scripts.
+  Narrowed to per-file resolution it still reported six: `validate_v2.block(self, rule, msg)`
+  was not registered — it membership-tests nothing — so the name looked *unique* and six calls
+  resolved against `build_app_v2.block(title, items, keys)`. **An ambiguity you cannot see is
+  still an ambiguity, and counting only the interesting half made it look unique.** A check
+  that fires on mostly noise is more likely broken than the corpus is, and that rule applies to
+  the person writing the check
+- **What neither can do** the static half resolves by name and cannot see a string arriving
+  through a variable; the runtime half sees exactly that and only on code paths that execute.
+  Neither checks the collection holds the RIGHT terms — `locate(study, ["x"])` passes both and
+  finds nothing
+
 ### 18. A version marker that goes stale — the file that makes staleness visible
 - **Found** on 2026-08-19, on the one document in this repository whose entire purpose is to
   make staleness visible. Three declarations of one property, no two agreeing:

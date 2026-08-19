@@ -74,6 +74,14 @@ python "$R/scripts/lint_criteria_fingerprint.py" >/dev/null || { echo "REFUSED: 
 # second drift of the same kind in the same file: ten properties listed and never dated.
 python "$R/scripts/standard_version_agreement_gate.py" >/dev/null || { echo "REFUSED: PAGE-STANDARD.md, its version log and ssot/build_to_standard.py do not agree on the standard version (scripts/standard_version_agreement_gate.py)"; exit 1; }
 
+# A BARE STRING WHERE A COLLECTION OF TERMS IS EXPECTED. `locate(study, "bococizumab")` made
+# `any(s in blob for s in syns)` iterate CHARACTERS -- every arm matched on single letters, the
+# cascade read a perfectly ordinary 17/0/0/5, and one of the review's own included trials was
+# excluded because its ATORVASTATIN arm "contained bococizumab". No exception, no null, nothing
+# malformed: THE WRONG ANSWER HAS THE SHAPE OF THE RIGHT ONE. Caught only by a known-answer
+# trial falling out. Runtime half: topic_identity.require_terms().
+python "$R/scripts/lint_string_where_collection_expected.py" >/dev/null || { echo "REFUSED: a bare string reaches a parameter that is membership-tested (scripts/lint_string_where_collection_expected.py)"; exit 1; }
+
 # P35 -- THE PRIMARY OUTCOME IS READ BY MATCHING ITS TEXT, NEVER BY POSITION.
 # `outcomeMeasures[0]` is ADVANCE-2's SECONDARY and its three companions' PRIMARY. A pool built
 # on element zero is WRONG WITH NOTHING MALFORMED ANYWHERE -- no parse error, no null, no
