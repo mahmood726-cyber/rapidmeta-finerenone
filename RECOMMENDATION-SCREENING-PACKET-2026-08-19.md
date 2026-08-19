@@ -4,7 +4,26 @@
 
 ---
 
-## The recommendation
+## The recommendation, in order
+
+### 1. Store the packet that was actually sent, not a truncation of it
+
+**A decision whose input was not retained cannot be replicated — only re-enacted with
+something similar.**
+
+This experiment was limited by the corpus discarding the input it acted on. `arni-hfref`
+stores its disagreement records as titles truncated at ~70 characters; the screener saw title,
+journal, year and source. So the replication could not be exact, and every absolute rate it
+produced carries a caveat that would not exist had the packet been kept.
+
+This generalises far past screening. **Every instrument in this corpus should be asked what it
+stored of what it saw.** An extractor that keeps a value but not the sentence, a classifier
+that keeps a verdict but not the record, a search that keeps a count but not the query — each
+produces results that can be re-enacted but never checked. The corpus already does this well
+in places (`query_as_executed`, `registered_primaries`, `verbatim` R output) and badly in
+others, and nothing currently distinguishes the two.
+
+### 2. Enrich the packet before rewording anything
 
 **A screener that returns UNDETERMINED from a truncated title is answering correctly about
 what it was shown. No rewording fixes that.**
