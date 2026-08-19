@@ -1,0 +1,49 @@
+{
+ "topic": "colchicine-cvd-review",
+ "executed_utc": "2026-08-19",
+ "state": "COMPLETE",
+ "supersedes": "colchicine_search_INCOMPLETE.json, which is KEPT rather than deleted -- it is the record of the moment the cursor was live, and the finding below is only legible beside it.",
+ "database": "ClinicalTrials.gov API v2",
+ "tool": "mcp__plugin_bio-research_c-trials__search_trials",
+ "query_as_executed": "intervention=\"colchicine\"; condition=\"coronary artery disease OR myocardial infarction OR cardiovascular disease OR stroke OR atherosclerosis\"; study_type=INTERVENTIONAL; page_size=100; count_total=true",
+ "pages": [
+  {"page": 1, "returned": 100, "total_reported": 137, "next_page_token": "PRESENT"},
+  {"page": 2, "returned": 37, "total_reported": null, "next_page_token": "null -- the cursor is exhausted"}
+ ],
+ "records_returned_total": 137,
+ "total_reported": 137,
+ "pagination_verified": "100 + 37 = 137 == totalCount, and the cursor returned null on page 2. THE PROOF IS THE SUM ACROSS PAGES, not a single page's returned count.",
+
+ "WHAT_THE_ABANDONED_CURSOR_WOULD_HAVE_COST": {
+  "headline": "ONE OF THIS REVIEW'S OWN THREE INCLUDED TRIALS IS ON PAGE 2 ONLY -- AND IT IS THE LARGEST.",
+  "included_set": ["NCT02551094", "NCT03048825", "NCT02898610"],
+  "surfaced_on_page_1": ["NCT02551094 COLCOT, n=4745", "NCT02898610 CONVINCE, n=3154"],
+  "surfaced_on_page_2_ONLY": ["NCT03048825 CLEAR SYNERGY / OASIS-9, n=7264"],
+  "recall_on_page_1_alone": "2/3",
+  "recall_on_the_complete_search": "3/3",
+  "why_this_matters_more_than_the_arithmetic": "A screen run on page 1 would have reported a complete-looking cascade over 100 records, screened its remainder to zero, and been MISSING THE LARGEST TRIAL IN ITS OWN INCLUDED SET. Nothing in that page would have looked wrong: 100 records is a plausible surfaced set, the arithmetic would have reconciled with itself, and `k_unscreened_remainder: 0` would have been printed over a search that was 27 per cent short.",
+  "and_it_is_the_same_shape_as_the_phase_filter": "`apixaban-vte` lost NCT02366871 -- one of its own two included trials -- to a `phase=[PHASE3,PHASE4]` filter, and that miss was RECORDED RATHER THAN REPLACED under P23. This is that class arriving through PAGINATION rather than through a filter term: a query parameter and an unexhausted cursor remove trials the same way, and only one of the two has ever had a guard."
+ },
+
+ "the_P16_fourth_clause_meeting_its_own_case": "Every search this session recorded `returned == totalCount` with a null cursor as its pagination proof, and every one of those proofs was REAL AND UNTESTED -- the condition had never occurred, so the proof had never had an opportunity to fail. P16's fourth clause says a guard whose triggering condition has never arisen is unproven however green it reads. This is the first search in the session that could have failed that check, and it did.",
+
+ "scope_findings_from_the_COMPLETE_set": {
+  "_status": "Recorded as observations on the complete surfaced set. NOT counts, NOT dispositions: no record here has been screened against any criteria and no arm roles have been read.",
+  "the_condition_filter_reaches_well_beyond_this_review": "The 137 include colchicine trials in Behcet's disease, IgA vasculitis, cutaneous vasculitis, multiple myeloma, oral ulcers, gout, pericarditis (CORP, CORP-2, ICAP, COPPS, COPPS-2), post-pericardiotomy syndrome, acute myocarditis, aortic stenosis, abdominal aortic aneurysm, chronic limb-threatening ischaemia, deep vein thrombosis, type 1 diabetes and COVID-19.",
+  "and_the_split_question_is_now_askable_on_a_complete_set": "The object's three trials are of three different questions -- COLCOT randomises after MYOCARDIAL INFARCTION, CLEAR SYNERGY after MI within a 2x2 factorial alongside spironolactone, and CONVINCE after NON-CARDIOEMBOLIC STROKE. The complete set adds at least four more distinguishable questions: PERIOPERATIVE / POST-PROCEDURAL use (COP-AF n=3209, COPPS, COPPS-2, several post-ablation and post-cardiac-surgery trials), PERICARDITIS as a disease in its own right, PERIPHERAL ARTERY DISEASE (LEADER-PAD n=6150, and a limb-ischaemia trial), and INTRACEREBRAL HAEMORRHAGE (CoVasc-ICH, and an n=1125 phase 3). THIS IS A P21 DECISION ON A COMPLETE SET AND IT IS NOT MADE HERE -- it is now askable, which it was not this morning.",
+  "large_completed_trials_absent_from_the_object": [
+   "NCT05439356 CHANCE-3, n=8343, minor stroke or TIA, COMPLETED",
+   "NCT03310125 COP-AF, n=3209, perioperative AF in thoracic surgery, COMPLETED",
+   "NCT02594111 Colchicine-PCI, n=714, COMPLETED",
+   "NCT04705987 acutely decompensated heart failure, n=279, COMPLETED"
+  ],
+  "what_that_list_is_NOT": "NOT recovered trials. None screened, no arm roles read, no criteria applied. It states the scale of what a completed screen will have to dispose of."
+ },
+
+ "what_still_must_happen_before_this_topic_is_built": [
+  "The colchicine synonym set is now DECLARED in ssot/topic_identity.TOPIC_SYNONYMS, read from the registrations themselves -- `Colchimax`, `LoDoCo` and `Colchicines` all appear in this surfaced set and none is matched by the bare word.",
+  "Decide one-review-or-split on this complete set (P21).",
+  "Screen to zero, cascade, criteria, estimand, object, page, delivery.",
+  "The published card HR 0.75 (0.61-0.91) at k=2 reproduces from NO combination of estimator or subset (scripts/headline_reproducible_gate.py). That defect is OPEN and untouched."
+ ]
+}

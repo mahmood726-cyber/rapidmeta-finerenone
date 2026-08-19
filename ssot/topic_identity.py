@@ -51,6 +51,14 @@ TOPIC_SYNONYMS = {
                        "etc-1002", "etc 1002", "esp15228"],
     "bococizumab": ["bococizumab", "pf-04950615", "pf 04950615", "rn316", "rn-316"],
     "bosentan": ["bosentan", "tracleer", "ro 47-0203", "ro47-0203"],
+    # READ FROM THE REGISTRATIONS, NOT FROM RECALL. Added 2026-08-19 only after the colchicine
+    # search was COMPLETE (137 of 137), because improvising an identity set on a partial
+    # surfaced set is how a term that matters gets missed. All three non-obvious forms below
+    # occur in that set and NONE is matched by the bare word:
+    #     `Colchimax` (NCT02363725)   `LoDoCo` (NCT06130059)   `Colchicines` (NCT01266694)
+    # `colchicine` as a substring already covers `Colchicine 0.5 MG Oral Tablet` and the many
+    # dose-bearing forms, so those are not enumerated separately.
+    "colchicine": ["colchicine", "colchicines", "colchimax", "lodoco", "colcrys", "mitigare"],
     # A STRATEGY TOPIC, AND THE THIRD KIND IN THIS TABLE.
     #
     # `sglt2 inhibitors` and `intravenous iron` are CLASS topics enumerated as molecules.
