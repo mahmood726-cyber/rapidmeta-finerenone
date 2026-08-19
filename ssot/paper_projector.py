@@ -81,6 +81,7 @@ class Section(object):
         self.key = key
         self.heading = heading
         self.paras = []          # [(text, [field paths])]
+        self.tables = []         # [(caption, [headers], [[cells]], [field paths])]
         self.refusals = []       # [(what was not written, which field was absent)]
 
     def add(self, obj, text, fields):
@@ -92,9 +93,31 @@ class Section(object):
         self.paras.append((text, list(fields)))
         return True
 
+    def add_table(self, obj, caption, headers, rows, fields):
+        """A TABLE IS A PROJECTION TOO, and it obeys the same licence as a paragraph.
+
+        Added 2026-08-20. Until now a projected manuscript could only emit prose, so
+        per-trial characteristics, GRADE domain steps and risk-of-bias judgements -- all
+        of which the objects hold, and all of which ARNI presents as tables -- had no way
+        to reach the page at all. That is not a formatting limitation, it is 18 tables of
+        substance the projector could not express.
+
+        Refuses on the same terms as `add`: every field cited must resolve, and a table
+        with no rows is a refusal rather than an empty frame with a caption on it.
+        """
+        missing = [f for f in fields if get(obj, f) is None]
+        if missing:
+            self.refusals.append((caption, missing))
+            return False
+        if not rows:
+            self.refusals.append((caption + " (no rows resolved)", list(fields)))
+            return False
+        self.tables.append((caption, list(headers), [list(r) for r in rows], list(fields)))
+        return True
+
     @property
     def state(self):
-        return WRITTEN if self.paras else REFUSED
+        return WRITTEN if (self.paras or self.tables) else REFUSED
 
 
 def _fmt_ci(p):
@@ -400,6 +423,368 @@ def project(obj, journal="generic", length="standard"):
         s.refusals.append(("the limitations section", ["screening.known_limitation"]))
     secs.append(s)
 
+    # =====================================================================================
+    # THE SIXTEEN SECTIONS THE PROJECTOR COULD NOT REACH
+    #
+    # Measured 2026-08-20 against ARNI's authored manuscript, section by section: of the
+    # 25 major sections ARNI carries, 16 were projectable from fields the other objects
+    # ALREADY HOLD -- 32,254 characters of RoB rows, GRADE reasoning, published
+    # comparisons, per-trial tables, quoted model output, references, data and software
+    # availability -- and only 5 were genuinely absent from the objects. The projector had
+    # a hard ceiling of eight sections and no slot for any of the sixteen.
+    #
+    # EVERY SECTION BELOW IS A SLOT THAT ALWAYS EXISTS. A topic with no published
+    # comparison SAYS SO, by name, naming the field it would have come from. Omitting the
+    # section silently is the failure this whole design exists to prevent: an absent
+    # section and an unmentioned one look identical to a reader.
+    # =====================================================================================
+
+    # ---- ABSTRACT ----------------------------------------------------------------------
+    s = Section("abstract", "Abstract")
+    s.add(obj, "Question. %s" % (get(obj, "question") or ""), ["question"])
+    casc = get(obj, "k_cascade") or {}
+    if casc.get("k_included") is not None:
+        s.add(obj, "Included studies. %s trial(s) contribute to at least one synthesis."
+              % casc.get("k_included"), ["k_cascade.k_included"])
+    _pooled = []
+    for oid, blk in sorted((get(obj, "results.by_outcome") or {}).items()):
+        p = (blk or {}).get("pooled") or {}
+        if p.get("point") is not None:
+            _pooled.append("%s %s for %s (k = %s)"
+                           % (p.get("measure", "estimate"), _fmt_ci(p),
+                              (blk.get("label") or oid), blk.get("k", "?")))
+    if _pooled:
+        s.add(obj, "Findings. %s." % "; ".join(_pooled),
+              ["results.by_outcome"])
+    else:
+        s.refusals.append(("the findings sentence of the abstract -- this review pools "
+                           "nothing, and the reason is given in Results rather than an "
+                           "estimate being manufactured here",
+                           ["results.by_outcome.*.pooled.point"]))
+    secs.append(s)
+
+    # ---- INTRODUCTION (content gap, refused by name) -----------------------------------
+    s = Section("introduction", "Introduction")
+    if not s.add(obj, "Background. %s" % (get(obj, "protocol.rationale") or ""),
+                 ["protocol.rationale"]):
+        s.refusals.append(("the Introduction -- no background or rationale is recorded on "
+                           "this object. This is a CONTENT gap, not a rendering one: no "
+                           "change to this projector produces it, and it is written by "
+                           "adding `protocol.rationale` to the object",
+                           ["protocol.rationale"]))
+    secs.append(s)
+
+    # ---- CERTAINTY OF THE EVIDENCE (GRADE) ---------------------------------------------
+    s = Section("certainty", "Certainty of the evidence")
+    g = get(obj, "grade") or {}
+    if g.get("approach"):
+        s.add(obj, "Certainty was rated with %s. %s"
+              % (g.get("approach"), g.get("starting_point") or ""), ["grade.approach"])
+    if g.get("not_rated_up"):
+        s.add(obj, str(g["not_rated_up"]), ["grade.not_rated_up"])
+    rows, fields = [], []
+    for oid, blk in sorted((g.get("by_outcome") or {}).items()):
+        if not isinstance(blk, dict):
+            continue
+        rows.append([oid, str(blk.get("certainty") or "not rated"), str(blk.get("k", "?")),
+                     str(blk.get("started_at") or ""),
+                     "; ".join(str(x) for x in (blk.get("steps") or [])) or "no downgrade recorded"])
+        fields.append("grade.by_outcome.%s" % oid)
+    s.add_table(obj, "Certainty of the evidence, by outcome, with every rating step",
+                ["Outcome", "Certainty", "k", "Started at", "Rating steps"], rows,
+                fields or ["grade.by_outcome"])
+    for oid, blk in sorted((g.get("by_outcome") or {}).items()):
+        if isinstance(blk, dict) and blk.get("summary"):
+            s.add(obj, str(blk["summary"]), ["grade.by_outcome.%s.summary" % oid])
+    if not (s.paras or s.tables):
+        s.refusals.append(("the certainty assessment -- no GRADE record is held, so the "
+                           "certainty column elsewhere on this page is an em dash rather "
+                           "than a guess", ["grade"]))
+    secs.append(s)
+
+    # ---- RISK OF BIAS ------------------------------------------------------------------
+    s = Section("risk_of_bias", "Risk of bias in the included results")
+    rob = get(obj, "risk_of_bias") or {}
+    if rob.get("tool"):
+        s.add(obj, "Risk of bias was assessed with %s. The unit of assessment is %s"
+              % (rob.get("tool"), rob.get("unit_of_assessment") or "a result"),
+              ["risk_of_bias.tool"])
+    ceiling = rob.get("ceiling") or {}
+    if ceiling.get("statement"):
+        s.add(obj, "%s %s" % (ceiling["statement"],
+                              ceiling.get("what_would_change_it") or ""),
+              ["risk_of_bias.ceiling.statement"])
+    if rob.get("default_rule"):
+        s.add(obj, str(rob["default_rule"]), ["risk_of_bias.default_rule"])
+    rows, fields = [], []
+    for key in ("by_result", "results", "assessments", "by_trial"):
+        blk = rob.get(key)
+        if isinstance(blk, dict):
+            for rid, judgement in sorted(blk.items()):
+                if isinstance(judgement, dict):
+                    rows.append([rid, str(judgement.get("overall") or judgement.get("rating")
+                                          or "not judged"),
+                                 str(judgement.get("reason") or judgement.get("why") or "")])
+                else:
+                    rows.append([rid, str(judgement), ""])
+            fields.append("risk_of_bias.%s" % key)
+            break
+    if rows:
+        s.add_table(obj, "Risk-of-bias judgement for every included result",
+                    ["Result", "Judgement", "Reason"], rows, fields)
+    if not (s.paras or s.tables):
+        s.refusals.append(("the risk-of-bias assessment", ["risk_of_bias"]))
+    secs.append(s)
+
+    # ---- DISAGREEMENTS BETWEEN SOURCES -------------------------------------------------
+    s = Section("disagreements", "Disagreements between sources")
+    rec = get(obj, "reconciliation") or {}
+    if rec.get("why_this_step_exists"):
+        s.add(obj, str(rec["why_this_step_exists"]), ["reconciliation.why_this_step_exists"])
+    if rec.get("clean_because"):
+        s.add(obj, str(rec["clean_because"]), ["reconciliation.clean_because"])
+    if rec.get("what_the_benchmarks_show"):
+        s.add(obj, str(rec["what_the_benchmarks_show"]),
+              ["reconciliation.what_the_benchmarks_show"])
+    bm = rec.get("published_benchmarks")
+    if isinstance(bm, list) and bm:
+        s.add_table(obj, "Published benchmarks this review was reconciled against",
+                    ["Review", "Endpoint", "Measure", "Estimate", "Trials"],
+                    [[str(b.get("review_id", "")), str(b.get("endpoint", "")),
+                      str(b.get("measure", "")),
+                      ("%s (%s to %s)" % (b.get("point"), b.get("ci_low"), b.get("ci_high"))
+                       if b.get("point") is not None else "not stated"),
+                      str(b.get("trial_count", ""))] for b in bm if isinstance(b, dict)],
+                    ["reconciliation.published_benchmarks"])
+    if not (s.paras or s.tables):
+        s.refusals.append(("the reconciliation against other sources",
+                           ["reconciliation"]))
+    secs.append(s)
+
+    # ---- COMPARISON WITH PUBLISHED SYNTHESES -------------------------------------------
+    s = Section("published_comparison", "Comparison with published syntheses")
+    pc = get(obj, "published_comparison") or {}
+    if pc.get("_how_identified"):
+        s.add(obj, "Published syntheses were identified as follows. %s"
+              % pc["_how_identified"], ["published_comparison._how_identified"])
+    revs = pc.get("reviews")
+    if isinstance(revs, list) and revs:
+        s.add_table(obj, "Published syntheses compared with this review, with a denominator",
+                    ["Citation", "PMID", "Their k", "Scope", "How it differs from ours"],
+                    [[str(r.get("citation", ""))[:120], str(r.get("pmid", "")),
+                      str(r.get("their_k", "")), str(r.get("scope", ""))[:80],
+                      str(r.get("how_it_differs_from_ours", ""))[:160]]
+                     for r in revs if isinstance(r, dict)],
+                    ["published_comparison.reviews"])
+        s.add(obj, "This review was compared against %d published synthesis(es); the "
+                   "denominator is stated because a comparison against an unstated number "
+                   "of reviews is not a comparison." % len(revs),
+              ["published_comparison.reviews"])
+    dd = pc.get("divergence_decomposed")
+    if isinstance(dd, dict) and dd.get("why_they_differ"):
+        s.add(obj, "Where our result differs from theirs: %s" % dd["why_they_differ"],
+              ["published_comparison.divergence_decomposed.why_they_differ"])
+    if not (s.paras or s.tables):
+        s.refusals.append(("the comparison with published syntheses -- no published "
+                           "synthesis is recorded for this topic, so no denominator can be "
+                           "given", ["published_comparison"]))
+    secs.append(s)
+
+    # ---- STATISTICAL OUTPUT, QUOTED VERBATIM -------------------------------------------
+    #
+    # THE SECTION THAT WAS NEARLY MISCLASSIFIED. A first probe looked at
+    # `results.cross_engine` and reported this as a CONTENT gap. It lives one level lower,
+    # per outcome, at `results.by_outcome.<oid>.r_output.verbatim` -- present for every
+    # outcome, with the R call and the package versions. An absence my own search reported.
+    s = Section("statistical_output", "Statistical output, quoted verbatim")
+    any_out = False
+    for oid, blk in sorted((get(obj, "results.by_outcome") or {}).items()):
+        ro = (blk or {}).get("r_output") or {}
+        v = ro.get("verbatim")
+        if v:
+            any_out = True
+            env = ro.get("_environment") or ""
+            call = ro.get("call") or ""
+            s.add(obj, "%s%s%s" % (("[%s] " % env) if env else "",
+                                   ("call: %s -- " % call) if call else "", str(v)),
+                  ["results.by_outcome.%s.r_output.verbatim" % oid])
+        ce = (blk or {}).get("cross_engine") or {}
+        if ce.get("engine"):
+            s.add(obj, "Cross-engine verification for %s: %s %s"
+                  % (oid, ce.get("engine"), ce.get("agreement") or ""),
+                  ["results.by_outcome.%s.cross_engine" % oid])
+    if not any_out and not s.paras:
+        s.refusals.append(("the verbatim model output -- no analysis output is stored on "
+                           "this object, so nothing can be quoted and nothing is "
+                           "paraphrased in its place",
+                           ["results.by_outcome.*.r_output.verbatim"]))
+    secs.append(s)
+
+    # ---- DISCUSSION / CONCLUSIONS (content gaps, refused by name) ----------------------
+    for key, heading, field in (("discussion", "Discussion", "discussion"),
+                                ("conclusions", "Conclusions", "conclusions")):
+        s = Section(key, heading)
+        if not s.add(obj, str(get(obj, field) or ""), [field]):
+            s.refusals.append(("the %s -- this is a CONTENT gap. The object records no "
+                               "interpretive text, and none is generated here: a %s "
+                               "written by the renderer would be an argument no field "
+                               "supports" % (heading, heading.lower()), [field]))
+        secs.append(s)
+
+    # ---- SECTIONS NOT WRITTEN, AND WHY -------------------------------------------------
+    s = Section("not_written", "Sections not written, and why")
+    ref = get(obj, "build_stamp.refusing")
+    if isinstance(ref, list) and ref:
+        s.add(obj, "This review refuses %d of the page standard's properties, by name: %s. "
+                   "A refused property is a completed outcome with a stated reason, not an "
+                   "omission." % (len(ref), ", ".join(str(x) for x in ref)),
+              ["build_stamp.refusing"])
+    else:
+        s.refusals.append(("the list of refused properties", ["build_stamp.refusing"]))
+    secs.append(s)
+
+    # ---- FUNDING AND CONFLICTS (content gap) -------------------------------------------
+    s = Section("funding", "Funding and conflicts of interest")
+    if not s.add(obj, str(get(obj, "funding") or ""), ["funding"]):
+        s.refusals.append(("the funding and conflict-of-interest statement -- a CONTENT "
+                           "gap. A submission requires it and this object does not carry "
+                           "it; it is not inferable from anything held here", ["funding"]))
+    secs.append(s)
+
+    # ---- REFERENCES --------------------------------------------------------------------
+    s = Section("references", "References")
+    src = get(obj, "sources")
+    if isinstance(src, dict) and src:
+        s.add_table(obj, "Sources this review reads, with the layer each was read at",
+                    ["Id", "Layer", "Source", "Location"],
+                    [[sid, str((v or {}).get("layer", "")), str((v or {}).get("name", ""))[:150],
+                      str((v or {}).get("url") or (v or {}).get("staged_as") or "")]
+                     for sid, v in sorted(src.items()) if isinstance(v, dict)],
+                    ["sources"])
+    else:
+        s.refusals.append(("the reference list", ["sources"]))
+    secs.append(s)
+
+    # ---- KEYWORDS (content gap) --------------------------------------------------------
+    s = Section("keywords", "Keywords")
+    if not s.add(obj, ", ".join(get(obj, "keywords") or []) or "", ["keywords"]):
+        s.refusals.append(("the keyword list -- a CONTENT gap; no keywords are recorded "
+                           "and inventing them would be indexing this review under terms "
+                           "nobody chose", ["keywords"]))
+    secs.append(s)
+
+    # ---- DATA AVAILABILITY -------------------------------------------------------------
+    s = Section("data_availability", "Data availability")
+    ri = get(obj, "registration_identity") or {}
+    if ri.get("method"):
+        s.add(obj, "Every trial in this review is keyed to a registration identifier, "
+                   "verified by %s%s." % (ri["method"],
+                                          (" on %s" % ri["verified_utc"])
+                                          if ri.get("verified_utc") else ""),
+              ["registration_identity.method"])
+    trials = ri.get("trials")
+    if isinstance(trials, list) and trials:
+        s.add_table(obj, "Registration identifiers, and whether each was verified",
+                    ["Registration", "Verified", "Link"],
+                    [[str(t.get("nct", "")), str(t.get("verified", "")),
+                      str(t.get("link", ""))] for t in trials if isinstance(t, dict)],
+                    ["registration_identity.trials"])
+    if isinstance(src, dict) and src:
+        s.add(obj, "The underlying records are the %d source(s) listed under References; "
+                   "each names the layer it was read at, so a reader can tell a registry "
+                   "record from a published report." % len(src), ["sources"])
+    if not (s.paras or s.tables):
+        s.refusals.append(("the data availability statement",
+                           ["registration_identity", "sources"]))
+    secs.append(s)
+
+    # ---- SOFTWARE AVAILABILITY ---------------------------------------------------------
+    s = Section("software_availability", "Software availability")
+    envs = sorted({(((blk or {}).get("r_output") or {}).get("_environment") or "")
+                   for blk in (get(obj, "results.by_outcome") or {}).values()} - {""})
+    if envs:
+        s.add(obj, "Analyses were computed under %s." % "; ".join(envs),
+              ["results.by_outcome"])
+    cl = get(obj, "config.confidence_level")
+    if cl is not None:
+        s.add(obj, "Intervals are reported at the %s%% level." % cl,
+              ["config.confidence_level"])
+    if not s.paras:
+        s.refusals.append(("the software and environment statement",
+                           ["results.by_outcome.*.r_output._environment",
+                            "config.confidence_level"]))
+    secs.append(s)
+
+    # ---- NOTE ON REGISTRATION ----------------------------------------------------------
+    s = Section("note_on_registration", "Note on registration")
+    pr = get(obj, "protocol") or {}
+    if pr.get("permanently_refused") or pr.get("prespecified") is not None:
+        s.add(obj, "Protocol status. Prespecified: %s. %s"
+              % (pr.get("prespecified"), pr.get("why") or ""), ["protocol"])
+        if pr.get("what_was_actually_done"):
+            s.add(obj, str(pr["what_was_actually_done"]),
+                  ["protocol.what_was_actually_done"])
+        if pr.get("authority_permitting_it"):
+            s.add(obj, "Authority: %s" % pr["authority_permitting_it"],
+                  ["protocol.authority_permitting_it"])
+    else:
+        s.refusals.append(("the registration note", ["protocol"]))
+    secs.append(s)
+
+    # ---- TABLES: TRIAL CHARACTERISTICS -------------------------------------------------
+    s = Section("trial_characteristics", "Trial characteristics")
+    by_id, unjoinable = _trials_by_identity(obj)
+    if by_id:
+        s.add_table(obj, "Characteristics of every trial contributing to this review",
+                    ["Registration", "Trial", "Arms", "Participants"],
+                    [[nct, str(t.get("name") or ""),
+                      str(t.get("comparison") or t.get("arms") or ""),
+                      str(t.get("n") or t.get("n_total") or "not extracted")]
+                     for nct, t in sorted(by_id.items())],
+                    ["inputs.trials"])
+    else:
+        s.refusals.append(("the trial characteristics table", ["inputs.trials"]))
+    if unjoinable:
+        s.add(obj, "%d record(s) carry no resolvable registration identifier and are "
+                   "reported here rather than dropped or matched by position: %s."
+              % (len(unjoinable), "; ".join(unjoinable)), ["inputs.trials"])
+    secs.append(s)
+
+    # ---- FIGURE LEGENDS ----------------------------------------------------------------
+    s = Section("figure_legends", "Figure legends")
+    rows = []
+    for oid, blk in sorted((get(obj, "results.by_outcome") or {}).items()):
+        p = (blk or {}).get("pooled") or {}
+        rows.append([oid, "Forest plot",
+                     ("%s %s, k = %s" % (p.get("measure", "estimate"), _fmt_ci(p),
+                                         (blk or {}).get("k", "?"))
+                      if p.get("point") is not None
+                      else "not pooled; the reason is given in Results")])
+    if rows:
+        s.add_table(obj, "Figures, and what each one shows",
+                    ["Outcome", "Figure", "What it shows"], rows, ["results.by_outcome"])
+    else:
+        s.refusals.append(("the figure legends", ["results.by_outcome"]))
+    secs.append(s)
+
+    # ---- SUBMISSION CONFORMANCE --------------------------------------------------------
+    s = Section("submission_conformance", "Submission conformance")
+    bs = get(obj, "build_stamp") or {}
+    if bs.get("page_standard_version"):
+        s.add(obj, "This review was built to page standard %s (%s), by %s on %s. A page "
+                   "built below the current standard is knowably below it rather than "
+                   "silently stale."
+              % (bs.get("page_standard_version"), bs.get("standard_document", ""),
+                 bs.get("built_by", ""), bs.get("built_utc", "")),
+              ["build_stamp.page_standard_version"])
+    held = bs.get("held")
+    if isinstance(held, list) and held:
+        s.add(obj, "Properties held: %d, by name -- %s."
+              % (len(held), ", ".join(str(x) for x in held)), ["build_stamp.held"])
+    if not s.paras:
+        s.refusals.append(("the submission conformance statement", ["build_stamp"]))
+    secs.append(s)
+
     if length == "concise":
         for sec in secs:
             sec.paras = sec.paras[:2]
@@ -413,6 +798,16 @@ def render(secs, show_fields=True):
         for text, fields in s.paras:
             out.append("")
             out.append(text)
+            if show_fields:
+                out.append("      <- %s" % ", ".join(fields))
+        for caption, headers, rows, fields in getattr(s, "tables", []):
+            out.append("")
+            out.append("TABLE. %s  (%d row(s))" % (caption, len(rows)))
+            out.append("      " + " | ".join(headers))
+            for row in rows[:8]:
+                out.append("      " + " | ".join(str(c)[:40] for c in row))
+            if len(rows) > 8:
+                out.append("      ... %d more row(s)" % (len(rows) - 8))
             if show_fields:
                 out.append("      <- %s" % ", ".join(fields))
         for what, missing in s.refusals:

@@ -629,6 +629,17 @@ def _projected_paper_html(canon):
         for text, fields in s.paras:
             out.append("<p>%s<br><small class='muted'>&larr; %s</small></p>"
                        % (e(text), e(", ".join(fields))))
+        # A PROJECTED TABLE. Every cell is escaped -- the cells are object values, and an
+        # object value containing markup must render as text and never as markup. The
+        # caption carries the same field trace a paragraph does, because a table asserts
+        # as much as a sentence and is read with more trust.
+        for caption, headers, rows, fields in getattr(s, "tables", []):
+            out.append("<table><caption>%s<br><small class='muted'>&larr; %s</small>"
+                       "</caption>" % (e(caption), e(", ".join(fields))))
+            out.append("<tr>%s</tr>" % "".join("<th>%s</th>" % e(h) for h in headers))
+            for row in rows:
+                out.append("<tr>%s</tr>" % "".join("<td>%s</td>" % e(c) for c in row))
+            out.append("</table>")
         for what, missing in s.refusals:
             out.append("<div class='absent-state' role='note'><strong>Refused:</strong> %s "
                        "&mdash; no field: <code>%s</code></div>"
