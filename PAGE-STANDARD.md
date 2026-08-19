@@ -1,6 +1,6 @@
 # The page standard, versioned
 
-**`PAGE_STANDARD_VERSION = "1.14.0-2026-08-19"`**
+**`PAGE_STANDARD_VERSION = "1.15.0-2026-08-19"`**
 
 > **This line was `1.6.0` while the version log below already ran to `1.12.0` and
 > `ssot/build_to_standard.py` stamped `1.13.0`.** The marker whose entire purpose is to make
@@ -70,6 +70,8 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P37 | **Trials sharing a composite endpoint's NAME do not share its DEFINITION, and matching by name is a method that does not work** | this is a property of REGISTERED TRIALS, not of this corpus's topic selection: six instances across three drug classes and two specialties. The pair that settles it is **AMPLIFY and AMPLIFY-EXT** — same sponsor, same programme, sequential trials, names differing by a hyphenated suffix — where one counts *recurrent VTE or VTE-related death* and the other *recurrent VTE or ALL-CAUSE death*. A review must therefore decompose every endpoint into its components and compare the SETS, and must record the comparison, because a mismatch that is pooled deliberately and a mismatch that was never noticed look identical in the output |
 | P38 | **A shared estimand does not make a shared comparator** | estimand coherence is NECESSARY and it is NOT SUFFICIENT. AMPLIFY and AMPLIFY-EXT both register *recurrent VTE or VTE-related death* — primary in one, secondary in the other — and pooling them is still wrong, because one randomises apixaban against enoxaparin/warfarin and the other against **placebo**. Every axis on which a pool can be incoherent gets its own verdict, and a trial that leaves a pool leaves it for a NAMED axis |
 | P39 | **When matching by text returns more than one posted measure, choosing among the matches by position is P35 one level down** | AMPLIFY-EXT posts its primary composite **twice**, typed PRIMARY both times, under the same registered name, differing only in the trailing *"Randomized Population With Imputation" / "Without Imputation"* — and the arm counts are **32 against 19**. Nothing in the payload is malformed. The choice among matches is an ANALYSIS-POPULATION choice: it is made once, applied to every trial, stated on the page, and the pool is recomputed under the alternative so the choice's cost is measured rather than asserted to be small |
+| P41 | **A search must not be built from its own answer** | a query assembled from the terms the included set already shares can only return that set, so it CANNOT DISCOVER and its recall of 100% is a tautology. `azilsartan-chlorthalidone-vs-olmesartan-hctz` asks about one fixed-dose combination against one other; a query naming azilsartan AND chlorthalidone AND olmesartan would have returned exactly the two trials already on the page. **The query is built from the DRUG and the CONTRAST is applied at SCREENING, where every limb is auditable and every exclusion names what it randomised instead.** 53 of 57 exclusions on that topic fail the comparator limb, which is a fact about a narrow question asked of a whole programme — not a criticism of the query, and only visible because the query was wider than the answer |
+| P42 | **A coded field can be CORRECT and still not answer the question asked of it** | distinct from P11, which governs code-versus-text where both speak. Here the code speaks truly about something else. `conditions: ["Safety"]` names a study OBJECTIVE where the disease belongs; `conditions: ["Pulmonary Hypertension"]` names the SYNDROME on a trial titled *"in Sickle Cell Disease (SCD) Patients"*, where the review needs the WHO GROUP. Neither field is absent and neither is wrong. **A limb reading such a field must fall back to the declared text and RECORD WHICH READING THE VERDICT RESTS ON** — and the fallback must still exclude, or it is not a limb: a bioequivalence record whose title says *"in Chinese Healthy Volunteers"* stays out |
 | P40 | **A rule you have APPLIED is not a rule you have PUBLISHED** | the complement of the registry's opening line. The criterion separating `apixaban-vte-treatment` from `apixaban-vte-prophylaxis` — *prior event means treatment* — decided which review sixteen trials belong to and existed only inside an adjudication file. A criterion that decides inclusion must appear on the page of **every review it decides**, or the reader cannot check it and the next lane cannot apply it. **And it was not applied everywhere either:** it reached the sixteen adjudicated trials and not the nine admitted by the mechanical screen on the coded field the criteria themselves say does not settle the question |
 
 ## Reading the remainder — the same number, opposite diagnoses
@@ -125,6 +127,42 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.15.0-2026-08-19
+Adds P41 and P42, both from executing searches on topics that had never had one.
+
+**P41 — a search must not be built from its own answer.** `azilsartan-chlorthalidone-vs-olmesartan-hctz`
+asks about one fixed-dose combination against one other. A query naming all three agents would
+have returned exactly the two trials already on the page, and reported **recall 2/2** while
+being incapable of discovering anything.
+
+> A query assembled from what the included set already shares cannot discover. Its perfect
+> recall is a tautology, and a search that can only confirm the included set is not a search.
+
+The query is built from the **drug** — the whole 57-record programme — and the contrast is
+applied at **screening**, where every limb is auditable. All 53 exclusions fail the comparator
+limb, because only four registrations in the entire programme carry an
+olmesartan-plus-hydrochlorothiazide arm at all. That is a fact about a narrow question asked of
+a whole programme, and it is **only visible because the query was wider than the answer**.
+
+**P42 — a coded field can be correct and still not answer the question asked of it.** Three
+instances in one day, none of them a wrong field:
+
+| record | coded field | what it says | what the review needed |
+|---|---|---|---|
+| `NCT01309828` | `conditions: ["Safety"]` | a study **objective** | the disease |
+| `NCT00310830` | `conditions: ["Pulmonary Hypertension"]` | the **syndrome** | the WHO group |
+| `NCT00313196` | `conditions: ["Pulmonary Hypertension"]` | the **syndrome** | the WHO group |
+
+Each is true. Read literally, the first excluded a head-to-head this review wanted and the other
+two put sickle-cell trials into a WHO-group-1 monotherapy reading. **This is not P11** — P11
+governs code against text where both speak to the same thing and the code wins. Here the code
+speaks truly *about something else*.
+
+The remedy is the same shape as P11's: fall back to the declared text, and **record which
+reading the verdict rests on**. And the fallback must still exclude, or it is not a limb — a
+bioequivalence record whose title reads *"in Chinese Healthy Volunteers"* stays out on the text.
+
 
 ### 1.14.0-2026-08-19
 Adds P37, P38, P39 and P40, all four from re-pooling `apixaban-vte-treatment` — and corrects

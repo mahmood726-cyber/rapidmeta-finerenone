@@ -33,7 +33,7 @@ from boco_topic_data import BOCO_CASCADE, BOCO_EXTRACTION, BOCO_PRISMA, BOCO_SEA
 from azl_topic_data import AZL_CASCADE, AZL_EXTRACTION, AZL_PRISMA, AZL_SEARCH
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-PAGE_STANDARD_VERSION = "1.14.0-2026-08-19"
+PAGE_STANDARD_VERSION = "1.15.0-2026-08-19"
 
 HELD = "HELD"
 REFUSING = "REFUSING"

@@ -66,7 +66,7 @@ BASELINE = os.path.join(REPO, "evidence", "property_coverage_baseline.json")
 # standard_version_agreement_gate.py` is what refuses a property that reaches the table
 # without an entry. What NOTHING yet refuses is a property that reaches the table without
 # reaching THIS list -- named here so the next lane inherits the gap rather than the illusion.
-SCOPE = ["P%d" % n for n in range(24, 41)]
+SCOPE = ["P%d" % n for n in range(24, 43)]
 
 # property -> the command that is claimed to defend it, or None for "no command exists".
 # A NAME HERE IS A CLAIM AND IS CHECKED; a None here is an admission and is REPORTED.
@@ -94,6 +94,8 @@ DECLARED = {
     "P38": None,
     "P39": None,
     "P40": None,
+    "P41": None,
+    "P42": None,
 }
 
 # Where a command exists but does NOT cover the whole property, the gap is stated here. An
