@@ -447,8 +447,26 @@ def main():
     from nafis_harness.artefact import payloads_for
 
     total_payloads = 0
+    retired = []
     for src in a.objects:
         obj = json.loads(open(src, encoding="utf-8").read())
+        # A RETIRED TOPIC IS NOT AN UNRECOGNISED ONE, and folding the two together would make
+        # this gate refuse every merge for the rest of the project's life.
+        #
+        # A tombstone deliberately holds no `results` and no top-level `inputs.trials` -- it
+        # holds the object it replaced, nested, plus who absorbed it and when. So the exporter
+        # correctly produces zero payloads for it, and the "nothing checkable" refusal below
+        # correctly fires on a corpus of nothing BUT tombstones. The two states are distinct:
+        #   UNRECOGNISED  the exporter looked and could not read the object -- a real failure
+        #   RETIRED       the object declares itself retired -- there is nothing to check, and
+        #                 that is the correct and intended state
+        # Counted separately, and a run consisting only of tombstones is reported as such rather
+        # than as an exporter that recognised nothing.
+        if str(obj.get("state") or "").upper() == "RETIRED" and obj.get("absorbed_by"):
+            retired.append((os.path.basename(src), obj.get("absorbed_by")))
+            print("%-34s -> RETIRED, absorbed by %-26s  no payload BY DESIGN"
+                  % (os.path.basename(src), obj.get("absorbed_by")))
+            continue
         html = None
         if a.page and os.path.exists(a.page):
             html = open(a.page, encoding="utf-8", errors="replace").read()
@@ -464,7 +482,16 @@ def main():
             print("      omitted: %s" % o)
         if len(omissions) > 6:
             print("      omitted: ... and %d more" % (len(omissions) - 6))
+    if retired:
+        print("\n%d of the %d object(s) are RETIRED TOMBSTONES and produce no payload by "
+              "design: %s" % (len(retired), len(a.objects),
+                              ", ".join("%s -> %s" % r for r in retired)))
     if total_payloads == 0:
+        if retired and len(retired) == len(a.objects):
+            print("EVERY object in this run is a retired tombstone. There is nothing to check "
+                  "and that is the CORRECT state, not an exporter that recognised nothing. "
+                  "RETIRED and UNRECOGNISED are different states and are never summed.")
+            return 0
         print("\nNO CHECK PAYLOADS PRODUCED AT ALL. That is not a clean export; "
               "it is an exporter that recognised nothing.")
         return 2
