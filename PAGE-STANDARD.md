@@ -48,6 +48,7 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P24 | **Every disposition in a taxonomy is demonstrably reachable** | each state a screen can assign must be reached by at least one real instance in the run, or be reported as **reached zero times and why**. *A disposition that cannot be reached is not a conservative default* — it looks cautious, so a zero there invites no suspicion at all |
 | P25 | **A pipe never interprets output it has not proved was produced** | any filter over a subprocess must assert the subprocess **succeeded** before reading its output, and an **empty result from a filter is NOT_ASSESSABLE, never a negative finding**. *A filter over a subprocess's output converts a loud failure into a quiet one* |
 | P26 | **An agreement rate is computed over independent answers only** | repetition by one instrument is not independence. Duplicate answers from a single seat are deduplicated before any agreement is counted, and a seat that returned nothing is **absent, not concurring** |
+| P27 | **A reframed question travels to every site that asks it** | when a rule is reframed, the reframing must reach **every place the old question is put — including prompts to other models and to humans**, not only the code that was fixed. A fix applied at one site is not a fix of the class, and a question is a site |
 
 ## Reading the remainder — the same number, opposite diagnoses
 
@@ -102,6 +103,41 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.9.0-2026-08-19
+Adds P27, and records an empirical asymmetry worth keeping.
+
+**P27 — a reframed question travels to every site that asks it.** On 2026-08-19
+`topic_identity.locate()` was reframed from *"where does the drug appear"* to **"what exactly
+was randomised"**, and two defects dissolved under it. Hours later a blind adjudication packet
+was sent to two other model families asking, of 130 trials, *"does any arm deliver catheter
+ablation"* — **the discarded form of the same question**.
+
+Twenty of the 25 hard contradictions are trials where **the ablation is the setting and an
+adjunct is the contrast**: sedation versus anaesthesia *for* an ablation, oesophageal cooling
+*during* one, transseptal technique, haemostasis, monitoring, nurse-led follow-up. To the
+discarded question the honest answer is **yes, an arm delivers ablation** — every arm does,
+which is precisely what makes it background.
+
+> **A fix applied at one site is not a fix of the class, and a question is a site.** The
+> reframing reached the classifier and not the prompt, so a rule this project already held was
+> re-learned at scale the moment the old question travelled to another instrument.
+
+The measured cost: an agreement rate of 47.7% that is substantially a measurement of the
+question's ambiguity rather than of the trials. Two independent seats were not disagreeing so
+much as answering two different readings of a question that had two.
+
+**The asymmetry, kept as a measurement.** Over the same 130 trials, asked as two limbs:
+
+| limb | contradictions | refusals |
+|---|---:|---|
+| *is there an ablation arm* (positive) | **1** | agy 37 / codex 18 |
+| *is there a non-ablation control* (negative) | **24** | **agy 37 / codex 0** |
+
+Identifying what something **is** and identifying what it **is not** are different orders of
+task, and two independent instruments had **opposite calibration on the negative** — one
+refused thirty-seven times, the other never once. This is the empirical version of the standing
+rule that *a negative claim is the one most worth computing*.
 
 ### 1.8.0-2026-08-19
 Adds P25 and P26, both found in the **harness** of a cross-family adjudication rather than in
