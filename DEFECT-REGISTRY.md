@@ -743,6 +743,72 @@ reported only the lost pairs — the more natural design — the revert would ha
 would have caught this at step one — an audit that refuses to report on files with uncommitted
 modifications until it says so. Recorded as not written.
 
+### 32. A TEST THAT RE-IMPLEMENTS THE BRANCH IT TESTS — *it can pass while the shipped code differs*
+
+**Found 2026-08-19, in a test written the same night to protect a projector change.**
+`scripts/test_partial_state_projector.py` imports `projectors`, and then does this:
+
+```python
+def decide(body, tid):
+    """The projector's branch, exercised in isolation."""
+    carries = bool(re.search(r"<(?:pre|table|svg|li|dl)[ >/]", body)) \
+        or len(re.sub(r"<[^>]+>", " ", body).strip()) > 80
+    if carries and tid in P.PARTIAL_STATE:
+        return "Partially held.", P.PARTIAL_STATE[tid]
+    return "Not held in this object.", P.ABSENT_STATE.get(tid, "")
+```
+
+It imports the two **string tables** from the module and **re-implements the branch that
+chooses between them**. So it proves the strings are what the test expects, and that a copy of
+the logic behaves as written. **It cannot see the shipped branch at all.** Change the condition
+in `ssot/projectors.py` — invert it, delete it, make it unreachable — and this test still
+passes, green, on every run.
+
+> **The test and the code agree because they were written from the same understanding, not
+> because one checks the other.** Same family as a known-answer file built from synthetic
+> fixtures: the answer key inherits the assumption it exists to test.
+
+It was not harmless here. The re-implemented `decide()` *is* the real branch as of tonight, so
+the verdict happened to be true — true **by coincidence of authorship**, which is not a
+property anything can rely on tomorrow.
+
+**How it was caught:** not by the test. By rebuilding a real page and reading served bytes —
+which is what the test's own docstring says it is avoiding: *"Rebuilding seven live pages to
+find out whether a sentence is right is the wrong order."* That reasoning is right about cost
+and wrong about evidence.
+
+**Status: OPEN.** The two tests written later the same night —
+`scripts/test_screen_partial_note.py` and `scripts/test_report_certainty_guard.py` — call the
+real functions and are not affected. `test_partial_state_projector.py` still holds its copy.
+The fix is to **expose the branch as a function in `projectors.py` and have the test call it**,
+so there is one implementation and the test is attached to it.
+
+**The rule:** a test may import DATA from the module under test; it must never re-implement the
+module's CONTROL FLOW. If a branch cannot be called, it is not testable — extract it until it is.
+
+### 33. A THRESHOLD TEN CHARACTERS FROM ITS VERDICT HAS STOPPED DISCRIMINATING
+
+**How to read class 31, and it generalises past it.** `BOCOCIZUMAB_LIPID`'s report panel
+measured **610 characters against a 600-character floor**. The verdict was "not thin, so no
+banner". The margin was **ten characters — 1.7%**.
+
+> **A panel ten characters above a threshold is not a panel that passed. It is a threshold that
+> has stopped discriminating.** At that distance the verdict is decided by how long an outcome
+> name happens to be, and the same object with a shorter label produces the opposite answer.
+
+**So report the margin, not just the verdict.** `PASS` tells a reader the test was met;
+`PASS (610 vs 600, margin 10)` tells them whether the test *means* anything on that input.
+
+| threshold | where | reports its margin? |
+|---|---|---|
+| `FLOOR_CHARS = 600` | `ssot/projectors.py`, thin-panel test | **no** — this is the one that bit |
+| `PAPER_FLOOR = 1500` | `scripts/rederive_manuscript_count_2026_08_19.py` | partly — it states the gap it sits in (≈350 vs ≈6,300) is wide, which is the honest form of the same disclosure |
+| `> 80` chars | `_carries_something`, the partial-state branch | **no** |
+
+**Status: PARTIAL.** Named, and the manuscript re-derivation already discloses its margin as a
+range. Nothing yet makes a threshold print its distance automatically, and until it does, a
+`PASS` from any of them is silent about whether it was close.
+
 ### 30. A COMPOSITE REFUSAL IS TRUE OF SOME PAGES AND FALSE OF OTHERS — *and it reads identically on both*
 
 **Found 2026-08-19, while applying the fix for class 29.** The third projector state was written
