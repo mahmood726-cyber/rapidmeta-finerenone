@@ -1,0 +1,811 @@
+{
+ "computed_utc": "2026-08-19",
+ "independence_statement": "Computed from merge_adjudication.json plus current SSOT JSON files. This script does not import or execute the merge executor.",
+ "proof_rule": "For each MERGE cluster, the retired object's original payload is taken from THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT when the topic is already a RETIRED tombstone, otherwise from the live topic object. Current union is proven only when that original object exists verbatim somewhere in the survivor and every retired trial id is present in survivor inputs.trials. Deferred clusters also get a simulated absorption check without writing files.",
+ "counts": {
+  "expected_merge_clusters": 12,
+  "merge_clusters_checked": 12,
+  "retired_topic_proofs_checked": 13,
+  "non_merge_clusters_excluded": 1,
+  "clusters_current_union_proven": 9,
+  "clusters_deferred_or_not_currently_absorbed_but_simulated_proven": 3,
+  "clusters_failed": 0,
+  "retired_topics_current_union_proven": 10,
+  "retired_topics_simulated_union_proven": 13,
+  "absorbed_payload_direct_original": 0,
+  "absorbed_payload_contains_original": 10,
+  "absorbed_payload_absent": 3
+ },
+ "expectation_checks": {
+  "merge_cluster_count_is_expected": true,
+  "no_union_proof_failures": true,
+  "all_retired_topics_simulated_union_proven": true
+ },
+ "hardcode_disclosure": [
+  {
+   "item": "DATE",
+   "classification": "static run stamp",
+   "value": "2026-08-19",
+   "reason": "The batch being audited is dated 2026-08-19."
+  },
+  {
+   "item": "EXPECTED_MERGE_CLUSTERS",
+   "classification": "static guard",
+   "value": 12,
+   "reason": "The user requested exactly twelve merge-cluster proofs."
+  },
+  {
+   "item": "cluster members, survivors, retired topics, object payloads, trials, pages",
+   "classification": "dynamic",
+   "value": "read from merge_adjudication.json, PAGE_MAP.json, and ssot/*/*.json",
+   "reason": "No proof result is hardcoded."
+  }
+ ],
+ "non_merge_clusters_excluded": [
+  {
+   "cluster": [
+    "cryptococcal-meningitis",
+    "cryptococcal-meningitis-africa"
+   ],
+   "verdict": "NOT_AN_IDENTICAL_SET_REPORT_ONLY"
+  }
+ ],
+ "rows": [
+  {
+   "cluster": [
+    "bamlanivimab-covid",
+    "bamlanivimab-outp"
+   ],
+   "survivor": "bamlanivimab-covid",
+   "retire": [
+    "bamlanivimab-outp"
+   ],
+   "survivor_page": "BAMLANIVIMAB_COVID_AUTO_FULL_REVIEW.html",
+   "survivor_page_exists": true,
+   "status": "CURRENT_UNION_PROVEN",
+   "proofs": [
+    {
+     "retired": "bamlanivimab-outp",
+     "source_used_for_retired_object": "tombstone_chain_unwrapped_original",
+     "original_object_sha256": "9f633eb17c67d5e912450bee91143a71661b580aace9c3ab5f2f49cdc50d266f",
+     "leaves_in_original_retired_object": 94,
+     "original_trial_ids": [
+      "NCT04427501"
+     ],
+     "survivor_trial_ids": [
+      "NCT04427501"
+     ],
+     "trials_not_in_survivor_inputs": [],
+     "current_survivor_contains_original_verbatim": true,
+     "current_original_locations": [
+      "/absorbed_topics/bamlanivimab-outp/THE_WHOLE_OBJECT_VERBATIM/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+     ],
+     "absorbed_payload": {
+      "absorbed_block_present": true,
+      "payload_kind": "payload_contains_original",
+      "direct_payload_verbatim": false,
+      "recoverable_original_verbatim": true,
+      "original_locations_inside_payload": [
+       "/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+      ],
+      "recoverable_original_locations": [
+       "/absorbed_topics/bamlanivimab-outp/THE_WHOLE_OBJECT_VERBATIM/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+      ]
+     },
+     "simulated_absorption_contains_original_verbatim": true,
+     "simulated_original_locations": [
+      "/absorbed_topics/bamlanivimab-outp/THE_WHOLE_OBJECT_VERBATIM"
+     ],
+     "current_union_proven": true,
+     "simulated_union_proven": true,
+     "tombstone_checks": {
+      "is_tombstone": true,
+      "tombstone_depth": 2,
+      "outer_absorbed_by": "bamlanivimab-covid",
+      "outer_absorbed_by_matches_survivor": true,
+      "outer_trials_it_held_matches_original": false,
+      "chain_sha256": [
+       "784dfcca2cc799b99207f0102b3f5d750aff05cd1f1883fe41ccd74cc4823d8a",
+       "0c953d871ad931846a2c5bcf323d22d42ea11d27c0dd8e16d1c2708ded9b0713"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "cluster": [
+    "bezlotoxumab-cdi",
+    "bezlotoxumab-cdiff"
+   ],
+   "survivor": "bezlotoxumab-cdi",
+   "retire": [
+    "bezlotoxumab-cdiff"
+   ],
+   "survivor_page": "BEZLOTOXUMAB_CDI_AUTO_FULL_REVIEW.html",
+   "survivor_page_exists": true,
+   "status": "CURRENT_UNION_PROVEN",
+   "proofs": [
+    {
+     "retired": "bezlotoxumab-cdiff",
+     "source_used_for_retired_object": "tombstone_chain_unwrapped_original",
+     "original_object_sha256": "65c218d49dfdd6c956c4c5838a3beafff844d90a44802017d1da7a3047abe70b",
+     "leaves_in_original_retired_object": 92,
+     "original_trial_ids": [
+      "NCT01241552",
+      "NCT01513239"
+     ],
+     "survivor_trial_ids": [
+      "NCT01241552",
+      "NCT01513239"
+     ],
+     "trials_not_in_survivor_inputs": [],
+     "current_survivor_contains_original_verbatim": true,
+     "current_original_locations": [
+      "/absorbed_topics/bezlotoxumab-cdiff/THE_WHOLE_OBJECT_VERBATIM/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+     ],
+     "absorbed_payload": {
+      "absorbed_block_present": true,
+      "payload_kind": "payload_contains_original",
+      "direct_payload_verbatim": false,
+      "recoverable_original_verbatim": true,
+      "original_locations_inside_payload": [
+       "/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+      ],
+      "recoverable_original_locations": [
+       "/absorbed_topics/bezlotoxumab-cdiff/THE_WHOLE_OBJECT_VERBATIM/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+      ]
+     },
+     "simulated_absorption_contains_original_verbatim": true,
+     "simulated_original_locations": [
+      "/absorbed_topics/bezlotoxumab-cdiff/THE_WHOLE_OBJECT_VERBATIM"
+     ],
+     "current_union_proven": true,
+     "simulated_union_proven": true,
+     "tombstone_checks": {
+      "is_tombstone": true,
+      "tombstone_depth": 2,
+      "outer_absorbed_by": "bezlotoxumab-cdi",
+      "outer_absorbed_by_matches_survivor": true,
+      "outer_trials_it_held_matches_original": false,
+      "chain_sha256": [
+       "75c8269aefcfb08538933d7f5730ce69a28675a02b4d05b7eb5355b03c7b0061",
+       "3402e5377c9c6f75022362909682e55f06893ecb02cfdab4364b16a241bfc778"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "cluster": [
+    "ceftolozane-infection-auto-full-review",
+    "ceftolozane-taz-auto-full-review"
+   ],
+   "survivor": "ceftolozane-infection-auto-full-review",
+   "retire": [
+    "ceftolozane-taz-auto-full-review"
+   ],
+   "survivor_page": "CEFTOLOZANE_INFECTION_AUTO_FULL_REVIEW.html",
+   "survivor_page_exists": true,
+   "status": "CURRENT_UNION_PROVEN",
+   "proofs": [
+    {
+     "retired": "ceftolozane-taz-auto-full-review",
+     "source_used_for_retired_object": "tombstone_chain_unwrapped_original",
+     "original_object_sha256": "271fc8e3edd1dba81623853800becb6c5b819811cdb637ba1f98c7de21ad9c4b",
+     "leaves_in_original_retired_object": 69,
+     "original_trial_ids": [
+      "NCT01345929",
+      "NCT01445665",
+      "NCT02070757"
+     ],
+     "survivor_trial_ids": [
+      "NCT01345929",
+      "NCT01445665",
+      "NCT02070757"
+     ],
+     "trials_not_in_survivor_inputs": [],
+     "current_survivor_contains_original_verbatim": true,
+     "current_original_locations": [
+      "/absorbed_topics/ceftolozane-taz-auto-full-review/THE_WHOLE_OBJECT_VERBATIM/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+     ],
+     "absorbed_payload": {
+      "absorbed_block_present": true,
+      "payload_kind": "payload_contains_original",
+      "direct_payload_verbatim": false,
+      "recoverable_original_verbatim": true,
+      "original_locations_inside_payload": [
+       "/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+      ],
+      "recoverable_original_locations": [
+       "/absorbed_topics/ceftolozane-taz-auto-full-review/THE_WHOLE_OBJECT_VERBATIM/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+      ]
+     },
+     "simulated_absorption_contains_original_verbatim": true,
+     "simulated_original_locations": [
+      "/absorbed_topics/ceftolozane-taz-auto-full-review/THE_WHOLE_OBJECT_VERBATIM"
+     ],
+     "current_union_proven": true,
+     "simulated_union_proven": true,
+     "tombstone_checks": {
+      "is_tombstone": true,
+      "tombstone_depth": 2,
+      "outer_absorbed_by": "ceftolozane-infection-auto-full-review",
+      "outer_absorbed_by_matches_survivor": true,
+      "outer_trials_it_held_matches_original": false,
+      "chain_sha256": [
+       "d48bc2937888404d996c21c1034c7d0acc37578309621610d674d6fd9235b646",
+       "ab981f9a2eac970e31f98e6ef1461e093d39691fddd4f133ba44eb2f946b6ea3"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "cluster": [
+    "cvncov-covid19",
+    "cvncov-sarscov2"
+   ],
+   "survivor": "cvncov-covid19",
+   "retire": [
+    "cvncov-sarscov2"
+   ],
+   "survivor_page": "CVNCOV_COVID19_AUTO_FULL_REVIEW.html",
+   "survivor_page_exists": true,
+   "status": "CURRENT_UNION_PROVEN",
+   "proofs": [
+    {
+     "retired": "cvncov-sarscov2",
+     "source_used_for_retired_object": "tombstone_chain_unwrapped_original",
+     "original_object_sha256": "479604472362309a86197e0735b14fa393ab8d6bad8b75dfa087e3e10ed79a0d",
+     "leaves_in_original_retired_object": 104,
+     "original_trial_ids": [
+      "NCT04652102",
+      "NCT04674189"
+     ],
+     "survivor_trial_ids": [
+      "NCT04652102",
+      "NCT04674189"
+     ],
+     "trials_not_in_survivor_inputs": [],
+     "current_survivor_contains_original_verbatim": true,
+     "current_original_locations": [
+      "/absorbed_topics/cvncov-sarscov2/THE_WHOLE_OBJECT_VERBATIM/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+     ],
+     "absorbed_payload": {
+      "absorbed_block_present": true,
+      "payload_kind": "payload_contains_original",
+      "direct_payload_verbatim": false,
+      "recoverable_original_verbatim": true,
+      "original_locations_inside_payload": [
+       "/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+      ],
+      "recoverable_original_locations": [
+       "/absorbed_topics/cvncov-sarscov2/THE_WHOLE_OBJECT_VERBATIM/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+      ]
+     },
+     "simulated_absorption_contains_original_verbatim": true,
+     "simulated_original_locations": [
+      "/absorbed_topics/cvncov-sarscov2/THE_WHOLE_OBJECT_VERBATIM"
+     ],
+     "current_union_proven": true,
+     "simulated_union_proven": true,
+     "tombstone_checks": {
+      "is_tombstone": true,
+      "tombstone_depth": 2,
+      "outer_absorbed_by": "cvncov-covid19",
+      "outer_absorbed_by_matches_survivor": true,
+      "outer_trials_it_held_matches_original": false,
+      "chain_sha256": [
+       "21a3306404f5eeab83f05b9e7cef0852318ad667aa2c3925516c7a93b52b648a",
+       "dfa3d2825fa205cafda4437d3225e4479d3b0c1a2441e81867220fc5d1eadd2b"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "cluster": [
+    "ertapenem-auto-full-review",
+    "ertapenem-infect-auto-full-review"
+   ],
+   "survivor": "ertapenem-auto-full-review",
+   "retire": [
+    "ertapenem-infect-auto-full-review"
+   ],
+   "survivor_page": "ERTAPENEM_AUTO_FULL_REVIEW.html",
+   "survivor_page_exists": true,
+   "status": "CURRENT_UNION_PROVEN",
+   "proofs": [
+    {
+     "retired": "ertapenem-infect-auto-full-review",
+     "source_used_for_retired_object": "tombstone_chain_unwrapped_original",
+     "original_object_sha256": "cbd470deb66176263175f6647fdf1ebd4d9a88438ad0981f7ee49095d794a30f",
+     "leaves_in_original_retired_object": 60,
+     "original_trial_ids": [
+      "NCT01014013",
+      "NCT01265784"
+     ],
+     "survivor_trial_ids": [
+      "NCT01014013",
+      "NCT01265784"
+     ],
+     "trials_not_in_survivor_inputs": [],
+     "current_survivor_contains_original_verbatim": true,
+     "current_original_locations": [
+      "/absorbed_topics/ertapenem-infect-auto-full-review/THE_WHOLE_OBJECT_VERBATIM/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+     ],
+     "absorbed_payload": {
+      "absorbed_block_present": true,
+      "payload_kind": "payload_contains_original",
+      "direct_payload_verbatim": false,
+      "recoverable_original_verbatim": true,
+      "original_locations_inside_payload": [
+       "/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+      ],
+      "recoverable_original_locations": [
+       "/absorbed_topics/ertapenem-infect-auto-full-review/THE_WHOLE_OBJECT_VERBATIM/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+      ]
+     },
+     "simulated_absorption_contains_original_verbatim": true,
+     "simulated_original_locations": [
+      "/absorbed_topics/ertapenem-infect-auto-full-review/THE_WHOLE_OBJECT_VERBATIM"
+     ],
+     "current_union_proven": true,
+     "simulated_union_proven": true,
+     "tombstone_checks": {
+      "is_tombstone": true,
+      "tombstone_depth": 2,
+      "outer_absorbed_by": "ertapenem-auto-full-review",
+      "outer_absorbed_by_matches_survivor": true,
+      "outer_trials_it_held_matches_original": false,
+      "chain_sha256": [
+       "3b426f19380fda08ecbb5e860ed357b3958bd251baf14bdeaf416ad1ed75dcef",
+       "d1a7d13a2347d7db0ae7b13a10e77289b11019696923cdaa4ce29a163c27609d"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "cluster": [
+    "lefamulin-cabp-auto-full-review",
+    "lefamulin-cap-auto-full-review"
+   ],
+   "survivor": "lefamulin-cabp-auto-full-review",
+   "retire": [
+    "lefamulin-cap-auto-full-review"
+   ],
+   "survivor_page": "LEFAMULIN_CABP_AUTO_FULL_REVIEW.html",
+   "survivor_page_exists": true,
+   "status": "CURRENT_UNION_PROVEN",
+   "proofs": [
+    {
+     "retired": "lefamulin-cap-auto-full-review",
+     "source_used_for_retired_object": "tombstone_chain_unwrapped_original",
+     "original_object_sha256": "fb27619e6d16dd3fe7d2713cb67b48a7cf81738ba3a564a42bb58ece9a9cbca6",
+     "leaves_in_original_retired_object": 124,
+     "original_trial_ids": [
+      "NCT02559310",
+      "NCT02813694"
+     ],
+     "survivor_trial_ids": [
+      "NCT02559310",
+      "NCT02813694"
+     ],
+     "trials_not_in_survivor_inputs": [],
+     "current_survivor_contains_original_verbatim": true,
+     "current_original_locations": [
+      "/absorbed_topics/lefamulin-cap-auto-full-review/THE_WHOLE_OBJECT_VERBATIM/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+     ],
+     "absorbed_payload": {
+      "absorbed_block_present": true,
+      "payload_kind": "payload_contains_original",
+      "direct_payload_verbatim": false,
+      "recoverable_original_verbatim": true,
+      "original_locations_inside_payload": [
+       "/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+      ],
+      "recoverable_original_locations": [
+       "/absorbed_topics/lefamulin-cap-auto-full-review/THE_WHOLE_OBJECT_VERBATIM/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+      ]
+     },
+     "simulated_absorption_contains_original_verbatim": true,
+     "simulated_original_locations": [
+      "/absorbed_topics/lefamulin-cap-auto-full-review/THE_WHOLE_OBJECT_VERBATIM"
+     ],
+     "current_union_proven": true,
+     "simulated_union_proven": true,
+     "tombstone_checks": {
+      "is_tombstone": true,
+      "tombstone_depth": 2,
+      "outer_absorbed_by": "lefamulin-cabp-auto-full-review",
+      "outer_absorbed_by_matches_survivor": true,
+      "outer_trials_it_held_matches_original": false,
+      "chain_sha256": [
+       "2c56a4883a22636c6bc9136f1310ca271b753dbf33e7482ad4b65d8df475eee8",
+       "2369fe5b63c9cda6ff1a41f09d9ca7b143d0834bef6800563243fc9533d1fad2"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "cluster": [
+    "lenacapavir-prep",
+    "lenacapavir-prep-review"
+   ],
+   "survivor": "lenacapavir-prep",
+   "retire": [
+    "lenacapavir-prep-review"
+   ],
+   "survivor_page": null,
+   "survivor_page_exists": false,
+   "status": "NOT_CURRENTLY_ABSORBED_BUT_SIMULATED_UNION_PROVEN",
+   "proofs": [
+    {
+     "retired": "lenacapavir-prep-review",
+     "source_used_for_retired_object": "live_object",
+     "original_object_sha256": "f902db81fdc8da734891931064ca975a565a2376351adce49ffc2dc80b104fb6",
+     "leaves_in_original_retired_object": 84,
+     "original_trial_ids": [
+      "NCT04925752",
+      "NCT04994509"
+     ],
+     "survivor_trial_ids": [
+      "NCT04925752",
+      "NCT04994509"
+     ],
+     "trials_not_in_survivor_inputs": [],
+     "current_survivor_contains_original_verbatim": false,
+     "current_original_locations": [],
+     "absorbed_payload": {
+      "absorbed_block_present": false,
+      "payload_kind": "absent",
+      "direct_payload_verbatim": false,
+      "recoverable_original_verbatim": false,
+      "recoverable_original_locations": []
+     },
+     "simulated_absorption_contains_original_verbatim": true,
+     "simulated_original_locations": [
+      "/absorbed_topics/lenacapavir-prep-review/THE_WHOLE_OBJECT_VERBATIM"
+     ],
+     "current_union_proven": false,
+     "simulated_union_proven": true,
+     "tombstone_checks": {
+      "is_tombstone": false,
+      "tombstone_depth": 0
+     }
+    }
+   ]
+  },
+  {
+   "cluster": [
+    "mavacamten-ohcm",
+    "mavacamten-ohcm-review"
+   ],
+   "survivor": "mavacamten-ohcm-review",
+   "retire": [
+    "mavacamten-ohcm"
+   ],
+   "survivor_page": null,
+   "survivor_page_exists": false,
+   "status": "NOT_CURRENTLY_ABSORBED_BUT_SIMULATED_UNION_PROVEN",
+   "proofs": [
+    {
+     "retired": "mavacamten-ohcm",
+     "source_used_for_retired_object": "live_object",
+     "original_object_sha256": "104689ae1cc78def08f19370b611000680c3880c58c749672edf31c7fec19ebc",
+     "leaves_in_original_retired_object": 53,
+     "original_trial_ids": [
+      "NCT03470545"
+     ],
+     "survivor_trial_ids": [
+      "NCT03470545"
+     ],
+     "trials_not_in_survivor_inputs": [],
+     "current_survivor_contains_original_verbatim": false,
+     "current_original_locations": [],
+     "absorbed_payload": {
+      "absorbed_block_present": false,
+      "payload_kind": "absent",
+      "direct_payload_verbatim": false,
+      "recoverable_original_verbatim": false,
+      "recoverable_original_locations": []
+     },
+     "simulated_absorption_contains_original_verbatim": true,
+     "simulated_original_locations": [
+      "/absorbed_topics/mavacamten-ohcm/THE_WHOLE_OBJECT_VERBATIM"
+     ],
+     "current_union_proven": false,
+     "simulated_union_proven": true,
+     "tombstone_checks": {
+      "is_tombstone": false,
+      "tombstone_depth": 0
+     }
+    }
+   ]
+  },
+  {
+   "cluster": [
+    "omecamtiv-heartfail",
+    "omecamtiv-hf",
+    "omecamtiv-hfref"
+   ],
+   "survivor": "omecamtiv-heartfail",
+   "retire": [
+    "omecamtiv-hf",
+    "omecamtiv-hfref"
+   ],
+   "survivor_page": "OMECAMTIV_HEARTFAIL_AUTO_FULL_REVIEW.html",
+   "survivor_page_exists": true,
+   "status": "CURRENT_UNION_PROVEN",
+   "proofs": [
+    {
+     "retired": "omecamtiv-hf",
+     "source_used_for_retired_object": "tombstone_chain_unwrapped_original",
+     "original_object_sha256": "23daacdd82cf8481e9dbb551dd85b068718d9f042f53c95db931e17e5c6ad49d",
+     "leaves_in_original_retired_object": 63,
+     "original_trial_ids": [
+      "NCT02929329"
+     ],
+     "survivor_trial_ids": [
+      "NCT02929329"
+     ],
+     "trials_not_in_survivor_inputs": [],
+     "current_survivor_contains_original_verbatim": true,
+     "current_original_locations": [
+      "/absorbed_topics/omecamtiv-hf/THE_WHOLE_OBJECT_VERBATIM/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+     ],
+     "absorbed_payload": {
+      "absorbed_block_present": true,
+      "payload_kind": "payload_contains_original",
+      "direct_payload_verbatim": false,
+      "recoverable_original_verbatim": true,
+      "original_locations_inside_payload": [
+       "/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+      ],
+      "recoverable_original_locations": [
+       "/absorbed_topics/omecamtiv-hf/THE_WHOLE_OBJECT_VERBATIM/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+      ]
+     },
+     "simulated_absorption_contains_original_verbatim": true,
+     "simulated_original_locations": [
+      "/absorbed_topics/omecamtiv-hf/THE_WHOLE_OBJECT_VERBATIM"
+     ],
+     "current_union_proven": true,
+     "simulated_union_proven": true,
+     "tombstone_checks": {
+      "is_tombstone": true,
+      "tombstone_depth": 2,
+      "outer_absorbed_by": "omecamtiv-heartfail",
+      "outer_absorbed_by_matches_survivor": true,
+      "outer_trials_it_held_matches_original": false,
+      "chain_sha256": [
+       "59ce08905ad753fa9412cf088df07ee293a0ec169ebaeec11f257f37635c4821",
+       "d07855909ba32b24565c1967abe185ff5af8dd579e78b8c5998cba79b04a1ed3"
+      ]
+     }
+    },
+    {
+     "retired": "omecamtiv-hfref",
+     "source_used_for_retired_object": "tombstone_chain_unwrapped_original",
+     "original_object_sha256": "c737a5023f3149174539d70a8848bfa53cb6781c11cecdf6bcdd3d52fbe7da0a",
+     "leaves_in_original_retired_object": 63,
+     "original_trial_ids": [
+      "NCT02929329"
+     ],
+     "survivor_trial_ids": [
+      "NCT02929329"
+     ],
+     "trials_not_in_survivor_inputs": [],
+     "current_survivor_contains_original_verbatim": true,
+     "current_original_locations": [
+      "/absorbed_topics/omecamtiv-hfref/THE_WHOLE_OBJECT_VERBATIM/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+     ],
+     "absorbed_payload": {
+      "absorbed_block_present": true,
+      "payload_kind": "payload_contains_original",
+      "direct_payload_verbatim": false,
+      "recoverable_original_verbatim": true,
+      "original_locations_inside_payload": [
+       "/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+      ],
+      "recoverable_original_locations": [
+       "/absorbed_topics/omecamtiv-hfref/THE_WHOLE_OBJECT_VERBATIM/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+      ]
+     },
+     "simulated_absorption_contains_original_verbatim": true,
+     "simulated_original_locations": [
+      "/absorbed_topics/omecamtiv-hfref/THE_WHOLE_OBJECT_VERBATIM"
+     ],
+     "current_union_proven": true,
+     "simulated_union_proven": true,
+     "tombstone_checks": {
+      "is_tombstone": true,
+      "tombstone_depth": 2,
+      "outer_absorbed_by": "omecamtiv-heartfail",
+      "outer_absorbed_by_matches_survivor": true,
+      "outer_trials_it_held_matches_original": false,
+      "chain_sha256": [
+       "119694c11d91a487959fe63e2ada7d84e9e24bfa16fc09c324ea35d710c4f9d5",
+       "85570cd79d1f41884a0617334fbcd0e1f96ef465450075d9f84b49415abaf4f7"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "cluster": [
+    "pcsk9-inhibitors-cv-review",
+    "pcsk9-review"
+   ],
+   "survivor": "pcsk9-inhibitors-cv-review",
+   "retire": [
+    "pcsk9-review"
+   ],
+   "survivor_page": null,
+   "survivor_page_exists": false,
+   "status": "NOT_CURRENTLY_ABSORBED_BUT_SIMULATED_UNION_PROVEN",
+   "proofs": [
+    {
+     "retired": "pcsk9-review",
+     "source_used_for_retired_object": "live_object",
+     "original_object_sha256": "307e6498f708a9a98f9cbbe645f498f979e8cd8b3940673da148364bc7a3fe3d",
+     "leaves_in_original_retired_object": 368,
+     "original_trial_ids": [
+      "NCT01663402",
+      "NCT01764633"
+     ],
+     "survivor_trial_ids": [
+      "NCT01663402",
+      "NCT01764633"
+     ],
+     "trials_not_in_survivor_inputs": [],
+     "current_survivor_contains_original_verbatim": false,
+     "current_original_locations": [],
+     "absorbed_payload": {
+      "absorbed_block_present": false,
+      "payload_kind": "absent",
+      "direct_payload_verbatim": false,
+      "recoverable_original_verbatim": false,
+      "recoverable_original_locations": []
+     },
+     "simulated_absorption_contains_original_verbatim": true,
+     "simulated_original_locations": [
+      "/absorbed_topics/pcsk9-review/THE_WHOLE_OBJECT_VERBATIM"
+     ],
+     "current_union_proven": false,
+     "simulated_union_proven": true,
+     "tombstone_checks": {
+      "is_tombstone": false,
+      "tombstone_depth": 0
+     }
+    }
+   ]
+  },
+  {
+   "cluster": [
+    "sacubitril-heartfail",
+    "sacubitril-valsartan-hf"
+   ],
+   "survivor": "sacubitril-heartfail",
+   "retire": [
+    "sacubitril-valsartan-hf"
+   ],
+   "survivor_page": "SACUBITRIL_HEARTFAIL_AUTO_FULL_REVIEW.html",
+   "survivor_page_exists": true,
+   "status": "CURRENT_UNION_PROVEN",
+   "proofs": [
+    {
+     "retired": "sacubitril-valsartan-hf",
+     "source_used_for_retired_object": "tombstone_chain_unwrapped_original",
+     "original_object_sha256": "ea70ff6c7ea1af9279a9194ed805a8b832ba050040a1a91f1553aa3900569152",
+     "leaves_in_original_retired_object": 64,
+     "original_trial_ids": [
+      "NCT01035255"
+     ],
+     "survivor_trial_ids": [
+      "NCT01035255"
+     ],
+     "trials_not_in_survivor_inputs": [],
+     "current_survivor_contains_original_verbatim": true,
+     "current_original_locations": [
+      "/absorbed_topics/sacubitril-valsartan-hf/THE_WHOLE_OBJECT_VERBATIM/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+     ],
+     "absorbed_payload": {
+      "absorbed_block_present": true,
+      "payload_kind": "payload_contains_original",
+      "direct_payload_verbatim": false,
+      "recoverable_original_verbatim": true,
+      "original_locations_inside_payload": [
+       "/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+      ],
+      "recoverable_original_locations": [
+       "/absorbed_topics/sacubitril-valsartan-hf/THE_WHOLE_OBJECT_VERBATIM/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+      ]
+     },
+     "simulated_absorption_contains_original_verbatim": true,
+     "simulated_original_locations": [
+      "/absorbed_topics/sacubitril-valsartan-hf/THE_WHOLE_OBJECT_VERBATIM"
+     ],
+     "current_union_proven": true,
+     "simulated_union_proven": true,
+     "tombstone_checks": {
+      "is_tombstone": true,
+      "tombstone_depth": 2,
+      "outer_absorbed_by": "sacubitril-heartfail",
+      "outer_absorbed_by_matches_survivor": true,
+      "outer_trials_it_held_matches_original": false,
+      "chain_sha256": [
+       "3d7991fc037f1565242098a7fd42e64a9bf3490a673aa5fd3e8df71e7ea56937",
+       "37caba4f5a9bd3731d6ef3153a948f26785f6ff81fa146d912f9e631fd7397e5"
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "cluster": [
+    "sotatercept-pah",
+    "sotatercept-pah-auto2"
+   ],
+   "survivor": "sotatercept-pah",
+   "retire": [
+    "sotatercept-pah-auto2"
+   ],
+   "survivor_page": "SOTATERCEPT_PAH_AUTO_FULL_REVIEW.html",
+   "survivor_page_exists": true,
+   "status": "CURRENT_UNION_PROVEN",
+   "proofs": [
+    {
+     "retired": "sotatercept-pah-auto2",
+     "source_used_for_retired_object": "tombstone_chain_unwrapped_original",
+     "original_object_sha256": "4002cfd413491425ea080fdc4394ab3e1745f8b63891bc6f6591d61e6410db5e",
+     "leaves_in_original_retired_object": 68,
+     "original_trial_ids": [
+      "NCT03496207",
+      "NCT04896008"
+     ],
+     "survivor_trial_ids": [
+      "NCT03496207",
+      "NCT04896008"
+     ],
+     "trials_not_in_survivor_inputs": [],
+     "current_survivor_contains_original_verbatim": true,
+     "current_original_locations": [
+      "/absorbed_topics/sotatercept-pah-auto2/THE_WHOLE_OBJECT_VERBATIM/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+     ],
+     "absorbed_payload": {
+      "absorbed_block_present": true,
+      "payload_kind": "payload_contains_original",
+      "direct_payload_verbatim": false,
+      "recoverable_original_verbatim": true,
+      "original_locations_inside_payload": [
+       "/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+      ],
+      "recoverable_original_locations": [
+       "/absorbed_topics/sotatercept-pah-auto2/THE_WHOLE_OBJECT_VERBATIM/THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT"
+      ]
+     },
+     "simulated_absorption_contains_original_verbatim": true,
+     "simulated_original_locations": [
+      "/absorbed_topics/sotatercept-pah-auto2/THE_WHOLE_OBJECT_VERBATIM"
+     ],
+     "current_union_proven": true,
+     "simulated_union_proven": true,
+     "tombstone_checks": {
+      "is_tombstone": true,
+      "tombstone_depth": 2,
+      "outer_absorbed_by": "sotatercept-pah",
+      "outer_absorbed_by_matches_survivor": true,
+      "outer_trials_it_held_matches_original": false,
+      "chain_sha256": [
+       "92fad0079c255a2ac94c80e1284f770fe5ff3b3b2169f8dbdff8f98378be4ee5",
+       "cc03374edbd4492c6d699c24f2ac0dd39cbd89b0f8a829a76b42c61968dad6a6"
+      ]
+     }
+    }
+   ]
+  }
+ ]
+}
