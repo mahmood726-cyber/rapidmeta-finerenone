@@ -141,6 +141,7 @@
  #rt-analysis:focus-visible ~ .tabnav label[for="rt-analysis"]{outline:3px solid var(--accent);outline-offset:2px}
  #rt-report:checked ~ .panels > #pn-report{height:auto;overflow:visible}
  #rt-report:checked ~ .tabnav label[for="rt-report"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-report:focus-visible ~ .tabnav label[for="rt-report"]{outline:3px solid var(--accent);outline-offset:2px}
  #rt-paper:checked ~ .panels > #pn-paper{height:auto;overflow:visible}
  #rt-paper:checked ~ .tabnav label[for="rt-paper"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  #rt-paper:focus-visible ~ .tabnav label[for="rt-paper"]{outline:3px solid var(--accent);outline-offset:2px}
@@ -214,7 +215,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
  <label for="rt-screen">3. Screening</label>
   <label for="rt-extract">4. Extraction</label>
   <label for="rt-analysis">5. Analysis Suite</label>
- <label for="rt-report">6. Scientific Output</label>
+  <label for="rt-report">6. Scientific Output</label>
   <label for="rt-paper">7. Paper Studio</label>
  <label for="rt-statistics">Statistics</label>
 </nav>
@@ -253,6 +254,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
   </section>
 <!--end-protocol--> <section class="panel" id="pn-search">
+<div class="absent-state" role="note"><strong>Partially held.</strong> The executed query is held on this object and is shown below. Its YIELD is not: the record does not carry the identifiers this query returned, so the number of records and their disposition cannot be shown and the table below is empty for that reason.</div>
 <div class='card'>
   <h3>ClinicalTrials.gov API v2</h3>
   <p><small>Query as executed:</small></p>
@@ -282,7 +284,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
  </section>
 <!--end-search--> <section class="panel" id="pn-screen">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No screening log is recorded for this review. The included set was reconciled against published syntheses rather than screened from a search, so no records-identified, excluded-with-reason or dual-screening counts exist.</div>
+<div class="absent-state" role="note"><strong>Partially held.</strong> The per-record screening log IS held and is shown below: 22 records, none of which carries a stated reason. Not carried on this object: the records-identified and excluded-with-reason COUNTS that would reconcile these records to a PRISMA total, a reason for any individual exclusion and any dual-screening or adjudication record. Carrying them in the object's `screening` block would complete this tab.</div>
 <div class='card rec'>
   <h3> <small>NCT00991159</small></h3>
   <p><strong>This review's decision: EXCLUDED.</strong></p>
@@ -783,10 +785,11 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>The protocol pre-specifies no moderator, and at k = 6 a meta-regression would be fitted on 6 points. Not drawn rather than drawn with a caveat: a bubble plot invites reading a slope, and there is no slope here that any reader should read.</small></p>
 </div>
   </section>
-<!--end-analysis--> <section class="panel" id="pn-report">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No GRADE assessment or reconciliation record is held in this object, so the certainty of this evidence has not been rated.</div>
+<!--end-analysis-->  <section class="panel" id="pn-report">
+  <div class="absent-state" role="note"><strong>Partially held.</strong> Part of the reporting record is held and is shown below. No GRADE certainty rating is carried, so the certainty column is left as an em dash rather than guessed.</div>
+  <p class='toc'><strong>In this section:</strong> <a href="#report-summary-of-findings">Summary of findings</a> &middot; <a href="#report-reproducibility-artifact">Reproducibility artifact</a></p>
 <div class='card'>
-  <h3>Summary of findings</h3>
+  <h3 id="report-summary-of-findings">Summary of findings</h3>
   <div class='tscroll'><table>
     <caption>Table 17. Summary of findings</caption>
 
@@ -796,7 +799,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   </table></div>
 </div>
 <div class='card'>
-  <h3>Reproducibility artifact</h3>
+  <h3 id="report-reproducibility-artifact">Reproducibility artifact</h3>
   <div class='tscroll'><table>
     <caption>Table 18. Reproducibility artifact</caption>
 
@@ -804,11 +807,11 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2-authored-from-source</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-18T00:00Z</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>c0ab6e7a8</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>71adb35cd</code> (uncommitted generator changes -- NOT REPRODUCIBLE from this stamp alone), built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
- </section>
+  </section>
 <!--end-report-->  <section class="panel" id="pn-paper">
   <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-limitations">Limitations</a></p>
 <div class='card'>

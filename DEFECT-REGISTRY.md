@@ -743,6 +743,88 @@ reported only the lost pairs — the more natural design — the revert would ha
 would have caught this at step one — an audit that refuses to report on files with uncommitted
 modifications until it says so. Recorded as not written.
 
+### 31. A COMPOSITE REFUSAL IS TRUE OF SOME PAGES AND FALSE OF OTHERS — *and it reads identically on both*
+
+**Found 2026-08-19, while applying the fix for class 29.** The third projector state was written
+to replace a false refusal with a true one. Its sentence for the screening tab denies **three
+things in one breath**:
+
+> **Partially held.** Part of the screening record is held and is shown below. The counts that
+> would complete it — **records identified, excluded with reasons, dual-screening** — are not
+> carried on this object.
+
+Measured against the five pages that carry a screening log, the middle limb splits:
+
+| page | records | carrying a stated reason |
+|---|---:|---:|
+| `EARLY_RHYTHM_CONTROL_AF` | 551 | **551** |
+| `APIXABAN_VTE_PROPHYLAXIS` | 72 | **72** |
+| `APIXABAN_VTE_TREATMENT` | 72 | **72** |
+| `AZILSARTAN_CLD_VS_OLM_HCTZ` | 57 | **0** |
+| `BOCOCIZUMAB_LIPID` | 22 | **0** |
+
+So the one sentence is **false on the first three and true on the last two**, and a reader cannot
+tell which page they are on. **This is class 29 one level down** — the replacement refusal
+inherited the defect of the refusal it replaced, because it was a constant where it needed to be
+a computation.
+
+> A composite claim needs a composite check. **The correction of a composite claim needs one
+> too**, and that is the step that was missed: the fix for class 29 was itself written as a
+> literal string, which is precisely what P17 forbids in an object field and nothing forbade in a
+> banner.
+
+**Status: CLOSED for `screen`.** `ssot/projectors.py::screen_partial_note` computes the sentence
+from the panel's own rendered body — record count, how many carry a reason, whether an
+adjudication record exists, whether a counts table exists — and **returns None rather than
+guessing** when it cannot see a record card. Tested against all five founding cases in
+`scripts/test_screen_partial_note.py`, which asserts not merely that a sentence is produced but
+that **the two groups differ on the exact limb they differ on** — a test that only checked a
+sentence came back would pass on the defect.
+
+**Status: OPEN for the other five tabs.** `search`, `extract`, `analysis`, `report` and
+`protocol` still carry literal composite sentences. They are not known to be wrong; they are
+known to be **unchecked**, which after this class is a different statement from "fine".
+
+### 32. A PAGE'S HONEST STATEMENT WAS DECIDED BY A CHARACTER COUNT — *and the longer page said less*
+
+**Found 2026-08-19, in our own rebuild, before delivery.** The report tab's sentence —
+
+> No GRADE certainty rating is carried, so the certainty column is left as an em dash rather
+> than guessed.
+
+— was reachable **only through the thin-panel branch**, which fires when a panel's text falls
+under `FLOOR_CHARS = 600`. `BOCOCIZUMAB_LIPID`'s report panel measures **610 characters**.
+
+> **The page kept or lost the explanation of its own column of em dashes on a ten-character
+> margin** — and in the wrong direction: the page with the **larger** summary-of-findings table
+> is the one that silently drops the explanation, because a longer outcome name pushes it over
+> the floor.
+
+A length threshold is a sound test for *is this panel empty*. It is not a test for *does this
+review carry a certainty rating*, and it was being used as one.
+
+**Measured over the delivered corpus** (113 tabbed pages carrying a Certainty column):
+
+- **109** leave **every** outcome unrated;
+- **4** carry a rating — `ARNI_HF`, `IV_IRON_HF`, `SGLT2_HF`, `SOTAGLIFLOZIN_HF`. Three of those
+  four are among the four topics complete by the full definition, which is corroboration from an
+  independent direction and was not looked for;
+- of the 109, **105 already explain their em dashes and 4 do not**: `ABLATION_AF`,
+  `ALIROCUMAB_LIPID_AUTO_FULL`, `DOAC_AF`, `SGLT2_CKD`. **`BOCOCIZUMAB_LIPID` would have become
+  the fifth on delivery**, which is how the class was found — the rebuild diff, not a reader.
+
+**Status: CLOSED going forward.** `ssot/projectors.py::report_certainty_unrated` reads the
+certainty **cells** the reader sees and is indifferent to length; the banner is now emitted from
+the non-thin path as well. Proven in four parts per P16, each on a real page rather than a
+fixture: it fires on 109, stays silent on 4, and the case that settles it is **`SGLT2_HF`'s mixed
+column `['high', '—', '—']`** — a cruder all-or-nothing test would fire there and claim no rating
+is carried on a page that carries one. The triggering condition **actually occurred**: the
+610-character panel is the event.
+
+**Not repaired:** the four delivered pages above still show an unexplained em-dash column. They
+are named here rather than fixed, because each needs a rebuild of its own and this pass did not
+run one.
+
 ### 29. A REFUSAL CONTRADICTED BY THE CONTENT BENEATH IT — *a false refusal looks like diligence*
 
 **Found 2026-08-19, eleven delivered pages.** Each opened its search tab with:

@@ -126,6 +126,114 @@ ABSENT_STATE_CONVERTED = {
                 "was extracted from."),
 }
 
+_CARD_SPLIT_RE = re.compile(r"<div class='card (?:rec|warn)'>")
+_NON_DECISION_P_RE = re.compile(r"<p>(?!<strong>This review's decision)")
+_TABLE_RE = re.compile(r"<table[ >]")
+
+
+def screen_partial_note(body):
+    """The screen tab's PARTIAL sentence, COMPUTED FROM THE PANEL, never recited.
+
+    WHY THIS IS NOT A CONSTANT. `PARTIAL_STATE["screen"]` denies three things in one
+    breath -- records identified, excluded with reasons, dual-screening -- and on the
+    five pages that carry a screening log the middle limb splits:
+
+        EARLY_RHYTHM_CONTROL_AF   551 records, 551 carry a stated reason
+        APIXABAN_VTE_PROPHYLAXIS   72 records,  72 carry a stated reason
+        APIXABAN_VTE_TREATMENT     72 records,  72 carry a stated reason
+        AZILSARTAN_CLD_VS_OLM      57 records,   0 carry a stated reason
+        BOCOCIZUMAB_LIPID          22 records,   0 carry a stated reason
+
+    So one fixed sentence is FALSE on the first three and TRUE on the last two, and it
+    reads identically either way -- which is class 29 exactly, one level down from the
+    refusal that produced it. P17: a negative claim is COMPUTED and names what it was
+    computed against. This one is computed against the panel's own rendered body.
+
+    IT REFUSES TO GUESS. With no record card present it returns None, and the caller
+    falls back to the constant rather than composing a sentence about a log it cannot
+    see. A rule that cannot return nothing cannot tell you it does not know.
+    """
+    cards = [c.split("</div>")[0] for c in _CARD_SPLIT_RE.split(body)[1:]]
+    n_rec = body.count("<div class='card rec'>")
+    if not n_rec:
+        return None
+    n_adj = body.count("<div class='card warn'>")
+    with_reason = sum(1 for c in cards if _NON_DECISION_P_RE.search(c))
+    has_counts = bool(_TABLE_RE.search(body))
+
+    if with_reason == n_rec:
+        reasons = "every one carrying a stated reason"
+    elif with_reason == 0:
+        reasons = "none of which carries a stated reason"
+    else:
+        reasons = "%d of which carry a stated reason" % with_reason
+    held = ("The per-record screening log IS held and is shown below: %d record%s, %s"
+            % (n_rec, "" if n_rec == 1 else "s", reasons))
+    if n_adj:
+        held += ", and %d adjudication record%s" % (n_adj, "" if n_adj == 1 else "s")
+    held += "."
+
+    missing = []
+    if not has_counts:
+        missing.append("the records-identified and excluded-with-reason COUNTS that "
+                       "would reconcile these records to a PRISMA total")
+    if with_reason == 0:
+        missing.append("a reason for any individual exclusion")
+    elif with_reason < n_rec:
+        missing.append("a reason for the remaining %d record%s"
+                       % (n_rec - with_reason, "" if n_rec - with_reason == 1 else "s"))
+    if not n_adj:
+        missing.append("any dual-screening or adjudication record")
+    if not missing:
+        return None                        # nothing is missing; this is not a partial
+
+    if len(missing) == 1:
+        lack = missing[0]
+    else:
+        lack = ", ".join(missing[:-1]) + " and " + missing[-1]
+    return ("%s Not carried on this object: %s. Carrying %s in the object's `screening` "
+            "block would complete this tab."
+            % (held, lack, "them" if len(missing) > 1 else "it"))
+
+
+_SOF_ROW_RE = re.compile(r"<tr><td>.*?</tr>", re.S)
+_LAST_CELL_RE = re.compile(r"<td>([^<]*)</td>\s*</tr>\s*$", re.S)
+
+
+def report_certainty_unrated(body):
+    """Is EVERY outcome in the summary-of-findings table left unrated?
+
+    WHY THIS EXISTS, AND IT IS A DEFECT FOUND IN OUR OWN REBUILD. The report tab's
+    honest sentence -- "no GRADE certainty rating is carried, so the certainty column
+    is left as an em dash rather than guessed" -- was emitted only when the panel fell
+    under FLOOR_CHARS. BOCOCIZUMAB_LIPID's report panel measures 610 characters.
+
+        THE PAGE KEPT OR LOST ITS EXPLANATION OF A COLUMN OF EM DASHES ON A TEN
+        CHARACTER MARGIN, and the direction is the wrong way round: the page with the
+        LONGER summary table is the one that silently drops the explanation.
+
+    A length threshold is a fine test for "is this panel empty". It is not a test for
+    "does this review have a certainty rating", and it was being used as one. This
+    reads the CELLS -- the same cells the reader sees -- and is indifferent to length.
+
+    Returns True only when a Certainty column exists AND at least one outcome row is
+    present AND every one of them is an em dash. No table, or no rows, returns False:
+    absent is NOT_ASSESSABLE, and this function must not turn "I could not look" into
+    "there is nothing there".
+    """
+    if "<th>Certainty</th>" not in body:
+        return False
+    rows = _SOF_ROW_RE.findall(body)
+    cells = []
+    for row in rows:
+        m = _LAST_CELL_RE.search(row)
+        if m:
+            cells.append(m.group(1).strip())
+    if not cells:
+        return False
+    return all(c in ("&mdash;", "—", "") for c in cells)
+
+
 REQUIRED_TABS = ("protocol", "search", "screen", "extract", "analysis", "report",
                  "paper", "statistics")
 GRADE_DOMAINS = ("risk_of_bias", "inconsistency", "indirectness", "imprecision",
@@ -1467,7 +1575,11 @@ def tabbed_body(canon, parts, page):
             _carries_something = bool(re.search(r"<(?:pre|table|svg|li|dl)[ >/]", body))                 or len(re.sub(r"<[^>]+>", " ", body).strip()) > 80
             if _carries_something and tid in PARTIAL_STATE:
                 _label = "Partially held."
-                note = PARTIAL_STATE[tid]
+                # COMPUTED WHERE IT CAN BE, RECITED ONLY WHERE IT CANNOT. The screen
+                # tab's note names counts it can read off the panel; if it cannot read
+                # them it returns None and the constant stands.
+                note = (screen_partial_note(body) if tid == "screen" else None) \
+                    or PARTIAL_STATE[tid]
             else:
                 _label = "Not held in this object."
                 note = _tbl.get(tid, "No content is held in this object for this section.")
@@ -1521,8 +1633,19 @@ def tabbed_body(canon, parts, page):
         inputs += '<input type="radio" name="rmtab" id="rt-%s"%s>%s' % (tid, checked, NL)
         nav += '  <label for="rt-%s">%s</label>%s' % (tid, label, NL)
         carry_into = "  </section>" + NL + "<!--end-%s-->" % tid
-        panels += ('  <section class="panel" id="pn-%s">%s%s%s%s'
-                   % (tid, NL, toc, "".join(pending) + body, carry_into))
+        # A PANEL ABOVE THE FLOOR CAN STILL BE MISSING SOMETHING NAMEABLE. The state
+        # banner used to be reachable ONLY through the thin branch, so a report tab
+        # with an unrated certainty column kept its explanation or lost it depending
+        # on whether its summary table happened to exceed 600 characters. The
+        # condition is read from the cells instead, and the sentence is the same one
+        # the thin branch would have emitted.
+        state_note = ""
+        if tid == "report" and report_certainty_unrated(body):
+            state_note = ('  <div class="absent-state" role="note">'
+                          '<strong>Partially held.</strong> %s</div>%s'
+                          % (PARTIAL_STATE["report"], NL))
+        panels += ('  <section class="panel" id="pn-%s">%s%s%s%s%s'
+                   % (tid, NL, state_note, toc, "".join(pending) + body, carry_into))
         pending = []
         css += (" #rt-%s:checked ~ .panels > #pn-%s{height:auto;overflow:visible}%s"
                 ' #rt-%s:checked ~ .tabnav label[for="rt-%s"]{color:#111;'

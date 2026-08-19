@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+"""THE REPORT-CERTAINTY GUARD, PROVEN IN FOUR PARTS (P16).
+
+A guard is proven when it CAN FIRE, when it DOES NOT FIRE ON THE CORRECT CASE, when
+neither of those is established by the build reporting success, and when its triggering
+condition HAS ACTUALLY OCCURRED in data it has run on. All four, or it is unproven
+however green it reads.
+
+  1. IT CAN FIRE          109 delivered pages leave every outcome unrated.
+  2. IT STAYS SILENT      4 do not -- ARNI_HF, IV_IRON_HF, SGLT2_HF, SOTAGLIFLOZIN_HF.
+                          SGLT2_HF is the one that matters: ['high','&mdash;','&mdash;'].
+                          A guard that fired there would be claiming NO rating is carried
+                          on a page that carries one, so the MIXED case is the real test
+                          and it is a real page, not a fixture.
+  3. NOT FROM A BUILD     every case below is read from delivered bytes on disk. No build
+                          is run and no exit code is consulted.
+  4. THE CONDITION OCCURRED
+                          BOCOCIZUMAB_LIPID_REVIEW's report panel measures 610 characters
+                          against a 600-character floor. Under the old code it therefore
+                          took the non-thin path and LOST the sentence explaining its own
+                          em dashes -- on a ten character margin, and in the direction
+                          where the page with MORE content says LESS. That is the event.
+
+Absent pages are NOT_ASSESSABLE and are named. They are never a FAIL and never a pass.
+"""
+import glob
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import projectors as P                                                  # noqa: E402
+
+FAILS = []
+NA = []
+
+
+def ck(name, got, want):
+    ok = got == want
+    print("  %-70s %s" % (name[:70], "ok" if ok else "FAIL"))
+    if not ok:
+        print("      got %r want %r" % (got, want))
+        FAILS.append(name)
+
+
+def report_panel(path):
+    b = open(path, "rb").read().decode("utf-8", "replace")
+    i = b.find('id="pn-report"')
+    j = b.find("<!--end-report-->")
+    return b[i:j] if (i >= 0 and j > i) else None
+
+
+def main():
+    os.chdir(REPO)
+
+    print("1. IT CAN FIRE -- and on how many real pages:")
+    fires, quiet = [], []
+    for f in sorted(glob.glob("*_REVIEW*.html")):
+        seg = report_panel(f)
+        if not seg or "<th>Certainty</th>" not in seg:
+            continue
+        (fires if P.report_certainty_unrated(seg) else quiet).append(f)
+    print("     pages with a Certainty column : %d" % (len(fires) + len(quiet)))
+    ck("fires on at least one real page", len(fires) > 0, True)
+    print("     fires on %d, silent on %d" % (len(fires), len(quiet)))
+
+    print("\n2. IT DOES NOT FIRE ON THE CORRECT CASE -- named in advance, real pages:")
+    for page in ("ARNI_HF_REVIEW.html", "IV_IRON_HF_REVIEW.html",
+                 "SOTAGLIFLOZIN_HF_REVIEW.html"):
+        seg = report_panel(page)
+        if seg is None:
+            print("     %-40s NOT_ASSESSABLE (not on disk)" % page)
+            NA.append(page)
+            continue
+        ck("%s carries a rating -> guard silent" % page[:40],
+           P.report_certainty_unrated(seg), False)
+
+    print("\n   THE MIXED CASE, which a cruder test would get wrong:")
+    seg = report_panel("SGLT2_HF_REVIEW.html")
+    if seg is None:
+        print("     SGLT2_HF_REVIEW.html NOT_ASSESSABLE (not on disk)")
+        NA.append("SGLT2_HF_REVIEW.html")
+    else:
+        cells = [m.group(1).strip() for m in
+                 (re.search(r"<td>([^<]*)</td>\s*</tr>\s*$", r, re.S)
+                  for r in re.findall(r"<tr><td>.*?</tr>", seg, re.S)) if m]
+        print("     its certainty cells: %s" % cells)
+        ck("one rated + two em dashes -> guard stays SILENT",
+           P.report_certainty_unrated(seg), False)
+
+    print("\n3. THE FOUNDING CASE -- the event that actually occurred:")
+    seg = report_panel("BOCOCIZUMAB_LIPID_REVIEW.html")
+    if seg is None:
+        print("     BOCOCIZUMAB_LIPID_REVIEW.html NOT_ASSESSABLE (not on disk)")
+        NA.append("BOCOCIZUMAB_LIPID_REVIEW.html")
+    else:
+        ck("its every outcome IS unrated -> guard fires",
+           P.report_certainty_unrated(seg), True)
+        body = seg.split("</div>", 1)[1] if "absent-state" in seg else seg
+        txt = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", body)).strip()
+        print("     its report body measures %d chars against a floor of %d -- a margin of %d"
+              % (len(txt), P.FLOOR_CHARS, len(txt) - P.FLOOR_CHARS))
+
+    print("\n4. IT REFUSES RATHER THAN GUESSES:")
+    ck("no Certainty column -> False, not a fired guard",
+       P.report_certainty_unrated("<table><tr><td>x</td></tr></table>"), False)
+    ck("a Certainty column with NO rows -> False (absent is not 'nothing there')",
+       P.report_certainty_unrated("<table><tr><th>Certainty</th></tr></table>"), False)
+    ck("a single RATED row -> False",
+       P.report_certainty_unrated(
+           "<table><tr><th>Certainty</th></tr><tr><td>O</td><td>3</td>"
+           "<td>HR 1</td><td>low</td></tr></table>"), False)
+    ck("a single UNRATED row -> True",
+       P.report_certainty_unrated(
+           "<table><tr><th>Certainty</th></tr><tr><td>O</td><td>3</td>"
+           "<td>HR 1</td><td>&mdash;</td></tr></table>"), True)
+    ck("MIXED rated/unrated -> False; a rating IS carried",
+       P.report_certainty_unrated(
+           "<table><tr><th>Certainty</th></tr>"
+           "<tr><td>A</td><td>3</td><td>HR 1</td><td>&mdash;</td></tr>"
+           "<tr><td>B</td><td>4</td><td>HR 2</td><td>high</td></tr></table>"), False)
+
+    print()
+    if NA:
+        print("NOT_ASSESSABLE (%d): %s" % (len(NA), ", ".join(NA)))
+    if FAILS:
+        print("FAILED (%d):" % len(FAILS))
+        for f in FAILS:
+            print("  - " + f)
+        return 1
+    print("PASSED. Scope: measured over %d delivered pages carrying a Certainty column."
+          % (len(fires) + len(quiet)))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
