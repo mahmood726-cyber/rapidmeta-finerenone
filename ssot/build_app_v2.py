@@ -664,6 +664,21 @@ def _outcome_section(canon, oid, p, e):
                if res.get("favours") else "")
             + ((f"  <p><small>{p(res['heterogeneity_status'])}</small></p>" + NL)
                if res.get("heterogeneity_status") else "")
+            # WHY THESE TRIALS AND NOT OTHERS -- rendered at last. `poolable_reason` is where
+            # the substantive judgement lives on every object in this corpus: which trials
+            # share the estimand, which definitions were read, what was refused and why. It
+            # was rendered ONLY on the "No combined estimate" branch, so a REFUSAL to pool
+            # explained itself and a DECISION to pool did not.
+            #
+            #     Measured 2026-08-19 on the delivered APIXABAN_VTE_TREATMENT page: the
+            #     object's poolable_reason -- "Three trials randomise apixaban ITSELF against
+            #     another anticoagulant ... Their definitions were read and compared, not
+            #     their names" -- appears NOWHERE in 1.2 MB of shipped HTML.
+            #
+            # The same class as the withholding-direction gap fixed earlier the same day: the
+            # object holds the reasoning and the reader is shown the number.
+            + ((f"  <p>{p(res['poolable_reason'])}</p>" + NL)
+               if res.get("poolable_reason") else "")
             + ((f"  <p><strong>How to read this:</strong> "
                 f"{p(res['interpretation_caveat'])}</p>" + NL)
                if res.get("interpretation_caveat") else "")
