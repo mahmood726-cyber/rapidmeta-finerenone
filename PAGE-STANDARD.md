@@ -1,6 +1,6 @@
 # The page standard, versioned
 
-**`PAGE_STANDARD_VERSION = "1.15.0-2026-08-19"`**
+**`PAGE_STANDARD_VERSION = "1.16.0-2026-08-19"`**
 
 > **This line was `1.6.0` while the version log below already ran to `1.12.0` and
 > `ssot/build_to_standard.py` stamped `1.13.0`.** The marker whose entire purpose is to make
@@ -70,6 +70,8 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P37 | **Trials sharing a composite endpoint's NAME do not share its DEFINITION, and matching by name is a method that does not work** | this is a property of REGISTERED TRIALS, not of this corpus's topic selection: six instances across three drug classes and two specialties. The pair that settles it is **AMPLIFY and AMPLIFY-EXT** — same sponsor, same programme, sequential trials, names differing by a hyphenated suffix — where one counts *recurrent VTE or VTE-related death* and the other *recurrent VTE or ALL-CAUSE death*. A review must therefore decompose every endpoint into its components and compare the SETS, and must record the comparison, because a mismatch that is pooled deliberately and a mismatch that was never noticed look identical in the output |
 | P38 | **A shared estimand does not make a shared comparator** | estimand coherence is NECESSARY and it is NOT SUFFICIENT. AMPLIFY and AMPLIFY-EXT both register *recurrent VTE or VTE-related death* — primary in one, secondary in the other — and pooling them is still wrong, because one randomises apixaban against enoxaparin/warfarin and the other against **placebo**. Every axis on which a pool can be incoherent gets its own verdict, and a trial that leaves a pool leaves it for a NAMED axis |
 | P39 | **When matching by text returns more than one posted measure, choosing among the matches by position is P35 one level down** | AMPLIFY-EXT posts its primary composite **twice**, typed PRIMARY both times, under the same registered name, differing only in the trailing *"Randomized Population With Imputation" / "Without Imputation"* — and the arm counts are **32 against 19**. Nothing in the payload is malformed. The choice among matches is an ANALYSIS-POPULATION choice: it is made once, applied to every trial, stated on the page, and the pool is recomputed under the alternative so the choice's cost is measured rather than asserted to be small |
+| P43 | **Anything that PARTITIONS before it JUDGES must have its partition checked against known members first** | a precedence rule applied first is the most damaging place to be wrong, because it **silently removes trials from every downstream reading before any of them gets to judge**, and each reading then looks internally consistent. `bosentan-pah` was partitioned into four readings by `minimumAge < 18`, which is not what a paediatric trial is: EARLY and COMPASS-2 admit adolescents from 12 and are adult trials. That single test **took reading A's anchor trial and reading B's own trial out of their reviews entirely**, and every downstream count inherited it. Before trusting a partition, assert its known members — one real instance per class, named in advance |
+| P44 | **The distinction a reading turns on may be the one the registry does not encode** | COMPASS-2 declares exactly what EARLY declares — `armGroups: bosentan \| placebo`, `interventions: ['bosentan','placebo']` — because **background therapy is not a registered intervention**. Read from the arms alone, a combination trial and a monotherapy trial are indistinguishable, and the *only* declaration of the design is the official title. **A reader will assume monotherapy versus combination is a coded fact; it is not**, so a page whose reading depends on such a distinction states on its face that the distinction is not coded and names the field it was read from instead |
 | P41 | **A search must not be built from its own answer** | a query assembled from the terms the included set already shares can only return that set, so it CANNOT DISCOVER and its recall of 100% is a tautology. `azilsartan-chlorthalidone-vs-olmesartan-hctz` asks about one fixed-dose combination against one other; a query naming azilsartan AND chlorthalidone AND olmesartan would have returned exactly the two trials already on the page. **The query is built from the DRUG and the CONTRAST is applied at SCREENING, where every limb is auditable and every exclusion names what it randomised instead.** 53 of 57 exclusions on that topic fail the comparator limb, which is a fact about a narrow question asked of a whole programme — not a criticism of the query, and only visible because the query was wider than the answer |
 | P42 | **A coded field can be CORRECT and still not answer the question asked of it** | distinct from P11, which governs code-versus-text where both speak. Here the code speaks truly about something else. `conditions: ["Safety"]` names a study OBJECTIVE where the disease belongs; `conditions: ["Pulmonary Hypertension"]` names the SYNDROME on a trial titled *"in Sickle Cell Disease (SCD) Patients"*, where the review needs the WHO GROUP. Neither field is absent and neither is wrong. **A limb reading such a field must fall back to the declared text and RECORD WHICH READING THE VERDICT RESTS ON** — and the fallback must still exclude, or it is not a limb: a bioequivalence record whose title says *"in Chinese Healthy Volunteers"* stays out |
 | P40 | **A rule you have APPLIED is not a rule you have PUBLISHED** | the complement of the registry's opening line. The criterion separating `apixaban-vte-treatment` from `apixaban-vte-prophylaxis` — *prior event means treatment* — decided which review sixteen trials belong to and existed only inside an adjudication file. A criterion that decides inclusion must appear on the page of **every review it decides**, or the reader cannot check it and the next lane cannot apply it. **And it was not applied everywhere either:** it reached the sixteen adjudicated trials and not the nine admitted by the mechanical screen on the coded field the criteria themselves say does not settle the question |
@@ -127,6 +129,51 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.16.0-2026-08-19
+Adds P43 and P44, both from splitting `bosentan-pah` into four reviews.
+
+**P43 — anything that partitions before it judges must have its partition checked against known
+members first.** The four readings were assigned by a precedence rule, and its first step tested
+`minimumAge < 18` for "is this a paediatric trial". It is not:
+
+| trial | `stdAges` | `minimumAge` | what it is |
+|---|---|---|---|
+| EARLY `NCT00091715` | `[CHILD, ADULT, OLDER_ADULT]` | 12 Years | an **adult** trial admitting adolescents |
+| COMPASS-2 `NCT00303459` | `[CHILD, ADULT, OLDER_ADULT]` | 12 Years | an **adult** trial admitting adolescents |
+| FUTURE-2 `NCT00319020` | `[CHILD]` | 2 Years | paediatric |
+
+The rule pulled the first two into the children's reading — **reading A's anchor trial and
+reading B's own trial, removed from their reviews before either review could judge them.** Every
+downstream count inherited it, and each reading still looked internally consistent.
+
+> A partition applied first is the most damaging place to be wrong, because *nothing downstream
+> can see what it removed.* Assert one real known member per class, named in advance, before
+> trusting any assignment the partition produces.
+
+Corrected to *no adult stratum at all, or `maximumAge` under 18*.
+
+**P44 — the distinction a reading turns on may be the one the registry does not encode.**
+
+```
+EARLY     armGroups: EXPERIMENTAL 'bosentan' | PLACEBO_COMPARATOR 'placebo'
+          interventions: ['bosentan', 'placebo']
+COMPASS-2 armGroups: EXPERIMENTAL 'A' [bosentan] | PLACEBO_COMPARATOR 'B' [placebo]
+          interventions: ['bosentan', 'placebo']
+```
+
+EARLY is bosentan monotherapy against placebo. COMPASS-2 is bosentan **added to sildenafil**
+against sildenafil alone. **Background therapy is not a registered intervention**, so the two
+declare the same thing, and the sildenafil that defines the entire reading appears in no arm
+field — only in the official title.
+
+> **A reader will assume monotherapy versus combination is a coded fact.** It is not. A page
+> whose reading depends on such a distinction says so on its face and names the field the
+> distinction was actually read from.
+
+Same family as P42 one step further out: P42 is a coded field answering a different question;
+this is a coded field with **no** answer to the question, where the design exists only in prose.
+
 
 ### 1.15.0-2026-08-19
 Adds P41 and P42, both from executing searches on topics that had never had one.
