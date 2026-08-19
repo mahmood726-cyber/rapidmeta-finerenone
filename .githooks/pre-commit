@@ -82,6 +82,13 @@ python "$R/scripts/standard_version_agreement_gate.py" >/dev/null || { echo "REF
 # trial falling out. Runtime half: topic_identity.require_terms().
 python "$R/scripts/lint_string_where_collection_expected.py" >/dev/null || { echo "REFUSED: a bare string reaches a parameter that is membership-tested (scripts/lint_string_where_collection_expected.py)"; exit 1; }
 
+# A PUBLISHED ESTIMATE THE PAGE CANNOT DISPLAY IS ONE NOBODY CAN VERIFY. Twice in one
+# session, on the first two CONTINUOUS endpoints ever gated: the object stored four
+# DECIMALS and the page renders four SIGNIFICANT FIGURES, so the stored string appeared
+# nowhere in the delivered bytes and verify_delivered_bytes.py refused -- AFTER a deploy.
+# A ratchet, not a block: 13 topics predate it and are baselined, unabsolved.
+python "$R/scripts/lint_pooled_point_is_displayable.py" >/dev/null || { echo "REFUSED: a NEW pooled point is stored at a precision the page cannot render (scripts/lint_pooled_point_is_displayable.py)"; exit 1; }
+
 # P35 -- THE PRIMARY OUTCOME IS READ BY MATCHING ITS TEXT, NEVER BY POSITION.
 # `outcomeMeasures[0]` is ADVANCE-2's SECONDARY and its three companions' PRIMARY. A pool built
 # on element zero is WRONG WITH NOTHING MALFORMED ANYWHERE -- no parse error, no null, no

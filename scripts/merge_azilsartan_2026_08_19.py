@@ -132,7 +132,21 @@ def main():
         "what_would_close_it": ("RoB 2 per RESULT on the week-8 clinic SBP outcome in "
                                 "NCT00846365 and NCT01033071."),
     }
+    # THE STORED NUMBER MUST BE THE DISPLAYED NUMBER. Second instance in one session: the
+    # object stored -5.6912 (four DECIMALS) and the page renders four SIGNIFICANT FIGURES,
+    # -5.691, so the stored string appeared nowhere in the delivered bytes and
+    # scripts/verify_delivered_bytes.py refused the delivery. See the same note on bococizumab.
+    # Two instances make it a class, and scripts/lint_pooled_point_is_displayable.py is what
+    # now catches it before a page is built rather than after it is served.
+    sys.path.insert(0, os.path.join(REPO, "ssot"))
+    import projectors as _pj
     b = obj["results"]["by_outcome"]["sbp_change_wk8"]
+    for _k in ("point", "ci_low", "ci_high"):
+        if isinstance(b["pooled"].get(_k), float):
+            b["pooled"][_k] = float(_pj.sig(b["pooled"][_k], 4))
+    b["pooled"]["stored_at_display_precision"] = (
+        "Four significant figures, matching what the page renders, so the published number and "
+        "the verified number are the same string.")
     b["poolable_reason"] = (
         "TWO TRIALS RANDOMISE THE SAME FIXED-DOSE COMBINATION AGAINST THE SAME COMPARATOR AND "
         "REGISTER THE SAME CONTINUOUS ENDPOINT. Nothing had to be harmonised: this review's "
