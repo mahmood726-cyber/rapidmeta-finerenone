@@ -547,6 +547,76 @@ this file while it was being written.**
   its k fell and pass, which is what `lint_block_contradicts_object.py` is for. A floor, not a
   ceiling
 
+### 23. THE CLASS SWEPT — *"the number was real and belonged to somebody else"*
+
+**Class 21 found one instance by hand. Two instances found by hand is not a measurement**, and
+the shape is entirely mechanical, so the question *how many others* has an answer a command can
+produce. `scripts/benchmark_served_as_own_result_sweep.py`, run 2026-08-19 over 522 index cards,
+77 benchmark records and 116 page-map entries.
+
+**FIVE instances of the class, of which THREE were live and unknown:**
+
+| page | the card served | the object's own pool | benchmark type |
+|---|---|---|---|
+| `LENACAPAVIR_PREP_REVIEW` | `RR 0.07 (0.01–0.32), k=2` | **WITHDRAWN, k=0** | `self_reference` |
+| `CAB_PREP_HIV_REVIEW` | `HR 0.22 (0.11–0.45), k=2` | `RR 0.2081 (0.0715–0.6057), k=2` | `self_reference` |
+| `NIRSEVIMAB_INFANT_RSV_REVIEW` | `RR 0.21 (0.13–0.33), k=3` | `RR 0.2605 (0.1766–0.3845), **k=2**` | `self_reference` |
+| `COLCHICINE_CVD_REVIEW` | `HR 0.75 (0.61–0.91), k=2` | was `0.7940 (0.6750–0.9339), k=5` | corrected, class 21 |
+| `DOAC_AF_REVIEW` | `HR 0.81 (0.73–0.91), k=4` | was `0.7817` — Ruff 2014, its own comparator | corrected |
+
+> **`LENACAPAVIR_PREP` is the worst of the five and it is a different degree, not a different
+> kind.** The object has **withdrawn its estimate — `k=0`** — and the index card serves a
+> confident external `RR 0.07 (0.01–0.32)` at `k=2`. The review says it cannot answer and the
+> index says it answered decisively.
+
+**`CAB_PREP_HIV` carries a measure mismatch on top**: the card says **HR** and the object says
+**RR**. And `NIRSEVIMAB`'s card claims **k=3** where its object pools **k=2** — the card is
+wrong about how many trials the review holds.
+
+#### The structural finding is larger than the five
+
+**42 cards are authored in the `Published:` register**, against `Pooled:` for a projected
+result. On this project's own index — a list of *this project's reviews* — a reader has no way
+to know that one row means *somebody else computed this*. Of those 42:
+
+| | |
+|---|---:|
+| comparable against an object at all | **3** |
+| **no SSOT object exists for the page** | **34** |
+| no benchmark record | 5 |
+
+**Thirty-four of forty-two cannot be checked by anything in this corpus.** That is not a clean
+count; it is the E9 shape at the level of the index — *absence of a check is not a passed check*
+— and it is why "three instances" is a floor.
+
+#### The third limb convicts nobody, INCLUDING colchicine, and that is the honest answer
+
+The sweep also asks, independently of any card, whether a benchmark reconciles with the object's
+own trials under the class-21 bound. **It first returned eight. Two of the eight were this
+instrument's own defect**, and in the family this project keeps finding:
+
+- `INCRETIN_HFpEF` — benchmark is an **HR** for a worsening-HF composite; the object's declared
+  headline is `kccq_css_change`, a **mean difference in a symptom score** (per-trial 7.8 and
+  6.9). Exponentiating those against a hazard ratio produced a "pool" of **7.4901** and a gap of
+  **21.9**, reported as a benchmark that does not reconcile.
+- `IV_IRON_HF` — benchmark is an **HR**; the object's declared headline is a **RATE_RATIO over
+  recurrent events**. The object *does* hold a matching HR outcome and the limb never looked.
+
+> **P36 and P37 one level up: two quantities compared by their SLOT rather than by their
+> DEFINITION, and the arithmetic completed without complaint.** With measure-match and
+> scope-match enforced, **all eight collapse to zero.**
+
+And the limb **cannot convict colchicine either** — that benchmark is `k=2` against an object
+holding three trials, so it is refused as SCOPE DIFFERS. The colchicine conviction came from
+testing the benchmark against **its own declared source**, COLCOT and LoDoCo2 named in the
+record with their PMIDs. **A benchmark record generally does not name the trials it pooled, so
+that test is not generally available. That is the gap this sweep measures and does not close.**
+
+The 171 NOT_ASSESSABLE are broken out by reason rather than reported as one number — 149 with no
+benchmark or no object, 16 measure mismatches, 3 ambiguous outcomes, 2 scope differences, 1 with
+too few per-trial intervals. **A large NOT_ASSESSABLE folded into one line reads as "nothing to
+see here".**
+
 ### 21. A comparator rendered as a result — and closed by a BOUND, not by a search
 
 - **Found** 2026-08-18 on `colchicine-cvd-review` and **closed** 2026-08-19. The third topic in
