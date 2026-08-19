@@ -1,0 +1,65 @@
+{
+  "topic": "colchicine-cvd-review",
+  "what_this_is": "THE 137 REGISTRATIONS THE COMPLETE SEARCH RETURNED, NAMED. colchicine_search_COMPLETE.json records that the search returned 137 records over two pages and DOES NOT NAME ONE OF THEM. That is P30: a count stated in a record with no file anything can recompute from is indistinguishable from a count that was asserted. The screen below cannot be checked against a set that was never written down, and re-running the query later would silently substitute a different set. This file is that set.",
+  "recorded_utc": "2026-08-19",
+  "re_executed": "The query in colchicine_search_COMPLETE.json was re-executed on 2026-08-19 to obtain these identifiers. It returned the same totals: page 1 count=100 total=137 with a live next_page_token, page 2 count=37 total=null next_page_token=null. 100 + 37 = 137 == totalCount.",
+  "database": "ClinicalTrials.gov API v2 via mcp__plugin_bio-research_c-trials__search_trials",
+  "query_as_executed": "intervention=\"colchicine\"; condition=\"coronary artery disease OR myocardial infarction OR cardiovascular disease OR stroke OR atherosclerosis\"; study_type=INTERVENTIONAL; page_size=100; count_total=true",
+
+  "recall_against_the_object_s_included_set": {
+    "included_set": ["NCT02551094", "NCT03048825", "NCT02898610"],
+    "surfaced": ["NCT02551094 page 1", "NCT02898610 page 1", "NCT03048825 PAGE 2"],
+    "recall": "3/3",
+    "note": "Two further trials the page's AUTO_INCLUDE list names -- LoDoCo2 and COPS -- are registered on ANZCTR and not on ClinicalTrials.gov, so this registry search CANNOT surface them and their absence is not a recall failure of this query. It is a limit of the database, and it is why a PubMed limb is owed on this topic."
+  },
+
+  "A_DUPLICATE_REGISTRATION_IS_PRESENT_IN_THE_SURFACED_SET": {
+    "pair": ["NCT04906720", "NCT06731595"],
+    "evidence": "Both are titled EXACTLY 'Post-Ablation Pericarditis Reduction Study', both sponsored by St. Vincent Cardiovascular Research Institute, both enrolment 248, both start 2021-05-20, both primary completion 2022-01-30, both COMPLETED, both intervention ['Colchicine'].",
+    "why_it_matters": "P8 keys every trial to a registration id. TWO REGISTRATION IDS FOR ONE TRIAL BREAK THAT KEY IN THE DIRECTION THAT ADDS: a screen that dispositions by NCT id counts this study twice, and every downstream k inherits it. 137 registrations is therefore NOT 137 studies, and no arithmetic in this run may treat the two as interchangeable with the count of distinct trials.",
+    "handling": "Both are screened. Whichever disposition they receive, they receive the SAME one, and the reading that would include them includes ONE. Recorded, not silently deduplicated."
+  },
+
+  "page_1": [
+    "NCT07143136", "NCT02363725", "NCT07349875", "NCT03575572", "NCT05459974",
+    "NCT05032248", "NCT04160117", "NCT06062277", "NCT06212271", "NCT05802992",
+    "NCT06025071", "NCT04008316", "NCT02122484", "NCT06217120", "NCT05361772",
+    "NCT04420624", "NCT05253794", "NCT04857931", "NCT07026994", "NCT04949516",
+    "NCT06469528", "NCT05890664", "NCT06118034", "NCT00128414", "NCT02282098",
+    "NCT07232069", "NCT02898610", "NCT05928728", "NCT03310125", "NCT06203977",
+    "NCT02624180", "NCT05734612", "NCT02551094", "NCT05168137", "NCT06130059",
+    "NCT01985425", "NCT06763055", "NCT03021343", "NCT05159219", "NCT06020300",
+    "NCT07432529", "NCT02366091", "NCT06215989", "NCT06095765", "NCT05956145",
+    "NCT06426537", "NCT02281305", "NCT06998862", "NCT04382443", "NCT02500641",
+    "NCT05200052", "NCT05873881", "NCT02582190", "NCT04181996", "NCT06396858",
+    "NCT05162742", "NCT04056039", "NCT05739929", "NCT02162303", "NCT07064109",
+    "NCT04218786", "NCT07362966", "NCT06279000", "NCT05250596", "NCT04916522",
+    "NCT01266694", "NCT05439356", "NCT00235079", "NCT05726019", "NCT07569328",
+    "NCT02177266", "NCT06765356", "NCT00128453", "NCT05855746", "NCT04774159",
+    "NCT04790240", "NCT06472908", "NCT06081049", "NCT03735134", "NCT04303689",
+    "NCT07462325", "NCT06930885", "NCT02260206", "NCT02083510", "NCT02995512",
+    "NCT01709981", "NCT06280976", "NCT02095522", "NCT04155879", "NCT05503225",
+    "NCT04906720", "NCT04139655", "NCT06102720", "NCT04073797", "NCT05805930",
+    "NCT06078904", "NCT06543082", "NCT06286423", "NCT00700297", "NCT05709509"
+  ],
+
+  "page_2": [
+    "NCT03376698", "NCT06352632", "NCT03156816", "NCT05633810", "NCT00128427",
+    "NCT01755949", "NCT06440694", "NCT02939573", "NCT06731595", "NCT07536373",
+    "NCT05949281", "NCT05347316", "NCT06604611", "NCT05472337", "NCT07035405",
+    "NCT07654231", "NCT06083337", "NCT04848857", "NCT05618353", "NCT05476991",
+    "NCT06342609", "NCT06054100", "NCT01936285", "NCT06567678", "NCT05850091",
+    "NCT06158698", "NCT01552187", "NCT00754819", "NCT07704164", "NCT05175274",
+    "NCT03048825", "NCT06798714", "NCT04705987", "NCT03015831", "NCT06587737",
+    "NCT02594111", "NCT01906749"
+  ],
+
+  "counts": {
+    "page_1": 100,
+    "page_2": 37,
+    "total_listed_here": 137,
+    "total_reported_by_the_registry": 137,
+    "distinct_registrations": 137,
+    "distinct_STUDIES": "136 at most -- see A_DUPLICATE_REGISTRATION_IS_PRESENT_IN_THE_SURFACED_SET. 137 is a count of REGISTRATIONS and this file never calls it a count of studies."
+  }
+}

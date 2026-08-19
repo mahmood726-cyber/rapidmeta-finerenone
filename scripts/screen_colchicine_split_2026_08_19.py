@@ -1,0 +1,725 @@
+#!/usr/bin/env python3
+"""ASSIGN THE 137 SURFACED COLCHICINE REGISTRATIONS TO THE SIX READINGS, AND SCREEN ALL OF THEM.
+
+The decision this implements is written down first, in `DECIDED-colchicine-cvd-2026-08-19.md`,
+BEFORE any count existed. This file computes; it does not choose.
+
+THE PARTITION IS THE DANGEROUS PART AND IT RUNS FIRST (P43). A precedence rule applied before
+anything judges removes trials from every downstream reading, and each reading then looks
+internally consistent. So `assert_known_members()` runs BEFORE a single count is emitted, with
+one real registration named per reading in the decision document, and `main()` REFUSES to write
+anything if any of them lands somewhere else.
+
+THE SPECIFIC TRAP, NAMED IN ADVANCE. The obvious way to write step 1 is "was a procedure
+involved?". CLEAR SYNERGY (NCT03048825) randomises myocardial-infarction patients undergoing
+PCI and is registered against the SYNERGY stent registry, so that rule would move THE LARGEST
+TRIAL IN THE REVIEW'S OWN INCLUDED SET into a post-procedural reading. Step 1 therefore asks
+what the PRIMARY OUTCOME IS -- a complication of the procedure -- and requires a procedural
+anchor as well. Both limbs, or the trial stays.
+
+USAGE:  python scripts/screen_colchicine_split_2026_08_19.py
+        python scripts/screen_colchicine_split_2026_08_19.py --selftest
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import ctgov_transport as X                                              # noqa: E402
+import topic_identity as TI                                             # noqa: E402
+
+EVID = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+SURFACED_FILE = os.path.join(EVID, "colchicine_surfaced_137.json")
+DEST = os.path.join(EVID, "colchicine_split_screening.json")
+
+# The object's own included set, so recall is measured against it and not asserted.
+IN_OBJECT = ["NCT02551094", "NCT03048825", "NCT02898610"]
+
+# TWO REGISTRATION IDS, ONE STUDY. Recorded rather than silently deduplicated -- see
+# colchicine_surfaced_137.json. Any count of STUDIES subtracts one; a count of REGISTRATIONS
+# does not.
+DUPLICATE_REGISTRATIONS = [("NCT04906720", "NCT06731595")]
+
+# ---------------------------------------------------------------------------------------
+# DECLARED TERM SETS. Enumerated, never inferred, and every one of them was read out of the
+# 137 surfaced records rather than recalled.
+# ---------------------------------------------------------------------------------------
+
+# Step 1a -- the PROCEDURAL ANCHOR. A procedure must be in the picture at all.
+PROCEDURE_ANCHOR = (
+    "cardiac surgery", "open heart surgery", "coronary artery bypass", "cabg",
+    "thoracic surgery", "non-cardiac surgery", "noncardiac surgery", "major non-cardiac",
+    "pericardiotomy", "percutaneous coronary intervention", "elective pci", "post-pci",
+    "catheter ablation", "ablation", "pulmonary vein isolation", "cardioversion",
+    "electrocardioversion", "stent", "graft", "perioperative", "peri-operative",
+    "postoperative", "post-operative", "post operative", "periprocedural", "peri-procedural",
+    "post-ablation", "postprocedural", "revascularization surgery",
+    # Added when the LEFT-boundary rule landed: `pericardiotomy` inside `postpericardiotomy` is
+    # a left collision and is correctly rejected, so the compound form must be enumerated. That
+    # is the rule working, not a workaround for it -- COPPS and COPPS-2 declare the compound.
+    "postpericardiotomy", "post-pericardiotomy",
+)
+# Step 1c -- AN EXPLICIT POST-PROCEDURAL CONTEXT IN THE TRIAL'S OWN TITLE, as an ALTERNATIVE
+# route into PERIPROC. Structural, not a keyword for the name of a thing (P33): each is a
+# PREPOSITION BINDING A PROCEDURE, which is what makes a trial peri-procedural.
+#
+# It exists because IMPROVE-PVI (NCT04160117) registers THREE PRIMARY OUTCOMES and every one of
+# them is a FEASIBILITY measure -- `Average monthly enrollment rate`, `Compliance with study
+# treatment`, `Rate of complete follow-up at 6 months`. A rule that reads only the primary
+# outcome cannot see that this is a post-ablation trial, because its primary outcome is not
+# about the patient at all. Its title says `After Pulmonary Vein Isolation`.
+POST_PROCEDURAL_CONTEXT = (
+    "after pulmonary vein isolation", "after catheter ablation", "after ablation",
+    "post-ablation", "post ablation", "after cardiac surgery", "after coronary artery bypass",
+    "after electrical cardioversion", "after electrocardioversion", "after cardioversion",
+    "postoperative", "post-operative", "post operative", "perioperative", "peri-operative",
+    "periprocedural", "peri-procedural", "in open heart surgery",
+    "undergoing percutaneous coronary intervention", "undergoing elective percutaneous",
+    "undergoing coronary artery bypass", "undergoing cardiac surgery",
+    "undergoing major non-cardiac surgery", "undergoing elective coronary artery bypass",
+    "during percutaneous coronary intervention", "in percutaneous coronary intervention",
+)
+# Step 1b -- the primary outcome must be a COMPLICATION OF THAT PROCEDURE.
+PROCEDURAL_COMPLICATION = (
+    "postoperative atrial fibrillation", "post-operative atrial fibrillation",
+    "perioperative atrial fibrillation", "post operative atrial fibrillation",
+    "incidence of atrial fibrillation", "occurrence of atrial fibrillation",
+    "atrial fibrillation after", "post-pericardiotomy", "postpericardiotomy",
+    "pericardial effusion", "graft failure", "graft patency", "restenosis",
+    "periprocedural myocardial", "peri-procedural myocardial", "procedural myocardial injury",
+    "pci-related", "myocardial injury after non-cardiac surgery", "reperfusion injury",
+    "arrhythmia recurrence", "recurrence of atrial fibrillation", "af recurrence",
+    "atrial fibrillation recurrence", "post-ablation", "post ablation",
+    "myocardial injury after noncardiac surgery", "mins",
+)
+# Step 2 -- PERICARDIAL DISEASE, treated as a disease.
+PERICARDIAL = ("pericarditis", "pericardial effusion", "myopericarditis")
+# Step 3 -- HAEMORRHAGIC index event.
+ICH_TERMS = ("intracerebral hemorrhage", "intracerebral haemorrhage", "intracranial hemorrhage",
+             "intracranial haemorrhage", "intracranial hemorrhages", "cerebral amyloid angiopathy",
+             "hemorrhagic stroke", "haemorrhagic stroke", "ich ")
+# Step 4 -- ISCHAEMIC cerebrovascular index event.
+CEREBRO_TERMS = ("ischemic stroke", "ischaemic stroke", "stroke, ischemic", "cerebral infarction",
+                 "transient ischemic attack", "ischemic attack, transient", "tia",
+                 "minor stroke", "intracranial atherosclerotic", "icad",
+                 "cerebrovascular", "stroke")
+# Step 5 -- PERIPHERAL artery / limb.
+PAD_TERMS = ("peripheral artery disease", "peripheral arterial disease",
+             "atherosclerosis of extremities", "limb-threatening ischemia",
+             "limb threatening ischemia", "critical limb", "claudication",
+             "peripheral vascular disease")
+# Step 6 -- CORONARY. CORONARY-SPECIFIC ONLY.
+#
+# THIS SET WAS NARROWED, and the reason is the second half of P42's lesson. It originally
+# carried `atherosclerosis`, `cardiovascular disease`, `atherothrombotic` and
+# `clonal hematopoiesis`, none of which names a CORONARY population, and nine records reached
+# the coronary reading on one of them ALONE -- among them an AORTIC STENOSIS trial, a
+# RHEUMATOID ARTHRITIS trial, a TYPE 1 DIABETES trial and a CKD trial, each declaring a
+# perfectly true `Cardiovascular Diseases` code. A coronary review that includes an aortic
+# stenosis trial is not a coronary review.
+CORONARY_TERMS = ("coronary artery disease", "coronary heart disease", "coronary disease",
+                  "myocardial infarction", "acute coronary syndrome", "stemi", "nstemi",
+                  "unstable angina", "angina", "coronary atherosclero", "atheroscleroses, coronary",
+                  "percutaneous coronary intervention", "coronary artery", "cad ", "acs ",
+                  "ischemic heart disease", "myocardial ischemia", "myocardium; injury")
+# Step 7 -- ESTABLISHED ATHEROSCLEROTIC DISEASE WITH NO NAMED BED.
+#
+# THE SEVENTH READING WAS ADDED AFTER THE SCREEN FIRST RAN AND THAT IS DECLARED, NOT HIDDEN.
+# The decision document names six readings and was written before any count existed, which is
+# the whole point of writing it first. The screen then surfaced a population none of the six
+# covers: trials enrolling ESTABLISHED ATHEROSCLEROTIC CARDIOVASCULAR DISEASE without
+# specifying a vascular bed -- EPOCA (NCT06930885, n=7,713, `Atherosclerotic Cardiovascular
+# Disease (ASCVD)`) and COLPET (NCT02162303, `Atherosclerotic Vascular Disease`). With six
+# readings those went to CORONARY and to NONE respectively -- one into the wrong review and one
+# into no review at all.
+#
+# Adding a reading after seeing counts is exactly what writing the decision first guards
+# against, so it is recorded as an AMENDMENT with its cause named, and the amendment is in the
+# decision document under its own dated heading. What is NOT permitted, and did not happen, is
+# editing the original six to fit the numbers.
+#
+# `cardiovascular disease` is DELIBERATELY ABSENT from this set. It is the code an aortic
+# stenosis trial, a rheumatoid arthritis trial and a type-1-diabetes trial each carry truthfully
+# while describing a population that is not atherosclerotic. Only terms that NAME ATHEROSCLEROSIS
+# admit a trial here.
+ASCVD_TERMS = ("atherosclerotic cardiovascular disease", "atherosclerotic vascular disease",
+               "atherothrombotic", "atherosclerosis", "atherosclerotic", "carotid artery plaque",
+               "carotid plaque", "vascular disease, atherosclerotic")
+
+READINGS = ("PERIPROC", "PERICARD", "ICH", "CEREBRO", "PAD", "CORONARY", "ASCVD_MIXED", "NONE")
+
+# P43. ONE REAL REGISTRATION PER READING, NAMED IN THE DECISION DOCUMENT BEFORE THIS RAN.
+# The partition is refused entirely if any of these lands anywhere else.
+KNOWN_MEMBERS = {
+    "NCT02551094": ("CORONARY", "COLCOT -- randomised after myocardial infarction; primary is a "
+                                "five-component CV composite, not a procedural complication"),
+    "NCT03048825": ("CORONARY", "CLEAR SYNERGY -- MI population undergoing PCI. THE TRAP: a "
+                                "'was a procedure involved' rule sends this to PERIPROC and "
+                                "takes the largest trial out of its own review"),
+    "NCT02898610": ("CEREBRO", "CONVINCE -- non-cardioembolic ischaemic stroke"),
+    "NCT05439356": ("CEREBRO", "CHANCE-3 -- minor-to-moderate ischaemic stroke or TIA"),
+    "NCT04774159": ("PAD", "LEADER-PAD -- peripheral arterial disease"),
+    "NCT06587737": ("ICH", "spontaneous intracerebral haemorrhage"),
+    "NCT03310125": ("PERIPROC", "COP-AF -- primary is perioperative AF after thoracic surgery"),
+    "NCT01552187": ("PERIPROC", "COPPS-2 -- primary is post-pericardiotomy syndrome"),
+    "NCT00128453": ("PERICARD", "ICAP -- acute pericarditis, treated"),
+    "NCT00235079": ("PERICARD", "CORP-2 -- recurrent pericarditis, treated"),
+    # Added with the seventh reading, and named in the decision document's amendment.
+    "NCT06930885": ("ASCVD_MIXED", "EPOCA -- conditions are literally `Atherothrombotic "
+                                   "Diseases` and `Atherosclerotic Cardiovascular Disease "
+                                   "(ASCVD)`; no vascular bed is specified"),
+    "NCT02162303": ("ASCVD_MIXED", "COLPET -- conditions are `Atherosclerotic Vascular "
+                                   "Disease`; with six readings it reached NONE and was in no "
+                                   "review at all"),
+    # A NEGATIVE known member. The assertion above can only catch a trial that lands in the
+    # wrong reading; it cannot catch a reading that has quietly widened. This one is declared
+    # so that ASCVD_MIXED is proven NOT to swallow a bed-specific trial.
+    "NCT06062277": ("CEREBRO", "CONCISE -- conditions are ['Ischemic Stroke','Atherosclerosis']. "
+                               "It names atherosclerosis AND a bed, so the bed must win; if it "
+                               "lands in ASCVD_MIXED the fallback has become a magnet"),
+}
+
+
+def norm(s):
+    return " ".join((s or "").lower().replace("–", "-").replace("’", "'").split())
+
+
+def _outcome_blob(ps):
+    om = ps.get("outcomesModule") or {}
+    parts = []
+    for o in (om.get("primaryOutcomes") or []):
+        parts.append(str(o.get("measure") or ""))
+        parts.append(str(o.get("description") or ""))
+    return norm(" ; ".join(parts))
+
+
+def _word_match(term, blob):
+    """Does `term` occur in `blob` AS A WORD -- LEFT boundary required, RIGHT boundary NOT.
+
+    E1, SUBSTRING IS NOT IDENTITY, FIRED IN THIS FILE'S OWN TERM SETS AND WAS MEASURED BEFORE
+    IT WAS FIXED. Bare containment produced 58 matches across 43 of the 137 registrations that
+    are not word matches. Every false one collided on the LEFT and every true one on the RIGHT:
+
+        FALSE   'tia'   in `poten-TIA-l`, `ini-TIA-ted`, `par-TIA-lly`, `essen-TIA-l`  (9 records)
+                'stent' in `per-STENT-ent`                                             (3 records)
+                'stemi' in `sy-STEMI-c`                                                (1 record)
+                'ich '  in `wh-ICH `, `in wh-ICH  cad`                                 (3 records)
+                'cad '  in `i-CAD  - intracranial atherosclerotic disease`             (1 record)
+        TRUE    'stent' in `stent-S`          'graft' in `graft-ING`
+                'cardiovascular disease' in `cardiovascular disease-S`
+                'acute coronary syndrome' in `acute coronary syndrome-S`
+
+    That asymmetry is not a coincidence and it is why the rule is one-sided: English inflects
+    on the RIGHT (plural, gerund) and forms NEW WORDS on the LEFT (non-, post-, per-, sys-, wh-).
+    A symmetric word-boundary rule would have removed every false match AND `stents`,
+    `diseases`, `grafting` and `syndromes` with them.
+
+    THE COST OF THE WRONG ONE, NAMED: `Clonal Hematopoiesis of Indeterminate PoTENtial` matched
+    the cerebrovascular term `tia`, so NCT07362966 -- a CORONARY atherosclerosis trial -- was
+    assigned to the STROKE reading. Nothing in that assignment looked wrong.
+
+    Written as a character test rather than a regex ON PURPOSE. The word-boundary escape is the
+    one this repository's transport corrupts into 0x08, and an over-escaped boundary in a raw
+    string is valid Python that matches nothing and reports clean.
+    """
+    i = 0
+    while True:
+        i = blob.find(term, i)
+        if i < 0:
+            return False
+        if i == 0 or not blob[i - 1].isalnum():
+            return True
+        i += 1
+
+
+def _any(terms, blob):
+    return sorted({t for t in terms if _word_match(t, blob)})
+
+
+def assign(study):
+    """(reading, why, basis, evidence). PERIPROC > PERICARD > ICH > CEREBRO > PAD > CORONARY."""
+    ps = study.get("protocolSection") or {}
+    ident = ps.get("identificationModule") or {}
+    dm = ps.get("designModule") or {}
+    conds_list = ((ps.get("conditionsModule") or {}).get("conditions") or [])
+    conds = norm(" ; ".join(str(c) for c in conds_list))
+    title = norm(" ".join([str(ident.get("briefTitle") or ""),
+                           str(ident.get("officialTitle") or "")]))
+    prim = _outcome_blob(ps)
+    arms = (ps.get("armsInterventionsModule") or {}).get("armGroups") or []
+    intrs = (ps.get("armsInterventionsModule") or {}).get("interventions") or []
+
+    role, role_ev = TI.locate(study, TI.synonyms_for("colchicine"))
+
+    ev = {
+        "brief_title": (ident.get("briefTitle") or "")[:130],
+        "conditions": [str(c) for c in conds_list],
+        "primary_outcomes": [str((o or {}).get("measure") or "")
+                             for o in ((ps.get("outcomesModule") or {}).get("primaryOutcomes")
+                                       or [])],
+        "enrolment": (dm.get("enrollmentInfo") or {}).get("count"),
+        "status": (ps.get("statusModule") or {}).get("overallStatus"),
+        "allocation": (dm.get("designInfo") or {}).get("allocation"),
+        "n_arms": len(arms),
+        "has_results": bool(study.get("hasResults")),
+        "arm_role": role,
+        "arm_role_evidence": role_ev,
+        "arm_types": sorted({str(a.get("type") or "") for a in arms if a.get("type")}),
+        "interventions": [str(i.get("name") or "") for i in intrs],
+    }
+
+    # ---- 1. PERIPROCEDURAL. BOTH LIMBS REQUIRED, and the primary-outcome limb is the one
+    # that keeps CLEAR SYNERGY and COLCOT out of it.
+    # THE COMPLICATION LIMB READS THE TITLE TOO, AND THAT WAS A CORRECTION, NOT A WIDENING.
+    #
+    # Written first as `prim + conds` only, it left BOTH registrations of the Post-Ablation
+    # Pericarditis Reduction Study in PERICARD -- a trial that PREVENTS PERICARDITIS CAUSED BY
+    # AN ABLATION, which is the definition of the PERIPROC reading and the opposite of
+    # "pericarditis as a disease in its own right". The coded conditions say `Pericarditis`,
+    # truly, and do not say that the pericarditis is procedure-induced. THE ONLY FIELD THAT
+    # SAYS SO IS THE TITLE (P42, and P44: the distinction a reading turns on is the one the
+    # registry does not encode).
+    #
+    # PREDICTION STATED BEFORE THE RUN: this moves EXACTLY the two PAPERS registrations from
+    # PERICARD to PERIPROC -- PERICARD 8 -> 6, PERIPROC 17 -> 19 -- and moves NO declared known
+    # member. An indicator that can only move if the diagnosis is right (P32): if any third
+    # record moves, the term set is matching something other than a procedure-induced
+    # complication and the change is wrong.
+    #
+    # THE PREDICTION WAS REFUTED, AND THE REFUTATION IS THE FINDING. PERICARD went 8 -> 6 as
+    # predicted and PERIPROC went 17 -> **24**. SEVEN records moved, not two, no known member
+    # moved, and every one of the seven is a genuine peri-procedural trial. Where they were
+    # going instead is the part that matters, and it runs in BOTH directions at once:
+    #
+    #   NCT03735134  CORONARY -> PERIPROC   conditions ['Inflammation','Myocardial Infarction']
+    #                                       title: "Colchicine in PERIPROCEDURAL Myocardial
+    #                                       Infarction"
+    #   NCT04139655  CORONARY -> PERIPROC   conditions ['Myocardial Infarction','Myocardial
+    #                                       Injury',...]; title: "Colchicine Prevents Myocardial
+    #                                       Injury AFTER NON-CARDIAC SURGERY" (COPMAN)
+    #   NCT01985425  NONE     -> PERIPROC   conditions ['Atrial Fibrillation','Thoracic Surgery']
+    #   NCT03021343  NONE     -> PERIPROC   conditions ['Arrhythmia']  -- END-AF, open heart surgery
+    #   NCT03015831  NONE     -> PERIPROC   conditions ['Atrial Fibrillation','Cardiac Surgery',...]
+    #   NCT04906720  PERICARD -> PERIPROC   the two predicted
+    #   NCT06731595  PERICARD -> PERIPROC
+    #
+    # TWO PERI-PROCEDURAL TRIALS WERE ENTERING THE CORONARY MACE REVIEW because their coded
+    # conditions say `Myocardial Infarction`, which is TRUE -- the infarction is the outcome the
+    # procedure caused, not the population's index disease. THREE MORE WERE BEING DROPPED FROM
+    # EVERY READING, because `conditions: ['Arrhythmia']` names the syndrome and never says the
+    # arrhythmia is post-operative. That is P42 at scale: five coded fields, none absent, none
+    # wrong, none answering the question asked of it -- and the errors run in OPPOSITE
+    # directions, one adding trials to a review and one removing them from all of them.
+    #
+    # A prediction of TWO that observed SEVEN is not a failed change; it is a measurement of how
+    # much of this partition the coded conditions were never able to carry.
+    anchor = _any(PROCEDURE_ANCHOR, conds + " " + title + " " + prim)
+    comp = _any(PROCEDURAL_COMPLICATION, prim + " " + conds + " " + title)
+    if anchor and comp:
+        return ("PERIPROC",
+                "primary outcome is a complication of a procedure (%s) and a procedural anchor "
+                "is present (%s)" % (", ".join(comp), ", ".join(anchor)),
+                "CODED -- outcomesModule.primaryOutcomes + conditionsModule", ev)
+    ctx = _any(POST_PROCEDURAL_CONTEXT, title)
+    if ctx:
+        return ("PERIPROC",
+                "the trial's own title binds the intervention to a procedure (%s)"
+                % ", ".join(ctx),
+                "TEXT -- the primary outcome route did not fire. On IMPROVE-PVI every "
+                "registered primary is a FEASIBILITY measure, so no outcome-reading rule can "
+                "see that the trial is post-ablation; the title is the only field that says so",
+                ev)
+    ev["periproc_not_taken"] = {"procedure_anchor": anchor, "procedural_complication": comp,
+                                "post_procedural_context_in_title": ctx,
+                                "note": "the outcome route needs BOTH anchor and complication; "
+                                        "the title route needs an explicit post-procedural "
+                                        "phrase. Neither fired."}
+
+    # ---- 2. PERICARDIAL DISEASE, treated.
+    hit = _any(PERICARDIAL, conds)
+    if hit:
+        return ("PERICARD", "conditions name %s" % ", ".join(hit),
+                "CODED -- conditionsModule.conditions", ev)
+    hit = _any(PERICARDIAL, title)
+    if hit:
+        return ("PERICARD", "the trial's own title names %s" % ", ".join(hit),
+                "TEXT -- the coded conditions do not name a pericardial disease; the title does",
+                ev)
+
+    # ---- 3. HAEMORRHAGIC index event.
+    hit = _any(ICH_TERMS, conds)
+    if hit:
+        return ("ICH", "conditions name %s" % ", ".join(hit),
+                "CODED -- conditionsModule.conditions", ev)
+    hit = _any(ICH_TERMS, title)
+    if hit:
+        return ("ICH", "the trial's own title names %s" % ", ".join(hit),
+                "TEXT -- coded conditions silent on the index event; the title names it", ev)
+
+    # ---- 4. ISCHAEMIC CEREBROVASCULAR.
+    hit = _any(CEREBRO_TERMS, conds)
+    if hit:
+        return ("CEREBRO", "conditions name %s" % ", ".join(hit),
+                "CODED -- conditionsModule.conditions", ev)
+
+    # ---- 5. PERIPHERAL ARTERY / LIMB.
+    hit = _any(PAD_TERMS, conds)
+    if hit:
+        return ("PAD", "conditions name %s" % ", ".join(hit),
+                "CODED -- conditionsModule.conditions", ev)
+    hit = _any(PAD_TERMS, title)
+    if hit:
+        return ("PAD", "the trial's own title names %s" % ", ".join(hit),
+                "TEXT -- coded conditions silent; the title names the vascular bed", ev)
+
+    # ---- 6. CORONARY.
+    hit = _any(CORONARY_TERMS, conds)
+    if hit:
+        return ("CORONARY", "conditions name %s" % ", ".join(hit),
+                "CODED -- conditionsModule.conditions", ev)
+    hit = _any(CORONARY_TERMS, title)
+    if hit:
+        return ("CORONARY", "the trial's own title names %s" % ", ".join(hit),
+                "TEXT -- A CODED FIELD CAN BE CORRECT AND STILL NOT ANSWER THE QUESTION ASKED "
+                "OF IT (P42): the coded conditions name something true about the study that is "
+                "not its population's vascular disease", ev)
+
+    # ---- 7. ESTABLISHED ATHEROSCLEROTIC DISEASE, NO BED NAMED. Last on purpose: every
+    # bed-specific reading has already had its turn, so this can only receive a trial that
+    # names atherosclerosis and names no bed.
+    hit = _any(ASCVD_TERMS, conds)
+    if hit:
+        return ("ASCVD_MIXED", "conditions name %s and no vascular bed" % ", ".join(hit),
+                "CODED -- conditionsModule.conditions", ev)
+    hit = _any(ASCVD_TERMS, title)
+    if hit:
+        return ("ASCVD_MIXED", "the trial's own title names %s and no vascular bed"
+                % ", ".join(hit),
+                "TEXT -- coded conditions name no atherosclerotic disease; the title does", ev)
+
+    return ("NONE",
+            "no reading's population terms are matched by the coded conditions or the title",
+            "CODED -- conditionsModule.conditions, and the title agrees", ev)
+
+
+def disposition(reading, ev):
+    """EXCLUDED / ELIGIBLE_* / NOT_ASSESSABLE. EVERY FAILING LIMB IS REPORTED (P15)."""
+    fails = []
+    if reading == "NONE":
+        fails.append("POPULATION: the population is outside every one of the six readings")
+    if ev["arm_role"] == "not_assessable":
+        return "NOT_ASSESSABLE", ["ARM ROLE: colchicine could not be located in the arms, the "
+                                  "interventions or the title. ABSENT IS NOT ZERO AND IT IS NOT "
+                                  "AN EXCLUSION."]
+    if ev["arm_role"] not in ("experimental", "comparator"):
+        fails.append("INTERVENTION: colchicine is not the randomised contrast (role %r)"
+                     % ev["arm_role"])
+    if (ev["allocation"] or "").upper() != "RANDOMIZED":
+        fails.append("DESIGN: allocation is %r, not RANDOMIZED" % ev["allocation"])
+    if ev["n_arms"] < 2:
+        fails.append("COMPARATOR: the registration declares %d arm(s); there is no randomised "
+                     "contrast to read" % ev["n_arms"])
+    if fails:
+        return "EXCLUDED", fails
+    if not ev["has_results"]:
+        # TWO STATES, NEVER ONE. A trial that is still recruiting has NO RESULTS YET; a trial
+        # that COMPLETED years ago and posted nothing is a different fact about the literature
+        # and about this registry search, and folding them together makes a finished field look
+        # like one still in flight. `bosentan-pah-not-group-1` published eight eligible and zero
+        # reported as a finding; that finding is only legible when the two states are separate.
+        st = (ev.get("status") or "").upper()
+        if st in ("COMPLETED", "TERMINATED", "WITHDRAWN", "SUSPENDED", "UNKNOWN"):
+            return "ELIGIBLE_COMPLETED_NO_RESULTS_POSTED", [
+                "eligible on every limb; overall status %r and NO results section on this "
+                "registry. A publication may exist -- THIS REGISTRY SEARCH CANNOT SEE ONE, and "
+                "that is a limit of the database, not a finding about the trial." % ev["status"]]
+        return "ELIGIBLE_NO_RESULTS_YET", ["eligible on every limb; overall status %r, so the "
+                                           "trial has not reported yet" % ev["status"]]
+    return "ELIGIBLE_WITH_RESULTS", ["eligible on every limb, and results are posted. The "
+                                     "estimand screen is a SEPARATE stage and has not run here."]
+
+
+def load_surfaced():
+    with io.open(SURFACED_FILE, "r", encoding="utf-8") as fh:
+        d = json.load(fh)
+    ids = list(d["page_1"]) + list(d["page_2"])
+    if len(ids) != len(set(ids)):
+        raise SystemExit("REFUSED: the surfaced file lists a registration twice.")
+    if len(ids) != d["counts"]["total_reported_by_the_registry"]:
+        raise SystemExit("REFUSED: surfaced list is %d against a reported total of %d."
+                         % (len(ids), d["counts"]["total_reported_by_the_registry"]))
+    return ids
+
+
+def screen_all(ids):
+    rows = []
+    for nct in ids:
+        state, study, detail = X.fetch_raw(
+            nct, fields="protocolSection,hasResults,derivedSection")
+        if state != X.OK:
+            rows.append({"nct": nct, "reading": "NOT_ASSESSABLE",
+                         "why": "transport: %s -- %s" % (state, str(detail)[:120]),
+                         "basis": "NONE -- the record could not be read",
+                         "disposition": "NOT_ASSESSABLE",
+                         "disposition_why": ["TRANSPORT: %s. UNREACHABLE IS NOT ABSENT AND IT "
+                                             "IS NOT ZERO." % state],
+                         "in_object": nct in IN_OBJECT, "evidence": {}})
+            continue
+        reading, why, basis, ev = assign(study)
+        disp, dwhy = disposition(reading, ev)
+        rows.append({"nct": nct, "reading": reading, "why": why, "basis": basis,
+                     "disposition": disp, "disposition_why": dwhy,
+                     "in_object": nct in IN_OBJECT, "evidence": ev})
+    return rows
+
+
+def assert_known_members(rows):
+    """P43 -- RUNS BEFORE ANY COUNT IS EMITTED. Returns a list of failures, never a bool."""
+    by_nct = {r["nct"]: r for r in rows}
+    bad = []
+    for nct, (want, why) in sorted(KNOWN_MEMBERS.items()):
+        r = by_nct.get(nct)
+        if r is None:
+            bad.append("%s is a declared known member and is NOT IN THE SURFACED SET" % nct)
+            continue
+        if r["reading"] != want:
+            bad.append("%s -> %s, declared %s (%s). Assignment reason given: %s"
+                       % (nct, r["reading"], want, why, r["why"]))
+    return bad
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    ids = load_surfaced()
+    rows = screen_all(ids)
+
+    bad = assert_known_members(rows)
+    if bad:
+        print("PARTITION REFUSED -- %d declared known member(s) landed elsewhere.\n" % len(bad))
+        for b in bad:
+            print("  " + b)
+        print("\nNOTHING WAS WRITTEN. A partition that misplaces a trial whose reading is known "
+              "in advance will misplace trials whose reading is not, and every downstream count "
+              "would inherit it silently.")
+        return 2
+
+    cascade = {}
+    for r in rows:
+        k = (r.get("evidence") or {}).get("arm_role") or "unreadable_record"
+        cascade[k] = cascade.get(k, 0) + 1
+
+    by = {}
+    for r in rows:
+        b = by.setdefault(r["reading"], {"records": 0, "ncts": [], "dispositions": {},
+                                         "eligible": 0, "with_results": 0})
+        b["records"] += 1
+        b["ncts"].append(r["nct"])
+        d = r["disposition"]
+        b["dispositions"][d] = b["dispositions"].get(d, 0) + 1
+        if d.startswith("ELIGIBLE"):
+            b["eligible"] += 1
+        if d == "ELIGIBLE_WITH_RESULTS":
+            b["with_results"] += 1
+
+    disp_all = {}
+    for r in rows:
+        disp_all[r["disposition"]] = disp_all.get(r["disposition"], 0) + 1
+
+    # ---- reconciliation, computed rather than asserted (P20, P30)
+    assert sum(b["records"] for b in by.values()) == len(ids)
+    assert sum(disp_all.values()) == len(ids)
+    unscreened = len(ids) - sum(disp_all.values())
+
+    print("SURFACED REGISTRATIONS %d   (distinct STUDIES at most %d -- one duplicate "
+          "registration pair)\n" % (len(ids), len(ids) - len(DUPLICATE_REGISTRATIONS)))
+    print("arm-role cascade over all %d:" % len(ids))
+    for k in sorted(cascade):
+        print("    %-32s %3d" % (k, cascade[k]))
+    print("\ndispositions over all %d:" % len(ids))
+    for k in sorted(disp_all):
+        print("    %-32s %3d" % (k, disp_all[k]))
+    print("    %-32s %3d" % ("UNSCREENED REMAINDER", unscreened))
+    print("")
+    for k in READINGS:
+        b = by.get(k)
+        if not b:
+            print("  %-10s records  0   -- reached by nothing in the surfaced set" % k)
+            continue
+        print("  %-10s records %3d   ELIGIBLE %2d   of those with posted results %2d   %s"
+              % (k, b["records"], b["eligible"], b["with_results"],
+                 " ".join("%s=%d" % kv for kv in sorted(b["dispositions"].items()))))
+    print("")
+    for k in READINGS:
+        if k == "NONE":
+            continue
+        elig = [r for r in rows if r["reading"] == k and r["disposition"].startswith("ELIGIBLE")]
+        print("  %s -- eligible (%d):" % (k, len(elig)))
+        for r in sorted(elig, key=lambda r: -(r["evidence"].get("enrolment") or 0)):
+            e = r["evidence"]
+            print("      %-12s n=%-6s %-11s %s"
+                  % (r["nct"], e.get("enrolment"),
+                     "RESULTS" if e.get("has_results") else "no results",
+                     (e.get("brief_title") or "")[:60]))
+        if not elig:
+            print("      NONE. THIS READING IS AN EMPTY QUESTION, NOT A REVIEW.")
+
+    recall = [r["nct"] for r in rows if r["in_object"]]
+    out = {
+        "topic": "colchicine-cvd-review",
+        "screened_utc": "2026-08-19",
+        "decision_document": "DECIDED-colchicine-cvd-2026-08-19.md",
+        "surfaced_registrations": len(ids),
+        "duplicate_registration_pairs": DUPLICATE_REGISTRATIONS,
+        "distinct_studies_at_most": len(ids) - len(DUPLICATE_REGISTRATIONS),
+        "known_member_assertion": "PASSED -- %d declared members, each in the reading named in "
+                                  "the decision document before this ran" % len(KNOWN_MEMBERS),
+        "known_members": {k: v[0] for k, v in KNOWN_MEMBERS.items()},
+        "precedence": "PERIPROC > PERICARD > ICH > CEREBRO > PAD > CORONARY, applied in that "
+                      "order and STATED rather than discovered. A different precedence would "
+                      "move trials between readings and these counts would change with it. "
+                      "PERIPROC requires BOTH a procedural anchor AND a primary outcome that is "
+                      "a complication of the procedure, because a 'was a procedure involved' "
+                      "rule sends CLEAR SYNERGY out of its own review.",
+        "arm_role_cascade": cascade,
+        "dispositions": disp_all,
+        "k_unscreened_remainder": unscreened,
+        "recall_against_object_included_set": {
+            "included": IN_OBJECT, "surfaced": recall,
+            "recall": "%d/%d" % (len(recall), len(IN_OBJECT))},
+        "by_reading": by,
+        "readings_with_no_eligible_trial": sorted(k for k, b in by.items()
+                                                  if k != "NONE" and b["eligible"] == 0),
+        "what_an_empty_reading_means": (
+            "A reading with NO eligible trial is not a review, it is an EMPTY QUESTION, and the "
+            "honest outcome is to name it as a BOUNDARY on the other readings' pages. A reading "
+            "with eligible trials and NO posted results IS a review and publishes a refusal "
+            "naming every trial. This test was written into the decision document before any "
+            "count existed."),
+        "what_this_screen_does_NOT_do": (
+            "It does not screen ESTIMAND. ELIGIBLE_WITH_RESULTS means the trial randomised "
+            "colchicine against something in a population inside a reading and posted results. "
+            "Whether any two of them measured the same thing is decided by reading the outcome "
+            "definitions, never by this file and never by a heterogeneity statistic (P36)."),
+        "rows": rows,
+    }
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1))
+    print("\nrecall against the object's included set: %d/%d" % (len(recall), len(IN_OBJECT)))
+    print("wrote %s" % DEST)
+    return 0
+
+
+def selftest():
+    """KNOWN ANSWERS ON REAL REGISTRATIONS. Nothing here is invented."""
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    fails = []
+
+    def check(name, got, want):
+        ok = got == want
+        print("  %-70s %s  %r" % (name, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(name)
+
+    studies = {}
+    for nct in sorted(KNOWN_MEMBERS):
+        st, s, d = X.fetch_raw(nct, fields="protocolSection,hasResults,derivedSection")
+        if st != X.OK:
+            print("  TRANSPORT %s for %s -- %s" % (st, nct, d))
+            fails.append("transport %s" % nct)
+            continue
+        studies[nct] = s
+
+    print("\n1. Every declared known member lands in its declared reading (P43):")
+    for nct, (want, why) in sorted(KNOWN_MEMBERS.items()):
+        if nct not in studies:
+            continue
+        check("%s -> %s" % (nct, want), assign(studies[nct])[0], want)
+
+    print("\n2. THE TRAP, TESTED DIRECTLY. CLEAR SYNERGY has a procedural anchor and must NOT")
+    print("   be assigned PERIPROC, because its primary is not a procedural complication:")
+    if "NCT03048825" in studies:
+        ps = studies["NCT03048825"]["protocolSection"]
+        conds = norm(" ; ".join((ps.get("conditionsModule") or {}).get("conditions") or []))
+        title = norm(str((ps.get("identificationModule") or {}).get("officialTitle") or ""))
+        prim = _outcome_blob(ps)
+        anchor = _any(PROCEDURE_ANCHOR, conds + " " + title + " " + prim)
+        comp = _any(PROCEDURAL_COMPLICATION, prim + " " + conds)
+        print("     procedural anchor present : %r" % anchor)
+        print("     procedural complication   : %r" % comp)
+        check("CLEAR SYNERGY: anchor limb fires", bool(anchor), True)
+        check("CLEAR SYNERGY: complication limb does NOT fire", bool(comp), False)
+        check("CLEAR SYNERGY: reading", assign(studies["NCT03048825"])[0], "CORONARY")
+
+    print("\n3. THE GUARD CAN FIRE (P16). A deliberately wrong declaration is refused:")
+    rows = [{"nct": "NCT03048825", "reading": "PERIPROC", "why": "planted"}]
+    saved = dict(KNOWN_MEMBERS)
+    try:
+        KNOWN_MEMBERS.clear()
+        KNOWN_MEMBERS["NCT03048825"] = ("CORONARY", "planted")
+        bad = assert_known_members(rows)
+        check("a misplaced known member is reported", len(bad), 1)
+        rows[0]["reading"] = "CORONARY"
+        check("the correct case is NOT refused", len(assert_known_members(rows)), 0)
+        check("a known member absent from the set is reported",
+              len(assert_known_members([{"nct": "NCT00000000", "reading": "CORONARY"}])), 1)
+    finally:
+        KNOWN_MEMBERS.clear()
+        KNOWN_MEMBERS.update(saved)
+
+    print("\n4. THE DUPLICATE REGISTRATION PAIR IS ONE STUDY under two ids:")
+    pair = DUPLICATE_REGISTRATIONS[0]
+    got = {}
+    for nct in pair:
+        st, s, _ = X.fetch_raw(nct, fields="protocolSection,hasResults,derivedSection")
+        if st != X.OK:
+            fails.append("transport %s" % nct)
+            continue
+        ps = s["protocolSection"]
+        # THE OFFICIAL TITLE, NOT THE BRIEF ONE. The two briefTitles differ -- one carries the
+        # acronym "(PAPERS)" and the other does not -- so a duplicate-registration test written
+        # on briefTitle reports NOT-A-DUPLICATE for a pair whose officialTitle, org identifier,
+        # enrolment, dates and conditions are identical. Caught by this selftest on its first
+        # run, which is the only reason the pair is still recorded as one study.
+        got[nct] = (norm((ps.get("identificationModule") or {}).get("officialTitle")),
+                    ((ps.get("designModule") or {}).get("enrollmentInfo") or {}).get("count"),
+                    ((ps.get("statusModule") or {}).get("overallStatus")))
+    if len(got) == 2:
+        a, b = [got[n] for n in pair]
+        check("%s and %s share a title and an enrolment" % pair, a, b)
+        ra = assign(studies.get(pair[0]) or X.fetch_raw(pair[0], fields="protocolSection,hasResults")[1])[0]
+        rb = assign(X.fetch_raw(pair[1], fields="protocolSection,hasResults,derivedSection")[1])[0]
+        check("and they receive the SAME reading", ra, rb)
+
+    print("\n5. locate() REFUSES A BARE STRING where a term collection belongs (defect 19):")
+    # THROUGH A VARIABLE, and that is not a way around the static lint -- it is the only way to
+    # test the RUNTIME guard at all.
+    #
+    # Written first as a string LITERAL, this line was REFUSED by
+    # `lint_string_where_collection_expected.py` at the pre-commit hook, correctly: the static
+    # half's contract is that the live repository contains ZERO string-literal call sites, and a
+    # deliberate negative test written as a literal is indistinguishable from a real defect by
+    # every means that lint has. The lint has no suppression affordance and should not grow one.
+    # The variable form is what the two earlier screens already use, and the lint's own docstring
+    # names it as the case the static half MISSES and the runtime guard CATCHES -- so this tests
+    # the guard, which is the half being proven here.
+    bare = "colchicine"
+    try:
+        TI.locate(studies.get("NCT02551094") or {"protocolSection": {}}, bare)
+        check("a bare string RAISES", False, True)
+    except TI.TermsMustBeACollection:
+        check("a bare string RAISES", True, True)
+    # AND DOES NOT FIRE ON THE CORRECT CALL. A guard that always fires is not a guard (P16).
+    try:
+        TI.locate({"protocolSection": {}}, TI.synonyms_for("colchicine"))
+        check("the declared synonym collection does NOT raise", True, True)
+    except TI.TermsMustBeACollection:
+        check("the declared synonym collection does NOT raise", False, True)
+
+    print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.exit(selftest() if "--selftest" in sys.argv else main())
