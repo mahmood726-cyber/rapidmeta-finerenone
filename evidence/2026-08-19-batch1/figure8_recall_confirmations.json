@@ -1,0 +1,153 @@
+{
+ "built_utc": "2026-08-19",
+ "RETRACTION": {
+  "what_I_said": "That SUBMISSION-REFERENCES.md was wrong to state the phase filter took recall on `ablation-af-review` from 4/4 to 2/4.",
+  "what_is_true": "THE DELIVERED FIGURE IS CORRECT. phase_filter_recall_sweep.json records ablation-af-review with included=4, recall_with=2/4, recall_without=4/4, k0 143 -> 931.",
+  "why_both_numbers_exist": "The 1/3 -> 3/3 I quoted is from ablation_split_search.json for topic `ablation-af-medical-therapy`, a 3-trial hand-set recall TARGET. The k0 pair is IDENTICAL (143, 931) because it is the same query pair scored against a different denominator.",
+  "action": "DO NOT CHANGE THIS BAR.",
+  "the_cause": "I searched the evidence directory for files containing recall fractions, found one, and treated it as the answer. A second and more authoritative file -- a corpus-wide sweep over 10 structured queries -- was never opened. RE-DERIVATION IS ONLY AS GOOD AS THE ENUMERATION IT RE-DERIVES OVER."
+ },
+ "bar_1_apixaban_vte_prophylaxis_phase_filter": {
+  "state": "CONFIRMED AS DESCRIBED",
+  "topic": "apixaban-vte-prophylaxis",
+  "records_with_the_phase_filter": 49,
+  "records_without_it": 82,
+  "recall_with": "0/1 -- IT MISSED NCT02366871 ENTIRELY",
+  "recall_without": "1/1",
+  "EXACT_FRACTIONS": "0/1 -> 1/1",
+  "the_trial_lost": {
+   "nct": "NCT02366871",
+   "acronym": null,
+   "conditions_VERBATIM": [
+    "Gynecologic Cancer",
+    "Venous Thromboembolism"
+   ],
+   "phases_VERBATIM": [
+    "PHASE2"
+   ],
+   "enrollment": 400,
+   "read_utc": "2026-08-19"
+  },
+  "why_total": "The review's only included trial AT THE TIME OF THAT SEARCH was the PHASE2 one the filter dropped, so the phase-filtered search had ZERO recall on the review's entire evidence base.",
+  "CAVEAT_THE_DENOMINATOR_HAS_SINCE_CHANGED": "The object now holds 5 trials. The 0/1 and 1/1 are against the included set AS IT STOOD when that search ran, which is what the record states. Quoting them against today's set would be wrong.",
+  "DO_NOT_CONFUSE_WITH": "`apixaban-vte`, a DIFFERENT topic, which the corpus sweep records at included=2, recall 1/2 -> 2/2, losing the SAME trial. Two topics, two denominators. This is exactly the confusion that produced the retraction above."
+ },
+ "bar_2_sglt2_hf_condition_term": {
+  "state": "CONFIRMED",
+  "EXACT_FRACTIONS": "3/4 -> 4/4",
+  "query_1": {
+   "condition_term": "chronic heart failure",
+   "records": 23,
+   "missed": "NCT03619213 (DELIVER)"
+  },
+  "query_2": {
+   "condition_term": "heart failure",
+   "records": 56,
+   "covers_all_included": true
+  },
+  "included_set_size": 4,
+  "DELIVER_registered_condition_VERBATIM": {
+   "nct": "NCT03619213",
+   "acronym": "DELIVER",
+   "conditions_VERBATIM": [
+    "Heart Failure With Preserved Ejection Fraction"
+   ],
+   "phases_VERBATIM": [
+    "PHASE3"
+   ],
+   "enrollment": 6263,
+   "read_utc": "2026-08-19"
+  },
+  "DAPA_HF_registered_condition_VERBATIM": {
+   "nct": "NCT03036124",
+   "acronym": "DAPA-HF",
+   "conditions_VERBATIM": [
+    "Chronic Heart Failure With Reduced Ejection Fraction (HFrEF)"
+   ],
+   "phases_VERBATIM": [
+    "PHASE3"
+   ],
+   "enrollment": 4744,
+   "read_utc": "2026-08-19"
+  },
+  "the_quotable_claim": "The query asked for `chronic heart failure`. DELIVER's registered condition is `Heart Failure With Preserved Ejection Fraction` -- it contains no `chronic`. DAPA-HF's is `Chronic Heart Failure With Reduced Ejection Fraction (HFrEF)`, which does. One word in the query, present in one trial's registered condition and absent from the other's.",
+  "CAVEAT_NOT_A_CLEAN_SINGLE_VARIABLE_TEST": "Query 1 carried phase=[PHASE3,PHASE4] and query 2 carried phase=[PHASE3]. The phase clause therefore differs between the two queries as well as the condition term. THE CONTROL IS SEPARATE AND IT HOLDS: the corpus-wide phase sweep records sglt2-hf at recall 4/4 -> 4/4 with NOTHING lost to the phase filter, which isolates the condition term as the cause of the miss. The bar is sound; the caption should not claim a single-variable experiment."
+ },
+ "bar_3_colchicine_pagination": {
+  "state": "CONFIRMED",
+  "EXACT_FRACTIONS": "2/3 -> 3/3",
+  "included_set": [
+   "NCT02551094",
+   "NCT03048825",
+   "NCT02898610"
+  ],
+  "surfaced_on_page_1": [
+   "NCT02551094 COLCOT, n=4745",
+   "NCT02898610 CONVINCE, n=3154"
+  ],
+  "surfaced_on_page_2_only": [
+   "NCT03048825 CLEAR SYNERGY / OASIS-9, n=7264"
+  ],
+  "pages": [
+   {
+    "page": 1,
+    "returned": 100,
+    "total_reported": 137,
+    "next_page_token": "PRESENT"
+   },
+   {
+    "page": 2,
+    "returned": 37,
+    "total_reported": null,
+    "next_page_token": "null -- the cursor is exhausted"
+   }
+  ],
+  "the_trial_on_page_2": {
+   "nct": "NCT03048825",
+   "acronym": "CLEAR SYNERGY",
+   "conditions_VERBATIM": [
+    "ST Elevation Myocardial Infarction",
+    "Non ST Elevation Myocardial Infarction"
+   ],
+   "phases_VERBATIM": [
+    "PHASE3"
+   ],
+   "enrollment": 7264,
+   "read_utc": "2026-08-19"
+  }
+ },
+ "bar_4_ablation_af_phase_filter": {
+  "state": "CONFIRMED -- AND MY CORRECTION OF IT IS RETRACTED",
+  "EXACT_FRACTIONS": "2/4 -> 4/4",
+  "records": "143 -> 931",
+  "included_set_size": 4,
+  "lost_to_the_filter": [
+   {
+    "nct": "NCT00911508",
+    "acronym": "CABANA",
+    "conditions_VERBATIM": [
+     "Atrial Fibrillation",
+     "Arrhythmia"
+    ],
+    "phases_VERBATIM": [
+     "NA"
+    ],
+    "enrollment": 2204,
+    "read_utc": "2026-08-19"
+   },
+   {
+    "nct": "NCT01420393",
+    "acronym": "RAFT-AF",
+    "conditions_VERBATIM": [
+     "Heart Failure",
+     "Atrial Fibrillation"
+    ],
+    "phases_VERBATIM": [
+     "NA"
+    ],
+    "enrollment": 411,
+    "read_utc": "2026-08-19"
+   }
+  ]
+ }
+}
