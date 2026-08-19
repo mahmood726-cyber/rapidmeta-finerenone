@@ -69,7 +69,7 @@ downstream could detect it, because everything downstream reads verdicts. That n
 relayed onward before it was corrected.
 
 **P16 — a guard is proven in three parts.** The foreign-registration-id guard, written against
-the cross-contamination class, was destroyed by the heredoc-mangling class: its `` became a
+the cross-contamination class, was destroyed by the heredoc-mangling class: its `\b` became a
 literal BACKSPACE byte. It compiled, imported, ran, and the build printed `HELD 7 / REFUSING 1`
 and success — while unable to match anything. Exposed only by planting a fake id. Repaired, it
 then fired on a *correct* object. **The last clause is the one people skip**: a build reporting
