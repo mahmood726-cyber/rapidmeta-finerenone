@@ -179,6 +179,49 @@ complete and correct *in itself*.
   block is declared, merged, and verified present after write* — is designed and endorsed but
   **not yet implemented**. Until it is, the coverage is per-block and reactive
 
+### 8b. A placeholder overwriting a resolution — the shape `_deep_merge` does not cover
+**Found after this file was written, while building `iv-iron-hf`**, which is the sixth instance
+of §8 and the first the merge fix could not have caught.
+
+`_deep_merge`'s rule is *new values win*. That protects keys the spec does not mention — but
+**a placeholder is a value**:
+
+```python
+_deep_merge(<resolved dict>, None)   # -> None, because the two are not both dicts
+```
+
+The builder wrote `published_comparison` wholesale as `PENDING_EXTERNAL_RESOLUTION` with
+`denominator: None`. The object carried a **resolved** comparison: 11 checks, a stated
+denominator (8 confirmed, 0 errors, 1 absent, 2 unresolved), a symmetry statement.
+
+**Reporting finished verification as pending is worse than reporting nothing** — it invites the
+work to be redone and silently discards the first result.
+
+- **Detector** the additive guard fired, aborted, and restored — **one block late**, again
+- **Fix** a placeholder is written only where no resolution exists
+- **The lesson generalises past this field:** the fix written after four instances of a class
+  was insufficient for the fifth *shape* of it. **A systemic fix is only systemic over the
+  shapes you had seen when you wrote it.**
+
+### 8c. A verdict that cannot report anything but refusal
+`P7_published_comparison` was **hardcoded** to `REFUSING` with a fixed message, so it could not
+report anything else no matter what the object held.
+
+> A property that can only ever refuse is not a check, in the same way that a liveness probe
+> that can only report "alive" is not a check.
+
+Notable because it failed in the **under-reporting** direction — the page announced as pending
+a piece of verification that was complete. Every guard in this repo was built against
+overclaiming; this one quietly understated the work. See E4.
+
+- **Fix** the verdict is computed from the object
+- **Verified not a loosening**, and checked rather than assumed: `sglt2-hf` and
+  `bempedoic-acid-review` have no denominator and no checks, and both **stay REFUSING**.
+  Exactly one topic moved, and it is the one carrying the evidence
+- **MISSES** no detector enumerates property verdicts that are literal constants rather than
+  functions of the object. **Buildable** — an AST walk for `prop(<CONST>, "...")` with no
+  branch on object state. Related to detector 5b (verdict unit). Not built; see E7
+
 ### 9. Stale artefact passing a freshness gate
 A build failed with `KeyError`; `curl` returned **200** for a five-hour-old file; the gate
 passed. **An exit code cannot distinguish "ran and passed" from "never ran".**
@@ -268,15 +311,35 @@ warning. Named because the alternative is discovering it by luck a second time.
 
 ---
 
+### E7. Asserted verdicts — a property whose value is a constant
+The general form of §8c. A `prop(REFUSING, "...")` or `prop(HELD, "...")` with no branch on
+object state is a verdict that was **decided when the code was written**, not derived from what
+is on the page.
+
+**Mechanically detectable and not built**: walk the AST for `prop(...)` calls whose verdict
+argument is a module-level constant and whose enclosing block contains no reference to `obj`.
+Listed as an exposure rather than as future work, per this file's own standard.
+
+**This entry exists because two new classes (8b, 8c) were found within the hour after this file
+was written, while doing ordinary build work.** The registry is a snapshot of what has been
+noticed, not a proof of what remains — and the honest form of that is to keep adding to it
+rather than to present it as complete.
+
+---
+
 ## What this file does not claim
 
 It does not claim the corpus is free of these defects. It claims that for **CLOSED** entries a
 new instance is rejected at commit, and that for every other class the gap is named with its
 reason rather than left to be rediscovered.
 
-Six classes are closed, four are partial with the uncovered part stated, and six are open.
-**Two of the open six (E3, E6) are mechanically buildable and were simply not built tonight** —
+Six classes are closed, six are partial with the uncovered part stated, and seven are open.
+**Three of the open seven (E3, E6, E7) are mechanically buildable and were simply not built** —
 they are listed as exposures rather than as future work, because "we wrote it down" is the
 status this file exists to refuse.
+
+Nor does it claim to be finished. Two classes (§8b, §8c) were found **within the hour after it
+was written**, during ordinary build work, and one of them defeated a fix authored earlier the
+same night specifically to close its family. The count above will be wrong again.
 
 *Verified 2026-08-19. Every command in this file was run; every count is an observed output.*
