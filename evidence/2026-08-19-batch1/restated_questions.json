@@ -1,0 +1,782 @@
+{
+ "run_utc": "2026-08-19",
+ "counts": {
+  "RESTATED": 15,
+  "SPLIT": 15,
+  "PACKET": 22
+ },
+ "what_the_ratio_means": "RESTATED means the topic's own registrations resolved to exactly one question and the field had simply never been filled from them. SPLIT means the topic is genuinely several questions and needs a P21 decision. PACKET means nothing in the object can support a question at all. The ratio is a finding about how these objects were made, not about the topics.",
+ "the_restated_form": "A PICO sentence: population, intervention, comparator, outcome, each clause filled from the registrations' own coded fields and different for every topic. A template of FORM is not a template of CONTENT -- the defect being fixed is a question with no content. Where a clause cannot be filled from source it is LEFT OUT rather than guessed, and the omission is recorded.",
+ "rows": [
+  {
+   "topic": "ablation-af-review",
+   "was_state": "TITLE_ECHO",
+   "was_question": "Number of Participants With Composite of Total Mortality, Disabling Stroke, Serious Bleeding, or Cardiac Arrest in Patie",
+   "outcome": "SPLIT",
+   "new_question": null,
+   "detail": "the registrations code 4 distinct conditions across 4 trials; that is a P21 decision about how many questions this topic is, not a restatement"
+  },
+  {
+   "topic": "acs-antiplatelet-review",
+   "was_state": "TITLE_ECHO",
+   "was_question": "Multiple trial-declared outcomes: Participants With Any Event From the Composite of Death From Vascular Causes, Myocardial Infarction (MI), and Stroke | Number of Subjects Reaching the Composite Endpoint of Cardiovascula",
+   "outcome": "SPLIT",
+   "new_question": null,
+   "detail": "the registrations code 6 distinct conditions across 4 trials; that is a P21 decision about how many questions this topic is, not a restatement"
+  },
+  {
+   "topic": "anidulafungin-fungal-auto-full-review",
+   "was_state": "TEMPLATED",
+   "was_question": "Anidulafungin in invasive fungal infection: NOT POOLABLE -- PARTICIPANTS + OUTCOME on each trial's own registered primary outcome?",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded condition matches the topic's own words, so the population cannot be identified from source. 3 condition(s) are coded: Candidiasis, Fungemia, Neutropenia. The first version fell back to the shortest string and derived 'In adults with stroke' for warfarin-af."
+  },
+  {
+   "topic": "apixaban-vte",
+   "was_state": "TEMPLATED",
+   "was_question": "Apixaban Vte: NOT POOLABLE AS POSED -- the COMPARATOR and PARTICIPANTS and OUTCOME limb fails on each trial's own registered primary outcome?",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded condition matches the topic's own words, so the population cannot be identified from source. 3 condition(s) are coded: Gynecologic Cancer, Menstruation, Venous Thromboembolism. The first version fell back to the shortest string and derived 'In adults with stroke' for warfarin-af."
+  },
+  {
+   "topic": "attr-pn-review",
+   "was_state": "TITLE_ECHO",
+   "was_question": "Multiple trial-declared outcomes: Modified Neuropathy Impairment Score +7 (mNIS+7) | Change From Baseline in the Modified Neurologic Impairment Score +7 (mNIS+7) at Month 9 Between the Vutrisiran Group (HE | Change From ",
+   "outcome": "SPLIT",
+   "new_question": null,
+   "detail": "the registrations code 8 distinct conditions across 3 trials; that is a P21 decision about how many questions this topic is, not a restatement"
+  },
+  {
+   "topic": "bamlanivimab-covid",
+   "was_state": "TEMPLATED",
+   "was_question": "Bamlanivimab Covid: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded intervention matches the topic's own words, so the intervention cannot be identified from source. 4 intervention(s) are coded: LY3819253, LY3832479, LY3853113, Placebo. Guessing one would repeat the shortest-string defect this function was built to remove."
+  },
+  {
+   "topic": "bezlotoxumab-cdi",
+   "was_state": "TEMPLATED",
+   "was_question": "Bezlotoxumab Cdi: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded intervention matches the topic's own words, so the intervention cannot be identified from source. 5 intervention(s) are coded: MK-3415, MK-3415A, MK-6072, Placebo, SOC. Guessing one would repeat the shortest-string defect this function was built to remove."
+  },
+  {
+   "topic": "bosentan-pah",
+   "was_state": "TEMPLATED",
+   "was_question": "Bosentan Pah: NOT POOLABLE AS POSED -- the OUTCOME and DESIGN limb fails on each trial's own registered primary outcome?",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded condition matches the topic's own words, so the population cannot be identified from source. 1 condition(s) are coded: Pulmonary Arterial Hypertension. The first version fell back to the shortest string and derived 'In adults with stroke' for warfarin-af."
+  },
+  {
+   "topic": "casirivimab-covid",
+   "was_state": "TEMPLATED",
+   "was_question": "Casirivimab Covid: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?",
+   "outcome": "RESTATED",
+   "new_question": "In adults and children with covid-19, does casirivimab+imdevimab combination therapy compared with the comparator each trial randomised affect number of participants with treatment-emergent serious adverse events (saes) - [ph1, ph2, ph3 cohort 1 - cohort 3]?",
+   "detail": {
+    "n_trials_read": 1,
+    "population_from_stdAges": "adults and children",
+    "condition_chosen": "COVID-19",
+    "condition_matched_the_topic_name": true,
+    "intervention_chosen": "casirivimab+imdevimab combination therapy",
+    "intervention_matched_the_topic_name": true,
+    "conditions_coded": [
+     "COVID-19"
+    ],
+    "interventions_coded": [
+     "casirivimab+imdevimab combination therapy"
+    ],
+    "comparator_families": [],
+    "n_distinct_registered_primaries": 1,
+    "clauses_left_out_because_source_did_not_support_them": [
+     "a single comparator -- the trials do not share one"
+    ],
+    "read_utc": "2026-08-19"
+   }
+  },
+  {
+   "topic": "covid-oral-antivirals",
+   "was_state": "TEMPLATED",
+   "was_question": "Covid Oral Antivirals: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded intervention matches the topic's own words, so the intervention cannot be identified from source. 4 intervention(s) are coded: Molnupiravir, PF-07321332, Placebo, Ritonavir. Guessing one would repeat the shortest-string defect this function was built to remove."
+  },
+  {
+   "topic": "cryptococcal-meningitis-africa",
+   "was_state": "TEMPLATED",
+   "was_question": "Cryptococcal Meningitis Africa: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded intervention matches the topic's own words, so the intervention cannot be identified from source. 2 intervention(s) are coded: efavirenz, nucleoside. Guessing one would repeat the shortest-string defect this function was built to remove."
+  },
+  {
+   "topic": "cvncov-covid19",
+   "was_state": "TEMPLATED",
+   "was_question": "Cvncov Covid19: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?",
+   "outcome": "SPLIT",
+   "new_question": null,
+   "detail": "the registrations code 4 distinct conditions across 2 trials; that is a P21 decision about how many questions this topic is, not a restatement"
+  },
+  {
+   "topic": "dabigatran-stroke",
+   "was_state": "TEMPLATED",
+   "was_question": "Dabigatran Stroke: NOT POOLABLE AS POSED -- the PARTICIPANTS and COMPARATOR limb fails on each trial's own registered primary outcome?",
+   "outcome": "RESTATED",
+   "new_question": "In adults with stroke, does Dabigatran dose 1 compared with the comparator each trial randomised affect the outcome each trial registered as its primary, which differ across the 2 trials here?",
+   "detail": {
+    "n_trials_read": 2,
+    "population_from_stdAges": "adults",
+    "condition_chosen": "Stroke",
+    "condition_matched_the_topic_name": true,
+    "intervention_chosen": "Dabigatran dose 1",
+    "intervention_matched_the_topic_name": true,
+    "conditions_coded": [
+     "Atrial Fibrillation",
+     "Secondary Prevention",
+     "Stroke"
+    ],
+    "interventions_coded": [
+     "ASA 100 mg",
+     "Dabigatran dose 1",
+     "Dabigatran dose 2",
+     "dabigatran etexilate",
+     "optional ASA as comedication",
+     "placebo to ASA",
+     "placebo to dabigatran etexilate",
+     "placebo to optional ASA as comedication",
+     "warfarin"
+    ],
+    "comparator_families": [],
+    "n_distinct_registered_primaries": 2,
+    "clauses_left_out_because_source_did_not_support_them": [
+     "a single comparator -- the trials do not share one",
+     "a single primary outcome"
+    ],
+    "read_utc": "2026-08-19"
+   }
+  },
+  {
+   "topic": "delamanid-tb",
+   "was_state": "TEMPLATED",
+   "was_question": "Delamanid Tb: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded condition matches the topic's own words, so the population cannot be identified from source. 2 condition(s) are coded: Multidrug-resistant Tuberculosis, Tuberculosis, Multidrug-Resistant. The first version fell back to the shortest string and derived 'In adults with stroke' for warfarin-af."
+  },
+  {
+   "topic": "doac-af-review",
+   "was_state": "TITLE_ECHO",
+   "was_question": "Multiple trial-declared outcomes: Yearly Event Rate for Composite Endpoint of Stroke/SEE | The Composite Event of Stroke/Non-CNS Systemic Embolism: Primary Efficacy (Non-Inferiority) | Number of Participants With First E",
+   "outcome": "SPLIT",
+   "new_question": null,
+   "detail": "the registrations code 4 distinct conditions across 3 trials; that is a P21 decision about how many questions this topic is, not a restatement"
+  },
+  {
+   "topic": "doac-cancer-vte-review",
+   "was_state": "TITLE_ECHO",
+   "was_question": "Multiple trial-declared outcomes: Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) or Major Bleeding Event | 6 Month Bleeding Rate | Recurrent Venous Thromboembolism",
+   "outcome": "SPLIT",
+   "new_question": null,
+   "detail": "the registrations code 5 distinct conditions across 3 trials; that is a P21 decision about how many questions this topic is, not a restatement"
+  },
+  {
+   "topic": "doripenem",
+   "was_state": "TEMPLATED",
+   "was_question": "Doripenem: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?",
+   "outcome": "SPLIT",
+   "new_question": null,
+   "detail": "the registrations code 4 distinct conditions across 2 trials; that is a P21 decision about how many questions this topic is, not a restatement"
+  },
+  {
+   "topic": "drotrecogin-sepsis",
+   "was_state": "TEMPLATED",
+   "was_question": "Drotrecogin Sepsis: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?",
+   "outcome": "RESTATED",
+   "new_question": "In adults with sepsis, does Drotrecogin alfa (activated) compared with placebo affect the outcome each trial registered as its primary, which differ across the 2 trials here?",
+   "detail": {
+    "n_trials_read": 2,
+    "population_from_stdAges": "adults",
+    "condition_chosen": "Sepsis",
+    "condition_matched_the_topic_name": true,
+    "intervention_chosen": "Drotrecogin alfa (activated)",
+    "intervention_matched_the_topic_name": true,
+    "conditions_coded": [
+     "Sepsis",
+     "Severe Sepsis"
+    ],
+    "interventions_coded": [
+     "Drotrecogin alfa (activated)",
+     "Placebo"
+    ],
+    "comparator_families": [
+     "placebo"
+    ],
+    "n_distinct_registered_primaries": 2,
+    "clauses_left_out_because_source_did_not_support_them": [
+     "a single primary outcome"
+    ],
+    "read_utc": "2026-08-19"
+   }
+  },
+  {
+   "topic": "empagliflozin-hf-auto-full-review",
+   "was_state": "TITLE_ECHO",
+   "was_question": "Multiple trial-declared outcomes: Time to the First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF) | Time to First Event of Adjudicated Cardiovascular (CV) Death or ",
+   "outcome": "RESTATED",
+   "new_question": "In adults with heart failure, does Empagliflozin compared with placebo affect the outcome each trial registered as its primary, which differ across the 2 trials here?",
+   "detail": {
+    "n_trials_read": 2,
+    "population_from_stdAges": "adults",
+    "condition_chosen": "Heart Failure",
+    "condition_matched_the_topic_name": true,
+    "intervention_chosen": "Empagliflozin",
+    "intervention_matched_the_topic_name": true,
+    "conditions_coded": [
+     "Heart Failure"
+    ],
+    "interventions_coded": [
+     "Empagliflozin",
+     "Placebo"
+    ],
+    "comparator_families": [
+     "placebo"
+    ],
+    "n_distinct_registered_primaries": 2,
+    "clauses_left_out_because_source_did_not_support_them": [
+     "a single primary outcome"
+    ],
+    "read_utc": "2026-08-19"
+   }
+  },
+  {
+   "topic": "enoxaparin-vte",
+   "was_state": "TEMPLATED",
+   "was_question": "Enoxaparin Vte: NOT POOLABLE AS POSED -- the INTERVENTION limb fails on each trial's own registered primary outcome?",
+   "outcome": "SPLIT",
+   "new_question": null,
+   "detail": "the registrations code 4 distinct conditions across 3 trials; that is a P21 decision about how many questions this topic is, not a restatement"
+  },
+  {
+   "topic": "eravacycline-infection-auto-full-review",
+   "was_state": "TEMPLATED",
+   "was_question": "Eravacycline in complicated intra-abdominal infection: NOT POOLABLE -- COMPARATOR -- REFERRED, NOT SETTLED on each trial's own registered primary outcome?",
+   "outcome": "RESTATED",
+   "new_question": "In adults with complicated appendicitis, does Eravacycline compared with the comparator each trial randomised affect the outcome each trial registered as its primary, which differ across the 2 trials here?",
+   "detail": {
+    "n_trials_read": 2,
+    "population_from_stdAges": "adults",
+    "condition_chosen": "Complicated Appendicitis",
+    "condition_matched_the_topic_name": true,
+    "intervention_chosen": "Eravacycline",
+    "intervention_matched_the_topic_name": true,
+    "conditions_coded": [
+     "Complicated Appendicitis",
+     "Complicated Intra-abdominal Infections"
+    ],
+    "interventions_coded": [
+     "Eravacycline",
+     "Ertapenem",
+     "Meropenem",
+     "Placebo"
+    ],
+    "comparator_families": [],
+    "n_distinct_registered_primaries": 2,
+    "clauses_left_out_because_source_did_not_support_them": [
+     "a single comparator -- the trials do not share one",
+     "a single primary outcome"
+    ],
+    "read_utc": "2026-08-19"
+   }
+  },
+  {
+   "topic": "etripamil-psvt",
+   "was_state": "TEMPLATED",
+   "was_question": "Etripamil Psvt: NOT POOLABLE AS POSED -- the OUTCOME limb fails on each trial's own registered primary outcome?",
+   "outcome": "RESTATED",
+   "new_question": "In adults with paroxysmal supraventricular tachycardia (psvt), does Etripamil compared with placebo affect the outcome each trial registered as its primary, which differ across the 2 trials here?",
+   "detail": {
+    "n_trials_read": 2,
+    "population_from_stdAges": "adults",
+    "condition_chosen": "Paroxysmal Supraventricular Tachycardia (PSVT)",
+    "condition_matched_the_topic_name": true,
+    "intervention_chosen": "Etripamil",
+    "intervention_matched_the_topic_name": true,
+    "conditions_coded": [
+     "Paroxysmal Supraventricular Tachycardia",
+     "Paroxysmal Supraventricular Tachycardia (PSVT)"
+    ],
+    "interventions_coded": [
+     "Etripamil",
+     "Etripamil Test Dose",
+     "Placebo"
+    ],
+    "comparator_families": [
+     "placebo"
+    ],
+    "n_distinct_registered_primaries": 2,
+    "clauses_left_out_because_source_did_not_support_them": [
+     "a single primary outcome"
+    ],
+    "read_utc": "2026-08-19"
+   }
+  },
+  {
+   "topic": "evolocumab-ascvd-auto2",
+   "was_state": "TEMPLATED",
+   "was_question": "Evolocumab Ascvd Auto2: NOT POOLABLE -- INTERVENTION on each trial's own registered primary outcome?",
+   "outcome": "SPLIT",
+   "new_question": null,
+   "detail": "the registrations code 5 distinct conditions across 3 trials; that is a P21 decision about how many questions this topic is, not a restatement"
+  },
+  {
+   "topic": "evolocumab-mixed-dyslipidemia-auto-full-review",
+   "was_state": "TITLE_ECHO",
+   "was_question": "Multiple trial-declared outcomes: Percent Change From Baseline in LDL-C at the Mean of Weeks 10 and 12 | Co-Primary Endpoint: Percent Change From Baseline in LDL-C: Mean of Weeks 10 and 12",
+   "outcome": "RESTATED",
+   "new_question": "In adults with mixed dyslipidemia, does Evolocumab compared with placebo affect the outcome each trial registered as its primary, which differ across the 2 trials here?",
+   "detail": {
+    "n_trials_read": 2,
+    "population_from_stdAges": "adults",
+    "condition_chosen": "Mixed Dyslipidemia",
+    "condition_matched_the_topic_name": true,
+    "intervention_chosen": "Evolocumab",
+    "intervention_matched_the_topic_name": true,
+    "conditions_coded": [
+     "Diabetes, Hyperlipidemia, Mixed Dyslipidemia",
+     "Mixed Dyslipidemia",
+     "Primary Hypercholesterolemia"
+    ],
+    "interventions_coded": [
+     "Atorvastatin",
+     "Evolocumab",
+     "Placebo"
+    ],
+    "comparator_families": [
+     "placebo"
+    ],
+    "n_distinct_registered_primaries": 2,
+    "clauses_left_out_because_source_did_not_support_them": [
+     "a single primary outcome"
+    ],
+    "read_utc": "2026-08-19"
+   }
+  },
+  {
+   "topic": "fcm-hf-review",
+   "was_state": "TITLE_ECHO",
+   "was_question": "Multiple trial-declared outcomes: HF Hospitalizations and CV Death | Number of Deaths",
+   "outcome": "SPLIT",
+   "new_question": null,
+   "detail": "the registrations code 6 distinct conditions across 4 trials; that is a P21 decision about how many questions this topic is, not a restatement"
+  },
+  {
+   "topic": "fidaxomicin-cdiff",
+   "was_state": "TEMPLATED",
+   "was_question": "Fidaxomicin Cdiff: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?",
+   "outcome": "SPLIT",
+   "new_question": null,
+   "detail": "the registrations code 4 distinct conditions across 3 trials; that is a P21 decision about how many questions this topic is, not a restatement"
+  },
+  {
+   "topic": "finerenone-review",
+   "was_state": "TITLE_ECHO",
+   "was_question": "Multiple trial-declared outcomes: The First Occurrence of the Composite Endpoint of Onset of Kidney Failure, a Sustained Decrease of eGFR ≥40% From Baseli | The First Occurrence of the Composite Endpoint of Cardiovascula",
+   "outcome": "RESTATED",
+   "new_question": "In adults with heart failure, does Finerenone (BAY94-8862) compared with placebo affect the outcome each trial registered as its primary, which differ across the 3 trials here?",
+   "detail": {
+    "n_trials_read": 3,
+    "population_from_stdAges": "adults",
+    "condition_chosen": "Heart Failure",
+    "condition_matched_the_topic_name": true,
+    "intervention_chosen": "Finerenone (BAY94-8862)",
+    "intervention_matched_the_topic_name": true,
+    "conditions_coded": [
+     "Chronic Kidney Disease",
+     "Diabetic Kidney Disease",
+     "Heart Failure"
+    ],
+    "interventions_coded": [
+     "Finerenone (BAY94-8862)",
+     "Placebo"
+    ],
+    "comparator_families": [
+     "placebo"
+    ],
+    "n_distinct_registered_primaries": 3,
+    "clauses_left_out_because_source_did_not_support_them": [
+     "a single primary outcome"
+    ],
+    "read_utc": "2026-08-19"
+   }
+  },
+  {
+   "topic": "hepatitis-b-taf-tdf-review",
+   "was_state": "TITLE_ECHO",
+   "was_question": "Multiple trial-declared outcomes: Percentage of Participants With Hepatitis B Virus (HBV) DNA < 29 IU/mL | Percentage of Participants With Hepatitis B Virus (HBV) DNA < 29 IU/mL at Week 48",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded intervention matches the topic's own words, so the intervention cannot be identified from source. 4 intervention(s) are coded: TAF, TAF Placebo, TDF, TDF Placebo. Guessing one would repeat the shortest-string defect this function was built to remove."
+  },
+  {
+   "topic": "hiv-prep-injectable-review",
+   "was_state": "TEMPLATED",
+   "was_question": "Injectable HIV pre-exposure prophylaxis: DUPLICATE PAGE -- see cab-prep-hiv on each trial's own registered primary outcome?",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded intervention matches the topic's own words, so the intervention cannot be identified from source. 14 intervention(s) are coded: CAB LA, Cabotegravir Oral Tablet, F/TAF, F/TAF Placebo, F/TDF, F/TDF Placebo. Guessing one would repeat the shortest-string defect this function was built to remove."
+  },
+  {
+   "topic": "icosapent-lipid-auto-full-review",
+   "was_state": "TITLE_ECHO",
+   "was_question": "Difference Between AMR101 (Ethyl Icosapentate) and Placebo Treatment Groups in Triglyceride Lowering Effect",
+   "outcome": "RESTATED",
+   "new_question": "In adults with hypertriglyceridemia, does AMR101 (ethyl icosapentate) - 4 g/day compared with placebo affect difference between amr101 (ethyl icosapentate) and placebo treatment groups in triglyceride lowering effect?",
+   "detail": {
+    "n_trials_read": 2,
+    "population_from_stdAges": "adults",
+    "condition_chosen": "Hypertriglyceridemia",
+    "condition_matched_the_topic_name": true,
+    "intervention_chosen": "AMR101 (ethyl icosapentate) - 4 g/day",
+    "intervention_matched_the_topic_name": true,
+    "conditions_coded": [
+     "Hypertriglyceridemia"
+    ],
+    "interventions_coded": [
+     "AMR101 (ethyl icosapentate) - 2 g/day",
+     "AMR101 (ethyl icosapentate) - 4 g/day",
+     "Placebo"
+    ],
+    "comparator_families": [
+     "placebo"
+    ],
+    "n_distinct_registered_primaries": 1,
+    "clauses_left_out_because_source_did_not_support_them": [],
+    "read_utc": "2026-08-19"
+   }
+  },
+  {
+   "topic": "inclisiran-lipid-kidney-auto-full-review",
+   "was_state": "TITLE_ECHO",
+   "was_question": "Multiple trial-declared outcomes: Percent Change in LDL-C From Baseline To Day 510 | Percentage Change in LDL-C From Baseline to Day 510",
+   "outcome": "SPLIT",
+   "new_question": null,
+   "detail": "the registrations code 4 distinct conditions across 3 trials; that is a P21 decision about how many questions this topic is, not a restatement"
+  },
+  {
+   "topic": "malaria-act-review",
+   "was_state": "TEMPLATED",
+   "was_question": "Artemisinin-based combination therapy in uncomplicated falciparum malaria: NO POOLABLE DATA on each trial's own registered primary outcome?",
+   "outcome": "SPLIT",
+   "new_question": null,
+   "detail": "the registrations code 6 distinct conditions across 5 trials; that is a P21 decision about how many questions this topic is, not a restatement"
+  },
+  {
+   "topic": "malaria-vaccine",
+   "was_state": "TEMPLATED",
+   "was_question": "Malaria Vaccine: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?",
+   "outcome": "RESTATED",
+   "new_question": "In children with malaria, does Malaria Vaccine 257049 compared with usual care affect the outcome each trial registered as its primary, which differ across the 3 trials here?",
+   "detail": {
+    "n_trials_read": 3,
+    "population_from_stdAges": "children",
+    "condition_chosen": "Malaria",
+    "condition_matched_the_topic_name": true,
+    "intervention_chosen": "Malaria Vaccine 257049",
+    "intervention_matched_the_topic_name": true,
+    "conditions_coded": [
+     "Malaria",
+     "Malaria,Falciparum"
+    ],
+    "interventions_coded": [
+     "Cell-culture rabies vaccine",
+     "Malaria Vaccine 257049",
+     "Meningococcal C Conjugate Vaccine",
+     "Polio Sabin Oral Polio Vaccine (GSK)",
+     "R21 adjuvanted with 25mcg Matrix-M",
+     "R21 adjuvanted with 50mcg Matrix-M",
+     "R21/Matrix-M",
+     "Rabies Vaccine",
+     "Rabies vaccine, Hepatitis A vaccine or Meningococcal vaccine",
+     "TritanrixHepB/Hib"
+    ],
+    "comparator_families": [
+     "usual care"
+    ],
+    "n_distinct_registered_primaries": 3,
+    "clauses_left_out_because_source_did_not_support_them": [
+     "a single primary outcome"
+    ],
+    "read_utc": "2026-08-19"
+   }
+  },
+  {
+   "topic": "maribavir-cmv",
+   "was_state": "TEMPLATED",
+   "was_question": "Maribavir Cmv: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded condition matches the topic's own words, so the population cannot be identified from source. 1 condition(s) are coded: Cytomegalovirus (CMV). The first version fell back to the shortest string and derived 'In adults with stroke' for warfarin-af."
+  },
+  {
+   "topic": "mdr-tb-shortened",
+   "was_state": "TEMPLATED",
+   "was_question": "Mdr Tb Shortened: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?",
+   "outcome": "SPLIT",
+   "new_question": null,
+   "detail": "the registrations code 8 distinct conditions across 3 trials; that is a P21 decision about how many questions this topic is, not a restatement"
+  },
+  {
+   "topic": "menacyw-healthy-volunteers-auto-full-review",
+   "was_state": "TEMPLATED",
+   "was_question": "MenACYW conjugate vaccine in healthy volunteers: NOT POOLABLE -- COMPARATOR + OUTCOME on each trial's own registered primary outcome?",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded condition matches the topic's own words, so the population cannot be identified from source. 1 condition(s) are coded: Healthy Volunteers (Meningococcal Infection). The first version fell back to the shortest string and derived 'In adults with stroke' for warfarin-af."
+  },
+  {
+   "topic": "moxifloxacin-respi",
+   "was_state": "TEMPLATED",
+   "was_question": "Moxifloxacin Respi: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded condition matches the topic's own words, so the population cannot be identified from source. 1 condition(s) are coded: Pneumonia. The first version fell back to the shortest string and derived 'In adults with stroke' for warfarin-af."
+  },
+  {
+   "topic": "netarsudil-ocular-hypertension-auto-full-review",
+   "was_state": "TITLE_ECHO",
+   "was_question": "Multiple trial-declared outcomes: Intraocular Pressure (IOP) | IOP (Intraocular Pressure)",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded intervention matches the topic's own words, so the intervention cannot be identified from source. 4 intervention(s) are coded: AR-13324 Ophthalmic Solution 0.02%, AR-13324 Ophthalmic Solution 0.02% BID, Placebo, Timolol maleate Ophthalmic Solution 0.5% BID. Guessing one would repeat the shortest-string defect this function was built to remove."
+  },
+  {
+   "topic": "pcsk9-inhibitors-cv-review",
+   "was_state": "TITLE_ECHO",
+   "was_question": "Multiple trial-declared outcomes: Time to Cardiovascular Death, Myocardial Infarction, Hospitalization for Unstable Angina, Stroke, or Coronary Revascular | Time to First Occurrence of Major Adverse Cardiovascular Event ",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded intervention matches the topic's own words, so the intervention cannot be identified from source. 4 intervention(s) are coded: Alirocumab, Evolocumab, LMT, Placebo. Guessing one would repeat the shortest-string defect this function was built to remove."
+  },
+  {
+   "topic": "pediatric-hiv-art",
+   "was_state": "TEMPLATED",
+   "was_question": "Pediatric Hiv Art: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded intervention matches the topic's own words, so the intervention cannot be identified from source. 2 intervention(s) are coded: Dolutegravir, Standard of Care. Guessing one would repeat the shortest-string defect this function was built to remove."
+  },
+  {
+   "topic": "pitavastatin-auto-full-review",
+   "was_state": "TITLE_ECHO",
+   "was_question": "Multiple trial-declared outcomes: Percent Change From Baseline in LDL-C | Percent Change From Baseline in Low Density Lipoprotein-cholesterol (LDL-C) at 12 Weeks",
+   "outcome": "RESTATED",
+   "new_question": "In adults with hypercholesterolemia, does pitavastatin compared with the comparator each trial randomised affect the outcome each trial registered as its primary, which differ across the 2 trials here?",
+   "detail": {
+    "n_trials_read": 2,
+    "population_from_stdAges": "adults",
+    "condition_chosen": "Hypercholesterolemia",
+    "condition_matched_the_topic_name": true,
+    "intervention_chosen": "pitavastatin",
+    "intervention_matched_the_topic_name": true,
+    "conditions_coded": [
+     "Dyslipidemia",
+     "Hypercholesterolemia"
+    ],
+    "interventions_coded": [
+     "pitavastatin",
+     "simvastatin"
+    ],
+    "comparator_families": [],
+    "n_distinct_registered_primaries": 2,
+    "clauses_left_out_because_source_did_not_support_them": [
+     "a single comparator -- the trials do not share one",
+     "a single primary outcome"
+    ],
+    "read_utc": "2026-08-19"
+   }
+  },
+  {
+   "topic": "raltegravir-hiv",
+   "was_state": "TEMPLATED",
+   "was_question": "Raltegravir Hiv: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded condition matches the topic's own words, so the population cannot be identified from source. 2 condition(s) are coded: HIV Infections, HIV-1 Infection. The first version fell back to the shortest string and derived 'In adults with stroke' for warfarin-af."
+  },
+  {
+   "topic": "remdesivir-covid",
+   "was_state": "TEMPLATED",
+   "was_question": "Remdesivir Covid: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?",
+   "outcome": "RESTATED",
+   "new_question": "In adults with covid-19, does Remdesivir compared with placebo affect time to recovery?",
+   "detail": {
+    "n_trials_read": 1,
+    "population_from_stdAges": "adults",
+    "condition_chosen": "COVID-19",
+    "condition_matched_the_topic_name": true,
+    "intervention_chosen": "Remdesivir",
+    "intervention_matched_the_topic_name": true,
+    "conditions_coded": [
+     "COVID-19"
+    ],
+    "interventions_coded": [
+     "Placebo",
+     "Remdesivir"
+    ],
+    "comparator_families": [
+     "placebo"
+    ],
+    "n_distinct_registered_primaries": 1,
+    "clauses_left_out_because_source_did_not_support_them": [],
+    "read_utc": "2026-08-19"
+   }
+  },
+  {
+   "topic": "rosuvastatin-auto-full-review",
+   "was_state": "TITLE_ECHO",
+   "was_question": "Time to Major Cardiac Event (Cardiovascular Death, Stroke, Myocardial Infarction, Hospitalization Due to Unstable Angina",
+   "outcome": "RESTATED",
+   "new_question": "In adults with stroke, does Rosuvastatin compared with placebo affect the outcome each trial registered as its primary, which differ across the 2 trials here?",
+   "detail": {
+    "n_trials_read": 2,
+    "population_from_stdAges": "adults",
+    "condition_chosen": "Stroke",
+    "condition_matched_the_topic_name": true,
+    "intervention_chosen": "Rosuvastatin",
+    "intervention_matched_the_topic_name": true,
+    "conditions_coded": [
+     "Cardiovascular Disease",
+     "Elevated High-sensitivity C-Reactive Protein (hsCRP)",
+     "Stroke"
+    ],
+    "interventions_coded": [
+     "Candesartan/HCT",
+     "Placebo",
+     "Rosuvastatin"
+    ],
+    "comparator_families": [
+     "placebo"
+    ],
+    "n_distinct_registered_primaries": 2,
+    "clauses_left_out_because_source_did_not_support_them": [
+     "a single primary outcome"
+    ],
+    "read_utc": "2026-08-19"
+   }
+  },
+  {
+   "topic": "rotavirus-vaccine-africa-review",
+   "was_state": "TITLE_ECHO",
+   "was_question": "Multiple trial-declared outcomes: Number of Subjects With Severe Rotavirus Gastroenteritis (RV GE) Caused by the Circulating Wild-type Rotavirus Strain | Occurrence of Severe Clinical Rotavirus Disease Caused by Any Rota",
+   "outcome": "SPLIT",
+   "new_question": null,
+   "detail": "the registrations code 5 distinct conditions across 3 trials; that is a P21 decision about how many questions this topic is, not a restatement"
+  },
+  {
+   "topic": "sarilumab-covid",
+   "was_state": "TEMPLATED",
+   "was_question": "Sarilumab Covid: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?",
+   "outcome": "RESTATED",
+   "new_question": "In adults with covid, does Sarilumab compared with usual care affect the outcome each trial registered as its primary, which differ across the 2 trials here?",
+   "detail": {
+    "n_trials_read": 2,
+    "population_from_stdAges": "adults",
+    "condition_chosen": "COVID",
+    "condition_matched_the_topic_name": true,
+    "intervention_chosen": "Sarilumab",
+    "intervention_matched_the_topic_name": true,
+    "conditions_coded": [
+     "COVID",
+     "COVID-19"
+    ],
+    "interventions_coded": [
+     "Placebo",
+     "Sarilumab"
+    ],
+    "comparator_families": [
+     "usual care"
+    ],
+    "n_distinct_registered_primaries": 2,
+    "clauses_left_out_because_source_did_not_support_them": [
+     "a single primary outcome"
+    ],
+    "read_utc": "2026-08-19"
+   }
+  },
+  {
+   "topic": "ser109-cdi",
+   "was_state": "TEMPLATED",
+   "was_question": "Ser109 Cdi: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded intervention matches the topic's own words, so the intervention cannot be identified from source. 2 intervention(s) are coded: Placebo, SER-109. Guessing one would repeat the shortest-string defect this function was built to remove."
+  },
+  {
+   "topic": "sglt2-ckd-review",
+   "was_state": "TITLE_ECHO",
+   "was_question": "Multiple trial-declared outcomes: Primary Composite Endpoint of Doubling of Serum Creatinine (DoSC), End-stage Kidney Disease (ESKD), and Renal or Cardiov | Time to the First Occurrence of Any of the Components of the Co",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded intervention matches the topic's own words, so the intervention cannot be identified from source. 5 intervention(s) are coded: Canagliflozin, Dapagliflozin, Empagliflozin, Matching placebo, Placebo. Guessing one would repeat the shortest-string defect this function was built to remove."
+  },
+  {
+   "topic": "sglt2-mace-cvot-review",
+   "was_state": "TITLE_ECHO",
+   "was_question": "Multiple trial-declared outcomes: Time to the First Occurrence of Any of the Following Adjudicated Components of the Primary Composite Endpoint (3-point M | Major Adverse Cardiovascular Events (MACE) Composite of Cardiov",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded intervention matches the topic's own words, so the intervention cannot be identified from source. 6 intervention(s) are coded: BI 10773 high dose, BI 10773 low dose, Dapagliflozin 10 mg, Placebo BI 10773 high dose, Placebo BI 10773 low dose, Placebo tablet. Guessing one would repeat the shortest-string defect this function was built to remove."
+  },
+  {
+   "topic": "sotatercept-pah",
+   "was_state": "TEMPLATED",
+   "was_question": "Sotatercept Pah: NOT POOLABLE AS POSED -- the OUTCOME limb fails on each trial's own registered primary outcome?",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded condition matches the topic's own words, so the population cannot be identified from source. 1 condition(s) are coded: Pulmonary Arterial Hypertension. The first version fell back to the shortest string and derived 'In adults with stroke' for warfarin-af."
+  },
+  {
+   "topic": "tecovirimat-mpox",
+   "was_state": "TEMPLATED",
+   "was_question": "Tecovirimat Mpox: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?",
+   "outcome": "RESTATED",
+   "new_question": "In adults and children with mpox, does Tecovirimat Oral Capsule compared with placebo affect cumulative proportion with clinical resolution by day 29?",
+   "detail": {
+    "n_trials_read": 1,
+    "population_from_stdAges": "adults and children",
+    "condition_chosen": "MPOX",
+    "condition_matched_the_topic_name": true,
+    "intervention_chosen": "Tecovirimat Oral Capsule",
+    "intervention_matched_the_topic_name": true,
+    "conditions_coded": [
+     "MPOX"
+    ],
+    "interventions_coded": [
+     "Placebo for Tecovirimat",
+     "Tecovirimat Oral Capsule",
+     "Tecovirimat Oral Capsule (Open Label)"
+    ],
+    "comparator_families": [
+     "placebo"
+    ],
+    "n_distinct_registered_primaries": 1,
+    "clauses_left_out_because_source_did_not_support_them": [],
+    "read_utc": "2026-08-19"
+   }
+  },
+  {
+   "topic": "warfarin-af",
+   "was_state": "TEMPLATED",
+   "was_question": "Warfarin Af: NOT POOLABLE AS POSED -- the INTERVENTION and OUTCOME limb fails on each trial's own registered primary outcome?",
+   "outcome": "PACKET",
+   "new_question": null,
+   "detail": "no coded condition matches the topic's own words, so the population cannot be identified from source. 3 condition(s) are coded: Atrial Fibrillation, End Stage Renal Disease, Stroke. The first version fell back to the shortest string and derived 'In adults with stroke' for warfarin-af."
+  }
+ ]
+}

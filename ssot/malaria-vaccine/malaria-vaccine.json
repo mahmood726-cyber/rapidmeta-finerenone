@@ -190,7 +190,7 @@
  },
  "carried_contrasts": [],
  "sources": {},
- "question": "Malaria Vaccine: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?",
+ "question": "In children with malaria, does Malaria Vaccine 257049 compared with usual care affect the outcome each trial registered as its primary, which differ across the 3 trials here?",
  "generator_schema_patch_2026_08_18": {
   "relocations": "SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our schema wrote it elsewhere on the same object. A relocation, not a new claim.",
   "genuinely_empty": "GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is empty on acs-antiplatelet-review, which builds.",
@@ -200,5 +200,42 @@
    "sources={} (empty)",
    "question (derived)"
   ]
+ },
+ "question_restated_2026_08_19": {
+  "was": "Malaria Vaccine: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?",
+  "why": "The previous question was TEMPLATED -- it named no population, no comparator and no outcome, so every question-based check read a field with no content in it. Restated from THIS TOPIC'S OWN registrations' coded fields.",
+  "derived_from": {
+   "n_trials_read": 3,
+   "population_from_stdAges": "children",
+   "condition_chosen": "Malaria",
+   "condition_matched_the_topic_name": true,
+   "intervention_chosen": "Malaria Vaccine 257049",
+   "intervention_matched_the_topic_name": true,
+   "conditions_coded": [
+    "Malaria",
+    "Malaria,Falciparum"
+   ],
+   "interventions_coded": [
+    "Cell-culture rabies vaccine",
+    "Malaria Vaccine 257049",
+    "Meningococcal C Conjugate Vaccine",
+    "Polio Sabin Oral Polio Vaccine (GSK)",
+    "R21 adjuvanted with 25mcg Matrix-M",
+    "R21 adjuvanted with 50mcg Matrix-M",
+    "R21/Matrix-M",
+    "Rabies Vaccine",
+    "Rabies vaccine, Hepatitis A vaccine or Meningococcal vaccine",
+    "TritanrixHepB/Hib"
+   ],
+   "comparator_families": [
+    "usual care"
+   ],
+   "n_distinct_registered_primaries": 3,
+   "clauses_left_out_because_source_did_not_support_them": [
+    "a single primary outcome"
+   ],
+   "read_utc": "2026-08-19"
+  },
+  "what_this_is_not": "NOT a P21 decision. The registrations resolve to one question; where they had not, this topic would have been left for a split rather than restated."
  }
 }

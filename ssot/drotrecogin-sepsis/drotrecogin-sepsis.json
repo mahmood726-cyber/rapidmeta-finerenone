@@ -116,7 +116,7 @@
  },
  "carried_contrasts": [],
  "sources": {},
- "question": "Drotrecogin Sepsis: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?",
+ "question": "In adults with sepsis, does Drotrecogin alfa (activated) compared with placebo affect the outcome each trial registered as its primary, which differ across the 2 trials here?",
  "generator_schema_patch_2026_08_18": {
   "relocations": "SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our schema wrote it elsewhere on the same object. A relocation, not a new claim.",
   "genuinely_empty": "GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is empty on acs-antiplatelet-review, which builds.",
@@ -126,5 +126,34 @@
    "sources={} (empty)",
    "question (derived)"
   ]
+ },
+ "question_restated_2026_08_19": {
+  "was": "Drotrecogin Sepsis: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?",
+  "why": "The previous question was TEMPLATED -- it named no population, no comparator and no outcome, so every question-based check read a field with no content in it. Restated from THIS TOPIC'S OWN registrations' coded fields.",
+  "derived_from": {
+   "n_trials_read": 2,
+   "population_from_stdAges": "adults",
+   "condition_chosen": "Sepsis",
+   "condition_matched_the_topic_name": true,
+   "intervention_chosen": "Drotrecogin alfa (activated)",
+   "intervention_matched_the_topic_name": true,
+   "conditions_coded": [
+    "Sepsis",
+    "Severe Sepsis"
+   ],
+   "interventions_coded": [
+    "Drotrecogin alfa (activated)",
+    "Placebo"
+   ],
+   "comparator_families": [
+    "placebo"
+   ],
+   "n_distinct_registered_primaries": 2,
+   "clauses_left_out_because_source_did_not_support_them": [
+    "a single primary outcome"
+   ],
+   "read_utc": "2026-08-19"
+  },
+  "what_this_is_not": "NOT a P21 decision. The registrations resolve to one question; where they had not, this topic would have been left for a split rather than restated."
  }
 }

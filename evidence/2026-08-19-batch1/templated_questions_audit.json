@@ -3,14 +3,14 @@
  "why_this_was_measured": "A blind cross-family reader (agy, Gemini 3.1 Pro) returned UNCLEAR on ten of twelve merge clusters, and its reason every time was that the question field is auto-generated boilerplate. It reached that from the text alone, with no topic names and no hint that anything depended on the answer.",
  "live_topics": 141,
  "by_state": {
-  "STATES_A_QUESTION": 89,
-  "TITLE_ECHO": 19,
-  "TEMPLATED": 33,
+  "STATES_A_QUESTION": 104,
+  "TITLE_ECHO": 13,
+  "TEMPLATED": 24,
   "RETIRED_TOMBSTONE": 14
  },
- "topics_that_actually_state_a_question": 89,
- "headline": "89 of 141 live topics state a question. The other 52 carry a template, an echo of their own title, or nothing.",
- "WHAT_THIS_GATES": "Every question-based check in this corpus can only reach the 89. P21's ambiguous-question split cannot find an ambiguity in a title. The merge adjudicator's `questions_differ()` returns FALSE for a templated question -- correct as logic, and it REPORTS AS THOUGH THE AXIS HAD BEEN CHECKED. A future duplicate detector that hopes to separate two reviews by what they ask has 52 topics it cannot separate.",
+ "topics_that_actually_state_a_question": 104,
+ "headline": "104 of 141 live topics state a question. The other 37 carry a template, an echo of their own title, or nothing.",
+ "WHAT_THIS_GATES": "Every question-based check in this corpus can only reach the 104. P21's ambiguous-question split cannot find an ambiguity in a title. The merge adjudicator's `questions_differ()` returns FALSE for a templated question -- correct as logic, and it REPORTS AS THOUGH THE AXIS HAD BEEN CHECKED. A future duplicate detector that hopes to separate two reviews by what they ask has 37 topics it cannot separate.",
  "and_it_is_the_3_of_135_shape": "The number at the top of DEFECT-REGISTRY.md is 3 of 135 topics ever asked for a k cascade, where the other 132 read as clean because nothing had interrogated them. This is the same shape on a different field: a templated question is not a bad question, it is an ABSENT one wearing the shape of a present one.",
  "what_this_does_NOT_claim": "NOT that the templated topics are wrong, and NOT that their trials or estimates are affected. It claims only that their `question` field carries no content a check can read, and that every question-based claim about this corpus has this denominator.",
  "rows": [
@@ -196,9 +196,9 @@
   },
   {
    "topic": "casirivimab-covid",
-   "state": "TEMPLATED",
-   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
-   "question": "Casirivimab Covid: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?"
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults and children with covid-19, does casirivimab+imdevimab combination therapy compared with the comparator each trial randomised affect number of participants with treatment-emergent serious adverse events (saes) "
   },
   {
    "topic": "caspofungin-fungal-auto-full-review",
@@ -316,9 +316,9 @@
   },
   {
    "topic": "dabigatran-stroke",
-   "state": "TEMPLATED",
-   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
-   "question": "Dabigatran Stroke: NOT POOLABLE AS POSED -- the PARTICIPANTS and COMPARATOR limb fails on each trial's own registered primary outcome?"
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with stroke, does Dabigatran dose 1 compared with the comparator each trial randomised affect the outcome each trial registered as its primary, which differ across the 2 trials here?"
   },
   {
    "topic": "dabigatran-vte-cerebral",
@@ -376,9 +376,9 @@
   },
   {
    "topic": "drotrecogin-sepsis",
-   "state": "TEMPLATED",
-   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
-   "question": "Drotrecogin Sepsis: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?"
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with sepsis, does Drotrecogin alfa (activated) compared with placebo affect the outcome each trial registered as its primary, which differ across the 2 trials here?"
   },
   {
    "topic": "early-rhythm-control-af",
@@ -394,9 +394,9 @@
   },
   {
    "topic": "empagliflozin-hf-auto-full-review",
-   "state": "TITLE_ECHO",
-   "why": "the question is byte-identical to the title",
-   "question": "Multiple trial-declared outcomes: Time to the First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF) | Time to First Event of Adjudicated Cardiovascular (CV) Death or "
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with heart failure, does Empagliflozin compared with placebo affect the outcome each trial registered as its primary, which differ across the 2 trials here?"
   },
   {
    "topic": "emtricitabine-hiv-auto-full-review",
@@ -412,9 +412,9 @@
   },
   {
    "topic": "eravacycline-infection-auto-full-review",
-   "state": "TEMPLATED",
-   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
-   "question": "Eravacycline in complicated intra-abdominal infection: NOT POOLABLE -- COMPARATOR -- REFERRED, NOT SETTLED on each trial's own registered primary outcome?"
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with complicated appendicitis, does Eravacycline compared with the comparator each trial randomised affect the outcome each trial registered as its primary, which differ across the 2 trials here?"
   },
   {
    "topic": "ertapenem-auto-full-review",
@@ -430,9 +430,9 @@
   },
   {
    "topic": "etripamil-psvt",
-   "state": "TEMPLATED",
-   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
-   "question": "Etripamil Psvt: NOT POOLABLE AS POSED -- the OUTCOME limb fails on each trial's own registered primary outcome?"
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with paroxysmal supraventricular tachycardia (psvt), does Etripamil compared with placebo affect the outcome each trial registered as its primary, which differ across the 2 trials here?"
   },
   {
    "topic": "evinacumab-hofh",
@@ -454,9 +454,9 @@
   },
   {
    "topic": "evolocumab-mixed-dyslipidemia-auto-full-review",
-   "state": "TITLE_ECHO",
-   "why": "the question is byte-identical to the title",
-   "question": "Multiple trial-declared outcomes: Percent Change From Baseline in LDL-C at the Mean of Weeks 10 and 12 | Co-Primary Endpoint: Percent Change From Baseline in LDL-C: Mean of Weeks 10 and 12"
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with mixed dyslipidemia, does Evolocumab compared with placebo affect the outcome each trial registered as its primary, which differ across the 2 trials here?"
   },
   {
    "topic": "fcm-hf-review",
@@ -484,9 +484,9 @@
   },
   {
    "topic": "finerenone-review",
-   "state": "TITLE_ECHO",
-   "why": "the question is byte-identical to the title",
-   "question": "Multiple trial-declared outcomes: The First Occurrence of the Composite Endpoint of Onset of Kidney Failure, a Sustained Decrease of eGFR ≥40% From Baseli | The First Occurrence of the Composite Endpoint of Cardiovascula"
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with heart failure, does Finerenone (BAY94-8862) compared with placebo affect the outcome each trial registered as its primary, which differ across the 3 trials here?"
   },
   {
    "topic": "fondaparinux-vte",
@@ -514,9 +514,9 @@
   },
   {
    "topic": "icosapent-lipid-auto-full-review",
-   "state": "TITLE_ECHO",
-   "why": "the question is byte-identical to the title",
-   "question": "Difference Between AMR101 (Ethyl Icosapentate) and Placebo Treatment Groups in Triglyceride Lowering Effect"
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with hypertriglyceridemia, does AMR101 (ethyl icosapentate) - 4 g/day compared with placebo affect difference between amr101 (ethyl icosapentate) and placebo treatment groups in triglyceride lowering effect?"
   },
   {
    "topic": "inclisiran-hofh",
@@ -592,9 +592,9 @@
   },
   {
    "topic": "malaria-vaccine",
-   "state": "TEMPLATED",
-   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
-   "question": "Malaria Vaccine: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?"
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In children with malaria, does Malaria Vaccine 257049 compared with usual care affect the outcome each trial registered as its primary, which differ across the 3 trials here?"
   },
   {
    "topic": "malaria-vaccines",
@@ -706,9 +706,9 @@
   },
   {
    "topic": "pitavastatin-auto-full-review",
-   "state": "TITLE_ECHO",
-   "why": "the question is byte-identical to the title",
-   "question": "Multiple trial-declared outcomes: Percent Change From Baseline in LDL-C | Percent Change From Baseline in Low Density Lipoprotein-cholesterol (LDL-C) at 12 Weeks"
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with hypercholesterolemia, does pitavastatin compared with the comparator each trial randomised affect the outcome each trial registered as its primary, which differ across the 2 trials here?"
   },
   {
    "topic": "plazomicin-infection-auto-full-review",
@@ -736,9 +736,9 @@
   },
   {
    "topic": "remdesivir-covid",
-   "state": "TEMPLATED",
-   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
-   "question": "Remdesivir Covid: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?"
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with covid-19, does Remdesivir compared with placebo affect time to recovery?"
   },
   {
    "topic": "rifapentine-tb",
@@ -766,9 +766,9 @@
   },
   {
    "topic": "rosuvastatin-auto-full-review",
-   "state": "TITLE_ECHO",
-   "why": "the question is byte-identical to the title",
-   "question": "Time to Major Cardiac Event (Cardiovascular Death, Stroke, Myocardial Infarction, Hospitalization Due to Unstable Angina"
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with stroke, does Rosuvastatin compared with placebo affect the outcome each trial registered as its primary, which differ across the 2 trials here?"
   },
   {
    "topic": "rotavirus-vaccine-africa-review",
@@ -784,9 +784,9 @@
   },
   {
    "topic": "sarilumab-covid",
-   "state": "TEMPLATED",
-   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
-   "question": "Sarilumab Covid: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?"
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with covid, does Sarilumab compared with usual care affect the outcome each trial registered as its primary, which differ across the 2 trials here?"
   },
   {
    "topic": "selexipag-pah",
@@ -832,9 +832,9 @@
   },
   {
    "topic": "tecovirimat-mpox",
-   "state": "TEMPLATED",
-   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
-   "question": "Tecovirimat Mpox: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?"
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults and children with mpox, does Tecovirimat Oral Capsule compared with placebo affect cumulative proportion with clinical resolution by day 29?"
   },
   {
    "topic": "thiamine-sepsis",
