@@ -55,6 +55,13 @@ TOPIC_SYNONYMS = {
     # plus their brands and development codes, and the class strings are ALSO listed because
     # a minority of records genuinely label an arm "SGLT2 inhibitor" with no molecule named --
     # in which case the arm is located but the molecule is not, and that is a real state.
+    # Another CLASS topic enumerated as molecules AND as the route, because this review's
+    # intervention limb is "INTRAVENOUS iron as ferric carboxymaltose or ferric derisomaltose"
+    # -- the ROUTE is part of the identity, and an oral iron arm is a different intervention.
+    "intravenous iron": ["ferric carboxymaltose", "ferinject", "injectafer", "iron carboxymaltose",
+                         "ferric derisomaltose", "monoferric", "iron isomaltoside",
+                         "iron sucrose", "venofer", "ferric gluconate", "sodium ferric gluconate",
+                         "intravenous iron", "iv iron", "ferric polymaltose"],
     "sglt2 inhibitors": ["dapagliflozin", "forxiga", "farxiga", "bms-512148",
                          "empagliflozin", "jardiance", "bi 10773", "bi-10773",
                          "sotagliflozin", "zynquista", "inpefa", "lx4211", "lx-4211",
@@ -200,7 +207,35 @@ def locate(study, syns):
                 "therapy and NOT the randomised contrast; " + "; ".join(hit_ev[:2]))
         if exp_hit:
             return EXPERIMENTAL, "; ".join(hit_ev[:2])
+
+        # PLACEBO IS NEVER THE INTERVENTION, so a drug compared against it is.
+        #
+        # Some registrations declare NO arm typed EXPERIMENTAL at all. AFFIRM-AHF
+        # (NCT02937454) and HEART-FID (NCT03037931) both type their IRON arm
+        # ACTIVE_COMPARATOR against a PLACEBO_COMPARATOR saline arm:
+        #     ACTIVE_COMPARATOR   'ferric carboxymaltose'
+        #     PLACEBO_COMPARATOR  'normal saline 0.9%'
+        # That is a data-entry convention, not a fact about the trial -- and it made this
+        # function report the topic drug as the COMPARATOR on two of iv-iron-hf's five
+        # included trials, which would have put k3 badly wrong in the WITHHOLDING direction.
+        #
+        # The discriminator is principled rather than cosmetic: you do not compare a
+        # comparator against placebo. If the topic drug sits in a COMPARATOR-typed arm and
+        # every OTHER arm is a placebo or sham, then the topic drug is what was randomised.
+        # Where the other arm is an ACTIVE drug -- NCT02829957, apixaban vs rivaroxaban, both
+        # typed ACTIVE_COMPARATOR -- the topic drug genuinely is one of two comparators and
+        # this branch must NOT fire.
         if any("COMPARATOR" in t for t in hit_types):
+            other = [a for a in arms if not _drug_named_in_arm(a)]
+            other_types = [str(a.get("type") or "").upper() for a in other]
+            others_all_inert = bool(other_types) and all(
+                ("PLACEBO" in t) or ("SHAM" in t) or ("NO_INTERVENTION" in t)
+                for t in other_types)
+            if others_all_inert:
+                return EXPERIMENTAL, (
+                    "typed COMPARATOR by the registration, but every other arm is a "
+                    "placebo/sham, so the topic drug IS the randomised intervention; "
+                    + "; ".join(hit_ev[:2]))
             return COMPARATOR, "; ".join(hit_ev[:2])
         return BACKGROUND, "; ".join(hit_ev[:2])
 
