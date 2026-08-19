@@ -1,0 +1,23 @@
+{
+ "recorded_utc": "2026-08-19",
+ "topic": "early-rhythm-control-af",
+ "state": "AGY-COMPLETE, CODEX PARTIAL -- reported rather than blocked",
+ "n_to_adjudicate": 352,
+ "dual_read": 44,
+ "single_read_NOT_adjudicated": 308,
+ "why_the_single_read_are_not_scored": "A trial one seat read is not a trial that was decided. An absent second reading is ABSENT, not CONCURRING. Scoring agy's 308 answers alone would convert a missing check into apparent agreement -- the same substitution that would have let a dead seat read as a unanimous one.",
+ "rates_over_the_dual_read_44_only": {
+  "code_agreement_pct": 81.8,
+  "disposition_agreement_pct": 81.8,
+  "caveat": "these are over 44 trials, not 352, and P34 applies: the gap between the two rates measures THIS vocabulary's granularity and is not comparable with the sibling topic's gap."
+ },
+ "seat_throughput": {
+  "packet": "44 trials per chunk, 8 chunks, identical to both seats",
+  "agy": "~2 min/chunk, 8/8 complete",
+  "codex": "~10 min for chunk 1, then >35 min on chunk 2 without clearing",
+  "verdict": "DEGRADATION, NOT VARIANCE",
+  "assertions_held": "every chunk that returned passed rc == 0 AND the >=44-answer count assertion. The seat slowed; it did not corrupt.",
+  "what_made_it_survivable": "CHUNKING. It converted an all-or-nothing wait into an incremental read with per-chunk assertions, so chunk 1 produced both rates and the RHYTHM_BOTH_ARMS finding instead of nothing. A single 352-trial call to each seat would have produced one unusable timeout and no signal."
+ },
+ "consequence_for_the_topic": "early-rhythm-control-af CANNOT be completed on this pass. Its remainder is 352 of which 44 are adjudicated and 308 are not, so k_unscreened_remainder is 308 and NOT zero. The object must say so on its face rather than reporting a remainder it has not screened."
+}
