@@ -2109,3 +2109,74 @@ That last is a better statement of the estimand problem than the check written t
 **Where the next audit should point: prose, attributed causes, and check logic — not arithmetic.**
 Much of tonight was invisible beforehand because the effort had gone into checking the things
 that were already right.
+
+---
+
+## The experiment the object named, run: both its hypotheses are operating (2026-08-19)
+
+`arni-hfref` recorded that its dual-screening agreement rate should not be read as unbiased,
+gave a candidate cause inside its own prompt, and named the resolving experiment. It had not
+been done. It has now.
+
+### Design
+
+Same 25 records (the first 25 of the 91 disagreements), same truncated titles, blinded exactly
+as the original was — no screener A decision, no axis. Run on **Gemini 3.1 Pro via agy**, the
+same model family as the original screener B, so wording is the only variable that moves.
+
+| arm | prompt | undetermined |
+|---|---|---:|
+| **A — neutral** | criteria only, no loss statement | **22 / 25 (88%)** |
+| **B — asymmetric** | identical, plus *"An UNDETERMINED that is later resolved is worth more than a confident wrong exclusion."* | **25 / 25 (100%)** |
+| original screener B | the live page's run | 25 / 25 (100%, by construction — these are the disagreements) |
+
+**One sentence moved three records.**
+
+### The three it moved are the easiest three
+
+| record | neutral | criterion | title |
+|---|---|---|---|
+| `39387766` | EXCLUDE | 1 — not a randomised trial | *Race in Heart Failure: A Pooled Participant-Level Analysis…* |
+| `39262640` | EXCLUDE | 2 — not the intervention | *Influenza Vaccination and Cardiovascular Events…* |
+| `34758252` | EXCLUDE | 3 — not the population | *Angiotensin Receptor-Neprilysin Inhibition in Acute Myocardial Infarction* |
+
+A pooled participant-level analysis, an influenza-vaccination study, and an acute-MI
+population. **These are the three most obviously excludable records in the sample, and the
+asymmetric clause suppressed decisions on exactly them.** If a loss statement costs decisions
+anywhere, the clear-cut cases are the worst place to lose them — they are the ones a human
+adjudicator will most resent being handed.
+
+### What this settles, and what it does not
+
+**The prompt effect is real and it is small.** 12 percentage points, three records, in the
+direction the object predicted. The object's phrase — *"consistent with an induced bias as well
+as with genuine caution"* — was the correct hedge: **both are operating**, and neither alone
+explains the pattern.
+
+**The dominant cause is more likely information starvation than wording.** 22 of 25 stayed
+undetermined with no loss statement at all. On a truncated title and nothing else, undetermined
+is frequently the *correct* answer rather than a biased one.
+
+**Limitations, and they are load-bearing:**
+
+1. **n = 25, one run per arm, no repeats.** This is a demonstration of an effect, not an
+   estimate of its size.
+2. **The replication gave LESS information than the original.** Screener B received title,
+   journal, year and source; the object stores titles truncated at ~70 characters, so that is
+   all this run had. **Absolute rates here are therefore not comparable to the live page's** —
+   only the A/B contrast within this experiment is valid, because both arms saw the same
+   starved input.
+3. **The sample is the disagreements**, so the 100% baseline is definitional, not a finding.
+
+### What it means for the corpus
+
+The live page's **78.5% agreement rate still should not be read as unbiased inter-screener
+reliability** — the object was right to say so and remains right. But the cause is now better
+located: the wording contributes, and it is not the main driver.
+
+**The new candidate is the screening packet itself.** If a screener is asked to decide from a
+truncated title, a high undetermined rate is a property of what it was shown, not of its
+judgement or its prompt. That is a different fix — enrich the packet — and it is cheaper and
+more likely to raise real agreement than rewording anything.
+
+This bears on every review in the corpus that ran dual screening, not on this one.
