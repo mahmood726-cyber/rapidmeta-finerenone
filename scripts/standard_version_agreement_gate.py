@@ -141,6 +141,11 @@ def selftest():
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
     real_doc, real_code = read(DOC), read(CODE)
     fails = []
+    # THE CURRENT VERSION IS READ, NEVER TYPED. The first version of this self-test hard-coded
+    # the version string of the day, so the very next bump made all four mutation cases fail to
+    # find their anchor and the suite went red while the GATE stayed green -- a proof that
+    # expires on the first success of the thing it proves. Derived from the file instead.
+    _cur = HEAD_RE.search(real_code).group(1)
 
     def case(name, doc, code, want_limbs):
         got = {l for l, _ in check(doc, code)}
@@ -154,18 +159,18 @@ def selftest():
 
     # (1) + (4) THE STATE THAT ACTUALLY OCCURRED. Heading 1.6.0 against a 1.13.0 constant,
     # with the log at 1.12.0 -- all three values read from this repository's own history.
-    was = real_doc.replace('PAGE_STANDARD_VERSION = "1.14.0-2026-08-19"',
+    was = real_doc.replace('PAGE_STANDARD_VERSION = "%s"' % _cur,
                            'PAGE_STANDARD_VERSION = "1.6.0-2026-08-19"', 1)
-    was_code = real_code.replace('PAGE_STANDARD_VERSION = "1.14.0-2026-08-19"',
+    was_code = real_code.replace('PAGE_STANDARD_VERSION = "%s"' % _cur,
                                  'PAGE_STANDARD_VERSION = "1.13.0-2026-08-19"', 1)
     case("the drift that really happened: 1.6.0 doc vs 1.13.0 code", was, was_code,
          ["HEADING_DISAGREES", "LOG_DISAGREES"])
 
     # a heading bumped with no log entry -- how 1.13.0 came to exist unexplained.
-    bumped = real_doc.replace('PAGE_STANDARD_VERSION = "1.14.0-2026-08-19"',
-                              'PAGE_STANDARD_VERSION = "1.15.0-2026-08-19"', 1)
-    bumped_code = real_code.replace('PAGE_STANDARD_VERSION = "1.14.0-2026-08-19"',
-                                    'PAGE_STANDARD_VERSION = "1.15.0-2026-08-19"', 1)
+    bumped = real_doc.replace('PAGE_STANDARD_VERSION = "%s"' % _cur,
+                              'PAGE_STANDARD_VERSION = "9.9.9-2026-08-19"', 1)
+    bumped_code = real_code.replace('PAGE_STANDARD_VERSION = "%s"' % _cur,
+                                    'PAGE_STANDARD_VERSION = "9.9.9-2026-08-19"', 1)
     case("heading bumped with no version-log entry", bumped, bumped_code, ["LOG_DISAGREES"])
 
     # a property added to the table and to no log entry.
@@ -177,7 +182,7 @@ def selftest():
 
     # a broken instrument is not a pass.
     case("constant deleted from the builder -> REFERENCE_ABSENT", real_doc,
-         real_code.replace('PAGE_STANDARD_VERSION = "1.14.0-2026-08-19"', "", 1),
+         real_code.replace('PAGE_STANDARD_VERSION = "%s"' % _cur, "", 1),
          ["REFERENCE_ABSENT"])
 
     print("\n%s" % ("ALL FOUR PROOFS HELD" if not fails else "FAILED: %s" % fails))
