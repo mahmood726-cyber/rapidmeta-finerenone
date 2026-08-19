@@ -23,6 +23,10 @@ R="$(git rev-parse --show-toplevel)"
 python "$R/scripts/lint_control_chars.py"   >/dev/null || { echo "REFUSED: control characters in tracked text (scripts/lint_control_chars.py)"; exit 1; }
 python "$R/scripts/lint_escape_hazards.py"  >/dev/null || { echo "REFUSED: escape hazards in pattern literals (scripts/lint_escape_hazards.py)"; exit 1; }
 
+# E8 -- a shipped page must name a build command that exists and a commit that RESOLVES.
+# The stamp was always honest; nothing ever asserted it named something real.
+python "$R/scripts/generator_stamp_gate.py" >/dev/null || { echo "REFUSED: a gated page carries a generator stamp that names nothing checkable (scripts/generator_stamp_gate.py)"; exit 1; }
+
 # RESTRAINT (E4). Every other check here catches overreach. This one catches an instrument
 # REFUSING where an independent instrument decides -- the class that silently shrank evidence
 # bases corpus-wide and that no guard could see, because withholding leaves no trace in the
