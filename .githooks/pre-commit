@@ -14,3 +14,21 @@ python "$(git rev-parse --show-toplevel)/scripts/ssot_net_deletion_check.py" || 
 sh "$(git rev-parse --show-toplevel)/.githooks/pre-commit-staging" || exit 1
 
 python "$(git rev-parse --show-toplevel)/scripts/lint_subprocess_decode.py" >/dev/null || { echo "REFUSED: subprocess decode-hazard sites present (scripts/lint_subprocess_decode.py)"; exit 1; }
+
+# HEREDOC MANGLING, both halves. The class recurred EIGHT times in one night against an author
+# who had read, written, and committed the rule. Prose does not hold it; these two do.
+#   control chars in SOURCE  -- the shell-transport path (`\b` arriving as 0x08)
+#   escape hazards in VALUES -- the non-raw-literal path, which leaves the source byte-clean
+R="$(git rev-parse --show-toplevel)"
+python "$R/scripts/lint_control_chars.py"   >/dev/null || { echo "REFUSED: control characters in tracked text (scripts/lint_control_chars.py)"; exit 1; }
+python "$R/scripts/lint_escape_hazards.py"  >/dev/null || { echo "REFUSED: escape hazards in pattern literals (scripts/lint_escape_hazards.py)"; exit 1; }
+
+# IDENTIFIERS FROM RECALL. A recalled id in a build makes a wrong value; in an AUDIT it makes
+# an accusation, and nothing audits the auditor. Exit 2 = empty vocabulary, which is a broken
+# instrument, not a pass.
+python "$R/scripts/lint_identifier_pairing.py" >/dev/null
+case $? in
+  0) ;;
+  1) echo "REFUSED: a registration id is written beside another trial's acronym (scripts/lint_identifier_pairing.py)"; exit 1 ;;
+  *) echo "REFUSED: identifier-pairing check could not run -- empty acronym vocabulary. A check with nothing to check against passes everything."; exit 1 ;;
+esac
