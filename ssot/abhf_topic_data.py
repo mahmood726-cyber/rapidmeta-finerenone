@@ -1,0 +1,204 @@
+"""Per-topic data for `ablation-af-heart-failure`, keyed to THIS topic and to no other.
+
+One of the three reviews `ablation-af-review` was split into on 2026-08-19 (P21). It has its
+own question, its own criteria, its own executed search, its own cascade and its own screen.
+NOTHING HERE IS SHARED WITH THE OTHER TWO -- three sibling topics built in one session is the
+exact shape that produced the cross-topic contamination class five times in this repository,
+and the builder's per-topic completeness refusal is left doing that work rather than care.
+"""
+
+ABHF_SEARCH = {
+    "executed_by": "lane 1 (Claude, Anthropic family)",
+    "databases": [
+        {
+            "database": "ClinicalTrials.gov API v2 -- CHOSEN QUERY",
+            "tool": "https://clinicaltrials.gov/api/v2/studies (raw)",
+            "query_as_executed": (
+                'query.cond="atrial fibrillation AND heart failure"; '
+                'query.intr="catheter ablation OR pulmonary vein isolation OR radiofrequency '
+                'ablation OR rhythm control"; '
+                "filter.advanced=AREA[StudyType]INTERVENTIONAL; pageSize=1000; countTotal=true"),
+            "date_executed": "2026-08-19",
+            "http_status": 200,
+            "records_returned": 67,
+            "total_reported": 67,
+            "recall_on_included_set": "2/2",
+            "why_chosen": (
+                "The SMALLEST surfaced set achieving full recall. A wider query that finds "
+                "nothing new costs reviewer time and buys nothing -- stated as a rule rather "
+                "than as a preference, and the wider query is recorded below so the choice is "
+                "inspectable."),
+        },
+        {
+            "database": "ClinicalTrials.gov API v2 -- WIDER CONDITION TERM, RECORDED AND NOT "
+                        "CHOSEN",
+            "tool": "https://clinicaltrials.gov/api/v2/studies (raw)",
+            "query_as_executed": (
+                'query.cond="atrial fibrillation AND (heart failure OR ventricular dysfunction '
+                'OR cardiomyopathy)"; query.intr="catheter ablation OR pulmonary vein isolation '
+                'OR radiofrequency ablation OR rhythm control"; '
+                "filter.advanced=AREA[StudyType]INTERVENTIONAL"),
+            "date_executed": "2026-08-19",
+            "http_status": 200,
+            "records_returned": 74,
+            "total_reported": 74,
+            "recall_on_included_set": "2/2",
+            "what_it_establishes": (
+                "SEVEN MORE RECORDS AND NOT ONE MORE INCLUDED TRIAL. The condition term "
+                "'heart failure' alone did not cost this review anything -- CHECKED rather "
+                "than assumed, because on two other topics in this corpus a condition term one "
+                "word too narrow silently lost included trials (sglt2-hf lost DELIVER; "
+                "iv-iron-hf lost AFFIRM-AHF and HEART-FID). A recall risk that is measured and "
+                "found absent is a different statement from one that was never looked for."),
+        },
+    ],
+    "no_phase_filter_and_that_is_deliberate": (
+        "This topic's search carries NO phase filter. The historical ablation query carried "
+        "phase=[PHASE3,PHASE4] and recalled ONE of the three trials in the sibling review, "
+        "because CABANA and RAFT-AF are registered `phases: [\"NA\"]`. NA IS NOT A PHASE: a "
+        "filter that ENUMERATES phases silently drops every registrant who declined to declare "
+        "one. RAFT-AF is one of THIS review's two included trials, so the filter would have "
+        "cost half its evidence base. See PAGE-STANDARD P23 and "
+        "evidence/2026-08-19-batch1/phase_filter_recall_sweep.json."),
+    "pagination_verified": (
+        "records_returned == total_reported on both queries (67/67 and 74/74), and the "
+        "totalCount is read FROM THE FIRST PAGE, which is the only page the API populates it "
+        "on. The earlier check read it from the LAST page and reported a false mismatch on the "
+        "first multi-page query ever run here."),
+    "pubmed": {
+        "state": "NOT EXECUTED FOR THIS TOPIC",
+        "why": (
+            "RECORDED AS AN ABSENCE RATHER THAN OMITTED. This review's included set is keyed on "
+            "REGISTRATION IDs and both trials were reached through the registry, so a PubMed "
+            "search would not have changed the included set. It would have changed the "
+            "COMPLETENESS CLAIM: a trial published but never registered, or registered under "
+            "terms this query does not match, would be missed here and no count on this page "
+            "would look wrong. That is a real and stated limit on this search."),
+    },
+}
+
+ABHF_PRISMA = {
+    "_scope": "PRISMA 2020 flow, counted from the executed search above.",
+    "identification": {"ctgov_chosen_query": 67, "ctgov_wider_query": 74,
+                       "note": "The wider query is recorded; the narrower is the one counted, "
+                               "and it achieves the same recall."},
+    "eligibility_ctgov": {
+        "role_located": 56, "topic_is_experimental_arm": 28,
+        "topic_is_comparator_arm": 17, "topic_is_background": 11, "not_assessable": 11,
+        "why_experimental_and_comparator_are_added": (
+            "The candidate pool for this review is k3 + k4 = 45, not k3 alone. RAFT-AF -- one "
+            "of the two included trials -- types BOTH its arms ACTIVE_COMPARATOR, so the "
+            "registry's typing carries no information about which side is the intervention and "
+            "the classifier correctly declines to invent one. A cascade reporting k3 alone "
+            "would put half this review's evidence outside its own count."),
+    },
+    "included": {"in_this_object": 2, "nct": ["NCT00643188", "NCT01420393"]},
+    "reconciliation": {
+        "arithmetic": ("67 identified = 28 experimental + 17 comparator + 11 background "
+                       "+ 11 not_assessable; 56 of the 67 had a role located"),
+        "reconciles": True,
+        "unscreened_remainder": 0,
+        "remainder_means": (
+            "45 trials place ablation in the randomised contrast; 2 are in this object; the "
+            "other 43 were ALL SCREENED on 2026-08-19. Dispositions: 20 excluded, 12 eligible "
+            "but not poolable, 11 eligible with no results yet, and 0 eligible-and-poolable."),
+    },
+}
+
+ABHF_CASCADE = {
+    "k0_surfaced": 67,
+    "k2_role_located": 56,
+    "k3_experimental": 28,
+    "k4_comparator": 17,
+    "k5_background": 11,
+    "kNA_not_assessable": 11,
+    "k_included_in_object": 2,
+    "k_unscreened_remainder": 0,
+    "candidate_pool_k3_plus_k4": 45,
+    "reproduced_by": (
+        "scripts/search_ablation_split_2026_08_19.py (search, with recall measured against "
+        "this review's own included set) and scripts/cascade_ablation_split_2026_08_19.py "
+        "(classification). Named as COMMANDS rather than as a file that once held the numbers, "
+        "so the citation stays true when the classifier next changes -- P18."),
+    "remainder_dispositions": {
+        "EXCLUDED": 20,
+        "ELIGIBLE_NOT_POOLABLE": 12,
+        "ELIGIBLE_NO_RESULTS_YET": 11,
+        "ELIGIBLE_POOLABLE_NOT_INCLUDED": 0,
+        "arithmetic": "45 candidates - 2 included = 43 remainder = 20 + 12 + 11 + 0",
+        "what_this_says": (
+            "A FOURTH REMAINDER SHAPE, and it is not one of the three the standard already "
+            "names. TWENTY-THREE OF THE FORTY-THREE ARE ELIGIBLE and exactly ONE fails on "
+            "population, so the query is well aimed. The dominant exclusion limb is "
+            "INTERVENTION (11 of 20): the search term names a FAMILY OF PROCEDURES BROADER "
+            "THAN THIS REVIEW'S INTERVENTION. AV-node ablation, surgical maze and drug trials "
+            "run after an ablation all carry the registry label `ablation`. That is a fact "
+            "about the VOCABULARY -- not about the query's aim, and not about the evidence "
+            "base."),
+        "zero_is_computed_not_asserted": (
+            "FOUR trials were the only candidates for ELIGIBLE_POOLABLE_NOT_INCLUDED -- "
+            "NCT03062241, NCT04160000, NCT04342832 and NCT04649801, each eligible with a "
+            "composite primary. All four were checked LIVE against the registry and NONE has "
+            "posted results (hasResults=false, no resultsSection). NCT04649801 is COMPLETED at "
+            "n=194 and has posted nothing, which is a different state from still-running and "
+            "receives the same disposition for the same reason: THERE IS NOTHING TO EXTRACT. "
+            "The zero is what four lookups returned."),
+        "what_would_change_this_answer": (
+            "TWO TRIALS, NAMED RATHER THAN LEFT IN A TALLY. NCT04160000 (n=360) registers "
+            "'Time to Composite of Heart failure hospitalizations and/or Cardiovascular "
+            "mortality' -- this review's estimand shape exactly, with all-cause mortality "
+            "among its secondaries -- and its status is UNKNOWN. NCT05508256 (n=1548) is the "
+            "largest unreported trial in the remainder, catheter ablation against usual "
+            "medical care in HFpEF and HFmrEF, RECRUITING. A review that says 'no pooled "
+            "answer, and here is what would produce one' is a more useful artefact than one "
+            "that only refuses."),
+    },
+}
+
+ABHF_EXTRACTION = {
+    "_why": (
+        "Every cell says whether it was READ from a named source or DERIVED, and carries the "
+        "source path it came from. The two trials' effect estimates were carried across from "
+        "`ablation-af-review`, the object this review was split out of, WITH their original "
+        "provenance rather than re-typed."),
+    "cells": [
+        {"trial": "CASTLE-AF", "nct": "NCT00643188", "field": "primary composite HR",
+         "value": "0.62 (0.43 to 0.87)", "label": "READ",
+         "source_path": "ablation-af-review inputs.trials[NCT00643188]"
+                        ".by_outcome.primary.effect",
+         "verbatim": "the primary composite end point occurred in significantly fewer patients "
+                     "in the ablation group than in the medical-therapy group",
+         "link": "https://pubmed.ncbi.nlm.nih.gov/29385358/"},
+        {"trial": "CASTLE-AF", "nct": "NCT00643188", "field": "outcome definition",
+         "value": "All-cause mortality or worsening heart failure requiring unplanned "
+                  "hospitalization",
+         "label": "READ",
+         "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+         "verbatim": "All-cause mortality or worsening heart failure requiring unplanned "
+                     "hospitalization",
+         "link": "https://clinicaltrials.gov/study/NCT00643188"},
+        {"trial": "RAFT-AF", "nct": "NCT01420393", "field": "primary composite HR",
+         "value": "0.71 (0.49 to 1.03)", "label": "READ",
+         "source_path": "ablation-af-review inputs.trials[NCT01420393]"
+                        ".by_outcome.primary.effect",
+         "verbatim": "The primary outcome occurred in 50 (23.4%) patients in the "
+                     "rhythm-control group and 64 (32.5%) patients in the rate-control group "
+                     "(hazard ratio, 0.71 [95% CI, 0.49-1.03])",
+         "link": "https://pubmed.ncbi.nlm.nih.gov/35313733/"},
+        {"trial": "RAFT-AF", "nct": "NCT01420393", "field": "outcome definition",
+         "value": "Composite of All-cause Mortality and Heart Failure Events",
+         "label": "READ",
+         "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+         "verbatim": "Heart failure event defined as an admission to a healthcare facility for "
+                     "> 24 hours or clinically significant worsening heart failure leading to "
+                     "an intervention (defined as treatment in an emergency department, a "
+                     "same-day access clinic, or an infusion centre) or unscheduled visits to "
+                     "a healthcare provider for administration of an intravenous diuretic",
+         "link": "https://clinicaltrials.gov/study/NCT01420393"},
+        {"trial": "BOTH", "nct": None, "field": "log-scale standard errors",
+         "value": "CASTLE-AF 0.179776; RAFT-AF 0.189521", "label": "DERIVED",
+         "source_path": "computed from each printed 95% interval",
+         "verbatim": "se = (ln(upper) - ln(lower)) / (2 x 1.959964)",
+         "link": None},
+    ],
+}

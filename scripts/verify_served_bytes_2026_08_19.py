@@ -38,6 +38,7 @@ PAGES = {
     "bempedoic-acid-review": "BEMPEDOIC_ACID_REVIEW.html",
     "iv-iron-hf": "IV_IRON_HF_REVIEW.html",
     "sglt2-hf": "SGLT2_HF_REVIEW.html",
+    "ablation-af-heart-failure": "ABLATION_AF_HEART_FAILURE_REVIEW.html",
 }
 
 FAIL, NA, OK = "FAIL", "NOT_ASSESSABLE", "OK"

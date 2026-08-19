@@ -23,11 +23,12 @@ import preconditions as P
 from assessment import FAIL, HANDBOOK_AUTHORITY, NOT_ASSESSABLE, PASS
 from attr_topic_data import ATTR_CASCADE, ATTR_EXTRACTION, ATTR_PRISMA, ATTR_SEARCH
 from ali_topic_data import ALI_CASCADE, ALI_EXTRACTION, ALI_PRISMA, ALI_SEARCH
+from abhf_topic_data import ABHF_CASCADE, ABHF_EXTRACTION, ABHF_PRISMA, ABHF_SEARCH
 from ivi_topic_data import IVI_CASCADE, IVI_EXTRACTION, IVI_PRISMA, IVI_SEARCH
 from apx_topic_data import APX_CASCADE, APX_EXTRACTION, APX_PRISMA, APX_SEARCH
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-PAGE_STANDARD_VERSION = "1.4.0-2026-08-19"
+PAGE_STANDARD_VERSION = "1.6.0-2026-08-19"
 
 HELD = "HELD"
 REFUSING = "REFUSING"
@@ -488,6 +489,13 @@ TOPIC_DATA = {
     "apixaban-vte": {"search": APX_SEARCH, "prisma": APX_PRISMA,
                      "k_cascade": APX_CASCADE,
                      "extraction": APX_EXTRACTION},
+    # FIRST OF THE THREE REVIEWS `ablation-af-review` WAS SPLIT INTO (P21). Its blocks live in
+    # ssot/abhf_topic_data.py and are shared with NEITHER sibling -- three sibling topics built
+    # in one session is the exact shape that produced the cross-topic contamination class.
+    "ablation-af-heart-failure": {"search": ABHF_SEARCH, "prisma": ABHF_PRISMA,
+                                  "k_cascade": ABHF_CASCADE,
+                                  "primary_outcome_key": "primary",
+                                  "extraction": ABHF_EXTRACTION},
     "iv-iron-hf": {"search": IVI_SEARCH, "prisma": IVI_PRISMA,
                    "k_cascade": IVI_CASCADE,
                    "primary_outcome_key": "hfh_cvd_recurrent",
@@ -775,8 +783,108 @@ def build(topic):
     # string exists to make staleness VISIBLE, and a stamp that outruns the checks behind it
     # makes staleness invisible in the newest possible way.
     props.update(_p18_p19_p20(obj))
+    props.update(_p21_p22_p23(obj, topic))
 
     return _finish(obj, path, original, before_keys, props, topic)
+
+
+def _p21_p22_p23(obj, topic):
+    """The 1.6.0 properties.
+
+    STAMPED ONLY BECAUSE THEY ARE EVALUATED. The version constant sat at 1.4.0 while
+    PAGE-STANDARD.md had moved to 1.6.0 -- the exact staleness the version marker exists to
+    make visible, committed by the author of the marker. Bumping the constant without wiring
+    the checks would have been worse: a page asserting three properties nothing assesses.
+    """
+    out = {}
+    trials = [t.get("nct") for t in ((obj.get("inputs") or {}).get("trials") or [])
+              if t.get("nct")]
+
+    # --- P21: an ambiguous question is built as several reviews -----------------------------
+    sp = obj.get("split_provenance")
+    if isinstance(sp, dict) and sp.get("parent") and sp.get("siblings"):
+        out["P21_ambiguous_question_split"] = prop(
+            HELD, f"Split from {sp['parent']!r} into this review and {len(sp['siblings'])} "
+                  f"sibling(s) {sp['siblings']}, with the decision recorded at "
+                  f"{sp.get('decision')!r}. Nothing was dropped to resolve the ambiguity.")
+    else:
+        out["P21_ambiguous_question_split"] = prop(
+            REFUSING,
+            "This object records no split provenance. That is CORRECT for a topic whose "
+            "question was never ambiguous and it is NOT a pass: this builder cannot tell the "
+            "two apart, so the property is refused with the reason rather than held on an "
+            "absence. What would settle it: a `split_provenance` block, or an explicit "
+            "statement that the question admits one reading.")
+
+    # --- P22: deliberate sharing is recorded on both sides -----------------------------------
+    # COMPUTED against every other object in the corpus, never asserted. This is the check that
+    # makes "about a fifth of registration identities are shared" actionable instead of a
+    # statistic: it names, for THIS topic, every other topic holding one of its trials.
+    others = {}
+    for d in sorted(os.listdir(ROOT)):
+        if d == topic:
+            continue
+        p2 = os.path.join(ROOT, d, d + ".json")
+        if not os.path.exists(p2):
+            continue
+        try:
+            with open(p2, encoding="utf-8") as fh:
+                o2 = json.load(fh)
+        except (ValueError, OSError):
+            continue
+        their = {t.get("nct") for t in ((o2.get("inputs") or {}).get("trials") or [])}
+        for n in trials:
+            if n in their:
+                others.setdefault(n, []).append(d)
+    declared = ((obj.get("shared_with_other_topics") or {}).get("shared") or {})
+    undeclared = {n: ts for n, ts in others.items()
+                  if not set(ts) <= set((declared.get(n) or {}).get("also_in") or [])}
+    if not others:
+        out["P22_sharing_recorded"] = prop(
+            HELD, f"No trial of this review appears in any other object's included set. "
+                  f"COMPUTED over the corpus, not asserted: {len(trials)} trial(s) checked "
+                  f"against every other topic object.")
+    elif undeclared:
+        out["P22_sharing_recorded"] = prop(
+            REFUSING,
+            f"{len(undeclared)} trial(s) appear in other topics' included sets without being "
+            f"recorded here: {undeclared}. Sharing is legitimate; UNRECORDED sharing is not, "
+            f"because a corpus-level k obtained by summing per-topic k then double-counts "
+            f"without saying so.")
+    else:
+        out["P22_sharing_recorded"] = prop(
+            HELD, f"{len(others)} shared trial(s), each recorded with the topics holding it "
+                  f"and why: {ic(others)}. The object also states that summing per-topic k "
+                  f"double-counts.")
+
+    # --- P23: recall measured against this review's own included set -------------------------
+    dbs = ((obj.get("search") or {}).get("databases") or [])
+    if not dbs:
+        out["P23_recall_measured"] = prop(
+            REFUSING, "No executed search on this object, so recall has no denominator. "
+                      "NOT_ASSESSABLE, and not a pass -- 125 of this corpus's 135 topics are "
+                      "in this state and none of them is clean.")
+    else:
+        missing = [d.get("database") for d in dbs if not d.get("recall_on_included_set")]
+        full = [d.get("recall_on_included_set") for d in dbs
+                if d.get("recall_on_included_set")]
+        if missing:
+            out["P23_recall_measured"] = prop(
+                REFUSING,
+                f"{len(missing)} of {len(dbs)} recorded quer(ies) do not state their recall "
+                f"against this review's own included set: {missing}. A query whose recall was "
+                f"never measured may have lost an included trial, and A TRIAL THAT WAS NEVER "
+                f"SURFACED LEAVES NO TRACE IN ANY COUNT -- it cannot appear as an exclusion, a "
+                f"refusal or a remainder.")
+        else:
+            out["P23_recall_measured"] = prop(
+                HELD, f"All {len(dbs)} recorded quer(ies) state their recall against this "
+                      f"review's own included set: {full}.")
+    return out
+
+
+def ic(d):
+    return "; ".join(f"{k} in {v}" for k, v in sorted(d.items()))
 
 
 def _p18_p19_p20(obj):
