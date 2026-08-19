@@ -2006,3 +2006,106 @@ finding, discovered the same way, in a field that claimed to have checked.
 
 **A negative claim is the one most worth computing.** "Not shared", "no conflicts", "none
 found" all read as diligence, and all are free to assert.
+
+---
+
+## The sixteen off-object registrations: adjudicated, and none is contamination (2026-08-19)
+
+The asserted-negatives sweep flagged **16 fields whose sibling prose named a registration id
+absent from that object's `inputs.trials`** — the signature of the cross-topic contamination
+that reached disk four times in one file earlier tonight.
+
+**All sixteen are in one topic, one structure:**
+`arni-hfref.screening.dual_screening.disagreements[].record_id`. They are records the review
+SCREENED. A screening log names the records it screened, which are by definition mostly records
+it did not include. **Every one is a legitimate cross-reference and none is contamination.**
+
+The heuristic cannot separate a screening log from a leak, and should not be expected to. What
+it can do is put sixteen candidates in front of a reader, which is what it did.
+
+### But the flag was pointing at something real, one field over
+
+The sweep flagged `b_axis: "NONE"` as an asserted negative. Counted across the log:
+
+| field | distribution |
+|---|---|
+| `a_axis` | OUTCOME 47, RANDOMISATION 21, COMPARATOR 11, POPULATION 5, INTERVENTION 4, none 3 |
+| `b_axis` | **NONE — 91 of 91** |
+
+Every disagreement is screener A `exclude` against screener B `undetermined`, with B assigning
+no axis at all. That is `invariants.identical_output_alarm`'s exact shape: 91 identical outputs
+from 91 different inputs means either the inputs are not different or the instrument is not
+reading them.
+
+### The object had already found it, and gone further
+
+Its `systematic_pattern` records that all 91 disagreements are screener B answering
+UNDETERMINED where screener A answered EXCLUDE, that not one is a straight include/exclude
+conflict, and that two of them are PARACHUTE-HF and ANSWER-HF — the two trials later
+adjudicated INTO the review by the named human.
+
+Its `limitation_of_this_instrument` goes further still: it diagnoses a plausible cause **in its
+own prompt** — screener B was told that an undetermined later resolved is worth more than a
+confident wrong exclusion — states that 91 of 91 running one way is consistent with an induced
+bias as much as with genuine caution, refuses to let its own 78.5% agreement rate be read as an
+unbiased reliability estimate, and names the experiment that would settle it: re-run screener B
+on neutral wording, **which has not been done**.
+
+It found the pattern, diagnosed a cause in its own instrument, declined the flattering reading,
+and named the resolving experiment. That is more than the alarm would have produced. **Fifth
+recorded limitation to prove accurate under independent test tonight.**
+
+---
+
+## An identifier recalled during an AUDIT is worse than one recalled during a build (2026-08-19)
+
+Reviewing `iv-iron-hf`, I read `NCT01453608` labelled `confirm-hf` and `NCT03037931` labelled
+`heart-fid` and concluded the object had trial-ID/label mismatches. **It did not. My mapping was
+recalled and three of five were wrong:**
+
+| registry says | I recalled |
+|---|---|
+| `NCT01453608` **CONFIRM-HF** | EFFECT-HF ✗ |
+| `NCT03037931` **HEART-FID** | FAIR-HF2 ✗ |
+| `NCT03036462` **FAIR-HF2** | HEART-FID ✗ |
+
+The object's labels match the registry exactly.
+
+**Why this is the worse case.** A recalled identifier during a BUILD produces a wrong value that
+later checks may catch. A recalled identifier during an AUDIT produces an **accusation** — and
+the accusation is published against a page that is correct, by an instrument that is not.
+Nothing downstream audits the auditor.
+
+What prevented it was not judgement but **practice**: verify before writing it down. At hour
+twenty the instinct failed and the habit held, which is the only kind of safeguard worth having.
+In the same hour a throwaway outcome matcher missed four of five trials because the registry
+writes `6MWT` and `six minute walk` unhyphenated — P14, demonstrated on my own diagnostic within
+an hour of writing P14.
+
+---
+
+## The shape of the night, stated as plainly as the defect list
+
+**The objects keep being right and the instruments keep being wrong.**
+
+A reader of tonight's defect list alone would conclude this corpus is unreliable. The opposite
+is closer to true, and the record should say so:
+
+- **Every substantive correction was to a REASON, an ATTRIBUTION, or a CHECK.** Not one was to a
+  stored quantity.
+- **Two figures survived independent recomputation** — sglt2-hf's `0.7636 (0.7062 to 0.8258)`,
+  reproduced digit-for-digit by a fresh `metafor` run, and the shared-seeding count `51`,
+  recomputed from the objects.
+- **Five recorded limitations proved accurate under independent test**: the four vindications of
+  2026-08-18, plus `arni-hfref`'s dual-screening self-diagnosis above. On `iv-iron-hf` the object
+  had already answered every question the checks were built to ask — the `mixed` comparator and
+  why its criterion admits it deliberately; a data-availability limit explicitly distinguished
+  from an estimand limit; and a win ratio refused for pooling because it counts pairs rather than
+  participants or events, its direction of benefit is inverted relative to every other ratio in
+  the topic, and its interval is not on the same scale.
+
+That last is a better statement of the estimand problem than the check written to find it.
+
+**Where the next audit should point: prose, attributed causes, and check logic — not arithmetic.**
+Much of tonight was invisible beforehand because the effort had gone into checking the things
+that were already right.
