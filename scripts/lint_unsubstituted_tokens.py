@@ -25,7 +25,10 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SSOT = os.path.join(REPO, "ssot")
-BASELINE = 3          # covid19-vaccines, alirocumab-lipid, prevnar15-pneumo
+BASELINE = 2          # covid19-vaccines, prevnar15-pneumo
+# TIGHTENED from 3 on 2026-08-19 when alirocumab-lipid's tokens were substituted.
+# A ratchet that never tightens is a ceiling, not a ratchet: it would let a future
+# regression re-fill the slot the fix just emptied.
 
 # A dotted path inside braces. Deliberately NOT matching `{}` or `{0}` or JSON-ish braces:
 # the signature is a FIELD PATH left in a sentence.
