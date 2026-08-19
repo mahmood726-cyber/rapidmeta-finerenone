@@ -99,3 +99,16 @@ case $? in
   1) echo "REFUSED: a new refusal to pool with no evidence that any rank below the primary was read (scripts/lint_withholding_asked.py)"; exit 1 ;;
   *) echo "REFUSED: the withholding check found NO topic declining anything -- its vocabulary no longer matches the objects. A check with nothing to check against passes everything."; exit 1 ;;
 esac
+
+# AND THE OTHER HALF OF E4: the check above proves the question was ASKED. This one proves the
+# corpus is not publishing only the answers it likes. Every earlier instance RECOVERED a pool --
+# sglt2-hf, apixaban prophylaxis 3 -> 8 -- and a check that has only ever returned the
+# convenient answer cannot be told apart from no check. apixaban TREATMENT ran the identical
+# discipline and went 8 -> 3, costing it the two largest trials in its field. Neither number is
+# publishable without the other, so an object stating one is refused.
+python "$R/scripts/lint_withholding_direction_paired.py" >/dev/null
+case $? in
+  0) ;;
+  1) echo "REFUSED: an object states its withholding direction without a counter-instance that exists, points back, and runs the other way (scripts/lint_withholding_direction_paired.py)"; exit 1 ;;
+  *) echo "REFUSED: NO object declares a withholding direction -- the check has nothing to check against, which is a broken instrument and not a clean corpus."; exit 1 ;;
+esac

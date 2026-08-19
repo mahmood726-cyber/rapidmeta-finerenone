@@ -401,6 +401,67 @@ BOUNDARY_CRITERION = {
         "extended trials separately rather than averaging across them."),
 }
 
+# ==========================================================================================
+# THE DIRECTION PAIR -- the one block these two reviews DO share, and the only one.
+#
+# Everything else here is deliberately kept apart, because three sibling topics built in one
+# session is the shape that produced the cross-topic contamination class. This is the
+# exception, and it is an exception for a reason that is the opposite of an oversight: THE
+# FACT IS ABOUT THE PAIR. Neither half means anything alone.
+#
+#     apixaban-vte-prophylaxis   poolable set  3 -> 8   the question RECOVERED a pool
+#     apixaban-vte-treatment     poolable set  8 -> 3   the question DISSOLVED one
+#
+# One search, one drug, one night, one discipline, opposite answers.
+#
+# WHY THIS MATTERS MORE THAN EITHER RESULT. A project that publishes only its recoveries has
+# no defence against the obvious reading -- that it asks until it gets the answer it wants.
+# Every previous instance of the withholding question in this corpus went the same way:
+# sglt2-hf recovered a pool, apixaban prophylaxis recovered a pool. A check that has only ever
+# returned the convenient answer is indistinguishable from no check at all.
+#
+#     THIS IS THE REFUTATION, AND IT AROSE ON ITS OWN. It was not sought, it was not designed,
+#     and it cost the treatment review the two largest trials in its field. That is what makes
+#     it evidence that the question is a question.
+#
+# So each object carries BOTH numbers, `scripts/lint_withholding_direction_paired.py` refuses
+# an object that states one without the other, and the projector renders them as a table.
+# ==========================================================================================
+def _direction_pair(topic):
+    """The pair, oriented to whichever review is asking. Keyed by topic, never a constant."""
+    T = {"topic": "apixaban-vte-treatment", "moved": "8 -> 3",
+         "direction": "DOWN -- the question DISSOLVED a pool",
+         "detail": ("Eight trials with posted results report an outcome named for recurrent "
+                    "VTE. Reading what each one COUNTS leaves three. The two largest trials "
+                    "in the field, AMPLIFY and AMPLIFY-EXT, post no recurrent-VTE measure "
+                    "without a death term at any registered rank.")}
+    P = {"topic": "apixaban-vte-prophylaxis", "moved": "3 -> 8",
+         "direction": "UP -- the question RECOVERED a pool",
+         "detail": ("Four trials register four different primary composites and would not "
+                    "pool. All four also register proximal DVT, non-fatal PE, or VTE-related "
+                    "death, at SECONDARY rank in every one. Four trials and 13,570 "
+                    "participants, available only because someone asked below the primary.")}
+    mine, theirs = (T, P) if topic == "apixaban-vte-treatment" else (P, T)
+    return {
+        **mine,
+        "counter_instance": theirs,
+        "why_both_are_stated_together": (
+            "THE SAME QUESTION, ASKED THE SAME WAY, ON THE SAME DRUG, ON THE SAME NIGHT, MOVED "
+            "ONE REVIEW'S POOLABLE SET UP AND THE OTHER'S DOWN. Every earlier instance in this "
+            "corpus recovered a pool, and a check that has only ever returned the convenient "
+            "answer cannot be told apart from no check at all. This pair is the refutation, "
+            "and it arose on its own rather than being sought: it cost the treatment review "
+            "the two largest trials in its field. Asking the withholding question is not a way "
+            "of finding more trials. It is a way of finding out."),
+        "what_it_does_not_establish": (
+            "NOT that either pool is correct -- both were judged by reading endpoint "
+            "definitions, and that judgement stands or falls on its own. NOT that the "
+            "direction is unpredictable in general; two instances are two instances. What it "
+            "establishes is narrow and it is the thing that was missing: THE PROCEDURE HAS NO "
+            "BUILT-IN DIRECTION, demonstrated rather than asserted."),
+    }
+
+
 # ------------------------------------------------------------------------------------------
 # EXTRACTION -- separate per review, sharing no block, per the contamination rule at the top.
 # ------------------------------------------------------------------------------------------

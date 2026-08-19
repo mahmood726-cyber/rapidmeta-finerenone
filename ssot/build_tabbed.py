@@ -828,12 +828,46 @@ def _standard_block(canon, e_):
                _v((v.get("three_component", ""))))
             for k, v in (wq_top.get("per_trial") or {}).items())
         md = wq_top.get("matcher_defect_found_and_not_relied_on") or {}
+        # THE ANSWER WAS IN THE OBJECT AND ON NO PAGE. Until 2026-08-19 this rendered the
+        # QUESTION and the per-trial table and nothing else, so a topic could record that it
+        # asked, what it found, and which way the finding cut -- and a reader saw only that it
+        # had asked. The reverse of the sglt2-hf shape, where the withdrawal was on the page
+        # and the live number was still in the object: same class, opposite direction.
+        answer = wq_top.get("answer", "")
+        bought = (wq_top.get("what_asking_it_bought_and_what_it_did_not")
+                  or wq_top.get("what_asking_it_bought") or "")
         wq_html = ("<h3>The withholding question, asked at every rank</h3>"
-                   "<p><em>%s</em></p><p><small>%s</small></p>"
-                   "<table><tr><th>registration</th><th>trial</th><th>two-component</th>"
-                   "<th>three-component</th></tr>%s</table>"
-                   % (_v((wq_top.get("question", ""))),
-                      _v((wq_top.get("why_before_deciding", ""))), rows_wq))
+                   "<p><em>%s</em></p>"
+                   % (_v((wq_top.get("question", "")))))
+        if answer:
+            wq_html += "<p><strong>%s</strong></p>" % _v((answer))
+        if bought:
+            wq_html += "<p>%s</p>" % _v((bought))
+        wq_html += ("<p><small>%s</small></p>"
+                    "<table><tr><th>registration</th><th>trial</th><th>two-component</th>"
+                    "<th>three-component</th></tr>%s</table>"
+                    % (_v((wq_top.get("why_before_deciding", ""))), rows_wq))
+
+        # THE DIRECTION PAIR. A review that reports only its own recoveries invites exactly
+        # one reading -- that we ask until we get the answer we want. The refutation is that
+        # the same question, on the same discipline, on the same drug, on the same night, moved
+        # one review's poolable set UP and the other's DOWN. Neither instance is publishable
+        # without the other, so the projector renders both or the object is asked to say why.
+        dp = wq_top.get("direction") or {}
+        if dp:
+            ci = dp.get("counter_instance") or {}
+            wq_html += (
+                "<div class='card warn'><h4>The same question, the opposite answer</h4>"
+                "<table><tr><th>review</th><th>poolable set</th><th>direction</th></tr>"
+                "<tr><td>%s</td><td><strong>%s</strong></td><td>%s</td></tr>"
+                "<tr><td>%s</td><td><strong>%s</strong></td><td>%s</td></tr></table>"
+                "<p>%s</p><p><small>%s</small></p></div>"
+                % (_v((dp.get("topic", ""))), _v((dp.get("moved", ""))),
+                   _v((dp.get("direction", ""))),
+                   _v((ci.get("topic", ""))), _v((ci.get("moved", ""))),
+                   _v((ci.get("direction", ""))),
+                   _v((dp.get("why_both_are_stated_together", ""))),
+                   _v((dp.get("what_it_does_not_establish", "")))))
         if md:
             wq_html += ("<div class='card warn'><h4>A matcher defect, found and not relied on"
                         "</h4><p>%s</p><p><small>%s</small></p><p><small>Class: %s</small></p>"

@@ -316,6 +316,7 @@ def main():
                 "is a way of finding out."),
             "per_trial_ranks_read": {t["nct"]: t.get("ranks_read")
                                      for t in estimand["trials_with_the_shared_outcome"]},
+            "direction": D._direction_pair(T_TOPIC),
         },
         "inputs": {"trials": t_trials},
         "config": {"confidence_level": 95},
@@ -745,6 +746,7 @@ def main():
                 "4 contributing trials and 13,570 participants. THE SIBLING REVIEW RAN THE "
                 "IDENTICAL DISCIPLINE AND ITS POOLABLE SET FELL, 8 to 3. Asking is not a way "
                 "of finding more trials."),
+            "direction": D._direction_pair(P_TOPIC),
         },
         "inputs": {"trials": p_trials},
         "config": {"confidence_level": 95},

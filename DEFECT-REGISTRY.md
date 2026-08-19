@@ -502,6 +502,26 @@ this file while it was being written.**
   **secondary**; apixaban prophylaxis's shared estimand is a **secondary in all four trials**,
   and finding it replaced a k=1 figure measuring *bleeding* with a pool of four trials and
   13,570 participants on the review's actual question
+- **AND THEN IT WENT THE OTHER WAY, WHICH IS THE MOST IMPORTANT LINE IN THIS ENTRY.** Every
+  instance above is a RECOVERY, and a check that has only ever returned the convenient answer
+  is indistinguishable from no check at all. A reader seeing only recoveries would be right to
+  suspect the question is asked until it gives the answer we want.
+
+  | review | poolable set | direction |
+  |---|---|---|
+  | `apixaban-vte-prophylaxis` | **3 → 8** | the question RECOVERED a pool |
+  | `apixaban-vte-treatment` | **8 → 3** | the question DISSOLVED one |
+
+  One search, one drug, one night, one discipline, opposite answers. The fall cost the
+  treatment review **the two largest trials in its field** — AMPLIFY and AMPLIFY-EXT post no
+  recurrent-VTE measure without a death term at any of their 21 and 22 registered ranks.
+
+  > **Asking the withholding question is not a way of finding more trials. It is a way of
+  > finding out.** The refutation arose on its own; it was not sought and it was not designed,
+  > which is exactly what makes it evidence that the procedure has no built-in direction.
+
+  **Neither number is publishable without the other**, and that is now enforced rather than
+  remembered — see the second detector below
 - **Why it is the hardest class here** every other defect leaves a trace. **Withholding leaves
   none.** A review that stopped at the primaries produces an object that is internally
   consistent, arithmetically sound, and silently missing its own evidence base — so the guard
@@ -514,8 +534,18 @@ this file while it was being written.**
 - **What it found on first run** 115 of 137 topics decline at least one outcome; **46 carry no
   evidence, anywhere, that anything below the primary was ever read**. Baselined and printed,
   not absolved — each is a candidate recovery of the two shapes above
-- **What it cannot do** it proves *something* below the primary was read, not that the question
-  was asked at every rank, and not that the answer was right. A floor, not a ceiling
+- **Second detector, for the direction** `scripts/lint_withholding_direction_paired.py`,
+  **wired**. An object stating its own withholding direction must name a counter-instance that
+  **exists**, **points back**, and **runs the other way**. Two recoveries dressed as a pair is
+  refused as `NOT_A_PAIR` — that would be the original defect wearing the fix's clothes
+- **Proven** `--selftest`, five cases against the real objects and no synthetic fixture,
+  including **the state that would have shipped**: the prophylaxis recovery with no
+  counter-instance, which is exactly what the object held at `f97f82d0e`
+- **What neither can do** the first proves *something* below the primary was read, not that the
+  question was asked at every rank, and not that the answer was right. The second compares two
+  declarations to each other and never to the object's own k — a topic could declare UP while
+  its k fell and pass, which is what `lint_block_contradicts_object.py` is for. A floor, not a
+  ceiling
 
 ### 18. A version marker that goes stale — the file that makes staleness visible
 - **Found** on 2026-08-19, on the one document in this repository whose entire purpose is to
