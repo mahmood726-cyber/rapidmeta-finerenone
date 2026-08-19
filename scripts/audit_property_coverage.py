@@ -50,7 +50,23 @@ BASELINE = os.path.join(REPO, "evidence", "property_coverage_baseline.json")
 
 # THE STRETCH UNDER AUDIT. P24 through P36 were all found in one run, which is exactly the
 # condition under which a registry accumulates prose fastest.
-SCOPE = ["P%d" % n for n in range(24, 37)]
+#
+# EXTENDED TO P41 ON 2026-08-19, AND THE EXTENSION IS THE POINT. This scope was a hardcoded
+# `range(24, 37)`, so P37-P40 -- four properties added the same day -- would have been
+# INVISIBLE to the very instrument that exists to stop a registry accumulating undefended
+# prose. It would have gone on reporting "CLOSED 3 / PARTIAL 2 / OPEN 8" over a thirteen-
+# property window while the standard held forty, and every number it printed would have been
+# true. THE AUDIT'S OWN SCOPE IS A CLAIM ABOUT ANOTHER FILE, and it ages exactly like the
+# version marker in PAGE-STANDARD.md did.
+#
+# It is still a hardcoded range, and that is a deliberate half-measure rather than an
+# oversight: deriving the scope from PAGE-STANDARD.md's table would make the audit silently
+# re-scope itself whenever the document changed, which trades a stale window for an
+# unannounced one. The upper bound is raised by hand, and `scripts/
+# standard_version_agreement_gate.py` is what refuses a property that reaches the table
+# without an entry. What NOTHING yet refuses is a property that reaches the table without
+# reaching THIS list -- named here so the next lane inherits the gap rather than the illusion.
+SCOPE = ["P%d" % n for n in range(24, 41)]
 
 # property -> the command that is claimed to defend it, or None for "no command exists".
 # A NAME HERE IS A CLAIM AND IS CHECKED; a None here is an admission and is REPORTED.
@@ -70,6 +86,14 @@ DECLARED = {
     "P34": None,
     "P35": "lint_primary_by_position.py",
     "P36": "lint_composite_by_components.py",
+    # Added 2026-08-19 with the properties themselves. Three of the four are None, and that
+    # is an admission rather than an omission: a property added on the same day it was
+    # learned almost never has a command yet, and writing one here that does not exist would
+    # be the exact failure this file measures.
+    "P37": "lint_composite_by_components.py",
+    "P38": None,
+    "P39": None,
+    "P40": None,
 }
 
 # Where a command exists but does NOT cover the whole property, the gap is stated here. An
