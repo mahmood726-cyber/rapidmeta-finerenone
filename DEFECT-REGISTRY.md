@@ -547,6 +547,88 @@ this file while it was being written.**
   its k fell and pass, which is what `lint_block_contradicts_object.py` is for. A floor, not a
   ceiling
 
+### 21. A comparator rendered as a result — and closed by a BOUND, not by a search
+
+- **Found** 2026-08-18 on `colchicine-cvd-review` and **closed** 2026-08-19. The third topic in
+  this corpus with the shape *no combination of estimator or subset reproduces the published
+  headline* — after `pcsk9` and `DOAC_CANCER_VTE`.
+
+- **Why the previous treatment could not close it, and the reason generalises.** Thirty-three
+  candidate pools were computed — every subset of two, three and four of the page's published
+  hazard ratios under fixed-effect, DerSimonian-Laird and REML — none gave `0.75 (0.61–0.91)`,
+  and the search was recorded **as bounded**. That was honest and it was not a proof:
+
+  > **An enumeration that finds nothing proves nothing about the estimator it did not try.**
+  > "None of the 33" leaves Mantel-Haenszel, Peto, Knapp-Hartung, a Bayesian posterior and every
+  > fixed weighting a reviewer might have used, and a reader cannot tell a fabricated number
+  > from one produced by an estimator nobody thought to run.
+
+- **What it actually was.** The number was never this review's pool. It is an **external
+  published benchmark**, and it says so in three files the page never consulted:
+  `PUBLISHED_META_BENCHMARKS.json` records it under this page's own filename with
+  `benchmark_type: self_reference`, `source: COLCOT (Tardif 2019) + LoDoCo2 (Nidorf 2020)`,
+  both PMIDs, and `method: DL random-effects pooling of 2 landmark RCTs`. **The same shape as
+  DOAC_AF**, whose unreproducible headline turned out to be Ruff 2014's published risk ratio,
+  carried on that page as its comparator. *The number was real and belonged to somebody else.*
+
+- **And the benchmark does not reconcile with its own declared source** — a separate finding.
+  Taken entirely at its word, COLCOT `0.77 (0.61–0.96)` and LoDoCo2 `0.69 (0.57–0.83)` pool to
+  **0.7215 (0.6243–0.8338)**. The served upper bound is out by **0.0762 — seven and a half
+  units in the last quoted place.** Its declared `N: 11816` does not reconcile either:
+  4,745 + 5,522 = **10,267**.
+
+- **The detector, and why it is a bound.** `scripts/pooled_point_in_achievable_range_gate.py`.
+  - **HULL.** Every inverse-variance pool, every Mantel-Haenszel and Peto pool and every fixed
+    weighting is a **convex combination** of the per-trial log-effects, so a claimed point
+    outside `[min, max]` cannot be produced by *any estimator that has ever been written or ever
+    will be*. No enumeration is involved.
+  - **TAU-PATH.** Inside the hull, the random-effects family itself bounds it. As τ² runs from 0
+    to ∞ the weights run from the fixed-effect weights to **equal** weights. COLCOT is the *less
+    precise* of the two, so its weight can never exceed one half — 40.7% at τ²=0, rising to 50%
+    — and reaching 0.745 would require it to carry **seventy per cent**. Achievable interval:
+    **0.7215 to 0.7289.**
+
+- **Four instrument defects were found in the detector while it was being built**, every one of
+  them manufacturing a finding rather than hiding one, and each is recorded in the file:
+  1. **An overclaim.** A draft asserted "a pool cannot be less precise than its most precise
+     trial". **False** above τ²=0 — the pooled variance is bounded by `s_min² + τ²` and by
+     nothing else.
+  2. **A threshold that decided the verdict.** At a point tolerance of 0.005 the nearest
+     candidate failed; at the better-justified rounding half-width of 0.0066 the same candidate
+     passed. *A gate whose answer moves when you justify its threshold more carefully is
+     measuring the threshold.* Replaced by the served number's own precision.
+  3. **A precision cap.** `_dp` read the precision of an object-*stored* value —
+     `0.8440482145268958`, sixteen decimals — and then demanded exact float equality. It
+     reported `pcsk9-inhibitors-cv-review` as NOT_ACHIEVABLE **with a total gap of 0.0000**.
+  4. **An objective that did not match its acceptance test.** It minimised the **sum** of the
+     three deviations and then tested the **max**, so the search walked away from a τ² that
+     *satisfied* the test toward one with a smaller total. **Eleven corpus outcomes** failed on
+     this, every one of them a real, exactly-reproducing pool.
+
+  Plus a fifth, of a different kind: modelling only the **normal** interval failed
+  `apixaban-vte-treatment`, which declares a **Knapp-Hartung t interval on 2 df** on its face —
+  4.303 against 1.960, more than double the half-width. With that family added, **the entire
+  corpus reproduces: 0 outcomes NOT_ACHIEVABLE.**
+
+  > Five defects in one instrument, and **all five ran in the direction that manufactures
+  > findings** rather than hides them. This registry's central claim is that the objects keep
+  > being right and the instruments keep being wrong; this is the cleanest instance of it yet,
+  > because the instrument was written specifically to check the objects.
+
+- **The weaker half is reported with its margin, not folded into the verdict.** No subset of any
+  size reproduces the served triple at any τ² under either interval family — but its nearest
+  miss, LoDoCo2 with CONVINCE, is out by **0.0104 against a unit of 0.0100, a margin of four per
+  cent.** That is not something to close a defect on, and it is not what closed this one. It
+  also could not be the source: the benchmark names its two trials, and CONVINCE reported in
+  2024.
+
+- **What is NOT claimed.** Not that anyone fabricated a number — the provenance is now known and
+  it is ordinary. Not that the benchmark's underlying published figure is wrong, only that it
+  does not follow from the two trials and the one method recorded beside it. **And closing the
+  provenance does not restore the estimate**: the pool stays withdrawn for the reason already on
+  the object — the trials do not share one endpoint, and CONVINCE is not a composite trial at
+  all.
+
 ### 20. Cursor abandonment — a paginated search treated as whole
 - **Found** 2026-08-19 on `colchicine-cvd-review`, the first topic this session whose surfaced
   set exceeded one page:
