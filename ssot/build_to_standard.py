@@ -21,6 +21,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import preconditions as P
 from assessment import FAIL, HANDBOOK_AUTHORITY, NOT_ASSESSABLE, PASS
+from ivi_topic_data import IVI_CASCADE, IVI_EXTRACTION, IVI_PRISMA, IVI_SEARCH
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 PAGE_STANDARD_VERSION = "1.3.0-2026-08-19"
@@ -314,6 +315,10 @@ TOPIC_DATA = {
                               "primary_outcome_key": "primary",
                               # None -> the inline block below, which IS this topic's own.
                               "extraction": None},
+    "iv-iron-hf": {"search": IVI_SEARCH, "prisma": IVI_PRISMA,
+                   "k_cascade": IVI_CASCADE,
+                   "primary_outcome_key": "hfh_cvd_recurrent",
+                   "extraction": IVI_EXTRACTION},
 }
 
 
@@ -510,7 +515,25 @@ def build(topic):
         _p6_refuse(obj, spec, props)
 
     # --- P7 published-meta comparison ---------------------------------------------------
-    obj["published_comparison"] = {
+    # A PLACEHOLDER MUST NEVER OVERWRITE A RESOLUTION, and _deep_merge does NOT prevent that.
+    #
+    # THE SIXTH INSTANCE OF THE WHOLESALE-WRITE CLASS, and the first that _deep_merge could not
+    # have caught. Its rule is "new values win", which protects keys the spec does not mention
+    # -- but a placeholder IS a value: `_deep_merge(<resolved dict>, None)` returns None,
+    # because the two are not both dicts. So the merge fix, written after four instances, was
+    # itself insufficient for a fifth shape of the same defect.
+    #
+    # On iv-iron-hf this would have replaced a RESOLVED comparison -- 11 checks, a stated
+    # denominator, a symmetry statement -- with `PENDING_EXTERNAL_RESOLUTION` and
+    # `denominator: None`. The page would then have reported as pending a piece of verification
+    # that was complete, which is worse than reporting nothing: it invites the work to be done
+    # a second time and silently discards the first result.
+    #
+    # Caught by the additive guard, which aborted and restored -- again ONE BLOCK LATE. That is
+    # the reactive coverage named as the residual exposure in DEFECT-REGISTRY.md section 8.
+    _existing_pc = obj.get("published_comparison") or {}
+    _pc_resolved = bool(_existing_pc.get("denominator") or _existing_pc.get("checks"))
+    obj["published_comparison"] = _existing_pc if _pc_resolved else {
         "state": "PENDING_EXTERNAL_RESOLUTION",
         "_why": "Every page this project ships carries this section with a DENOMINATOR. A "
                 "comparison without one reports the syntheses it happened to find.",
@@ -528,9 +551,25 @@ def build(topic):
         "candidate_source_search": "PubMed search recorded at search.databases[1] (109 records)",
         "blocked_on": "lane 2 registration-id resolution",
     }
-    props["P7_published_comparison"] = prop(
-        REFUSING, "No denominator yet. Blocked on external registration-id resolution; "
-                  "citation-string matching explicitly refused rather than substituted.")
+    # COMPUTED FROM THE OBJECT, NEVER ASSERTED. This verdict was hardcoded to REFUSING with a
+    # fixed message, so it could not report anything else no matter what the object carried --
+    # a property that can only ever refuse is not a check, in the same way that a liveness
+    # probe that can only report "alive" is not a check. On iv-iron-hf it was wrong in the
+    # UNDER-reporting direction: the object holds a resolved comparison with 11 checks, a
+    # stated denominator and a symmetry statement, and the page announced it as pending.
+    if _pc_resolved:
+        _d = _existing_pc.get("denominator") or {}
+        props["P7_published_comparison"] = prop(
+            HELD, "%s check(s) applied against published syntheses with a STATED DENOMINATOR: "
+                  "%s confirmed, %s error(s), %s absent, %s unresolved. Confirmations are "
+                  "listed in the same detail as errors -- a comparison with room only for "
+                  "their errors could not report that the defects were ours."
+            % (_d.get("rows_checked", "?"), _d.get("confirmed", "?"), _d.get("errors", "?"),
+               _d.get("absent", "?"), _d.get("unresolved", "?")))
+    else:
+        props["P7_published_comparison"] = prop(
+            REFUSING, "No denominator yet. Blocked on external registration-id resolution; "
+                      "citation-string matching explicitly refused rather than substituted.")
 
     # --- P8 registration identity -------------------------------------------------------
     _prior_trials = {t.get("nct"): t
