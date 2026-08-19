@@ -115,7 +115,15 @@ def build(topic, title, question, provenance, search, prisma, cascade, extractio
 
 
 def refusing_outcome(oid, name, definition):
+    # `definition_note` is REQUIRED by the projector -- it renders it unconditionally beside the
+    # definition. Discovered by the page build raising KeyError on all four objects at once,
+    # which is the ordinary way this codebase's object contract gets found (see the memory note
+    # on build_tabbed's unwritten type contracts).
     return {"id": oid, "name": name, "definition": definition,
+            "definition_note": ("This reading registers no shared estimand. The definition "
+                                "above names what a pooled outcome WOULD have been, and the "
+                                "page reports why there is none rather than leaving the slot "
+                                "blank."),
             "measure": "MD", "effect_scale": "natural", "type": "primary",
             "estimand": {"id": oid, "family": "not established", "model": "none"},
             "comparator": "placebo or an inactive control", "comparator_type": "placebo",
@@ -244,6 +252,10 @@ def main():
         {"id": "morbidity_mortality", "name": "Time to first morbidity or mortality event",
          "definition": ("Time to the first confirmed morbidity or mortality event, as each "
                         "trial registers it."),
+         "definition_note": ("ONE trial in this reading has posted results, so this definition "
+                             "describes COMPASS-2's registered primary and not a harmonised "
+                             "estimand across several trials. Six eligible trials have "
+                             "reported nothing, so whether they share it is unknown."),
          "measure": "HR", "effect_scale": "log", "type": "primary",
          "estimand": {"id": "morbidity_mortality", "family": "time-to-first-event",
                       "model": "none -- single trial"},

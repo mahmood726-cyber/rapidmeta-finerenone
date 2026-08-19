@@ -69,6 +69,10 @@ PAGES = {
     "apixaban-vte-prophylaxis": "APIXABAN_VTE_PROPHYLAXIS_REVIEW.html",
     "bococizumab-lipid-review": "BOCOCIZUMAB_LIPID_REVIEW.html",
     "azilsartan-chlorthalidone-vs-olmesartan-hctz": "AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html",
+    "bosentan-pah-monotherapy": "BOSENTAN_PAH_MONOTHERAPY_REVIEW.html",
+    "bosentan-pah-combination": "BOSENTAN_PAH_COMBINATION_REVIEW.html",
+    "bosentan-ph-not-group1": "BOSENTAN_PH_NOT_GROUP1_REVIEW.html",
+    "bosentan-pah-children": "BOSENTAN_PAH_CHILDREN_REVIEW.html",
 }
 
 FAIL, NA, OK, STALE = "FAIL", "NOT_ASSESSABLE", "OK", "STALE"
