@@ -433,7 +433,7 @@ its 137 screened registrations. {own}</p>
 {absentnote}
 {limbs}
 
-<h2>The {k} eligible trial(s), of which {kr} have posted results</h2>
+<h2>The {k} eligible trial(s), of which {kr} posted results TO THE REGISTRY</h2>
 <div class="wrap"><table>
 <thead><tr><th>Registration</th><th>Acronym</th><th>Enrolment</th><th>Comparator</th>
 <th>Registered primary</th><th>Results</th></tr></thead>
