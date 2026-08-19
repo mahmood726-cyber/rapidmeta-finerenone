@@ -1,0 +1,411 @@
+#!/usr/bin/env python3
+"""BUILD THE FOUR SUCCESSOR PAGES AND THE TOMBSTONE PAGE for the dabigatran-vte split.
+
+WHY THE TOMBSTONE IS BUILT LAST AND NOT FIRST. A reader holding the old link currently reaches a
+page for a topic that no longer exists -- the most urgent defect on the board, because it is the
+only one a reader can hit today. But a tombstone pointing at URLs that do not exist is worse
+than the stale page it replaces, which is the rule `execute_merges_2026_08_19.py` already
+encodes when it DEFERS a merge whose survivor has no page. So the four successors are built and
+verified first, and the tombstone is refused if any of them is missing.
+
+WHAT THESE PAGES ARE. Not dashboards. Every one of these four topics publishes NO POOLED
+ESTIMATE -- the estimand screen returned POOL_NOT_ADMISSIBLE on all four -- so a page with a
+forest plot would imply an analysis that does not exist. Each page states the question, the
+trials, the refusal with every failing limb, and the candidate estimands found below the primary.
+
+EVERYTHING ON THESE PAGES IS READ FROM THE OBJECTS. No number is typed here. If a page and its
+object disagree, the object is right and the page is stale, which is the direction the whole
+repository is built to keep.
+
+USAGE
+    python scripts/build_dabigatran_split_pages_2026_08_19.py [--apply] [--selftest]
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+HOST = "https://mahmood726-cyber.github.io/rapidmeta-finerenone/"
+PARENT = "dabigatran-vte-review"
+OLD_PAGE = "DABIGATRAN_VTE_AUTO_FULL_REVIEW.html"
+
+PAGES = {
+    "dabigatran-vte-treatment": "DABIGATRAN_VTE_TREATMENT_REVIEW.html",
+    "dabigatran-vte-extended": "DABIGATRAN_VTE_EXTENDED_REVIEW.html",
+    "dabigatran-vte-surgical": "DABIGATRAN_VTE_SURGICAL_REVIEW.html",
+    "dabigatran-vte-cerebral": "DABIGATRAN_VTE_CEREBRAL_REVIEW.html",
+}
+
+CSS = """
+ :root{color-scheme:light dark;--fg:#111;--bg:#fff;--mut:#555;--line:#d8d8d8;--warn:#8a4b00}
+ @media (prefers-color-scheme:dark){:root{--fg:#eee;--bg:#111;--mut:#aaa;--line:#333;
+   --warn:#e2a45c}}
+ *{box-sizing:border-box}
+ body{font:16px/1.62 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:56rem;
+      margin:0 auto;padding:2.5rem 1.25rem 5rem;background:var(--bg);color:var(--fg)}
+ h1{font-size:1.5rem;line-height:1.28;margin:.4rem 0 .2rem}
+ h2{font-size:1.05rem;margin:2.4rem 0 .6rem;padding-bottom:.3rem;
+    border-bottom:1px solid var(--line)}
+ .tag{display:inline-block;font:600 .7rem/1 system-ui;letter-spacing:.09em;
+      text-transform:uppercase;padding:.4rem .6rem;border:1px solid currentColor;
+      border-radius:.25rem;opacity:.8}
+ .tag.no{color:var(--warn)}
+ .q{font-size:1.06rem;margin:1rem 0;padding:1rem 1.1rem;border-left:3px solid currentColor}
+ .sub{color:var(--mut);font-size:.94rem}
+ .wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:.8rem 0}
+ table{border-collapse:collapse;width:100%;min-width:42rem;font-size:.9rem}
+ th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);
+       vertical-align:top}
+ th{font-weight:600;white-space:nowrap}
+ td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+ .limb{margin:.9rem 0;padding:.8rem 1rem;border:1px solid var(--line);border-radius:.3rem}
+ .limb b{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+ ul{padding-left:1.2rem} li{margin:.35rem 0}
+ a.go{display:inline-block;margin:.4rem .6rem .4rem 0;padding:.6rem 1rem;
+      border:1px solid currentColor;border-radius:.3rem;text-decoration:none;font-weight:600}
+ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--line);
+        color:var(--mut);font-size:.86rem}
+ code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9em}
+"""
+
+
+def esc(s):
+    return (str(s if s is not None else "")
+            .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            .replace('"', "&quot;"))
+
+
+def load(topic):
+    p = os.path.join(REPO, "ssot", topic, topic + ".json")
+    with io.open(p, "r", encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def num(v):
+    return "{:,}".format(v) if isinstance(v, int) else "&mdash;"
+
+
+def trial_rows(o):
+    out = []
+    for t in o["inputs"]["trials"]:
+        fam = ", ".join(t.get("comparator_families_present") or []) or "&mdash;"
+        prim = t.get("registered_primary_title")
+        if not prim:
+            ps = t.get("registered_primaries") or []
+            prim = ps[0] if ps else None
+        carried = "CARRIED FROM THE PREDECESSOR" in (t.get("how_it_entered") or "").upper()
+        sec = len(t.get("registered_secondaries") or [])
+        out.append(
+            "<tr><td><code>%s</code>%s</td><td>%s</td><td class='n'>%s</td><td>%s</td>"
+            "<td>%s</td><td class='n'>%s</td></tr>"
+            % (esc(t.get("nct")),
+               " <span class='sub'>&larr; carried</span>" if carried else "",
+               esc(t.get("acronym_the_registration_declares") or t.get("name") or ""),
+               num(t.get("enrollment")), fam,
+               esc(prim or "(not recorded on this record)"),
+               sec if t.get("all_ranks_read_utc") else "&mdash;"))
+    return "\n".join(out)
+
+
+def limbs_html(pr):
+    out = []
+    for f in pr.get("failing_limbs") or []:
+        out.append("<div class='limb'><b>%s</b> &mdash; %s</div>"
+                   % (esc(f.get("property")), esc(f.get("finding"))))
+    for nct in sorted(pr.get("endpoints_needing_a_human_read") or {}):
+        out.append("<div class='limb'><b>NEEDS_HUMAN_READ</b> &mdash; <code>%s</code>: its "
+                   "description mentions both a thrombotic and a bleeding component, but the "
+                   "registered <em>title</em> fuses neither. A mention is not a component "
+                   "declaration, so this is neither a pass nor a failure.</div>" % esc(nct))
+    return "\n".join(out) or "<p>No limb failed the three tests applied.</p>"
+
+
+def candidates_html(pr):
+    blk = pr.get("the_withholding_question_asked_at_every_rank") or {}
+    rows = blk.get("by_comparator_family") or []
+    out = []
+    for r in rows:
+        if r.get("state") == "NOT_ASSESSABLE":
+            out.append("<li><b>%s</b> &mdash; <span class='sub'>NOT_ASSESSABLE: %s</span></li>"
+                       % (esc(r["comparator_family"]), esc(r.get("why"))))
+            continue
+        shared = r.get("shared") or []
+        if not shared:
+            out.append("<li><b>%s</b> &mdash; %d trial(s) with posted results, and "
+                       "<em>nothing shared at any rank</em>.</li>"
+                       % (esc(r["comparator_family"]), r.get("k_with_posted_results", 0)))
+            continue
+        items = "".join("<li><code>%s</code> <span class='sub'>(%s)</span></li>"
+                        % (esc(s["title"]),
+                           ", ".join(sorted(set(x.replace("registered_", "")
+                                                for x in s["trials"].values()))))
+                        for s in shared[:10])
+        out.append("<li><b>%s</b> &mdash; %d trial(s) with posted results share "
+                   "<b>%d</b> endpoint(s) at some registered rank:<ul>%s</ul>"
+                   "<span class='sub'>%s</span></li>"
+                   % (esc(r["comparator_family"]), r.get("k_with_posted_results", 0),
+                      r.get("n_endpoints_shared_at_any_rank", 0), items,
+                      esc(r.get("what_a_candidate_is"))))
+    return "<ul>%s</ul>" % "".join(out) if out else "<p>Not assessed.</p>"
+
+
+def subsets_html(pr):
+    subs = pr.get("restricted_subsets_that_survive_the_named_axis") or []
+    if not subs:
+        return ("<p>No comparator-restricted subset of two or more trials survives in this "
+                "reading.</p>")
+    out = []
+    for s in subs:
+        out.append("<li>Restricted on <b>%s</b>: k=%d share the comparator; <b>k=%d</b> also "
+                   "share one registered primary title exactly, and <b>%d of those have posted "
+                   "results</b>%s.</li>"
+                   % (esc(s["restricted_on"]), s["k_sharing_the_comparator"],
+                      s["k_ALSO_sharing_one_registered_primary_title"],
+                      s["k_of_those_WITH_POSTED_RESULTS"],
+                      (" &mdash; " + ", ".join("<code>%s</code>" % esc(x)
+                                               for x in s["the_ones_that_have_reported"]))
+                      if s["the_ones_that_have_reported"] else
+                      ", so there is nothing to pool"))
+    return "<ul>%s</ul>" % "".join(out)
+
+
+def review_page(topic, o):
+    pr = o["results"]["by_outcome"]["primary"]
+    sc = o["screening"]
+    sibs = "".join(
+        "<a class='go' href='%s'>%s &rarr;</a>" % (PAGES[t], esc(load(t)["title"]))
+        for t in sorted(PAGES) if t != topic)
+    return """<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{title}</title>
+<meta name="rapidmeta:page-state" content="LIVE">
+<meta name="rapidmeta:pooled-estimate" content="NONE">
+<meta name="rapidmeta:split-from" content="{parent}">
+<meta name="description" content="{qshort}">
+<style>{css}</style>
+</head><body>
+<span class="tag no">No pooled estimate</span>
+<h1>{title}</h1>
+<p class="sub">One of four reviews created by splitting <code>{parent}</code> on
+2026-08-19. {why_own}</p>
+
+<div class="q"><strong>Question.</strong> {question}</div>
+
+<h2>Why this review publishes no pooled estimate</h2>
+<p>The estimand screen returned <b>{verdict}</b> for this reading. Every failing limb is shown,
+not only the first:</p>
+{limbs}
+<p class="sub">{authority}</p>
+
+<h2>The {k} trial(s) in this reading</h2>
+<div class="wrap"><table>
+<thead><tr><th>Registration</th><th>Acronym</th><th>Enrolment</th><th>Comparator family</th>
+<th>Registered primary</th><th>Secondaries read</th></tr></thead>
+<tbody>
+{rows}
+</tbody></table></div>
+
+<h2>Was a poolable estimand missed below the primary?</h2>
+<p>A refusal to pool that never looked below the primary is a withholding. Every trial's
+<em>primary</em>, <em>secondary</em> and <em>other</em> registered outcomes were read, and
+matching is on exact normalised title text &mdash; looser matching would compare endpoints by
+their names, so every count below is a <b>lower bound</b>.</p>
+{candidates}
+
+<h2>Comparator-restricted subsets</h2>
+{subsets}
+
+<h2>What this review does not establish</h2>
+<p>{notestab}</p>
+
+<h2>How the trials were found</h2>
+<ul>
+ <li><b>{surfaced}</b> registrations surfaced; <b>{screened}</b> screened;
+     <b>{remainder}</b> left unscreened.</li>
+ <li>Reading precedence: <code>{prec}</code></li>
+ <li>{recall}</li>
+ <li><b>{notsearched}</b></li>
+</ul>
+
+<h2>The other three reviews from this split</h2>
+<p>{sibs}<a class="go" href="{oldpage}">What happened to the original &rarr;</a></p>
+
+<footer>
+Built 2026-08-19 by <code>scripts/build_dabigatran_split_pages_2026_08_19.py</code> from
+<code>ssot/{topic}/{topic}.json</code>. Every figure on this page is read from that object;
+none is typed into the page. Primary publications are <b>not resolved</b> for this topic and are
+reported as unresolved rather than approximated.
+</footer>
+</body></html>
+""".format(
+        css=CSS, title=esc(o["title"]), parent=esc(PARENT),
+        qshort=esc(o["question"][:150]),
+        why_own=esc(o["why_this_is_its_own_question"]),
+        question=esc(o["question"]),
+        verdict=esc(pr["estimand_screen_verdict"]),
+        limbs=limbs_html(pr),
+        authority=esc(pr["pooled"]["absent_reason"].split("AUTHORITY:")[-1].strip()),
+        k=pr["k"], rows=trial_rows(o),
+        candidates=candidates_html(pr), subsets=subsets_html(pr),
+        notestab=esc(pr["what_this_does_not_establish"]),
+        surfaced=sc["surfaced"], screened=sc["screened"],
+        remainder=sc["unscreened_remainder"],
+        prec=esc(sc.get("precedence")), recall=esc(sc.get("recall")),
+        notsearched=esc(sc["registries_not_searched"]),
+        sibs=sibs, oldpage=OLD_PAGE, topic=esc(topic))
+
+
+def tombstone_page(tb):
+    succ = "".join(
+        "<a class='go' href='%s'>%s &rarr;</a>" % (PAGES[t], esc(load(t)["title"]))
+        for t in sorted(PAGES))
+    went = "".join(
+        "<tr><td><code>%s</code></td><td>%s</td><td>%s</td></tr>"
+        % (esc(n), esc(v["successor"] or "not carried into any successor"), esc(v["why"]))
+        for n, v in sorted(tb["where_each_trial_went"].items()))
+    return """<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dabigatran in venous thromboembolism &mdash; retired, split into four reviews</title>
+<meta name="robots" content="noindex">
+<meta name="rapidmeta:page-state" content="RETIRED">
+<meta name="rapidmeta:retired-by" content="SPLIT">
+<meta name="rapidmeta:split-into" content="{into}">
+<style>{css}</style>
+</head><body>
+<span class="tag">Retired review</span>
+<h1>Dabigatran in venous thromboembolism</h1>
+
+<p>This review has been <strong>retired</strong>, and it was <strong>split into four</strong>
+rather than replaced by one. It asked a single question of four trials that answer
+<strong>three different ones</strong>.</p>
+
+<p>{succ}</p>
+
+<h2>Why it was split rather than narrowed</h2>
+<p>{why}</p>
+<p>Choosing any one of these readings would have discarded the other questions without saying
+so. Each successor states what it can answer and what it cannot.</p>
+
+<h2>Where each of its trials went</h2>
+<div class="wrap"><table>
+<thead><tr><th>Registration</th><th>Successor</th><th>Why</th></tr></thead>
+<tbody>{went}</tbody></table></div>
+
+<h2>Was anything discarded?</h2>
+<p><strong>No.</strong> Every trial this review held is either carried into a successor or
+adjudicated out with a stated reason, and the split was refused unless every one could be
+accounted for &mdash; a proof re-run after the write against the objects read back from disk.
+This review&rsquo;s entire object is preserved verbatim in its own record on disk.</p>
+<p>One trial, <code>{adj}</code>, is <strong>adjudicated out</strong>: it is not a venous
+thromboembolism trial. Its full record is preserved and the reason travels with it.</p>
+
+<footer>
+Retired 2026-08-19. This page exists so that a link to the retired review does not break. It is
+not a redirect: a reader who arrives here is told what happened rather than moved silently.
+</footer>
+</body></html>
+""".format(css=CSS, into=esc(", ".join(tb["split_into"])), succ=succ,
+           why=esc(tb["why"]), went=went, adj=esc(", ".join(tb["adjudicated_out"])))
+
+
+def run(apply_it):
+    objs = {t: load(t) for t in PAGES}
+    tb = load(PARENT)
+    if str(tb.get("state") or "").upper() != "RETIRED":
+        print("REFUSED: %s is not RETIRED; the split has not been applied." % PARENT)
+        return 1
+
+    built = {}
+    for t, page in sorted(PAGES.items()):
+        built[page] = review_page(t, objs[t])
+        print("  %-44s %6d bytes  k=%d"
+              % (page, len(built[page].encode("utf-8")),
+                 objs[t]["results"]["by_outcome"]["primary"]["k"]))
+
+    # THE TOMBSTONE IS REFUSED IF ANY SUCCESSOR PAGE IS MISSING. A tombstone pointing at a URL
+    # that does not exist is worse than the stale page it replaces.
+    missing = [p for p in PAGES.values() if p not in built]
+    if missing:
+        print("REFUSED: tombstone not built -- successor pages missing: %s" % missing)
+        return 1
+    built[OLD_PAGE] = tombstone_page(tb)
+    print("  %-44s %6d bytes  (tombstone)"
+          % (OLD_PAGE, len(built[OLD_PAGE].encode("utf-8"))))
+
+    if not apply_it:
+        print("\nDRY RUN -- nothing written. Re-run with --apply.")
+        return 0
+
+    for page, html in sorted(built.items()):
+        with io.open(os.path.join(REPO, page), "w", encoding="utf-8", newline="") as fh:
+            fh.write(html)
+    print("\nwrote %d page(s)" % len(built))
+
+    # PAGE_MAP so the dashboard projection can see the new pages at all.
+    pm = os.path.join(REPO, "ssot", "PAGE_MAP.json")
+    with io.open(pm, "r", encoding="utf-8") as fh:
+        pmap = json.load(fh)
+    for t, page in PAGES.items():
+        pmap[page] = "ssot/%s/%s.json" % (t, t)
+    with io.open(pm, "w", encoding="utf-8", newline="") as fh:
+        fh.write(json.dumps(pmap, indent=1, ensure_ascii=False, sort_keys=True))
+    print("PAGE_MAP updated with %d new page(s)" % len(PAGES))
+    return 0
+
+
+def selftest():
+    fails = []
+
+    def ck(n, got, want):
+        ok = got == want
+        print("  %-64s %s  %r" % (n, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(n)
+
+    print("1. ESCAPING IS APPLIED, so a registry string cannot inject markup:")
+    ck("angle brackets", esc("<script>x</script>"),
+       "&lt;script&gt;x&lt;/script&gt;")
+    ck("ampersand", esc("a & b"), "a &amp; b")
+
+    print("\n2. AN ABSENT ENROLMENT IS A DASH, NOT A ZERO:")
+    ck("None", num(None), "&mdash;")
+    ck("0 is still 0", num(0), "0")
+    ck("and thousands are grouped", num(10078), "10,078")
+
+    print("\n3. THE PAGES ARE BUILT FROM THE OBJECTS AND CARRY THEIR NUMBERS:")
+    o = load("dabigatran-vte-treatment")
+    h = review_page("dabigatran-vte-treatment", o)
+    ck("the k on the page is the k on the object",
+       ("The %d trial(s) in this reading" % o["results"]["by_outcome"]["primary"]["k"]) in h,
+       True)
+    ck("RE-COVER II appears", "NCT00680186" in h, True)
+    ck("and the page states it publishes no estimate",
+       'content="NONE"' in h, True)
+    ck("...and says so where a reader sees it", "No pooled estimate" in h, True)
+
+    print("\n4. EVERY FAILING LIMB REACHES THE PAGE, not just the first:")
+    pr = o["results"]["by_outcome"]["primary"]
+    ck("all limbs rendered",
+       all(f["property"] in h for f in pr["failing_limbs"]), True)
+
+    print("\n5. AND THE TOMBSTONE NAMES EVERY SUCCESSOR AND THE ADJUDICATED-OUT TRIAL:")
+    t = tombstone_page(load(PARENT))
+    ck("all four successor pages linked",
+       all(p in t for p in PAGES.values()), True)
+    ck("the adjudicated-out trial is named", "NCT01505881" in t, True)
+    ck("and it is marked retired for machines", 'content="RETIRED"' in t, True)
+
+    print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    if "--selftest" in sys.argv:
+        sys.exit(selftest())
+    sys.exit(run("--apply" in sys.argv))
