@@ -3268,7 +3268,62 @@
     "source_tier": "registry",
     "source_url": "https://clinicaltrials.gov/study/NCT03344523"
    }
-  ]
+  ],
+  "eligibility_provenance": {
+   "state": "NATIVE_TO_THIS_OBJECT",
+   "predefined": null,
+   "predefined_is_null_because": "UNKNOWN, and null is the honest value -- the third state, not a soft 'no'. These criteria are this object's OWN: they turn on population, intervention, comparator, route and outcome, and the object states on its face that NO CRITERION REFERS TO MEMBERSHIP OF A LIST, which is the signature of criteria written backwards from an included set. But no protocol record exists, so whether they were fixed BEFORE the included set was chosen cannot be established either way. `false` would claim they were post hoc; `true` would claim a pre-specification we cannot show. Precondition criteria_predefined is therefore NOT_ASSESSABLE.",
+   "derived": false,
+   "authority_it_satisfies": "MECIR R29/R30/R31 -- the review STATES its eligibility criteria.",
+   "authority_it_does_NOT_establish": "MECIR C5/C7 -- criteria DEFINED IN ADVANCE.",
+   "what_would_settle_it": "a protocol record with a timestamp preceding the first executed query",
+   "elements": [
+    {
+     "element": "POPULATION",
+     "criterion": "adults with heart failure and iron deficiency",
+     "auditable_against": "protocolSection.conditionsModule.conditions",
+     "settles_it": true,
+     "evidence": "All five contributing registrations name BOTH limbs in that field: 'Iron Deficiency; Chronic Heart Failure' (CONFIRM-HF), 'Iron Deficiency; Heart Failure' (AFFIRM-AHF), 'Chronic Heart Failure; Iron Deficiency; Left Ventricular Systolic Dysfunction' (IRONMAN), 'Heart Failure; Iron-deficiency' (HEART-FID), 'Systolic Heart Failure; Iron Deficiency' (FAIR-HF2)."
+    },
+    {
+     "element": "INTERVENTION",
+     "criterion": "iron as ferric carboxymaltose or ferric derisomaltose",
+     "auditable_against": "protocolSection.armsInterventionsModule.interventions[].name",
+     "settles_it": true,
+     "evidence": "Matched by the declared synonym set in ssot/topic_identity.TOPIC_SYNONYMS ['intravenous iron'], against intervention NAMES rather than descriptions -- a description mentioning a drug does not mean the drug was randomised."
+    },
+    {
+     "element": "ROUTE (intravenous)",
+     "criterion": "INTRAVENOUS administration",
+     "auditable_against": "protocolSection.armsInterventionsModule.interventions[].name",
+     "settles_it": true,
+     "evidence": "Carried by the agent name itself: ferric carboxymaltose and ferric derisomaltose are intravenous-only preparations, so the route is entailed by the intervention field and needs no separate route field."
+    },
+    {
+     "element": "COMPARATOR",
+     "criterion": "placebo OR usual care",
+     "auditable_against": "protocolSection.armsInterventionsModule.armGroups[].type",
+     "settles_it": false,
+     "evidence_and_why_it_does_not_settle": "THE FIELD IS NOT SUFFICIENT HERE, and this is the element that most needed checking rather than asserting. AFFIRM-AHF and HEART-FID type their IRON arm ACTIVE_COMPARATOR against a PLACEBO_COMPARATOR saline arm and declare NO arm typed EXPERIMENTAL at all. Read literally, the arm-type field would place the topic drug in the comparator role on 2 of the 5 contributing trials. The criterion is settled instead by ssot/topic_identity.locate()'s placebo-discriminator -- placebo is never the intervention, so a drug randomised against it is -- which is a DERIVED judgement and is labelled as one. The 'OR usual care' half is load-bearing rather than generous: IRONMAN randomised against usual care, and a placebo-only criterion would exclude a contributing trial.",
+     "derived_by": "ssot/topic_identity.locate() over raw v2 armGroups"
+    },
+    {
+     "element": "OUTCOME",
+     "criterion": "a designated CLINICAL-EVENT endpoint, or a registered functional primary that a regulator relies on",
+     "auditable_against": "protocolSection.outcomesModule.primaryOutcomes[].measure",
+     "settles_it": true,
+     "evidence": "Read verbatim per trial and recorded in the extraction table. The 'or a registered functional primary' half admits CONFIRM-HF, whose primary is 'Change in six minute walk test from baseline to week 24' -- a unit of METRES, which is why it is reported as its own estimand and not harmonised into an event composite."
+    },
+    {
+     "element": "ADJUDICATION",
+     "criterion": "DELIBERATELY ABSENT from the criteria",
+     "auditable_against": "no registry field records adjudication",
+     "settles_it": false,
+     "evidence_and_why_it_does_not_settle": "Recorded because its ABSENCE is a decision, not an oversight, and an unstated decision is indistinguishable from an unnoticed one. Two contributing trials' staged sources state adjudication plainly. What cannot be shown is that EVERY contributing trial's sources establish it -- so a criterion demanding adjudication would be one this review could not show all its own members satisfy."
+    }
+   ],
+   "elements_summary": "6 elements: 4 settled by a named registry field, 2 NOT settled by any field and labelled as derived or as a recorded absence. THE COUNT OF UNSETTLED ELEMENTS IS STATED because a provenance block listing only the auditable elements would report that everything is auditable."
+  }
  },
  "screening_names_unresolved": [],
  "eligible_but_not_contributing": {
@@ -4152,8 +4207,8 @@
     "reason": "k at every stage: surfaced 47, located 47, experimental 34, comparator 6, included 5, unscreened remainder 29."
    },
    "P3_inclusion_criteria": {
-    "state": "REFUSING",
-    "reason": "No criteria provenance block."
+    "state": "HELD",
+    "reason": "Criteria provenance block present with predefined=None on its face (state 'NATIVE_TO_THIS_OBJECT')."
    },
    "P4_preconditions": {
     "state": "HELD",
@@ -4179,15 +4234,14 @@
   "held": [
    "P1_executed_search",
    "P2_k_cascade",
+   "P3_inclusion_criteria",
    "P4_preconditions",
    "P5_extraction_table",
    "P6_analysis_output",
    "P7_published_comparison",
    "P8_registration_identity"
   ],
-  "refusing": [
-   "P3_inclusion_criteria"
-  ],
+  "refusing": [],
   "_ratchet": "This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant."
  },
  "precondition_verdict_superseded": {

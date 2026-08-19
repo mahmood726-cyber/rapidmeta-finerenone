@@ -1,0 +1,116 @@
+#!/usr/bin/env python3
+"""Write `screening.eligibility_provenance` onto iv-iron-hf, one element at a time.
+
+WHY THE BLOCK LIVES ON THE OBJECT AND NOT IN THE BUILDER. P3 checks for this block. If the
+builder wrote it, the build would be verifying something the same build had just produced,
+which is not a check. The object carries it; the builder reads it.
+
+WHY EACH ELEMENT NAMES A SOURCE FIELD. `inclusion_criteria_auditable` failing is not a
+retrieval problem -- it is a claim about whether each criterion can be checked against a named
+field on each contributing trial. So every element below records the registry field that
+settles it, and where no field settles it, that is recorded too rather than left blank.
+"""
+import io
+import json
+import os
+
+OBJ = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                   "ssot", "iv-iron-hf", "iv-iron-hf.json")
+
+BLOCK = {
+    "state": "NATIVE_TO_THIS_OBJECT",
+    "predefined": None,
+    "predefined_is_null_because": (
+        "UNKNOWN, and null is the honest value -- the third state, not a soft 'no'. These "
+        "criteria are this object's OWN: they turn on population, intervention, comparator, "
+        "route and outcome, and the object states on its face that NO CRITERION REFERS TO "
+        "MEMBERSHIP OF A LIST, which is the signature of criteria written backwards from an "
+        "included set. But no protocol record exists, so whether they were fixed BEFORE the "
+        "included set was chosen cannot be established either way. `false` would claim they "
+        "were post hoc; `true` would claim a pre-specification we cannot show. Precondition "
+        "criteria_predefined is therefore NOT_ASSESSABLE."),
+    "derived": False,
+    "authority_it_satisfies": "MECIR R29/R30/R31 -- the review STATES its eligibility criteria.",
+    "authority_it_does_NOT_establish": "MECIR C5/C7 -- criteria DEFINED IN ADVANCE.",
+    "what_would_settle_it": "a protocol record with a timestamp preceding the first executed query",
+    "elements": [
+        {"element": "POPULATION", "criterion": "adults with heart failure and iron deficiency",
+         "auditable_against": "protocolSection.conditionsModule.conditions",
+         "settles_it": True,
+         "evidence": "All five contributing registrations name BOTH limbs in that field: "
+                     "'Iron Deficiency; Chronic Heart Failure' (CONFIRM-HF), 'Iron Deficiency; "
+                     "Heart Failure' (AFFIRM-AHF), 'Chronic Heart Failure; Iron Deficiency; "
+                     "Left Ventricular Systolic Dysfunction' (IRONMAN), 'Heart Failure; "
+                     "Iron-deficiency' (HEART-FID), 'Systolic Heart Failure; Iron Deficiency' "
+                     "(FAIR-HF2)."},
+        {"element": "INTERVENTION",
+         "criterion": "iron as ferric carboxymaltose or ferric derisomaltose",
+         "auditable_against": "protocolSection.armsInterventionsModule.interventions[].name",
+         "settles_it": True,
+         "evidence": "Matched by the declared synonym set in ssot/topic_identity.TOPIC_SYNONYMS "
+                     "['intravenous iron'], against intervention NAMES rather than descriptions "
+                     "-- a description mentioning a drug does not mean the drug was randomised."},
+        {"element": "ROUTE (intravenous)", "criterion": "INTRAVENOUS administration",
+         "auditable_against": "protocolSection.armsInterventionsModule.interventions[].name",
+         "settles_it": True,
+         "evidence": "Carried by the agent name itself: ferric carboxymaltose and ferric "
+                     "derisomaltose are intravenous-only preparations, so the route is entailed "
+                     "by the intervention field and needs no separate route field."},
+        {"element": "COMPARATOR", "criterion": "placebo OR usual care",
+         "auditable_against": "protocolSection.armsInterventionsModule.armGroups[].type",
+         "settles_it": False,
+         "evidence_and_why_it_does_not_settle": (
+             "THE FIELD IS NOT SUFFICIENT HERE, and this is the element that most needed "
+             "checking rather than asserting. AFFIRM-AHF and HEART-FID type their IRON arm "
+             "ACTIVE_COMPARATOR against a PLACEBO_COMPARATOR saline arm and declare NO arm "
+             "typed EXPERIMENTAL at all. Read literally, the arm-type field would place the "
+             "topic drug in the comparator role on 2 of the 5 contributing trials. The "
+             "criterion is settled instead by ssot/topic_identity.locate()'s "
+             "placebo-discriminator -- placebo is never the intervention, so a drug randomised "
+             "against it is -- which is a DERIVED judgement and is labelled as one. The 'OR "
+             "usual care' half is load-bearing rather than generous: IRONMAN randomised against "
+             "usual care, and a placebo-only criterion would exclude a contributing trial."),
+         "derived_by": "ssot/topic_identity.locate() over raw v2 armGroups"},
+        {"element": "OUTCOME",
+         "criterion": "a designated CLINICAL-EVENT endpoint, or a registered functional primary "
+                      "that a regulator relies on",
+         "auditable_against": "protocolSection.outcomesModule.primaryOutcomes[].measure",
+         "settles_it": True,
+         "evidence": "Read verbatim per trial and recorded in the extraction table. The "
+                     "'or a registered functional primary' half admits CONFIRM-HF, whose "
+                     "primary is 'Change in six minute walk test from baseline to week 24' -- "
+                     "a unit of METRES, which is why it is reported as its own estimand and "
+                     "not harmonised into an event composite."},
+        {"element": "ADJUDICATION", "criterion": "DELIBERATELY ABSENT from the criteria",
+         "auditable_against": "no registry field records adjudication",
+         "settles_it": False,
+         "evidence_and_why_it_does_not_settle": (
+             "Recorded because its ABSENCE is a decision, not an oversight, and an unstated "
+             "decision is indistinguishable from an unnoticed one. Two contributing trials' "
+             "staged sources state adjudication plainly. What cannot be shown is that EVERY "
+             "contributing trial's sources establish it -- so a criterion demanding adjudication "
+             "would be one this review could not show all its own members satisfy.")},
+    ],
+    "elements_summary": (
+        "6 elements: 4 settled by a named registry field, 2 NOT settled by any field and "
+        "labelled as derived or as a recorded absence. THE COUNT OF UNSETTLED ELEMENTS IS "
+        "STATED because a provenance block listing only the auditable elements would report "
+        "that everything is auditable."),
+}
+
+
+def main():
+    with io.open(OBJ, encoding="utf-8") as fh:
+        obj = json.load(fh)
+    scr = obj.setdefault("screening", {})
+    before = set(scr.keys())
+    scr["eligibility_provenance"] = BLOCK
+    assert before <= set(scr.keys()), "this script ADDS only"
+    with io.open(OBJ, "w", encoding="utf-8", newline="") as fh:
+        fh.write(json.dumps(obj, indent=1, ensure_ascii=False) + "\n")
+    print("eligibility_provenance written: %d elements, %d settled by a named field"
+          % (len(BLOCK["elements"]), sum(1 for e in BLOCK["elements"] if e["settles_it"])))
+
+
+if __name__ == "__main__":
+    main()
