@@ -63,39 +63,58 @@ def _digits(p):
     return d or None
 
 
-def collect(repo=REPO):
-    """{pmid: {identity: [where, ...]}} -- identity is an NCT id where one exists, else a name.
+def add_attribution(seen, pmid, identity, where, name=None):
+    """Identity is recorded WITH ITS KIND, because the kinds are not comparable.
 
-    An NCT id is preferred over a trial NAME because names collide legitimately (`ADVANCE-2`
-    and `ADVANCE-3`) while registrations do not.
+    THE FIRST VERSION COMPARED THEM ANYWAY AND MANUFACTURED THREE FALSE ALARMS out of four
+    findings. An SSOT object keys a trial by `NCT03315143`; the benchmark file keys the same
+    trial by the name `scored`. Those are the SAME TRIAL under two conventions, and a
+    detector that calls that a collision is reporting its own inability to join two tables.
+
+    A benchmark record carries no NCT id at all, so name-versus-NCT can NEVER match -- which
+    means the naive version flags every trial the corpus happens to cite from both sides,
+    i.e. exactly the well-recorded ones. It fires hardest where the corpus is most careful.
+    NCT-versus-NCT and name-versus-name are comparable and are compared; the cross pair is
+    reported as NOT_ASSESSABLE and is never counted as a collision.
+    """
+    pmid = _digits(pmid)
+    if not pmid or not identity:
+        return
+    ident = _norm(identity)
+    kind = "nct" if ident.startswith("nct") and ident[3:].isdigit() else "name"
+    rec = seen.setdefault(pmid, {"nct": {}, "name": {}, "where": []})
+    rec[kind].setdefault(ident, []).append(where)
+    rec["where"].append(where)
+    # A trial NAME recorded alongside its identifier lets two naming conventions be joined.
+    #
+    # THE ALIAS IS RECORDED FOR **EITHER** KIND, AND THE FIRST VERSION RECORDED IT ONLY FOR
+    # `nct`. That fix covered the case it was written for and not the class.
+    #
+    # LoDoCo2 has NO ClinicalTrials.gov identifier -- it is ACTRN12614000093684 on ANZCTR --
+    # so its identity is itself a NAME. The object keys it `actrn12614000093684` and the
+    # benchmark file keys it `lodoco2`, both under PMID 32865380, and with the alias limited
+    # to `nct` records there was nothing to join them with. THIS GATE THEN REFUSED THE FIRST
+    # COMMIT OF THE VERY OBJECT THAT INTRODUCED THE ANZCTR TRIAL -- correctly firing on real
+    # ambiguity, and on a pair that is one trial.
+    #
+    # Fixing the branch that was caught is not fixing the class: the same shape returns for
+    # EudraCT, ISRCTN, ChiCTR and JPRN identifiers, none of which start with `nct`.
+    if name:
+        rec.setdefault("aka", {}).setdefault(ident, set()).add(_norm(name))
+
+
+def collect(repo=REPO):
+    """{pmid: {kind: {identity: [where]}}} over every place the corpus asserts a PMID.
+
+    The scanning and the RECORDING are separated on purpose. `add_attribution` is module level
+    so the selftest can build fixtures THROUGH IT rather than beside it -- a hand-written
+    fixture does not follow a refactor, and this file has already had one proof silently stop
+    proving anything for exactly that reason.
     """
     seen = {}
 
     def add(pmid, identity, where, name=None):
-        """Identity is recorded WITH ITS KIND, because the kinds are not comparable.
-
-        THE FIRST VERSION COMPARED THEM ANYWAY AND MANUFACTURED THREE FALSE ALARMS out of four
-        findings. An SSOT object keys a trial by `NCT03315143`; the benchmark file keys the same
-        trial by the name `scored`. Those are the SAME TRIAL under two conventions, and a
-        detector that calls that a collision is reporting its own inability to join two tables.
-
-        A benchmark record carries no NCT id at all, so name-versus-NCT can NEVER match -- which
-        means the naive version flags every trial the corpus happens to cite from both sides,
-        i.e. exactly the well-recorded ones. It fires hardest where the corpus is most careful.
-        NCT-versus-NCT and name-versus-name are comparable and are compared; the cross pair is
-        reported as NOT_ASSESSABLE and is never counted as a collision.
-        """
-        pmid = _digits(pmid)
-        if not pmid or not identity:
-            return
-        ident = _norm(identity)
-        kind = "nct" if ident.startswith("nct") and ident[3:].isdigit() else "name"
-        rec = seen.setdefault(pmid, {"nct": {}, "name": {}, "where": []})
-        rec[kind].setdefault(ident, []).append(where)
-        rec["where"].append(where)
-        # A trial NAME recorded alongside an NCT lets the two conventions be joined later.
-        if kind == "nct" and name:
-            rec.setdefault("aka", {}).setdefault(ident, set()).add(_norm(name))
+        add_attribution(seen, pmid, identity, where, name)
 
     for path in sorted(glob.glob(os.path.join(repo, "ssot", "*", "*.json"))):
         try:
@@ -148,10 +167,19 @@ def collisions(seen):
         ncts = rec.get("nct") or {}
         names = rec.get("name") or {}
         aka = rec.get("aka") or {}
-        # A benchmark NAME that matches the name recorded beside an NCT is the SAME trial.
+        # A NAME that matches the trial name recorded beside ANY identity is the SAME trial --
+        # and an identity's own alias set covers it whether that identity is an NCT or, as for
+        # an ANZCTR-only trial, itself a name.
+        # An ALIAS is folded away. AN IDENTITY IS NOT, even when it has aliases.
+        #
+        # The first attempt dropped every name that was a key of `aka` as well, which removed
+        # the PRIMARY identity from the comparison -- and with it the ability to see a real
+        # collision. `ACTRN12614000093684` (aka LoDoCo2) beside a bare `east-afnet 4` under one
+        # PMID stopped colliding, which is the exact case this detector exists for. THE
+        # NEGATIVE CONTROL CAUGHT IT: widening a join until nothing collides is not a fix.
         known = set()
-        for n in ncts:
-            known |= set(aka.get(n) or ())
+        for _ident, al in aka.items():
+            known |= set(al or ())
         unmatched = {k: v for k, v in names.items() if k not in known}
         hit = {}
         if len(ncts) > 1:
@@ -222,17 +250,17 @@ def selftest():
     # a hand-written fixture kept the pre-kind shape and this proof silently stopped proving
     # anything while reading green, which is P16's second clause exactly.
     def build(*rows):
-        seen = {}
+        """Fixtures built THROUGH the scanner's own recorder, never beside it.
 
-        def add(pmid, identity, where, name=None):
-            ident = _norm(identity)
-            kind = "nct" if ident.startswith("nct") and ident[3:].isdigit() else "name"
-            rec = seen.setdefault(pmid, {"nct": {}, "name": {}, "where": []})
-            rec[kind].setdefault(ident, []).append(where)
-            if kind == "nct" and name:
-                rec.setdefault("aka", {}).setdefault(ident, set()).add(_norm(name))
+        THIS HELPER PREVIOUSLY DUPLICATED `add_attribution` and drifted from it TWICE. The
+        second time, the alias rule was widened from `nct`-only to any identity kind, the live
+        scan went clean, and this fixture -- still carrying the old rule -- failed the proof
+        that the widened rule works. A hand-written fixture does not follow a refactor, and a
+        proof that stops proving anything is worse than no proof, because it reads green.
+        """
+        seen = {}
         for r in rows:
-            add(*r)
+            add_attribution(seen, *r)
         return seen
 
     planted = build(("32865375", "NCT01288352", "ssot/ablation-af-review", "EAST-AFNET 4"),
@@ -252,6 +280,17 @@ def selftest():
     check("an NCT joined to its own trial name is NOT a collision", collisions(joined), {})
     unjoinable = build(("33200891", "NCT03315143", "ssot/x"),
                        ("33200891", "scored", "benchmarks"))
+    # AND THE ANZCTR SHAPE, which the first fix did not cover: the trial's own identity is
+    # itself a NAME because it has no ClinicalTrials.gov id, so an alias recorded only for
+    # `nct` records could not join it. This gate refused the very commit that introduced it.
+    anz = build(("32865380", "ACTRN12614000093684", "ssot/colchicine-cvd-coronary", "LoDoCo2"),
+                ("32865380", "lodoco2", "PUBLISHED_META_BENCHMARKS.json"))
+    check("an ANZCTR identity joined to its own trial name is NOT a collision",
+          collisions(anz), {})
+    two_real = build(("32865380", "ACTRN12614000093684", "a", "LoDoCo2"),
+                     ("32865380", "east-afnet 4", "b"))
+    check("...and two genuinely different names under one PMID STILL collide",
+          sorted(collisions(two_real)), ["32865380"])
     check("with no name recorded it is NOT_ASSESSABLE, not a collision",
           (collisions(unjoinable), sorted(cross_kind_unjoined(unjoinable))),
           ({}, ["33200891"]))
