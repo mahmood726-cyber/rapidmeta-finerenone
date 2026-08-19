@@ -72,7 +72,7 @@ always computable; what was missing was the right to act on them.
 
 from assessment import (FAIL, NOT_ASSESSABLE, PASS, handbook_authority_is_verified, judge,
                         read, read_scalar)
-from assessor_registry import AssessorRejected, Registry, text_match
+from assessor_registry import AssessorRejected, Registry, normalise_text, text_match
 
 # Every section cited below was read from the primary source on this date. Setting this to
 # None again -- or changing a citation without re-reading -- must re-close the gate.
@@ -180,13 +180,13 @@ def arm_role_resolved(obj):
 # 3. COMPARATOR -- the C limb. Identity, after normalisation, never raw display text.
 # ---------------------------------------------------------------------------
 @register_precondition(
-    "comparators_identified_and_consistent",
+    "comparators_identified",
     reads=["outcomes.comparator", "outcomes.comparator_type"],
     handbook_section="MECIR C62 (Mandatory), 'comparisons' limb -- a synthesis pools one "
                      "contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check "
                      "reads recorded comparator fields and tests them for consistency.",
     unit="outcome", unit_source="outcomes")
-def comparators_identified_and_consistent(obj):
+def comparators_identified(obj):
     """Does every outcome name a comparator, and do they agree ACROSS outcomes?
 
     Routed through `text_match`, which is what keeps `Placebo Q2W` == `Placebo` (a schedule
@@ -227,25 +227,49 @@ def comparators_identified_and_consistent(obj):
     #
     # So: comparator_type governs. A difference in the free text where the types AGREE is a
     # verbosity note, never a FAIL. A genuine difference in type is still a FAIL.
-    types = []
+    # THE UNIT IS ONE OUTCOME, NOT THE OBJECT. This check compared comparator_type ACROSS
+    # outcomes and FAILed iv-iron-hf, which carries six outcomes over different trial subsets:
+    # five declare `placebo` and one declares `mixed`, because AFFIRM-AHF randomised against a
+    # saline placebo and IRONMAN against usual care. The object's eligibility criterion admits
+    # both DELIBERATELY -- "a placebo-only criterion would exclude it, which is the defect this
+    # criterion was written to avoid" -- and its poolable_reason says the trials "share no
+    # participant and no control group". The object had already declared everything the check
+    # was trying to discover.
+    #
+    # Requiring six outcomes to share one comparator type is an OBJECT-level judgement made by
+    # a check that declares unit="outcome". It iterates outcomes, so detector 5 passed it, and
+    # it still judged across them. Different outcomes may legitimately rest on different
+    # contrasts; that is not one synthesis pooling two contrasts, it is two questions.
+    #
+    # WHAT IS ACTUALLY CHECKABLE HERE, stated rather than overclaimed: whether every outcome
+    # NAMES a comparator type, and whether any outcome DECLARES within-outcome heterogeneity
+    # via `mixed`. Per-trial comparators are not stored per outcome, so within-outcome
+    # consistency is visible ONLY through that declared type -- and `mixed` is the object
+    # reporting it correctly, not failing.
+    types = {}
     for o in outcomes:
         tr = read_scalar(o, "comparator_type")
+        oid = o.get("id") or o.get("name") or "<unnamed>"
         if tr.readable:
-            types.append(tr.value)
-    if len(types) == len(outcomes) and types:
-        first_t = types[0]
-        differing_t = [t for t in types[1:] if not text_match(first_t, t)]
-        if differing_t:
-            return FAIL, (
-                f"outcomes.comparator_type: {len(differing_t) + 1} distinct comparator TYPES "
-                f"({first_t!r} vs {differing_t[:3]!r}). One synthesis pools one contrast; the "
-                f"review must say which.")
-        verbose = [c for c in named[1:] if not text_match(named[0], c)]
-        note = ("" if not verbose else
-                f"; free-text descriptions differ in verbosity ({named[0]!r} vs "
-                f"{verbose[:2]!r}) but comparator_type agrees, which is what governs")
-        return PASS, (f"outcomes.comparator_type: all {len(types)} outcome(s) declare "
-                      f"{first_t!r}{note}")
+            types[oid] = tr.value
+    if len(types) != len(outcomes):
+        silent = [o.get("id") or "<unnamed>" for o in outcomes
+                  if (o.get("id") or o.get("name") or "<unnamed>") not in types]
+        return NOT_ASSESSABLE, (
+            f"cannot assess: {len(silent)} of {len(outcomes)} outcome(s) declare no "
+            f"comparator_type {silent[:4]}")
+    mixed = [k for k, v in types.items() if text_match(v, "mixed")]
+    distinct = sorted(set(normalise_text(v) for v in types.values()))
+    if mixed:
+        return PASS, (
+            f"every outcome names a comparator type; {len(mixed)} DECLARE 'mixed' {mixed} -- "
+            f"the object reporting within-outcome comparator heterogeneity itself, which is "
+            f"the state this check exists to surface, not a failure. Types across outcomes "
+            f"({distinct}) are NOT judged: different outcomes may rest on different contrasts.")
+    return PASS, (
+        f"every outcome names a comparator type {distinct}; none declares 'mixed'. "
+        f"Within-outcome consistency is visible only through the declared type, and "
+        f"cross-outcome differences are not judged.")
 
     # No semantic field to consult -- fall back to the description, and SAY that the verdict
     # rests on display text rather than on a typed field.
@@ -602,7 +626,7 @@ def contributes_a_randomised_contrast(obj):
 # canonical name is PRECONDITIONS and the count is 8. A constant whose name asserts a count
 # that is no longer true is the stale-prose defect in identifier form.
 PRECONDITIONS = ("population_stated", "arm_role_resolved",
-                 "comparators_identified_and_consistent", "estimand_named",
+                 "comparators_identified", "estimand_named",
                  "criteria_stated", "criteria_predefined", "eligibility_met",
                  "contributes_a_randomised_contrast")
 

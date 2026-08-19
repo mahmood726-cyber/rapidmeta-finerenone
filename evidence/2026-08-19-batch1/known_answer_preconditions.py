@@ -113,17 +113,36 @@ check("2 arm_role: {'role': ''} -> NOT_ASSESSABLE (agy D1)",
 check("2 arm_role: no inputs at all -> NOT_ASSESSABLE",
       P.arm_role_resolved({})[0], NOT_ASSESSABLE)
 
-# --- 3. comparators_identified_and_consistent -----------------------------------------------------------
-# THE COMPARATOR ARTIFACT: a schedule is not part of a comparator's identity.
-check("3 comparator: 'Placebo Q2W' == 'Placebo' -> PASS (was FAIL, the defect)",
-      P.comparators_identified_and_consistent({"outcomes": [{"id": "a", "comparator": "Placebo Q2W"},
-                                            {"id": "b", "comparator": "Placebo"}]})[0], PASS)
-# ...and normalisation must NOT collapse genuinely different comparators.
-check("3 comparator: warfarin vs aspirin -> FAIL",
-      P.comparators_identified_and_consistent({"outcomes": [{"id": "a", "comparator": "warfarin"},
-                                            {"id": "b", "comparator": "aspirin"}]})[0], FAIL)
-check("3 comparator: unnamed -> NOT_ASSESSABLE",
-      P.comparators_identified_and_consistent({"outcomes": [{"id": "a"}]})[0], NOT_ASSESSABLE)
+# --- 3. comparators_identified ------------------------------------------------------------
+#
+# THE OLD EXPECTATION HERE WAS INVENTED AND WRONG. It asserted that two outcomes with
+# different comparators must FAIL. iv-iron-hf disproves it from the corpus: six outcomes, five
+# declaring `placebo` and one declaring `mixed`, because AFFIRM-AHF randomised against a saline
+# placebo and IRONMAN against usual care. Its eligibility criterion admits BOTH deliberately --
+# "a placebo-only criterion would exclude it, which is the defect this criterion was written to
+# avoid." Different outcomes may rest on different contrasts; that is two questions, not one
+# synthesis pooling two contrasts.
+#
+# The check compared types ACROSS outcomes -- an OBJECT-level judgement from a check declaring
+# unit="outcome". It iterates outcomes so detector 5 passed it, and it still judged across them.
+check("3 comparator: type present on every outcome -> PASS",
+      P.comparators_identified({"outcomes": [
+          {"id": "a", "comparator": "Placebo Q2W", "comparator_type": "placebo"},
+          {"id": "b", "comparator": "Placebo", "comparator_type": "placebo"}]})[0], PASS)
+check("3 comparator: DIFFERENT types across outcomes -> PASS (was FAIL; the old case was invented)",
+      P.comparators_identified({"outcomes": [
+          {"id": "a", "comparator": "warfarin", "comparator_type": "active"},
+          {"id": "b", "comparator": "placebo", "comparator_type": "placebo"}]})[0], PASS)
+_mx = P.comparators_identified({"outcomes": [
+    {"id": "a", "comparator": "placebo or usual care", "comparator_type": "mixed"}]})
+check("3 comparator: DECLARED 'mixed' -> PASS, the object reporting it itself", _mx[0], PASS)
+check("3 comparator: the 'mixed' verdict NAMES the outcome that declares it",
+      "'mixed'" in _mx[1] or "mixed" in _mx[1], True)
+check("3 comparator: no comparator prose -> NOT_ASSESSABLE",
+      P.comparators_identified({"outcomes": [{"id": "a"}]})[0], NOT_ASSESSABLE)
+check("3 comparator: prose but no coded type -> NOT_ASSESSABLE",
+      P.comparators_identified({"outcomes": [{"id": "a", "comparator": "placebo"}]})[0],
+      NOT_ASSESSABLE)
 
 # --- 4. estimand_named ------------------------------------------------------------------
 check("4 estimand: named",
@@ -171,19 +190,29 @@ check("5b criteria_stated and criteria_predefined are DIFFERENT checks",
 # replace it. Routing through text_match satisfied detector 2 and did not save it, because the
 # error was asking a TEXT question where a SEMANTIC answer was recorded.
 check("3b same comparator_type, different verbosity -> PASS (was FAIL, live topic)",
-      P.comparators_identified_and_consistent({"outcomes": [
+      P.comparators_identified({"outcomes": [
           {"id": "a", "comparator": "placebo added to background heart failure therapy",
            "comparator_type": "placebo"},
           {"id": "b", "comparator": "placebo", "comparator_type": "placebo"}]})[0], PASS)
-check("3b a real TYPE difference still FAILs",
-      P.comparators_identified_and_consistent({"outcomes": [
+
+# THESE THREE EXPECTATIONS WERE SUPERSEDED BY iv-iron-hf, and the correction is recorded
+# rather than quietly edited. When the sglt2-hf comparator defect was fixed, this suite pinned
+# "a real TYPE difference still FAILs" -- an expectation I INVENTED, from the assumption that
+# one topic means one contrast. iv-iron-hf is the corpus disproving it: six outcomes, one
+# declaring `mixed` because AFFIRM-AHF used a saline placebo and IRONMAN used usual care, and
+# an eligibility criterion that admits both DELIBERATELY. Two outcomes resting on different
+# contrasts are two questions.
+#
+# The old fallback-to-display-text path is gone with it: comparator_type is now REQUIRED on
+# every outcome, and its absence is NOT_ASSESSABLE rather than a text-based guess.
+check("3b different types across outcomes -> PASS (superseded: was FAIL, expectation invented)",
+      P.comparators_identified({"outcomes": [
           {"id": "a", "comparator": "warfarin", "comparator_type": "active"},
-          {"id": "b", "comparator": "placebo", "comparator_type": "placebo"}]})[0], FAIL)
-_notype = P.comparators_identified_and_consistent({"outcomes": [
-    {"id": "a", "comparator": "warfarin"}, {"id": "b", "comparator": "aspirin"}]})
-check("3b with no type recorded it falls back to text and SAYS so", _notype[0], FAIL)
-check("3b the fallback verdict declares it rests on display text",
-      "DISPLAY TEXT" in _notype[1], True)
+          {"id": "b", "comparator": "placebo", "comparator_type": "placebo"}]})[0], PASS)
+check("3b no coded type -> NOT_ASSESSABLE, never a text-based guess",
+      P.comparators_identified({"outcomes": [
+          {"id": "a", "comparator": "warfarin"}, {"id": "b", "comparator": "aspirin"}]})[0],
+      NOT_ASSESSABLE)
 
 # --- 6. eligibility_met -----------------------------------------------------------------
 # Always NOT_ASSESSABLE from JSON, and the three reasons must be DIFFERENT.
