@@ -1,0 +1,644 @@
+#!/usr/bin/env python3
+"""BUILD THE SIX REMAINING COLCHICINE READINGS -- objects and pages.
+
+The colchicine P21 decision split 137 screened registrations into SEVEN readings. `CORONARY` was
+built as `colchicine-cvd-coronary`. These are the other six.
+
+THE FINDING THAT SHAPES ALL OF THEM, and it is not an estimand finding:
+
+    ASCVD_MIXED  5 eligible, 0 with posted results
+    CEREBRO      9 eligible, 0 with posted results
+    ICH          4 eligible, 0 with posted results
+    PAD          3 eligible, 0 with posted results
+    PERICARD     5 eligible, 0 with posted results
+    PERIPROC    26 eligible, 5 with posted results
+
+FIVE OF THE SIX HAVE NO TRIAL THAT HAS REPORTED ANYTHING TO THE REGISTRY. Those readings do not
+publish an estimate because THE EVIDENCE DOES NOT YET EXIST THERE -- not because the trials
+disagree about an estimand. Saying "not poolable" of a reading whose trials have simply not
+reported would be a different and false claim, so each page states which of the two it is.
+
+AND "NO RESULTS POSTED" IS NOT "NO RESULTS". 53 of the 137 registrations are
+ELIGIBLE_COMPLETED_NO_RESULTS_POSTED -- completed, with nothing posted to ClinicalTrials.gov. A
+completed trial very often reports in a journal and never back-fills the registry. The PubMed
+limb for these readings HAS NOT BEEN SCREENED (523 records stand unscreened), so publication
+status here is UNKNOWN, not zero. Every page says so.
+
+    ABSENT IS NOT ZERO. A registry with no posted result is silent, and silence is not a finding.
+
+USAGE
+    python scripts/build_colchicine_readings_2026_08_19.py [--apply] [--selftest]
+"""
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import ctgov_transport as X                                             # noqa: E402
+
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+SCREEN = os.path.join(EV, "colchicine_split_screening.json")
+OUT = os.path.join(EV, "colchicine_readings_build.json")
+
+READINGS = {
+    "PERIPROC": {
+        "topic": "colchicine-periprocedural",
+        "page": "COLCHICINE_PERIPROCEDURAL_REVIEW.html",
+        "title": "Colchicine around cardiac procedures",
+        "question": ("In adults undergoing a cardiac procedure, does peri-procedural colchicine "
+                     "reduce the complication each trial registered as its primary outcome, "
+                     "against the comparator that trial randomised?"),
+        "own": ("A drug given around a procedure to prevent a complication OF that procedure is "
+                "not the same question as a drug given for years to prevent atherosclerotic "
+                "events. The exposure lasts days and the outcome is procedural."),
+    },
+    "PERICARD": {
+        "topic": "colchicine-pericarditis",
+        "page": "COLCHICINE_PERICARDITIS_REVIEW.html",
+        "title": "Colchicine for pericarditis",
+        "question": ("In adults with acute or recurrent pericarditis, does colchicine reduce "
+                     "recurrence against the comparator each trial randomised?"),
+        "own": ("Pericarditis is an inflammatory disease of the pericardium, not an "
+                "atherosclerotic event. Colchicine's established role here long predates its "
+                "cardiovascular-prevention trials."),
+    },
+    "ICH": {
+        "topic": "colchicine-intracerebral-haemorrhage",
+        "page": "COLCHICINE_ICH_REVIEW.html",
+        "title": "Colchicine after intracerebral haemorrhage",
+        "question": ("In adults after intracerebral haemorrhage, does colchicine alter the "
+                     "outcome each trial registered, against the comparator it randomised?"),
+        "own": ("Intracerebral haemorrhage is a BLEEDING event. Grouping it with ischaemic "
+                "prevention would put a haemorrhagic population into a review whose other "
+                "trials are preventing thrombosis."),
+    },
+    "CEREBRO": {
+        "topic": "colchicine-stroke-prevention",
+        "page": "COLCHICINE_STROKE_REVIEW.html",
+        "title": "Colchicine for stroke prevention",
+        "question": ("In adults with cerebrovascular disease, does colchicine reduce recurrent "
+                     "stroke or vascular events against the comparator each trial randomised?"),
+        "own": ("A stroke-prevention population is recruited on cerebrovascular disease, and "
+                "its primary endpoints count cerebral events that coronary trials do not."),
+    },
+    "PAD": {
+        "topic": "colchicine-peripheral-arterial",
+        "page": "COLCHICINE_PAD_REVIEW.html",
+        "title": "Colchicine in peripheral arterial disease",
+        "question": ("In adults with peripheral arterial disease, does colchicine alter the "
+                     "outcome each trial registered, against the comparator it randomised?"),
+        "own": ("Peripheral arterial disease is recruited on limb vasculature and its endpoints "
+                "commonly include limb events that no coronary trial counts."),
+    },
+    "ASCVD_MIXED": {
+        "topic": "colchicine-mixed-ascvd",
+        "page": "COLCHICINE_MIXED_ASCVD_REVIEW.html",
+        "title": "Colchicine in mixed atherosclerotic populations",
+        "question": ("In adults with atherosclerotic disease not confined to one arterial bed, "
+                     "does colchicine reduce cardiovascular events against the comparator each "
+                     "trial randomised?"),
+        "own": ("These trials recruit ACROSS arterial beds rather than within one, so their "
+                "populations are not those of the coronary, cerebrovascular or peripheral "
+                "readings and their results cannot be assigned to any of them."),
+    },
+}
+
+PLACEBO = ("placebo",)
+USUAL = ("usual care", "standard care", "standard of care", "no treatment", "control",
+         "no colchicine")
+ACTIVE = ("aspirin", "ibuprofen", "indometh", "corticosteroid", "prednis", "nsaid",
+          "rivaroxaban", "amiodarone", "statin", "atorvastatin", "rosuvastatin")
+
+BLEED = ("bleed", "haemorrhag", "hemorrhag")
+INFLAM = ("pericarditis", "recurrence", "atrial fibrillation", "mace", "myocardial",
+          "stroke", "cardiovascular", "infarction", "revascular")
+
+
+def comparator_family(label):
+    lo = (label or "").lower()
+    for fam, terms in (("PLACEBO", PLACEBO), ("USUAL_CARE_OR_NO_TREATMENT", USUAL),
+                       ("ACTIVE_COMPARATOR", ACTIVE)):
+        for t in terms:
+            if t in lo:
+                return fam
+    return "UNCLASSIFIED"
+
+
+def norm(t):
+    return " ".join((t or "").lower().split())
+
+
+def read_registration(nct):
+    st, s, detail = X.fetch_raw(nct, fields="protocolSection")
+    if st != X.OK:
+        return {"nct": nct, "state": "UNREACHABLE", "why": str(detail)[:160]}
+    ps = s.get("protocolSection") or {}
+    idm = ps.get("identificationModule") or {}
+    om = ps.get("outcomesModule") or {}
+    arms = [a.get("label") or "" for a in
+            ((ps.get("armsInterventionsModule") or {}).get("armGroups") or [])]
+    prim = om.get("primaryOutcomes") or []
+    row = {
+        "nct": nct, "state": "READ",
+        "acronym_the_registration_declares": idm.get("acronym"),
+        "brief_title": (idm.get("briefTitle") or "")[:150],
+        "enrollment": ((ps.get("designModule") or {}).get("enrollmentInfo") or {}).get("count"),
+        "arm_labels_as_the_registry_lists_them": arms,
+        "comparator_families_present": sorted(
+            {comparator_family(a) for a in arms} - {"UNCLASSIFIED"}),
+        "registered_primary_title": (prim[0].get("measure") if prim else None),
+        "registered_primary_description_verbatim": (
+            (prim[0].get("description") or "")[:700] if prim else None),
+        "registered_primaries": [p.get("measure") for p in prim],
+        "registered_secondaries": [p.get("measure") for p in (om.get("secondaryOutcomes") or [])],
+        "registered_other_outcomes": [p.get("measure") for p in (om.get("otherOutcomes") or [])],
+        "all_ranks_read_utc": "2026-08-19",
+        "ranks_read": 3,
+        "source_field": "protocolSection.outcomesModule (all ranks)",
+        "source_url": "https://clinicaltrials.gov/study/%s" % nct,
+        "pmid": None,
+        "pmid_state": ("NOT RESOLVED. scripts/resolve_primary_publications.py is the route and "
+                       "has not been run for this topic. Reported unresolved, never "
+                       "approximated."),
+    }
+    return row
+
+
+def fuses(row):
+    """P45, TITLE ESTABLISHES / description only confirms -- the RE-COVER rule."""
+    title = norm(row.get("registered_primary_title"))
+    desc = norm(row.get("registered_primary_description_verbatim"))
+    tb, ti = (any(t in title for t in BLEED), any(t in title for t in INFLAM))
+    db, di = (any(t in desc for t in BLEED), any(t in desc for t in INFLAM))
+    d = {"title_names_bleeding": tb, "title_names_the_efficacy_construct": ti}
+    if tb and ti:
+        d["established_by"] = "THE REGISTERED TITLE ITSELF"
+        return True, d
+    if db and di:
+        d["needs_human_read"] = True
+        d["established_by"] = ("NOT_ESTABLISHED -- the description mentions both, the TITLE "
+                               "fuses neither. A mention is not a component declaration.")
+    return False, d
+
+
+def assess(name, rows, reported):
+    """The three tests, plus the state that matters more here: has anything REPORTED at all."""
+    read = [r for r in rows if r["state"] == "READ"]
+    if len(reported) < 2:
+        return {
+            "verdict": "NO_ESTIMATE_POSSIBLE_NOTHING_HAS_REPORTED",
+            "k_eligible": len(read), "k_with_posted_results": len(reported),
+            "why": ("%d of %d eligible trials have posted results to ClinicalTrials.gov. Two "
+                    "are needed before any pool can exist, so THIS IS NOT A REFUSAL TO POOL -- "
+                    "there is nothing yet to pool. The distinction matters: saying these trials "
+                    "do not agree on an estimand would be a claim about them that has not been "
+                    "tested." % (len(reported), len(read))),
+            "and_absent_is_not_zero": (
+                "NO RESULTS POSTED IS NOT NO RESULTS. A completed trial often reports in a "
+                "journal and never back-fills the registry, and the PubMed limb for this "
+                "reading HAS NOT BEEN SCREENED -- 523 records stand unscreened. Publication "
+                "status here is UNKNOWN, not zero."),
+            "failing_limbs": [], "all_failing_limbs_reported": True,
+        }
+
+    judged = {r["nct"]: fuses(r) for r in read}
+    fused = [(n, d) for n, (ok, d) in judged.items() if ok]
+    needs = {n: d for n, (ok, d) in judged.items() if not ok and d.get("needs_human_read")}
+    fams = {}
+    for r in read:
+        for f in r["comparator_families_present"]:
+            fams.setdefault(f, []).append(r["nct"])
+    titles = {r["nct"]: r["registered_primary_title"] for r in read}
+    distinct = len({norm(t) for t in titles.values() if norm(t)})
+
+    fails = []
+    if fused:
+        fails.append({"property": "P45",
+                      "finding": ("%d trial(s) register a primary whose TITLE fuses a bleeding "
+                                  "component with the efficacy construct." % len(fused)),
+                      "trials": [n for n, _ in fused]})
+    if len(fams) > 1:
+        fails.append({"property": "P38",
+                      "finding": ("The reading holds %d DIFFERENT COMPARATOR FAMILIES: %s. A "
+                                  "shared estimand would not make these poolable."
+                                  % (len(fams), ", ".join(sorted(fams)))),
+                      "families": fams})
+    if distinct > 1:
+        fails.append({"property": "P37",
+                      "finding": ("%d DISTINCT registered-primary titles across %d trials, "
+                                  "compared on their verbatim text." % (distinct, len(read))),
+                      "titles": titles})
+    return {
+        "verdict": "POOL_NOT_ADMISSIBLE" if fails else "NO_BARRIER_FOUND_BY_THESE_THREE_TESTS",
+        "k_eligible": len(read), "k_with_posted_results": len(reported),
+        "failing_limbs": fails, "all_failing_limbs_reported": True,
+        "endpoints_needing_a_human_read": needs,
+        "note_if_clean": (None if fails else
+                          "These three tests found no barrier. That is NOT a finding that the "
+                          "trials pool: no estimate is computed here."),
+    }
+
+
+def shared_at_any_rank(rows, reported):
+    seen = {}
+    by = {r["nct"]: r for r in rows}
+    for n in reported:
+        r = by.get(n) or {}
+        if r.get("state") != "READ":
+            continue
+        for k in ("registered_primaries", "registered_secondaries",
+                  "registered_other_outcomes"):
+            for t in r.get(k) or []:
+                if norm(t):
+                    seen.setdefault(norm(t), {})[n] = k.replace("registered_", "")
+    return {t: v for t, v in seen.items() if len(v) >= 2}
+
+
+def build_object(reading, spec, rows, reported, scr, verdict, shared):
+    return {
+        "app_id": spec["topic"],
+        "schema_version": "2-authored-from-source",
+        "build_mode": "AUTHORED",
+        "built": "2026-08-19T00:00Z",
+        "title": spec["title"],
+        "question": spec["question"],
+        "why_this_is_its_own_question": spec["own"],
+        "split_from": {
+            "parent": "colchicine-cvd-review",
+            "reading": reading,
+            "decision": scr.get("decision_document"),
+            "why": ("The colchicine P21 decision split 137 screened registrations into seven "
+                    "readings. This is one of them; choosing a single reading would have "
+                    "discarded the others without saying so."),
+        },
+        "inputs": {"trials": rows},
+        "k_eligible": len([r for r in rows if r["state"] == "READ"]),
+        "k_with_posted_results": len(reported),
+        "screening": {
+            "surfaced": scr["surfaced_registrations"],
+            "screened": scr["surfaced_registrations"],
+            "unscreened_remainder": scr["k_unscreened_remainder"],
+            "record": "evidence/2026-08-19-batch1/colchicine_split_screening.json",
+            "precedence": scr.get("precedence"),
+            "registries_and_limbs_not_searched": (
+                "The PubMed limb for this reading HAS NOT BEEN SCREENED -- 523 records stand "
+                "unscreened at evidence/2026-08-19-batch1/colchicine_pubmed_523.json. ANZCTR "
+                "was never searched, and LoDoCo2 is registered there. Named as not searched "
+                "rather than implied complete."),
+        },
+        "outcomes": [{
+            "id": "primary",
+            "name": "The registered primary of each trial, read verbatim",
+            "definition": ("NOT ONE DEFINITION. Recorded per trial on this object and not "
+                           "reduced to a common quantity here."),
+            "measure": None,
+            "measure_note": "This topic publishes no estimate.",
+            "type": "primary",
+        }],
+        "results": {"by_outcome": {"primary": {
+            "k": len([r for r in rows if r["state"] == "READ"]),
+            "poolable": False,
+            "poolable_reason": verdict.get("why") or " ".join(
+                "[%s] %s" % (f["property"], f["finding"])
+                for f in verdict.get("failing_limbs") or []),
+            "estimand_established": False,
+            "estimand_screen_verdict": verdict["verdict"],
+            "failing_limbs": verdict.get("failing_limbs") or [],
+            "all_failing_limbs_reported": True,
+            "endpoints_needing_a_human_read": verdict.get("endpoints_needing_a_human_read") or {},
+            "k_with_posted_results": len(reported),
+            "absent_is_not_zero": verdict.get("and_absent_is_not_zero"),
+            "the_withholding_question_asked_at_every_rank": {
+                "why": "A refusal on the primary alone is a withholding (P17).",
+                "matching": ("EXACT normalised title -- comparing endpoints by looser name "
+                             "matching is the error P37 names. Therefore a LOWER BOUND."),
+                "n_endpoints_shared_at_any_rank": len(shared),
+                "shared": [{"title": t, "rank_in_each_trial": w}
+                           for t, w in sorted(shared.items())][:30],
+                "among_trials_with_posted_results_only": sorted(reported),
+                "state": ("NOT_ASSESSABLE_FEWER_THAN_TWO_HAVE_REPORTED" if len(reported) < 2
+                          else ("CANDIDATES_FOUND" if shared else "NOTHING_SHARED")),
+            },
+            "pooled": {
+                "measure": None, "point": None, "ci_low": None, "ci_high": None,
+                "ci_level": 95, "scale": "log", "absent": True,
+                "absent_reason": (verdict.get("why") or "") + " AUTHORITY: MECIR Box 10.10.a "
+                "C62, and Handbook 6.5 section 10.10.3, 'A systematic review need not contain "
+                "any meta-analyses.'",
+            },
+            "what_this_verdict_does_not_establish": (
+                "NOT that any trial here is poor. NOT that colchicine is ineffective in this "
+                "population. NOT that no poolable question exists -- most trials in this "
+                "reading have simply not reported yet, and the literature limb is unscreened."),
+        }}},
+        "sources": {
+            "screening": "evidence/2026-08-19-batch1/colchicine_split_screening.json",
+            "build": "evidence/2026-08-19-batch1/colchicine_readings_build.json",
+        },
+        "verification_basis": {
+            "what_verifies_this_object": ("ClinicalTrials.gov protocol records read 2026-08-19 "
+                                          "at every registered rank."),
+            "what_is_not_claimed": ("That any event count was checked against a publication. No "
+                                    "counts are carried, no estimate is computed, and primary "
+                                    "publications are NOT resolved for this topic."),
+        },
+        "source_links_enforced": True,
+    }
+
+
+CSS = """
+ :root{color-scheme:light dark;--fg:#111;--bg:#fff;--mut:#555;--line:#d8d8d8;--warn:#8a4b00}
+ @media (prefers-color-scheme:dark){:root{--fg:#eee;--bg:#111;--mut:#aaa;--line:#333;
+   --warn:#e2a45c}}
+ *{box-sizing:border-box}
+ body{font:16px/1.62 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;max-width:56rem;
+      margin:0 auto;padding:2.5rem 1.25rem 5rem;background:var(--bg);color:var(--fg)}
+ h1{font-size:1.5rem;line-height:1.28;margin:.4rem 0 .2rem}
+ h2{font-size:1.05rem;margin:2.4rem 0 .6rem;padding-bottom:.3rem;
+    border-bottom:1px solid var(--line)}
+ .tag{display:inline-block;font:600 .7rem/1 system-ui;letter-spacing:.09em;
+      text-transform:uppercase;padding:.4rem .6rem;border:1px solid currentColor;
+      border-radius:.25rem;opacity:.8;color:var(--warn)}
+ .q{font-size:1.06rem;margin:1rem 0;padding:1rem 1.1rem;border-left:3px solid currentColor}
+ .sub{color:var(--mut);font-size:.94rem}
+ .wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:.8rem 0}
+ table{border-collapse:collapse;width:100%;min-width:44rem;font-size:.9rem}
+ th,td{text-align:left;padding:.5rem .6rem;border-bottom:1px solid var(--line);
+       vertical-align:top}
+ th{font-weight:600;white-space:nowrap}
+ td.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+ .why{margin:.9rem 0;padding:.85rem 1rem;border:1px solid var(--line);border-radius:.3rem}
+ a.go{display:inline-block;margin:.4rem .6rem .4rem 0;padding:.6rem 1rem;
+      border:1px solid currentColor;border-radius:.3rem;text-decoration:none;font-weight:600}
+ footer{margin-top:3rem;padding-top:1rem;border-top:1px solid var(--line);
+        color:var(--mut);font-size:.86rem}
+ code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.9em}
+"""
+
+
+def esc(s):
+    return (str(s if s is not None else "")
+            .replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+            .replace('"', "&quot;"))
+
+
+def num(v):
+    return "{:,}".format(v) if isinstance(v, int) else "&mdash;"
+
+
+def rows_html(o, disp):
+    out = []
+    for t in o["inputs"]["trials"]:
+        if t["state"] != "READ":
+            out.append("<tr><td><code>%s</code></td><td colspan='5'>%s &mdash; %s</td></tr>"
+                       % (esc(t["nct"]), esc(t["state"]), esc(t.get("why"))))
+            continue
+        d = disp.get(t["nct"], "")
+        out.append(
+            "<tr><td><code>%s</code></td><td>%s</td><td class='n'>%s</td><td>%s</td>"
+            "<td>%s</td><td>%s</td></tr>"
+            % (esc(t["nct"]), esc(t.get("acronym_the_registration_declares") or ""),
+               num(t.get("enrollment")),
+               ", ".join(t.get("comparator_families_present") or []) or "&mdash;",
+               esc(t.get("registered_primary_title") or "(none registered)"),
+               "<b>reported</b>" if d == "ELIGIBLE_WITH_RESULTS" else
+               esc(d.replace("ELIGIBLE_", "").replace("_", " ").lower())))
+    return "\n".join(out)
+
+
+PAGE = """<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{title}</title>
+<meta name="rapidmeta:page-state" content="LIVE">
+<meta name="rapidmeta:pooled-estimate" content="NONE">
+<meta name="rapidmeta:split-from" content="colchicine-cvd-review">
+<meta name="description" content="{desc}">
+<style>{css}</style>
+</head><body>
+<span class="tag">No pooled estimate</span>
+<h1>{title}</h1>
+<p class="sub">One of seven reviews created by splitting <code>colchicine-cvd-review</code> on
+its 137 screened registrations. {own}</p>
+
+<div class="q"><strong>Question.</strong> {question}</div>
+
+<h2>Why this review publishes no pooled estimate</h2>
+<div class="why">{reason}</div>
+{absentnote}
+{limbs}
+
+<h2>The {k} eligible trial(s), of which {kr} have posted results</h2>
+<div class="wrap"><table>
+<thead><tr><th>Registration</th><th>Acronym</th><th>Enrolment</th><th>Comparator</th>
+<th>Registered primary</th><th>Results</th></tr></thead>
+<tbody>
+{rows}
+</tbody></table></div>
+
+<h2>What was and was not searched</h2>
+<ul>
+ <li><b>{surfaced}</b> registrations surfaced on ClinicalTrials.gov and all <b>{surfaced}</b>
+     screened; <b>{rem}</b> left unscreened.</li>
+ <li>Reading precedence: <code>{prec}</code></li>
+ <li><b>{notsearched}</b></li>
+</ul>
+
+<h2>What this review does not establish</h2>
+<p>{notestab}</p>
+
+<h2>The other reviews from this split</h2>
+<p>{sibs}</p>
+
+<footer>
+Built 2026-08-19 by <code>scripts/build_colchicine_readings_2026_08_19.py</code> from
+<code>ssot/{topic}/{topic}.json</code>. Every figure is read from that object; none is typed
+into the page. Primary publications are <b>not resolved</b> for this topic and are reported as
+unresolved rather than approximated.
+</footer>
+</body></html>
+"""
+
+
+def page_html(spec, o, disp, siblings):
+    pr = o["results"]["by_outcome"]["primary"]
+    limbs = "".join("<div class='why'><b>%s</b> &mdash; %s</div>"
+                    % (esc(f["property"]), esc(f["finding"]))
+                    for f in pr["failing_limbs"])
+    nothing = pr["estimand_screen_verdict"] == "NO_ESTIMATE_POSSIBLE_NOTHING_HAS_REPORTED"
+    sibs = "".join('<a class="go" href="%s">%s &rarr;</a>' % (p, esc(t))
+                   for p, t in siblings)
+    return PAGE.format(
+        css=CSS, title=esc(o["title"]), desc=esc(o["question"][:150]),
+        own=esc(o["why_this_is_its_own_question"]), question=esc(o["question"]),
+        reason=esc(pr["poolable_reason"]),
+        absentnote=(("<div class='why'><b>Absent is not zero.</b> %s</div>"
+                     % esc(pr["absent_is_not_zero"])) if nothing else ""),
+        limbs=limbs, k=pr["k"], kr=pr["k_with_posted_results"],
+        rows=rows_html(o, disp),
+        surfaced=o["screening"]["surfaced"], rem=o["screening"]["unscreened_remainder"],
+        prec=esc(o["screening"]["precedence"]),
+        notsearched=esc(o["screening"]["registries_and_limbs_not_searched"]),
+        notestab=esc(pr["what_this_verdict_does_not_establish"]),
+        sibs=sibs, topic=esc(spec["topic"]))
+
+
+def run(apply_it):
+    with io.open(SCREEN, "r", encoding="utf-8") as fh:
+        scr = json.load(fh)
+    disp = {r["nct"]: r["disposition"] for r in scr["rows"]}
+
+    objs, record = {}, {"built_utc": "2026-08-19", "readings": {}}
+    for reading, spec in READINGS.items():
+        ncts = sorted(r["nct"] for r in scr["rows"]
+                      if r["reading"] == reading and r["disposition"].startswith("ELIGIBLE"))
+        rows = [read_registration(n) for n in ncts]
+        reported = [n for n in ncts if disp.get(n) == "ELIGIBLE_WITH_RESULTS"]
+        v = assess(reading, rows, reported)
+        shared = shared_at_any_rank(rows, reported)
+        o = build_object(reading, spec, rows, reported, scr, v, shared)
+        objs[spec["topic"]] = (spec, o)
+        record["readings"][reading] = {
+            "topic": spec["topic"], "verdict": v["verdict"], "k_eligible": v["k_eligible"],
+            "k_with_posted_results": v["k_with_posted_results"],
+            "n_shared_at_any_rank": len(shared)}
+        print("  %-14s %-38s k=%-3d reported=%-2d shared=%-2d  %s"
+              % (reading, spec["topic"], v["k_eligible"], v["k_with_posted_results"],
+                 len(shared), v["verdict"]))
+
+    sib_all = [(READINGS[r]["page"], READINGS[r]["title"]) for r in READINGS]
+    pages = {}
+    for topic, (spec, o) in objs.items():
+        sibs = [(p, t) for p, t in sib_all if p != spec["page"]]
+        pages[spec["page"]] = page_html(spec, o, disp, sibs)
+
+    # THE OVERWRITE GUARD. A builder must never write over a page it did not create.
+    clash = [p for p in pages if os.path.exists(os.path.join(REPO, p))]
+    if clash:
+        print("\nREFUSED -- these pages already exist and would be OVERWRITTEN:")
+        for c in clash:
+            print("   %-46s %d bytes" % (c, os.path.getsize(os.path.join(REPO, c))))
+        return 1
+
+    bad = []
+    for p, h in pages.items():
+        if "No pooled estimate" not in h:
+            bad.append("%s: does not say so where a reader sees it" % p)
+        if not re.search(r"NCT\d{8}", h):
+            bad.append("%s: names no trial" % p)
+    if bad:
+        print("\nREFUSED -- would fail the regression check: %s" % bad)
+        return 1
+    print("\n  %d page(s) satisfy the no-pool review definition" % len(pages))
+
+    if not apply_it:
+        print("\nDRY RUN -- nothing written. Re-run with --apply.")
+        return 0
+
+    for topic, (spec, o) in objs.items():
+        d = os.path.join(REPO, "ssot", topic)
+        if not os.path.isdir(d):
+            os.makedirs(d)
+        with io.open(os.path.join(d, topic + ".json"), "w", encoding="utf-8",
+                     newline="") as fh:
+            fh.write(json.dumps(o, indent=1, ensure_ascii=False))
+    for p, h in pages.items():
+        with io.open(os.path.join(REPO, p), "w", encoding="utf-8", newline="") as fh:
+            fh.write(h)
+    pm = os.path.join(REPO, "ssot", "PAGE_MAP.json")
+    with io.open(pm, "r", encoding="utf-8") as fh:
+        pmap = json.load(fh)
+    for topic, (spec, o) in objs.items():
+        pmap[spec["page"]] = "ssot/%s/%s.json" % (topic, topic)
+    with io.open(pm, "w", encoding="utf-8", newline="") as fh:
+        fh.write(json.dumps(pmap, indent=1, ensure_ascii=False, sort_keys=True))
+    with io.open(OUT, "w", encoding="utf-8", newline="") as fh:
+        fh.write(json.dumps(record, indent=1, ensure_ascii=False))
+    print("\nwrote %d object(s) and %d page(s); PAGE_MAP updated" % (len(objs), len(pages)))
+    return 0
+
+
+def selftest():
+    fails = []
+
+    def ck(n, got, want):
+        ok = got == want
+        print("  %-64s %s  %r" % (n, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(n)
+
+    print("1. COMPARATOR FAMILY IS READ FROM THE LABEL:")
+    ck("placebo", comparator_family("Placebo"), "PLACEBO")
+    ck("usual care", comparator_family("Usual care"), "USUAL_CARE_OR_NO_TREATMENT")
+    ck("colchicine is not a comparator family",
+       comparator_family("Colchicine 0.5 mg"), "UNCLASSIFIED")
+
+    print("\n2. FEWER THAN TWO REPORTED IS 'NOTHING HAS REPORTED', NOT A REFUSAL TO POOL:")
+    v = assess("X", [{"nct": "A", "state": "READ", "comparator_families_present": ["PLACEBO"],
+                      "registered_primary_title": "t",
+                      "registered_primary_description_verbatim": ""}], [])
+    ck("verdict", v["verdict"], "NO_ESTIMATE_POSSIBLE_NOTHING_HAS_REPORTED")
+    ck("and it says absent is not zero",
+       "not no results" in v["and_absent_is_not_zero"].lower(), True)
+    ck("...and names the unscreened literature limb",
+       "pubmed" in v["and_absent_is_not_zero"].lower(), True)
+
+    print("\n3. WITH TWO REPORTED, THE THREE TESTS RUN AND CAN FIRE:")
+    v = assess("X", [
+        {"nct": "A", "state": "READ", "comparator_families_present": ["PLACEBO"],
+         "registered_primary_title": "recurrence",
+         "registered_primary_description_verbatim": ""},
+        {"nct": "B", "state": "READ", "comparator_families_present": ["ACTIVE_COMPARATOR"],
+         "registered_primary_title": "recurrence",
+         "registered_primary_description_verbatim": ""},
+    ], ["A", "B"])
+    ck("P38 fires on mixed comparators",
+       [f["property"] for f in v["failing_limbs"]], ["P38"])
+    ck("and P37 stays silent on identical titles",
+       "P37" in [f["property"] for f in v["failing_limbs"]], False)
+
+    print("\n4. P45 TITLE-ESTABLISHES, description only confirms:")
+    ok, d = fuses({"registered_primary_title":
+                   "Composite of pericarditis recurrence or bleeding",
+                   "registered_primary_description_verbatim": ""})
+    ck("fires on a fused TITLE", ok, True)
+    # THE ASSERTION WAS WRONG HERE, NOT THE GUARD -- stated so a reader does not conclude the
+    # check was loosened. The first fixture's description mentioned bleeding ALONE, so there was
+    # no ambiguity to flag and returning no flag was correct. NEEDS_HUMAN_READ is for the
+    # RE-COVER shape specifically: the description mentions BOTH constructs while the registered
+    # TITLE fuses neither. Both fixtures are now present and they assert different things.
+    ok2, d2 = fuses({"registered_primary_title": "Pericarditis recurrence",
+                     "registered_primary_description_verbatim":
+                     "bleeding events were adjudicated by the committee"})
+    ck("does NOT fire on an adjudication sentence", ok2, False)
+    ck("...and does NOT flag it either -- the description mentions bleeding ALONE",
+       d2.get("needs_human_read"), None)
+    ok3, d3 = fuses({"registered_primary_title": "Pericarditis recurrence",
+                     "registered_primary_description_verbatim":
+                     "recurrence of pericarditis and all bleeding events were adjudicated "
+                     "centrally"})
+    ck("the RE-COVER shape -- description names BOTH, title fuses neither", ok3, False)
+    ck("...IS flagged for a human read", d3.get("needs_human_read"), True)
+
+    print("\n5. SHARED ENDPOINTS ARE COUNTED ONLY AMONG TRIALS THAT REPORTED:")
+    rows = [{"nct": "A", "state": "READ", "registered_primaries": ["X"],
+             "registered_secondaries": ["Y"], "registered_other_outcomes": []},
+            {"nct": "B", "state": "READ", "registered_primaries": ["X"],
+             "registered_secondaries": [], "registered_other_outcomes": []}]
+    ck("both reported -> shared found", sorted(shared_at_any_rank(rows, ["A", "B"])), ["x"])
+    ck("only one reported -> nothing", shared_at_any_rank(rows, ["A"]), {})
+
+    print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    if "--selftest" in sys.argv:
+        sys.exit(selftest())
+    sys.exit(run("--apply" in sys.argv))
