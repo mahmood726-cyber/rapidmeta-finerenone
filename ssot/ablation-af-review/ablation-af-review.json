@@ -41,7 +41,29 @@
   "eligibility": "not recorded on the page this object was extracted from",
   "known_limitation": "not recorded on the page this object was extracted from",
   "records": [],
-  "excluded": []
+  "excluded": [],
+  "duplicate_screening": {
+   "performed": true,
+   "reviewers": "two_independent_model_families",
+   "reviewers_are_not_people": "The two independent screens were performed by two MODEL FAMILIES, not by two people. A reader of 'screened in duplicate' would ordinarily assume two human reviewers, so this field says what was actually done. The families are independent of each other in training and vendor, which is the property duplicate screening is for; they are not independent of the criteria, which one author wrote.",
+   "families": {
+    "codex": "openai (GPT-5)",
+    "agy": "google (Gemini 3.1 Pro)"
+   },
+   "blind": "Each seat received the same packet and the same criteria and saw neither the other's answers nor that a second seat existed.",
+   "records_read_by_both": 130,
+   "records_read_by_one_only_NOT_adjudicated": null,
+   "vocabulary": [
+    "YES",
+    "NO",
+    "UNCLEAR"
+   ],
+   "vocabulary_note": "P34 -- the gap between a code agreement rate and a disposition agreement rate measures THIS vocabulary's granularity, not the instruments. The rate is reported with the vocabulary that produced it and is NOT comparable across topics with different vocabularies.",
+   "disagreement_resolution": "68 of 130 differed and were escalated; 25 hard contradictions were hand-read. THE ADJUDICATION THEN FOUND THE QUESTION ITSELF WAS DEFECTIVE for 20 of those 25 -- trials of something done AROUND an ablation every arm receives -- so the agreement rate substantially measures the question's ambiguity rather than the trials. The remaining 43 soft disagreements are RE-ASK, not backlog.",
+   "caveat": "Reported with P28 applied: a defective question invalidates every answer it produced, AGREEMENTS FIRST. The 60 agreements are not treated as settled.",
+   "source": "evidence/2026-08-19-batch1/ablation_adjudication.json",
+   "records_agreeing": 60
+  }
  },
  "screening_names_unresolved": [],
  "eligible_but_not_contributing": {
@@ -895,5 +917,13 @@
    "estimand_named",
    "contributes_a_randomised_contrast"
   ]
+ },
+ "protocol": {
+  "prespecified": false,
+  "permanently_refused": true,
+  "why": "A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively. Writing one now and calling it prespecified would invalidate every other refusal on these pages, because a reader who caught it would be right to disbelieve all of them.",
+  "what_was_actually_done": "Eligibility criteria were derived POST HOC from the trials and the methodological authority, and the derivation is recorded element by element in `screening.eligibility_provenance` with the source of each.",
+  "authority_permitting_it": "MECIR R107 permits post-hoc eligibility criteria PROVIDED THEY ARE DECLARED AS SUCH. They are declared, here and on the page, and the page says 'derived, post hoc' in its heading.",
+  "forward_remedy": "For topics not yet built, a protocol is to be written and registered BEFORE the search is executed, so that the claim becomes true GOING FORWARD. It is never to be made true retroactively for a built topic."
  }
 }

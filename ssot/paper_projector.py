@@ -254,16 +254,73 @@ def project(obj, journal="generic", length="standard"):
                         % (ma["reference"],
                            (", version %s" % ma["version"]) if ma.get("version") else ""),
                         ["methodological_authority.reference"]))
-    # THE FOUR SENTENCES paper-studio WOULD HAVE WRITTEN FROM A DROPDOWN, REFUSED BY NAME.
-    for claim, field in (("that records were screened in duplicate by two independent reviewers",
-                          "screening.duplicate_screening"),
-                         ("that the review methods were prespecified before data collection",
-                          "protocol.prespecified"),
-                         ("that risk of bias was assessed with a named tool",
-                          "risk_of_bias.tool"),
-                         ("that certainty of evidence was graded", "grade.approach")):
-        if get(obj, field) is None:
-            s.refusals.append(("the claim %s" % claim, [field]))
+    # DUPLICATE SCREENING -- stated only in the form that is true.
+    ds = get(obj, "screening.duplicate_screening")
+    if isinstance(ds, dict) and ds.get("performed"):
+        fams = ", ".join("%s (%s)" % kv for kv in sorted((ds.get("families") or {}).items()))
+        txt = ("Records were screened in duplicate by TWO INDEPENDENT MODEL FAMILIES -- %s -- "
+               "each blind to the other's answers. %s records were read by both."
+               % (fams, ds.get("records_read_by_both")))
+        if ds.get("code_agreement_pct") is not None:
+            txt += (" Agreement was %.4g%% on the code and %.4g%% on the disposition, over the "
+                    "vocabulary recorded with the rate."
+                    % (float(ds["code_agreement_pct"]), float(ds["disposition_agreement_pct"])))
+        if ds.get("records_read_by_one_only_NOT_adjudicated"):
+            txt += (" %s records were read by ONE seat only and are reported as single-read, "
+                    "not as agreement." % ds["records_read_by_one_only_NOT_adjudicated"])
+        txt += " " + ds["reviewers_are_not_people"]
+        txt += " Disagreements: " + ds["disagreement_resolution"]
+        s.paras.append((txt, ["screening.duplicate_screening"]))
+    elif isinstance(ds, dict):
+        s.refusals.append(("the claim that records were screened in duplicate -- and this "
+                           "topic OWES one rather than merely lacking one: " + ds.get("why", ""),
+                           ["screening.duplicate_screening.performed"]))
+    else:
+        s.refusals.append(("the claim that records were screened in duplicate by two "
+                           "independent reviewers", ["screening.duplicate_screening"]))
+
+    # RISK OF BIAS -- the tool, the unit, and the default rule that keeps it honest.
+    rb = get(obj, "risk_of_bias")
+    if isinstance(rb, dict) and rb.get("tool"):
+        n = sum(len(v) for v in (rb.get("by_outcome") or {}).values())
+        s.paras.append(("Risk of bias was assessed with %s (%s), following %s. %s %d "
+                        "result-level assessments were made. %s"
+                        % (rb["tool"], rb.get("version", ""), rb.get("handbook", ""),
+                           rb.get("unit_of_assessment", ""), n, rb.get("default_rule", "")),
+                        ["risk_of_bias.tool", "risk_of_bias.by_outcome"]))
+    else:
+        s.refusals.append(("the claim that risk of bias was assessed with a named tool",
+                           ["risk_of_bias.tool"]))
+
+    # GRADE -- rated only where a pool exists.
+    gr = get(obj, "grade")
+    if isinstance(gr, dict) and gr.get("approach"):
+        rated = [o for o, v in (gr.get("by_outcome") or {}).items() if v.get("rated")]
+        notr = [o for o, v in (gr.get("by_outcome") or {}).items() if not v.get("rated")]
+        txt = ("Certainty of evidence was rated with %s, following %s. %s %d pooled outcome(s) "
+               "were rated. %s" % (gr["approach"], gr.get("handbook_chapter", ""),
+                                   gr.get("starting_point", ""), len(rated),
+                                   gr.get("not_rated_up", "")))
+        if notr:
+            txt += (" %d outcome(s) were NOT rated because their pool is declined or "
+                    "withdrawn: there is no effect estimate to rate the certainty of, and "
+                    "rating one would be certainty about a number this review refused to "
+                    "publish." % len(notr))
+        s.paras.append((txt, ["grade.approach", "grade.by_outcome"]))
+    else:
+        s.refusals.append(("the claim that certainty of evidence was graded", ["grade.approach"]))
+
+    # PRESPECIFICATION -- REFUSED PERMANENTLY, AND THE REFUSAL IS THE STATEMENT.
+    pp = get(obj, "protocol")
+    if isinstance(pp, dict) and pp.get("permanently_refused"):
+        s.refusals.append(("the claim that the review methods were prespecified before data "
+                           "collection. THIS REFUSAL IS PERMANENT AND IS NOT A GAP TO BE "
+                           "FILLED. " + pp["why"] + " " + pp["what_was_actually_done"] + " "
+                           + pp["authority_permitting_it"],
+                           ["protocol.prespecified = false (declared, not missing)"]))
+    else:
+        s.refusals.append(("the claim that the review methods were prespecified before data "
+                           "collection", ["protocol.prespecified"]))
     secs.append(s)
 
     # ---- RESULTS ----------------------------------------------------------------------
