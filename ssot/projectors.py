@@ -63,6 +63,39 @@ ABSENT_STATE = {
  "statistics": ("No statistical panel set is held in this object."),
 }
 
+# TRACK D, THIRD STATE -- PARTIALLY HELD. The two states above are NOT ENOUGH, and eleven
+# delivered pages proved it. A thin tab is emitted as "Not held in this object" FOLLOWED BY THE
+# THIN BODY IT DID CARRY, so a search panel holding an executed query but no yield table printed
+# a sentence saying "no query, date or yield can be shown" DIRECTLY ABOVE ITS OWN QUERY.
+#
+#   THE DENIAL WAS DOING REAL WORK WITH THE WRONG WORDS. It correctly explained an empty panel
+#   and incorrectly denied the part that was present. Deleting it -- which was the first
+#   attempted repair -- removed a TRUE statement about the yield in order to remove a FALSE one
+#   about the query, and left seven panels empty and unexplained. A composite claim needs a
+#   composite check, and a composite absence needs a composite sentence.
+#
+# So when a tab carries SOMETHING but not enough, the page says which part is held and which is
+# not, instead of denying the whole.
+PARTIAL_STATE = {
+ "search":   ("The executed query is held on this object and is shown below. Its YIELD is not: "
+              "the record does not carry the identifiers this query returned, so the number of "
+              "records and their disposition cannot be shown and the table below is empty for "
+              "that reason."),
+ "screen":   ("Part of the screening record is held and is shown below. The counts that would "
+              "complete it -- records identified, excluded with reasons, dual-screening -- are "
+              "not carried on this object."),
+ "extract":  ("Part of the extraction record is held and is shown below. The per-arm source "
+              "cells that would let every number be traced are not carried on this object."),
+ "analysis": ("Part of the analysis is held and is shown below. No pooled estimate is carried "
+              "for the outcomes shown."),
+ "report":   ("Part of the reporting record is held and is shown below. No GRADE certainty "
+              "rating is carried, so the certainty column is left as an em dash rather than "
+              "guessed."),
+ "protocol": ("Part of the protocol record is held and is shown below. The registration and "
+              "amendment history that would complete it are not carried on this object."),
+}
+
+
 # CONVERTED objects need their OWN absence text. The strings above explain absences
 # for AUTHORED reviews and give a REASON -- "reconciled against published syntheses
 # rather than produced by a database search". That reason is TRUE of the authored
@@ -1429,7 +1462,15 @@ def tabbed_body(canon, parts, page):
             # merged invisibly into the previous panel.
             _tbl = (ABSENT_STATE_CONVERTED
                     if (canon.get("build_mode") == "CONVERTED") else ABSENT_STATE)
-            note = _tbl.get(tid, "No content is held in this object for this section.")
+            # THREE STATES, NOT TWO. If the thin body carries something real, the page says
+            # which part is held rather than denying the whole and then printing it.
+            _carries_something = bool(re.search(r"<(?:pre|table|svg|li|dl)[ >/]", body))                 or len(re.sub(r"<[^>]+>", " ", body).strip()) > 80
+            if _carries_something and tid in PARTIAL_STATE:
+                _label = "Partially held."
+                note = PARTIAL_STATE[tid]
+            else:
+                _label = "Not held in this object."
+                note = _tbl.get(tid, "No content is held in this object for this section.")
             checked = ""
             if first is None:
                 first, checked = tid, " checked"
@@ -1438,8 +1479,8 @@ def tabbed_body(canon, parts, page):
             carry_into = " </section>" + NL + "<!--end-%s-->" % tid
             panels += (' <section class="panel" id="pn-%s">%s'
                        '<div class="absent-state" role="note">'
-                       '<strong>Not held in this object.</strong> %s</div>%s%s%s'
-                       % (tid, NL, note, NL, body, carry_into))
+                       '<strong>%s</strong> %s</div>%s%s%s'
+                       % (tid, NL, _label, note, NL, body, carry_into))
             css += (" #rt-%s:checked ~ .panels > #pn-%s{height:auto;overflow:visible}%s"
                     ' #rt-%s:checked ~ .tabnav label[for="rt-%s"]{color:#111;'
                     "background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}%s"
