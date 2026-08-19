@@ -45,6 +45,7 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P21 | **An ambiguous question is built as several reviews, never chosen between** | where a topic's question admits more than one legitimate reading, **each reading becomes its own review** with its own question, criteria, search, cascade and screening. Choosing one is a decision to withhold evidence from every reading that loses, and it leaves no trace in any object |
 | P22 | **Deliberate trial sharing is recorded on both sides** | a trial legitimately appearing in more than one topic carries, on each object, **which other topics hold it and why**. Sharing is legitimate; unrecorded sharing is not. Every page that shares states that **a corpus-level k obtained by summing per-topic k double-counts** |
 | P23 | **Recall is measured against the review's own included set** | every executed search reports how many of the trials this review includes it actually surfaced. A **design filter** (phase, status, study type) is a recall hazard: `NA` is not a phase, and enumerating phases drops every registrant who declared none. A query that misses is **recorded, not replaced** |
+| P24 | **Every disposition in a taxonomy is demonstrably reachable** | each state a screen can assign must be reached by at least one real instance in the run, or be reported as **reached zero times and why**. *A disposition that cannot be reached is not a conservative default* — it looks cautious, so a zero there invites no suspicion at all |
 
 ## Reading the remainder — the same number, opposite diagnoses
 
@@ -99,6 +100,42 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.7.0-2026-08-19
+Adds P24, and records two method lessons from the screen that produced it.
+
+**P24 — every disposition must be demonstrably reachable.** The 621-trial screen of
+`ablation-af-medical-therapy` returned `ELIGIBLE_NOT_POOLABLE: 0`. That was not a finding about
+the evidence base; the branch **could not be reached**. `ctgov_transport.fetch_raw` defaults to
+`fields="protocolSection"`, so `hasResults` is absent from every cached record and
+`not doc.get("hasResults")` was always true — every eligible trial routed to "no results yet",
+including trials that had posted results and could have been assessed.
+
+> **A disposition that cannot be reached is not a conservative default.** That is why it hides:
+> the branch looks cautious, so a zero sitting in it invites no suspicion at all. A wrong
+> *large* number gets argued with. A wrong *zero* in a careful-looking cell gets read as
+> diligence.
+
+**The tell was the zeroes, not the big number.** The same run reported `EXCLUDED: 556` and
+`NEEDS_ADJUDICATION: 0`, and 135 of those exclusions were wrong. What broke through was not the
+implausible 556 — it was **two implausible zeros sitting beside it**. A count that *should
+sometimes be non-zero and never is* says more than a count that is merely surprising, because
+the first is a statement about the instrument and the second only about the data.
+
+**A known-answer file must not smuggle in knowledge from outside the instrument's inputs.**
+The screener was told RAFT-AF must clear the intervention limb, because RAFT-AF *is*
+ablation-based — its TITLE says so. Its `armGroups` do not; they declare `Procedure: Rhythm
+control`. **The instrument was right and the expectation was contaminated by knowing the
+answer.** Second occurrence here: the placebo-naming file expected ADVANCE-3 to behave like
+ADVANCE-2 and the registry disagreed. An expected answer must be derivable from the same fields
+the rule reads, or it tests the author rather than the code.
+
+**And a hand-written vocabulary cannot be complete.** `Device: Catheter Ablation` vs
+`Drug: Drug Treatment` was excluded on the comparator limb because the term list held "drug
+therapy" and not "drug treatment". Every gap in such a list failed toward EXCLUSION — the
+withholding direction, in the most banal possible mechanism. Where a coded field exists
+(`Drug:` / `Procedure:` / `Device:` intervention types), it governs; and where the vocabulary
+simply cannot say, the verdict is **UNSETTLED, never "not found"**.
 
 ### 1.6.0-2026-08-19
 Extends P16 with its missing fourth clause, and adds P23. Both come from **a guard that was
