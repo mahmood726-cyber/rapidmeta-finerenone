@@ -15,6 +15,26 @@ This is that re-run.
 
 ---
 
+## Read the instrument the right way round
+
+> **The refusal count went up and the pages got better.**
+
+The five completed topics were re-gated to standard 1.10.0 and gained **eleven new refusals
+between them** — every one a true statement that nothing previously asked for. Anyone measuring
+progress by refusals-going-down would call this a regression, and they would be reading the
+instrument backwards.
+
+| topic | held / refusing | what it now refuses |
+|---|---|---|
+| alirocumab-lipid | 13 / 1 | P21 |
+| attr-cm-review | 11 / 3 | P21, P6, P7 |
+| bempedoic-acid-review | 10 / 4 | P21, P23, P6, P7 |
+| iv-iron-hf | 11 / 3 | P21, **P22**, P23 |
+| sglt2-hf | 10 / 4 | P21, **P22**, P23, P7 |
+
+A page that refuses a property is a page that was asked. A page that holds every property
+because nothing evaluates them is the state this standard exists to end.
+
 ## The headline
 
 **Four of five cascades moved. No included trial of any topic changed role, so no pooled

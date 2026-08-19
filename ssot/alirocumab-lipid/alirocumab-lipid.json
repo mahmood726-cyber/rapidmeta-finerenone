@@ -2348,7 +2348,7 @@
  ],
  "precondition_verdict": {
   "assessed_on": "2026-08-19",
-  "standard_version": "1.4.0-2026-08-19",
+  "standard_version": "1.10.0-2026-08-19",
   "authority": {
    "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
    "version": "6.5, 2024",
@@ -3438,7 +3438,7 @@
   }
  },
  "build_stamp": {
-  "page_standard_version": "1.4.0-2026-08-19",
+  "page_standard_version": "1.10.0-2026-08-19",
   "standard_document": "PAGE-STANDARD.md",
   "built_utc": "2026-08-19",
   "built_by": "ssot/build_to_standard.py",
@@ -3486,6 +3486,18 @@
    "P20_cascade_reconciles": {
     "state": "HELD",
     "reason": "k2_role_located=97 == k3+k4+k5, and k0_surfaced=99 == k3+k4+k5+kNA. Both checked, and every failing limb would be reported rather than the first."
+   },
+   "P21_ambiguous_question_split": {
+    "state": "REFUSING",
+    "reason": "This object records no split provenance. That is CORRECT for a topic whose question was never ambiguous and it is NOT a pass: this builder cannot tell the two apart, so the property is refused with the reason rather than held on an absence. What would settle it: a `split_provenance` block, or an explicit statement that the question admits one reading."
+   },
+   "P22_sharing_recorded": {
+    "state": "HELD",
+    "reason": "No trial of this review appears in any other object's included set. COMPUTED over the corpus, not asserted: 8 trial(s) checked against every other topic object."
+   },
+   "P23_recall_measured": {
+    "state": "HELD",
+    "reason": "All 2 recorded quer(ies) state their recall against this review's own included set: ['6/6', '6/6']."
    }
   },
   "held": [
@@ -3493,6 +3505,8 @@
    "P19_promotion_reaches_derived_blocks",
    "P1_executed_search",
    "P20_cascade_reconciles",
+   "P22_sharing_recorded",
+   "P23_recall_measured",
    "P2_k_cascade",
    "P3_inclusion_criteria",
    "P4_preconditions",
@@ -3501,7 +3515,9 @@
    "P7_published_comparison",
    "P8_registration_identity"
   ],
-  "refusing": [],
+  "refusing": [
+   "P21_ambiguous_question_split"
+  ],
   "_ratchet": "This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant."
  },
  "recovery_2026_08_19": {

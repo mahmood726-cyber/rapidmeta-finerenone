@@ -44,7 +44,7 @@ os.environ.setdefault(
 import ctgov_transport as X          # noqa: E402  (path set above)
 import topic_identity as NEW         # noqa: E402
 
-OLD_REV = "7a08bcbe1"
+OLD_REV = "0d9786b13"   # the commit before the NO_INTERVENTION fix
 SCRATCH = ("F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
            "6b629e1e-cc8c-4565-af03-e40341ee43f3/scratchpad")
 

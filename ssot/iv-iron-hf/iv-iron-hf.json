@@ -4027,7 +4027,7 @@
  },
  "precondition_verdict": {
   "assessed_on": "2026-08-19",
-  "standard_version": "1.4.0-2026-08-19",
+  "standard_version": "1.10.0-2026-08-19",
   "authority": {
    "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
    "version": "6.5, 2024",
@@ -4219,7 +4219,7 @@
   }
  },
  "build_stamp": {
-  "page_standard_version": "1.4.0-2026-08-19",
+  "page_standard_version": "1.10.0-2026-08-19",
   "standard_document": "PAGE-STANDARD.md",
   "built_utc": "2026-08-19",
   "built_by": "ssot/build_to_standard.py",
@@ -4267,6 +4267,18 @@
    "P20_cascade_reconciles": {
     "state": "HELD",
     "reason": "k2_role_located=43 == k3+k4+k5, and k0_surfaced=47 == k3+k4+k5+kNA. Both checked, and every failing limb would be reported rather than the first."
+   },
+   "P21_ambiguous_question_split": {
+    "state": "REFUSING",
+    "reason": "This object records no split provenance. That is CORRECT for a topic whose question was never ambiguous and it is NOT a pass: this builder cannot tell the two apart, so the property is refused with the reason rather than held on an absence. What would settle it: a `split_provenance` block, or an explicit statement that the question admits one reading."
+   },
+   "P22_sharing_recorded": {
+    "state": "REFUSING",
+    "reason": "3 trial(s) appear in other topics' included sets without being recorded here: {'NCT02937454': ['fcm-hf-review'], 'NCT02642562': ['fcm-hf-review'], 'NCT01453608': ['fcm-hf-review']}. Sharing is legitimate; UNRECORDED sharing is not, because a corpus-level k obtained by summing per-topic k then double-counts without saying so."
+   },
+   "P23_recall_measured": {
+    "state": "REFUSING",
+    "reason": "1 of 2 recorded quer(ies) do not state their recall against this review's own included set: ['ClinicalTrials.gov API v2 -- QUERY 1, NARROWER, AND IT MISSED TWO INCLUDED TRIALS']. A query whose recall was never measured may have lost an included trial, and A TRIAL THAT WAS NEVER SURFACED LEAVES NO TRACE IN ANY COUNT -- it cannot appear as an exclusion, a refusal or a remainder."
    }
   },
   "held": [
@@ -4282,7 +4294,11 @@
    "P7_published_comparison",
    "P8_registration_identity"
   ],
-  "refusing": [],
+  "refusing": [
+   "P21_ambiguous_question_split",
+   "P22_sharing_recorded",
+   "P23_recall_measured"
+  ],
   "_ratchet": "This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant."
  },
  "precondition_verdict_superseded": {
