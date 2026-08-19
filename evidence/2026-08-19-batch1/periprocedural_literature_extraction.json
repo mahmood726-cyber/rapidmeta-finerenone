@@ -1,0 +1,100 @@
+{
+ "extracted_utc": "2026-08-19",
+ "topic": "colchicine-periprocedural",
+ "according_to": "PubMed, retrieved 2026-08-19",
+ "what_this_enumerated_over": {
+  "targets": "the 5 trials in this reading with ELIGIBLE_WITH_RESULTS, from evidence/2026-08-19-batch1/colchicine_split_screening.json",
+  "routes_run": [
+   "ClinicalTrials.gov referencesModule, every type unfiltered",
+   "PubMed by registration identifier",
+   "PubMed article metadata for each resolved PMID"
+  ],
+  "routes_NOT_run": [
+   "publisher or journal search by trial name",
+   "grey literature and conference abstracts"
+  ]
+ },
+ "finding_1_the_three_AF_trials_do_not_measure_one_thing": {
+  "NCT01985425": {
+   "acronym": "COP-AF Pilot",
+   "publication": null,
+   "publication_state": "NO_PUBLICATION_RESOLVED -- the registration carries no reference and PubMed by registration identifier returned nothing. NOT evidence that none exists.",
+   "endpoint_definition_VERBATIM": "New atrial fibrillation that results in angina, congestive heart failure, symptomatic hypotension, or that requires treatment with a rate controlling drug, antiarrhythmic drug, or electrical cardioversion",
+   "endpoint_kind": "CONSEQUENCE-DEFINED",
+   "where": "ClinicalTrials.gov primaryOutcomes[0].description, read 2026-08-19",
+   "comparator": "Placebo Colchicine"
+  },
+  "NCT03021343": {
+   "acronym": "END-AF",
+   "publication": {
+    "pmid": "27502857",
+    "doi": "10.1016/j.ahj.2016.05.006",
+    "citation": "Tabbalat RA, Hamad NM, Alhaddad IA, et al. Effect of ColchiciNe on the InciDence of Atrial Fibrillation in Open Heart Surgery Patients: END-AF Trial. Am Heart J 2016;178:102-7.",
+    "route": "registration referencesModule, type RESULT; confirmed against PubMed"
+   },
+   "endpoint_definition_VERBATIM": "documented AF lasting more than 5 minutes",
+   "endpoint_kind": "DURATION-DEFINED, no consequence requirement",
+   "where": "PMID 27502857 abstract, METHODS",
+   "comparator": "no-colchicine, OPEN-LABEL -- not placebo",
+   "cells": {
+    "colchicine_events": {
+     "value": 26,
+     "quote": "26 (14.5%) in the colchicine group",
+     "where": "abstract, RESULTS"
+    },
+    "colchicine_n": {
+     "value": 179,
+     "quote": "randomized to colchicine (n = 179)",
+     "where": "abstract, METHODS"
+    },
+    "comparator_events": {
+     "value": 37,
+     "quote": "37 (20.5%) in the no-colchicine group",
+     "where": "abstract, RESULTS"
+    },
+    "comparator_n": {
+     "value": 181,
+     "quote": "or no-colchicine (n = 181)",
+     "where": "abstract, METHODS"
+    },
+    "total_randomised": {
+     "value": 360,
+     "quote": "elective cardiac surgery (n = 360)",
+     "where": "abstract, METHODS"
+    }
+   }
+  },
+  "NCT02177266": {
+   "acronym": null,
+   "publication": null,
+   "publication_state": "NO_PUBLICATION_RESOLVED -- no reference on the registration and PubMed by registration identifier returned nothing.",
+   "endpoint_definition_VERBATIM": "Number of Patients With Post Cardiac Surgery Atrial Fibrillation or Post-pericardiotomy Syndrome.",
+   "endpoint_kind": "COMPOSITE -- AF **or** post-pericardiotomy syndrome",
+   "where": "ClinicalTrials.gov primaryOutcomes[0].measure, read 2026-08-19",
+   "comparator": "Placebo",
+   "note": "Enrolment 2."
+  }
+ },
+ "finding_2_two_of_the_five_reporters_are_one_trial": {
+  "registrations": [
+   "NCT02594111",
+   "NCT01709981"
+  ],
+  "one_publication": {
+   "pmid": "32295417",
+   "doi": "10.1161/CIRCINTERVENTIONS.119.008717",
+   "citation": "Shah B, Pillinger M, Zhong H, et al. Effects of Acute Colchicine Administration Prior to Percutaneous Coronary Intervention: COLCHICINE-PCI Randomized Trial. Circ Cardiovasc Interv 2020;13(4):e008717.",
+   "the_sentence_that_settles_it": "Unique Identifiers: NCT02594111, NCT01709981.",
+   "where": "abstract, closing registration statement"
+  },
+  "relationship": "NCT01709981 (n=280, primary: percent change in IL-6) is the NESTED INFLAMMATORY BIOMARKER SUBSTUDY of NCT02594111 (n=714, primary: peri-procedural myocardial necrosis). One trial, one paper, two registrations.",
+  "why_the_duplicate_detector_missed_it": "It pairs registrations on identical official title AND identical enrolment. These differ on both -- 280 against 714. PARENT AND SUBSTUDY looks nothing like a duplicate registration in the registry and is visible only in the publication naming both.",
+  "consequence": "This reading's k counts them as two eligible trials. k IS AN OVERCOUNT WHEREVER A TRIAL REGISTERS ITS SUBSTUDY SEPARATELY, and no registry-only method can see it.",
+  "primary_result_as_published": {
+   "quote": "the primary outcome of PCI-related myocardial injury did not differ between colchicine (n=206) and placebo (n=194) groups (57.3% versus 64.2%)",
+   "where": "PMID 32295417 abstract, RESULTS",
+   "note": "Among the 400 subjects who underwent PCI, of 714 randomised."
+  }
+ },
+ "what_is_NOT_done": "No pool is computed. The three AF endpoints are a consequence definition, a duration definition and a composite, across two comparator families; nothing here makes them one estimand."
+}

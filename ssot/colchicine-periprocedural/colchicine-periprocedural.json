@@ -968,6 +968,14 @@
        "NCT06798714": "Incidence of atrial fibrillation paroxysms (percent)",
        "NCT07569328": "graft failure rate"
       }
+     },
+     {
+      "property": "P37",
+      "finding": "SETTLED BY THE PUBLICATIONS, not by the title match. The three post-procedural AF endpoints are a CONSEQUENCE definition (COP-AF Pilot), a DURATION definition of >5 minutes (END-AF), and a COMPOSITE with post-pericardiotomy syndrome (NCT02177266) -- across two comparator families, END-AF being OPEN-LABEL against no colchicine."
+     },
+     {
+      "property": "P43",
+      "finding": "TWO OF THE FIVE REPORTERS ARE ONE TRIAL. PMID 32295417 names both NCT02594111 and NCT01709981; the latter is the nested biomarker substudy of the former. k COUNTS THEM TWICE, and no registry-only method can see it -- the duplicate detector pairs on identical title and enrolment, and these differ on both."
      }
     ],
     "all_failing_limbs_reported": true,
@@ -998,13 +1006,23 @@
      "absent": true,
      "absent_reason": " AUTHORITY: MECIR Box 10.10.a C62, and Handbook 6.5 section 10.10.3, 'A systematic review need not contain any meta-analyses.'"
     },
-    "what_this_verdict_does_not_establish": "NOT that any trial here is poor. NOT that colchicine is ineffective in this population. NOT that no poolable question exists -- most trials in this reading have simply not reported yet, and the literature limb is unscreened."
+    "what_this_verdict_does_not_establish": "NOT that any trial here is poor. NOT that colchicine is ineffective in this population. NOT that no poolable question exists -- most trials in this reading have simply not reported yet, and the literature limb is unscreened.",
+    "k_is_an_overcount_by": 1,
+    "k_overcount_reason": "This reading's k counts them as two eligible trials. k IS AN OVERCOUNT WHEREVER A TRIAL REGISTERS ITS SUBSTUDY SEPARATELY, and no registry-only method can see it.",
+    "literature_limb": {
+     "run_utc": "2026-08-19",
+     "record": "evidence/2026-08-19-batch1/periprocedural_literature_extraction.json",
+     "publications_resolved": 2,
+     "publications_not_resolved": 2,
+     "note": "COP-AF Pilot and NCT02177266 resolved to NO PUBLICATION by two routes. That is not evidence none exists."
+    }
    }
   }
  },
  "sources": {
   "screening": "evidence/2026-08-19-batch1/colchicine_split_screening.json",
-  "build": "evidence/2026-08-19-batch1/colchicine_readings_build.json"
+  "build": "evidence/2026-08-19-batch1/colchicine_readings_build.json",
+  "literature_extraction": "evidence/2026-08-19-batch1/periprocedural_literature_extraction.json"
  },
  "verification_basis": {
   "what_verifies_this_object": "ClinicalTrials.gov protocol records read 2026-08-19 at every registered rank.",
