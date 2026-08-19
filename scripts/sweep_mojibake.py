@@ -89,6 +89,57 @@ def context(text, bad, width=46):
     return text[max(0, i - width):i + len(bad) + width].replace("\n", " ")
 
 
+# THE SIGNATURES APPEAR AS LITERALS IN THE DETECTORS THEMSELVES, which is legitimate and must
+# not be read as damage. Named explicitly rather than pattern-matched, so a NEW file cannot
+# exempt itself by accident.
+DETECTORS_THAT_LEGITIMATELY_CONTAIN_THE_SIGNATURES = {
+    "scripts/sweep_mojibake.py",
+    "scripts/fix_double_encoded_delivered_pages.py",
+    "scripts/audit_40_checks.py",
+    "scripts/sentinel_check.py",
+}
+
+
+def gate():
+    """REFUSE if any DELIVERED page carries mojibake.
+
+    THE CAUSE IS UNKNOWN, WHICH IS WHY THIS EXISTS. Seven pages were served with double-encoded
+    characters in trial display names. All 240 SSOT objects scan clean, so the strings did not
+    come from the objects -- a GENERATOR OR A RENDERING PATH introduced them and that path is
+    NOT TRACED. An untraced cause will reintroduce the defect on the next build, silently.
+
+      A REPAIR IS NOT A CLOSURE. This gate is what keeps the recurrence loud while the cause is
+      open, and it is scoped to what READERS ACTUALLY RECEIVE -- the .html at the repository
+      root -- rather than to everything, so it cannot be satisfied by tidying a script.
+    """
+    bad = []
+    for p in sorted(glob.glob(os.path.join(REPO, "*.html"))):
+        rel = os.path.relpath(p, REPO).replace(os.sep, "/")
+        if rel in DETECTORS_THAT_LEGITIMATELY_CONTAIN_THE_SIGNATURES:
+            continue
+        try:
+            with io.open(p, "r", encoding="utf-8") as fh:
+                t = fh.read()
+        except Exception as e:
+            # UNREADABLE IS NOT CLEAN. A page that cannot be decoded is exactly the state this
+            # gate is about, so it fails rather than passing quietly.
+            bad.append((rel, {"UNREADABLE: %s" % str(e)[:60]: 1}))
+            continue
+        hits = scan_text(t)
+        if hits:
+            bad.append((rel, hits))
+    if not bad:
+        print("OK -- no delivered page carries a double-encoded character. "
+              "(The GENERATOR that produced them is still UNTRACED; this gate is why a "
+              "recurrence would be loud rather than silent.)")
+        return 0
+    print("REFUSED: %d delivered page(s) carry double-encoded characters." % len(bad))
+    for rel, hits in bad:
+        print("   %-52s %s" % (rel, ", ".join("%s x%d" % (k, v) for k, v in hits.items())))
+    print("FIX: python scripts/fix_double_encoded_delivered_pages.py --apply")
+    return 1
+
+
 def run():
     targets = []
     for pat in ("ssot/*/*.json", "evidence/**/*.json", "*.md", "scripts/*.py",
@@ -169,4 +220,6 @@ def selftest():
 
 if __name__ == "__main__":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
-    sys.exit(selftest() if "--selftest" in sys.argv else run())
+    if "--selftest" in sys.argv:
+        sys.exit(selftest())
+    sys.exit(gate() if "--gate" in sys.argv else run())

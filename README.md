@@ -1,5 +1,29 @@
 # RapidMeta Living Evidence Portfolio
 
+> ### Why this repository is built the way it is
+>
+> Almost everything here that looks like bureaucracy — the pre-commit gates, the assertions that
+> refuse to write, the audits that must name what they looked at — exists because of one
+> observation, measured on this project rather than assumed:
+>
+> | the rule | where it was written down | how it was broken |
+> |---|---|---|
+> | never use a heredoc for file content — the transport corrupts escapes | the handover brief, **first paragraph** | **eleven instances**, the last after ten prior corrections |
+> | a merge must never net-delete | the merge instrument's **own contract** | broken **inside the instrument that enforces it** |
+> | fold case on any comparison over free text | **DEFECT-REGISTRY class 25**, written that day | reproduced **twice**, in the selftests of instruments written *after* it |
+>
+> Written down, imported, contractual — **none of it held.** The counterweight is on the same
+> page: a ratcheted lint caught the seventeenth `subprocess.run(text=True)` site in the very
+> commit that documented the class, and specifically the call *beside* the one already fixed by
+> hand.
+>
+> **Mechanism catches what understanding does not.** That is the whole argument, and it is why
+> the weakest entries in [`DEFECT-REGISTRY.md`](DEFECT-REGISTRY.md) are the ones with no
+> detector rather than the ones with no explanation. The sharpest case is
+> [class 26](DEFECT-REGISTRY.md) — four instruments producing four false findings in sequence,
+> ending one command short of a destructive action authorised entirely by a belief the tooling
+> had manufactured.
+
 Browser-native living meta-analysis dashboards. The repo holds 1,521
 `*_REVIEW.html` files, but **561 are thin redirect stubs** (pointing to their
 `*_AUTO_FULL` sibling), so there are **~960 real dashboards**. A 2026-06
