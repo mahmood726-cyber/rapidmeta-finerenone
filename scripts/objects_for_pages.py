@@ -13,6 +13,9 @@ distinction.
 """
 import json, os, sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import retirement as R                                       # noqa: E402
+
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MAP = os.path.join(REPO, "ssot", "PAGE_MAP.json")
 
@@ -47,8 +50,12 @@ def main():
         except Exception:                                    # noqa: BLE001
             mapped.append(rel)
             continue
-        if str(o.get("state") or "").upper() == "RETIRED" and o.get("absorbed_by"):
-            retired.append("%s -> absorbed by %s" % (b, o["absorbed_by"]))
+        # RETIREMENT IS DECIDED BY `state` ALONE -- see scripts/retirement.py. This test read
+        # `state == RETIRED **and** o.get("absorbed_by")`, which made the successor field a
+        # PRECONDITION for seeing a tombstone at all. A topic retired by SPLIT records
+        # `split_into`, so it was not recognised as retired and fell through to the live path.
+        if R.is_retired(o):
+            retired.append("%s -> succeeded by %s" % (b, R.successor_label(o)))
             continue
         mapped.append(rel)
     for u in unmapped:

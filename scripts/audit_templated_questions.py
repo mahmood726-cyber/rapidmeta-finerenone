@@ -38,6 +38,9 @@ import json
 import os
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import retirement as R                                       # noqa: E402
+
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "templated_questions_audit.json")
 
@@ -72,7 +75,11 @@ def run():
         if not isinstance(o, dict) or "app_id" not in o:
             continue
         # A RETIRED TOMBSTONE IS NOT A TOPIC AND MUST NOT DILUTE THE DENOMINATOR.
-        if str(o.get("state") or "").upper() == "RETIRED" and o.get("absorbed_by"):
+        # RETIREMENT IS DECIDED BY `state` ALONE -- see scripts/retirement.py. This test read
+        # `state == RETIRED **and** o.get("absorbed_by")`, which made the successor field a
+        # PRECONDITION for seeing a tombstone at all. A topic retired by SPLIT records
+        # `split_into`, so it was not recognised as retired and fell through to the live path.
+        if R.is_retired(o):
             tally["RETIRED_TOMBSTONE"] = tally.get("RETIRED_TOMBSTONE", 0) + 1
             continue
         state, why = classify(o)

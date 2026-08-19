@@ -35,6 +35,9 @@ import json
 import os
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import retirement as R                                       # noqa: E402
+
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SNAP = os.path.join(REPO, "outputs", "portfolio_index.json")
 PMAP = os.path.join(REPO, "ssot", "PAGE_MAP.json")
@@ -56,8 +59,12 @@ def classify(page, val, pmap):
         return "OBJECT_UNREADABLE", None
     # A RETIRED TOPIC IS ITS OWN STATE. Serving a pooled estimate for a review that no longer
     # exists is worse than serving a stale one for a review that does.
-    if str(o.get("state") or "").upper() == "RETIRED" and o.get("absorbed_by"):
-        return "RETIRED", o.get("absorbed_by")
+    # RETIREMENT IS DECIDED BY `state` ALONE -- see scripts/retirement.py. This test read
+    # `state == RETIRED **and** o.get("absorbed_by")`, which made the successor field a
+    # PRECONDITION for seeing a tombstone at all. A topic retired by SPLIT records
+    # `split_into`, so it was not recognised as retired and fell through to the live path.
+    if R.is_retired(o):
+        return "RETIRED", R.successor_label(o)
     res = (o.get("results") or {}).get("by_outcome") or {}
     live = any(isinstance(b, dict) and (b.get("pooled") or {}).get("point") is not None
                and not (b.get("pooled") or {}).get("withdrawn") for b in res.values())

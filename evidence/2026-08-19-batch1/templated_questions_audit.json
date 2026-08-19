@@ -1,17 +1,17 @@
 {
  "audited_utc": "2026-08-19",
  "why_this_was_measured": "A blind cross-family reader (agy, Gemini 3.1 Pro) returned UNCLEAR on ten of twelve merge clusters, and its reason every time was that the question field is auto-generated boilerplate. It reached that from the text alone, with no topic names and no hint that anything depended on the answer.",
- "live_topics": 135,
+ "live_topics": 138,
  "by_state": {
-  "STATES_A_QUESTION": 80,
+  "STATES_A_QUESTION": 83,
   "TITLE_ECHO": 20,
   "TEMPLATED": 34,
-  "RETIRED_TOMBSTONE": 10,
+  "RETIRED_TOMBSTONE": 11,
   "ABSENT": 1
  },
- "topics_that_actually_state_a_question": 80,
- "headline": "80 of 135 live topics state a question. The other 55 carry a template, an echo of their own title, or nothing.",
- "WHAT_THIS_GATES": "Every question-based check in this corpus can only reach the 80. P21's ambiguous-question split cannot find an ambiguity in a title. The merge adjudicator's `questions_differ()` returns FALSE for a templated question -- correct as logic, and it REPORTS AS THOUGH THE AXIS HAD BEEN CHECKED. A future duplicate detector that hopes to separate two reviews by what they ask has 55 topics it cannot separate.",
+ "topics_that_actually_state_a_question": 83,
+ "headline": "83 of 138 live topics state a question. The other 55 carry a template, an echo of their own title, or nothing.",
+ "WHAT_THIS_GATES": "Every question-based check in this corpus can only reach the 83. P21's ambiguous-question split cannot find an ambiguity in a title. The merge adjudicator's `questions_differ()` returns FALSE for a templated question -- correct as logic, and it REPORTS AS THOUGH THE AXIS HAD BEEN CHECKED. A future duplicate detector that hopes to separate two reviews by what they ask has 55 topics it cannot separate.",
  "and_it_is_the_3_of_135_shape": "The number at the top of DEFECT-REGISTRY.md is 3 of 135 topics ever asked for a k cascade, where the other 132 read as clean because nothing had interrogated them. This is the same shape on a different field: a templated question is not a bad question, it is an ABSENT one wearing the shape of a present one.",
  "what_this_does_NOT_claim": "NOT that the templated topics are wrong, and NOT that their trials or estimates are affected. It claims only that their `question` field carries no content a check can read, and that every question-based claim about this corpus has this denominator.",
  "rows": [
@@ -286,10 +286,28 @@
    "question": "Dabigatran Stroke: NOT POOLABLE AS POSED -- the PARTICIPANTS and COMPARATOR limb fails on each trial's own registered primary outcome?"
   },
   {
-   "topic": "dabigatran-vte-review",
+   "topic": "dabigatran-vte-cerebral",
    "state": "STATES_A_QUESTION",
    "why": null,
-   "question": "Four trials, four different registered primaries -- one of them any adverse event."
+   "question": "In adults with cerebral venous or dural sinus thrombosis, does dabigatran compare favourably with the comparator each trial actually randomised against, on the endpoint that trial registered?"
+  },
+  {
+   "topic": "dabigatran-vte-extended",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults who have completed anticoagulation for venous thromboembolism, does extended dabigatran reduce recurrence compared with the comparator each trial actually randomised against?"
+  },
+  {
+   "topic": "dabigatran-vte-surgical",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults undergoing elective hip or knee arthroplasty, does dabigatran prevent venous thromboembolism compared with the comparator each trial actually randomised against?"
+  },
+  {
+   "topic": "dabigatran-vte-treatment",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with acute symptomatic venous thromboembolism, does dabigatran reduce recurrent VTE compared with the comparator each trial actually randomised against?"
   },
   {
    "topic": "delamanid-tb",

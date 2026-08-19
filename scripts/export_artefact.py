@@ -37,6 +37,9 @@ from __future__ import annotations
 
 import argparse, io, json, os, re, sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import retirement as R                                       # noqa: E402
+
 if __name__ == "__main__":
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
@@ -462,10 +465,14 @@ def main():
         #                 that is the correct and intended state
         # Counted separately, and a run consisting only of tombstones is reported as such rather
         # than as an exporter that recognised nothing.
-        if str(obj.get("state") or "").upper() == "RETIRED" and obj.get("absorbed_by"):
-            retired.append((os.path.basename(src), obj.get("absorbed_by")))
-            print("%-34s -> RETIRED, absorbed by %-26s  no payload BY DESIGN"
-                  % (os.path.basename(src), obj.get("absorbed_by")))
+        # RETIREMENT IS DECIDED BY `state` ALONE -- see scripts/retirement.py. This test read
+        # `state == RETIRED **and** o.get("absorbed_by")`, which made the successor field a
+        # PRECONDITION for seeing a tombstone at all. A topic retired by SPLIT records
+        # `split_into`, so it was not recognised as retired and fell through to the live path.
+        if R.is_retired(obj):
+            retired.append((os.path.basename(src), R.successor_label(obj)))
+            print("%-34s -> RETIRED, succeeded by %-26s  no payload BY DESIGN"
+                  % (os.path.basename(src), R.successor_label(obj)))
             continue
         html = None
         if a.page and os.path.exists(a.page):
