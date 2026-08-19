@@ -499,8 +499,45 @@ def main():
                   "and that is the CORRECT state, not an exporter that recognised nothing. "
                   "RETIRED and UNRECOGNISED are different states and are never summed.")
             return 0
+        # A THIRD LEGITIMATE STATE, and the third instrument to have lacked the concept. The
+        # tombstone case above was encoded when the merge gates refused a retired page. This is
+        # the same missing idea one state along: A LIVE REVIEW THAT PUBLISHES NO ESTIMATE has
+        # nothing to check either. `mavacamten-ohcm-review` holds ONE trial -- no per-trial
+        # rows, no poolable verdict, no pool -- so every detector correctly declines, and the
+        # run then read as an exporter that recognised nothing.
+        #
+        # ENCODED, NOT EXEMPTED. The object must SAY it publishes nothing: `pooled.point` is
+        # None AND the pool is explicitly `withdrawn` or `absent`, or k < 2. An object that
+        # simply FAILED to produce a payload -- one that claims a pool and yields no rows --
+        # still fails, which is the case this gate exists for.
+        declares_nothing, undecided = [], []
+        for src in a.objects:
+            with open(src, "r", encoding="utf-8") as fh:
+                o = json.load(fh)
+            if str(o.get("state") or "").upper() == "RETIRED":
+                continue
+            pr = (((o.get("results") or {}).get("by_outcome") or {}).get("primary") or {})
+            pl = pr.get("pooled") or {}
+            k = pr.get("k")
+            if pl.get("point") is None and (pl.get("withdrawn") or pl.get("absent")
+                                            or (isinstance(k, int) and k < 2)):
+                declares_nothing.append("%s (k=%s, %s)" % (
+                    o.get("app_id"), k,
+                    "withdrawn" if pl.get("withdrawn") else
+                    "absent" if pl.get("absent") else "k<2"))
+            else:
+                undecided.append(o.get("app_id"))
+        if declares_nothing and not undecided:
+            print("\nEVERY live object in this run DECLARES THAT IT PUBLISHES NO ESTIMATE: %s. "
+                  "There is nothing to check and that is the CORRECT state, not an exporter "
+                  "that recognised nothing. PUBLISHES-NOTHING and UNRECOGNISED are different "
+                  "states and are never summed." % ", ".join(declares_nothing))
+            return 0
         print("\nNO CHECK PAYLOADS PRODUCED AT ALL. That is not a clean export; "
               "it is an exporter that recognised nothing.")
+        if undecided:
+            print("These object(s) do NOT declare that they publish nothing, so producing no "
+                  "payload is a failure rather than a design: %s" % ", ".join(undecided))
         return 2
     return 0
 
