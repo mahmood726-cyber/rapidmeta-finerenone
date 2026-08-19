@@ -743,6 +743,50 @@ reported only the lost pairs — the more natural design — the revert would ha
 would have caught this at step one — an audit that refuses to report on files with uncommitted
 modifications until it says so. Recorded as not written.
 
+### 29. A REFUSAL CONTRADICTED BY THE CONTENT BENEATH IT — *a false refusal looks like diligence*
+
+**Found 2026-08-19, eleven delivered pages.** Each opened its search tab with:
+
+> **Not held in this object.** No search record is held in this object. The included set was
+> reconciled against published syntheses rather than produced by a database search, so **no
+> query, date or yield can be shown**. Treat the included set as a **convenience sample**, not a
+> systematic one.
+
+— and then printed the executed query, its date and its yield, in the same section, immediately
+below. **A reader who stops at the first paragraph is told the review is a convenience sample
+while its object holds a two-database search screened to zero.**
+
+`colchicine-cvd-coronary` was one of the eleven **and was built the same day**, from a search
+executed across 137 registrations. The stale refusal was never removed when the search was added.
+
+#### The state the corpus did not have
+
+*"Not held in this object"* is a **refusal** when true and a **gap** when false, and **it reads
+identically either way**. A third state was missing — *held elsewhere and not projected*.
+
+> **A missing manuscript is visibly missing. A false refusal is invisible: it looks like
+> diligence.** 37 of 43 cardiology topics have no paper, and that is the larger number but the
+> smaller problem.
+
+#### Why the detector is deliberately narrow
+
+38 sections carry a denial followed by substantial content, and **only 11 are contradictions**.
+`pn-report` denies a GRADE rating and then renders a summary-of-findings table whose certainty
+column is an em dash — **that is honest**; the refusal is about GRADE and the cell says so. A
+rule flagging all 38 would be class 28 again and would train a reader to ignore it. The rule
+implemented asserts only the least arguable case: **the section's own bytes refute its own
+opening sentence.**
+
+#### And the locator refused before it approximated
+
+The first repair looked for a `<p>` wrapper, matched nothing, and **refused on every page** —
+the correct behaviour for a locator that cannot locate. Re-written against the markup read from
+a page, it removed exactly 342 bytes from each of the eleven and nothing else.
+
+**Status: CLOSED for this shape.** `scripts/lint_refusal_contradicted_by_its_own_section.py` is
+in `.githooks/pre-commit`. It covers **one** contradiction pair; other tabs could carry the same
+shape with different wording and are not checked.
+
 ### 28. A RULE THAT CANNOT RETURN NOTHING CANNOT TELL YOU IT DOES NOT KNOW
 
 **The common ancestor of most of what this file holds.** Found as a class 2026-08-19 after three
@@ -1615,3 +1659,48 @@ was written**, during ordinary build work, and one of them defeated a fix author
 same night specifically to close its family. The count above will be wrong again.
 
 *Verified 2026-08-19. Every command in this file was run; every count is an observed output.*
+
+---
+
+## OPEN — carried, not fixed
+
+### O1. A check that reads a different working tree than the one being built
+
+`scripts/regression_check.py` writes a nonce into the repo and fetches it over HTTP, so a server
+serving another directory **cannot** satisfy the probe. That is correct and it fired twice on
+2026-08-19, both times because **port 8787 was held by the sibling worktree of this same
+repository** — a hazard the pre-push hook's own comments already record from 2026-08-17.
+
+**What the probe does not do is say WHICH tree the server is serving.** It reports only that the
+server is not ours, so each occurrence costs the same diagnosis again. Serving a tree-identifying
+file — repo root path, `HEAD` sha — would turn a refusal into an answer.
+
+**Cost so far: two interruptions in one session.** Not fixed.
+
+### O2. A scoped pass that does not state its scope
+
+The pre-push regression check globs **1,473 apps** and exceeds ten minutes when run whole, so the
+hook scopes it to the pages a push touches. That is the right call — *a check nobody runs is the
+same failure as a detector that cannot fire*.
+
+But its output reads **`Regression check PASS on 80 page(s)`**, and is **silent about the other
+1,393**. A reader takes a PASS as a statement about the corpus.
+
+> This is the same shape as the delivery check that verified localhost, the projection gate that
+> could not see 601 rows, and the tab audit where 43 of 43 passed a test that meant nothing. **It
+> is currently in our own output.**
+
+The fix is one line — state the denominator and what it excludes. Not fixed.
+
+### O3. Three delivered pages are broken, unwarned, and serving a value
+
+`PEMIGATINIB_BTC_AUTO_FULL_REVIEW.html`, `PEMIGATINIB_CHOLANGIO_AUTO_FULL_REVIEW.html` and
+`TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW.html` fail the regression check with **`no_studies_rendered`
+and `pool_broken`** on content **byte-identical to what is live**. They render zero studies,
+compute no pool, and serve a pooled value on the dashboard.
+
+**They carry no warning banner, and cannot be given one**: the gate blocks any push that touches
+them, so a page cannot be improved while it is broken. That is a real property of the gate, not
+a complaint about it — but it means the remedy has to be the underlying repair, not a notice.
+
+`TIRZEPATIDE_ARDS` is additionally the page whose title says *Andexanet alfa*.

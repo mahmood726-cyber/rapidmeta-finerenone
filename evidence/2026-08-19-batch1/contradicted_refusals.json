@@ -1,0 +1,56 @@
+{
+ "run_utc": "2026-08-19",
+ "fixed": [
+  {
+   "page": "APIXABAN_VTE_TREATMENT_REVIEW.html",
+   "section": "pn-search",
+   "why": "the section prints the executed query immediately below the sentence denying it",
+   "bytes_removed": 342,
+   "removed_text": "Not held in this object. No search record is held in this object. The included set was reconciled against published syntheses rather than produced by a database search, so no query, date or yield can "
+  },
+  {
+   "page": "BEMPEDOIC_ACID_REVIEW.html",
+   "section": "pn-search",
+   "why": "the section prints the executed query immediately below the sentence denying it",
+   "bytes_removed": 342,
+   "removed_text": "Not held in this object. No search record is held in this object. The included set was reconciled against published syntheses rather than produced by a database search, so no query, date or yield can "
+  },
+  {
+   "page": "BOCOCIZUMAB_LIPID_REVIEW.html",
+   "section": "pn-search",
+   "why": "the section prints the executed query immediately below the sentence denying it",
+   "bytes_removed": 342,
+   "removed_text": "Not held in this object. No search record is held in this object. The included set was reconciled against published syntheses rather than produced by a database search, so no query, date or yield can "
+  },
+  {
+   "page": "COLCHICINE_CVD_CORONARY_REVIEW.html",
+   "section": "pn-search",
+   "why": "the section prints the executed query immediately below the sentence denying it",
+   "bytes_removed": 342,
+   "removed_text": "Not held in this object. No search record is held in this object. The included set was reconciled against published syntheses rather than produced by a database search, so no query, date or yield can "
+  }
+ ],
+ "refused": [],
+ "rule": [
+  {
+   "section": "pn-search",
+   "denial_claims": "no query, date or yield can be shown",
+   "refuted_by": "query as executed",
+   "why": "the section prints the executed query immediately below the sentence denying it"
+  }
+ ],
+ "deliberately_narrow": "38 sections carry a denial followed by substantial content; only 3 are contradictions. pn-report denies a GRADE rating and then shows a summary-of-findings table whose certainty column is an em dash -- that is honest. A rule flagging all 38 would train a reader to ignore it.",
+ "reverted_because_the_panel_is_a_stub": {
+  "pages": [
+   "ATTR_CM_REVIEW.html",
+   "AZILSARTAN_CLD_VS_OLM_HCTZ_REVIEW.html",
+   "BOSENTAN_PAH_CHILDREN_REVIEW.html",
+   "BOSENTAN_PAH_COMBINATION_REVIEW.html",
+   "BOSENTAN_PAH_MONOTHERAPY_REVIEW.html",
+   "BOSENTAN_PH_NOT_GROUP1_REVIEW.html",
+   "EARLY_RHYTHM_CONTROL_AF_REVIEW.html"
+  ],
+  "why": "Removing the denial left pn-search holding a query and an EMPTY yield table. The pre-push regression check caught it at once as ssot_empty_panel with an absent-state reason of zero characters: the element that explained an empty panel was gone and the panel was still empty. THE DENIAL WAS DOING REAL WORK WITH THE WRONG WORDS. Deleting it fixed a false sentence and created a silent gap, which is the trade this project refuses.",
+  "what_is_owed": "The third state must be written by the BUILDER rather than patched into pages: HELD (query, date and yield), PARTIALLY HELD (query held, yield not), NOT HELD (nothing, and why). These seven are PARTIALLY HELD and currently say NOT HELD. Recorded, not fixed."
+ }
+}
