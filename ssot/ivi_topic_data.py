@@ -80,12 +80,13 @@ IVI_PRISMA = {
         "arithmetic": ("47 identified = 34 experimental + 6 comparator + 5 background "
                        "+ 2 not_assessable"),
         "reconciles": True,
-        "unscreened_remainder": 29,
+        "unscreened_remainder": 0,
         "remainder_means": (
             "34 trials place intravenous iron in the randomised experimental arm; 5 are in this "
-            "object; 29 HAVE NOT BEEN SCREENED. This is stated as an open count rather than "
-            "folded into 'excluded', because a trial nobody has looked at is not a trial that "
-            "was assessed and rejected."),
+            "object; the other 29 were ALL SCREENED on 2026-08-19 and the remainder is now 0. "
+            "Dispositions: 13 excluded, 6 eligible but not poolable, 10 eligible with no "
+            "results yet. The third state is kept because a trial nobody has looked at is not "
+            "a trial that was assessed and rejected -- and neither is one that has not reported."),
     },
 }
 
@@ -97,7 +98,35 @@ IVI_CASCADE = {
     "k5_background": 5,
     "kNA_not_assessable": 2,
     "k_included_in_object": 5,
-    "k_unscreened_remainder": 29,
+    "k_unscreened_remainder": 0,
+    "k_unscreened_remainder_note": (
+        "Was 29; all 29 screened on 2026-08-19 (scripts/screen_ivi_remainder.py, dispositions "
+        "on the object at screening_of_remainder.iv_iron_2026_08_19, each keyed to the "
+        "criterion it turns on and the registry field that settles it)."),
+    "remainder_dispositions": {
+        "EXCLUDED": 13,
+        "ELIGIBLE_NOT_POOLABLE": 6,
+        "ELIGIBLE_NO_RESULTS_YET": 10,
+        "what_this_says": (
+            "SIXTEEN OF THE TWENTY-NINE ARE ELIGIBLE. Only 13 fail a stated criterion. The "
+            "evidence base is not limited by eligibility -- it is limited by ESTIMAND MATCH "
+            "and by trials that have not reported. Reporting all 29 as 'excluded' would have "
+            "said the opposite, and would have been the withholding class again: eligible "
+            "evidence recorded as though it had failed a test."),
+        "largest_pending": (
+            "ICONIC-HF (NCT06929806, n=1900, RECRUITING) registers cardiovascular death and "
+            "hospitalisation for worsening heart failure -- THE SAME ESTIMAND AS THIS OBJECT'S "
+            "HEADLINE POOL -- and will be the single largest contributor when it reports. "
+            "INFERRCT (NCT05759078, n=1000) is the second."),
+        "notable_eligible_not_poolable": (
+            "FAIR-HF (NCT00520780, n=456) is the trial that established ferric carboxymaltose "
+            "in heart failure. It meets P/I/C and its primary -- patient global assessment "
+            "plus NYHA class -- is a registered functional primary a regulator relied on, so "
+            "it PASSES the outcome criterion. It is not poolable because that is an ordinal "
+            "patient-reported scale matching none of this object's six estimands. ELIGIBLE AND "
+            "NOT POOLED is the correct reading; recording a landmark trial as 'excluded' would "
+            "misstate why it is absent."),
+    },
     "k3_corrected_from": (
         "The placebo-discriminator (ssot/topic_identity.locate, 2026-08-19) is load-bearing "
         "here: AFFIRM-AHF and HEART-FID type their IRON arm ACTIVE_COMPARATOR against a "
