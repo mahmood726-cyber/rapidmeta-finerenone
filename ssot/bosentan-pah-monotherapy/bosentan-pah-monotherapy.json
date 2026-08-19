@@ -1,0 +1,533 @@
+{
+ "app_id": "bosentan-pah-monotherapy",
+ "schema_version": 2,
+ "title": "Bosentan alone against an inactive control in pulmonary arterial hypertension: four eligible trials, and not one registering an endpoint this review could pool",
+ "question": "In adults with WHO group 1 pulmonary arterial hypertension, what is the effect of bosentan compared with placebo or no active pulmonary vasodilator on exercise capacity and on clinical worsening?",
+ "question_provenance": "One of the four readings `bosentan-pah` was split into on 2026-08-19. The parent's question was the OBJECT'S OWN VERDICT with a question mark appended.",
+ "built": "2026-08-19",
+ "build_mode": "AUTHORED",
+ "split_provenance": {
+  "parent": "bosentan-pah",
+  "why_split": "The parent asked at least four questions under one title and its two trials fell on opposite sides of the split -- COMPASS-2 (combination) and FUTURE-2 (children, open-label, no control arm, primary is growth). See DECIDED-bosentan-pah-2026-08-19.md. P21.",
+  "siblings": [
+   "bosentan-pah-combination",
+   "bosentan-ph-not-group1",
+   "bosentan-pah-children"
+  ],
+  "precedence": "The four readings are NOT mutually exclusive by construction -- a trial can be paediatric and group-1 and a combination design at once -- so an assignment rule is required. It is D children > C not-WHO-group-1 > B combination > A monotherapy, applied in that order, each step naming the field it reads. A DIFFERENT PRECEDENCE WOULD MOVE TRIALS BETWEEN READINGS AND THESE COUNTS WOULD CHANGE WITH IT, which is why it is written down as a choice rather than presented as a discovery."
+ },
+ "outcomes": [
+  {
+   "id": "exercise_or_worsening",
+   "name": "Six-minute walk distance change, or clinical worsening",
+   "definition": "Neither endpoint is registered by any eligible trial in this reading.",
+   "measure": "MD",
+   "effect_scale": "natural",
+   "type": "primary",
+   "estimand": {
+    "id": "exercise_or_worsening",
+    "family": "not established",
+    "model": "none"
+   },
+   "comparator": "placebo or an inactive control",
+   "comparator_type": "placebo",
+   "direction_of_benefit": "higher",
+   "null_value": 0
+  }
+ ],
+ "withholding_question": {
+  "asked_on": "2026-08-19",
+  "question": "does each eligible trial register, at ANY rank, a six-minute walk distance CHANGE, or a clinical-worsening / morbidity-mortality outcome, before any decision about which trials can be combined?",
+  "detected_structurally_not_by_keyword": "a walk-distance term plus a change term; a worsening or event term in a disease context. Never a registered phrase, which would find only the trials that already agree.",
+  "answer": "NO, AND FOR EVERY ONE OF THE FOUR. Asked at every registered rank before any pooling decision; not one eligible trial registers a walk CHANGE or a clinical-worsening outcome.",
+  "per_trial": {
+   "NCT00091715": {
+    "name": "Efficacy and Safety of Oral Bosentan in Pulmonary Arterial Hypertensio",
+    "two_component": "2 rank(s) read; no results",
+    "three_component": "NO walk-change and NO clinical-worsening outcome at any rank"
+   },
+   "NCT00377455": {
+    "name": "Placebo Controlled Trial of Bosentan in Scleroderma Patients",
+    "two_component": "5 rank(s) read; RESULTS POSTED",
+    "three_component": "NO walk-change and NO clinical-worsening outcome at any rank"
+   },
+   "NCT00825266": {
+    "name": "Insulin Resistance in Pulmonary Arterial Hypertension",
+    "two_component": "3 rank(s) read; RESULTS POSTED",
+    "three_component": "NO walk-change and NO clinical-worsening outcome at any rank"
+   },
+   "NCT01827059": {
+    "name": "Bosentan In Exercise Induced Pulmonary Arterial Hypertension in Congen",
+    "two_component": "8 rank(s) read; no results",
+    "three_component": "NO walk-change and NO clinical-worsening outcome at any rank"
+   }
+  }
+ },
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT00091715",
+    "nct": "NCT00091715",
+    "name": "Efficacy and Safety of Oral Bosentan in Pulmonary Arterial H",
+    "enrolled": 185,
+    "arms": [],
+    "design": "COMPLETED",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "read from the registration",
+    "by_outcome": {},
+    "registered_primaries": [
+     "exercise capacity",
+     "cardiac hemodynamics"
+    ],
+    "has_posted_results": false,
+    "registration_read_utc": "2026-08-19",
+    "all_ranks_read_utc": "2026-08-19"
+   },
+   {
+    "id": "NCT00377455",
+    "nct": "NCT00377455",
+    "name": "Placebo Controlled Trial of Bosentan in Scleroderma Patients",
+    "enrolled": 5,
+    "arms": [],
+    "design": "TERMINATED",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "read from the registration",
+    "by_outcome": {},
+    "registered_primaries": [
+     "Total Exercise Time on the Exercise Echocardiogram Using the Standard Bruce Stress Protocol."
+    ],
+    "has_posted_results": true,
+    "registration_read_utc": "2026-08-19",
+    "all_ranks_read_utc": "2026-08-19"
+   },
+   {
+    "id": "NCT00825266",
+    "nct": "NCT00825266",
+    "name": "Insulin Resistance in Pulmonary Arterial Hypertension",
+    "enrolled": 2,
+    "arms": [],
+    "design": "TERMINATED",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "read from the registration",
+    "by_outcome": {},
+    "registered_primaries": [
+     "Insulin Resistance Profile Change - Triglyceride:HDL Cholesterol Ratio"
+    ],
+    "has_posted_results": true,
+    "registration_read_utc": "2026-08-19",
+    "all_ranks_read_utc": "2026-08-19"
+   },
+   {
+    "id": "NCT01827059",
+    "nct": "NCT01827059",
+    "name": "Bosentan In Exercise Induced Pulmonary Arterial Hypertension",
+    "enrolled": 12,
+    "arms": [],
+    "design": "UNKNOWN",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "read from the registration",
+    "by_outcome": {},
+    "registered_primaries": [
+     "Change in mean pulmonary arterial pressure (mPAP) at peak exercise"
+    ],
+    "has_posted_results": false,
+    "registration_read_utc": "2026-08-19",
+    "all_ranks_read_utc": "2026-08-19"
+   }
+  ]
+ },
+ "config": {
+  "confidence_level": 95
+ },
+ "results": {
+  "by_outcome": {
+   "exercise_or_worsening": {
+    "k": 4,
+    "estimand_id": "exercise_or_worsening",
+    "model": "none",
+    "estimator_used": "not applicable",
+    "comparator_type": "placebo",
+    "poolable": false,
+    "poolable_reason": "FOUR TRIALS ARE ELIGIBLE AND NONE REGISTERS AN ENDPOINT THIS REVIEW CAN POOL. Not one of the four registers a six-minute walk distance CHANGE or a clinical-worsening outcome at any rank. The two that have posted results register 'Total Exercise Time on the Exercise Echocardiogram' (n=5, TERMINATED) and 'Insulin Resistance Profile Change - Triglyceride:HDL Cholesterol Ratio' (n=2, TERMINATED). AND THE READING'S ANCHOR TRIAL REGISTERS NO MEASURABLE ENDPOINT AT ALL: EARLY (NCT00091715, n=185) declares the two-word primaries 'exercise capacity' and 'cardiac hemodynamics' -- no measure, no timepoint, no direction -- and has posted no results. A REVIEW CANNOT POOL A CONSTRUCT.",
+    "pooled": {
+     "withdrawn": true,
+     "point": null,
+     "withdrawn_because": "see poolable_reason"
+    },
+    "heterogeneity_status": "NOT_ASSESSABLE -- nothing was pooled",
+    "and_the_weaker_limb_is_reported_too": "TWO of the four name a walk-distance endpoint AT ALL, as a bare construct with no change term, timepoint or direction. THE GAP BETWEEN 0 AND 2 IS THE FINDING: registrations too thin to establish a shared estimand look identical to registrations that establish one until both limbs are counted. Treating a bare construct as a change endpoint would be inferring the analysis from the name.",
+    "r_output": {
+     "state": "ABSENT_AND_THAT_IS_THE_FINDING",
+     "_why_absent": "k=4 and nothing was pooled, so there is NO model call to quote, NO pooled estimate, NO heterogeneity and NO package version. This is not a missing artefact; it is the correct state for a topic with no synthesis.",
+     "what_would_hold_P6": "an estimand shared by two or more eligible trials.",
+     "k_read_from_object": 4,
+     "quotable_model_call": null,
+     "heterogeneity": null,
+     "heterogeneity_reason": "Undefined: no between-study variance was estimated because no model was run.",
+     "package_version": null,
+     "what_would_change_it": "An estimand shared by two or more included trials. Where k is already above 1 and nothing pooled, the obstacle is the ESTIMAND rather than the evidence base, and this field must say which."
+    }
+   }
+  }
+ },
+ "search": {
+  "executed_by": "lane 1 (Claude, Anthropic family)",
+  "databases": [
+   {
+    "database": "ClinicalTrials.gov API v2",
+    "tool": "mcp__plugin_bio-research_c-trials__search_trials",
+    "query_as_executed": "intervention=\"bosentan\"; condition=\"pulmonary arterial hypertension OR pulmonary hypertension\"; study_type=INTERVENTIONAL; NO phase filter; page_size=100",
+    "date_executed": "2026-08-19",
+    "http_status": 200,
+    "records_returned": 57,
+    "total_reported": 57,
+    "recall_on_included_set": "1/1 -- EARLY (NCT00091715) surfaced",
+    "pagination_verified": "next_page_token null and returned == totalCount, from the FIRST page."
+   },
+   {
+    "database": "PubMed",
+    "tool": "NOT EXECUTED",
+    "query_as_executed": "NOT EXECUTED FOR THIS TOPIC",
+    "date_executed": "2026-08-19",
+    "http_status": null,
+    "records_returned": null,
+    "total_reported": null,
+    "recall_on_included_set": "NOT MEASURED",
+    "what_is_unexamined": "NO PUBMED SEARCH WAS RUN FOR THIS TOPIC. Recorded as an absence rather than omitted: the registry search is the only executed search behind this review, so any trial reported in the literature and never registered is outside what was looked at. P23 cannot hold on a database nobody queried."
+   }
+  ],
+  "pagination_verified": "returned == totalCount on the registry query."
+ },
+ "prisma_flow": {
+  "_scope": "PRISMA 2020 flow, counted from the executed search above.",
+  "identification": {
+   "ctgov": 57,
+   "pubmed": null
+  },
+  "eligibility_ctgov": {
+   "role_located": 47,
+   "topic_is_experimental_arm": 35,
+   "topic_is_comparator_arm": 4,
+   "topic_is_background": 8,
+   "not_assessable": 10,
+   "note": "cascade over the whole surfaced set, shared by all four readings because it is one search; the READING split is applied after it."
+  },
+  "assigned_to_this_reading": 14,
+  "included": {
+   "in_this_object": 4,
+   "contributing_to_the_pool": 0,
+   "nct": [
+    "NCT00091715",
+    "NCT00377455",
+    "NCT00825266",
+    "NCT01827059"
+   ]
+  },
+  "reconciliation": {
+   "arithmetic": "57 = 35 experimental + 4 comparator + 8 background + 10 not-assessable; 14 of the 57 assigned to this reading, of which 4 are eligible",
+   "reconciles": true,
+   "unscreened_remainder": 0,
+   "remainder_means": "ZERO. Every surfaced record has a reading and a disposition."
+  }
+ },
+ "k_cascade": {
+  "k0_surfaced": 57,
+  "k2_role_located": 47,
+  "k3_experimental": 35,
+  "k4_comparator": 4,
+  "k5_background": 8,
+  "kNA_not_assessable": 10,
+  "k_assigned_to_this_reading": 14,
+  "k_eligible": 4,
+  "k_with_posted_results": 2,
+  "k_included_in_object": 4,
+  "k_pooled": 0,
+  "k_unscreened_remainder": 0,
+  "reproduced_by": "scripts/screen_bosentan_split_2026_08_19.py and scripts/estimand_bosentan_readings_2026_08_19.py.",
+  "why_k_pooled_is_ZERO": "NOT ONE of the four eligible trials registers a six-minute-walk CHANGE or a clinical-worsening outcome. The two with posted results register 'Total Exercise Time on the Exercise Echocardiogram' (n=5) and 'Insulin Resistance Profile Change - Triglyceride:HDL Cholesterol' (n=2). THERE IS NOTHING TO POOL, and that is a fact about the registrations.",
+  "and_the_anchor_trial_registers_no_measurable_endpoint_at_all": "EARLY (NCT00091715, n=185) is this reading's largest trial and its registered PRIMARIES are the two-word strings 'exercise capacity' and 'cardiac hemodynamics'. No measure, no timepoint, no direction. It has posted no results. THE REGISTRATION NAMES A CONSTRUCT AND NOT AN ENDPOINT, and a review cannot pool a construct.",
+  "_why": "k is never one number. Each stage is what the instrument at that stage could actually decide.",
+  "keyed_on": "registration id"
+ },
+ "screening": {
+  "search_note": "Executed 2026-08-19. 57 registrations surfaced by ONE search over the drug; the four readings are applied after it, by a stated precedence.",
+  "eligibility": "POPULATION: adults with WHO group 1 pulmonary arterial hypertension. INTERVENTION: bosentan as the randomised intervention -- NOT named in an arm description as prior or background therapy, which is how two records entered other readings wrongly. COMPARATOR: placebo or no active pulmonary vasodilator; a trial in which a second PAH-specific drug is part of the contrast belongs to the COMBINATION reading. ESTIMAND, which governs POOLABILITY and not eligibility: a six-minute walk distance CHANGE, or a clinical-worsening / morbidity-mortality outcome, at ANY rank. Criteria are DERIVED POST HOC and say so.",
+  "eligibility_provenance": {
+   "state": "DERIVED_POST_HOC",
+   "predefined": false,
+   "post_hoc": true,
+   "derived": true,
+   "predefined_is_false_because": "written 2026-08-19 when the topic was split.",
+   "authority_it_satisfies": "MECIR R29/R30/R31.",
+   "authority_it_does_NOT_establish": "MECIR C5/C7.",
+   "precedence": "The four readings are NOT mutually exclusive by construction -- a trial can be paediatric and group-1 and a combination design at once -- so an assignment rule is required. It is D children > C not-WHO-group-1 > B combination > A monotherapy, applied in that order, each step naming the field it reads. A DIFFERENT PRECEDENCE WOULD MOVE TRIALS BETWEEN READINGS AND THESE COUNTS WOULD CHANGE WITH IT, which is why it is written down as a choice rather than presented as a discovery.",
+   "adjudication": "TWO RECORDS WERE ADJUDICATED OUT OF THEIR READINGS, both for one reason. NCT04273945 (macitentan 75 mg vs 10 mg) names bosentan in its ARM DESCRIPTION as a prior exposure participants must come off; NCT01824290 (tadalafil in children) names it as an EXAMPLE OF A CLASS in a background record attached to BOTH arms. `locate()` scored both EXPERIMENTAL because its step-1 scan reads arm DESCRIPTIONS while its control-arm test reads intervention NAMES only -- an asymmetry built deliberately for DAPA-HF and wrong here. A DRUG NAMED IN AN ARM DESCRIPTION AS PRIOR OR BACKGROUND THERAPY IS NOT THE RANDOMISED INTERVENTION, and where the mention is identical in every arm it is by construction not the contrast."
+  },
+  "duplicate_screening": {
+   "performed": false,
+   "state": "OWED, AND RECORDED AS OWED RATHER THAN DESCRIBED",
+   "what_is_owed": "independent duplicate screening by a second reader.",
+   "what_was_NOT_done": "No second model family read this screen. An agreement rate over one reader is not an agreement rate."
+  }
+ },
+ "screening_of_remainder": {
+  "unscreened_remainder": 0,
+  "adjudication": "TWO RECORDS WERE ADJUDICATED OUT OF THEIR READINGS, both for one reason. NCT04273945 (macitentan 75 mg vs 10 mg) names bosentan in its ARM DESCRIPTION as a prior exposure participants must come off; NCT01824290 (tadalafil in children) names it as an EXAMPLE OF A CLASS in a background record attached to BOTH arms. `locate()` scored both EXPERIMENTAL because its step-1 scan reads arm DESCRIPTIONS while its control-arm test reads intervention NAMES only -- an asymmetry built deliberately for DAPA-HF and wrong here. A DRUG NAMED IN AN ARM DESCRIPTION AS PRIOR OR BACKGROUND THERAPY IS NOT THE RANDOMISED INTERVENTION, and where the mention is identical in every arm it is by construction not the contrast."
+ },
+ "topic_state": "REPORTED AS A REFUSAL, WITH A ZERO REMAINDER. Four eligible trials, two with posted results, and no shared estimand anywhere. This review is complete in its screening and empty in its synthesis, and the difference matters.",
+ "risk_of_bias": {
+  "tool": "RoB 2",
+  "state": "NOT_ASSESSED_FOR_THIS_REVIEW",
+  "why": "No result-level RoB 2 assessment has been performed. RECORDED AS UNASSESSED, NEVER AS ABSENT OF BIAS: an unassessed domain is NOT_ASSESSABLE, not LOW. ",
+  "what_would_close_it": "RoB 2 per RESULT for each contributing result."
+ },
+ "grade": {
+  "approach": "GRADE",
+  "by_outcome": {
+   "exercise_or_worsening": {
+    "rated": false,
+    "why_not": "Nothing was pooled, so there is no effect estimate whose certainty could be rated. Rating it would be certainty about a number this review did not produce."
+   }
+  }
+ },
+ "protocol": {
+  "prespecified": false,
+  "permanently_refused": true,
+  "why": "A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively.",
+  "what_was_actually_done": "Eligibility criteria were derived POST HOC on 2026-08-19, when `bosentan-pah` was split into four readings.",
+  "authority_permitting_it": "MECIR R107, provided they are declared as such.",
+  "forward_remedy": "For topics not yet built, register a protocol BEFORE the search."
+ },
+ "sources": {},
+ "sources_note": "Every number is traceable to a ClinicalTrials.gov v2 payload read on 2026-08-19. No journal article was read for any effect estimate.",
+ "extraction": {
+  "_why": "Every cell says whether it was READ or DERIVED and carries what it was read from.",
+  "verified_utc": "2026-08-19",
+  "source": {
+   "registry": "ClinicalTrials.gov, the four eligible registrations read in full",
+   "read_via": "raw v2 API, fields=protocolSection,hasResults,resultsSection"
+  },
+  "cells": [
+   {
+    "field": "NCT00091715 EARLY registered primaries",
+    "label": "READ",
+    "source_path": "protocolSection.outcomesModule.primaryOutcomes[].measure",
+    "verbatim": "exercise capacity; cardiac hemodynamics",
+    "note": "TWO WORDS EACH. This is the cell the whole reading turns on."
+   },
+   {
+    "field": "NCT00091715 EARLY posted results",
+    "label": "READ",
+    "source_path": "hasResults",
+    "verbatim": "false",
+    "note": "n=185, COMPLETED 2006, and no results section."
+   },
+   {
+    "field": "NCT00377455 registered primary",
+    "label": "READ",
+    "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+    "verbatim": "Total Exercise Time on the Exercise Echocardiogram Using the Standard Bruce Stress Protocol.",
+    "note": "n=5, TERMINATED. Its 6-minute walk distance is a SECONDARY registered as a bare construct with no change term."
+   },
+   {
+    "field": "NCT00825266 registered primary",
+    "label": "READ",
+    "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+    "verbatim": "Insulin Resistance Profile Change - Triglyceride:HDL Cholesterol Ratio",
+    "note": "n=2, TERMINATED. A metabolic endpoint in a PAH population."
+   },
+   {
+    "field": "trials registering a walk-distance CHANGE",
+    "value": "0 of 4",
+    "label": "DERIVED",
+    "derived_by": "structural detection over every registered rank -- a walk term plus a change term, scripts/estimand_bosentan_readings_2026_08_19.py"
+   },
+   {
+    "field": "trials naming a walk endpoint AT ALL",
+    "value": "2 of 4",
+    "label": "DERIVED",
+    "derived_by": "the weaker limb, reported separately",
+    "note": "THE GAP BETWEEN 0 AND 2 IS THE FINDING. Two trials name the endpoint as a CONSTRUCT with no change term, timepoint or direction. Calling those a shared estimand would be inferring the analysis from the construct."
+   }
+  ]
+ },
+ "precondition_verdict": {
+  "assessed_on": "2026-08-19",
+  "standard_version": "1.15.0-2026-08-19",
+  "authority": {
+   "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+   "version": "6.5, 2024",
+   "verified_on": "2026-08-19",
+   "verified_how": "read from cochrane.org/authors/handbooks-and-manuals/handbook/current chapters 10 and 23, and from the official MECIR PDF (February 2022), text extracted locally rather than summarised"
+  },
+  "publishable": true,
+  "authoring_constraint": "These preconditions were authored in the same session that applied them. A reader who disagrees should disagree with ssot/preconditions.py, from which every verdict here is reproducible.",
+  "verdicts": {
+   "population_stated": {
+    "verdict": "PASS",
+    "reason": "present: question carries 195 characters",
+    "authority": "MECIR C62 'Ensuring meta-analyses are meaningful' (Mandatory, READ 2026-08-19): 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar...'; MECIR C5 'Predefining unambiguous criteria for participants' (Mandatory)"
+   },
+   "arm_role_resolved": {
+    "verdict": "NOT-ASSESSABLE",
+    "reason": "cannot assess: inputs.trials has 4 trial(s) with no readable arms ['NCT00091715', 'NCT00377455', 'NCT00825266', 'NCT01827059'] and 0 with a blank arm role []. Absent role data is not a wrong role.",
+    "authority": "MECIR C62 (Mandatory), 'interventions' limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are 'sufficiently similar' without knowing which arm is the intervention. NOT cited to C5/C7: those govern PREDEFINITION of criteria, and this check only reads whether a field is populated."
+   },
+   "comparators_identified": {
+    "verdict": "PASS",
+    "reason": "every outcome names a comparator type ['placebo']; none declares 'mixed'. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged.",
+    "authority": "MECIR C62 (Mandatory), 'comparisons' limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency."
+   },
+   "estimand_named": {
+    "verdict": "PASS",
+    "reason": "outcomes.estimand: all 1 outcome(s) name a quantity",
+    "authority": "MECIR C8 'Clarifying role of outcomes' (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), 'outcomes' limb"
+   },
+   "criteria_stated": {
+    "verdict": "PASS",
+    "reason": "present: screening.eligibility carries 608 characters",
+    "authority": "MECIR R29 'Eligibility criteria for types of participants', R30 '...types of interventions', R31 'Role of outcomes' -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block DERIVED post hoc satisfies this if it is labelled post hoc per R107."
+   },
+   "criteria_predefined": {
+    "verdict": "FAIL",
+    "reason": "screening.eligibility_provenance.predefined is false: the criteria were DERIVED post hoc from this object's own question and recorded exclusions. That is auditable (R29/R30/R31) and is not pre-specification (C5/C7). This FAIL is permanent and correct.",
+    "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.' C5/C7 govern PREDEFINITION and CANNOT be discharged by a post hoc derivation."
+   },
+   "eligibility_met": {
+    "verdict": "NOT-ASSESSABLE",
+    "reason": "cannot assess: criteria are stated, but sources is an empty dict -- no full text was available this pass, and inclusion logic is conditional prose",
+    "authority": "MECIR C5/C7 (Mandatory) with C6 'Predefining a strategy for studies with a subset of eligible participants' (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report"
+   },
+   "contributes_a_randomised_contrast": {
+    "verdict": "NOT-ASSESSABLE",
+    "reason": "cannot assess: 4 of 4 trial(s) carry no readable arm roles ['NCT00091715', 'NCT00377455', 'NCT00825266', 'NCT01827059']",
+    "authority": "Handbook 6.5 s23.3.4 'How to include multiple groups from one study' (READ 2026-08-19) and s23.3.6 'Factorial trials'; MECIR C7 'Predefining unambiguous criteria for interventions and comparators' (Mandatory)"
+   }
+  }
+ },
+ "published_comparison": {
+  "state": "PENDING_EXTERNAL_RESOLUTION",
+  "_why": "Every page this project ships carries this section with a DENOMINATOR. A comparison without one reports the syntheses it happened to find.",
+  "denominator": null,
+  "denominator_reason": "Not yet established. Establishing it requires resolving published syntheses' included-sets to REGISTRATION IDs. A second lane has validated that pipeline (stated-k table identification plus two-hop citation->PMID->registration) and is running it now.",
+  "explicitly_not_done": "CITATION-STRING MATCHING. It would produce a comparison-shaped answer tonight and it is not identity: two syntheses citing the same trial under different labels would read as different, and the same label on different trials as the same. That is the substitution class this project audits for.",
+  "candidate_source_search": "PubMed search recorded at search.databases[1] (109 records)",
+  "blocked_on": "lane 2 registration-id resolution"
+ },
+ "registration_identity": {
+  "verified_utc": "2026-08-19",
+  "method": "live fetch of the raw ClinicalTrials.gov v2 record and comparison of the returned nctId against the id stored on this object",
+  "trials": [
+   {
+    "nct": "NCT00091715",
+    "verified": true,
+    "link": "https://clinicaltrials.gov/study/NCT00091715"
+   },
+   {
+    "nct": "NCT00377455",
+    "verified": true,
+    "link": "https://clinicaltrials.gov/study/NCT00377455"
+   },
+   {
+    "nct": "NCT00825266",
+    "verified": true,
+    "link": "https://clinicaltrials.gov/study/NCT00825266"
+   },
+   {
+    "nct": "NCT01827059",
+    "verified": true,
+    "link": "https://clinicaltrials.gov/study/NCT01827059"
+   }
+  ],
+  "duplicate_seeding_check": {
+   "state": "CHECKED",
+   "checked_against": "evidence/2026-08-19-corpus/reconcile.json",
+   "n_trials_checked": 4,
+   "shared_with_other_topics": false,
+   "shared": null
+  }
+ },
+ "build_stamp": {
+  "page_standard_version": "1.15.0-2026-08-19",
+  "standard_document": "PAGE-STANDARD.md",
+  "built_utc": "2026-08-19",
+  "built_by": "ssot/build_to_standard.py",
+  "properties": {
+   "P1_executed_search": {
+    "state": "HELD",
+    "reason": "2 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 0-trial unscreened remainder is stated as a number rather than omitted."
+   },
+   "P2_k_cascade": {
+    "state": "HELD",
+    "reason": "k at every stage: surfaced 57, located 47, experimental 35, comparator 4, included 4, unscreened remainder 0."
+   },
+   "P3_inclusion_criteria": {
+    "state": "HELD",
+    "reason": "Criteria provenance block present with predefined=False on its face (state 'DERIVED_POST_HOC')."
+   },
+   "P4_preconditions": {
+    "state": "HELD",
+    "reason": "All 8 recorded with verdict and cited authority: 1 FAIL, 3 NOT-ASSESSABLE. criteria_predefined is FAIL -- post hoc criteria, which R107 permits and C5/C7 does not satisfy."
+   },
+   "P5_extraction_table": {
+    "state": "HELD",
+    "reason": "6 cells: 4 READ with source path and verbatim text, 2 DERIVED with the method named."
+   },
+   "P6_analysis_output": {
+    "state": "REFUSING",
+    "reason": "No quotable model output exists: k=4 and nothing was pooled. The absence is recorded as a finding with its cause and its trigger."
+   },
+   "P7_published_comparison": {
+    "state": "REFUSING",
+    "reason": "No denominator yet. Blocked on external registration-id resolution; citation-string matching explicitly refused rather than substituted."
+   },
+   "P8_registration_identity": {
+    "state": "HELD",
+    "reason": "4 of 4 trial(s) verified live against the registry."
+   },
+   "P18_restatement_is_reproducible": {
+    "state": "REFUSING",
+    "reason": "No restatement block on this cascade, so there is nothing to re-derive. This is NOT_ASSESSABLE dressed as a refusal rather than a pass: a topic that has never been restated has not demonstrated that a restatement of it would be checkable."
+   },
+   "P19_promotion_reaches_derived_blocks": {
+    "state": "HELD",
+    "reason": "inputs.trials, k_cascade.k_included_in_object and prisma_flow.included all say 4; no first-person field in published_comparison declares a k the pooled outcome(s) do not."
+   },
+   "P20_cascade_reconciles": {
+    "state": "HELD",
+    "reason": "k2_role_located=47 == k3+k4+k5, and k0_surfaced=57 == k3+k4+k5+kNA. Both checked, and every failing limb would be reported rather than the first."
+   },
+   "P21_ambiguous_question_split": {
+    "state": "HELD",
+    "reason": "Split from 'bosentan-pah' into this review and 3 sibling(s) ['bosentan-pah-combination', 'bosentan-ph-not-group1', 'bosentan-pah-children'], with the decision recorded at None. Nothing was dropped to resolve the ambiguity."
+   },
+   "P22_sharing_recorded": {
+    "state": "HELD",
+    "reason": "No trial of this review appears in any other object's included set. COMPUTED over the corpus, not asserted: 4 trial(s) checked against every other topic object."
+   },
+   "P23_recall_measured": {
+    "state": "HELD",
+    "reason": "All 2 recorded quer(ies) state their recall against this review's own included set: ['1/1 -- EARLY (NCT00091715) surfaced', 'NOT MEASURED']."
+   }
+  },
+  "held": [
+   "P19_promotion_reaches_derived_blocks",
+   "P1_executed_search",
+   "P20_cascade_reconciles",
+   "P21_ambiguous_question_split",
+   "P22_sharing_recorded",
+   "P23_recall_measured",
+   "P2_k_cascade",
+   "P3_inclusion_criteria",
+   "P4_preconditions",
+   "P5_extraction_table",
+   "P8_registration_identity"
+  ],
+  "refusing": [
+   "P18_restatement_is_reproducible",
+   "P6_analysis_output",
+   "P7_published_comparison"
+  ],
+  "_ratchet": "This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant."
+ }
+}

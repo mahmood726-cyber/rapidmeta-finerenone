@@ -1,0 +1,457 @@
+{
+ "topic": "bosentan-pah",
+ "asked_utc": "2026-08-19",
+ "adjudicated_out": {
+  "NCT01824290": {
+   "was": "D_children",
+   "now": "EXCLUDED",
+   "why": "tadalafil against placebo in children. BOSENTAN IS NOT RANDOMISED. It is named as an EXAMPLE OF A CLASS in a background-therapy record attached to BOTH arms: \"All participants were taking endothelin receptor antagonist (ERA) (such as bosentan, ambrisentan and macitentan).\""
+  },
+  "NCT04273945": {
+   "was": "B_add_on",
+   "now": "EXCLUDED",
+   "why": "macitentan 75 mg against macitentan 10 mg. BOSENTAN IS NOT RANDOMISED. It is named in the arm description as a PRIOR EXPOSURE participants must come off: \"...or a daily dose of bosentan <250 mg, will enter a 4-week open-label run-in period with macitentan 10 mg prior to randomization.\" The identical sentence appears in BOTH arms."
+  }
+ },
+ "the_mechanism_both_flagged_trials_share": "A DRUG NAMED IN AN ARM DESCRIPTION AS PRIOR THERAPY, BACKGROUND THERAPY OR AN EXAMPLE OF A CLASS IS NOT THE RANDOMISED INTERVENTION. `locate()`'s step-1 scan reads arm DESCRIPTIONS while its control-arm test reads intervention NAMES only -- an asymmetry built deliberately for DAPA-HF, whose control record is named `Drug: Placebo` with the description 'Placebo matching dapagliflozin'. The consequence here is that a description-only mention counts as presence in an arm and THE SAME MENTION ON THE CONTROL SIDE CANNOT CANCEL IT. Where the mention is IDENTICAL IN EVERY ARM it is by construction not the contrast, whichever field it sits in.",
+ "withholding_question": {
+  "question": "does each eligible trial register, at ANY rank, a six-minute walk distance CHANGE, or a clinical-worsening / morbidity-mortality outcome, before any decision about which trials can be combined?",
+  "detected_structurally_not_by_keyword": "a walk-distance term plus a change term; a worsening or event term in a disease context. Never a registered phrase, which would find only the trials that already agree."
+ },
+ "by_reading": {
+  "A_monotherapy": [
+   {
+    "nct": "NCT00091715",
+    "name": "Efficacy and Safety of Oral Bosentan in Pulmonary Arterial Hypertensio",
+    "enrolment": 185,
+    "status": "COMPLETED",
+    "has_results": false,
+    "ranks_read": 2,
+    "walk_change_at_ranks": [],
+    "walk_named_at_all_at_ranks": [],
+    "registered_primaries": [
+     "exercise capacity",
+     "cardiac hemodynamics"
+    ],
+    "worsening_at_ranks": []
+   },
+   {
+    "nct": "NCT00377455",
+    "name": "Placebo Controlled Trial of Bosentan in Scleroderma Patients",
+    "enrolment": 5,
+    "status": "TERMINATED",
+    "has_results": true,
+    "ranks_read": 5,
+    "walk_change_at_ranks": [],
+    "walk_named_at_all_at_ranks": [
+     {
+      "rank": "SECONDARY",
+      "measure": "6-minute Walk Distance"
+     }
+    ],
+    "registered_primaries": [
+     "Total Exercise Time on the Exercise Echocardiogram Using the Standard Bruce Stress Protocol."
+    ],
+    "worsening_at_ranks": []
+   },
+   {
+    "nct": "NCT00825266",
+    "name": "Insulin Resistance in Pulmonary Arterial Hypertension",
+    "enrolment": 2,
+    "status": "TERMINATED",
+    "has_results": true,
+    "ranks_read": 3,
+    "walk_change_at_ranks": [],
+    "walk_named_at_all_at_ranks": [
+     {
+      "rank": "SECONDARY",
+      "measure": "6 Minute Walk Test"
+     }
+    ],
+    "registered_primaries": [
+     "Insulin Resistance Profile Change - Triglyceride:HDL Cholesterol Ratio"
+    ],
+    "worsening_at_ranks": []
+   },
+   {
+    "nct": "NCT01827059",
+    "name": "Bosentan In Exercise Induced Pulmonary Arterial Hypertension in Congen",
+    "enrolment": 12,
+    "status": "UNKNOWN",
+    "has_results": false,
+    "ranks_read": 8,
+    "walk_change_at_ranks": [],
+    "walk_named_at_all_at_ranks": [],
+    "registered_primaries": [
+     "Change in mean pulmonary arterial pressure (mPAP) at peak exercise"
+    ],
+    "worsening_at_ranks": []
+   }
+  ],
+  "B_add_on": [
+   {
+    "nct": "NCT00120380",
+    "name": "Combination Therapy of Bosentan and Aerosolized Iloprost in Idiopathic",
+    "enrolment": 40,
+    "status": "TERMINATED",
+    "has_results": false,
+    "ranks_read": 1,
+    "walk_change_at_ranks": [],
+    "walk_named_at_all_at_ranks": [
+     {
+      "rank": "PRIMARY",
+      "measure": "6 minute walk test"
+     }
+    ],
+    "registered_primaries": [
+     "6 minute walk test"
+    ],
+    "worsening_at_ranks": []
+   },
+   {
+    "nct": "NCT00303459",
+    "name": "Effects of the Combination of Bosentan and Sildenafil Versus Sildenafi",
+    "enrolment": 334,
+    "status": "COMPLETED",
+    "has_results": true,
+    "ranks_read": 10,
+    "walk_change_at_ranks": [
+     {
+      "rank": "SECONDARY",
+      "measure": "Change From Baseline to Week 16 in 6 Minute Walk Test (6MWT)"
+     }
+    ],
+    "walk_named_at_all_at_ranks": [
+     {
+      "rank": "SECONDARY",
+      "measure": "Change From Baseline to Week 16 in 6 Minute Walk Test (6MWT)"
+     }
+    ],
+    "registered_primaries": [
+     "Time to First Confirmed Morbidity/Mortality Event up to the End of Study"
+    ],
+    "worsening_at_ranks": [
+     {
+      "rank": "SECONDARY",
+      "measure": "Time to First Confirmed Death, Hospitalization for Worsening or Complication of PAH or Initiation of Intravenous Prostan"
+     }
+    ]
+   },
+   {
+    "nct": "NCT01100736",
+    "name": "Role of Endothelin-A (ETA) and Endothelin-B (ETB) Receptors in the Vas",
+    "enrolment": 10,
+    "status": "COMPLETED",
+    "has_results": false,
+    "ranks_read": 2,
+    "walk_change_at_ranks": [],
+    "walk_named_at_all_at_ranks": [],
+    "registered_primaries": [
+     "Plasma ET-1 after 7-day administration of bosentan, sitaxsentan and placebo",
+     "Responses to ET-3 (maximum vasodilation after ET-3 administration and area under the curve of vasodilation) after bosentan compared with the results from sitaxsentan and placebo."
+    ],
+    "worsening_at_ranks": []
+   },
+   {
+    "nct": "NCT01352065",
+    "name": "Characterization and Detection of Prolonged Endothelin Receptors Antag",
+    "enrolment": 30,
+    "status": "COMPLETED",
+    "has_results": false,
+    "ranks_read": 2,
+    "walk_change_at_ranks": [],
+    "walk_named_at_all_at_ranks": [],
+    "registered_primaries": [
+     "Maximal oxygen uptake"
+    ],
+    "worsening_at_ranks": []
+   },
+   {
+    "nct": "NCT03053739",
+    "name": "To Compare the Efficacy of Combination Therapy vs Monotherapy for Pulm",
+    "enrolment": 50,
+    "status": "UNKNOWN",
+    "has_results": false,
+    "ranks_read": 4,
+    "walk_change_at_ranks": [
+     {
+      "rank": "SECONDARY",
+      "measure": "1.Change in 6 Minute walk distance"
+     }
+    ],
+    "walk_named_at_all_at_ranks": [
+     {
+      "rank": "SECONDARY",
+      "measure": "1.Change in 6 Minute walk distance"
+     }
+    ],
+    "registered_primaries": [
+     "Change in Pulmonary artery pressures"
+    ],
+    "worsening_at_ranks": [
+     {
+      "rank": "SECONDARY",
+      "measure": "Time To Clinical Worsening (TTCW)"
+     }
+    ]
+   },
+   {
+    "nct": "NCT04039464",
+    "name": "Mono vs. Dual Therapy for Pediatric Pulmonary Arterial Hypertension",
+    "enrolment": 28,
+    "status": "COMPLETED",
+    "has_results": false,
+    "ranks_read": 2,
+    "walk_change_at_ranks": [],
+    "walk_named_at_all_at_ranks": [],
+    "registered_primaries": [
+     "Change in WHO functional class (FC) of Mono vs. Dual Therapy"
+    ],
+    "worsening_at_ranks": [
+     {
+      "rank": "SECONDARY",
+      "measure": "Time to clinical worsening (TTCW)"
+     }
+    ]
+   },
+   {
+    "nct": "NCT06317805",
+    "name": "Initial Triple Therapy Including Parenteral Treprostinil vs Initial Do",
+    "enrolment": 110,
+    "status": "RECRUITING",
+    "has_results": false,
+    "ranks_read": 25,
+    "walk_change_at_ranks": [
+     {
+      "rank": "SECONDARY",
+      "measure": "Rate of change in 6MWD"
+     }
+    ],
+    "walk_named_at_all_at_ranks": [
+     {
+      "rank": "SECONDARY",
+      "measure": "Rate of change in 6MWD"
+     }
+    ],
+    "registered_primaries": [
+     "Patients achieving (non-)response status to the assigned treatment in terms of achievement of low-risk status"
+    ],
+    "worsening_at_ranks": [
+     {
+      "rank": "SECONDARY",
+      "measure": "Total number of clinical worsening(s)"
+     }
+    ]
+   }
+  ],
+  "C_not_group1": [
+   {
+    "nct": "NCT00310830",
+    "name": "Efficacy and Safety of Bosentan in Sickle Cell Disease (SCD) Patients ",
+    "enrolment": 14,
+    "status": "TERMINATED",
+    "has_results": false,
+    "ranks_read": 2,
+    "walk_change_at_ranks": [],
+    "walk_named_at_all_at_ranks": [],
+    "registered_primaries": [
+     "Change from Baseline to End of Study in 6MWT distance. A mean difference from placebo of at least 35 m is considered clinically relevant."
+    ],
+    "worsening_at_ranks": [
+     {
+      "rank": "SECONDARY",
+      "measure": "Time to clinical worsening from Baseline to EOS."
+     }
+    ]
+   },
+   {
+    "nct": "NCT00313196",
+    "name": "Efficacy and Safety of Bosentan in Sickle Cell Disease (SCD) Patients ",
+    "enrolment": 12,
+    "status": "TERMINATED",
+    "has_results": false,
+    "ranks_read": 2,
+    "walk_change_at_ranks": [],
+    "walk_named_at_all_at_ranks": [],
+    "registered_primaries": [
+     "Change from Baseline to End of Study in 6MWT distance. A mean difference from placebo of at least 35 m is considered clinically relevant."
+    ],
+    "worsening_at_ranks": [
+     {
+      "rank": "SECONDARY",
+      "measure": "Time to clinical worsening from Baseline to End of Study."
+     }
+    ]
+   },
+   {
+    "nct": "NCT00581607",
+    "name": "Double Blind, Randomized Trial of Bosentan for Sarcoidosis Associated ",
+    "enrolment": 43,
+    "status": "COMPLETED",
+    "has_results": false,
+    "ranks_read": 4,
+    "walk_change_at_ranks": [
+     {
+      "rank": "PRIMARY",
+      "measure": "Improvement in six minute walk distance"
+     }
+    ],
+    "walk_named_at_all_at_ranks": [
+     {
+      "rank": "PRIMARY",
+      "measure": "Improvement in six minute walk distance"
+     }
+    ],
+    "registered_primaries": [
+     "Improvement in six minute walk distance"
+    ],
+    "worsening_at_ranks": []
+   },
+   {
+    "nct": "NCT00625469",
+    "name": "Pulmonary Arterial Hypertension Secondary to Idiopathic Pulmonary Fibr",
+    "enrolment": 0,
+    "status": "WITHDRAWN",
+    "has_results": false,
+    "ranks_read": 3,
+    "walk_change_at_ranks": [],
+    "walk_named_at_all_at_ranks": [
+     {
+      "rank": "PRIMARY",
+      "measure": "6 minute walk distance"
+     }
+    ],
+    "registered_primaries": [
+     "6 minute walk distance"
+    ],
+    "worsening_at_ranks": []
+   },
+   {
+    "nct": "NCT00637065",
+    "name": "Bosentan in Pulmonary Hypertension in Interstitial Lung Disease Treatm",
+    "enrolment": 48,
+    "status": "UNKNOWN",
+    "has_results": false,
+    "ranks_read": 9,
+    "walk_change_at_ranks": [],
+    "walk_named_at_all_at_ranks": [
+     {
+      "rank": "SECONDARY",
+      "measure": "Six minute walk distance"
+     }
+    ],
+    "registered_primaries": [
+     "The primary endpoint is a fall in pulmonary vascular resistance (PVR) of 20% over 16 weeks."
+    ],
+    "worsening_at_ranks": []
+   },
+   {
+    "nct": "NCT00820352",
+    "name": "Safety and Efficacy of Bosentan in Patients With Diastolic Heart Failu",
+    "enrolment": 20,
+    "status": "COMPLETED",
+    "has_results": false,
+    "ranks_read": 7,
+    "walk_change_at_ranks": [
+     {
+      "rank": "SECONDARY",
+      "measure": "change in 6 minute walking distance after 24 weeks (12 weeks bosentan or placebo treatment and 12 weeks follow-up)"
+     }
+    ],
+    "walk_named_at_all_at_ranks": [
+     {
+      "rank": "SECONDARY",
+      "measure": "change in 6 minute walking distance after 24 weeks (12 weeks bosentan or placebo treatment and 12 weeks follow-up)"
+     }
+    ],
+    "registered_primaries": [
+     "change in 6 minute waling distance after 12 weeks of bosentan (or placebo) treatment"
+    ],
+    "worsening_at_ranks": [
+     {
+      "rank": "SECONDARY",
+      "measure": "time to clinical worsening after 12 and 24 weeks"
+     }
+    ]
+   },
+   {
+    "nct": "NCT00926627",
+    "name": "Safety and Efficacy Study of Bosentan in Progressive Pulmonary Sarcoid",
+    "enrolment": 32,
+    "status": "TERMINATED",
+    "has_results": false,
+    "ranks_read": 3,
+    "walk_change_at_ranks": [],
+    "walk_named_at_all_at_ranks": [
+     {
+      "rank": "PRIMARY",
+      "measure": "Treatment efficacy is assessed by a composite clinical score, including six parameters: Pulmonary function test (FVC and"
+     }
+    ],
+    "registered_primaries": [
+     "Treatment efficacy is assessed by a composite clinical score, including six parameters: Pulmonary function test (FVC and DLCO), Blood gas analysis (AaDO2), HRCT (Oberstein score), 6 minute walk test (6-MWD), Dyspnoea (ATS dyspnea scale)"
+    ],
+    "worsening_at_ranks": []
+   },
+   {
+    "nct": "NCT01449253",
+    "name": "Comparison of Efficacy Different Treatment Regimens in Pulmonary Hyper",
+    "enrolment": 60,
+    "status": "UNKNOWN",
+    "has_results": false,
+    "ranks_read": 12,
+    "walk_change_at_ranks": [],
+    "walk_named_at_all_at_ranks": [
+     {
+      "rank": "PRIMARY",
+      "measure": "6 minute walk test"
+     },
+     {
+      "rank": "SECONDARY",
+      "measure": "6 minute walk test"
+     }
+    ],
+    "registered_primaries": [
+     "Echocardiogram",
+     "WHO functional classification",
+     "6 minute walk test",
+     "Pulmonary function test",
+     "Visual analog scale for dyspnea"
+    ],
+    "worsening_at_ranks": []
+   }
+  ],
+  "D_children": [
+   {
+    "nct": "NCT01223352",
+    "name": "Effects of Two Dosing Regimens of Bosentan in Children With Pulmonary ",
+    "enrolment": 64,
+    "status": "COMPLETED",
+    "has_results": true,
+    "ranks_read": 8,
+    "walk_change_at_ranks": [],
+    "walk_named_at_all_at_ranks": [],
+    "registered_primaries": [
+     "Dose-corrected Daily Exposure [AUC(0-24c)] to Bosentan"
+    ],
+    "worsening_at_ranks": []
+   },
+   {
+    "nct": "NCT01389856",
+    "name": "Persistent Pulmonary Hypertension of the Newborn",
+    "enrolment": 23,
+    "status": "TERMINATED",
+    "has_results": true,
+    "ranks_read": 33,
+    "walk_change_at_ranks": [],
+    "walk_named_at_all_at_ranks": [],
+    "registered_primaries": [
+     "Percentage of Patients With Treatment Failure",
+     "Time to Complete Weaning From iNO",
+     "Time to Complete Weaning From Mechanical Ventilation"
+    ],
+    "worsening_at_ranks": []
+   }
+  ]
+ }
+}

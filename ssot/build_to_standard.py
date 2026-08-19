@@ -31,6 +31,10 @@ from apx_split_topic_data import (APXP_CASCADE, APXP_EXTRACTION, APXP_PRISMA, AP
                                   APXT_CASCADE, APXT_EXTRACTION, APXT_PRISMA, APXT_SEARCH)
 from boco_topic_data import BOCO_CASCADE, BOCO_EXTRACTION, BOCO_PRISMA, BOCO_SEARCH
 from azl_topic_data import AZL_CASCADE, AZL_EXTRACTION, AZL_PRISMA, AZL_SEARCH
+from bos_topic_data import (BOSA_CASCADE, BOSA_EXTRACTION, BOSA_PRISMA, BOSA_SEARCH,
+                            BOSB_CASCADE, BOSB_EXTRACTION, BOSB_PRISMA, BOSB_SEARCH,
+                            BOSC_CASCADE, BOSC_EXTRACTION, BOSC_PRISMA, BOSC_SEARCH,
+                            BOSD_CASCADE, BOSD_EXTRACTION, BOSD_PRISMA, BOSD_SEARCH)
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 PAGE_STANDARD_VERSION = "1.15.0-2026-08-19"
@@ -528,6 +532,25 @@ TOPIC_DATA = {
     "azilsartan-chlorthalidone-vs-olmesartan-hctz": {
         "search": AZL_SEARCH, "prisma": AZL_PRISMA, "k_cascade": AZL_CASCADE,
         "primary_outcome_key": "sbp_change_wk8", "extraction": AZL_EXTRACTION},
+    # THE FOUR READINGS `bosentan-pah` WAS SPLIT INTO (P21). Blocks in ssot/bos_topic_data.py,
+    # written out separately per reading: four sibling topics in one session is the exact
+    # shape that produced the cross-topic contamination class, and route 7 went through a COPY.
+    "bosentan-pah-monotherapy": {"search": BOSA_SEARCH, "prisma": BOSA_PRISMA,
+                                 "k_cascade": BOSA_CASCADE,
+                                 "primary_outcome_key": "exercise_or_worsening",
+                                 "extraction": BOSA_EXTRACTION},
+    "bosentan-pah-combination": {"search": BOSB_SEARCH, "prisma": BOSB_PRISMA,
+                                 "k_cascade": BOSB_CASCADE,
+                                 "primary_outcome_key": "morbidity_mortality",
+                                 "extraction": BOSB_EXTRACTION},
+    "bosentan-ph-not-group1": {"search": BOSC_SEARCH, "prisma": BOSC_PRISMA,
+                               "k_cascade": BOSC_CASCADE,
+                               "primary_outcome_key": "exercise_or_worsening",
+                               "extraction": BOSC_EXTRACTION},
+    "bosentan-pah-children": {"search": BOSD_SEARCH, "prisma": BOSD_PRISMA,
+                              "k_cascade": BOSD_CASCADE,
+                              "primary_outcome_key": "shared_clinical_outcome",
+                              "extraction": BOSD_EXTRACTION},
     "iv-iron-hf": {"search": IVI_SEARCH, "prisma": IVI_PRISMA,
                    "k_cascade": IVI_CASCADE,
                    "primary_outcome_key": "hfh_cvd_recurrent",

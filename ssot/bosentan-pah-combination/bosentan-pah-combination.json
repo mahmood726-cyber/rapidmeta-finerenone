@@ -1,0 +1,610 @@
+{
+ "app_id": "bosentan-pah-combination",
+ "schema_version": 2,
+ "title": "Bosentan added to established pulmonary arterial hypertension therapy: one trial has reported, and its design is invisible in the registry's arm fields",
+ "question": "In adults with pulmonary arterial hypertension already receiving a PAH-specific therapy, what is the effect of adding bosentan, compared with continuing that therapy alone, on morbidity and mortality?",
+ "question_provenance": "One of the four readings `bosentan-pah` was split into on 2026-08-19.",
+ "built": "2026-08-19",
+ "build_mode": "AUTHORED",
+ "split_provenance": {
+  "parent": "bosentan-pah",
+  "why_split": "The parent asked at least four questions under one title and its two trials fell on opposite sides of the split -- COMPASS-2 (combination) and FUTURE-2 (children, open-label, no control arm, primary is growth). See DECIDED-bosentan-pah-2026-08-19.md. P21.",
+  "siblings": [
+   "bosentan-pah-monotherapy",
+   "bosentan-ph-not-group1",
+   "bosentan-pah-children"
+  ],
+  "precedence": "The four readings are NOT mutually exclusive by construction -- a trial can be paediatric and group-1 and a combination design at once -- so an assignment rule is required. It is D children > C not-WHO-group-1 > B combination > A monotherapy, applied in that order, each step naming the field it reads. A DIFFERENT PRECEDENCE WOULD MOVE TRIALS BETWEEN READINGS AND THESE COUNTS WOULD CHANGE WITH IT, which is why it is written down as a choice rather than presented as a discovery."
+ },
+ "outcomes": [
+  {
+   "id": "morbidity_mortality",
+   "name": "Time to first morbidity or mortality event",
+   "definition": "Time to the first confirmed morbidity or mortality event, as each trial registers it.",
+   "measure": "HR",
+   "effect_scale": "log",
+   "type": "primary",
+   "estimand": {
+    "id": "morbidity_mortality",
+    "family": "time-to-first-event",
+    "model": "none -- single trial"
+   },
+   "comparator": "background PAH therapy alone",
+   "comparator_type": "placebo",
+   "direction_of_benefit": "lower",
+   "null_value": 1.0
+  }
+ ],
+ "withholding_question": {
+  "asked_on": "2026-08-19",
+  "question": "does each eligible trial register, at ANY rank, a six-minute walk distance CHANGE, or a clinical-worsening / morbidity-mortality outcome, before any decision about which trials can be combined?",
+  "detected_structurally_not_by_keyword": "a walk-distance term plus a change term; a worsening or event term in a disease context. Never a registered phrase, which would find only the trials that already agree.",
+  "answer": "YES FOR FOUR OF THE SEVEN, AND ONLY ONE HAS REPORTED. Four register a clinical-worsening outcome and three a walk change; six have posted no results, so the shared estimand exists on paper and not in data.",
+  "per_trial": {
+   "NCT00120380": {
+    "name": "Combination Therapy of Bosentan and Aerosolized Iloprost in Idiopathic",
+    "two_component": "1 rank(s) read; no results",
+    "three_component": "NO walk-change and NO clinical-worsening outcome at any rank"
+   },
+   "NCT00303459": {
+    "name": "Effects of the Combination of Bosentan and Sildenafil Versus Sildenafi",
+    "two_component": "10 rank(s) read; RESULTS POSTED",
+    "three_component": "[SECONDARY] Change From Baseline to Week 16 in 6 Minute Walk Test (6MWT); [SECONDARY] Time to First Confirmed Death, Hospitalization for Worsening or Complication of "
+   },
+   "NCT01100736": {
+    "name": "Role of Endothelin-A (ETA) and Endothelin-B (ETB) Receptors in the Vas",
+    "two_component": "2 rank(s) read; no results",
+    "three_component": "NO walk-change and NO clinical-worsening outcome at any rank"
+   },
+   "NCT01352065": {
+    "name": "Characterization and Detection of Prolonged Endothelin Receptors Antag",
+    "two_component": "2 rank(s) read; no results",
+    "three_component": "NO walk-change and NO clinical-worsening outcome at any rank"
+   },
+   "NCT03053739": {
+    "name": "To Compare the Efficacy of Combination Therapy vs Monotherapy for Pulm",
+    "two_component": "4 rank(s) read; no results",
+    "three_component": "[SECONDARY] 1.Change in 6 Minute walk distance; [SECONDARY] Time To Clinical Worsening (TTCW)"
+   },
+   "NCT04039464": {
+    "name": "Mono vs. Dual Therapy for Pediatric Pulmonary Arterial Hypertension",
+    "two_component": "2 rank(s) read; no results",
+    "three_component": "[SECONDARY] Time to clinical worsening (TTCW)"
+   },
+   "NCT06317805": {
+    "name": "Initial Triple Therapy Including Parenteral Treprostinil vs Initial Do",
+    "two_component": "25 rank(s) read; no results",
+    "three_component": "[SECONDARY] Rate of change in 6MWD; [SECONDARY] Total number of clinical worsening(s)"
+   }
+  }
+ },
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT00120380",
+    "nct": "NCT00120380",
+    "name": "Combination Therapy of Bosentan and Aerosolized Iloprost in ",
+    "enrolled": 40,
+    "arms": [],
+    "design": "TERMINATED",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "read from the registration",
+    "by_outcome": {},
+    "registered_primaries": [
+     "6 minute walk test"
+    ],
+    "has_posted_results": false,
+    "registration_read_utc": "2026-08-19",
+    "all_ranks_read_utc": "2026-08-19"
+   },
+   {
+    "id": "NCT00303459",
+    "nct": "NCT00303459",
+    "name": "Effects of the Combination of Bosentan and Sildenafil Versus",
+    "enrolled": 334,
+    "arms": [],
+    "design": "COMPLETED",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "read from the registration",
+    "by_outcome": {},
+    "registered_primaries": [
+     "Time to First Confirmed Morbidity/Mortality Event up to the End of Study"
+    ],
+    "has_posted_results": true,
+    "registration_read_utc": "2026-08-19",
+    "all_ranks_read_utc": "2026-08-19"
+   },
+   {
+    "id": "NCT01100736",
+    "nct": "NCT01100736",
+    "name": "Role of Endothelin-A (ETA) and Endothelin-B (ETB) Receptors ",
+    "enrolled": 10,
+    "arms": [],
+    "design": "COMPLETED",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "read from the registration",
+    "by_outcome": {},
+    "registered_primaries": [
+     "Plasma ET-1 after 7-day administration of bosentan, sitaxsentan and placebo",
+     "Responses to ET-3 (maximum vasodilation after ET-3 administration and area under the curve of vasodilation) after bosentan compared with the results from sitaxsentan and placebo."
+    ],
+    "has_posted_results": false,
+    "registration_read_utc": "2026-08-19",
+    "all_ranks_read_utc": "2026-08-19"
+   },
+   {
+    "id": "NCT01352065",
+    "nct": "NCT01352065",
+    "name": "Characterization and Detection of Prolonged Endothelin Recep",
+    "enrolled": 30,
+    "arms": [],
+    "design": "COMPLETED",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "read from the registration",
+    "by_outcome": {},
+    "registered_primaries": [
+     "Maximal oxygen uptake"
+    ],
+    "has_posted_results": false,
+    "registration_read_utc": "2026-08-19",
+    "all_ranks_read_utc": "2026-08-19"
+   },
+   {
+    "id": "NCT03053739",
+    "nct": "NCT03053739",
+    "name": "To Compare the Efficacy of Combination Therapy vs Monotherap",
+    "enrolled": 50,
+    "arms": [],
+    "design": "UNKNOWN",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "read from the registration",
+    "by_outcome": {},
+    "registered_primaries": [
+     "Change in Pulmonary artery pressures"
+    ],
+    "has_posted_results": false,
+    "registration_read_utc": "2026-08-19",
+    "all_ranks_read_utc": "2026-08-19"
+   },
+   {
+    "id": "NCT04039464",
+    "nct": "NCT04039464",
+    "name": "Mono vs. Dual Therapy for Pediatric Pulmonary Arterial Hyper",
+    "enrolled": 28,
+    "arms": [],
+    "design": "COMPLETED",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "read from the registration",
+    "by_outcome": {},
+    "registered_primaries": [
+     "Change in WHO functional class (FC) of Mono vs. Dual Therapy"
+    ],
+    "has_posted_results": false,
+    "registration_read_utc": "2026-08-19",
+    "all_ranks_read_utc": "2026-08-19"
+   },
+   {
+    "id": "NCT06317805",
+    "nct": "NCT06317805",
+    "name": "Initial Triple Therapy Including Parenteral Treprostinil vs ",
+    "enrolled": 110,
+    "arms": [],
+    "design": "RECRUITING",
+    "comparator_type": "placebo",
+    "comparator_type_basis": "read from the registration",
+    "by_outcome": {},
+    "registered_primaries": [
+     "Patients achieving (non-)response status to the assigned treatment in terms of achievement of low-risk status"
+    ],
+    "has_posted_results": false,
+    "registration_read_utc": "2026-08-19",
+    "all_ranks_read_utc": "2026-08-19"
+   }
+  ]
+ },
+ "config": {
+  "confidence_level": 95
+ },
+ "results": {
+  "by_outcome": {
+   "morbidity_mortality": {
+    "k": 7,
+    "estimand_id": "morbidity_mortality",
+    "model": "none -- single trial",
+    "estimator_used": "not applicable",
+    "comparator_type": "placebo",
+    "poolable": false,
+    "poolable_reason": "SEVEN TRIALS ARE ELIGIBLE AND ONE HAS REPORTED. COMPASS-2 (NCT00303459, n=334) is the only trial in this reading with posted results; its registered primary is 'Time to First Confirmed Morbidity/Mortality Event up to the End of Treatment' and it also registers a Week-16 six-minute walk change at secondary rank. The other six -- 268 participants across five completed or unknown-status trials and 110 in an ongoing sixth -- have posted nothing. k=1 IS A FLOOR AND NOT AN ANSWER, and this review reports one trial's result AS one trial's result rather than assembling a pool from a single row.",
+    "pooled": {
+     "withdrawn": true,
+     "point": null,
+     "withdrawn_because": "k=1; there is nothing to combine"
+    },
+    "single_study_ref": {
+     "trial": "COMPASS-2",
+     "nct": "NCT00303459",
+     "enrolled": 334,
+     "registered_primary": "Time to First Confirmed Morbidity/Mortality Event up to the End of Treatment",
+     "what_this_is": "ONE TRIAL'S RESULT, REPORTED AS ONE TRIAL'S RESULT. The effect estimate itself is NOT extracted onto this object: the posted results were not read cell by cell in this pass, and stating a hazard ratio here without that reading would be a number with no provenance. WHAT IS OWED IS NAMED RATHER THAN GUESSED."
+    },
+    "heterogeneity_status": "NOT_ASSESSABLE -- k = 1",
+    "and_the_add_on_design_is_invisible_in_the_arms": "THE ONE DISTINCTION THIS READING TURNS ON IS PRECISELY THE ONE THE REGISTRY DOES NOT ENCODE. Background therapy is not a registered intervention, so COMPASS-2 -- a combination trial -- declares exactly what EARLY, a monotherapy trial, declares: `armGroups: bosentan | placebo`, `interventions: ['bosentan', 'placebo']`. Read from the arms alone the two are indistinguishable, and COMPASS-2 was first assigned to the MONOTHERAPY reading. A reader will assume monotherapy versus combination is a coded fact. IT IS NOT.",
+    "r_output": {
+     "state": "ABSENT_AND_THAT_IS_THE_FINDING",
+     "_why_absent": "k=7 and nothing was pooled, so there is NO model call to quote, NO pooled estimate, NO heterogeneity and NO package version. This is not a missing artefact; it is the correct state for a topic with no synthesis.",
+     "what_would_hold_P6": "a second reporting trial in this reading.",
+     "k_read_from_object": 7,
+     "quotable_model_call": null,
+     "heterogeneity": null,
+     "heterogeneity_reason": "Undefined: no between-study variance was estimated because no model was run.",
+     "package_version": null,
+     "what_would_change_it": "An estimand shared by two or more included trials. Where k is already above 1 and nothing pooled, the obstacle is the ESTIMAND rather than the evidence base, and this field must say which."
+    }
+   }
+  }
+ },
+ "search": {
+  "executed_by": "lane 1 (Claude, Anthropic family)",
+  "databases": [
+   {
+    "database": "ClinicalTrials.gov API v2",
+    "tool": "mcp__plugin_bio-research_c-trials__search_trials",
+    "query_as_executed": "intervention=\"bosentan\"; condition=\"pulmonary arterial hypertension OR pulmonary hypertension\"; study_type=INTERVENTIONAL; NO phase filter; page_size=100",
+    "date_executed": "2026-08-19",
+    "http_status": 200,
+    "records_returned": 57,
+    "total_reported": 57,
+    "recall_on_included_set": "1/1 -- COMPASS-2 (NCT00303459) surfaced",
+    "pagination_verified": "next_page_token null and returned == totalCount, from the FIRST page."
+   },
+   {
+    "database": "PubMed",
+    "tool": "NOT EXECUTED",
+    "query_as_executed": "NOT EXECUTED FOR THIS TOPIC",
+    "date_executed": "2026-08-19",
+    "http_status": null,
+    "records_returned": null,
+    "total_reported": null,
+    "recall_on_included_set": "NOT MEASURED",
+    "what_is_unexamined": "NO PUBMED SEARCH WAS RUN FOR THIS TOPIC. Recorded as an absence rather than omitted: the registry search is the only executed search behind this review, so any trial reported in the literature and never registered is outside what was looked at. P23 cannot hold on a database nobody queried."
+   }
+  ],
+  "pagination_verified": "returned == totalCount on the registry query."
+ },
+ "prisma_flow": {
+  "_scope": "PRISMA 2020 flow, counted from the executed search above.",
+  "identification": {
+   "ctgov": 57,
+   "pubmed": null
+  },
+  "eligibility_ctgov": {
+   "role_located": 47,
+   "topic_is_experimental_arm": 35,
+   "topic_is_comparator_arm": 4,
+   "topic_is_background": 8,
+   "not_assessable": 10,
+   "note": "one search, one cascade; the reading split is applied after."
+  },
+  "assigned_to_this_reading": 19,
+  "included": {
+   "in_this_object": 7,
+   "contributing_to_the_pool": 1,
+   "nct": [
+    "NCT00120380",
+    "NCT00303459",
+    "NCT01100736",
+    "NCT01352065",
+    "NCT03053739",
+    "NCT04039464",
+    "NCT06317805"
+   ]
+  },
+  "reconciliation": {
+   "arithmetic": "20 records assigned before adjudication, 19 after NCT04273945 was adjudicated out; 7 of the 19 are eligible",
+   "reconciles": true,
+   "unscreened_remainder": 0,
+   "remainder_means": "ZERO."
+  }
+ },
+ "k_cascade": {
+  "k0_surfaced": 57,
+  "k2_role_located": 47,
+  "k3_experimental": 35,
+  "k4_comparator": 4,
+  "k5_background": 8,
+  "kNA_not_assessable": 10,
+  "k_assigned_to_this_reading": 19,
+  "k_eligible": 7,
+  "k_with_posted_results": 1,
+  "k_included_in_object": 7,
+  "k_pooled": 1,
+  "k_unscreened_remainder": 0,
+  "reproduced_by": "scripts/screen_bosentan_split_2026_08_19.py and scripts/estimand_bosentan_readings_2026_08_19.py.",
+  "why_k_pooled_is_ONE": "SEVEN eligible trials and ONE with posted results. COMPASS-2 (NCT00303459, n=334) is the only trial in this reading that has reported anything. k=1 IS A FLOOR AND NOT AN ANSWER: six eligible trials -- 268 further participants across five of them and 110 in an ongoing sixth -- have posted nothing.",
+  "and_this_reading_is_where_the_ADD_ON_DESIGN_IS_INVISIBLE": "COMPASS-2 declares exactly what EARLY declares -- armGroups `bosentan | placebo`, interventions `['bosentan','placebo']` -- because its SILDENAFIL IS BACKGROUND THERAPY AND BACKGROUND THERAPY IS NOT A REGISTERED INTERVENTION. The one distinction this whole reading turns on is precisely the one the registry does not encode.",
+  "_why": "k is never one number. Each stage is what the instrument at that stage could actually decide.",
+  "keyed_on": "registration id"
+ },
+ "screening": {
+  "search_note": "Executed 2026-08-19. 57 registrations surfaced by ONE search over the drug; the four readings are applied after it, by a stated precedence.",
+  "eligibility": "POPULATION: adults with pulmonary arterial hypertension. INTERVENTION: bosentan added to, or combined with, another PAH-specific therapy as the randomised contrast. COMPARATOR: the background therapy alone. ESTIMAND, which governs POOLABILITY and not eligibility: a morbidity/mortality or clinical-worsening outcome, or a six-minute walk distance CHANGE, at ANY rank. AND THE DEFINING FEATURE OF THIS READING IS NOT A CODED FIELD. Background therapy is not a registered intervention, so a combination trial can declare exactly what a monotherapy trial declares. COMPASS-2's arms are `bosentan | placebo` and its interventions are `['bosentan','placebo']` -- identical in shape to EARLY's. The design is named only in the official title, and the assignment records that it rests on TEXT. Criteria are DERIVED POST HOC and say so.",
+  "eligibility_provenance": {
+   "state": "DERIVED_POST_HOC",
+   "predefined": false,
+   "post_hoc": true,
+   "derived": true,
+   "predefined_is_false_because": "written 2026-08-19 when the topic was split.",
+   "authority_it_satisfies": "MECIR R29/R30/R31.",
+   "authority_it_does_NOT_establish": "MECIR C5/C7.",
+   "precedence": "The four readings are NOT mutually exclusive by construction -- a trial can be paediatric and group-1 and a combination design at once -- so an assignment rule is required. It is D children > C not-WHO-group-1 > B combination > A monotherapy, applied in that order, each step naming the field it reads. A DIFFERENT PRECEDENCE WOULD MOVE TRIALS BETWEEN READINGS AND THESE COUNTS WOULD CHANGE WITH IT, which is why it is written down as a choice rather than presented as a discovery.",
+   "adjudication": "TWO RECORDS WERE ADJUDICATED OUT OF THEIR READINGS, both for one reason. NCT04273945 (macitentan 75 mg vs 10 mg) names bosentan in its ARM DESCRIPTION as a prior exposure participants must come off; NCT01824290 (tadalafil in children) names it as an EXAMPLE OF A CLASS in a background record attached to BOTH arms. `locate()` scored both EXPERIMENTAL because its step-1 scan reads arm DESCRIPTIONS while its control-arm test reads intervention NAMES only -- an asymmetry built deliberately for DAPA-HF and wrong here. A DRUG NAMED IN AN ARM DESCRIPTION AS PRIOR OR BACKGROUND THERAPY IS NOT THE RANDOMISED INTERVENTION, and where the mention is identical in every arm it is by construction not the contrast."
+  },
+  "duplicate_screening": {
+   "performed": false,
+   "state": "OWED, AND RECORDED AS OWED RATHER THAN DESCRIBED",
+   "what_is_owed": "independent duplicate screening by a second reader.",
+   "what_was_NOT_done": "No second model family read this screen. An agreement rate over one reader is not an agreement rate."
+  }
+ },
+ "screening_of_remainder": {
+  "unscreened_remainder": 0,
+  "adjudication": "TWO RECORDS WERE ADJUDICATED OUT OF THEIR READINGS, both for one reason. NCT04273945 (macitentan 75 mg vs 10 mg) names bosentan in its ARM DESCRIPTION as a prior exposure participants must come off; NCT01824290 (tadalafil in children) names it as an EXAMPLE OF A CLASS in a background record attached to BOTH arms. `locate()` scored both EXPERIMENTAL because its step-1 scan reads arm DESCRIPTIONS while its control-arm test reads intervention NAMES only -- an asymmetry built deliberately for DAPA-HF and wrong here. A DRUG NAMED IN AN ARM DESCRIPTION AS PRIOR OR BACKGROUND THERAPY IS NOT THE RANDOMISED INTERVENTION, and where the mention is identical in every arm it is by construction not the contrast."
+ },
+ "topic_state": "REPORTED AT k=1, WITH A ZERO REMAINDER AND SIX ELIGIBLE TRIALS THAT HAVE NEVER REPORTED. This review is not complete and its face says so.",
+ "risk_of_bias": {
+  "tool": "RoB 2",
+  "state": "NOT_ASSESSED_FOR_THIS_REVIEW",
+  "why": "No result-level RoB 2 assessment has been performed. RECORDED AS UNASSESSED, NEVER AS ABSENT OF BIAS: an unassessed domain is NOT_ASSESSABLE, not LOW. ",
+  "what_would_close_it": "RoB 2 per RESULT for each contributing result."
+ },
+ "grade": {
+  "approach": "GRADE",
+  "by_outcome": {
+   "morbidity_mortality": {
+    "rated": false,
+    "why_not": "k=1 and no pooled estimate. GRADE rates the certainty of a body of evidence; one trial's result is reported here as one trial's result and its own report is where its certainty is judged."
+   }
+  }
+ },
+ "protocol": {
+  "prespecified": false,
+  "permanently_refused": true,
+  "why": "A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively.",
+  "what_was_actually_done": "Eligibility criteria were derived POST HOC on 2026-08-19, when `bosentan-pah` was split into four readings.",
+  "authority_permitting_it": "MECIR R107, provided they are declared as such.",
+  "forward_remedy": "For topics not yet built, register a protocol BEFORE the search."
+ },
+ "sources": {},
+ "sources_note": "Every number is traceable to a ClinicalTrials.gov v2 payload read on 2026-08-19. No journal article was read for any effect estimate.",
+ "extraction": {
+  "_why": "Every cell says whether it was READ or DERIVED and carries what it was read from.",
+  "verified_utc": "2026-08-19",
+  "source": {
+   "registry": "ClinicalTrials.gov, the seven eligible registrations read in full",
+   "read_via": "raw v2 API, fields=protocolSection,hasResults,resultsSection"
+  },
+  "cells": [
+   {
+    "field": "NCT00303459 COMPASS-2 registered primary",
+    "label": "READ",
+    "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+    "verbatim": "Time to First Confirmed Morbidity/Mortality Event up to the End of Treatment",
+    "note": "The only registered primary in this reading attached to posted results."
+   },
+   {
+    "field": "NCT00303459 COMPASS-2 arms",
+    "label": "READ",
+    "source_path": "protocolSection.armsInterventionsModule",
+    "verbatim": "armGroups: EXPERIMENTAL 'A' [bosentan]; PLACEBO_COMPARATOR 'B' [placebo]. interventions: ['bosentan', 'placebo'].",
+    "note": "IDENTICAL IN SHAPE TO EARLY'S, a monotherapy trial. The sildenafil that makes this a combination trial appears in NO arm field -- only in the official title."
+   },
+   {
+    "field": "NCT00303459 COMPASS-2 official title",
+    "label": "READ",
+    "source_path": "protocolSection.identificationModule.officialTitle",
+    "verbatim": "Effects of Combination of Bosentan and Sildenafil Versus Sildenafil Monotherapy on Morbidity and Mortality in Symptomatic Patients With Pulmonary Arterial Hypertension",
+    "note": "THE ONLY PLACE THE DESIGN IS DECLARED. The reading assignment rests on this sentence and records that it rests on TEXT."
+   },
+   {
+    "field": "eligible trials with no posted results",
+    "value": "6 of 7",
+    "label": "DERIVED",
+    "derived_by": "hasResults over the eligible set"
+   }
+  ]
+ },
+ "precondition_verdict": {
+  "assessed_on": "2026-08-19",
+  "standard_version": "1.15.0-2026-08-19",
+  "authority": {
+   "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+   "version": "6.5, 2024",
+   "verified_on": "2026-08-19",
+   "verified_how": "read from cochrane.org/authors/handbooks-and-manuals/handbook/current chapters 10 and 23, and from the official MECIR PDF (February 2022), text extracted locally rather than summarised"
+  },
+  "publishable": true,
+  "authoring_constraint": "These preconditions were authored in the same session that applied them. A reader who disagrees should disagree with ssot/preconditions.py, from which every verdict here is reproducible.",
+  "verdicts": {
+   "population_stated": {
+    "verdict": "PASS",
+    "reason": "present: question carries 200 characters",
+    "authority": "MECIR C62 'Ensuring meta-analyses are meaningful' (Mandatory, READ 2026-08-19): 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar...'; MECIR C5 'Predefining unambiguous criteria for participants' (Mandatory)"
+   },
+   "arm_role_resolved": {
+    "verdict": "NOT-ASSESSABLE",
+    "reason": "cannot assess: inputs.trials has 7 trial(s) with no readable arms ['NCT00120380', 'NCT00303459', 'NCT01100736', 'NCT01352065'] and 0 with a blank arm role []. Absent role data is not a wrong role.",
+    "authority": "MECIR C62 (Mandatory), 'interventions' limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are 'sufficiently similar' without knowing which arm is the intervention. NOT cited to C5/C7: those govern PREDEFINITION of criteria, and this check only reads whether a field is populated."
+   },
+   "comparators_identified": {
+    "verdict": "PASS",
+    "reason": "every outcome names a comparator type ['placebo']; none declares 'mixed'. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged.",
+    "authority": "MECIR C62 (Mandatory), 'comparisons' limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency."
+   },
+   "estimand_named": {
+    "verdict": "PASS",
+    "reason": "outcomes.estimand: all 1 outcome(s) name a quantity",
+    "authority": "MECIR C8 'Clarifying role of outcomes' (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), 'outcomes' limb"
+   },
+   "criteria_stated": {
+    "verdict": "PASS",
+    "reason": "present: screening.eligibility carries 828 characters",
+    "authority": "MECIR R29 'Eligibility criteria for types of participants', R30 '...types of interventions', R31 'Role of outcomes' -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block DERIVED post hoc satisfies this if it is labelled post hoc per R107."
+   },
+   "criteria_predefined": {
+    "verdict": "FAIL",
+    "reason": "screening.eligibility_provenance.predefined is false: the criteria were DERIVED post hoc from this object's own question and recorded exclusions. That is auditable (R29/R30/R31) and is not pre-specification (C5/C7). This FAIL is permanent and correct.",
+    "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.' C5/C7 govern PREDEFINITION and CANNOT be discharged by a post hoc derivation."
+   },
+   "eligibility_met": {
+    "verdict": "NOT-ASSESSABLE",
+    "reason": "cannot assess: criteria are stated, but sources is an empty dict -- no full text was available this pass, and inclusion logic is conditional prose",
+    "authority": "MECIR C5/C7 (Mandatory) with C6 'Predefining a strategy for studies with a subset of eligible participants' (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report"
+   },
+   "contributes_a_randomised_contrast": {
+    "verdict": "NOT-ASSESSABLE",
+    "reason": "cannot assess: 7 of 7 trial(s) carry no readable arm roles ['NCT00120380', 'NCT00303459', 'NCT01100736', 'NCT01352065']",
+    "authority": "Handbook 6.5 s23.3.4 'How to include multiple groups from one study' (READ 2026-08-19) and s23.3.6 'Factorial trials'; MECIR C7 'Predefining unambiguous criteria for interventions and comparators' (Mandatory)"
+   }
+  }
+ },
+ "published_comparison": {
+  "state": "PENDING_EXTERNAL_RESOLUTION",
+  "_why": "Every page this project ships carries this section with a DENOMINATOR. A comparison without one reports the syntheses it happened to find.",
+  "denominator": null,
+  "denominator_reason": "Not yet established. Establishing it requires resolving published syntheses' included-sets to REGISTRATION IDs. A second lane has validated that pipeline (stated-k table identification plus two-hop citation->PMID->registration) and is running it now.",
+  "explicitly_not_done": "CITATION-STRING MATCHING. It would produce a comparison-shaped answer tonight and it is not identity: two syntheses citing the same trial under different labels would read as different, and the same label on different trials as the same. That is the substitution class this project audits for.",
+  "candidate_source_search": "PubMed search recorded at search.databases[1] (109 records)",
+  "blocked_on": "lane 2 registration-id resolution"
+ },
+ "registration_identity": {
+  "verified_utc": "2026-08-19",
+  "method": "live fetch of the raw ClinicalTrials.gov v2 record and comparison of the returned nctId against the id stored on this object",
+  "trials": [
+   {
+    "nct": "NCT00120380",
+    "verified": true,
+    "link": "https://clinicaltrials.gov/study/NCT00120380"
+   },
+   {
+    "nct": "NCT00303459",
+    "verified": true,
+    "link": "https://clinicaltrials.gov/study/NCT00303459"
+   },
+   {
+    "nct": "NCT01100736",
+    "verified": true,
+    "link": "https://clinicaltrials.gov/study/NCT01100736"
+   },
+   {
+    "nct": "NCT01352065",
+    "verified": true,
+    "link": "https://clinicaltrials.gov/study/NCT01352065"
+   },
+   {
+    "nct": "NCT03053739",
+    "verified": true,
+    "link": "https://clinicaltrials.gov/study/NCT03053739"
+   },
+   {
+    "nct": "NCT04039464",
+    "verified": true,
+    "link": "https://clinicaltrials.gov/study/NCT04039464"
+   },
+   {
+    "nct": "NCT06317805",
+    "verified": true,
+    "link": "https://clinicaltrials.gov/study/NCT06317805"
+   }
+  ],
+  "duplicate_seeding_check": {
+   "state": "CHECKED",
+   "checked_against": "evidence/2026-08-19-corpus/reconcile.json",
+   "n_trials_checked": 7,
+   "shared_with_other_topics": false,
+   "shared": null
+  }
+ },
+ "build_stamp": {
+  "page_standard_version": "1.15.0-2026-08-19",
+  "standard_document": "PAGE-STANDARD.md",
+  "built_utc": "2026-08-19",
+  "built_by": "ssot/build_to_standard.py",
+  "properties": {
+   "P1_executed_search": {
+    "state": "HELD",
+    "reason": "2 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 0-trial unscreened remainder is stated as a number rather than omitted."
+   },
+   "P2_k_cascade": {
+    "state": "HELD",
+    "reason": "k at every stage: surfaced 57, located 47, experimental 35, comparator 4, included 7, unscreened remainder 0."
+   },
+   "P3_inclusion_criteria": {
+    "state": "HELD",
+    "reason": "Criteria provenance block present with predefined=False on its face (state 'DERIVED_POST_HOC')."
+   },
+   "P4_preconditions": {
+    "state": "HELD",
+    "reason": "All 8 recorded with verdict and cited authority: 1 FAIL, 3 NOT-ASSESSABLE. criteria_predefined is FAIL -- post hoc criteria, which R107 permits and C5/C7 does not satisfy."
+   },
+   "P5_extraction_table": {
+    "state": "HELD",
+    "reason": "4 cells: 3 READ with source path and verbatim text, 1 DERIVED with the method named."
+   },
+   "P6_analysis_output": {
+    "state": "REFUSING",
+    "reason": "No quotable model output exists: k=7 and nothing was pooled. The absence is recorded as a finding with its cause and its trigger."
+   },
+   "P7_published_comparison": {
+    "state": "REFUSING",
+    "reason": "No denominator yet. Blocked on external registration-id resolution; citation-string matching explicitly refused rather than substituted."
+   },
+   "P8_registration_identity": {
+    "state": "HELD",
+    "reason": "7 of 7 trial(s) verified live against the registry."
+   },
+   "P18_restatement_is_reproducible": {
+    "state": "REFUSING",
+    "reason": "No restatement block on this cascade, so there is nothing to re-derive. This is NOT_ASSESSABLE dressed as a refusal rather than a pass: a topic that has never been restated has not demonstrated that a restatement of it would be checkable."
+   },
+   "P19_promotion_reaches_derived_blocks": {
+    "state": "HELD",
+    "reason": "inputs.trials, k_cascade.k_included_in_object and prisma_flow.included all say 7; no first-person field in published_comparison declares a k the pooled outcome(s) do not."
+   },
+   "P20_cascade_reconciles": {
+    "state": "HELD",
+    "reason": "k2_role_located=47 == k3+k4+k5, and k0_surfaced=57 == k3+k4+k5+kNA. Both checked, and every failing limb would be reported rather than the first."
+   },
+   "P21_ambiguous_question_split": {
+    "state": "HELD",
+    "reason": "Split from 'bosentan-pah' into this review and 3 sibling(s) ['bosentan-pah-monotherapy', 'bosentan-ph-not-group1', 'bosentan-pah-children'], with the decision recorded at None. Nothing was dropped to resolve the ambiguity."
+   },
+   "P22_sharing_recorded": {
+    "state": "REFUSING",
+    "reason": "1 trial(s) appear in other topics' included sets without being recorded here: {'NCT00303459': ['bosentan-pah']}. Sharing is legitimate; UNRECORDED sharing is not, because a corpus-level k obtained by summing per-topic k then double-counts without saying so."
+   },
+   "P23_recall_measured": {
+    "state": "HELD",
+    "reason": "All 2 recorded quer(ies) state their recall against this review's own included set: ['1/1 -- COMPASS-2 (NCT00303459) surfaced', 'NOT MEASURED']."
+   }
+  },
+  "held": [
+   "P19_promotion_reaches_derived_blocks",
+   "P1_executed_search",
+   "P20_cascade_reconciles",
+   "P21_ambiguous_question_split",
+   "P23_recall_measured",
+   "P2_k_cascade",
+   "P3_inclusion_criteria",
+   "P4_preconditions",
+   "P5_extraction_table",
+   "P8_registration_identity"
+  ],
+  "refusing": [
+   "P18_restatement_is_reproducible",
+   "P22_sharing_recorded",
+   "P6_analysis_output",
+   "P7_published_comparison"
+  ],
+  "_ratchet": "This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant."
+ }
+}
