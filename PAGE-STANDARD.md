@@ -1,6 +1,6 @@
 # The page standard, versioned
 
-**`PAGE_STANDARD_VERSION = "1.5.0-2026-08-19"`**
+**`PAGE_STANDARD_VERSION = "1.6.0-2026-08-19"`**
 
 Until tonight this standard existed only as practice and as one exemplary object
 (`arni-hfref`). It had **no version marker anywhere in the repo** — `grep` for `build_stamp`
@@ -37,13 +37,14 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P13 | **Keyed by entity, never by module constant** | a function that accepts an identifier must REFUSE when it holds no record keyed to it. Per-entity data is keyed by entity; it is never reached for from whichever constant is in scope |
 | P14 | **No substring matching over clinical text** | identity is decided by a declared, enumerated term set or a coded field. Registry text carries parenthetical abbreviations — `Cardiovascular (CV) Death` — so substring containment is a KNOWN-BROKEN method, not a shortcut |
 | P15 | **A short-circuiting check reports all failing limbs** | a check that returns on first failure must report EVERY limb that fails, or state that the named limb is merely the first tested. A single reason drawn from an ordered sequence of tests is a fact about the sequence |
-| P16 | **A guard is proven in three parts** | it **must be able to fire**; it **must not fire on the correct case**; and **neither can be established by the build reporting success**. All three are demonstrated, not assumed |
+| P16 | **A guard is proven in three parts, and the case it guards against must have OCCURRED** | it **must be able to fire**; it **must not fire on the correct case**; and **neither can be established by the build reporting success**. All three are demonstrated, not assumed. **Added 1.6.0:** the triggering condition must have actually arisen in data the guard has run on — a guard whose condition has never occurred is *unproven, however green it reads*, and "it would have caught it" is a claim about an event that never happened |
 | P17 | **Negative claims are computed, never asserted** | any field whose name implies a check — `shared_with_other_topics`, `conflicts`, `unresolved`, `discrepancies` — carries a computed value and names what it was computed against. A literal `false` or `[]` in such a field is a claim, not a result |
 | P18 | **A restated quantity is reproducible by a command** | a number that has been corrected carries the COMMAND that re-derives it, and a gate that refuses the object when it stops reconciling. A `restated_*` note is a claim about a MOMENT and ages silently — its presence shows someone once looked, never that anyone looked last |
 | P19 | **A promotion reaches every derived block, or it is not applied** | when k, the included set, or the headline estimate changes, every quantity DERIVED from them moves in the same pass — prediction interval, estimator sensitivity, PRISMA flow, cascade `k_included`, and the published-meta comparison. A page carrying two answers is worse than a page carrying the old one |
 | P20 | **The cascade reconciles with itself** | `k2_role_located == k3 + k4 + k5`, and `k0 == k3 + k4 + k5 + kNA (+ kUNREACHABLE)`. A stage that does not reconcile with the stages beside it is a number the reader it was written for cannot check |
 | P21 | **An ambiguous question is built as several reviews, never chosen between** | where a topic's question admits more than one legitimate reading, **each reading becomes its own review** with its own question, criteria, search, cascade and screening. Choosing one is a decision to withhold evidence from every reading that loses, and it leaves no trace in any object |
 | P22 | **Deliberate trial sharing is recorded on both sides** | a trial legitimately appearing in more than one topic carries, on each object, **which other topics hold it and why**. Sharing is legitimate; unrecorded sharing is not. Every page that shares states that **a corpus-level k obtained by summing per-topic k double-counts** |
+| P23 | **Recall is measured against the review's own included set** | every executed search reports how many of the trials this review includes it actually surfaced. A **design filter** (phase, status, study type) is a recall hazard: `NA` is not a phase, and enumerating phases drops every registrant who declared none. A query that misses is **recorded, not replaced** |
 
 ## Reading the remainder — the same number, opposite diagnoses
 
@@ -98,6 +99,51 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.6.0-2026-08-19
+Extends P16 with its missing fourth clause, and adds P23. Both come from **a guard that was
+green because the case it existed for had never happened.**
+
+**P16, fourth clause — the guarded case must have OCCURRED.** The pagination guard reads
+`returned == totalCount` to confirm a fetch was not truncated at a page boundary. It read
+`totalCount` from the **last** page, where the API returns null; `countTotal` populates it on
+the **first**. Every query this project had ever run fit in a single page, so the last page
+*was* the first, and the defect could not appear. It shipped that morning inside
+`regate_cascade_2026_08_19.py` and was exercised, correctly, on five topics — proving nothing.
+It surfaced within hours on the first two-page query ever run here.
+
+> **A guard whose triggering condition has never occurred in the data it has run on is
+> unproven, however green it reads.** Three parts were satisfied — it could fire, it was silent
+> on the correct case, and the build's success was not the evidence. What was missing is that
+> the *world* had never presented the case. "It would have caught it" is a claim about an event
+> that never happened.
+
+This generalises well past pagination. Any guard written for a rare condition — a truncated
+fetch, an empty result set, a missing baseline, a second page, a duplicate id — is untested
+until that condition is *present in a run*, and a synthetic input is the weaker substitute the
+known-answer rule already warns about.
+
+**And the direction is why it was recoverable.** It printed `returned==totalCount: False` on a
+complete fetch — a false ALARM, on a screen someone was reading.
+
+> **A guard that fails loud is recoverable. A guard that fails quiet is the class this project
+> has spent two nights on.** When choosing how a check behaves under its own failure, choose
+> the noisy wrong answer over the silent one.
+
+**P23 — a design filter is a recall hazard, and its cost is measured, not assumed.** Four
+distinct shapes of one defect are now on record, all in the withholding direction:
+
+| topic | lost | to |
+|---|---|---|
+| `sglt2-hf` | DELIVER | a CONDITION term one word too narrow |
+| `iv-iron-hf` | AFFIRM-AHF, HEART-FID | a CONDITION term one word too narrow |
+| `apixaban-vte` | NCT02366871 | `phase=[PHASE3,PHASE4]` on a PHASE2 trial |
+| `ablation-af-medical-therapy` | **CABANA (n=2204), RAFT-AF** | the same filter on trials registered `phases: ["NA"]` |
+
+**NA is not a phase.** A filter that *enumerates* phases silently drops every registrant who
+declined to declare one — and on the ablation topic that was two of the three pivotal trials,
+including the largest. Recall against the review's own included set is therefore **measured for
+every executed search**, and a query that misses is **recorded rather than replaced**.
 
 ### 1.5.0-2026-08-19
 Adds P21 and P22, from Mahmood's decision on `ablation-af-review` — **and the decision was
