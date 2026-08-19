@@ -21,6 +21,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import preconditions as P
 from assessment import FAIL, HANDBOOK_AUTHORITY, NOT_ASSESSABLE, PASS
+from ali_topic_data import ALI_CASCADE, ALI_EXTRACTION, ALI_PRISMA, ALI_SEARCH
 from ivi_topic_data import IVI_CASCADE, IVI_EXTRACTION, IVI_PRISMA, IVI_SEARCH
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -351,6 +352,10 @@ TOPIC_DATA = {
                               "primary_outcome_key": "primary",
                               # None -> the inline block below, which IS this topic's own.
                               "extraction": None},
+    "alirocumab-lipid": {"search": ALI_SEARCH, "prisma": ALI_PRISMA,
+                        "k_cascade": ALI_CASCADE,
+                        "primary_outcome_key": "ldlc_pct_change_wk24",
+                        "extraction": ALI_EXTRACTION},
     "iv-iron-hf": {"search": IVI_SEARCH, "prisma": IVI_PRISMA,
                    "k_cascade": IVI_CASCADE,
                    "primary_outcome_key": "hfh_cvd_recurrent",
