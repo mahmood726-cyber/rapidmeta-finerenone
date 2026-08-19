@@ -743,6 +743,43 @@ reported only the lost pairs — the more natural design — the revert would ha
 would have caught this at step one — an audit that refuses to report on files with uncommitted
 modifications until it says so. Recorded as not written.
 
+### 28. A RULE THAT CANNOT RETURN NOTHING CANNOT TELL YOU IT DOES NOT KNOW
+
+**The common ancestor of most of what this file holds.** Found as a class 2026-08-19 after three
+instances appeared in one script in one stretch, each with the same signature: a selection rule
+that *always returns something*, so its output is indistinguishable from a correct answer.
+
+| the rule | what it returned | what it should have returned |
+|---|---|---|
+| intervention = **shortest** coded name | `"does Placebo compared with placebo"` for `finerenone-review`; the comparator for `moxifloxacin-respi` and `pitavastatin`; `amikacin` for `raltegravir-hiv` | *I cannot identify the intervention* |
+| intervention = coded name matching **any topic token** | `"Rabies Vaccine"` for `malaria-vaccine`, on the token `vaccine` | *that token names a class, not a thing* |
+| topic tokens = words **longer than three characters** | nothing for `hepatitis-b-taf-tdf-review`, because the drug is **TAF** | *the drug name is shorter than my filter* |
+| condition = **shortest** coded name (a *fallback* left after the first fix) | `"In adults with stroke"` for `warfarin-af` | *no coded condition matches this topic* |
+
+**37 topics would have shipped a confident sentence naming the wrong drug.** `does Placebo
+compared with placebo` reads as a *formatting* error rather than a *selection* error, which is
+why it would have survived a skim.
+
+#### The two halves that make it a class
+
+**A fallback is the defect, not a mitigation of it.** Removing the shortest-string fallback on
+the condition field moved **ten topics out of RESTATED and into honest escalation** — the
+measure of how much the fallback was concealing. And fixing the intervention field first left
+the identical fallback on the condition field, so the class looked closed while still producing
+wrong output.
+
+**And the worked example runs the other way.** `hepatitis-b-taf-tdf-review` was declared
+*unanswerable* because a three-character drug name fell under a length filter — while its own
+registrations' `officialTitle` states the comparison in plain words on a field the rule never
+reads. A rule that cannot say *I do not know* also cannot say *I looked in the wrong place*.
+
+> **Every such rule must have a path that returns nothing**, and the count of those returns is a
+> result, not a failure. A rule with no such path converts every input into an answer, and the
+> wrong answers are the ones that look exactly like the right ones.
+
+**Status: PARTIAL.** The instances are fixed and the discipline is stated. Nothing mechanically
+prevents the next selection rule from being written without a nothing-branch.
+
 ### 27. A DETECTOR BUILT FROM ONE INSTANCE ENCODES THAT INSTANCE'S SHAPE — and scored it UNCLASSIFIED
 
 **Found 2026-08-19.** A detector was written to find the class *one trial registering its nested
