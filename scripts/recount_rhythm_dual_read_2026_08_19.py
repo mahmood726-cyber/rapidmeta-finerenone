@@ -1,0 +1,163 @@
+#!/usr/bin/env python3
+"""CORRECT A NUMBER I REPORTED: topic 2's dual-read count is NOT 44, and Codex did not stall.
+
+WHAT I REPORTED, AND WHY IT WAS TRUE WHEN WRITTEN. Codex cleared chunk 1 in ~10 minutes and
+then sat on chunk 2 for 35+ minutes, so the state was recorded as `44 dual-read / 308
+single-read, NOT adjudicated`, with the seat described as DEGRADED BUT NOT CORRUPTING. The
+background pollers have since completed. Codex returned SIX of eight chunks. THE REPORTED
+NUMBER IS NOW WRONG AND IS CORRECTED HERE RATHER THAN LEFT TO AGE.
+
+    A SEAT THAT IS SLOW IS NOT A SEAT THAT IS FINISHED. Reporting "degraded" at the moment of
+    observation was right; leaving it as the final figure once the work landed would not be.
+
+AND THE ANSWER STREAM CARRIED A REAL DEFECT THAT THE COUNT ASSERTION CAUGHT.
+
+    chunk 01  44 lines    clean
+    chunk 02  147 lines   FOR A 44-TRIAL PACKET
+    chunk 03  2 lines     NOT_ASSESSABLE
+    chunk 04  44 lines    clean
+    chunk 05  2 lines     NOT_ASSESSABLE
+    chunk 06  44          chunk 07  44          chunk 08  44
+
+Chunk 2's 147 lines are not 147 answers. They interleave THIS question's vocabulary with the
+`A=YES | B=YES` format of a DIFFERENT packet sent to the same seat earlier in the night:
+
+    NCT00007605 | RHYTHM_BOTH_ARMS | CONTROL=NA      <- this question
+    NCT00116428 | A=YES | B=YES                      <- a DIFFERENT question's answer format
+
+    THIS IS P29 EARNING ITS PLACE. An `rc == 0` check passes here. A "did the filter return
+    anything" check passes here. ONLY AN EXPECTED-COUNT ASSERTION SEES IT -- 147 != 44 -- and
+    without it the extra lines would have been silently discarded by the strict line regex and
+    the chunk would have read as a normal partial.
+
+HOW THIS COUNTS, AND WHAT IT REFUSES TO COUNT:
+  * strict parse, then DEDUPLICATE BY NCT -- repetition by one instrument is not independence
+  * a trial the same seat answers TWICE WITH DIFFERENT CODES is NOT_ASSESSABLE for that seat,
+    not resolved by taking either one
+  * joined by NCT IDENTITY, never by position
+  * chunks 3 and 5 stay NOT_ASSESSABLE. An absent second reading is ABSENT, not concurring.
+"""
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SCRATCH = os.environ.get(
+    "RM_SCRATCH",
+    r"F:\claude-temp\claude\F--rapidmeta-ssot-shell\6b629e1e-cc8c-4565-af03-e40341ee43f3"
+    r"\scratchpad")
+DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "rhythm_dual_read_recount.json")
+
+LINE = re.compile(r"^(NCT\d{8})\s*\|?\s*([A-Z_]+)\s*\|?\s*CONTROL\s*=\s*([A-Z]+)", re.I)
+DISPOSITION = {
+    "CONTRAST_RHYTHM": "ELIGIBLE",
+    "RHYTHM_BOTH_ARMS": "EXCLUDED",
+    "RHYTHM_IN_ALL_ADJUNCT": "EXCLUDED",
+    "CONTRAST_RATE": "EXCLUDED",
+    "NO_RHYTHM": "EXCLUDED",
+    "NOT_ASSESSABLE": "NOT_ASSESSABLE",
+}
+
+
+def read(seat, n):
+    p = os.path.join(SCRATCH, "%s_rhythm_%02d.txt" % (seat, n))
+    if not os.path.exists(p):
+        return None, 0, 0
+    with io.open(p, encoding="utf-8", errors="replace") as fh:
+        raw = [l for l in fh.read().splitlines() if l.strip()]
+    codes, contradicted = {}, set()
+    for line in raw:
+        m = LINE.match(line.strip())
+        if not m:
+            continue
+        nct, code = m.group(1).upper(), m.group(2).upper()
+        if nct in codes and codes[nct] != code:
+            contradicted.add(nct)          # the seat disagreed WITH ITSELF
+        codes[nct] = code
+    for nct in contradicted:
+        codes[nct] = "SELF_CONTRADICTED"
+    return codes, len(raw), len(contradicted)
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    codex, agy, report = {}, {}, []
+    for n in range(1, 9):
+        c, craw, cbad = read("codex", n)
+        a, araw, abad = read("agy", n)
+        row = {"chunk": n,
+               "codex_raw_lines": craw, "codex_parsed": len(c or {}),
+               "codex_self_contradicted": cbad,
+               "agy_raw_lines": araw, "agy_parsed": len(a or {}),
+               "agy_self_contradicted": abad,
+               "state": "DUAL" if (c and a) else "SINGLE_OR_ABSENT"}
+        report.append(row)
+        if c:
+            codex.update(c)
+        if a:
+            agy.update(a)
+
+    both = sorted(set(codex) & set(agy))
+    agy_only = sorted(set(agy) - set(codex))
+    codex_only = sorted(set(codex) - set(agy))
+
+    scorable = [n for n in both
+                if codex[n] != "SELF_CONTRADICTED" and agy[n] != "SELF_CONTRADICTED"]
+    code_agree = sum(1 for n in scorable if codex[n] == agy[n])
+    disp_agree = sum(1 for n in scorable
+                     if DISPOSITION.get(codex[n]) == DISPOSITION.get(agy[n]))
+
+    print("PER-CHUNK, AND THE COUNT ASSERTION IS THE ONLY LIMB THAT SEES CHUNK 2")
+    print("  chunk   codex raw/parsed   agy raw/parsed   state")
+    for r in report:
+        flag = ""
+        if r["codex_raw_lines"] and r["codex_raw_lines"] != r["codex_parsed"]:
+            flag = "  <-- %d raw lines, %d are answers to THIS question" % (
+                r["codex_raw_lines"], r["codex_parsed"])
+        print("    %d      %4d / %-4d        %4d / %-4d      %s%s"
+              % (r["chunk"], r["codex_raw_lines"], r["codex_parsed"],
+                 r["agy_raw_lines"], r["agy_parsed"], r["state"], flag))
+
+    print("\nWHAT I REPORTED   dual-read  44   single-read 308  (true at the moment observed)")
+    print("WHAT IS TRUE NOW  dual-read %3d   agy-only %3d   codex-only %3d"
+          % (len(both), len(agy_only), len(codex_only)))
+    if scorable:
+        print("\nAGREEMENT over the %d scorable dual-read trials (P26: deduplicated, "
+              "identity-joined)" % len(scorable))
+        print("   code agreement         %5.1f%%  (%d/%d)"
+              % (100.0 * code_agree / len(scorable), code_agree, len(scorable)))
+        print("   disposition agreement  %5.1f%%  (%d/%d)"
+              % (100.0 * disp_agree / len(scorable), disp_agree, len(scorable)))
+        print("   P34 applies: the gap measures THIS vocabulary, not the instruments.")
+
+    remainder = len(agy_only) + len(codex_only)
+    print("\nearly-rhythm-control-af remainder is %d, NOT zero and NOT 308." % remainder)
+
+    out = {"recounted_utc": "2026-08-19", "topic": "early-rhythm-control-af",
+           "supersedes": {"dual_read": 44, "single_read": 308,
+                          "why": ("reported while Codex was mid-run; the background pollers "
+                                  "have since completed six of its eight chunks. True when "
+                                  "written, wrong now, corrected rather than left to age.")},
+           "per_chunk": report,
+           "dual_read": len(both), "agy_only": len(agy_only), "codex_only": len(codex_only),
+           "scorable": len(scorable),
+           "code_agreement_pct": round(100.0 * code_agree / len(scorable), 1) if scorable else None,
+           "disposition_agreement_pct": round(100.0 * disp_agree / len(scorable), 1) if scorable else None,
+           "k_unscreened_remainder": remainder,
+           "chunk_2_defect": (
+               "147 raw lines for a 44-trial packet. They interleave this question's code "
+               "vocabulary with the `A=YES | B=YES` format of a DIFFERENT packet sent to the "
+               "same seat earlier in the night. rc == 0 passes; a non-empty check passes; ONLY "
+               "THE EXPECTED-COUNT ASSERTION (P29) SEES IT."),
+           "chunks_3_and_5": ("2 lines each. NOT_ASSESSABLE, and their trials are counted as "
+                              "single-read. An absent second reading is ABSENT, not concurring.")}
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1))
+    print("wrote %s" % DEST)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
