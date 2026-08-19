@@ -1,0 +1,35 @@
+{
+ "topic": "colchicine-cvd-review",
+ "executed_utc": "2026-08-19",
+ "state": "INCOMPLETE -- AND THAT IS WHY NOTHING WAS BUILT ON IT",
+ "database": "ClinicalTrials.gov API v2",
+ "tool": "mcp__plugin_bio-research_c-trials__search_trials",
+ "query_as_executed": "intervention=\"colchicine\"; condition=\"coronary artery disease OR myocardial infarction OR cardiovascular disease OR stroke OR atherosclerosis\"; study_type=INTERVENTIONAL; page_size=100; count_total=true",
+ "http_status": 200,
+ "total_reported": 137,
+ "records_returned": 100,
+ "next_page_token": "PRESENT -- the cursor is live and page 2 was NOT fetched",
+ "records_unexamined": 37,
+ "why_this_is_recorded_rather_than_used": "EVERY OTHER SEARCH THIS SESSION RETURNED returned == totalCount WITH A NULL CURSOR, and each recorded that fact as its pagination proof. This one does not. 37 of 137 registrations have not been seen, so no cascade counted from this page reconciles, no screen over it is complete, and any `k_unscreened_remainder` derived from it would be wrong in the direction that makes the review look finished.",
+ "the_class_this_is": "DEFECT-REGISTRY E10 names CURSOR ABANDONMENT as a class nothing in this repository looks for -- a paginated query whose first page is treated as the whole result. This is the first topic in this session whose surfaced set exceeds one page, so it is the first opportunity the class has had to occur, and it is recorded at the moment of occurrence rather than after a page was built on it.",
+ "what_the_first_page_already_shows": {
+  "note": "Recorded because it bears on the review's SCOPE and will matter to whoever finishes this. Not used as a count.",
+  "the_condition_filter_is_reaching_well_beyond_this_review": "The first page alone contains colchicine trials in Behcet's disease, IgA vasculitis, multiple myeloma, oral ulcers, gout, pericarditis, post-pericardiotomy syndrome, acute myocarditis, aortic stenosis, abdominal aortic aneurysm, perioperative atrial fibrillation and COVID-19. The review asks about MAJOR CARDIOVASCULAR EVENTS in atherosclerotic disease.",
+  "and_the_object_s_three_trials_are_of_three_different_questions": "COLCOT (NCT02551094, n=4745, post-myocardial-infarction), CLEAR SYNERGY (NCT03048825), and CONVINCE (NCT02898610, n=3154, non-cardioembolic STROKE). The object already records that their registered primaries differ by whole components and that one is not a composite. THE FIRST PAGE SUGGESTS THIS TOPIC MAY BE A P21 SPLIT RATHER THAN A SINGLE REVIEW -- secondary prevention after myocardial infarction, secondary prevention after stroke, and perioperative or procedural anti-inflammatory use are not one question. That is a judgement for whoever completes the search, and it is flagged rather than made here on partial evidence.",
+  "large_trials_visible_on_page_one_and_not_in_the_object": [
+   "NCT05439356 CHANCE-3, n=8343, minor stroke or TIA, COMPLETED",
+   "NCT03310125 COP-AF, n=3209, perioperative atrial fibrillation in thoracic surgery, COMPLETED",
+   "NCT04774159 LEADER-PAD, n=6150, peripheral artery disease, RECRUITING",
+   "NCT06215989 TACTIC, n=6574, acute coronary syndromes, RECRUITING",
+   "NCT06472908 n=8862, after percutaneous coronary intervention, RECRUITING"
+  ],
+  "what_that_list_is_NOT": "It is NOT a set of recovered trials. None has been screened against any criteria, none has had its arm roles read, and the list is from ONE PAGE of a search that is 37 records short. It is here so the next lane knows the scale of what the completed search will surface."
+ },
+ "what_must_happen_before_this_topic_is_built": [
+  "Fetch page 2 with the returned page_token and record returned == totalCount, or record why it could not be.",
+  "Add a declared synonym set for colchicine to ssot/topic_identity.TOPIC_SYNONYMS -- there is none, and every screen this session has depended on one.",
+  "Decide whether this is one review or a P21 split, on the COMPLETE surfaced set.",
+  "Only then: screen to zero, cascade, criteria, estimand, object, page, delivery."
+ ],
+ "and_the_published_headline_is_already_recorded_as_unreproduced": "scripts/headline_reproducible_gate.py names this topic in its own docstring: the card reads HR 0.75 (0.61-0.91) at k=2, and thirty-three candidate pools across three estimators and every subset of two, three and four trials reproduce none of it. That is a separate open defect on this topic and it is NOT addressed here."
+}
