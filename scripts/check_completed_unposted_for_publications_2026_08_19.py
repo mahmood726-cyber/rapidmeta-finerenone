@@ -1,0 +1,170 @@
+#!/usr/bin/env python3
+"""DO THE COMPLETED-AND-UNPOSTED COLCHICINE TRIALS HAVE PUBLICATIONS? -- three states, kept apart.
+
+THE NUMBER THIS PRODUCES IS THE SECOND PAPER'S DENOMINATOR. 53 of the 137 screened colchicine
+registrations are ELIGIBLE_COMPLETED_NO_RESULTS_POSTED: the trial finished and the registry
+carries nothing. The paper's claim is that registry silence is not absence of evidence, and the
+size of that claim is exactly the fraction of these that turn out to be published.
+
+THREE STATES, NEVER SUMMED INTO TWO:
+
+    PUBLISHED                 a publication was resolved, and the ROUTE is recorded.
+    NO_PUBLICATION_RESOLVED   nothing was found by the routes run. THIS IS NOT "unpublished".
+                              It is the same silence the paper is about, one level out, and
+                              counting it as evidence of no publication would be the exact
+                              inference the paper argues against.
+    NOT_CHECKED               no route was run against it.
+
+WHAT THIS ENUMERATES OVER, stated so the scope of the check is visible rather than inferred from
+the answer -- the fix for the retraction earlier today:
+
+    evidence/2026-08-19-batch1/colchicine_split_screening.json   the 137 screened rows
+    ClinicalTrials.gov v2 referencesModule                       fetched per registration
+    (PubMed by registration id is a SECOND route, run separately for the leftovers)
+
+ROUTE 1, run here: the registration's OWN reference list. Every reference type is returned and
+none is filtered -- CLEAR Outcomes' primary report is typed BACKGROUND in its own registration,
+so a type filter would miss a primary publication outright.
+
+USAGE
+    python scripts/check_completed_unposted_for_publications_2026_08_19.py [--apply]
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import ctgov_transport as X                                             # noqa: E402
+
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+OUT = os.path.join(EV, "completed_unposted_publication_check.json")
+
+# Already resolved by the pericarditis literature limb, with the route recorded there.
+ALREADY = {
+    "NCT00128414": ("21873705", "registration referencesModule, confirmed against PubMed"),
+    "NCT00128453": ("23992557", "registration referencesModule, confirmed against PubMed"),
+    "NCT00235079": ("24694983", "registration referencesModule, confirmed against PubMed"),
+    "NCT01266694": ("26076938", "registration referencesModule, confirmed against PubMed"),
+    "NCT05805930": (None, "registration carries NO reference; nothing resolved"),
+}
+
+
+def refs_of(nct):
+    st, s, detail = X.fetch_raw(nct, fields="protocolSection")
+    if st != X.OK:
+        return None, str(detail)[:140]
+    ps = s.get("protocolSection") or {}
+    rl = (ps.get("referencesModule") or {}).get("references") or []
+    idm = ps.get("identificationModule") or {}
+    return {
+        "acronym": idm.get("acronym"),
+        "brief_title": (idm.get("briefTitle") or "")[:120],
+        "enrollment": ((ps.get("designModule") or {}).get("enrollmentInfo") or {}).get("count"),
+        "references": [{"pmid": r.get("pmid"), "type": r.get("type"),
+                        "citation": (r.get("citation") or "")[:220]} for r in rl],
+    }, None
+
+
+def run(apply_it):
+    scr = json.load(io.open(os.path.join(EV, "colchicine_split_screening.json"),
+                            encoding="utf-8"))
+    targets = sorted(r["nct"] for r in scr["rows"]
+                     if r["disposition"] == "ELIGIBLE_COMPLETED_NO_RESULTS_POSTED")
+    print("completed-and-unposted registrations in this set: %d\n" % len(targets))
+
+    rows, unreachable = [], []
+    for n in targets:
+        if n in ALREADY:
+            pmid, route = ALREADY[n]
+            rows.append({"nct": n,
+                         "state": "PUBLISHED" if pmid else "NO_PUBLICATION_RESOLVED",
+                         "pmid": pmid, "route": route,
+                         "checked_in": "the pericarditis literature limb"})
+            continue
+        d, err = refs_of(n)
+        if d is None:
+            unreachable.append((n, err))
+            rows.append({"nct": n, "state": "NOT_CHECKED",
+                         "why": "registration unreachable: %s" % err})
+            continue
+        pmids = [r for r in d["references"] if r.get("pmid")]
+        if pmids:
+            rows.append({
+                "nct": n, "state": "PUBLISHED",
+                "acronym": d["acronym"], "enrollment": d["enrollment"],
+                "n_references": len(d["references"]),
+                "pmids": [r["pmid"] for r in pmids],
+                "reference_types": sorted({r["type"] for r in pmids if r.get("type")}),
+                "first_citation": pmids[0]["citation"],
+                "route": ("ROUTE 1 -- the registration's own referencesModule, no type filter"),
+            })
+        else:
+            rows.append({
+                "nct": n, "state": "NO_PUBLICATION_RESOLVED",
+                "acronym": d["acronym"], "enrollment": d["enrollment"],
+                "n_references": len(d["references"]),
+                "route_run": "ROUTE 1 -- the registration's own referencesModule",
+                "routes_NOT_run": ["PubMed search by registration identifier",
+                                   "publisher / journal search by trial name"],
+                "WHAT_THIS_IS_NOT": (
+                    "NOT evidence that no publication exists. The registration simply carries "
+                    "no reference. That is the same silence this paper is about, one level "
+                    "out."),
+            })
+
+    pub = [r for r in rows if r["state"] == "PUBLISHED"]
+    nores = [r for r in rows if r["state"] == "NO_PUBLICATION_RESOLVED"]
+    notck = [r for r in rows if r["state"] == "NOT_CHECKED"]
+
+    print("  PUBLISHED                %3d" % len(pub))
+    print("  NO_PUBLICATION_RESOLVED  %3d" % len(nores))
+    print("  NOT_CHECKED              %3d" % len(notck))
+    print("  ---------------------------")
+    print("  total                    %3d" % len(rows))
+    if unreachable:
+        print("\n  unreachable registrations:")
+        for n, e in unreachable:
+            print("     %-13s %s" % (n, e))
+
+    doc = {
+        "checked_utc": "2026-08-19",
+        "what_this_enumerated_over": {
+            "source_of_the_target_list":
+                "evidence/2026-08-19-batch1/colchicine_split_screening.json, rows with "
+                "disposition ELIGIBLE_COMPLETED_NO_RESULTS_POSTED",
+            "n_targets": len(targets),
+            "route_1_run_here": "ClinicalTrials.gov v2 referencesModule, every type, unfiltered",
+            "routes_not_run_here": ["PubMed search by registration identifier",
+                                    "publisher or journal search by trial name",
+                                    "trial-registry cross-links other than ClinicalTrials.gov"],
+            "why_this_block_exists": (
+                "A re-derivation must state which sources it enumerated over, so a reader can "
+                "see the SCOPE of the check rather than infer it from the answer. Written after "
+                "a correction of mine was itself wrong because it re-derived over one file when "
+                "two existed."),
+        },
+        "three_states_and_why_they_are_never_summed": {
+            "PUBLISHED": "a publication was resolved and the route is recorded",
+            "NO_PUBLICATION_RESOLVED": (
+                "nothing found by the routes run. NOT 'unpublished'. Counting this as evidence "
+                "of no publication is the exact inference this paper argues against."),
+            "NOT_CHECKED": "no route was run against it",
+        },
+        "counts": {"PUBLISHED": len(pub), "NO_PUBLICATION_RESOLVED": len(nores),
+                   "NOT_CHECKED": len(notck), "total": len(rows)},
+        "rows": rows,
+    }
+    if apply_it:
+        with io.open(OUT, "w", encoding="utf-8", newline="") as fh:
+            fh.write(json.dumps(doc, indent=1, ensure_ascii=False))
+        print("\nwrote %s" % os.path.relpath(OUT, REPO))
+    else:
+        print("\nDRY RUN -- nothing written.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(run("--apply" in sys.argv))

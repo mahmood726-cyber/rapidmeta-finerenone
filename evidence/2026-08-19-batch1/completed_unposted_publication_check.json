@@ -1,0 +1,914 @@
+{
+ "checked_utc": "2026-08-19",
+ "what_this_enumerated_over": {
+  "source_of_the_target_list": "evidence/2026-08-19-batch1/colchicine_split_screening.json, rows with disposition ELIGIBLE_COMPLETED_NO_RESULTS_POSTED",
+  "n_targets": 53,
+  "route_1_run_here": "ClinicalTrials.gov v2 referencesModule, every type, unfiltered",
+  "routes_not_run_here": [
+   "publisher or journal search by trial name or acronym",
+   "trial-registry cross-links other than ClinicalTrials.gov",
+   "conference abstracts and grey literature"
+  ],
+  "why_this_block_exists": "A re-derivation must state which sources it enumerated over, so a reader can see the SCOPE of the check rather than infer it from the answer. Written after a correction of mine was itself wrong because it re-derived over one file when two existed.",
+  "route_2_run": {
+   "route": "PubMed search by registration identifier, \"<NCT>\"[All Fields], run in batches of 6-8",
+   "targets": "all 22 rows left NO_PUBLICATION_RESOLVED by route 1",
+   "result": "ZERO hits across all 22",
+   "THE_CONTROL_THAT_MAKES_THAT_ZERO_MEANINGFUL": {
+    "why": "A search that can only return nothing is not a search. Before the zero was accepted, the same route was run against two registrations KNOWN to be published.",
+    "query": "\"NCT00128453\"[All Fields] OR \"NCT03048825\"[All Fields]",
+    "returned": [
+     "39555823",
+     "39555814",
+     "38936755",
+     "38505729",
+     "36526898",
+     "34269908",
+     "32648087",
+     "23992557"
+    ],
+    "includes": "23992557 = ICAP, the primary report of NCT00128453",
+    "conclusion": "THE ROUTE RETURNS POSITIVES. The zero for the 22 is a genuine negative for this route."
+   },
+   "AND_A_TRAP_AVOIDED": "An 11-term OR query without field tags came back untranslated and returned zero. Re-run with explicit [All Fields] tags in smaller batches it still returned zero -- but the untranslated version would have produced the same number for the wrong reason."
+  }
+ },
+ "three_states_and_why_they_are_never_summed": {
+  "PUBLISHED": "a publication was resolved and the route is recorded",
+  "NO_PUBLICATION_RESOLVED": "nothing found by the routes run. NOT 'unpublished'. Counting this as evidence of no publication is the exact inference this paper argues against.",
+  "NOT_CHECKED": "no route was run against it"
+ },
+ "counts": {
+  "PUBLISHED": 31,
+  "NO_PUBLICATION_RESOLVED": 22,
+  "NOT_CHECKED": 0,
+  "total": 53
+ },
+ "rows": [
+  {
+   "nct": "NCT00128414",
+   "state": "PUBLISHED",
+   "pmid": "21873705",
+   "route": "registration referencesModule, confirmed against PubMed",
+   "checked_in": "the pericarditis literature limb"
+  },
+  {
+   "nct": "NCT00128453",
+   "state": "PUBLISHED",
+   "pmid": "23992557",
+   "route": "registration referencesModule, confirmed against PubMed",
+   "checked_in": "the pericarditis literature limb"
+  },
+  {
+   "nct": "NCT00235079",
+   "state": "PUBLISHED",
+   "pmid": "24694983",
+   "route": "registration referencesModule, confirmed against PubMed",
+   "checked_in": "the pericarditis literature limb"
+  },
+  {
+   "nct": "NCT00754819",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": "COOL",
+   "enrollment": 80,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT01266694",
+   "state": "PUBLISHED",
+   "pmid": "26076938",
+   "route": "registration referencesModule, confirmed against PubMed",
+   "checked_in": "the pericarditis literature limb"
+  },
+  {
+   "nct": "NCT01552187",
+   "state": "PUBLISHED",
+   "acronym": "COPPS-2",
+   "enrollment": 360,
+   "n_references": 2,
+   "pmids": [
+    "25172965",
+    "23816016"
+   ],
+   "reference_types": [
+    "DERIVED"
+   ],
+   "first_citation": "Imazio M, Brucato A, Ferrazzi P, Pullara A, Adler Y, Barosi A, Caforio AL, Cemin R, Chirillo F, Comoglio C, Cugola D, Cumetti D, Dyrda O, Ferrua S, Finkelstein Y, Flocco R, Gandino A, Hoit B, Innocente F, Maestroni S, Mu",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT01906749",
+   "state": "PUBLISHED",
+   "acronym": "COACS",
+   "enrollment": 500,
+   "n_references": 1,
+   "pmids": [
+    "32648087"
+   ],
+   "reference_types": [
+    "DERIVED"
+   ],
+   "first_citation": "Silvis MJM, Demkes EJ, Fiolet ATL, Dekker M, Bosch L, van Hout GPJ, Timmers L, de Kleijn DPV. Immunomodulation of the NLRP3 Inflammasome in Atherosclerosis, Coronary Artery Disease, and Acute Myocardial Infarction. J Car",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT01936285",
+   "state": "PUBLISHED",
+   "acronym": null,
+   "enrollment": 150,
+   "n_references": 1,
+   "pmids": [
+    "26265659"
+   ],
+   "reference_types": [
+    "DERIVED"
+   ],
+   "first_citation": "Deftereos S, Giannopoulos G, Angelidis C, Alexopoulos N, Filippatos G, Papoutsidakis N, Sianos G, Goudevenos J, Alexopoulos D, Pyrgakis V, Cleman MW, Manolis AS, Tousoulis D, Lekakis J. Anti-Inflammatory Treatment With C",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT02095522",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": "CODEN",
+   "enrollment": 0,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT02122484",
+   "state": "PUBLISHED",
+   "acronym": null,
+   "enrollment": 60,
+   "n_references": 1,
+   "pmids": [
+    "25784519"
+   ],
+   "reference_types": [
+    "DERIVED"
+   ],
+   "first_citation": "Giannopoulos G, Angelidis C, Kouritas VK, Dedeilias P, Filippatos G, Cleman MW, Panagopoulou V, Siasos G, Tousoulis D, Lekakis J, Deftereos S. Usefulness of colchicine to reduce perioperative myocardial damage in patient",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT02162303",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": "COLPET",
+   "enrollment": 106,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT02260206",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": null,
+   "enrollment": 20,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT02281305",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": null,
+   "enrollment": 20,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT02282098",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": "CIAFS-1",
+   "enrollment": 80,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT02363725",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": "COLIN",
+   "enrollment": 44,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT02898610",
+   "state": "PUBLISHED",
+   "acronym": "CONVINCE",
+   "enrollment": 3154,
+   "n_references": 6,
+   "pmids": [
+    "38857611",
+    "42418305",
+    "42032972",
+    "41328787",
+    "38505729",
+    "34269908"
+   ],
+   "reference_types": [
+    "DERIVED",
+    "RESULT"
+   ],
+   "first_citation": "Kelly P, Lemmens R, Weimar C, Walsh C, Purroy F, Barber M, Collins R, Cronin S, Czlonkowska A, Desfontaines P, De Pauw A, Evans NR, Fischer U, Fonseca C, Forbes J, Hill MD, Jatuzis D, Korv J, Kraft P, Kruuse C, Lynch C, ",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT03015831",
+   "state": "PUBLISHED",
+   "acronym": "END-AFLD",
+   "enrollment": 254,
+   "n_references": 1,
+   "pmids": [
+    "32720823"
+   ],
+   "reference_types": [
+    "DERIVED"
+   ],
+   "first_citation": "Tabbalat RA, Alhaddad I, Hammoudeh A, Khader YS, Khalaf HA, Obaidat M, Barakat J. Effect of Low-dose ColchiciNe on the InciDence of Atrial Fibrillation in Open Heart Surgery Patients: END-AF Low Dose Trial. J Int Med Res",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT03048825",
+   "state": "PUBLISHED",
+   "acronym": "CLEAR SYNERGY",
+   "enrollment": 7264,
+   "n_references": 7,
+   "pmids": [
+    "39555823",
+    "39555814",
+    "38936755",
+    "38505729",
+    "36526898",
+    "34269908",
+    "32648087"
+   ],
+   "reference_types": [
+    "DERIVED"
+   ],
+   "first_citation": "Jolly SS, d'Entremont MA, Lee SF, Mian R, Tyrwhitt J, Kedev S, Montalescot G, Cornel JH, Stankovic G, Moreno R, Storey RF, Henry TD, Mehta SR, Bossard M, Kala P, Layland J, Zafirovska B, Devereaux PJ, Eikelboom J, Cairns",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT03156816",
+   "state": "PUBLISHED",
+   "acronym": "COVERT-MI",
+   "enrollment": 194,
+   "n_references": 1,
+   "pmids": [
+    "34420373"
+   ],
+   "reference_types": [
+    "RESULT"
+   ],
+   "first_citation": "Mewton N, Roubille F, Bresson D, Prieur C, Bouleti C, Bochaton T, Ivanes F, Dubreuil O, Biere L, Hayek A, Derimay F, Akodad M, Alos B, Haider L, El Jonhy N, Daw R, De Bourguignon C, Dhelens C, Finet G, Bonnefoy-Cudraz E,",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT03310125",
+   "state": "PUBLISHED",
+   "acronym": "COP-AF",
+   "enrollment": 3209,
+   "n_references": 3,
+   "pmids": [
+    "40698308",
+    "37640035",
+    "37457622"
+   ],
+   "reference_types": [
+    "DERIVED"
+   ],
+   "first_citation": "Ofori S, Wang MK, Popova E, McIntyre WF, Chan M, Sessler DI, Giulia V, Warwas M, Balasubramanian K, Tandon V, Finley C, Anna GT, Cata J, Srinathan S, Reimer C, McLean S, Trujillo JC, Fleischmann E, Voltolini L, Cruz P, M",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT03376698",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": "DRC-04",
+   "enrollment": 54,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT04073797",
+   "state": "PUBLISHED",
+   "acronym": "PIILL",
+   "enrollment": 63,
+   "n_references": 2,
+   "pmids": [
+    "28385306",
+    "25977567"
+   ],
+   "reference_types": [
+    "BACKGROUND"
+   ],
+   "first_citation": "Tarkin JM, Joshi FR, Evans NR, Chowdhury MM, Figg NL, Shah AV, Starks LT, Martin-Garrido A, Manavaki R, Yu E, Kuc RE, Grassi L, Kreuzhuber R, Kostadima MA, Frontini M, Kirkpatrick PJ, Coughlin PA, Gopalan D, Fryer TD, Bu",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT04139655",
+   "state": "PUBLISHED",
+   "acronym": "COPMAN",
+   "enrollment": 0,
+   "n_references": 10,
+   "pmids": [
+    "21502650",
+    "29203498",
+    "22706835",
+    "24534856",
+    "27865641",
+    "27443427",
+    "28918897",
+    "27533981",
+    "27580061",
+    "26830663"
+   ],
+   "reference_types": [
+    "BACKGROUND"
+   ],
+   "first_citation": "Devereaux PJ, Xavier D, Pogue J, Guyatt G, Sigamani A, Garutti I, Leslie K, Rao-Melacini P, Chrolavicius S, Yang H, Macdonald C, Avezum A, Lanthier L, Hu W, Yusuf S; POISE (PeriOperative ISchemic Evaluation) Investigator",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT04155879",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": null,
+   "enrollment": 300,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT04160117",
+   "state": "PUBLISHED",
+   "acronym": null,
+   "enrollment": 202,
+   "n_references": 1,
+   "pmids": [
+    "38126206"
+   ],
+   "reference_types": [
+    "RESULT"
+   ],
+   "first_citation": "Benz AP, Amit G, Connolly SJ, Singh J, Acosta-Velez JG, Conen D, Deif B, Divakaramenon S, McIntyre WF, Mtwesi V, Roberts JD, Wong JA, Zhao R, Healey JS; IMPROVE-PVI Investigators. Colchicine to Prevent Atrial Fibrillatio",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT04181996",
+   "state": "PUBLISHED",
+   "acronym": "CADENCE",
+   "enrollment": 115,
+   "n_references": 3,
+   "pmids": [
+    "23265346",
+    "31733140",
+    "37949621"
+   ],
+   "reference_types": [
+    "BACKGROUND",
+    "DERIVED"
+   ],
+   "first_citation": "Nidorf SM, Eikelboom JW, Budgeon CA, Thompson PL. Low-dose colchicine for secondary prevention of cardiovascular disease. J Am Coll Cardiol. 2013 Jan 29;61(4):404-410. doi: 10.1016/j.jacc.2012.10.027. Epub 2012 Dec 19.",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT04218786",
+   "state": "PUBLISHED",
+   "acronym": null,
+   "enrollment": 0,
+   "n_references": 35,
+   "pmids": [
+    "20643246",
+    "23772948",
+    "24695986",
+    "25120783",
+    "21282498",
+    "28353024",
+    "27129183",
+    "23502856",
+    "28395979",
+    "30062164",
+    "808560",
+    "20430794",
+    "18765397",
+    "21982649",
+    "15175806",
+    "23107875",
+    "28420825",
+    "26304941",
+    "26265659",
+    "25164186",
+    "23992557",
+    "31733140",
+    "24036026",
+    "16818493",
+    "12606260",
+    "22090167",
+    "27223641",
+    "23816016",
+    "16186437",
+    "16186468",
+    "21873705",
+    "24694983",
+    "26318871",
+    "26228647",
+    "21480191"
+   ],
+   "reference_types": [
+    "BACKGROUND"
+   ],
+   "first_citation": "Turer AT, Hill JA. Pathogenesis of myocardial ischemia-reperfusion injury and rationale for therapy. Am J Cardiol. 2010 Aug 1;106(3):360-8. doi: 10.1016/j.amjcard.2010.03.032.",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT04382443",
+   "state": "PUBLISHED",
+   "acronym": "ORCA",
+   "enrollment": 410,
+   "n_references": 2,
+   "pmids": [
+    "33174761",
+    "40363904"
+   ],
+   "reference_types": [
+    "DERIVED",
+    "RESULT"
+   ],
+   "first_citation": "Correa-Sadouet C, Rodriguez-Granillo AM, Gallardo C, Mieres J, Fontana L, Curotto MV, Wainer P, Allende NG, Fernandez-Pereira C, M Vetulli H, la Hoz RP, Kastrati A, Rodriguez AE; ORCA investigators. Randomized comparison",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT04420624",
+   "state": "PUBLISHED",
+   "acronym": "COLD-MI",
+   "enrollment": 54,
+   "n_references": 1,
+   "pmids": [
+    "38289979"
+   ],
+   "reference_types": [
+    "RESULT"
+   ],
+   "first_citation": "Huet F, Mariano-Goulart D, Aguilhon S, Delbaere Q, Lacampagne A, Fauconnier J, Leclercq F, Macia JC, Akodad M, Jammoul N, Prunier F, Mewton N, Angoulvant D, Lozza C, Soltani S, Rodier A, Grandemange S, Dupuy AM, Cristol ",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT04848857",
+   "state": "PUBLISHED",
+   "acronym": "COLOCT",
+   "enrollment": 128,
+   "n_references": 1,
+   "pmids": [
+    "39166327"
+   ],
+   "reference_types": [
+    "DERIVED"
+   ],
+   "first_citation": "Yu M, Yang Y, Dong SL, Zhao C, Yang F, Yuan YF, Liao YH, He SL, Liu K, Wei F, Jia HB, Yu B, Cheng X. Effect of Colchicine on Coronary Plaque Stability in Acute Coronary Syndrome as Assessed by Optical Coherence Tomograph",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT04906720",
+   "state": "PUBLISHED",
+   "acronym": "PAPERS",
+   "enrollment": 248,
+   "n_references": 9,
+   "pmids": [
+    "26228647",
+    "16186437",
+    "25172965",
+    "32720823",
+    "23040570",
+    "24508207",
+    "32553209",
+    "32081221",
+    "33270311"
+   ],
+   "reference_types": [
+    "RESULT"
+   ],
+   "first_citation": "Leung YY, Yao Hui LL, Kraus VB. Colchicine--Update on mechanisms of action and therapeutic uses. Semin Arthritis Rheum. 2015 Dec;45(3):341-50. doi: 10.1016/j.semarthrit.2015.06.013. Epub 2015 Jun 26.",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT05159219",
+   "state": "PUBLISHED",
+   "acronym": "CoVasc-ICH",
+   "enrollment": 100,
+   "n_references": 2,
+   "pmids": [
+    "42558067",
+    "36256671"
+   ],
+   "reference_types": [
+    "DERIVED"
+   ],
+   "first_citation": "Katsanos AH, Ng KKH, Field TS, Ganesh A, Schaafsma JD, Jalini S, Shuaib A, Mai LM, Yu AYX, Gioia LC, Cooley R, Dowlatshahi D, Srivastava A, Tsivgoulis G, Wang A, Balasubramanian K, Reeh KW, Taylor A, Hart RG, Shoamanesh ",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT05200052",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": null,
+   "enrollment": 100,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT05250596",
+   "state": "PUBLISHED",
+   "acronym": "COLOR-ACS",
+   "enrollment": 182,
+   "n_references": 1,
+   "pmids": [
+    "36473121"
+   ],
+   "reference_types": [
+    "DERIVED"
+   ],
+   "first_citation": "Toso A, Leoncini M, Magnaghi G, Biagini F, Martini O, Maioli M, Villani S, Comeglio M, Bellandi F. Rationale and design of COLchicine On-admission to Reduce inflammation in Acute Coronary Syndrome (COLOR-ACS) study. J Ca",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT05347316",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": "COPIX",
+   "enrollment": 40,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT05439356",
+   "state": "PUBLISHED",
+   "acronym": null,
+   "enrollment": 8343,
+   "n_references": 3,
+   "pmids": [
+    "40496882",
+    "38925803",
+    "37060288"
+   ],
+   "reference_types": [
+    "DERIVED"
+   ],
+   "first_citation": "Li J, Jing J, Meng X, Shi FD, Gu HQ, Jin A, Jiang Y, Li H, Johnston SC, Hankey GJ, Easton JD, Xie X, Jin WN, Chang L, Shi P, Wang L, Zhuang X, Li H, Zang Y, Zhang J, Sun Z, Liu D, Li Y, Yang H, Zhao J, Yu W, Wang A, Pan ",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT05459974",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": null,
+   "enrollment": 224,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT05709509",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": null,
+   "enrollment": 148,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT05726019",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": "COCAR",
+   "enrollment": 100,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT05734612",
+   "state": "PUBLISHED",
+   "acronym": null,
+   "enrollment": 80,
+   "n_references": 8,
+   "pmids": [
+    "26265659",
+    "28065445",
+    "34420373",
+    "30185392",
+    "21918905",
+    "27129183",
+    "29055633",
+    "26304941"
+   ],
+   "reference_types": [
+    "BACKGROUND",
+    "RESULT"
+   ],
+   "first_citation": "Deftereos S, Giannopoulos G, Angelidis C, Alexopoulos N, Filippatos G, Papoutsidakis N, Sianos G, Goudevenos J, Alexopoulos D, Pyrgakis V, Cleman MW, Manolis AS, Tousoulis D, Lekakis J. Anti-Inflammatory Treatment With C",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT05739929",
+   "state": "PUBLISHED",
+   "acronym": null,
+   "enrollment": 400,
+   "n_references": 14,
+   "pmids": [
+    "16159607",
+    "34895950",
+    "30165437",
+    "22371874",
+    "30153967",
+    "35525570",
+    "34003667",
+    "33744748",
+    "32295417",
+    "35881907",
+    "32227755",
+    "20373128",
+    "32865380",
+    "31733140"
+   ],
+   "reference_types": [
+    "BACKGROUND",
+    "RESULT"
+   ],
+   "first_citation": "Kwaijtaal M, van Diest R, Bar FW, van der Ven AJ, Bruggeman CA, de Baets MH, Appels A. Inflammatory markers predict late cardiac events in patients who are exhausted after percutaneous coronary intervention. Atherosclero",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT05805930",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "pmid": null,
+   "route": "registration carries NO reference; nothing resolved",
+   "checked_in": "the pericarditis literature limb"
+  },
+  {
+   "nct": "NCT05956145",
+   "state": "PUBLISHED",
+   "acronym": null,
+   "enrollment": 80,
+   "n_references": 26,
+   "pmids": [
+    "15843671",
+    "18997196",
+    "28845751",
+    "30415610",
+    "20179285",
+    "23890998",
+    "23992557",
+    "7067838",
+    "15014504",
+    "8724893",
+    "17907163",
+    "16407889",
+    "17067838",
+    "30287213",
+    "23265346",
+    "31733140",
+    "30571511",
+    "10075613",
+    "4950264",
+    "4541913",
+    "31758517",
+    "17694222",
+    "18217143",
+    "19760244",
+    "12851627",
+    "19467447"
+   ],
+   "reference_types": [
+    "BACKGROUND"
+   ],
+   "first_citation": "Hansson GK. Inflammation, atherosclerosis, and coronary artery disease. N Engl J Med. 2005 Apr 21;352(16):1685-95. doi: 10.1056/NEJMra043430. No abstract available.",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT06020300",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": null,
+   "enrollment": 64,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT06025071",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": "RIGHT",
+   "enrollment": 800,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT06054100",
+   "state": "PUBLISHED",
+   "acronym": null,
+   "enrollment": 88,
+   "n_references": 1,
+   "pmids": [
+    "39359014"
+   ],
+   "reference_types": [
+    "DERIVED"
+   ],
+   "first_citation": "Hassanain HA, El Wakeel LM, Khorshid H, Ahmed MA. Colchicine effect on biomarkers of cardiac remodelling and atherosclerosis in ST-elevation myocardial infarction: A randomized controlled trial. Br J Clin Pharmacol. 2025",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT06078904",
+   "state": "PUBLISHED",
+   "acronym": null,
+   "enrollment": 200,
+   "n_references": 2,
+   "pmids": [
+    "33769515",
+    "37558377"
+   ],
+   "reference_types": [
+    "BACKGROUND"
+   ],
+   "first_citation": "Fiolet ATL, Opstal TSJ, Mosterd A, Eikelboom JW, Jolly SS, Keech AC, Kelly P, Tong DC, Layland J, Nidorf SM, Thompson PL, Budgeon C, Tijssen JGP, Cornel JH. Efficacy and safety of low-dose colchicine in patients with cor",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  },
+  {
+   "nct": "NCT06083337",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": "VIRDICT",
+   "enrollment": 140,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT06102720",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": "COLCHIDA",
+   "enrollment": 200,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT06212271",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": null,
+   "enrollment": 24,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT06217120",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": "COL-Micro-HF",
+   "enrollment": 60,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT06280976",
+   "state": "NO_PUBLICATION_RESOLVED",
+   "acronym": "ARTCAP",
+   "enrollment": 0,
+   "n_references": 0,
+   "route_run": "ROUTE 1 -- the registration's own referencesModule",
+   "routes_NOT_run": [
+    "publisher/journal search by trial name",
+    "grey literature"
+   ],
+   "WHAT_THIS_IS_NOT": "NOT evidence that no publication exists. The registration simply carries no reference. That is the same silence this paper is about, one level out.",
+   "route_2_run": "PubMed by registration identifier -- zero hits"
+  },
+  {
+   "nct": "NCT06731595",
+   "state": "PUBLISHED",
+   "acronym": "PAPERS",
+   "enrollment": 248,
+   "n_references": 9,
+   "pmids": [
+    "26228647",
+    "16186437",
+    "25172965",
+    "32720823",
+    "23040570",
+    "24508207",
+    "32553209",
+    "32081221",
+    "33270311"
+   ],
+   "reference_types": [
+    "RESULT"
+   ],
+   "first_citation": "Leung YY, Yao Hui LL, Kraus VB. Colchicine--Update on mechanisms of action and therapeutic uses. Semin Arthritis Rheum. 2015 Dec;45(3):341-50. doi: 10.1016/j.semarthrit.2015.06.013. Epub 2015 Jun 26.",
+   "route": "ROUTE 1 -- the registration's own referencesModule, no type filter"
+  }
+ ]
+}
