@@ -26,6 +26,8 @@ TWO RULES, both learned the hard way.
    what is not, never interpolate.
 """
 
+import re
+
 EXPERIMENTAL = "experimental"
 COMPARATOR = "comparator"
 BACKGROUND = "background_or_coadministered"
@@ -82,6 +84,12 @@ KNOWN_DEVELOPMENT_CODES = {
     "aln-ttrsc02": "vutrisiran",
     "alxn2060": "acoramidis",
 }
+
+
+# A placebo declares itself at the START of its own name -- "Placebo (for alirocumab)",
+# "Matching placebo", "Placebo for ezetimibe". Anchored deliberately: a drug named
+# "...plus placebo" mid-string is NOT excluded, because there the drug IS present.
+_PLACEBO_NAME = re.compile(r"^\s*(matching\s+)?(placebo|sham|vehicle|dummy)\b")
 
 
 def synonyms_for(topic_key):
@@ -190,8 +198,34 @@ def locate(study, syns):
         # So the control-arm hit requires an intervention whose NAME matches, attached to that
         # arm. Same discipline as everywhere else tonight: read the coded relation, not the prose.
         def _drug_named_in_arm(a):
+            """Is the TOPIC DRUG in this arm -- not merely its name as a substring.
+
+            A PLACEBO FOR X IS NOT X, and reading it as X withholds evidence.
+
+            FOUND ON alirocumab-lipid, 2026-08-19, on FIVE OF ITS SIX INCLUDED TRIALS. The
+            ODYSSEY registrations name the placebo arm's intervention:
+
+                Drug: Placebo (for alirocumab)
+
+            The substring `alirocumab` is present, so this function reported the drug in BOTH
+            arms and locate() returned `background_or_coadministered` -- classifying the
+            randomised contrast of a canonical alirocumab-vs-placebo trial as background
+            therapy. Withholding again, and worse than the arm-type defect: `Placebo (for X)`
+            is a standard industry naming convention. 49 of 582 intervention records across
+            the payloads to hand (8.4%) name the drug their placebo substitutes for.
+
+            THIS IS E1 -- SUBSTRING IS NOT IDENTITY -- the class this project recorded as an
+            OPEN exposure and 'not lintable'. It is not lintable in general. It IS decidable
+            here, because a placebo declares itself in the same field: the name BEGINS with
+            placebo/sham/vehicle. So the fix is narrow and principled rather than a heuristic.
+
+            The both-arms rule it protects stays intact: EASi-HF really does give
+            empagliflozin in both arms, under its own name, and still returns BACKGROUND.
+            """
             for n in (a.get("interventionNames") or []):
                 nm = str(n).split(":", 1)[-1].strip().lower()
+                if _PLACEBO_NAME.match(nm):
+                    continue          # a placebo FOR the drug is not the drug
                 if any(s in nm for s in syns):
                     return True
             return False
