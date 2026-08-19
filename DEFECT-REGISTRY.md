@@ -1,0 +1,282 @@
+# Defect registry — every class found on 2026-08-18/19, and what rejects it
+
+Written to a single standard: **a class is closed only when a command rejects it.** Not when
+it is documented, not when the rule is agreed, not when the author intends to remember.
+
+The night's central finding is the reason this file exists:
+
+> **The objects kept being right and the instruments kept being wrong.** Every substantive
+> correction was to a reason, an attribution, or a check — never to a stored quantity. Six
+> figures survived independent recomputation; six recorded limitations survived independent
+> test. What failed, repeatedly, was the apparatus doing the checking.
+
+So the exposures below are weighted toward instruments, and the proof standard is aimed at
+instruments: an instrument that has never been observed to fail is not known to be able to.
+
+## The proof standard
+
+Every entry claiming a detector must satisfy three parts, **each a command someone else can
+run**, because the third exists precisely to stop the first two being asserted:
+
+1. **It can fire.** Run against a known-bad input, observe rejection.
+2. **It does not fire on the correct case.** Run against the corpus, observe silence.
+3. **Neither is established by the build reporting success.** A build prints success when a
+   guard is present but broken — that is how the foreign-id guard printed `HELD 7 / REFUSING 1`
+   while incapable of matching a single identifier. Exit codes from the detector itself,
+   with counts, or it does not count.
+
+Status vocabulary, used strictly:
+
+| Status | Meaning |
+|---|---|
+| **CLOSED** | Detector exists, all three parts demonstrated, wired into `.githooks/pre-commit`. |
+| **CLOSED (unwired)** | All three parts demonstrated, but must be invoked deliberately. |
+| **PARTIAL** | A detector exists and fires on some of the class; the uncovered part is named. |
+| **OPEN** | No mechanical detector. The reason is named. Prose only. |
+
+---
+
+## CLOSED
+
+### 1. Heredoc mangling — control characters in source
+`\b` written through a shell heredoc arrives as a literal `0x08`. The file parses, imports,
+runs, and the build reports success while the pattern can never match.
+
+**Eight instances in one night**, by an author who had read the rule, written the rule, and
+committed the rule. The worst destroyed the foreign-registration-id guard. The eighth was
+`PAGE-STANDARD.md`'s own sentence *describing* the mangling class, mangled by the class.
+
+- **Detector** `scripts/lint_control_chars.py`
+- **Fires** a byte-for-byte reproduction of the historical corruption → REFUSED
+- **Silent** clean repo → exit 0
+- **Independent** its own exit code; excluded `sources/*.extract.txt` files are **counted and
+  reported every run**, because a silent exclusion is how a guard becomes a formality
+
+**Root cause, established by experiment rather than assumed.** The first probe was written
+through a *quoted* heredoc (`<<'PY'`), which cannot shell-expand — and `\\b` still arrived as
+`0x08`. The same two characters written with the file-writing tool produced `\` `b` as separate
+bytes (`od -c`). **The mangling is in the transport, not in the shell.** That is why quoting
+the delimiter never helped, and why the class recurred eight times against someone who knew
+the rule.
+
+### 2. Escape hazards — control characters in *values*, with clean source
+The sibling of §1, and invisible to it. In a non-raw Python literal `\b` is a **valid** escape:
+the source stays clean ASCII, the compiled value becomes `0x08`.
+
+```python
+re.compile("\bNCT\d{8}\b")     # source byte-clean; value is \x08NCT\\d{8}\x08
+re.compile(r"\bNCT\d{8}\b")    # correct
+```
+
+Found by tracing a `SyntaxWarning` at commit rather than reading past it.
+
+- **Detector** `scripts/lint_escape_hazards.py` — both halves, which fail differently:
+  unrecognised escapes (`\s`, `\d`) that Python already warns about and which work *by
+  accident*; and recognised escapes yielding control characters, for which **no warning
+  exists** — silent today, wrong today
+- **Fires** planted `re.compile("\bNCT\d{8}\b")`, source verified byte-clean by `od -c` →
+  REFUSED, naming line and `\b BACKSPACE`. The byte scanner of §1 is correctly **silent** on
+  the same file, which is the point of the entry
+- **Silent** 694 Python files → 0 and 0, exit 0
+- **Independent** the hook itself run against the planted hazard → REFUSED; against clean → 0
+
+### 3. Identifiers from recall
+A registration id written beside a trial acronym is **two** claims: the id, and the pairing.
+The id gets checked; the pairing reads as a label rather than as an assertion, and does not.
+
+Auditing `iv-iron-hf` I recalled the mapping and got **three of five wrong**. The object was
+correct throughout.
+
+> A recalled identifier in a **build** produces a wrong value that later checks may catch.
+> A recalled identifier in an **audit** produces an **accusation**, and nothing audits the auditor.
+
+- **Detector** `scripts/lint_identifier_pairing.py`. Closed vocabulary — only acronyms the
+  registry itself published (751 over 765 ids, from the local cache, offline, ~3s). It does not
+  guess which token is an acronym; guessing needs a stopword list, and a stopword list is a
+  permanent argument
+- **Fires** `--positive-control` → REFUSED. The three documented mispairings in its own
+  docstring carry `# lint:known-mispairing` and are therefore a **permanent** positive control
+- **Silent** 2085 authored files → 0, exit 0
+- **Independent** a *freshly planted* swap (not a rerun of the control) → REFUSED
+- **Empty vocabulary returns exit 2 and the hook refuses**, because a check with nothing to
+  check against passes everything
+
+**Its own false-alarm history is kept in its docstring, because a detector that has never been
+wrong has never been tested.** Four versions, each corrected by evidence:
+
+| v | Approach | Result |
+|---|---|---|
+| 1 | compare `trial_id` to registry | `trial_id` is `None` on **every trial in the corpus**; fell back to `name` and compared a **title** to an **acronym**. 2 false alarms against a correct topic. The unit-of-analysis defect in new clothes |
+| 2 | prose, 140-char window | **1277 alarms, essentially all correct text** — this corpus lists four trials per sentence, so every id sat near its *neighbour's* acronym. Proximity is not a claim of identity. Also took minutes |
+| 3 | require apposition | 13 alarms, all correct text — `{"NCT…": "CONFIRM-HF", "NCT…": …}` makes one key's **value** adjacent to the **next key** |
+| 4 | three structural discriminators | no comma (separate elements), no `":` (a mapping key), no newline (a trailing comment labels *its own* line) → 0 |
+
+**Cost named rather than hidden:** the form `NCT01453608, EFFECT-HF` is now invisible. Accepted
+deliberately, because a check with 13 false alarms and 0 true ones is switched off within a week
+and then catches nothing at all.
+
+### 4. Net deletion from an SSOT object
+- **Detector** `.githooks/pre-commit` → `scripts/ssot_net_deletion_check.py`
+- **Fires** staged a real net deletion on `iv-iron-hf` (5 trials → 1) → exit 1
+- **Silent** clean tree → exit 0
+- Override requires a stated reason on the record (`SSOT_ALLOW_NET_DELETION="why"`)
+- **Why a hook and not a helper:** `scripts/rebuild_guard.py` was written for this exact defect
+  and committed *the day before it recurred*. It did not fire, because the offending script used
+  a different write path. **A guard that must be remembered is not a guard.**
+
+### 5. `git add -A` staging
+The rule was broken in the commit immediately after it was written.
+- **Detector** `.githooks/pre-commit-staging` — refuses staged paths outside the declared set
+- **Fires** staged `figs/_probe_stage.html`, outside the set → exit 1, naming the path
+- **Silent** clean tree → exit 0
+- Deliberate override `STAGING_WIDE=1`
+
+Entries 4 and 5 pre-date tonight and were listed here as CLOSED before either had been observed
+to fail. Both were then planted against, and both fired. **That gap — between believing a gate
+works and having seen it refuse — is the one this file exists to close, and it opened inside
+this file while it was being written.**
+
+### 6. Subprocess decode hazard (`text=True` under cp1252)
+- **Detector** `scripts/lint_subprocess_decode.py`, a **ratchet** (18 baselined sites), so it
+  blocks *new* hazards without demanding an unrelated 18-site cleanup
+- **Fires** verified tonight by planting one new hazard → exit 1; removed → exit 0. Verified by
+  **planting, not by reading the comparison**, which is the distinction this file is about
+
+---
+
+## PARTIAL — a detector exists, and what it misses is named
+
+### 7. Cross-topic contamination
+Five distinct routes found: `search`, `prisma`, `extraction`, prose-inside-the-duplicate-check,
+and **dict-literal ordering** — literal counts placed *below* `**spec["k_cascade"]` in the same
+literal silently overrode it, writing one topic's cascade onto another.
+
+- **Detector** `_identical_output_alarm()` in `ssot/build_to_standard.py` (eight CORE cascade
+  keys) plus a module-level foreign-NCT guard
+- **Fires / silent** demonstrated; the fifth instance was caught *by* the identical-output
+  signature
+- **MISSES** contamination that changes numbers *without* making two topics identical. The
+  alarm's premise is that contamination produces identical output; a partial copy that alters
+  one field defeats it. **The alarm was itself defeated once tonight** by a single extra key
+  (`k3_corrected_from`) making two dicts unequal while the substance was copied — fixed by
+  comparing eight declared CORE keys instead of all integers
+- **And my first test of it was wrong**: I planted the defect on the *object* rather than the
+  *spec*, so the test passed for the wrong reason. A test that has not been shown to fail when
+  the thing it tests is broken is not evidence
+
+### 8. Wholesale-write regression
+Five instances of one class: `precondition_verdict`, `k_cascade`, `prisma_flow`,
+`registration_identity`, `r_output` — each written **wholesale**, each silently dropping
+enrichment the object had gained since the last build. **A builder that writes wholesale
+regresses every enrichment since the last build**, silently, because each block it writes is
+complete and correct *in itself*.
+
+- **Fixed systemically** with `_deep_merge` plus list-merge keyed on registration id, rather
+  than per-block for a fifth time
+- **Detector** the additive guard, which made it visible — **four separate times, each one
+  block late**
+- **MISSES** it detects the regression *after* the write. The structural fix — *every per-topic
+  block is declared, merged, and verified present after write* — is designed and endorsed but
+  **not yet implemented**. Until it is, the coverage is per-block and reactive
+
+### 9. Stale artefact passing a freshness gate
+A build failed with `KeyError`; `curl` returned **200** for a five-hour-old file; the gate
+passed. **An exit code cannot distinguish "ran and passed" from "never ran".**
+
+- **Detector** served-bytes verification with md5 compared against on-disk, plus
+  `scripts/known_answer_gate.py`, which requires **positive evidence of execution** (a floor on
+  observed `[ok ]` lines) rather than a zero exit
+- **MISSES** it verifies the *served* artefact matches disk. It does not verify that what is on
+  disk was produced by the *current* inputs — a build that succeeds while reading a stale cache
+  still passes
+
+### 10. Hardcoded vocabulary that the corpus does not use
+A check hardcoded `"experimental"` while the corpus writes `treatment`/`control` → **five false
+FAILs on live topics**.
+
+- **Fixed** by declaring the vocabulary explicitly (`TOPIC_ARM_ROLES`/`CONTROL_ARM_ROLES`, with
+  ambiguous `"active"`/`"intervention"` removed so they resolve to unknown → `NOT_ASSESSABLE`)
+- **The lesson is the durable part:** *the known answer must come from the data, never from a
+  fixture the author invented.* A fixture written by the author of the check tests the author's
+  belief, not the corpus
+- **MISSES** no detector enumerates vocabularies used by checks and diffs them against values
+  actually present in `ssot/**/*.json`. **That is a buildable detector and it is not built.**
+  See exposure E3
+
+---
+
+## OPEN — named, with the reason
+
+### E1. Substring is not identity
+Matching a topic drug by substring conflates distinct entities. **Not lintable**: deciding
+whether a match is the same entity is a semantic judgement, which is exactly the property that
+makes §1–§3 lintable and this one not. Handled by explicit synonym sets in
+`ssot/topic_identity.py` with the ambiguity declared, and by regression guards pinning the
+negative cases (apixaban-vs-rivaroxaban, both-arms background).
+**Residual risk: a new topic whose drug name is a substring of an unrelated one, with no guard
+written.** Mitigation is a convention, not a mechanism.
+
+### E2. Citation from recall — the §1–§3 class applied to methodological authority
+Handbook citations were wrong in three ways at once: two sections misnumbered, one box
+(`Box 10.10.a`) **nonexistent**, and the stated rule **backwards**.
+
+Currently held by `HANDBOOK_AUTHORITY` failing closed plus `SECTION_VERIFIED_ON = "2026-08-19"`
+— a date, verified by a person, that goes stale silently.
+
+**Why it is open rather than closed:** the identifier detector works because ClinicalTrials.gov
+publishes a machine-readable record to check against. The Handbook does not. A detector would
+need a licensed local corpus of section headings; **without one, "cite only what you have
+opened" is a convention.** A section cited from recall is the identifier-by-recall defect
+wearing methodological clothes, and it is the **highest-value open exposure** because it is the
+same class as the two prioritised tonight, with no registry behind it.
+
+### E3. A check whose vocabulary does not match the corpus
+The general form of §10. No detector cross-references the literal values a check tests for
+against the values present in the corpus, so a check can be silently vacuous — testing for a
+string nothing ever writes and passing everything forever.
+
+**This is mechanically detectable and is the clearest next build**: extract string literals
+compared against object fields, and report any that appear zero times in `ssot/**/*.json`.
+Not built tonight; named rather than implied.
+
+### E4. Withholding
+> **Every guard we have catches overreach; nothing catches restraint.**
+
+The arm-role classifier read registry arm types literally and was silently *shrinking* evidence
+bases corpus-wide — ten trials on `sglt2-hf` alone. It was found only because two instruments
+cross-checked: the executed search surfaced a topic's *own included trials*, and the classifier
+then refused to recognise two of them. **Neither instrument found it alone**, and this was the
+first defect all night found in the withholding direction by an instrument rather than a person.
+
+A guard cannot easily fire on evidence that was never admitted, because the missing thing leaves
+no trace in the object. The partial mitigation is the cross-check pattern above, which is a
+*procedure*, not a detector. **Structurally the hardest open exposure**, and the one most likely
+to be silently costing accuracy right now.
+
+### E5. Warnings treated as output
+A warning from an interpreter or tool is an instrument declaring itself broken; reading past it
+treats a broken instrument's output as data. Held by rule, not by mechanism — and it paid
+tonight: following one `SyntaxWarning` at commit produced detector §2. **Not lintable in
+general** (it depends on which tool emits what, in which context), but see E6.
+
+### E6. Gates whose warnings are discarded
+`.githooks/pre-commit` sends detector stdout to `/dev/null`. `stderr` leaks, which is the **only
+reason** the `SyntaxWarning` behind §2 was ever seen. A gate whose diagnostic output is silently
+discarded can degrade without anyone noticing.
+**Buildable and not built:** run each gate with `-W error::SyntaxWarning` and refuse on any
+warning. Named because the alternative is discovering it by luck a second time.
+
+---
+
+## What this file does not claim
+
+It does not claim the corpus is free of these defects. It claims that for **CLOSED** entries a
+new instance is rejected at commit, and that for every other class the gap is named with its
+reason rather than left to be rediscovered.
+
+Six classes are closed, four are partial with the uncovered part stated, and six are open.
+**Two of the open six (E3, E6) are mechanically buildable and were simply not built tonight** —
+they are listed as exposures rather than as future work, because "we wrote it down" is the
+status this file exists to refuse.
+
+*Verified 2026-08-19. Every command in this file was run; every count is an observed output.*
