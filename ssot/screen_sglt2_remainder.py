@@ -161,7 +161,14 @@ def screen(nct):
         return rec
     rec["ranks_read"] = len(outcomes)
     ttf = [(r, m) for r, m in outcomes if any(t in flat(m) for t in TIME_TO_FIRST)]
-    rec["quantity"] = outcomes[0][1][:150]
+    # P35 -- BY RANK, NEVER BY POSITION. `outcomes` is PRIMARY + SECONDARY + OTHER, so element
+    # zero is a primary only for a trial that registers one. For a trial that does not, the
+    # reason text below would call a SECONDARY "its registered primary" in shipped evidence.
+    _primary = next((m for (r, m) in outcomes if r == "PRIMARY"), None)
+    _primary_txt = (repr(_primary[:110]) if _primary
+                    else "absent -- this trial registers NO primary outcome")
+    rec["quantity"] = (_primary or outcomes[0][1])[:150]
+    rec["quantity_rank"] = "PRIMARY" if _primary else outcomes[0][0]
     if ttf:
         rec.update(poolable="POOLABLE_QUANTITY",
                    poolable_reason=f"reports a time-to-first-event composite at {ttf[0][0]} "
@@ -170,7 +177,7 @@ def screen(nct):
         rec.update(poolable="NOT_POOLABLE_QUANTITY",
                    poolable_reason=(f"reports no time-to-first-event hazard ratio at any of "
                                     f"{len(outcomes)} ranks. Its registered primary is "
-                                    f"{outcomes[0][1][:110]!r} -- a different quantity, which "
+                                    f"{_primary_txt} -- a different quantity, which "
                                     f"s10.9 does not permit combining. THIS IS NOT AN "
                                     f"ELIGIBILITY FAILURE."))
     return rec

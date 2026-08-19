@@ -66,3 +66,29 @@ esac
 # runs, and passes every other detector in this file -- proven by planting the regenerated
 # artefact (scripts/prove_criteria_fingerprint.py). Only a behavioural fingerprint sees it.
 python "$R/scripts/lint_criteria_fingerprint.py" >/dev/null || { echo "REFUSED: a screener does not implement its own review's criteria (scripts/lint_criteria_fingerprint.py)"; exit 1; }
+
+# P35 -- THE PRIMARY OUTCOME IS READ BY MATCHING ITS TEXT, NEVER BY POSITION.
+# `outcomeMeasures[0]` is ADVANCE-2's SECONDARY and its three companions' PRIMARY. A pool built
+# on element zero is WRONG WITH NOTHING MALFORMED ANYWHERE -- no parse error, no null, no
+# missing key, four numbers of the right shape. There is no downstream symptom to notice, which
+# is why prose cannot hold this class. Twelve baselined sites remain and are printed, unabsolved.
+python "$R/scripts/lint_primary_by_position.py" >/dev/null || { echo "REFUSED: a new positional read of an outcome collection (scripts/lint_primary_by_position.py)"; exit 1; }
+
+# P33 + P36 -- COMPOSITES ARE COMPARED BY COMPONENTS, NEVER BY NAME.
+# "total VTE + VTE-RELATED death" and "VTE + ALL-CAUSE death" are the same name and different
+# endpoints. Three instances in one night, and heterogeneity settled none of them: mismatched
+# estimands pooled at 0.0%, 3.9% and 83.6%. Pooling a mismatch may be right; doing it SILENTLY
+# never is, so the block is on an unrecorded mismatch, not on mismatch.
+python "$R/scripts/lint_composite_by_components.py" >/dev/null || { echo "REFUSED: a pool combines endpoints with different component sets and records no component_mismatch (scripts/lint_composite_by_components.py)"; exit 1; }
+
+# E4 -- A REFUSAL TO POOL MUST HAVE LOOKED BELOW THE PRIMARY.
+# Withholding leaves NO trace in the object, which is why this guard is about the process and
+# not the result. 115 topics decline at least one outcome; 46 carry no evidence that anything
+# below the primary was ever read. Two of exactly that shape became real pooled estimates
+# tonight, one of them replacing a k=1 figure that measured a different question entirely.
+python "$R/scripts/lint_withholding_asked.py" >/dev/null
+case $? in
+  0) ;;
+  1) echo "REFUSED: a new refusal to pool with no evidence that any rank below the primary was read (scripts/lint_withholding_asked.py)"; exit 1 ;;
+  *) echo "REFUSED: the withholding check found NO topic declining anything -- its vocabulary no longer matches the objects. A check with nothing to check against passes everything."; exit 1 ;;
+esac

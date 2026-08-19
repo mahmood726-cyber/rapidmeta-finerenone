@@ -105,6 +105,13 @@ def screen(nct):
     mace_hits = [(rank, m) for (rank, m, d) in outcomes
                  if any(t in norm(m) or t in norm(d) for t in MACE_TERMS)]
     rec["outcome_ranks_searched"] = len(outcomes)
+    # P35 -- THE PRIMARY IS FOUND BY ITS RANK, NEVER BY POSITION. `outcomes` is built
+    # PRIMARY + SECONDARY + OTHER, so element zero is a primary FOR ANY TRIAL THAT REGISTERS
+    # ONE -- and a SECONDARY for one that does not, which would make the exclusion reason
+    # below assert something false in a record we ship as evidence.
+    _primary = next((m for (r, m, _d) in outcomes if r == "PRIMARY"), None)
+    _primary_txt = (repr(_primary[:90]) if _primary
+                    else "absent -- this trial registers NO primary outcome")
     rec["mace_at_any_rank"] = [{"rank": r, "measure": m[:130]} for r, m in mace_hits]
 
     # --- comparator limb -------------------------------------------------------------------
@@ -128,7 +135,7 @@ def screen(nct):
                    reason=(f"reports no four-component MACE outcome at ANY of its "
                            f"{len(outcomes)} registered ranks (primary, secondary and other "
                            f"all searched). Its registered primary is "
-                           f"{outcomes[0][1][:90]!r}. Different quantity, not poolable with "
+                           f"{_primary_txt}. Different quantity, not poolable with "
                            f"the review's estimand."))
         return rec
     if not has_placebo:

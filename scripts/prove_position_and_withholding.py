@@ -1,0 +1,161 @@
+#!/usr/bin/env python3
+"""PROVE THE OTHER TWO NEW DETECTORS IN FOUR PARTS EACH, AGAINST PLANTED REAL SHAPES.
+
+BOTH DETECTORS ARE GREEN ON THE CORPUS TODAY, AND GREEN PROVES NOTHING BY ITSELF. Four files in
+this repo called themselves gates while having no reachable failing exit; an over-escaped
+pattern is valid Python that matches nothing and reports clean. So each detector is shown
+REJECTING a real defective shape, ACCEPTING the correct version of the same shape, and
+ACCEPTING the annotated exception -- because a detector that refuses everything discriminates
+nothing, and that is the failure this repository has actually shipped.
+
+PART 3 IS ALWAYS THE LOAD-BEARING ONE.
+
+Every probe is created and destroyed here. Baseline files are snapshotted as RAW BYTES and
+restored byte-for-byte -- a previous guard proof restored by re-serialising a parsed copy and
+failed its own md5 check.
+"""
+import io
+import json
+import os
+import shutil
+import subprocess
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+POS = os.path.join(REPO, "scripts", "lint_primary_by_position.py")
+WITH_ = os.path.join(REPO, "scripts", "lint_withholding_asked.py")
+POS_BASE = os.path.join(REPO, "evidence", "primary_by_position_baseline.json")
+WITH_BASE = os.path.join(REPO, "evidence", "withholding_asked_baseline.json")
+
+PROBE_PY = os.path.join(REPO, "scripts", "zzz_probe_positional.py")
+PROBE_TOPIC = "zzz-probe-withholding"
+PROBE_DIR = os.path.join(REPO, "ssot", PROBE_TOPIC)
+
+# THE DEFECT, in the exact form six shipped files carry it.
+SRC_POSITIONAL = "def f(outcomes):\n    primary = outcomes[0]\n    return primary\n"
+# THE CORRECT IDIOM: the registered primary found by its RANK, not its position.
+SRC_BY_TEXT = ("def f(outcomes):\n"
+               "    primary = next((m for (r, m) in outcomes if r == 'PRIMARY'), None)\n"
+               "    return primary\n")
+# The positional read where it is genuinely right, declared out loud.
+SRC_WAIVED = ("def f(outcomes):\n"
+              "    primary = outcomes[0]  # POSITION-IS-REGISTERED: list built and ordered here\n"
+              "    return primary\n")
+
+
+def run(script):
+    r = subprocess.run([sys.executable, script], cwd=REPO, stdout=subprocess.PIPE,
+                       stderr=subprocess.STDOUT)
+    return r.returncode, r.stdout.decode("utf-8", "replace")
+
+
+def topic_obj(declines, ranks_read):
+    trial = {"id": "NCT00000001", "nct": "NCT00000001",
+             "registered_primaries": ["Composite of all-cause mortality and HF events"]}
+    if ranks_read:
+        trial["all_ranks_read_utc"] = "2026-08-19T00:00:00Z"
+        trial["registered_secondaries"] = ["Proximal DVT, non-fatal PE or VTE-related death"]
+    pooled = ({"withdrawn": True, "point": None} if declines
+              else {"point": 0.81, "ci_low": 0.70, "ci_high": 0.94})
+    return {"app_id": PROBE_TOPIC, "title": "probe", "question": "probe",
+            "outcomes": [{"id": "primary", "name": "primary"}],
+            "inputs": {"trials": [trial]},
+            "results": {"by_outcome": {"primary": {"k": 2, "pooled": pooled}}}}
+
+
+def plant_topic(obj):
+    os.makedirs(PROBE_DIR, exist_ok=True)
+    with io.open(os.path.join(PROBE_DIR, "%s.json" % PROBE_TOPIC), "w",
+                 encoding="utf-8") as fh:
+        fh.write(json.dumps(obj, indent=1))
+
+
+def plant_py(src):
+    with io.open(PROBE_PY, "w", encoding="utf-8", newline="\n") as fh:
+        fh.write(src)
+
+
+def snapshot(path):
+    if not os.path.exists(path):
+        return None
+    with io.open(path, "rb") as fh:
+        return fh.read()
+
+
+def restore(path, blob):
+    if blob is None:
+        if os.path.exists(path):
+            os.remove(path)
+        return
+    with io.open(path, "wb") as fh:      # RAW BYTES, not a re-serialised parse
+        fh.write(blob)
+
+
+def check(label, rc, want, extra=""):
+    good = rc == want
+    print("   %-58s rc=%d  %s%s" % (label, rc, "OK" if good else "FAILED",
+                                    (" -- " + extra) if extra else ""))
+    return good
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    if os.path.exists(PROBE_PY) or os.path.exists(PROBE_DIR):
+        print("REFUSED: a probe path already exists; refusing to overwrite")
+        return 2
+    snaps = {POS_BASE: snapshot(POS_BASE), WITH_BASE: snapshot(WITH_BASE)}
+    ok = True
+    try:
+        print("lint_primary_by_position.py -- P35")
+        rc, _ = run(POS)
+        ok &= check("PART 1  corpus as it stands", rc, 0)
+        plant_py(SRC_POSITIONAL)
+        rc, out = run(POS)
+        ok &= check("PART 2  `primary = outcomes[0]` planted", rc, 1,
+                    "the six shipped files' exact line")
+        plant_py(SRC_BY_TEXT)
+        rc, _ = run(POS)
+        ok &= check("PART 3  the same read done BY RANK", rc, 0,
+                    "if this failed, the detector refuses everything")
+        plant_py(SRC_WAIVED)
+        rc, out = run(POS)
+        ok &= check("PART 4  positional read with the declared waiver", rc, 0)
+        waived_line = [l for l in out.splitlines() if "waived" in l]
+        if waived_line:
+            print("           %s" % waived_line[0].strip())
+        os.remove(PROBE_PY)
+
+        print("\nlint_withholding_asked.py -- E4")
+        rc, _ = run(WITH_)
+        ok &= check("PART 1  corpus as it stands", rc, 0)
+        plant_topic(topic_obj(declines=True, ranks_read=False))
+        rc, out = run(WITH_)
+        ok &= check("PART 2  declines to pool, no rank evidence", rc, 1,
+                    "the sglt2-hf / apixaban shape")
+        plant_topic(topic_obj(declines=True, ranks_read=True))
+        rc, _ = run(WITH_)
+        ok &= check("PART 3  declines, but every rank demonstrably read", rc, 0,
+                    "refusing here would make the detector meaningless")
+        plant_topic(topic_obj(declines=False, ranks_read=False))
+        rc, _ = run(WITH_)
+        ok &= check("PART 4  POOLS, no rank evidence", rc, 0,
+                    "the property is about REFUSALS, not about every object")
+    finally:
+        if os.path.exists(PROBE_PY):
+            os.remove(PROBE_PY)
+        shutil.rmtree(PROBE_DIR, ignore_errors=True)
+        for p, blob in snaps.items():
+            restore(p, blob)
+        print("\nprobes removed: py=%s topic=%s"
+              % (os.path.exists(PROBE_PY), os.path.exists(PROBE_DIR)))
+        for p, blob in snaps.items():
+            same = snapshot(p) == blob
+            print("baseline restored byte-for-byte: %s -> %s" % (os.path.basename(p), same))
+            ok &= same
+
+    print("\n%s" % ("ALL EIGHT PARTS HELD." if ok else "PROOF FAILED."))
+    return 0 if ok else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

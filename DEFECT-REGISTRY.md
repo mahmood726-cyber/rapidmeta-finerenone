@@ -333,6 +333,73 @@ this file while it was being written.**
   unless the stored headline first reproduces from the object's own per-trial values, and
   checks its REML against metafor's result already stored on the object
 
+### 15. The primary outcome read by position rather than by registered text
+- **Found** 2026-08-19, re-pooling apixaban prophylaxis. `outcomeMeasures[0]` is the MAJOR-VTE
+  **secondary** for ADVANCE-2 (NCT00452530) and the **primary** for its three companions, so a
+  positional read pools one trial's secondary against three trials' primaries — **with nothing
+  malformed anywhere**. No parse error, no null, no missing key, four numbers of the right
+  shape. There is no downstream symptom, which is why prose could never have held it
+- **Detector** `scripts/lint_primary_by_position.py`, **wired**. AST, not regex: a constant
+  integer subscript of a collection whose name says it holds outcomes. Slices and variable
+  indices are not flagged — iteration is not a positional claim
+- **Proven** `scripts/prove_position_and_withholding.py`, four parts, including the load-bearing
+  one: the same read done **by rank** must pass, or the detector discriminates nothing
+- **What it found on first run** twelve sites, of which six are `primary = outcomes[0]` in
+  `populate_nma_benchmarks_batch_E..J.py`, which name element zero `primary` and ship it as the
+  dashboard default outcome (commit de3cf9b1e). And `retire_mace_hardcode.py` deliberately
+  **replaced a text match** with `(outcomes && outcomes[0])`, arguing in its own docstring that
+  the array is ordered primary-first *by convention*. Checked, not assumed: no tracked page
+  carries the replacement today. Baselined sites are printed every run and **are not absolved**
+- **Fixed at the root, in two places** `ssot/screen_remainder.py` and
+  `ssot/screen_sglt2_remainder.py` built `outcomes` as PRIMARY + SECONDARY + OTHER and then
+  quoted element zero in a shipped exclusion reason as *"Its registered primary is …"* — true
+  for any trial that registers a primary, **false for one that does not**. Both now select by
+  rank. Exposure measured rather than assumed
+  (`scripts/measure_primary_by_position_exposure.py`): **0 of 47** locally-snapshotted trials
+  lack a registered primary, so the shape never fired. A measurement, not an absolution
+
+### 16. Composite endpoints compared by name rather than by components
+- **Found** three times in one night, in two disease areas. `total VTE + VTE-RELATED death`
+  against `VTE + ALL-CAUSE death` is one name and two endpoints; the three ablation composites
+  are "composite of mortality and events" three times over and decompose into
+  `{death, hf_event}`, `{death, stroke, bleeding, cardiac_arrest}`, `{death, hf_event}`
+- **And heterogeneity settled none of them** — mismatched estimands pooled at I² **0.0%**,
+  **3.9%** and **83.6%**, matched ones at **67.8%**. Both directions, so the statistic is not a
+  test in either. That is P36
+- **Detector** `scripts/lint_composite_by_components.py`, **wired**. Structural decomposition,
+  specific-mortality-before-general so `VTE-related death` is never collapsed into bare `death`
+  — the collapse *is* the defect. It blocks on an **unrecorded** mismatch, never on a mismatch:
+  pooling mismatched endpoints is sometimes right, and both ablation reviews argued for exactly
+  that. Doing it silently never is
+- **Proven** `scripts/prove_composite_by_components.py`, four parts, against the pool apixaban
+  prophylaxis actually **declined** — the four different primaries, RR 0.658, I² 83.6%. Part 3
+  is the load-bearing one: four *different strings* naming the *same* endpoint must pass
+- **Two limits stated** endpoints matching no component pattern compare EQUAL on both sides, so
+  every one is counted and printed (48 today); and the comparison runs only where the object
+  states it pools each trial's own registered primary, because **the corpus does not record,
+  per trial per pooled outcome, which registered endpoint supplied the number** — 28 topics are
+  NOT_ASSESSABLE for that reason, which is a gap and not a clean result
+
+### 17. A refusal to pool that never looked below the primary
+- **Found** twice, and both times the answer was there. sglt2-hf's harmonisable estimand was a
+  **secondary**; apixaban prophylaxis's shared estimand is a **secondary in all four trials**,
+  and finding it replaced a k=1 figure measuring *bleeding* with a pool of four trials and
+  13,570 participants on the review's actual question
+- **Why it is the hardest class here** every other defect leaves a trace. **Withholding leaves
+  none.** A review that stopped at the primaries produces an object that is internally
+  consistent, arithmetically sound, and silently missing its own evidence base — so the guard
+  has to be about the process, not the result
+- **Detector** `scripts/lint_withholding_asked.py`, **wired**. A topic declining any outcome
+  must carry, on at least one trial, evidence that ranks below the primary were read. Exit 2 if
+  *no* topic declines anything — that is a broken vocabulary, not a clean corpus
+- **Proven** `scripts/prove_position_and_withholding.py`, four parts, including that a topic
+  which **pools** without rank evidence must pass: the property is about refusals
+- **What it found on first run** 115 of 137 topics decline at least one outcome; **46 carry no
+  evidence, anywhere, that anything below the primary was ever read**. Baselined and printed,
+  not absolved — each is a candidate recovery of the two shapes above
+- **What it cannot do** it proves *something* below the primary was read, not that the question
+  was asked at every rank, and not that the answer was right. A floor, not a ceiling
+
 ---
 
 ## PARTIAL — a detector exists, and what it misses is named

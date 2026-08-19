@@ -1,0 +1,18 @@
+{
+ "sites": [
+  "generate_living_ma_v13.py :: first = outcomes[0]",
+  "scripts/bulk_clone_audit_first.py :: pico_out = trials[0][\"allOutcomes\"][0][\"title\"]",
+  "scripts/item20_arni_endpoint_definitions.py :: est = obj[\"outcomes\"][0][\"estimand\"]",
+  "scripts/populate_nma_benchmarks_batch_E.py :: primary = outcomes[0]",
+  "scripts/populate_nma_benchmarks_batch_F.py :: primary = outcomes[0]",
+  "scripts/populate_nma_benchmarks_batch_G.py :: primary = outcomes[0]",
+  "scripts/populate_nma_benchmarks_batch_H.py :: primary = outcomes[0]",
+  "scripts/populate_nma_benchmarks_batch_I.py :: primary = outcomes[0]",
+  "scripts/populate_nma_benchmarks_batch_J.py :: primary = outcomes[0]",
+  "ssot/build_tabbed.py :: o = canon[\"outcomes\"][0]",
+  "ssot/screen_sglt2_remainder.py :: rec[\"quantity\"] = (_primary or outcomes[0][1])[:150]",
+  "ssot/screen_sglt2_remainder.py :: rec[\"quantity_rank\"] = \"PRIMARY\" if _primary else outcomes[0][0]"
+ ],
+ "not_absolved": true,
+ "why": "These are LIVE DEFECTS carried so the lint can block NEW ones. `primary = outcomes[0]` in the six populate_nma_benchmarks batch files names element zero `primary` and ships it as the dashboard default outcome. Baselined is not fixed."
+}
