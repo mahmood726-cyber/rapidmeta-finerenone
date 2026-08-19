@@ -89,6 +89,14 @@ python "$R/scripts/lint_string_where_collection_expected.py" >/dev/null || { ech
 # A ratchet, not a block: 13 topics predate it and are baselined, unabsolved.
 python "$R/scripts/lint_pooled_point_is_displayable.py" >/dev/null || { echo "REFUSED: a NEW pooled point is stored at a precision the page cannot render (scripts/lint_pooled_point_is_displayable.py)"; exit 1; }
 
+# E10 -- CURSOR ABANDONMENT. A search that returned fewer records than it REPORTED must say
+# so. colchicine returned 100 of 137 with a live cursor, and CLEAR SYNERGY (n=7264) -- one of
+# that review's own three included trials, and the largest -- is on page 2 only. A partial
+# page produces a cascade that reconciles with itself and is missing trials, in the direction
+# that makes a review look FINISHED. A DECLARED shortfall passes; an undeclared one is the
+# defect. Same class as the phase filter that cost apixaban NCT02366871, by a different route.
+python "$R/scripts/lint_search_pagination_declared.py" >/dev/null || { echo "REFUSED: a search returned fewer records than it reported and does not declare the shortfall (scripts/lint_search_pagination_declared.py)"; exit 1; }
+
 # P35 -- THE PRIMARY OUTCOME IS READ BY MATCHING ITS TEXT, NEVER BY POSITION.
 # `outcomeMeasures[0]` is ADVANCE-2's SECONDARY and its three companions' PRIMARY. A pool built
 # on element zero is WRONG WITH NOTHING MALFORMED ANYWHERE -- no parse error, no null, no

@@ -547,6 +547,46 @@ this file while it was being written.**
   its k fell and pass, which is what `lint_block_contradicts_object.py` is for. A floor, not a
   ceiling
 
+### 20. Cursor abandonment — a paginated search treated as whole
+- **Found** 2026-08-19 on `colchicine-cvd-review`, the first topic this session whose surfaced
+  set exceeded one page:
+
+  ```
+  page 1   returned 100   total_reported 137   next_page_token PRESENT
+  page 2   returned  37   total_reported null  next_page_token null
+  ```
+
+- **What building on page 1 would have cost**, measured rather than argued: **CLEAR SYNERGY
+  (NCT03048825, n=7,264) is on page 2 only** — one of the review's own three included trials, and
+  the largest of them.
+
+  | | |
+  |---|---|
+  | recall on page 1 alone | **2/3** |
+  | recall on the complete search | **3/3** |
+
+- **Why it has no downstream symptom** 100 records is a plausible surfaced set, the arithmetic
+  reconciles with itself, and `k_unscreened_remainder: 0` prints happily over a search that is
+  **27% short**. The error runs in the direction that makes a review look **finished** — the
+  withholding direction, arriving at the search stage
+- **Same class as the phase filter, different route** `apixaban-vte` lost NCT02366871 — one of
+  its own two included trials — to `phase=[PHASE3,PHASE4]`, and P23 requires that miss to be
+  recorded rather than replaced. **A query parameter and an unexhausted cursor remove trials the
+  same way, and only the parameter had a guard**
+- **And it is P16's fourth clause meeting its own case** every search this session recorded
+  `returned == totalCount` with a null cursor as its pagination proof. Every one of those proofs
+  was real and **untested** — the condition had never occurred. This is the first search that
+  could have failed it, and it did
+- **Detector** `scripts/lint_search_pagination_declared.py`, **wired**. A row whose
+  `records_returned < total_reported` must declare the shortfall. **A declared shortfall passes**
+  — apixaban's PubMed row reads *"439 records matched and 50 were retrieved. THE OTHER 389 ARE
+  UNEXAMINED, NOT EXCLUDED"* and is legitimate. An undeclared one is the defect
+- **Proven** `--selftest`, four proofs, the firing case reconstructed from the real page-1
+  numbers; on first live run it found **3 declared shortfalls and 0 undeclared**, over 37 rows
+- **What it cannot do** it compares two fields an object states about itself. It does not check
+  that the numbers are true, nor whether the unexamined records matter — apixaban's 389
+  unexamined PubMed records are declared, unexamined, and might contain anything
+
 ### 19. A bare string where a collection of terms is expected
 - **Found** 2026-08-19, screening `bococizumab-lipid-review`. One character:
 
