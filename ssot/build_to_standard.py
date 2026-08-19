@@ -29,7 +29,7 @@ from ivi_topic_data import IVI_CASCADE, IVI_EXTRACTION, IVI_PRISMA, IVI_SEARCH
 from apx_topic_data import APX_CASCADE, APX_EXTRACTION, APX_PRISMA, APX_SEARCH
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-PAGE_STANDARD_VERSION = "1.11.0-2026-08-19"
+PAGE_STANDARD_VERSION = "1.12.0-2026-08-19"
 
 HELD = "HELD"
 REFUSING = "REFUSING"

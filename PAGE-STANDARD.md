@@ -55,6 +55,7 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P31 | **Two correct readings of different questions look exactly like a disagreement** | before treating cross-instrument disagreement as evidence about the instruments, establish that both were asked the **same** question. Disagreement is a property of the question until shown otherwise |
 | P32 | **An indicator must be able to move only if the diagnosis is right** | when a fix is proposed, name the quantity that will change **and could not change for another reason**. A number that merely *correlates* with the defect is not a test: a narrower identity set finds fewer things, so a rising `kNA` is consistent with the fix working *and* with it failing |
 | P33 | **A keyword for the name of a thing is not a test for the thing** | detect a property by its structure, not by the word that names it. A composite endpoint is *a mortality term plus another clinical event in one endpoint* — CASTLE-AF's primary is unmistakably one and contains neither the word "composite" nor the phrase the rule searched for |
+| P34 | **The gap between a code rate and a disposition rate measures the VOCABULARY, not the instruments** | codes that collapse onto one disposition inflate the gap; codes that fan out close it. **Comparing the gap across topics is meaningless unless the vocabularies are comparable**, and an agreement rate is reported with the vocabulary that produced it |
 
 ## Reading the remainder — the same number, opposite diagnoses
 
@@ -109,6 +110,35 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.12.0-2026-08-19
+Adds P34, from a measurement across two adjudications of the same night.
+
+**P34 — the gap between a code rate and a disposition rate measures the vocabulary.** Two blind
+cross-family adjudications, same two seats, same method, same corrected question form:
+
+| topic | code rate | disposition rate | gap |
+|---|---|---|---|
+| `ablation-af-medical-therapy` (45 trials) | 66.7% | 80.0% | **13.3 pts** |
+| `early-rhythm-control-af` (44 trials, first chunk) | 81.8% | 81.8% | **0 pts** |
+
+Read naively, the second run looks better on both numbers and dramatically more consistent.
+**It is not a fact about the trials or the instruments.** The ablation vocabulary has two codes
+— `ABLATION_IN_ALL` and `ABLATION_VS_ABLATION` — that are two readings of *why* a trial is out
+and **both mean EXCLUDED**, so two seats could disagree on the code while agreeing on the
+verdict. The rhythm vocabulary's codes fan out onto four distinct dispositions, leaving almost
+no room for that.
+
+> **A vocabulary whose codes collapse onto one disposition inflates the gap; one whose codes
+> fan out closes it.** The gap is a property of the coding scheme, not of the readers.
+
+So: report an agreement rate **with the vocabulary that produced it**, and never compare gaps
+across topics whose vocabularies differ. Reporting "66.7% then 81.8%" as improvement would be
+comparing two different measuring instruments and calling it progress.
+
+This is the same family as P31 — disagreement is a property of the question until shown
+otherwise — one level up: *agreement statistics* are a property of the coding scheme until
+shown otherwise.
 
 ### 1.11.0-2026-08-19
 Adds P32 and P33, and records the seventh contamination route.
