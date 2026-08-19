@@ -1,0 +1,135 @@
+#!/usr/bin/env python3
+"""Screen attr-cm-review's 46-trial remainder. THE POOLING AXIS DOES THE WORK HERE.
+
+This topic's obstacle was known before any check ran, and the object stated it first:
+
+    "Both trials register HIERARCHICAL endpoints analysed by win ratio, and the two hierarchies
+     are not the same hierarchy."
+
+Verified from source on 2026-08-19, and the two are genuinely different objects:
+    ATTR-ACT      (NCT01994889)  mortality + CV-related hospitalisation frequency      2 tiers
+    ATTRibute-CM  (NCT03860935)  mortality + CV hospitalisation + NT-proBNP change
+                                 + 6-minute-walk change                                4 tiers
+
+A win ratio compares every patient in one arm with every patient in the other, so the estimand
+IS the hierarchy. Two different hierarchies produce two different quantities, and a win ratio
+cannot be recovered from a 2x2 table to re-derive a common one.
+
+    THE UNIT OF ANALYSIS IS THE PAIR OF PARTICIPANTS, AND WHAT COUNTS AS A WIN DIFFERS BETWEEN
+    THE TWO TRIALS. THAT IS NOT HETEROGENEITY. IT IS TWO ESTIMANDS.
+
+So a trial can pass every eligibility limb here and still be unpoolable, and the three-way
+disposition is doing exactly what it exists for.
+
+CRITERIA, DERIVED POST HOC from the object's own recorded fields -- this topic's `question`
+field holds a FINDING rather than a question, so there is no stated question to read:
+    P  adults with transthyretin amyloid cardiomyopathy
+    I  tafamidis or acoramidis
+    C  placebo
+    O  a hierarchical composite analysed by win ratio -- and MATCHING one of the two above
+"""
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OBJ = os.path.join(REPO, "ssot", "attr-cm-review", "attr-cm-review.json")
+REM = os.path.join("F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+                   "eb4d84e5-8a24-4c3b-afe2-34bd91c20bc7/scratchpad", "at_rem.json")
+
+NO_RESULTS = {"RECRUITING", "NOT_YET_RECRUITING", "ACTIVE_NOT_RECRUITING",
+              "SUSPENDED", "WITHDRAWN", "UNKNOWN"}
+CARDIOMYOPATHY = re.compile(r"cardiomyopath|cardiac amyloid|attr-cm|heart", re.I)
+HIERARCHICAL = re.compile(r"hierarchical|win ratio|finkelstein|win-ratio", re.I)
+
+
+def decide(t):
+    status = (t.get("status") or "").upper()
+    po = " ; ".join(t.get("po") or [])
+    cond = t.get("cond") or ""
+
+    if status in NO_RESULTS:
+        return ("ELIGIBLE_NO_RESULTS_YET", "STATUS", "NOT YET REPORTED",
+                "statusModule.overallStatus",
+                "status %s, enrolment %s -- no results to assess; contestable limbs not argued."
+                % (status, t.get("n")))
+    if t.get("active_comparators"):
+        return ("EXCLUDED", "ELIGIBILITY", "COMPARATOR",
+                "armsInterventionsModule.armGroups",
+                "control arm gives %s, an active drug absent from the topic arm."
+                % (t["active_comparators"][:2],))
+    if not t.get("has_placebo"):
+        return ("EXCLUDED", "ELIGIBILITY", "COMPARATOR",
+                "armsInterventionsModule.armGroups",
+                "no placebo arm is declared -- an open-label or single-arm study cannot supply "
+                "the randomised contrast this review pools.")
+    if not CARDIOMYOPATHY.search(cond):
+        return ("EXCLUDED", "ELIGIBILITY", "POPULATION", "conditionsModule.conditions",
+                "registered population is %r -- not transthyretin amyloid CARDIOMYOPATHY. "
+                "Polyneuropathy ATTR is a different disease and a different trial population."
+                % cond[:60])
+    if not po:
+        return ("NEEDS_ADJUDICATION", "POOLABILITY", "ESTIMAND",
+                "outcomesModule.primaryOutcomes",
+                "no primary outcome in the payload; poolability not decided from a field.")
+    if not HIERARCHICAL.search(po):
+        return ("ELIGIBLE_NOT_POOLABLE", "POOLABILITY", "ESTIMAND",
+                "outcomesModule.primaryOutcomes",
+                "meets P/I/C; primary is %r, which is not a hierarchical win-ratio quantity "
+                "and so is not the estimand this object carries." % po[:70])
+    return ("ELIGIBLE_POOLABLE_CANDIDATE", "POOLABILITY", "HIERARCHY MUST MATCH",
+            "outcomesModule.primaryOutcomes",
+            "meets P/I/C AND registers a hierarchical win-ratio primary: %r. WHETHER IT POOLS "
+            "DEPENDS ON WHETHER ITS HIERARCHY MATCHES ONE ALREADY HERE -- and the object's own "
+            "two do not match each other. Flagged for a human look, never auto-included."
+            % po[:70])
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    with io.open(REM, encoding="utf-8") as fh:
+        rem = json.load(fh)
+    rows, tally = [], {}
+    for t in rem:
+        v, axis, crit, field, why = decide(t)
+        tally[v] = tally.get(v, 0) + 1
+        rows.append({"nct": t["nct"], "acronym": t.get("acr"), "verdict": v, "axis": axis,
+                     "criterion": crit, "field_read": field, "reason": why})
+    for k in sorted(tally):
+        print("  %-32s %d" % (k, tally[k]))
+    print("  %-32s %d" % ("TOTAL", len(rows)))
+    flagged = [r for r in rows if r["verdict"] in
+               ("ELIGIBLE_POOLABLE_CANDIDATE", "NEEDS_ADJUDICATION")]
+    if flagged:
+        print()
+        print("REQUIRING A HUMAN LOOK:")
+        for r in flagged:
+            print("   %s %-14s %s" % (r["nct"], r["acronym"] or "-", r["verdict"]))
+
+    with io.open(OBJ, encoding="utf-8") as fh:
+        obj = json.load(fh)
+    scr = obj.setdefault("screening_of_remainder", {})
+    before = set(scr.keys())
+    scr["attrcm_2026_08_19"] = {
+        "screened_utc": "2026-08-19",
+        "criteria_status": "DERIVED POST HOC from the object's own recorded fields; NOT "
+                           "pre-specified. This topic's `question` field holds a FINDING "
+                           "rather than a question, so there was no stated question to read.",
+        "the_pooling_obstacle": (
+            "The two included trials register DIFFERENT hierarchies -- ATTR-ACT has two tiers "
+            "(mortality, CV hospitalisation), ATTRibute-CM has four (adding NT-proBNP and "
+            "6-minute-walk change). A win ratio's estimand IS its hierarchy, and it cannot be "
+            "recovered from a 2x2 table. Two different hierarchies are TWO ESTIMANDS, not "
+            "heterogeneity. Verified from the registry on 2026-08-19."),
+        "tally": tally, "trials": rows,
+    }
+    assert before <= set(scr.keys()), "ADDS only"
+    with io.open(OBJ, "w", encoding="utf-8", newline="") as fh:
+        fh.write(json.dumps(obj, indent=1, ensure_ascii=False) + "\n")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

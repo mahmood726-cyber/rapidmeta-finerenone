@@ -34,7 +34,49 @@
  "screening": {
   "search_note": "not recorded on the page this object was built from",
   "eligibility": "not recorded on the page this object was built from",
-  "known_limitation": "not recorded on the page this object was built from"
+  "known_limitation": "not recorded on the page this object was built from",
+  "eligibility_provenance": {
+   "state": "DERIVED_POST_HOC",
+   "predefined": false,
+   "post_hoc": true,
+   "derived": true,
+   "predefined_is_false_because": "screening.eligibility reads 'not recorded on the page this object was built from', so no eligibility block ever existed. The criteria below were derived on 2026-08-19 from the object's included set and its recorded estimand, AFTER both existed. `false` is asserted rather than left null because the ORDER is known: the trials came first. AND THIS TOPIC IS THE WEAKEST CASE OF THE FOUR -- its `question` field holds a FINDING ('the two hierarchies are not the same hierarchy') rather than a question, so there was not even a stated question to derive from, only an estimand.",
+   "authority_it_satisfies": "MECIR R29/R30/R31 -- the review STATES its eligibility criteria.",
+   "authority_it_does_NOT_establish": "MECIR C5/C7 -- criteria DEFINED IN ADVANCE.",
+   "what_would_settle_it": "a protocol record timestamped before the first executed query",
+   "elements": [
+    {
+     "element": "POPULATION",
+     "criterion": "adults with transthyretin amyloid CARDIOMYOPATHY",
+     "auditable_against": "protocolSection.conditionsModule.conditions",
+     "settles_it": true,
+     "evidence": "Both included registrations name amyloid cardiomyopathy. The limb does real work at screening: ATTR POLYNEUROPATHY trials share the same drugs and are a different disease in a different population, and were excluded on this ground."
+    },
+    {
+     "element": "INTERVENTION",
+     "criterion": "tafamidis or acoramidis",
+     "auditable_against": "protocolSection.armsInterventionsModule.interventions[].name",
+     "settles_it": true,
+     "evidence": "Matched against the declared synonym set -- tafamidis, vyndaqel, vyndamax, FX-1006A, PF-06291826, acoramidis, AG10, attruby."
+    },
+    {
+     "element": "COMPARATOR",
+     "criterion": "placebo",
+     "auditable_against": "protocolSection.armsInterventionsModule.armGroups",
+     "settles_it": true,
+     "evidence": "Both included trials declare a placebo arm. THE LIMB CARRIES MOST OF THE EXCLUSIONS: only 6 of the 46 screened remainder trials declare a placebo arm at all -- this drug programme is dominated by open-label extension and single-arm studies."
+    },
+    {
+     "element": "OUTCOME / ESTIMAND",
+     "criterion": "a hierarchical composite analysed by win ratio -- AND the SAME hierarchy",
+     "auditable_against": "protocolSection.outcomesModule.primaryOutcomes[].measure",
+     "settles_it": false,
+     "evidence_and_why_it_does_not_settle": "THIS IS THE LIMB THAT DECIDES THE TOPIC AND NO FIELD SETTLES IT. Both included trials pass 'hierarchical win ratio' -- and they still cannot be combined, because ATTR-ACT's hierarchy is mortality plus CV hospitalisation (2 tiers) while ATTRibute-CM's adds NT-proBNP and 6-minute-walk change (4 tiers). A win ratio's estimand IS its hierarchy. Comparing two hierarchies for identity is a READING of two verbatim strings, not a field lookup, so it is recorded as DERIVED. TWO DIFFERENT HIERARCHIES ARE TWO ESTIMANDS, NOT HETEROGENEITY.",
+     "derived_by": "comparison of the two verbatim primaryOutcomes[0].measure strings, read from the registry 2026-08-19"
+    }
+   ],
+   "elements_summary": "4 elements: 3 settled by a named registry field, 1 -- the one that decides whether this review can pool at all -- NOT settled by any field and labelled DERIVED. The unsettled count is stated because a provenance block listing only its auditable elements would report that everything is auditable."
+  }
  },
  "screening_names_unresolved": [],
  "eligible_but_not_contributing": {
@@ -369,7 +411,34 @@
     "source_page_pooled": false,
     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
     "estimand_established": null,
-    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass."
+    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+    "r_output": {
+     "state": "ABSENT_AND_THAT_IS_THE_FINDING",
+     "_why_absent": "k=2 and nothing was pooled, so there is NO model call to quote, NO pooled estimate, NO heterogeneity and NO package version. This is not a missing artefact; it is the correct state for a topic with no synthesis.",
+     "k_at_time_of_writing": 2,
+     "corrected_2026_08_19": {
+      "previous_why_absent": "k=1. No meta-analysis was performed, so there is NO model call to quote, NO pooled estimate, NO heterogeneity and NO package version. This is not a missing artefact; it is the correct state for a single-study topic.",
+      "why_it_was_wrong": "It said k=1 on an object that declares k=2. The STATE was correct -- nothing was pooled -- but the REASON was false, and a reason is what a reader checks the verdict against. P6 therefore refused with a justification that was fiction, exactly as it did on alirocumab-lipid.",
+      "found_by": "scripts/lint_block_contradicts_object.py, on the next topic built after the detector was written"
+     },
+     "quotable_model_call": null,
+     "heterogeneity": null,
+     "heterogeneity_reason": "Undefined: no between-study variance was estimated because no model was run.",
+     "package_version": null,
+     "what_would_change_it": "An estimand shared by two or more included trials. Where k is already above 1 and nothing pooled, the obstacle is the ESTIMAND rather than the evidence base, and this field must say which.",
+     "contamination_removed_2026_08_19": {
+      "removed_field": "what_stands_instead",
+      "removed_value": {
+       "estimate": "HR 0.87 (95% CI 0.79 to 0.96)",
+       "provenance": "CLEAR Outcomes' OWN registry-posted analysis, NOT a synthesis result computed here",
+       "verbatim_from_registry": "Hazard Ratio (HR) 0.87, CI 0.79 - 0.96, statistical method Log Rank, p=0.004",
+       "read_utc": "2026-08-19"
+      },
+      "why": "This carried CLEAR Outcomes' HR 0.87 -- BEMPEDOIC ACID'S trial result -- on a transthyretin amyloid CARDIOMYOPATHY topic, and it rendered on the shipped page. It was written by a module constant in ssot/build_to_standard.py::_p6_refuse, which asserted one topic's substitute estimate for every topic that refused P6. The removed value is KEPT HERE rather than deleted, because a page that was corrected and a page that never needed correcting must not look identical.",
+      "root_cause_fixed_in": "ssot/build_to_standard.py::_p6_refuse -- a substitute estimate is now PER-TOPIC or absent, and k is read from the object"
+     },
+     "k_read_from_object": 2
+    }
    }
   }
  },
@@ -387,37 +456,711 @@
  "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over.",
  "precondition_verdict": {
   "assessed_on": "2026-08-19",
-  "assessed_by": "ssot/preconditions.py (seven preconditions, authored 2026-08-19)",
-  "authoring_constraint": "These seven preconditions were authored in the same session that applied them. A reader who disagrees should disagree with the definitions in ssot/preconditions.py, from which every verdict below is reproducible.",
+  "standard_version": "1.3.0-2026-08-19",
   "authority": {
    "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
    "version": "6.5, 2024",
    "verified_on": "2026-08-19",
    "verified_how": "read from cochrane.org/authors/handbooks-and-manuals/handbook/current chapters 10 and 23, and from the official MECIR PDF (February 2022), text extracted locally rather than summarised"
   },
-  "builds": false,
-  "status": "REFUSED",
-  "refused_on": {
-   "inclusion_criteria_auditable": {
+  "publishable": true,
+  "authoring_constraint": "These preconditions were authored in the same session that applied them. A reader who disagrees should disagree with ssot/preconditions.py, from which every verdict here is reproducible.",
+  "verdicts": {
+   "population_stated": {
+    "verdict": "PASS",
+    "reason": "present: question carries 118 characters",
+    "authority": "MECIR C62 'Ensuring meta-analyses are meaningful' (Mandatory, READ 2026-08-19): 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar...'; MECIR C5 'Predefining unambiguous criteria for participants' (Mandatory)"
+   },
+   "arm_role_resolved": {
+    "verdict": "PASS",
+    "reason": "inputs.trials: all 2 trial(s) carry arms with a readable role",
+    "authority": "MECIR C62 (Mandatory), 'interventions' limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are 'sufficiently similar' without knowing which arm is the intervention. NOT cited to C5/C7: those govern PREDEFINITION of criteria, and this check only reads whether a field is populated."
+   },
+   "comparators_identified": {
+    "verdict": "PASS",
+    "reason": "every outcome names a comparator type ['placebo']; none declares 'mixed'. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged.",
+    "authority": "MECIR C62 (Mandatory), 'comparisons' limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency."
+   },
+   "estimand_named": {
+    "verdict": "PASS",
+    "reason": "outcomes.estimand: all 1 outcome(s) name a quantity",
+    "authority": "MECIR C8 'Clarifying role of outcomes' (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), 'outcomes' limb"
+   },
+   "criteria_stated": {
     "verdict": "FAIL",
     "reason": "declared absent: screening.eligibility states its own absence: 'not recorded on the page this object was built from'",
-    "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.'"
-   }
-  },
-  "not_assessed": {
+    "authority": "MECIR R29 'Eligibility criteria for types of participants', R30 '...types of interventions', R31 'Role of outcomes' -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block DERIVED post hoc satisfies this if it is labelled post hoc per R107."
+   },
+   "criteria_predefined": {
+    "verdict": "FAIL",
+    "reason": "screening.eligibility_provenance.predefined is false: the criteria were DERIVED post hoc from this object's own question and recorded exclusions. That is auditable (R29/R30/R31) and is not pre-specification (C5/C7). This FAIL is permanent and correct.",
+    "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.' C5/C7 govern PREDEFINITION and CANNOT be discharged by a post hoc derivation."
+   },
    "eligibility_met": {
     "verdict": "NOT-ASSESSABLE",
     "reason": "cannot assess: criteria are not stated (screening.eligibility states its own absence: 'not recorded on the page this object was built from'), so whether any trial met them cannot be decided",
     "authority": "MECIR C5/C7 (Mandatory) with C6 'Predefining a strategy for studies with a subset of eligible participants' (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report"
+   },
+   "contributes_a_randomised_contrast": {
+    "verdict": "PASS",
+    "reason": "inputs.trials.arms: all 2 readable trial(s) contribute one topic-vs-control randomised contrast",
+    "authority": "Handbook 6.5 s23.3.4 'How to include multiple groups from one study' (READ 2026-08-19) and s23.3.6 'Factorial trials'; MECIR C7 'Predefining unambiguous criteria for interventions and comparators' (Mandatory)"
+   }
+  }
+ },
+ "screening_of_remainder": {
+  "attrcm_2026_08_19": {
+   "screened_utc": "2026-08-19",
+   "criteria_status": "DERIVED POST HOC from the object's own recorded fields; NOT pre-specified. This topic's `question` field holds a FINDING rather than a question, so there was no stated question to read.",
+   "the_pooling_obstacle": "The two included trials register DIFFERENT hierarchies -- ATTR-ACT has two tiers (mortality, CV hospitalisation), ATTRibute-CM has four (adding NT-proBNP and 6-minute-walk change). A win ratio's estimand IS its hierarchy, and it cannot be recovered from a 2x2 table. Two different hierarchies are TWO ESTIMANDS, not heterogeneity. Verified from the registry on 2026-08-19.",
+   "tally": {
+    "EXCLUDED": 31,
+    "ELIGIBLE_NO_RESULTS_YET": 13,
+    "ELIGIBLE_NOT_POOLABLE": 2
+   },
+   "trials": [
+    {
+     "nct": "NCT04253353",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT06940336",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status RECRUITING, enrolment 15 -- no results to assess; contestable limbs not argued."
+    },
+    {
+     "nct": "NCT04769479",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT02534740",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT07695701",
+     "acronym": "ASCEND-ATTR",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status RECRUITING, enrolment 150 -- no results to assess; contestable limbs not argued."
+    },
+    {
+     "nct": "NCT01435655",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT02746926",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT04814186",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT02697864",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT03280173",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT04882735",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status WITHDRAWN, enrolment 0 -- no results to assess; contestable limbs not argued."
+    },
+    {
+     "nct": "NCT05489523",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status ACTIVE_NOT_RECRUITING, enrolment 25 -- no results to assess; contestable limbs not argued."
+    },
+    {
+     "nct": "NCT06563895",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status RECRUITING, enrolment 587 -- no results to assess; contestable limbs not argued."
+    },
+    {
+     "nct": "NCT00630864",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT03266705",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT00409175",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "POPULATION",
+     "field_read": "conditionsModule.conditions",
+     "reason": "registered population is 'Familial Amyloid Polyneuropathy' -- not transthyretin amyloid CARDIOMYOPATHY. Polyneuropathy ATTR is a different disease and a different trial population."
+    },
+    {
+     "nct": "NCT02189330",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT07298044",
+     "acronym": "ACO-SWITCH",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status RECRUITING, enrolment 50 -- no results to assess; contestable limbs not argued."
+    },
+    {
+     "nct": "NCT04828993",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT01775761",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "control arm gives ['period 1', 'period 2'], an active drug absent from the topic arm."
+    },
+    {
+     "nct": "NCT01369836",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "POPULATION",
+     "field_read": "conditionsModule.conditions",
+     "reason": "registered population is 'Healthy' -- not transthyretin amyloid CARDIOMYOPATHY. Polyneuropathy ATTR is a different disease and a different trial population."
+    },
+    {
+     "nct": "NCT06705569",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT04988386",
+     "acronym": "AG10",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status ACTIVE_NOT_RECRUITING, enrolment 389 -- no results to assess; contestable limbs not argued."
+    },
+    {
+     "nct": "NCT03294707",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "ESTIMAND",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C; primary is 'Safety & tolerability: individual and summary blood pressures, heart r', which is not a hierarchical win-ratio quantity and so is not the estimand this object carries."
+    },
+    {
+     "nct": "NCT07116473",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status NOT_YET_RECRUITING, enrolment 250 -- no results to assess; contestable limbs not argued."
+    },
+    {
+     "nct": "NCT02217813",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT04622046",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT07306949",
+     "acronym": "ATTR-CM",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status RECRUITING, enrolment 200 -- no results to assess; contestable limbs not argued."
+    },
+    {
+     "nct": "NCT04575116",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT00694161",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT04418024",
+     "acronym": "ATTRibute-PN",
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status WITHDRAWN, enrolment 0 -- no results to assess; contestable limbs not argued."
+    },
+    {
+     "nct": "NCT03536767",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status ACTIVE_NOT_RECRUITING, enrolment 55 -- no results to assess; contestable limbs not argued."
+    },
+    {
+     "nct": "NCT07470866",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT04958135",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT05482308",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT03662191",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT02406560",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT00791492",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT04963985",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status UNKNOWN, enrolment 10 -- no results to assess; contestable limbs not argued."
+    },
+    {
+     "nct": "NCT07587697",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NO_RESULTS_YET",
+     "axis": "STATUS",
+     "criterion": "NOT YET REPORTED",
+     "field_read": "statusModule.overallStatus",
+     "reason": "status ACTIVE_NOT_RECRUITING, enrolment 15 -- no results to assess; contestable limbs not argued."
+    },
+    {
+     "nct": "NCT00935012",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT01655511",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT02791230",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT03458130",
+     "acronym": null,
+     "verdict": "ELIGIBLE_NOT_POOLABLE",
+     "axis": "POOLABILITY",
+     "criterion": "ESTIMAND",
+     "field_read": "outcomesModule.primaryOutcomes",
+     "reason": "meets P/I/C; primary is 'Change in Diastolic Blood Pressure', which is not a hierarchical win-ratio quantity and so is not the estimand this object carries."
+    },
+    {
+     "nct": "NCT06273839",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    },
+    {
+     "nct": "NCT05498701",
+     "acronym": null,
+     "verdict": "EXCLUDED",
+     "axis": "ELIGIBILITY",
+     "criterion": "COMPARATOR",
+     "field_read": "armsInterventionsModule.armGroups",
+     "reason": "no placebo arm is declared -- an open-label or single-arm study cannot supply the randomised contrast this review pools."
+    }
+   ]
+  }
+ },
+ "search": {
+  "executed_by": "lane 1 (Claude, Anthropic family)",
+  "databases": [
+   {
+    "database": "ClinicalTrials.gov API v2 -- intervention, all brands and codes",
+    "tool": "https://clinicaltrials.gov/api/v2/studies (raw, curl)",
+    "query_as_executed": "query.intr=\"tafamidis OR acoramidis OR vyndaqel OR vyndamax OR attruby OR AG10\"; filter.advanced=AREA[StudyType]INTERVENTIONAL; pageSize=300; countTotal=true",
+    "date_executed": "2026-08-19",
+    "http_status": 200,
+    "records_returned": 55,
+    "total_reported": 55,
+    "recall_on_included_set": "2/2",
+    "why_intervention_only": "No condition filter. ATTR amyloidosis is registered under cardiomyopathy, polyneuropathy, and bare 'amyloidosis' interchangeably, and the two preceding topics both lost included trials to a condition term one word narrower than the registry's own. The population limb is applied at SCREENING, from conditionsModule, where it can be read per trial rather than guessed once."
+   }
+  ],
+  "pagination_verified": "records_returned == total_reported (55/55); no page boundary."
+ },
+ "prisma_flow": {
+  "_scope": "PRISMA 2020 flow, counted from the executed search above.",
+  "identification": {
+   "ctgov": 55
+  },
+  "eligibility_ctgov": {
+   "role_located": 55,
+   "topic_is_experimental_arm": 48,
+   "topic_is_comparator_arm": 3,
+   "topic_is_background": 1,
+   "not_assessable": 3
+  },
+  "included": {
+   "in_this_object": 2,
+   "nct": [
+    "NCT01994889",
+    "NCT03860935"
+   ]
+  },
+  "reconciliation": {
+   "arithmetic": "55 identified = 48 experimental + 3 comparator + 1 background + 3 not_assessable",
+   "reconciles": true,
+   "unscreened_remainder": 0,
+   "remainder_means": "48 trials place tafamidis or acoramidis in the randomised experimental arm; 2 are in this object; the other 46 were ALL SCREENED on 2026-08-19. Dispositions: 31 excluded, 2 eligible but not poolable, 13 eligible with no results yet."
+  }
+ },
+ "k_cascade": {
+  "k0_surfaced": 55,
+  "k2_role_located": 55,
+  "k3_experimental": 48,
+  "k4_comparator": 3,
+  "k5_background": 1,
+  "kNA_not_assessable": 3,
+  "k_included_in_object": 2,
+  "k_unscreened_remainder": 0,
+  "remainder_dispositions": {
+   "EXCLUDED": 31,
+   "ELIGIBLE_NOT_POOLABLE": 2,
+   "ELIGIBLE_NO_RESULTS_YET": 13,
+   "what_this_says": "READ BY THE REMAINDER-DIAGNOSIS RULE: 31 of 46 fail a criterion, and the dominant ground is COMPARATOR -- only 6 of the 46 declare a placebo arm at all. This is a drug programme dominated by OPEN-LABEL EXTENSION and single-arm studies, so the query is well aimed and the randomised evidence is genuinely thin. Neither the too-broad-query shape nor the fragmented-estimand shape: a third reading, where the field itself has produced few controlled trials.",
+   "no_poolable_candidates": "ZERO trials in the remainder are eligible AND poolable -- unlike alirocumab-lipid, where screening recovered two. Stated explicitly because a zero here is a real result about this evidence base rather than an absence of effort."
+  },
+  "why_k_included_is_2_and_stays_2": "THE POOLING OBSTACLE IS THE ESTIMAND, NOT THE EVIDENCE BASE. Both included trials register HIERARCHICAL endpoints analysed by win ratio, and the two hierarchies are not the same hierarchy: ATTR-ACT combines all-cause mortality with CV-related hospitalisation frequency (2 tiers); ATTRibute-CM adds NT-proBNP change and 6-minute-walk change (4 tiers). Verified from the registry 2026-08-19. A win ratio's estimand IS its hierarchy and cannot be recovered from a 2x2 table. TWO DIFFERENT HIERARCHIES ARE TWO ESTIMANDS, NOT HETEROGENEITY -- so k=2 is the count of included trials and NOT a pooled k.",
+  "_why": "k is never one number. Each stage is what the instrument at that stage could actually decide.",
+  "keyed_on": "registration id"
+ },
+ "precondition_verdict_superseded": {
+  "superseded_on": "2026-08-19",
+  "superseded_because": "the seven preconditions became eight when inclusion_criteria_auditable split into criteria_stated (MECIR R29/R30/R31) and criteria_predefined (MECIR C5/C7)",
+  "block": {
+   "assessed_on": "2026-08-19",
+   "assessed_by": "ssot/preconditions.py (seven preconditions, authored 2026-08-19)",
+   "authoring_constraint": "These seven preconditions were authored in the same session that applied them. A reader who disagrees should disagree with the definitions in ssot/preconditions.py, from which every verdict below is reproducible.",
+   "authority": {
+    "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+    "version": "6.5, 2024",
+    "verified_on": "2026-08-19",
+    "verified_how": "read from cochrane.org/authors/handbooks-and-manuals/handbook/current chapters 10 and 23, and from the official MECIR PDF (February 2022), text extracted locally rather than summarised"
+   },
+   "builds": false,
+   "status": "REFUSED",
+   "refused_on": {
+    "inclusion_criteria_auditable": {
+     "verdict": "FAIL",
+     "reason": "declared absent: screening.eligibility states its own absence: 'not recorded on the page this object was built from'",
+     "authority": "MECIR C5 'Predefining unambiguous criteria for participants' AND C7 '...for interventions and comparators', BOTH Mandatory (READ 2026-08-19): 'Predefined, unambiguous eligibility criteria are a fundamental prerequisite for a systematic review.'"
+    }
+   },
+   "not_assessed": {
+    "eligibility_met": {
+     "verdict": "NOT-ASSESSABLE",
+     "reason": "cannot assess: criteria are not stated (screening.eligibility states its own absence: 'not recorded on the page this object was built from'), so whether any trial met them cannot be decided",
+     "authority": "MECIR C5/C7 (Mandatory) with C6 'Predefining a strategy for studies with a subset of eligible participants' (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report"
+    }
+   },
+   "not_assessed_means": "NOT_ASSESSABLE is not a refusal. These preconditions could not be evaluated against this object; the topic has not been judged on them.",
+   "passed": [
+    "population_stated",
+    "arm_role_resolved",
+    "comparator_identified",
+    "estimand_named",
+    "contributes_a_randomised_contrast"
+   ]
+  }
+ },
+ "extraction": {
+  "_why": "Every cell says whether it was READ from a named source or DERIVED, and carries the sentence it was read from. A cell with no label is not evidence.",
+  "verified_utc": "2026-08-19",
+  "source": {
+   "registry": "ClinicalTrials.gov, two registrations",
+   "read_via": "raw v2 API, fields=protocolSection"
+  },
+  "cells": [
+   {
+    "field": "NCT01994889 ATTR-ACT primary",
+    "label": "READ",
+    "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+    "verbatim": "Hierarchical Combination of All-Cause Mortality and Frequency of Cardiovascular-Related Hospitalizations"
+   },
+   {
+    "field": "NCT03860935 ATTRibute-CM primary",
+    "label": "READ",
+    "source_path": "protocolSection.outcomesModule.primaryOutcomes[0].measure",
+    "verbatim": "A Hierarchical Combination of All-Cause Mortality, Cumulative Frequency of CV-related Hospitalization, Change From Baseline in NT-proBNP and Change From Baseline in 6-Minute Walk Distance"
+   },
+   {
+    "field": "hierarchies differ",
+    "value": "2 tiers vs 4 tiers",
+    "label": "DERIVED",
+    "derived_by": "comparison of the two verbatim primaries above. THE OBJECT STATED THIS BEFORE ANY CHECK EXISTED; this cell records that the registry confirms it rather than that a check discovered it."
+   },
+   {
+    "field": "arm roles",
+    "value": "experimental on both",
+    "label": "DERIVED",
+    "derived_by": "ssot/topic_identity.locate() over raw v2 armGroups"
+   },
+   {
+    "field": "unscreened remainder",
+    "value": "0",
+    "label": "DERIVED",
+    "derived_by": "48 experimental-arm trials, minus the 2 included, minus the 46 screened on 2026-08-19"
+   }
+  ]
+ },
+ "published_comparison": {
+  "state": "PENDING_EXTERNAL_RESOLUTION",
+  "_why": "Every page this project ships carries this section with a DENOMINATOR. A comparison without one reports the syntheses it happened to find.",
+  "denominator": null,
+  "denominator_reason": "Not yet established. Establishing it requires resolving published syntheses' included-sets to REGISTRATION IDs. A second lane has validated that pipeline (stated-k table identification plus two-hop citation->PMID->registration) and is running it now.",
+  "explicitly_not_done": "CITATION-STRING MATCHING. It would produce a comparison-shaped answer tonight and it is not identity: two syntheses citing the same trial under different labels would read as different, and the same label on different trials as the same. That is the substitution class this project audits for.",
+  "candidate_source_search": "PubMed search recorded at search.databases[1] (109 records)",
+  "blocked_on": "lane 2 registration-id resolution"
+ },
+ "registration_identity": {
+  "verified_utc": "2026-08-19",
+  "method": "live fetch of the raw ClinicalTrials.gov v2 record and comparison of the returned nctId against the id stored on this object",
+  "trials": [
+   {
+    "nct": "NCT01994889",
+    "verified": true,
+    "link": "https://clinicaltrials.gov/study/NCT01994889"
+   },
+   {
+    "nct": "NCT03860935",
+    "verified": true,
+    "link": "https://clinicaltrials.gov/study/NCT03860935"
+   }
+  ],
+  "duplicate_seeding_check": {
+   "state": "CHECKED",
+   "checked_against": "evidence/2026-08-19-corpus/reconcile.json",
+   "n_trials_checked": 2,
+   "shared_with_other_topics": false,
+   "shared": null
+  }
+ },
+ "build_stamp": {
+  "page_standard_version": "1.3.0-2026-08-19",
+  "standard_document": "PAGE-STANDARD.md",
+  "built_utc": "2026-08-19",
+  "built_by": "ssot/build_to_standard.py",
+  "properties": {
+   "P1_executed_search": {
+    "state": "HELD",
+    "reason": "1 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 0-trial unscreened remainder is stated as a number rather than omitted."
+   },
+   "P2_k_cascade": {
+    "state": "HELD",
+    "reason": "k at every stage: surfaced 55, located 55, experimental 48, comparator 3, included 2, unscreened remainder 0."
+   },
+   "P3_inclusion_criteria": {
+    "state": "HELD",
+    "reason": "Criteria provenance block present with predefined=False on its face (state 'DERIVED_POST_HOC')."
+   },
+   "P4_preconditions": {
+    "state": "HELD",
+    "reason": "All 8 recorded with verdict and cited authority: 2 FAIL, 1 NOT-ASSESSABLE. criteria_predefined is FAIL -- post hoc criteria, which R107 permits and C5/C7 does not satisfy."
+   },
+   "P5_extraction_table": {
+    "state": "HELD",
+    "reason": "5 cells: 2 READ with source path and verbatim text, 3 DERIVED with the method named."
+   },
+   "P6_analysis_output": {
+    "state": "REFUSING",
+    "reason": "No quotable model output exists: k=2 and nothing was pooled. The absence is recorded as a finding with its cause and its trigger."
+   },
+   "P7_published_comparison": {
+    "state": "REFUSING",
+    "reason": "No denominator yet. Blocked on external registration-id resolution; citation-string matching explicitly refused rather than substituted."
+   },
+   "P8_registration_identity": {
+    "state": "HELD",
+    "reason": "2 of 2 trial(s) verified live against the registry."
    }
   },
-  "not_assessed_means": "NOT_ASSESSABLE is not a refusal. These preconditions could not be evaluated against this object; the topic has not been judged on them.",
-  "passed": [
-   "population_stated",
-   "arm_role_resolved",
-   "comparator_identified",
-   "estimand_named",
-   "contributes_a_randomised_contrast"
-  ]
+  "held": [
+   "P1_executed_search",
+   "P2_k_cascade",
+   "P3_inclusion_criteria",
+   "P4_preconditions",
+   "P5_extraction_table",
+   "P8_registration_identity"
+  ],
+  "refusing": [
+   "P6_analysis_output",
+   "P7_published_comparison"
+  ],
+  "_ratchet": "This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant."
  }
 }

@@ -21,6 +21,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 import preconditions as P
 from assessment import FAIL, HANDBOOK_AUTHORITY, NOT_ASSESSABLE, PASS
+from attr_topic_data import ATTR_CASCADE, ATTR_EXTRACTION, ATTR_PRISMA, ATTR_SEARCH
 from ali_topic_data import ALI_CASCADE, ALI_EXTRACTION, ALI_PRISMA, ALI_SEARCH
 from ivi_topic_data import IVI_CASCADE, IVI_EXTRACTION, IVI_PRISMA, IVI_SEARCH
 
@@ -356,6 +357,10 @@ TOPIC_DATA = {
                         "k_cascade": ALI_CASCADE,
                         "primary_outcome_key": "ldlc_pct_change_wk24",
                         "extraction": ALI_EXTRACTION},
+    "attr-cm-review": {"search": ATTR_SEARCH, "prisma": ATTR_PRISMA,
+                       "k_cascade": ATTR_CASCADE,
+                       "primary_outcome_key": "primary",
+                       "extraction": ATTR_EXTRACTION},
     "iv-iron-hf": {"search": IVI_SEARCH, "prisma": IVI_PRISMA,
                    "k_cascade": IVI_CASCADE,
                    "primary_outcome_key": "hfh_cvd_recurrent",
@@ -640,39 +645,59 @@ def build(topic):
 
 
 def _p6_refuse(obj, spec, props):
-    """Only for a topic with NOTHING to quote. Never overwrites real output."""
+    """Only for a topic with NOTHING to quote. Never overwrites real output.
+
+    REWRITTEN 2026-08-19 AFTER IT SHIPPED ONE TOPIC'S TRIAL RESULT ONTO ANOTHER'S PAGE.
+
+    Every field below was a MODULE CONSTANT. Three consequences, all of which reached disk:
+
+      1. `_why_absent` asserted "k=1" on every topic that refused, whatever its real k.
+         attr-cm-review declares k=2. THE REFUSAL WAS CORRECT AND ITS REASON WAS FICTION, and
+         a reason is what a reader checks a verdict against.
+      2. `what_stands_instead` carried CLEAR OUTCOMES' HR 0.87 -- BEMPEDOIC ACID'S TRIAL
+         RESULT -- and wrote it onto attr-cm-review, a transthyretin amyloid CARDIOMYOPATHY
+         topic. It rendered on the shipped page. THE SIXTH CROSS-TOPIC CONTAMINATION ROUTE,
+         and the first to carry a NUMERICAL CLAIM from a different drug and a different
+         disease.
+      3. Neither existing guard could see it: the foreign-registration-id guard matches NCT
+         ids and this text names none; the identical-output alarm compares cascade keys and
+         this is an r_output field. A GUARD SET BUILT AGAINST ONE CONTAMINATION SHAPE DOES NOT
+         COVER THE NEXT SHAPE.
+
+    Now: k is READ from the object, and a per-topic substitute estimate is only written if the
+    TOPIC ITSELF declares one. Nothing is asserted that the object does not hold.
+    """
     outcome = obj["results"]["by_outcome"][spec["primary_outcome_key"]]
-    outcome["r_output"] = _deep_merge(outcome.get("r_output"), {
+    k = outcome.get("k")
+    k_txt = "k=%s" % k if isinstance(k, int) else "k is not declared on this outcome"
+
+    block = {
         "state": "ABSENT_AND_THAT_IS_THE_FINDING",
         "_why_absent": (
-            "k=1. No meta-analysis was performed, so there is NO model call to quote, NO "
-            "pooled estimate, NO heterogeneity and NO package version. This is not a missing "
-            "artefact; it is the correct state for a single-study topic."),
+            "%s and nothing was pooled, so there is NO model call to quote, NO pooled "
+            "estimate, NO heterogeneity and NO package version. This is not a missing "
+            "artefact; it is the correct state for a topic with no synthesis." % k_txt),
+        "k_read_from_object": k,
         "quotable_model_call": None,
         "heterogeneity": None,
-        "heterogeneity_reason": "Undefined at k=1: there is no between-study variance to estimate.",
+        "heterogeneity_reason": (
+            "Undefined: no between-study variance was estimated because no model was run."),
         "package_version": None,
-        "what_stands_instead": {
-            "estimate": "HR 0.87 (95% CI 0.79 to 0.96)",
-            "provenance": "CLEAR Outcomes' OWN registry-posted analysis, NOT a synthesis "
-                          "result computed here",
-            "verbatim_from_registry": "Hazard Ratio (HR) 0.87, CI 0.79 - 0.96, "
-                                      "statistical method Log Rank, p=0.004",
-            "read_utc": "2026-08-19",
-        },
         "what_would_change_it": (
-            "Screening the unscreened remainder. If any of them share this estimand and "
-            "comparator, k rises above 1 and a pooled model becomes both possible and "
-            "required -- at which point this field must carry the quoted call."),
-    })
-    props["P6_analysis_output"] = prop(
-        REFUSING, "No quotable model output exists because k=1 and nothing was pooled. The "
-                  "absence is recorded as a finding with its cause and its trigger, and the "
-                  "registry's own analysis is quoted verbatim in its place.")
+            "An estimand shared by two or more included trials. Where k is already above 1 and "
+            "nothing pooled, the obstacle is the ESTIMAND rather than the evidence base, and "
+            "this field must say which."),
+    }
+    # A SUBSTITUTE ESTIMATE IS PER-TOPIC OR ABSENT. Never a module constant: that is exactly
+    # how one topic's HR reached another's page.
+    stands = (spec or {}).get("what_stands_instead")
+    if stands:
+        block["what_stands_instead"] = stands
+    outcome["r_output"] = _deep_merge(outcome.get("r_output"), block)
 
     props["P6_analysis_output"] = prop(
-        REFUSING, "No quotable model output exists because k=1 and nothing was pooled. The "
-                  "absence is recorded as a finding with its cause and its trigger.")
+        REFUSING, "No quotable model output exists: %s and nothing was pooled. The absence is "
+                  "recorded as a finding with its cause and its trigger." % k_txt)
 
 
 

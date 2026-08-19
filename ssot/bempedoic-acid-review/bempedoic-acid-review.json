@@ -407,10 +407,10 @@
     "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
     "r_output": {
      "state": "ABSENT_AND_THAT_IS_THE_FINDING",
-     "_why_absent": "k=1. No meta-analysis was performed, so there is NO model call to quote, NO pooled estimate, NO heterogeneity and NO package version. This is not a missing artefact; it is the correct state for a single-study topic.",
+     "_why_absent": "k=1 and nothing was pooled, so there is NO model call to quote, NO pooled estimate, NO heterogeneity and NO package version. This is not a missing artefact; it is the correct state for a topic with no synthesis.",
      "quotable_model_call": null,
      "heterogeneity": null,
-     "heterogeneity_reason": "Undefined at k=1: there is no between-study variance to estimate.",
+     "heterogeneity_reason": "Undefined: no between-study variance was estimated because no model was run.",
      "package_version": null,
      "what_stands_instead": {
       "estimate": "HR 0.87 (95% CI 0.79 to 0.96)",
@@ -418,8 +418,9 @@
       "verbatim_from_registry": "Hazard Ratio (HR) 0.87, CI 0.79 - 0.96, statistical method Log Rank, p=0.004",
       "read_utc": "2026-08-19"
      },
-     "what_would_change_it": "Screening the unscreened remainder. If any of them share this estimand and comparator, k rises above 1 and a pooled model becomes both possible and required -- at which point this field must carry the quoted call.",
-     "refusal_basis": "SCREENED"
+     "what_would_change_it": "An estimand shared by two or more included trials. Where k is already above 1 and nothing pooled, the obstacle is the ESTIMAND rather than the evidence base, and this field must say which.",
+     "refusal_basis": "SCREENED",
+     "k_read_from_object": 1
     }
    }
   }
@@ -784,7 +785,7 @@
    },
    "P6_analysis_output": {
     "state": "REFUSING",
-    "reason": "No quotable model output exists because k=1 and nothing was pooled. The absence is recorded as a finding with its cause and its trigger."
+    "reason": "No quotable model output exists: k=1 and nothing was pooled. The absence is recorded as a finding with its cause and its trigger."
    },
    "P7_published_comparison": {
     "state": "REFUSING",
