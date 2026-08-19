@@ -743,6 +743,90 @@ reported only the lost pairs — the more natural design — the revert would ha
 would have caught this at step one — an audit that refuses to report on files with uncommitted
 modifications until it says so. Recorded as not written.
 
+### 34. CLASS 28 IN THE MANUSCRIPT LAYER — *a fallback that always produces something cannot report an absence*
+
+**Found 2026-08-20, and it had been shipping for as long as those pages have existed.** Every
+projected Results section opened:
+
+> For **`hfh_cvd_recurrent`** (k = 2), the pooled estimate was 0.8066…
+
+The subject of the sentence was a database key, printed at a reader.
+
+**It was never a content gap.** `outcomes[].name` holds the registered text on every one of
+those objects:
+
+```
+hfh_cvd_recurrent -> "Recurrent hospitalisations for heart failure together with
+                      cardiovascular death, as a rate ratio"
+```
+
+The whole defect is one line:
+
+```python
+outcome_txt = blk.get("outcome") or oid
+```
+
+> **The fallback made the omission invisible by ALWAYS PRODUCING SOMETHING.** There was no
+> state in which the projector said *I do not hold this outcome's name* — because `oid` was
+> always there to be returned. This is **registry class 28** — *a rule that cannot return
+> nothing cannot tell you it does not know* — arriving in the manuscript layer, where its
+> output is prose a reader is asked to trust.
+
+And it is worse here than in a check, because a wrong verdict announces itself as a verdict
+while a wrong subject reads as the outcome's name. A reader has no way to tell
+`hfh_cvd_recurrent` from an outcome that is genuinely called that.
+
+**Status: CLOSED.** `paper_projector.outcome_text()` returns `None` when no registered text
+is held, and the caller **refuses the sentence and names the field**:
+
+> *refused: the result sentence for the outcome recorded as `X` — its REGISTERED TEXT is not
+> held, and an internal identifier is not an outcome name.*
+> `no field: outcomes[id=X].name`
+
+Held by `scripts/test_manuscript_prose.py`, which asserts that no outcome key appears
+anywhere in the Results or Abstract prose of the six objects that pool.
+
+### 35. A DEFECT THAT EXISTS ONLY BETWEEN TWO SECTIONS, AND SO IS INVISIBLE TO BOTH
+
+**Found 2026-08-20, by a test, after two careful readings missed it.** The risk-of-bias
+ceiling statement — 300 characters — was emitted **twice** in every manuscript whose object
+records one: once by `methods_synthesis`, which had carried it for weeks, and once by the
+`risk_of_bias` section added hours earlier the same night.
+
+> **Neither site was wrong on its own.** Methods was right to state the bound. The
+> assessment was right to state the bound. **The duplication came into existence when the
+> second section was added** — it is a property of the pair, and of no member of the pair.
+> That is exactly why it was invisible to whoever wrote either one, and it always will be.
+
+**No check that looks at one section at a time can see this, however careful the reviewer.**
+The unit of checking has to be the document.
+
+**Status: CLOSED, with a gate.** `scripts/lint_manuscript_whole_document.py` checks three
+properties, each of the whole and of no part:
+
+| | |
+|---|---|
+| **D1** | the same substantial paragraph emitted in more than one section |
+| **D2** | the same table, by caption or by rows, in more than one section |
+| **D3** | a field **refused** in one section and successfully **used** in another — class 29 at document scale |
+
+**It found 20 further instances on its first run, before a single page was rebuilt**, in two
+families neither of which had been noticed:
+
+- **10 topics print their title twice**, because the object records `title` and `question` as
+  the *identical string*. The manuscript now says so — *"a question copied from a title has
+  not been asked"* — which surfaces the object defect instead of concealing it behind a
+  repeated line.
+- **10 topics refused References for want of `sources` while Data availability counted the
+  same `sources` and wrote.** `sources` has two shapes in this corpus — `{id: {layer, name,
+  url}}` and `{id: "evidence/….json"}` — and only the first was rendered, so the second
+  produced zero rows and a refusal beside a section using it. **One manuscript saying both.**
+
+> The general rule: **whenever a document is assembled from independently-authored parts, at
+> least one check must run over the assembled whole.** Every per-part check can pass while
+> the document contradicts or repeats itself, and the more careful the per-part authoring is,
+> the more likely that is the only remaining failure mode.
+
 ### 32. A TEST THAT RE-IMPLEMENTS THE BRANCH IT TESTS — *it can pass while the shipped code differs*
 
 **Found 2026-08-19, in a test written the same night to protect a projector change.**

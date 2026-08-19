@@ -262,8 +262,18 @@ def project(obj, journal="generic", length="standard"):
 
     # ---- TITLE / QUESTION -------------------------------------------------------------
     s = Section("title", "Title and review question")
-    s.add(obj, get(obj, "title") or "", ["title"])
-    s.add(obj, get(obj, "question") or "", ["question"])
+    _title, _question = get(obj, "title") or "", get(obj, "question") or ""
+    s.add(obj, _title, ["title"])
+    if _question and _question == _title:
+        # THE OBJECT RECORDS THE SAME STRING TWICE, on 10 topics. Printing it twice is not
+        # a manuscript, and silently printing it once hides that the review's QUESTION is
+        # a copy of its TITLE -- which is the defect `lint_question_is_a_question.py`
+        # exists for. Say which it is.
+        s.add(obj, "This object records its review question and its title as the SAME "
+                   "string, so no question distinct from the title is stated here. A "
+                   "question copied from a title has not been asked.", ["question"])
+    else:
+        s.add(obj, _question, ["question"])
     secs.append(s)
 
     # ---- METHODS: SEARCH --------------------------------------------------------------
@@ -859,13 +869,24 @@ def project(obj, journal="generic", length="standard"):
     # ---- REFERENCES --------------------------------------------------------------------
     s = Section("references", "References")
     src = get(obj, "sources")
+    # `sources` HAS TWO SHAPES IN THIS CORPUS and only one was handled:
+    #   {id: {layer, name, url, ...}}   a described source
+    #   {id: "evidence/....json"}       a bare path to an evidence file
+    # Filtering to dict values produced ZERO rows on the second shape, so References
+    # refused for want of `sources` while Data availability counted the same dict and
+    # wrote -- one manuscript saying both. Found by the whole-document check, not by
+    # either section. Both shapes are rendered now, and each row says which it is.
+    _rows = []
     if isinstance(src, dict) and src:
+        for sid, v in sorted(src.items()):
+            if isinstance(v, dict):
+                _rows.append([sid, str(v.get("layer", "")), str(v.get("name", ""))[:150],
+                              str(v.get("url") or v.get("staged_as") or "")])
+            elif isinstance(v, str) and v.strip():
+                _rows.append([sid, "evidence file", "", v])
+    if _rows:
         s.add_table(obj, "Sources this review reads, with the layer each was read at",
-                    ["Id", "Layer", "Source", "Location"],
-                    [[sid, str((v or {}).get("layer", "")), str((v or {}).get("name", ""))[:150],
-                      str((v or {}).get("url") or (v or {}).get("staged_as") or "")]
-                     for sid, v in sorted(src.items()) if isinstance(v, dict)],
-                    ["sources"])
+                    ["Id", "Layer", "Source", "Location"], _rows, ["sources"])
     else:
         s.refusals.append(("the reference list", ["sources"]))
     secs.append(s)
