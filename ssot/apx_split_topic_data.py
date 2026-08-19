@@ -86,30 +86,73 @@ APXT_PRISMA = {
                 "defect was fixed on three other objects on 2026-08-19 and is now refused by "
                 "scripts/lint_cascade_arithmetic.py.",
     },
-    "included": {"in_this_object": 1, "nct": ["NCT02829957"]},
+    "screening_of_the_candidate_pool": {
+        "screened": 72, "excluded": 48, "eligible": 25,
+        "excluded_on": {"POPULATION": 39, "COMPARATOR": 9},
+        "eligible_split": {"ELIGIBLE_POOLABLE": 11, "ELIGIBLE_NO_RESULTS_YET": 12,
+                           "ELIGIBLE_NOT_POOLABLE": 2},
+        "note": ("16 of the 72 were UNSETTLED at the mechanical screen and were adjudicated "
+                 "one by one; their dispositions are at `screening.adjudication`."),
+    },
+    "included": {"in_this_object": 4, "contributing_to_the_pool": 3,
+                 "nct": ["NCT02829957", "NCT03045406", "NCT03266783", "NCT01780987"]},
     "reconciliation": {
-        "arithmetic": "82 identified = 54 experimental + 19 comparator + 7 background + 2 "
-                      "not_assessable; 80 of the 82 had a role located",
+        "arithmetic": ("82 identified = 54 experimental + 19 comparator + 7 background + 2 "
+                       "not_assessable; 80 of the 82 had a role located; 73 candidate pool = "
+                       "48 excluded + 25 eligible"),
         "reconciles": True,
-        "unscreened_remainder": 71,
-        "remainder_means": "73 trials place apixaban in the randomised contrast; 1 is in this "
-                           "object; 71 are UNSCREENED and are carried as a number rather than "
-                           "as a zero. THIS REVIEW IS NOT COMPLETE.",
+        "unscreened_remainder": 0,
+        "remainder_means": ("ZERO. The 71 carried at the split have been screened to a "
+                            "disposition table. THE REVIEW IS STILL NOT COMPLETE, and the "
+                            "reason has changed: it is now 12 eligible trials that have posted "
+                            "no results and 8 eligible poolable trials that post no arm-level "
+                            "count of the shared estimand, not 71 records nobody has read."),
     },
 }
 
 APXT_CASCADE = {
     "k0_surfaced": 82, "k2_role_located": 80, "k3_experimental": 54, "k4_comparator": 19,
     "k5_background": 7, "kNA_not_assessable": 2,
-    "k_included_in_object": 1, "k_unscreened_remainder": 71,
-    "reproduced_by": "scripts/regate_cascade_2026_08_19.py and the parent's recorded search.",
-    "why_k_is_1_and_the_review_is_still_worth_building": (
-        "The parent held TWO trials that fall on opposite sides of this split. This review "
-        "keeps RAMBLE (NCT02829957) and the sibling keeps NCT02366871. NEITHER TRIAL IS "
-        "DISCARDED -- that is the whole point of building both -- but k=1 here is a floor and "
-        "not an answer: 34 of the 73 randomised-apixaban trials are coded TREATMENT and 15 of "
-        "those are COMPLETED, five with n >= 1000. THE UNSCREENED REMAINDER IS WHERE THIS "
-        "REVIEW'S EVIDENCE BASE ACTUALLY IS, and it is 71."),
+    "k_candidate_pool": 73,
+    "k_screened": 73,
+    "k_excluded": 48,
+    "k_eligible": 25,
+    "k_eligible_no_results_yet": 12,
+    "k_eligible_not_poolable": 2,
+    "k_eligible_poolable": 11,
+    "k_with_posted_results_reporting_a_recurrent_VTE_outcome": 8,
+    "k_included_in_object": 4,
+    "k_pooled": 3,
+    "k_unscreened_remainder": 0,
+    "reproduced_by": ("scripts/screen_apixaban_split_2026_08_19.py, "
+                      "scripts/adjudicate_apixaban_split_2026_08_19.py and "
+                      "scripts/repool_apixaban_treatment_2026_08_19.py."),
+    "reconciliation": (
+        "82 surfaced = 54 experimental + 19 comparator + 7 background + 2 not-assessable; 80 "
+        "of the 82 had a role located. 73 place apixaban in the randomised contrast and are "
+        "this review's candidate pool. 1 was in the parent object and 72 were screened, so "
+        "k_screened = 73. 48 excluded + 25 eligible = 73. Of the 25 eligible, 12 have posted "
+        "no results, 2 are eligible and not poolable, and 11 are eligible and poolable. "
+        "REMAINDER ZERO."),
+    "why_the_remainder_is_now_ZERO_and_was_71": (
+        "It was 71 when the split was recorded and the whole remainder has since been screened "
+        "-- 39 excluded and 16 sent to adjudication mechanically, the 16 adjudicated by hand. "
+        "A REMAINDER IS NOT A QUEUE TO BE DRAINED; screening it is what turned 71 into a "
+        "disposition table, and the shape of that table is the finding: 48 of 73 fail a "
+        "criterion, and 39 of the 48 fail on POPULATION -- 30 at the mechanical screen and all "
+        "9 of the adjudicated exclusions -- because they are thromboprophylaxis trials in "
+        "patients who have never had a venous thromboembolism. The surfacing query reaches "
+        "across the treatment/prevention boundary because ONE SEARCH OVER ONE DRUG NECESSARILY "
+        "DOES; that is a fact about splitting a drug topic in two, not a criticism of the "
+        "query, and the sibling review holds the trials this one excludes."),
+    "why_k_included_is_4_and_k_pooled_is_3": (
+        "The object holds RAMBLE (NCT02829957), which the parent included and which cannot "
+        "contribute -- n=19, both arms typed ACTIVE_COMPARATOR, registered primary a pictorial "
+        "menstrual blood-loss chart -- together with the three trials that pool. It is kept "
+        "and named rather than dropped, because a trial that fails only at the POOLING step is "
+        "a fact about this review's evidence base and dropping it would erase that fact. "
+        "ELEVEN trials are eligible and poolable and only THREE contribute: the other eight "
+        "post no arm-level count of the shared estimand, and each is named on the page."),
 }
 
 APXT_CRITERIA = {
@@ -196,25 +239,59 @@ APXP_PRISMA = {
         "note": "80, not 82 -- see the sibling's note; the parent counted its two "
                 "NOT_ASSESSABLE records among the located ones.",
     },
-    "included": {"in_this_object": 1, "nct": ["NCT02366871"]},
+    "screening_of_the_candidate_pool": {
+        "screened": 72, "excluded": 42, "eligible": 31,
+        "excluded_on": {"POPULATION": 33, "COMPARATOR": 6, "adjudicated_out": 3},
+        "eligible_split": {"ELIGIBLE_POOLABLE": 5, "ELIGIBLE_NO_RESULTS_YET": 22,
+                           "ELIGIBLE_NOT_POOLABLE": 4},
+        "note": "15 of the 72 were UNSETTLED and were adjudicated one by one.",
+    },
+    "included": {"in_this_object": 5, "contributing_to_the_pool": 4,
+                 "nct": ["NCT02366871", "NCT00457002", "NCT00423319", "NCT00371683",
+                         "NCT00452530"]},
     "reconciliation": {
-        "arithmetic": "82 identified = 54 experimental + 19 comparator + 7 background + 2 "
-                      "not_assessable; 80 of the 82 had a role located",
-        "reconciles": True, "unscreened_remainder": 71,
-        "remainder_means": "71 UNSCREENED, carried as a number. THIS REVIEW IS NOT COMPLETE.",
+        "arithmetic": ("82 identified = 54 + 19 + 7 + 2; 80 role-located; 73 candidate pool = "
+                       "42 excluded + 31 eligible"),
+        "reconciles": True, "unscreened_remainder": 0,
+        "remainder_means": ("ZERO. What limits this review now is that 22 of its 31 eligible "
+                            "trials have posted no results."),
     },
 }
 
 APXP_CASCADE = {
     "k0_surfaced": 82, "k2_role_located": 80, "k3_experimental": 54, "k4_comparator": 19,
     "k5_background": 7, "kNA_not_assessable": 2,
-    "k_included_in_object": 1, "k_unscreened_remainder": 71,
-    "reproduced_by": "scripts/regate_cascade_2026_08_19.py and the parent's recorded search.",
-    "why_k_is_1_and_the_review_is_still_worth_building": (
-        "33 of the 73 randomised-apixaban trials are coded PREVENTION and 17 are COMPLETED, "
-        "four with n >= 1000 -- ADOPT (n=6758), ADVANCE-3 (n=5407), ADVANCE-1 (n=3608). NONE "
-        "OF THEM IS IN THIS OBJECT. k=1 is a floor and the 71-trial remainder is where this "
-        "review's evidence base is."),
+    "k_candidate_pool": 73,
+    "k_screened": 73,
+    "k_excluded": 42,
+    "k_eligible": 31,
+    "k_eligible_no_results_yet": 22,
+    "k_eligible_not_poolable": 4,
+    "k_eligible_poolable": 5,
+    "k_included_in_object": 5,
+    "k_pooled": 4,
+    "k_unscreened_remainder": 0,
+    "reproduced_by": ("scripts/screen_apixaban_split_2026_08_19.py, "
+                      "scripts/adjudicate_apixaban_split_2026_08_19.py and "
+                      "scripts/repool_apixaban_prophylaxis_2026_08_19.py."),
+    "reconciliation": (
+        "82 surfaced = 54 + 19 + 7 + 2; 80 of the 82 had a role located. 73 are the candidate "
+        "pool; 1 was in the parent object and 72 were screened. 42 excluded + 31 eligible = "
+        "73. Of the 31 eligible, 22 have posted no results, 4 are eligible and not poolable, "
+        "and 5 are eligible and poolable, of which 4 contribute. REMAINDER ZERO."),
+    "why_the_remainder_is_now_ZERO_and_was_71": (
+        "The whole remainder has been screened. 33 of this review's 39 mechanical exclusions "
+        "fail on POPULATION -- they are treatment trials in patients who have already had a "
+        "venous thromboembolism, which is exactly the population the sibling review holds."),
+    "AND ITS DOMINANT DISPOSITION IS NOT EXCLUSION": (
+        "TWENTY-TWO OF THE THIRTY-ONE ELIGIBLE TRIALS HAVE POSTED NO RESULTS -- more than "
+        "twice this review's excluded-on-comparator count and more than four times the number "
+        "that pool. Under the reading in PAGE-STANDARD.md, a remainder dominated by "
+        "NOT-YET-REPORTED means the query is well aimed and THE FIELD IS STILL IN FLIGHT. The "
+        "largest pending trial in either apixaban remainder is NCT06581965, n=10,078, "
+        "individualised versus standard thrombosis prophylaxis -- larger than every trial in "
+        "this pool combined. It is what will change this answer, and it is named for that "
+        "reason."),
 }
 
 APXP_CRITERIA = {
@@ -248,4 +325,240 @@ APXP_CRITERIA = {
         "BLEEDING and clinically relevant non-major bleeding -- a SAFETY estimand. It is in "
         "scope and it does not report the efficacy estimand this review names, so k=1 here is "
         "also not the number to take away."),
+}
+
+# ==========================================================================================
+# THE BOUNDARY BETWEEN THESE TWO REVIEWS, STATED AS A CRITERION ON BOTH.
+#
+# It was applied on 2026-08-19 and it existed only inside an adjudication file. A criterion
+# that decides which of two reviews a trial belongs to, and which is recorded nowhere either
+# review states it, is a rule the reader cannot check and the next lane cannot apply.
+#
+#     "A RULE YOU HAVE WRITTEN IS NOT A RULE YOU HAVE APPLIED" -- and its other half, which
+#     this block is: a rule you have applied is not a rule you have PUBLISHED.
+#
+# AND IT WAS NOT APPLIED EVERYWHERE IT SHOULD HAVE BEEN, WHICH IS WHY THIS IS NOT A TIDY-UP.
+# The boundary reached the SIXTEEN trials that went to adjudication. The NINE that passed the
+# mechanical screen were admitted on `primaryPurpose` -- the coded field these very criteria
+# say does not settle the question -- and were never put to it. Two of the nine turned on it
+# when they finally were, and one of the two moved.
+# ==========================================================================================
+BOUNDARY_CRITERION = {
+    "criterion": ("EXTENDED ANTICOAGULATION IN PATIENTS WHO HAVE ALREADY HAD A VENOUS "
+                  "THROMBOEMBOLISM IS TREATMENT. PRIMARY PROPHYLAXIS IN PATIENTS WHO HAVE NOT "
+                  "IS PREVENTION."),
+    "discriminator": ("whether the randomised population has already had the event, read from "
+                      "`eligibilityModule.eligibilityCriteria` and "
+                      "`descriptionModule.briefSummary`"),
+    "why_not_the_coded_field": (
+        "`designModule.designInfo.primaryPurpose` does not carry it, and BOTH registrant "
+        "conventions are used for BOTH situations. ADVANCE-2 is knee-replacement "
+        "thromboprophylaxis coded TREATMENT; APIDULCIS randomises extended anticoagulation "
+        "after a first VTE and is coded PREVENTION. The coded field decides which POOL a trial "
+        "is COUNTED in; the trial's own design decides which review INCLUDES it."),
+    "authority_it_satisfies": ("MECIR R29/R30/R31 -- eligibility criteria stated and applied "
+                               "consistently. The same authority the rest of both criteria "
+                               "sets are written against, cited the same way."),
+    "authority_it_does_NOT_establish": (
+        "MECIR C5/C7. This boundary was written on 2026-08-19, after both reviews' included "
+        "sets existed. `predefined: false`, like everything else in these criteria."),
+    "predefined": False,
+    "where_it_moved_a_trial": {
+        "NCT03678506": "APIDULCIS -- coded PREVENTION, admitted to TREATMENT",
+        "NCT00452530": "ADVANCE-2 -- coded TREATMENT, admitted to PREVENTION",
+        "NCT03080883": "'preventing SECONDARY cancer-related VTE' -- secondary means after a "
+                       "first event, so admitted to TREATMENT",
+        "NCT05618808": "REGN9933 -- coded TREATMENT, the design is prophylaxis, EXCLUDED from "
+                       "treatment",
+    },
+    "and_a_prediction_it_REFUTED": {
+        "stated_before_the_check": True,
+        "prediction": ("HI-PRO (NCT04168203) will FAIL this boundary and leave the treatment "
+                       "review. Its registered arm is labelled `Extended Duration "
+                       "Thromboprophylaxis`, its brief title says `to Prevent Recurrence`, and "
+                       "it randomises against placebo -- every surface reads prophylaxis."),
+        "indicator_chosen_because_it_could_only_move_one_way": (
+            "P32: the test was its ELIGIBILITY TEXT, which states what was enrolled and cannot "
+            "be true for both answers. A trial's own words about who may enter it settle "
+            "whether the population has had the event; the arm label does not."),
+        "outcome": "REFUTED, and the refutation is the finding.",
+        "what_the_eligibility_actually_says": (
+            "\"Objectively-confirmed provoked DVT and/or PE\" and \"Treated for at least 3 "
+            "months with standard therapeutic anticoagulant therapy\". EVERY PARTICIPANT HAS "
+            "ALREADY HAD THE EVENT. HI-PRO is extended treatment and it stays."),
+        "the_general_form": (
+            "THE ARM LABEL SAID PROPHYLAXIS AND THE POPULATION SAID TREATMENT. This is P33 on "
+            "the other foot: P33 says a property is not the presence of its own name; this "
+            "says a property is not ABSENT because another name is present. Four surfaces "
+            "agreed with each other and disagreed with the eligibility criteria, and the "
+            "eligibility criteria were right."),
+    },
+    "what_this_boundary_does_not_do": (
+        "It does not make the two reviews clinically homogeneous. Extended anticoagulation "
+        "after a completed course and treatment of the acute event are both TREATMENT under "
+        "this criterion and they are different clinical questions with different comparators, "
+        "which is why the treatment review pools within the acute stratum and states the "
+        "extended trials separately rather than averaging across them."),
+}
+
+# ------------------------------------------------------------------------------------------
+# EXTRACTION -- separate per review, sharing no block, per the contamination rule at the top.
+# ------------------------------------------------------------------------------------------
+APXT_EXTRACTION = {
+    "_why": "Every cell says whether it was READ from a named source or DERIVED, and carries "
+            "the sentence it was read from. A cell with no label is not evidence.",
+    "verified_utc": "2026-08-19",
+    "source": {"registry": "ClinicalTrials.gov; the eleven recoverable registrations read in "
+                           "full, and the eight with posted results read again for "
+                           "resultsSection.outcomeMeasuresModule",
+               "read_via": "raw v2 API, fields=protocolSection,hasResults,resultsSection"},
+    "cells": [
+        {"field": "NCT03045406 CARAVAGGIO recurrent VTE", "label": "READ",
+         "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[0]",
+         "verbatim": "Recurrent Venous Thromboembolism -- OG000 Apixaban 32 of 576, "
+                     "OG001 Dalteparin 46 of 579",
+         "note": "PRIMARY rank. Posted as COUNT_OF_PARTICIPANTS, so the counts are read and "
+                 "not derived from a percentage."},
+        {"field": "NCT03266783 COBRRA recurrent VTE", "label": "READ",
+         "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[3]",
+         "verbatim": "Number of Participants With Adjudicated Recurrent Venous Thromboembolism "
+                     "(VTE) Events -- OG000 Apixaban Group 15 of 1345, OG001 Rivaroxaban Group "
+                     "14 of 1355",
+         "note": "SECONDARY rank. Its registered PRIMARY is clinically relevant bleeding, so "
+                 "a review reading primaries only would have recorded this trial as reporting "
+                 "no efficacy outcome at all."},
+        {"field": "NCT01780987 recurrent VTE", "label": "READ",
+         "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[1]",
+         "verbatim": "Number of Participants With Adjudicated Recurrent Symptomatic Venous "
+                     "Thromboembolism (VTE) -- OG000 Apixaban 0 of 38, OG001 UFH/Warfarin "
+                     "1 of 40",
+         "note": "SECONDARY rank; registered primary is bleeding. A zero cell, and the only "
+                 "row in this pool that takes the 0.5 continuity correction."},
+        {"field": "NCT00643201 AMPLIFY primary composite", "label": "READ",
+         "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[0]."
+                        "populationDescription",
+         "verbatim": "All randomized participants with a non-missing primary endpoint (n/N: "
+                     "59/2609; 71/2635, in apixaban, enoxaparin/warfarin, respectively)",
+         "note": "COUNTS READ FROM THE TRIAL'S OWN POPULATION DESCRIPTION, not derived from "
+                 "the posted proportion 0.0226 / 0.0269. The two agree; the read one is used."},
+        {"field": "NCT00643201 AMPLIFY -- recurrent VTE with no death term", "label": "READ",
+         "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[].title, all 21",
+         "verbatim": "ABSENT. Every one of AMPLIFY's twenty-one posted outcome measures that "
+                     "names recurrent VTE carries a death term.",
+         "note": "A NEGATIVE CLAIM, COMPUTED OVER ALL TWENTY-ONE RANKS AND NOT ASSERTED (P17). "
+                 "This one absence is why the largest trial in this review contributes to no "
+                 "pool it reports."},
+        {"field": "NCT00633893 AMPLIFY-EXT primary, WITH imputation", "label": "READ",
+         "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[0]."
+                        "populationDescription",
+         "verbatim": "(n) number of events=32, 34, 96 in apixaban 2.5 mg, 5 mg, and placebo "
+                     "arms, respectively; number of events imputed=13, 20, 19",
+         "note": "THE SAME REGISTERED ENDPOINT IS POSTED TWICE, typed PRIMARY both times, "
+                 "differing only in the trailing 'With Imputation' / 'Without Imputation'."},
+        {"field": "NCT00633893 AMPLIFY-EXT primary, WITHOUT imputation", "label": "READ",
+         "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[2]."
+                        "populationDescription",
+         "verbatim": "(n) number of events = 19, 14, 77 in apixaban 2.5 mg, 5 mg, and placebo "
+                     "arms, respectively. All events were counted; no events were imputed.",
+         "note": "Both cells are carried BECAUSE they differ: 32 against 19 on the same arm "
+                 "under the same registered name. A text match returns both, and choosing "
+                 "between them by position is P35 one level down."},
+        {"field": "NCT04168203 HI-PRO recurrent VTE", "label": "READ",
+         "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[0]",
+         "verbatim": "Frequency of Symptomatic, Recurrent VTE ... OG000 Extended Duration "
+                     "Thromboprophylaxis 4 of 300, OG001 Control 30 of 300"},
+        {"field": "NCT04168203 HI-PRO eligibility", "label": "READ",
+         "source_path": "protocolSection.eligibilityModule.eligibilityCriteria",
+         "verbatim": "Objectively-confirmed provoked DVT and/or PE; Treated for at least 3 "
+                     "months with standard therapeutic anticoagulant therapy",
+         "note": "THE CELL THAT REFUTED A STATED PREDICTION. Its arm is labelled "
+                 "`Extended Duration Thromboprophylaxis`; its population has already had the "
+                 "event, so it is treatment."},
+        {"field": "NCT02744092 CANVAS randomised arm", "label": "READ",
+         "source_path": "protocolSection.armsInterventionsModule.armGroups[0].description",
+         "verbatim": "There are four FDA-approved DOAC drugs that may be used for this study: "
+                     "Rivaroxaban, Apixaban, Edoxaban, or Dabigatran.",
+         "note": "WHAT WAS RANDOMISED IS A CLASS. Apixaban appears in the intervention list "
+                 "and is not the randomised intervention, so the posted 6.1% vs 8.8% is a "
+                 "DOAC-class effect."},
+        {"field": "NCT03196349 COVET registered primaries", "label": "READ",
+         "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[0..1].title",
+         "verbatim": "Number of Subjects With Clinically Relevant Bleeding Events; Number of "
+                     "Subjects With Recurrent Venous Thromboembolism (VTE)",
+         "note": "TWO co-primaries, one a harm and one a benefit, in one trial."},
+        {"field": "distinct primary component sets across the eleven", "value": "5",
+         "label": "DERIVED",
+         "derived_by": "scripts/estimand_apixaban_treatment_2026_08_19.py over every "
+                       "registered primary, decomposed into components structurally (P33)",
+         "note": "{bleeding} 4, {vte} 3, {vte, VTE-related death} 2, {dvt, pe} 1, "
+                 "{vte, all-cause death} 1."},
+        {"field": "AMPLIFY components summed against its posted composite",
+         "value": "61 vs 59 and 76 vs 71", "label": "DERIVED",
+         "derived_by": "nonfatal DVT 22/35 + nonfatal PE 27/25 + VTE-related death 12/16, "
+                       "against the posted composite 59/71",
+         "note": "THE ARITHMETIC THAT REFUSES THE DERIVATION. Reconstructing the missing "
+                 "estimand from its components would manufacture 2 events in the apixaban arm "
+                 "and 5 in the comparator -- biased toward the drug."},
+        {"field": "trials in the pool this review reports", "value": "3 of 8 with results",
+         "label": "DERIVED",
+         "derived_by": "scripts/repool_apixaban_treatment_2026_08_19.py, coherence screen"},
+    ],
+}
+
+APXP_EXTRACTION = {
+    "_why": "Every cell says whether it was READ from a named source or DERIVED, and carries "
+            "the sentence it was read from. A cell with no label is not evidence.",
+    "verified_utc": "2026-08-19",
+    "source": {"registry": "ClinicalTrials.gov; the five recoverable registrations plus this "
+                           "review's own included trial, read in full",
+               "read_via": "raw v2 API, fields=protocolSection,hasResults,resultsSection"},
+    "cells": [
+        {"field": "NCT00457002 ADOPT shared secondary", "label": "READ",
+         "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[].title",
+         "verbatim": "Incidence of Adjudicated Proximal DVT, Non-Fatal PE or VTE-Related Death",
+         "note": "SECONDARY rank in all four contributing trials -- the estimand the "
+                 "withholding question recovered."},
+        {"field": "NCT00423319 ADVANCE-3 shared secondary", "label": "READ",
+         "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[].title",
+         "verbatim": "Rate of Composite of Adjudicated Proximal DVT, Nonfatal PE, "
+                     "VTE-related death"},
+        {"field": "NCT00371683 ADVANCE-1 shared secondary", "label": "READ",
+         "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[].title",
+         "verbatim": "Event Rate for Participants With Proximal DVT/Non-Fatal PE/VTE-Related "
+                     "Death"},
+        {"field": "NCT00452530 ADVANCE-2 shared secondary", "label": "READ",
+         "source_path": "resultsSection.outcomeMeasuresModule.outcomeMeasures[].title",
+         "verbatim": "Rate of Adjudicated Proximal DVT, Nonfatal PE, and VTE-related death",
+         "note": "AND FOR THIS TRIAL IT IS ELEMENT ZERO, while for its three companions "
+                 "element zero is the PRIMARY. Reading by position would have pooled one "
+                 "trial's secondary against three trials' primaries with nothing malformed "
+                 "anywhere. P35."},
+        {"field": "NCT00452530 ADVANCE-2 primary purpose", "label": "READ",
+         "source_path": "protocolSection.designModule.designInfo.primaryPurpose",
+         "verbatim": "TREATMENT",
+         "note": "Knee-replacement thromboprophylaxis coded TREATMENT. Admitted HERE by the "
+                 "boundary criterion, against its own coded field."},
+        {"field": "NCT02366871 registered primaries", "label": "READ",
+         "source_path": "protocolSection.outcomesModule.primaryOutcomes[].measure",
+         "verbatim": "Number of Participants With Incidence of Major Bleeding; Number of "
+                     "Participants With Incidence of Clinically Relevant Non Major Bleeding "
+                     "Events",
+         "note": "This review's ONLY previously included trial, n=400, and its registered "
+                 "primary is a SAFETY endpoint -- so the figure this review used to report "
+                 "was not an estimate of its own efficacy question."},
+        {"field": "the four primary composites, decomposed", "value": "4 distinct component "
+                                                                      "sets", "label": "DERIVED",
+         "derived_by": "each trial's registered primary read in full and decomposed "
+                       "structurally",
+         "note": "ADOPT counts VTE-related death; ADVANCE-1 counts ALL-CAUSE death; primary "
+                 "event rates span 1.39% to 8.99% across one drug for one indication."},
+        {"field": "pooled RR on the shared secondary", "value": "0.7469 (0.4532 to 1.2309)",
+         "label": "DERIVED",
+         "derived_by": "scripts/repool_apixaban_prophylaxis_2026_08_19.py, "
+                       "DerSimonian-Laird on log RR",
+         "note": "THE ESTIMATOR IS OWED A CORRECTION. DerSimonian-Laird is biased at k<10 and "
+                 "this pool is k=4. The treatment half of this pair, built the same night, "
+                 "uses Paule-Mandel with a Knapp-Hartung interval. Recorded as a debt on this "
+                 "page rather than left as a silent divergence between two siblings."},
+    ],
 }

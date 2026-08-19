@@ -1,6 +1,15 @@
 # The page standard, versioned
 
-**`PAGE_STANDARD_VERSION = "1.6.0-2026-08-19"`**
+**`PAGE_STANDARD_VERSION = "1.14.0-2026-08-19"`**
+
+> **This line was `1.6.0` while the version log below already ran to `1.12.0` and
+> `ssot/build_to_standard.py` stamped `1.13.0`.** The marker whose entire purpose is to make
+> staleness visible was itself stale by seven minor versions, and every page built in that
+> window carried the *code's* version, so nothing downstream was wrong — only this document
+> was. Corrected 2026-08-19, and recorded rather than quietly fixed, because *the file that
+> says what current means going out of date is the failure mode this file exists to prevent.*
+> The single source of truth is `ssot/build_to_standard.py::PAGE_STANDARD_VERSION`; this
+> heading must be kept equal to it, and nothing yet checks that they are.
 
 Until tonight this standard existed only as practice and as one exemplary object
 (`arni-hfref`). It had **no version marker anywhere in the repo** — `grep` for `build_stamp`
@@ -58,6 +67,10 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P34 | **The gap between a code rate and a disposition rate measures the VOCABULARY, not the instruments** | codes that collapse onto one disposition inflate the gap; codes that fan out close it. **Comparing the gap across topics is meaningless unless the vocabularies are comparable**, and an agreement rate is reported with the vocabulary that produced it |
 | P35 | **The primary outcome is read by matching its registered text, never by position** | `outcomeMeasures[0]` is not the primary. For ADVANCE-2 element zero is a **secondary**, and for its three companions it is the primary — so a positional read pools one trial's secondary against three trials' primaries **with nothing malformed anywhere** |
 | P36 | **Heterogeneity can neither establish nor refute estimand coherence** | measured both ways in one night: two ablation reviews pooled **mismatched** estimands at I² of **0.0% and 3.9%**, and apixaban's mismatched primaries pooled at **83.6%** against **67.8%** for its matched estimand. **A low I² does not show trials measure the same thing; a high one does not show they don't.** Coherence is established by reading the definitions, never by a statistic |
+| P37 | **Trials sharing a composite endpoint's NAME do not share its DEFINITION, and matching by name is a method that does not work** | this is a property of REGISTERED TRIALS, not of this corpus's topic selection: six instances across three drug classes and two specialties. The pair that settles it is **AMPLIFY and AMPLIFY-EXT** — same sponsor, same programme, sequential trials, names differing by a hyphenated suffix — where one counts *recurrent VTE or VTE-related death* and the other *recurrent VTE or ALL-CAUSE death*. A review must therefore decompose every endpoint into its components and compare the SETS, and must record the comparison, because a mismatch that is pooled deliberately and a mismatch that was never noticed look identical in the output |
+| P38 | **A shared estimand does not make a shared comparator** | estimand coherence is NECESSARY and it is NOT SUFFICIENT. AMPLIFY and AMPLIFY-EXT both register *recurrent VTE or VTE-related death* — primary in one, secondary in the other — and pooling them is still wrong, because one randomises apixaban against enoxaparin/warfarin and the other against **placebo**. Every axis on which a pool can be incoherent gets its own verdict, and a trial that leaves a pool leaves it for a NAMED axis |
+| P39 | **When matching by text returns more than one posted measure, choosing among the matches by position is P35 one level down** | AMPLIFY-EXT posts its primary composite **twice**, typed PRIMARY both times, under the same registered name, differing only in the trailing *"Randomized Population With Imputation" / "Without Imputation"* — and the arm counts are **32 against 19**. Nothing in the payload is malformed. The choice among matches is an ANALYSIS-POPULATION choice: it is made once, applied to every trial, stated on the page, and the pool is recomputed under the alternative so the choice's cost is measured rather than asserted to be small |
+| P40 | **A rule you have APPLIED is not a rule you have PUBLISHED** | the complement of the registry's opening line. The criterion separating `apixaban-vte-treatment` from `apixaban-vte-prophylaxis` — *prior event means treatment* — decided which review sixteen trials belong to and existed only inside an adjudication file. A criterion that decides inclusion must appear on the page of **every review it decides**, or the reader cannot check it and the next lane cannot apply it. **And it was not applied everywhere either:** it reached the sixteen adjudicated trials and not the nine admitted by the mechanical screen on the coded field the criteria themselves say does not settle the question |
 
 ## Reading the remainder — the same number, opposite diagnoses
 
@@ -112,6 +125,84 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.14.0-2026-08-19
+Adds P37, P38, P39 and P40, all four from re-pooling `apixaban-vte-treatment` — and corrects
+this document's own version heading, which was seven minor versions stale.
+
+**P37 — the composite finding stops being a per-topic note and becomes a property.** It has
+been recorded in commit messages five times and in no standard. It is not a fact about which
+topics this corpus chose; it is a fact about registered trials:
+
+| review | trials | distinct primary component sets |
+|---|---:|---:|
+| `ablation-af-heart-failure` | 2 | 2 |
+| `ablation-af-medical-therapy` | 3 | 3 |
+| `early-rhythm-control-af` | 4 | 4 |
+| `apixaban-vte-prophylaxis` | 4 | 4 |
+| `apixaban-vte-treatment` | 11 | **5** |
+
+The pair that settles it is AMPLIFY (NCT00643201) and AMPLIFY-EXT (NCT00633893): one sponsor,
+one programme, sequential trials, names differing by a hyphenated suffix — and *VTE-related
+death* against *all-cause death*.
+
+> If two trials from one programme with almost the same name do not share a definition, a
+> reviewer matching endpoints across independent sponsors by name is not making an occasional
+> error. They are using a method that does not work.
+
+**P38 — and coherence on the estimand is not coherence.** AMPLIFY and AMPLIFY-EXT *do* share
+*recurrent VTE or VTE-related death*. Pooling them gives RR 0.53 (0.21 to 1.31) at **I² 93.5%**,
+and it is refused — not on the heterogeneity, on the **comparator**: enoxaparin/warfarin against
+placebo. The eight-trial name-matched pool, whose estimands agree on nothing, comes out at
+**I² 76.4%**.
+
+> **The pool where the estimand IS shared is the MORE heterogeneous one.** This was stated as a
+> prediction before the run, with the comparison chosen as the indicator precisely because a
+> single high I² could not test anything (P32). P36 said heterogeneity cannot establish
+> coherence; this is the first page on which the two point in *opposite* directions at once.
+
+**P39 — a text match can return two answers.** P35 says never read the primary by position.
+AMPLIFY-EXT shows the next layer: the registered text matches **two** posted measures, both
+typed PRIMARY, differing by imputation, with counts of 32 and 19 on the same arm. Taking the
+first is positional reading with a text match in front of it.
+
+**P40 — publishing the rule.** See the table. The boundary criterion is now on both apixaban
+pages, in `screening.eligibility` where a reader meets it and in
+`screening.boundary_criterion` where a machine can read it.
+
+**And a prediction refuted, which is the finding it produced.** HI-PRO (NCT04168203) was
+predicted to fail that boundary: its arm is labelled *Extended Duration Thromboprophylaxis*,
+its title says *to Prevent Recurrence*, and it is placebo-controlled — four surfaces reading
+prophylaxis. Its eligibility requires *"Objectively-confirmed provoked DVT and/or PE"* already
+*"treated for at least 3 months"*. **The arm label said prophylaxis and the population said
+treatment, and the population governs.** P33 says a property is not the presence of its own
+name; this is the other foot — *a property is not absent because a different name is present.*
+
+**Back-filled, and the gate is what found it.** `scripts/standard_version_agreement_gate.py`
+was written to close the drift above, and on its first live run it refused — reporting **ten
+properties listed in the table and named in no version-log entry**: P1–P9, the original set,
+and **P30**. P1–P9 are now named in the 1.0.0 entry where they belong. P30 — *prose is not
+evidence; a report is not an artefact* — entered the table between 1.10.0 and 1.11.0 with no
+entry of its own, and is dated here rather than back-dated to a version it cannot be shown to
+have shipped in.
+
+> A gate written to catch one drift found a second on its first run, in the same file, of the
+> same kind. That is the ordinary return on writing the check instead of the sentence, and it
+> is why *"nothing yet checks that they are equal"* is never a finished thought.
+
+### 1.13.0-2026-08-19
+Adds P35 and P36. Recorded here on 2026-08-19; the properties reached the table and the
+stamped version when `apixaban-vte-prophylaxis` was re-pooled, and this log entry did not.
+
+**P35 — the primary outcome is read by matching its registered text, never by position.**
+`outcomeMeasures[0]` is the MAJOR-VTE **secondary** for ADVANCE-2 and the **primary** for its
+three companions, so a positional read pools one trial's secondary against three trials'
+primaries with nothing malformed anywhere — no parse error, no null, no missing key, four
+numbers of the right shape.
+
+**P36 — heterogeneity can neither establish nor refute estimand coherence.** Measured both ways
+in one night: mismatched estimands pooled at I² **0.0%** and **3.9%** on the two ablation
+reviews, and at **83.6%** against **67.8%** for the matched estimand on apixaban prophylaxis.
 
 ### 1.12.0-2026-08-19
 Adds P34, from a measurement across two adjudications of the same night.
@@ -506,7 +597,14 @@ is checking VERDICTS, not REASONING, for the third time in one night, and done t
 whose entire job is to catch that. **A green matrix is not evidence the suite ran.**
 
 ### 1.0.0-2026-08-19
-First versioned statement. Encodes the lessons established through 2026-08-19:
+First versioned statement. Introduces **P1 executed search, P2 k cascade, P3 inclusion
+criteria, P4 preconditions, P5 extraction table, P6 analysis output verbatim, P7 published-meta
+comparison, P8 registration identity, P9 build stamp** and **P10 served-bytes verification** —
+the original ten. *The property numbers were added to this entry on 2026-08-19, when
+`scripts/standard_version_agreement_gate.py` was written and immediately reported that ten of
+the forty properties were listed in the table and named in no entry.*
+
+Encodes the lessons established through 2026-08-19:
 
 - absent / empty / unreadable input is NOT_ASSESSABLE, never FAIL
 - an instrument asserts the shape of its input and **raises** rather than returning a verdict

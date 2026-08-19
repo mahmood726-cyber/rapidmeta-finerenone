@@ -1,0 +1,507 @@
+{
+ "topic": "apixaban-vte-treatment",
+ "repooled_utc": "2026-08-19",
+ "what_the_withholding_question_found_and_what_it_did_not": "The withholding question found EIGHT trials with posted results reporting an outcome named for recurrent VTE. Reading what each one COUNTS takes the poolable set to THREE. The prophylaxis half of this pair ran the identical discipline and its poolable set went 3 -> 8. THE METHOD DOES NOT HAVE A DIRECTION; asking is not a way of finding more trials, it is a way of finding out.",
+ "coherence_screen": {
+  "NCT00643201": {
+   "acronym": "AMPLIFY",
+   "verdict": "NOT_POOLED",
+   "failing_axes": [
+    "ESTIMAND: posts no recurrent-VTE measure without a death term at ANY of its registered ranks. Its every recurrence outcome carries a mortality component."
+   ],
+   "phase": "ACUTE",
+   "comparator_class": "ACTIVE -- LMWH/vitamin-K antagonist",
+   "randomised": "apixaban vs enoxaparin followed by warfarin"
+  },
+  "NCT00633893": {
+   "acronym": "AMPLIFY-EXT",
+   "verdict": "NOT_POOLED",
+   "failing_axes": [
+    "ESTIMAND: posts no recurrent-VTE measure without a death term at ANY of its registered ranks. Its every recurrence outcome carries a mortality component.",
+    "CLINICAL PHASE: extended anticoagulation after completed treatment, not treatment of the acute event. Eligible under this review's boundary rule and a different clinical question, with a different event horizon.",
+    "COMPARATOR: randomised against PLACEBO, not against another anticoagulant. The quantity estimated is not the same quantity."
+   ],
+   "phase": "EXTENDED",
+   "comparator_class": "PLACEBO",
+   "randomised": "apixaban 2.5 mg or 5 mg vs PLACEBO, after completed treatment"
+  },
+  "NCT03045406": {
+   "acronym": "CARAVAGGIO",
+   "verdict": "IN_POOL",
+   "failing_axes": [],
+   "phase": "ACUTE",
+   "comparator_class": "ACTIVE -- LMWH",
+   "randomised": "apixaban vs dalteparin, cancer-associated VTE"
+  },
+  "NCT03266783": {
+   "acronym": "COBRRA",
+   "verdict": "IN_POOL",
+   "failing_axes": [],
+   "phase": "ACUTE",
+   "comparator_class": "ACTIVE -- another direct oral anticoagulant",
+   "randomised": "apixaban vs rivaroxaban, acute VTE"
+  },
+  "NCT01780987": {
+   "acronym": "Japanese acute DVT/PE study",
+   "verdict": "IN_POOL",
+   "failing_axes": [],
+   "phase": "ACUTE",
+   "comparator_class": "ACTIVE -- heparin/vitamin-K antagonist",
+   "randomised": "apixaban vs unfractionated heparin followed by warfarin"
+  },
+  "NCT04168203": {
+   "acronym": "HI-PRO",
+   "verdict": "NOT_POOLED",
+   "failing_axes": [
+    "CLINICAL PHASE: extended anticoagulation after completed treatment, not treatment of the acute event. Eligible under this review's boundary rule and a different clinical question, with a different event horizon.",
+    "COMPARATOR: randomised against PLACEBO, not against another anticoagulant. The quantity estimated is not the same quantity."
+   ],
+   "phase": "EXTENDED",
+   "comparator_class": "PLACEBO",
+   "randomised": "low-intensity apixaban 2.5 mg vs PLACEBO, after >=3 months of treatment"
+  },
+  "NCT03196349": {
+   "acronym": "COVET",
+   "verdict": "NOT_POOLED",
+   "failing_axes": [
+    "CLINICAL PHASE: extended anticoagulation after completed treatment, not treatment of the acute event. Eligible under this review's boundary rule and a different clinical question, with a different event horizon."
+   ],
+   "phase": "EXTENDED",
+   "comparator_class": "ACTIVE -- vitamin-K antagonist (warfarin arm taken as comparator)",
+   "randomised": "warfarin vs apixaban vs rivaroxaban, extended anticoagulation"
+  },
+  "NCT02744092": {
+   "acronym": "CANVAS",
+   "verdict": "NOT_POOLED",
+   "failing_axes": [
+    "READ: its recurrent-VTE result is posted as a PERCENTAGE and the arm-level counts would have to be derived from it. A derived count does not enter a reported pool.",
+    "INTERVENTION: what was randomised is a DRUG CLASS, not apixaban. Apixaban is one of four permitted drugs in the intervention arm, so the posted contrast is a class effect and attributing it to apixaban would be a claim the trial cannot support."
+   ],
+   "phase": "ACUTE",
+   "comparator_class": "ACTIVE -- LMWH class",
+   "randomised": "a CLASS against a CLASS: any of rivaroxaban, apixaban, edoxaban or dabigatran, versus LMWH (dalteparin, enoxaparin or fondaparinux) with or without warfarin"
+  }
+ },
+ "trials_with_results_and_no_such_outcome_at_any_rank": {
+  "NCT02585713": "acute cancer-associated VTE, apixaban vs dalteparin, n=300",
+  "NCT03590743": "isolated calf DVT, apixaban vs placebo, TERMINATED at n=5"
+ },
+ "estimand_reported": {
+  "definition": "recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term",
+  "restriction": "acute treatment of the index event, apixaban randomised as a drug rather than as a member of a class, against another anticoagulant",
+  "rank_in_each_trial": "PRIMARY in one, SECONDARY in two",
+  "titles_read": {
+   "NCT03045406": "Recurrent Venous Thromboembolism",
+   "NCT03266783": "Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) Events",
+   "NCT01780987": "Number of Participants With Adjudicated Recurrent Symptomatic Venous Thromboembolism (VTE) [Nonfatal Deep Venous Thrombosis (DVT) or Nonfatal Pulmonary Embolism (PE)]"
+  },
+  "sources_read": {
+   "NCT03045406": "posted COUNT_OF_PARTICIPANTS, OG000 Apixaban = 32 of 576, OG001 Dalteparin = 46 of 579",
+   "NCT03266783": "posted COUNT_OF_PARTICIPANTS, OG000 Apixaban Group = 15 of 1345, OG001 Rivaroxaban Group = 14 of 1355",
+   "NCT01780987": "posted measurement, OG000 Apixaban = 0 of 38, OG001 UFH/Warfarin = 1 of 40"
+  },
+  "leave_one_out": {
+   "analyses": [
+    {
+     "omitted": "CARAVAGGIO",
+     "k": 2,
+     "point": 1.0208,
+     "ci_low": 0.0105,
+     "ci_high": 99.3808,
+     "i2_pct": 0.0
+    },
+    {
+     "omitted": "COBRRA",
+     "k": 2,
+     "point": 0.6904,
+     "ci_low": 0.0419,
+     "ci_high": 11.3675,
+     "i2_pct": 0.0
+    },
+    {
+     "omitted": "Japanese acute DVT/PE study",
+     "k": 2,
+     "point": 0.7859,
+     "ci_low": 0.0681,
+     "ci_high": 9.0688,
+     "i2_pct": 1.2
+    }
+   ],
+   "decision_under_test": "Does the reported estimate depend on any one of the three trials? At k=3 that is not a formality: the largest contributor is more than seven times the size of the other two together.",
+   "authority": "Cochrane Handbook 10.14: sensitivity analyses ask whether the conclusions are robust to decisions made during the review. Here the decision under test is the inclusion of each individual trial, not the estimator -- the estimator comparison is reported separately at `estimator_sensitivity`, because they are different questions and presenting them in one table would let a stable point estimate under one read as stability under the other.",
+   "conclusion": "AT k=3 THE POOL IS LARGELY ONE TRIAL. CARAVAGGIO contributes 78 of the 108 events in this pool; its two companions contribute 30 between them. Omitting it moves the point estimate from 0.776 to 1.021, and the span across all three leave-one-out fits is 0.690 to 1.021. All three intervals span the null, so no single trial is holding the conclusion up -- and none is holding it down either. The honest reading is that this estimate is a description of CARAVAGGIO with two small trials attached.",
+   "interval_method": "Paule-Mandel with a floored Knapp-Hartung interval on k-1 df, the same as the pool itself. At k=2 that is t on ONE degree of freedom, whose critical value is 12.7 -- which is why these intervals are enormous and why they should be."
+  },
+  "label": "recurrent symptomatic VTE, no death term -- acute treatment, apixaban randomised individually, active anticoagulant comparator",
+  "k": 3,
+  "q": 1.2575,
+  "df": 2,
+  "i2_pct": 0.0,
+  "per_trial": [
+   {
+    "trial": "CARAVAGGIO",
+    "events_apixaban": 32,
+    "n_apixaban": 576,
+    "events_comparator": 46,
+    "n_comparator": 579,
+    "continuity_corrected": false,
+    "rr": 0.6993,
+    "ci_low": 0.4521,
+    "ci_high": 1.0816
+   },
+   {
+    "trial": "COBRRA",
+    "events_apixaban": 15,
+    "n_apixaban": 1345,
+    "events_comparator": 14,
+    "n_comparator": 1355,
+    "continuity_corrected": false,
+    "rr": 1.0794,
+    "ci_low": 0.5231,
+    "ci_high": 2.2274
+   },
+   {
+    "trial": "Japanese acute DVT/PE study",
+    "events_apixaban": 0,
+    "n_apixaban": 38,
+    "events_comparator": 1,
+    "n_comparator": 40,
+    "continuity_corrected": true,
+    "rr": 0.3504,
+    "ci_low": 0.0147,
+    "ci_high": 8.3465
+   }
+  ],
+  "n_participants": 3933,
+  "PM": {
+   "tau2": 0.0,
+   "rr": 0.7763,
+   "ci_low": 0.5356,
+   "ci_high": 1.1251,
+   "interval": "Wald, normal",
+   "hksj": {
+    "q_hksj": 0.6288,
+    "floored_to": 1.0,
+    "floor_applied": true,
+    "t_df": 2,
+    "t_crit": 4.302653,
+    "rr": 0.7763,
+    "ci_low": 0.3437,
+    "ci_high": 1.7532,
+    "interval": "Knapp-Hartung-Sidik-Jonkman, t on k-1 df, floor max(1, Q/(k-1))"
+   }
+  },
+  "DL": {
+   "tau2": 0.0,
+   "rr": 0.7763,
+   "ci_low": 0.5356,
+   "ci_high": 1.1251,
+   "interval": "Wald, normal"
+  }
+ },
+ "estimand_declined_name_matched": {
+  "why": "This is the pool obtained by matching endpoints on the NAME 'recurrent VTE'. Two of its eight rows count a death; six do not; one is a class effect and one is derived from a percentage. It is computed so that the number a name-matching reviewer would have published is visible beside the one this review reports.",
+  "label": "whatever each trial posts under a recurrent-VTE NAME -- the pool a reviewer matching endpoints by name computes",
+  "k": 8,
+  "q": 29.6682,
+  "df": 7,
+  "i2_pct": 76.4,
+  "per_trial": [
+   {
+    "trial": "AMPLIFY",
+    "events_apixaban": 59,
+    "n_apixaban": 2609,
+    "events_comparator": 71,
+    "n_comparator": 2635,
+    "continuity_corrected": false,
+    "rr": 0.8393,
+    "ci_low": 0.5968,
+    "ci_high": 1.1803
+   },
+   {
+    "trial": "AMPLIFY-EXT",
+    "events_apixaban": 61,
+    "n_apixaban": 1653,
+    "events_comparator": 92,
+    "n_comparator": 829,
+    "continuity_corrected": false,
+    "rr": 0.3325,
+    "ci_low": 0.2432,
+    "ci_high": 0.4546
+   },
+   {
+    "trial": "CARAVAGGIO",
+    "events_apixaban": 32,
+    "n_apixaban": 576,
+    "events_comparator": 46,
+    "n_comparator": 579,
+    "continuity_corrected": false,
+    "rr": 0.6993,
+    "ci_low": 0.4521,
+    "ci_high": 1.0816
+   },
+   {
+    "trial": "COBRRA",
+    "events_apixaban": 15,
+    "n_apixaban": 1345,
+    "events_comparator": 14,
+    "n_comparator": 1355,
+    "continuity_corrected": false,
+    "rr": 1.0794,
+    "ci_low": 0.5231,
+    "ci_high": 2.2274
+   },
+   {
+    "trial": "Japanese acute DVT/PE study",
+    "events_apixaban": 0,
+    "n_apixaban": 38,
+    "events_comparator": 1,
+    "n_comparator": 40,
+    "continuity_corrected": true,
+    "rr": 0.3504,
+    "ci_low": 0.0147,
+    "ci_high": 8.3465
+   },
+   {
+    "trial": "HI-PRO",
+    "events_apixaban": 4,
+    "n_apixaban": 300,
+    "events_comparator": 30,
+    "n_comparator": 300,
+    "continuity_corrected": false,
+    "rr": 0.1333,
+    "ci_low": 0.0476,
+    "ci_high": 0.3738
+   },
+   {
+    "trial": "COVET",
+    "events_apixaban": 1,
+    "n_apixaban": 14,
+    "events_comparator": 0,
+    "n_comparator": 17,
+    "continuity_corrected": true,
+    "rr": 3.6,
+    "ci_low": 0.158,
+    "ci_high": 82.0504
+   },
+   {
+    "trial": "CANVAS",
+    "events_apixaban": 20,
+    "n_apixaban": 330,
+    "events_comparator": 27,
+    "n_comparator": 308,
+    "continuity_corrected": false,
+    "rr": 0.6914,
+    "ci_low": 0.3961,
+    "ci_high": 1.2067
+   }
+  ],
+  "n_participants": 12928,
+  "PM": {
+   "tau2": 0.33404,
+   "rr": 0.5705,
+   "ci_low": 0.3439,
+   "ci_high": 0.9465,
+   "interval": "Wald, normal",
+   "hksj": {
+    "q_hksj": 1.0,
+    "floored_to": 1.0,
+    "floor_applied": false,
+    "t_df": 7,
+    "t_crit": 2.364624,
+    "rr": 0.5705,
+    "ci_low": 0.3098,
+    "ci_high": 1.0508,
+    "interval": "Knapp-Hartung-Sidik-Jonkman, t on k-1 df, floor max(1, Q/(k-1))"
+   }
+  },
+  "DL": {
+   "tau2": 0.25577,
+   "rr": 0.5721,
+   "ci_low": 0.3624,
+   "ci_high": 0.9031,
+   "interval": "Wald, normal"
+  }
+ },
+ "estimand_declined_shared_but_comparator_not": {
+  "why": "AMPLIFY and AMPLIFY-EXT DO share this estimand -- primary in one, secondary in the other, same sponsor, same programme. They are still not pooled: one randomises apixaban against enoxaparin followed by warfarin and the other against PLACEBO. ESTIMAND COHERENCE IS NECESSARY AND NOT SUFFICIENT, and this is the pool that shows it -- the estimand agrees and the quantity still is not the same quantity.",
+  "label": "recurrent VTE or VTE-related death -- AMPLIFY and AMPLIFY-EXT, an estimand they DO share",
+  "k": 2,
+  "q": 15.3822,
+  "df": 1,
+  "i2_pct": 93.5,
+  "per_trial": [
+   {
+    "trial": "AMPLIFY",
+    "events_apixaban": 59,
+    "n_apixaban": 2609,
+    "events_comparator": 71,
+    "n_comparator": 2635,
+    "continuity_corrected": false,
+    "rr": 0.8393,
+    "ci_low": 0.5968,
+    "ci_high": 1.1803
+   },
+   {
+    "trial": "AMPLIFY-EXT",
+    "events_apixaban": 61,
+    "n_apixaban": 1653,
+    "events_comparator": 92,
+    "n_comparator": 829,
+    "continuity_corrected": false,
+    "rr": 0.3325,
+    "ci_low": 0.2432,
+    "ci_high": 0.4546
+   }
+  ],
+  "n_participants": 7726,
+  "PM": {
+   "tau2": 0.40071,
+   "rr": 0.5269,
+   "ci_low": 0.2127,
+   "ci_high": 1.3054,
+   "interval": "Wald, normal",
+   "hksj": {
+    "q_hksj": 1.0,
+    "floored_to": 1.0,
+    "floor_applied": false,
+    "t_df": 1,
+    "t_crit": 12.706205,
+    "rr": 0.5269,
+    "ci_low": 0.0015,
+    "ci_high": 188.8533,
+    "interval": "Knapp-Hartung-Sidik-Jonkman, t on k-1 df, floor max(1, Q/(k-1))"
+   }
+  },
+  "DL": {
+   "tau2": 0.40071,
+   "rr": 0.5269,
+   "ci_low": 0.2127,
+   "ci_high": 1.3054,
+   "interval": "Wald, normal"
+  }
+ },
+ "the_same_pool_under_the_other_analysis_population": {
+  "label": "the same pool with AMPLIFY-EXT's WITHOUT-IMPUTATION analysis",
+  "k": 2,
+  "q": 27.8685,
+  "df": 1,
+  "i2_pct": 96.4,
+  "per_trial": [
+   {
+    "trial": "AMPLIFY",
+    "events_apixaban": 59,
+    "n_apixaban": 2609,
+    "events_comparator": 71,
+    "n_comparator": 2635,
+    "continuity_corrected": false,
+    "rr": 0.8393,
+    "ci_low": 0.5968,
+    "ci_high": 1.1803
+   },
+   {
+    "trial": "AMPLIFY-EXT",
+    "events_apixaban": 28,
+    "n_apixaban": 1653,
+    "events_comparator": 73,
+    "n_comparator": 829,
+    "continuity_corrected": false,
+    "rr": 0.1924,
+    "ci_low": 0.1254,
+    "ci_high": 0.295
+   }
+  ],
+  "n_participants": 7726,
+  "PM": {
+   "tau2": 1.04616,
+   "rr": 0.4042,
+   "ci_low": 0.0954,
+   "ci_high": 1.7121,
+   "interval": "Wald, normal",
+   "hksj": {
+    "q_hksj": 1.0,
+    "floored_to": 1.0,
+    "floor_applied": false,
+    "t_df": 1,
+    "t_crit": 12.706205,
+    "rr": 0.4042,
+    "ci_low": 0.0,
+    "ci_high": 4688.5954,
+    "interval": "Knapp-Hartung-Sidik-Jonkman, t on k-1 df, floor max(1, Q/(k-1))"
+   }
+  },
+  "DL": {
+   "tau2": 1.04616,
+   "rr": 0.4042,
+   "ci_low": 0.0954,
+   "ci_high": 1.7121,
+   "interval": "Wald, normal"
+  }
+ },
+ "estimand_declined_each_trials_own_primary": {
+  "computed": false,
+  "refused_because": "THREE OF THE EIGHT REGISTER A BLEEDING ENDPOINT AS THEIR PRIMARY -- COBRRA, COVET and the Japanese study. Pooling 'each trial's own primary' would average a HARM against a BENEFIT, and the pooled quantity would have no direction: a risk ratio below one would mean fewer thromboses in five trials and fewer bleeds in three. This is the only declined pool in this file that is refused as INCOMPUTABLE rather than computed and set aside, and the reason is stated so a reader can check that it is a reason and not a preference.",
+  "which_three": {
+   "NCT03266783": "The Rate of Adjudicated Clinically Relevant Bleeding (CRB) Events",
+   "NCT03196349": "Number of Subjects With Clinically Relevant Bleeding Events (one of two co-primaries)",
+   "NCT01780987": "Number of Participants With Major Bleeding Events [ISTH] or Clinically Relevant Non-major Bleeding"
+  }
+ },
+ "derivation_refused_with_its_arithmetic": {
+  "what_was_refused": "reconstructing a recurrent-VTE-alone estimand for AMPLIFY and AMPLIFY-EXT by summing the components they post separately",
+  "amplify_components": {
+   "nonfatal_DVT": [
+    22,
+    2608,
+    35,
+    2633
+   ],
+   "nonfatal_PE": [
+    27,
+    2606,
+    25,
+    2632
+   ],
+   "VTE_related_death": [
+    12,
+    2608,
+    16,
+    2630
+   ]
+  },
+  "amplify_sums": {
+   "apixaban": 61,
+   "comparator": 76
+  },
+  "amplify_posted_composite": {
+   "apixaban": 59,
+   "comparator": 71
+  },
+  "why_refused": "The components sum to 61 and 76 against a posted composite of 59 and 71. A composite counts a participant's FIRST event; its components count participants. Summing them would have manufactured 2 and 5 events that the trial's own adjudication does not record, and the manufactured events fall in the comparator arm at more than twice the rate they fall in the apixaban arm -- so the derivation is not merely imprecise, it is biased in the direction that flatters the drug.",
+  "amplify_ext_components": {
+   "nonfatal_DVT": "19, 28, 72 (2.5 mg, 5 mg, placebo)",
+   "nonfatal_PE": "23, 25, 37",
+   "VTE_related_death": "17, 24, 26"
+  },
+  "amplify_ext_note": "The same check on AMPLIFY-EXT gives a much larger discrepancy -- placebo components 72 + 37 + 26 = 135 against a posted composite of 92 -- which first-event counting alone does not explain. No explanation is offered here because none was read; the refusal does not depend on having one."
+ },
+ "the_duplicate_a_text_match_cannot_settle": {
+  "trial": "NCT00633893 AMPLIFY-EXT",
+  "what": "Its primary composite is posted TWICE, typed PRIMARY both times, under the same registered name, differing only in the trailing 'Randomized Population With Imputation' / 'Without Imputation'.",
+  "with_imputation": "32, 34, 96 events (apixaban 2.5 mg, 5 mg, placebo)",
+  "without_imputation": "19, 14, 77 events",
+  "why_it_matters": "P35 says match the registered text and never the position. Here the text matches TWO posted measures and the values differ by more than half again on the treatment arms. CHOOSING AMONG MATCHES BY POSITION IS P35's OWN DEFECT ONE LEVEL DOWN, and nothing in the payload is malformed.",
+  "how_it_was_settled": "By reading the descriptions, not the order: the WITHOUT-imputation record states 'No imputation was done for these endpoints', marking it as the sensitivity analysis, and the WITH-imputation record names the imputed counts in its own population description. The with-imputation analysis is used, the choice is applied to every measure taken from this trial, and both pools are computed so the choice's cost is visible rather than asserted to be small."
+ },
+ "prediction": {
+  "stated_before_the_run": true,
+  "prediction": "The estimand-COHERENT, comparator-INCOHERENT pool (AMPLIFY + AMPLIFY-EXT) will show heterogeneity AT LEAST AS HIGH as the name-matched eight-trial pool, whose estimands do not agree at all.",
+  "why_this_indicator_and_not_another": "P32: name a quantity that could not move for another reason. A high I2 on the name-matched pool would be consistent with the estimands disagreeing AND with ordinary clinical variation, so it tests nothing on its own. The COMPARISON is the test: if the pool where the estimand IS shared is the more heterogeneous, then I2 is not tracking estimand coherence, and it cannot be doing so by coincidence in the direction that favours us.",
+  "i2_name_matched_pct": 76.4,
+  "i2_estimand_coherent_pct": 93.5,
+  "outcome": "HELD",
+  "what_it_does_NOT_establish": "Nothing about whether either pool is coherent. P36 stands unchanged: the coherence judgements in this file were made by reading definitions and would be identical if every I2 came out zero."
+ },
+ "estimator_note": "Paule-Mandel between-study variance with a Knapp-Hartung interval on k-1 degrees of freedom, floored at max(1, Q/(k-1)). The house rule refuses DerSimonian-Laird below k=10 and this pool is k=3. DL+Wald is carried alongside because it is what the PROPHYLAXIS half of this pair reported at k=4 -- SO THAT HALF IS NOW OWED THE SAME CORRECTION, and this note is the record of the debt rather than a silent divergence between two pages built the same night.",
+ "what_this_replaces": "NOTHING. This review did not previously exist as an object: `apixaban-vte` was split in two and the treatment half was registered with k=1 -- RAMBLE, n=19, whose registered primary is a pictorial menstrual blood-loss chart and which cannot contribute to this estimand. There is no previous pooled estimate to compare against and none is manufactured for the sake of a delta."
+}

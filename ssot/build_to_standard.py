@@ -27,9 +27,11 @@ from abhf_topic_data import ABHF_CASCADE, ABHF_EXTRACTION, ABHF_PRISMA, ABHF_SEA
 from abmt_topic_data import ABMT_CASCADE, ABMT_EXTRACTION, ABMT_PRISMA, ABMT_SEARCH
 from ivi_topic_data import IVI_CASCADE, IVI_EXTRACTION, IVI_PRISMA, IVI_SEARCH
 from apx_topic_data import APX_CASCADE, APX_EXTRACTION, APX_PRISMA, APX_SEARCH
+from apx_split_topic_data import (APXP_CASCADE, APXP_EXTRACTION, APXP_PRISMA, APXP_SEARCH,
+                                  APXT_CASCADE, APXT_EXTRACTION, APXT_PRISMA, APXT_SEARCH)
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-PAGE_STANDARD_VERSION = "1.13.0-2026-08-19"
+PAGE_STANDARD_VERSION = "1.14.0-2026-08-19"
 
 HELD = "HELD"
 REFUSING = "REFUSING"
@@ -490,6 +492,18 @@ TOPIC_DATA = {
     "apixaban-vte": {"search": APX_SEARCH, "prisma": APX_PRISMA,
                      "k_cascade": APX_CASCADE,
                      "extraction": APX_EXTRACTION},
+    # THE TWO REVIEWS `apixaban-vte` WAS SPLIT INTO (P21). Blocks in ssot/apx_split_topic_data
+    # .py, shared with neither each other nor the parent. Registered here on 2026-08-19 when
+    # the arithmetic was done: the parent stays unbuildable, and these two are buildable
+    # because each now has a question, an estimand and a pool of its own.
+    "apixaban-vte-treatment": {"search": APXT_SEARCH, "prisma": APXT_PRISMA,
+                               "k_cascade": APXT_CASCADE,
+                               "primary_outcome_key": "recurrent_vte",
+                               "extraction": APXT_EXTRACTION},
+    "apixaban-vte-prophylaxis": {"search": APXP_SEARCH, "prisma": APXP_PRISMA,
+                                 "k_cascade": APXP_CASCADE,
+                                 "primary_outcome_key": "major_vte",
+                                 "extraction": APXP_EXTRACTION},
     # FIRST OF THE THREE REVIEWS `ablation-af-review` WAS SPLIT INTO (P21). Its blocks live in
     # ssot/abhf_topic_data.py and are shared with NEITHER sibling -- three sibling topics built
     # in one session is the exact shape that produced the cross-topic contamination class.
@@ -1042,12 +1056,34 @@ def _p6_refuse(obj, spec, props):
     k = outcome.get("k")
     k_txt = "k=%s" % k if isinstance(k, int) else "k is not declared on this outcome"
 
+    # TWO DIFFERENT ABSENCES, AND THE REFUSAL MUST NOT CONFLATE THEM. Until 2026-08-19 this
+    # said "and nothing was pooled" on every refusing topic. On a topic that DID pool -- and
+    # merely computed it somewhere other than R -- that sentence is FALSE, and a reader
+    # checking the verdict against its reason would have found the reason contradicted by the
+    # pooled result card three panels away. Same family as the k=1 fiction this function was
+    # rewritten for: the refusal was right and its reason was not.
+    _pooled = outcome.get("pooled") or {}
+    _did_pool = _pooled.get("point") is not None and not _pooled.get("withdrawn")
+    if _did_pool:
+        _why = ("%s AND A POOL WAS COMPUTED -- it is on this page -- but NOT by a model call "
+                "this object can quote. There is no R session, no printed output and no "
+                "package version, so P6 refuses on the QUOTATION and not on the synthesis. "
+                "The arithmetic is reproducible from the script named on the outcome; a "
+                "quotable metafor call is what is missing and what would hold P6." % k_txt)
+    else:
+        _why = ("%s and nothing was pooled, so there is NO model call to quote, NO pooled "
+                "estimate, NO heterogeneity and NO package version. This is not a missing "
+                "artefact; it is the correct state for a topic with no synthesis." % k_txt)
+
     block = {
-        "state": "ABSENT_AND_THAT_IS_THE_FINDING",
-        "_why_absent": (
-            "%s and nothing was pooled, so there is NO model call to quote, NO pooled "
-            "estimate, NO heterogeneity and NO package version. This is not a missing "
-            "artefact; it is the correct state for a topic with no synthesis." % k_txt),
+        # TWO STATES, BECAUSE ONE NAME WAS DOING TWO JOBS. "ABSENT_AND_THAT_IS_THE_FINDING"
+        # reads as "there is no synthesis", and on a topic that pooled it is a block asserting
+        # a state its own object contradicts -- which scripts/lint_block_contradicts_object.py
+        # correctly refused the moment such a topic existed. The gate was right and the
+        # vocabulary was wrong; the vocabulary is what changed.
+        "state": ("NO_QUOTABLE_MODEL_OUTPUT_BUT_A_POOL_EXISTS" if _did_pool
+                  else "ABSENT_AND_THAT_IS_THE_FINDING"),
+        "_why_absent": _why,
         "k_read_from_object": k,
         "quotable_model_call": None,
         "heterogeneity": None,
@@ -1067,8 +1103,12 @@ def _p6_refuse(obj, spec, props):
     outcome["r_output"] = _deep_merge(outcome.get("r_output"), block)
 
     props["P6_analysis_output"] = prop(
-        REFUSING, "No quotable model output exists: %s and nothing was pooled. The absence is "
-                  "recorded as a finding with its cause and its trigger." % k_txt)
+        REFUSING,
+        ("No quotable model output exists: %s and the pool on this page was computed outside "
+         "R, so there is a synthesis and no quotation. The absence is recorded as a finding "
+         "with its cause and what would close it." % k_txt) if _did_pool else
+        ("No quotable model output exists: %s and nothing was pooled. The absence is "
+         "recorded as a finding with its cause and its trigger." % k_txt))
 
 
 

@@ -64,6 +64,9 @@ PAGES = {
     "sglt2-hf": "SGLT2_HF_REVIEW.html",
     "ablation-af-heart-failure": "ABLATION_AF_HEART_FAILURE_REVIEW.html",
     "ablation-af-medical-therapy": "ABLATION_AF_MEDICAL_THERAPY_REVIEW.html",
+    "early-rhythm-control-af": "EARLY_RHYTHM_CONTROL_AF_REVIEW.html",
+    "apixaban-vte-treatment": "APIXABAN_VTE_TREATMENT_REVIEW.html",
+    "apixaban-vte-prophylaxis": "APIXABAN_VTE_PROPHYLAXIS_REVIEW.html",
 }
 
 FAIL, NA, OK, STALE = "FAIL", "NOT_ASSESSABLE", "OK", "STALE"

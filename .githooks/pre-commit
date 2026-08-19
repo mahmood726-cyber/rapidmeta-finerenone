@@ -67,6 +67,13 @@ esac
 # artefact (scripts/prove_criteria_fingerprint.py). Only a behavioural fingerprint sees it.
 python "$R/scripts/lint_criteria_fingerprint.py" >/dev/null || { echo "REFUSED: a screener does not implement its own review's criteria (scripts/lint_criteria_fingerprint.py)"; exit 1; }
 
+# THE VERSION MARKER THAT MAKES STALENESS VISIBLE WENT STALE, AND NOTHING NOTICED FOR SEVEN
+# BUMPS. PAGE-STANDARD.md said 1.6.0, its own newest log entry said 1.12.0, and the builder
+# stamped 1.13.0. Nothing shipped wrong -- pages carry the CODE's version -- which is precisely
+# why it survived: the drift had NO DOWNSTREAM SYMPTOM. On its first live run this gate found a
+# second drift of the same kind in the same file: ten properties listed and never dated.
+python "$R/scripts/standard_version_agreement_gate.py" >/dev/null || { echo "REFUSED: PAGE-STANDARD.md, its version log and ssot/build_to_standard.py do not agree on the standard version (scripts/standard_version_agreement_gate.py)"; exit 1; }
+
 # P35 -- THE PRIMARY OUTCOME IS READ BY MATCHING ITS TEXT, NEVER BY POSITION.
 # `outcomeMeasures[0]` is ADVANCE-2's SECONDARY and its three companions' PRIMARY. A pool built
 # on element zero is WRONG WITH NOTHING MALFORMED ANYWHERE -- no parse error, no null, no

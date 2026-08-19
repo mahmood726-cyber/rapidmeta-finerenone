@@ -15,6 +15,30 @@ instruments: an instrument that has never been observed to fail is not known to 
 
 ---
 
+## AND ITS OTHER HALF: A RULE YOU HAVE APPLIED IS NOT A RULE YOU HAVE PUBLISHED
+
+**Added 2026-08-19, from the apixaban split.** The criterion separating
+`apixaban-vte-treatment` from `apixaban-vte-prophylaxis` — *extended anticoagulation in
+patients who have ALREADY HAD a venous thromboembolism is treatment; primary prophylaxis in
+patients who have not is prevention* — **decided which of two reviews sixteen trials belong
+to**, and existed only inside `evidence/2026-08-19-batch1/apixaban_adjudication.json`.
+
+Neither page stated it. A reader could not check it and the next lane could not apply it.
+**A criterion that decides inclusion and is published nowhere is not a criterion; it is a
+habit.** It is now on both objects at `screening.boundary_criterion`, and in the prose a
+reader actually meets, at `screening.eligibility`.
+
+**And the half above applies to it too, which is why this is not a tidy-up.** The boundary
+reached the *sixteen* trials sent to adjudication. The *nine* admitted by the mechanical screen
+were admitted on `designModule.designInfo.primaryPurpose` — **the coded field these very
+criteria say does not settle the question** — and were put to the boundary for the first time
+on 2026-08-19, in the build that published it.
+
+> A rule can be written, applied to part of its domain, and published nowhere, all at once.
+> The three are independent and each needs its own check.
+
+---
+
 ## A RULE YOU HAVE WRITTEN IS NOT A RULE YOU HAVE APPLIED
 
 Placed beside the transport finding, because it is the same argument demonstrated in a **second,
@@ -492,6 +516,37 @@ this file while it was being written.**
   not absolved — each is a candidate recovery of the two shapes above
 - **What it cannot do** it proves *something* below the primary was read, not that the question
   was asked at every rank, and not that the answer was right. A floor, not a ceiling
+
+### 18. A version marker that goes stale — the file that makes staleness visible
+- **Found** on 2026-08-19, on the one document in this repository whose entire purpose is to
+  make staleness visible. Three declarations of one property, no two agreeing:
+
+  | where | value |
+  |---|---|
+  | `PAGE-STANDARD.md` heading | `1.6.0-2026-08-19` |
+  | `PAGE-STANDARD.md` newest version-log entry | `1.12.0-2026-08-19` |
+  | `ssot/build_to_standard.py::PAGE_STANDARD_VERSION` | `1.13.0-2026-08-19` |
+
+- **Why it survived** **nothing shipped wrong.** Pages carry the *code's* constant, which was
+  the newest of the three, so every built artefact was correctly stamped and no downstream
+  check could have failed. **The drift had no downstream symptom**, and the only reader who
+  could have caught it was a human opening two files that nothing gave anyone a reason to open
+  together. This is the same ageing P18 names for `restated_*` blocks: a version marker is a
+  *claim about another file*, and unchecked it shows that someone once looked, never that
+  anyone looked last
+- **Detector** `scripts/standard_version_agreement_gate.py`, **wired** into `.githooks/pre-commit`.
+  Three limbs, all reported, never just the first: heading == constant; newest log entry ==
+  heading; every property in the table named somewhere in the log
+- **Proven** `--selftest`, five cases, and the second is **the state that actually occurred** —
+  1.6.0 against 1.13.0, both values read from this repository's own history rather than
+  invented. P16's fourth proof: the triggering condition has really arisen in data the guard
+  has run on
+- **What it found on its first live run** a *second* drift of the same kind in the same file:
+  **ten properties listed in the table and named in no version-log entry** — P1–P9, the
+  original set, and P30. Both now dated
+- **What it cannot do** it compares three *declarations to each other*. A corpus stamped
+  `1.14.0` by a builder implementing none of it passes this gate cleanly, and the gate says so
+  in its own output rather than leaving a reader to assume otherwise
 
 ---
 
