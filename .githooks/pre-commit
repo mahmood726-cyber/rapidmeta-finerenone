@@ -32,6 +32,13 @@ python "$R/scripts/generator_stamp_gate.py" >/dev/null || { echo "REFUSED: a gat
 # and are now *_triage.py. This stops the fifth being written tomorrow.
 python "$R/scripts/lint_gate_can_fail.py" >/dev/null || { echo "REFUSED: a file named *_gate.py cannot fail (scripts/lint_gate_can_fail.py)"; exit 1; }
 
+# ABSENCE IS NOT ZERO. 3 of 135 topics carry a k_cascade; 132 have never had k counted. Any
+# summary that adds NO_CASCADE to remainder:0 declares a false all-clear over 132 topics.
+python "$R/scripts/lint_no_false_allclear.py" >/dev/null || { echo "REFUSED: code turns an uncounted topic into a clear one (scripts/lint_no_false_allclear.py)"; exit 1; }
+
+# A REVIEW QUESTION MUST NOT BE ONE OF ITS TRIALS' REGISTRY FIELDS.
+python "$R/scripts/lint_question_is_a_question.py" >/dev/null || { echo "REFUSED: a NEW topic's question/title is a copied registry field, above the known baseline (scripts/lint_question_is_a_question.py) -- see BLOCKED-ablation-af-review-2026-08-19.md"; exit 1; }
+
 # RESTRAINT (E4). Every other check here catches overreach. This one catches an instrument
 # REFUSING where an independent instrument decides -- the class that silently shrank evidence
 # bases corpus-wide and that no guard could see, because withholding leaves no trace in the

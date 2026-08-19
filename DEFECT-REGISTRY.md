@@ -15,6 +15,43 @@ instruments: an instrument that has never been observed to fail is not known to 
 
 ---
 
+## THE HEADLINE — 3 of 135 topics have ever been asked
+
+Measured 2026-08-19, verified independently. Above every defect class in this file, because it
+reframes all of them.
+
+| | |
+|---|---|
+| topic objects in the corpus | **135** |
+| topics carrying a `k_cascade` | **3** |
+| topics that have **never had k counted at all** | **132** |
+| topics with a nonzero unscreened remainder | **0** |
+
+That last row is true, and read alone it is the most misleading number this project could
+publish.
+
+> **A corpus of 135 topics reporting "0 unscreened remainder" is not a clean backlog. It is 132
+> topics that were never asked the question.**
+
+This is **E4 at project scale** — withholding by an entire pipeline rather than by one
+classifier. Every "complete" claim in this repository must be read against it: three topics
+complete is **three of a hundred and thirty-five**, and the other 132 look complete only because
+nothing has interrogated them.
+
+**What stopped this becoming a false all-clear** is that the census reports `NO_CASCADE`,
+`REMAINDER_ABSENT` and `remainder: 0` as **three distinct states**. Folded together, the corpus
+reads as fully screened.
+
+### These three states must never be summed
+
+**Binding on every summary, dashboard, page and report in this corpus.** A count of "topics with
+no remaining work" may include `remainder: 0` and must **exclude** `NO_CASCADE` and
+`REMAINDER_ABSENT`, which are *unknown*, not *zero*. Enforced by
+`scripts/lint_no_false_allclear.py`; a summary that adds them is a false all-clear, and the
+difference here is 3 versus 135.
+
+---
+
 ## The transport finding — read this before anything else here
 
 **The single most useful result of the night, because it explains eight separate instances at
