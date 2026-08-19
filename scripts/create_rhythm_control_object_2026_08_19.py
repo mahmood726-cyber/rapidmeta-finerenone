@@ -1,0 +1,251 @@
+#!/usr/bin/env python3
+"""BUILD `early-rhythm-control-af`, THE THIRD OF THE ABLATION SPLIT, WITH ITS REMAINDER ON ITS FACE.
+
+TWO THINGS THIS OBJECT MUST SAY THAT A FINISHED-LOOKING PAGE WOULD NOT.
+
+(1) ITS REMAINDER IS 88 AND NOT ZERO. 352 trials needed adjudication; two independent model
+    families read 264 of them; two of Codex's eight chunks returned two lines instead of
+    forty-four and are NOT_ASSESSABLE, so 88 trials were read by ONE seat only. THOSE 88 ARE
+    NOT GIVEN THE SINGLE SEAT'S ANSWER AS A VERDICT -- an absent second reading is ABSENT, not
+    concurring, which is the same rule that would otherwise let a dead seat read as unanimous.
+    `k_unscreened_remainder: 88`. Not 0, and not the superseded 308 either.
+
+(2) THE FOUR-COMPOSITE PROBLEM AGAIN, AND THIS TIME THE WITHHOLDING QUESTION HAS A DECISIVE
+    NEGATIVE ANSWER. The four trials register four different primaries:
+
+        CASTLE-AF      all-cause mortality OR worsening HF hospitalisation   {death, hf_event}
+        CABANA         total mortality, disabling stroke, serious bleeding
+                       or cardiac arrest                     {death, stroke, bleed, arrest}
+        EAST-AFNET 4   CV death, stroke, HF or ACS hospitalisation  {death_cv, stroke, hf_event}
+        RAFT-AF        all-cause mortality and HF events                     {death, hf_event}
+
+    The question was asked at EVERY registered rank before concluding anything, and the answer
+    is that NO ESTIMAND IS SHARED BY ALL FOUR -- because RAFT-AF REGISTERS NO SECONDARY OUTCOME
+    AT ALL. There is nothing below its primary to harmonise on. That is a decisive negative
+    rather than an unexamined one, and the difference is the whole point of asking.
+
+    THIRD INSTANCE IN ONE NIGHT. Trials sharing a composite's NAME not sharing its DEFINITION
+    is the norm in this field, not the exception -- ablation-af-heart-failure (2),
+    ablation-af-medical-therapy (3), apixaban prophylaxis (4), and now this.
+
+AND THE POOL THAT WOULD BE COHERENT IS NOT DUPLICATED HERE. CASTLE-AF and RAFT-AF share a
+component set exactly, and their two-trial pool is ALREADY PUBLISHED on
+`ablation-af-heart-failure`. Pooling them again under this topic would add a second copy of one
+estimate to the corpus -- which is precisely the double-counting P22 measured (319 summed
+against 259 distinct identities, 60 double-counted). The sharing is recorded and the pool is
+referred to rather than repeated.
+
+WHAT THIS REVIEW THEREFORE REPORTS: EAST-AFNET 4's strategy result, k=1, with no pool -- and it
+says k=1 plainly rather than assembling four incomparable numbers into one that looks stronger.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
+DEST_DIR = os.path.join(REPO, "ssot", "early-rhythm-control-af")
+DEST = os.path.join(DEST_DIR, "early-rhythm-control-af.json")
+
+TOPIC = "early-rhythm-control-af"
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    with io.open(os.path.join(EV, "ablation_split_search.json"), encoding="utf-8") as fh:
+        search = json.load(fh)[TOPIC]
+    with io.open(os.path.join(EV, "ablation_split_cascade.json"), encoding="utf-8") as fh:
+        casc = json.load(fh)[TOPIC]
+    with io.open(os.path.join(EV, "rhythm_control_screening.json"), encoding="utf-8") as fh:
+        screen = json.load(fh)
+    with io.open(os.path.join(EV, "rhythm_dual_read_recount.json"), encoding="utf-8") as fh:
+        rec = json.load(fh)
+    with io.open(os.path.join(EV, "duplicate_screening.json"), encoding="utf-8") as fh:
+        dup = json.load(fh)
+    parent = os.path.join(REPO, "ssot", "ablation-af-review", "ablation-af-review.json")
+    with io.open(parent, encoding="utf-8") as fh:
+        pobj = json.load(fh)
+    by_nct = {t.get("nct"): t for t in pobj["inputs"]["trials"]}
+
+    east = by_nct["NCT01288352"]
+    eff = (east.get("by_outcome") or {}).get("primary", {}).get("effect") or {}
+
+    obj = {
+        "app_id": TOPIC,
+        "schema_version": 2,
+        "title": ("Early rhythm control as a STRATEGY in atrial fibrillation: what the "
+                  "strategy trials report, and why their four registered primaries do not pool"),
+        "question": ("In adults with atrial fibrillation, does an early rhythm-control "
+                     "STRATEGY -- antiarrhythmic drugs or ablation, chosen and escalated as a "
+                     "strategy rather than as a single procedure -- reduce cardiovascular "
+                     "death, stroke or hospitalisation compared with usual care?"),
+        "question_provenance": (
+            "Written as a question about a STRATEGY, not a procedure. The sibling reviews ask "
+            "what a catheter ablation does; this one asks what a policy of controlling rhythm "
+            "early does, which is why its search term set is the strategy vocabulary and not "
+            "the procedure vocabulary."),
+        "built": "2026-08-19",
+        "build_mode": "AUTHORED",
+        "split_provenance": {
+            "parent": "ablation-af-review",
+            "why_split": ("The parent asked three questions under one title. This is the third: "
+                          "the strategy question. See DECIDED-ablation-af-review-2026-08-19.md"),
+            "siblings": ["ablation-af-heart-failure", "ablation-af-medical-therapy"],
+        },
+        "outcomes": [{
+            "id": "primary",
+            "name": "Each trial's own registered primary composite",
+            "definition": ("Time to first occurrence of the trial's registered primary "
+                           "composite endpoint."),
+            "source_is_each_trials_registered_primary": True,
+            "component_mismatch": ["death_all_cause", "death_cv", "hf_event", "stroke",
+                                   "bleeding", "cardiac_arrest"],
+            "definition_note": (
+                "THE FOUR TRIALS REGISTER FOUR DIFFERENT COMPOSITES and the difference is at "
+                "the component level, not in the wording. Recorded structurally in "
+                "`component_mismatch` rather than only in prose, because a component "
+                "difference stated in prose is exactly what a reader skims."),
+            "measure": "hazard ratio",
+            "effect_scale": "log",
+            "type": "time-to-first-event",
+            "estimand": {"id": "primary", "family": "time-to-first-event",
+                         "model": "not pooled"},
+            "comparator": "usual care",
+            "comparator_type": "active/usual care",
+            "direction_of_benefit": "lower",
+            "null_value": 1.0,
+        }],
+        "withholding_question": {
+            "asked_on": "2026-08-19",
+            "question": ("does each trial report, AT ANY RANK -- primary, secondary or other "
+                         "-- an outcome matching what the others report, before any decision "
+                         "about which pools are possible?"),
+            "answer": "NO, AND DECISIVELY SO",
+            "why_the_answer_is_decisive_rather_than_unexamined": (
+                "RAFT-AF REGISTERS NO SECONDARY OUTCOME AT ALL. There is nothing below its "
+                "primary to harmonise on, so no estimand can be shared by all four trials -- "
+                "not because nobody looked, but because one of the four has nothing there. "
+                "This is the opposite outcome to sglt2-hf and apixaban prophylaxis, where "
+                "asking the same question RECOVERED a pool from secondary rank. The question "
+                "is worth asking precisely because its answer is not predictable."),
+            "per_trial_ranks_registered": {
+                "NCT00643188": {"name": "CASTLE-AF", "secondaries": 1},
+                "NCT00911508": {"name": "CABANA", "secondaries": 13},
+                "NCT01288352": {"name": "EAST-AFNET 4", "secondaries": 1},
+                "NCT01420393": {"name": "RAFT-AF", "secondaries": 0},
+            },
+        },
+        "inputs": {"trials": [east]},
+        "config": {"confidence_level": 95},
+        "results": {"by_outcome": {"primary": {
+            "k": 1,
+            "estimand_id": "primary",
+            "model": "none -- single trial",
+            "estimator_used": "not applicable",
+            "comparator_type": "usual care",
+            "poolable": False,
+            "poolable_reason": (
+                "The four trials surfaced by the strategy question register FOUR DIFFERENT "
+                "primary composites, differing at the component level: CASTLE-AF and RAFT-AF "
+                "count all-cause death plus heart-failure events; CABANA counts total "
+                "mortality, disabling stroke, serious bleeding and cardiac arrest; EAST-AFNET "
+                "4 counts CARDIOVASCULAR death, stroke and hospitalisation. One counts "
+                "all-cause death, another counts cardiovascular death, and two count event "
+                "classes the others do not. The withholding question was asked at every "
+                "registered rank and found no shared estimand, because RAFT-AF registers no "
+                "secondary outcome at all."),
+            "pooled": {"withdrawn": True, "point": None,
+                       "withdrawn_because": "see poolable_reason"},
+            "single_study_ref": {
+                "trial": "EAST-AFNET 4", "nct": "NCT01288352",
+                "hr": eff.get("point"), "ci_low": eff.get("ci_low"),
+                "ci_high": eff.get("ci_high"),
+                "what_this_is": (
+                    "ONE TRIAL'S RESULT, REPORTED AS ONE TRIAL'S RESULT. k = 1. It is the "
+                    "strategy trial proper -- early rhythm control against usual care -- and "
+                    "it is not a pooled estimate and is not presented as one."),
+            },
+            "the_coherent_pool_is_published_ELSEWHERE_not_repeated_here": {
+                "which": "CASTLE-AF + RAFT-AF, whose component sets match exactly",
+                "where": "ablation-af-heart-failure",
+                "why_not_here": (
+                    "Pooling them again under this topic would put a SECOND COPY of one "
+                    "estimate into the corpus. That is the double-counting P22 measured "
+                    "across the corpus -- 319 summed against 259 distinct identities, 60 "
+                    "double-counted. The sharing is recorded and the pool is referred to "
+                    "rather than repeated."),
+            },
+            "heterogeneity_status": "NOT_ASSESSABLE -- k = 1",
+        }}},
+        "search": {"executed_by": "Claude (ClinicalTrials.gov API v2)",
+                   "databases": [{
+                       "database": "ClinicalTrials.gov API v2 -- %s" % search["queries"][0]["label"],
+                       "tool": "mcp__plugin_bio-research_c-trials__search_trials",
+                       "query_as_executed": json.dumps(search["queries"][0]["expr"]),
+                       "date_executed": search["search_date"],
+                       "records_returned": search["queries"][0]["k0"],
+                       "total_reported": search["queries"][0]["k0"],
+                       "recall_against_known_included": search["queries"][0]["recall"],
+                   }]},
+        "prisma_flow": {
+            "_scope": "PRISMA 2020 flow, counted from the executed search above.",
+            "identification": {"ctgov": casc["k0_surfaced"]},
+            "screening": screen["tally"],
+            "included": 1,
+            "note": ("The 352 NEEDS_ADJUDICATION records were sent to two independent model "
+                     "families. 264 were read by both; 88 by one only and are NOT resolved."),
+        },
+        "k_cascade": {k: v for k, v in casc.items() if isinstance(v, int)},
+        "screening": {
+            "search_note": screen["method"],
+            "eligibility": (
+                "ELIGIBILITY turns on whether the trial randomised a RHYTHM-CONTROL STRATEGY "
+                "against usual care or rate control. A trial in which every arm receives "
+                "rhythm control -- one drug against another, or ablation against a drug -- "
+                "does not contrast the strategy and is EXCLUDED on the comparator axis, which "
+                "is where 125 of the 147 exclusions fall."),
+            "records": screen["trials"],
+            "duplicate_screening": dup[TOPIC],
+        },
+        "screening_of_remainder": {
+            "n_to_screen": rec["dual_read"] + rec["agy_only"],
+            "dual_read": rec["dual_read"],
+            "single_read_NOT_adjudicated": rec["agy_only"],
+            "code_agreement_pct": rec["code_agreement_pct"],
+            "disposition_agreement_pct": rec["disposition_agreement_pct"],
+            "why_the_88_are_not_scored": (
+                "Two of the eight packets sent to the second seat returned two lines instead "
+                "of forty-four and are NOT_ASSESSABLE. Their 88 trials were read by ONE family "
+                "only. THEY ARE NOT GIVEN THAT FAMILY'S ANSWER AS A VERDICT: a trial one seat "
+                "read is not a trial that was decided, and an absent second reading is ABSENT "
+                "rather than CONCURRING."),
+            "supersedes_an_earlier_report": rec["supersedes"],
+            "chunk_2_defect": rec["chunk_2_defect"],
+        },
+        "topic_state": ("REPORTED WITH AN OPEN REMAINDER. 88 of 352 adjudication candidates "
+                        "have one reading and no second. This topic is NOT complete and its "
+                        "face says so."),
+    }
+    obj["k_cascade"]["k_included_in_object"] = 1
+    obj["k_cascade"]["k_unscreened_remainder"] = rec["k_unscreened_remainder"]
+    obj["k_cascade"]["_why"] = (
+        "k is never one number. `k_unscreened_remainder` is 88 -- NOT zero, and NOT the 308 "
+        "reported earlier while the second seat was still running.")
+
+    os.makedirs(DEST_DIR, exist_ok=True)
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(obj, indent=1))
+    print("k0 surfaced            %d" % casc["k0_surfaced"])
+    print("screened               %d" % len(screen["trials"]))
+    print("dual-read              %d" % rec["dual_read"])
+    print("SINGLE-READ, NOT ADJUDICATED  %d   <-- the remainder on this object's face"
+          % rec["agy_only"])
+    print("included               1  (EAST-AFNET 4, HR %s)" % eff.get("point"))
+    print("pool                   WITHDRAWN -- four different primaries, no shared rank")
+    print("\nwrote %s" % DEST)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

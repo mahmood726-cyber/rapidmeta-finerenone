@@ -265,6 +265,27 @@ def main():
                        "defect pointed the other way."),
                },
                "by_topic": all_out}
+    # MERGE, NEVER OVERWRITE. Running this with a single topic argument OVERWROTE the file with
+    # that one topic and silently discarded the other seven -- committed by the author of the
+    # merge-never-write rule, one hour after writing it, in the instrument that enforces it.
+    # A rule you have written is not a rule you have applied.
+    if os.path.exists(DEST):
+        try:
+            with io.open(DEST, encoding="utf-8") as fh:
+                prev = json.load(fh)
+            merged = dict(prev.get("by_topic") or {})
+            merged.update(all_out)
+            lost = set(prev.get("by_topic") or {}) - set(merged)
+            if lost:
+                print("REFUSED: merge would drop %s" % ", ".join(sorted(lost)))
+                return 1
+            payload["by_topic"] = merged
+            print("merged with %d existing topic(s); %d now recorded"
+                  % (len(prev.get("by_topic") or {}), len(merged)))
+        except Exception as exc:                    # noqa: BLE001 - reported, never silent
+            print("REFUSED: existing %s could not be read (%s). Not overwriting it."
+                  % (DEST, exc))
+            return 1
     with io.open(DEST, "w", encoding="utf-8") as fh:
         fh.write(json.dumps(payload, indent=1))
     print("\nwrote %s" % DEST)

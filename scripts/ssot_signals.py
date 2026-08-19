@@ -218,6 +218,23 @@ def sig_unsourced_two_human_claim(html, text):
     claim = re.search(r"check(?:ed)?\s+by\s+two\s+human|two\s+human\s+reviewers", text, re.I)
     if not claim:
         return None
+    # A MENTION IS NOT A CLAIM, AND THIS IS THE THIRD TIME IN THIS FILE. The docstring above
+    # already records two: "Submission readiness: READYISH" containing "READY", and `\bNone\b`
+    # matching the English word mid-sentence. The third is a page that DENIES the claim:
+    #
+    #   "The two independent screens were performed by two MODEL FAMILIES, NOT BY TWO PEOPLE.
+    #    A reader of 'screened in duplicate' would ordinarily assume TWO HUMAN REVIEWERS, so
+    #    this field says what was actually done."
+    #
+    # That sentence exists to prevent exactly the misreading this signal guards against, and
+    # the signal fired on it. A guard that blocks the disclaimer while passing the assertion is
+    # inverted. Scoped to the sentence containing the match, a nearby denial means the page is
+    # DISOWNING human duplicate checking, not asserting it.
+    seg = text[max(0, claim.start() - 300):claim.end() + 200]
+    if re.search(r"not\s+by\s+two\s+people|not\s+two\s+human|rather\s+than\s+by\s+two|"
+                 r"would\s+ordinarily\s+assume|model\s+famil|not\s+performed\s+by\s+two",
+                 seg, re.I):
+        return None
     # Substring, not state. "Submission readiness: READYISH" contains
     # "Submission readiness: READY" and silenced the worst claim the page
     # can carry. Anchored to the exact state.
