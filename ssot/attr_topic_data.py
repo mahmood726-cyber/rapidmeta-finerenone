@@ -26,12 +26,16 @@ ATTR_SEARCH = {
 ATTR_PRISMA = {
     "_scope": "PRISMA 2020 flow, counted from the executed search above.",
     "identification": {"ctgov": 55},
-    "eligibility_ctgov": {"role_located": 55, "topic_is_experimental_arm": 48,
+    # 52, not 55. Three records could NOT have a role read, and counting them among the
+    # records whose role WAS read made the instrument look exhaustive. Corrected 2026-08-19;
+    # see scripts/lint_cascade_arithmetic.py limb A.
+    "eligibility_ctgov": {"role_located": 52, "topic_is_experimental_arm": 48,
                           "topic_is_comparator_arm": 3, "topic_is_background": 1,
                           "not_assessable": 3},
     "included": {"in_this_object": 2, "nct": ["NCT01994889", "NCT03860935"]},
     "reconciliation": {
-        "arithmetic": "55 identified = 48 experimental + 3 comparator + 1 background + 3 not_assessable",
+        "arithmetic": ("55 identified = 48 experimental + 3 comparator + 1 background "
+                       "+ 3 not_assessable; 52 of the 55 had a role located"),
         "reconciles": True,
         "unscreened_remainder": 0,
         "remainder_means": (
@@ -42,10 +46,22 @@ ATTR_PRISMA = {
 }
 
 ATTR_CASCADE = {
-    "k0_surfaced": 55, "k2_role_located": 55,
+    "k0_surfaced": 55, "k2_role_located": 52,
     "k3_experimental": 48, "k4_comparator": 3,
     "k5_background": 1, "kNA_not_assessable": 3,
     "k_included_in_object": 2, "k_unscreened_remainder": 0,
+    "regated_2026_08_19_trailing_placebo": (
+        "THE ONLY ONE OF THE FIVE GATED TOPICS WHOSE CASCADE DID NOT MOVE. Re-run against the "
+        "repaired classifier with the old code loaded from git at 7a08bcbe1 and the surfaced "
+        "set re-executed (55 today, 55 stored): ZERO of the 55 records changed role. Recorded "
+        "as a measured null rather than left silent, because 'unchanged' and 'not checked' "
+        "look identical on a finished page. k2_role_located was separately corrected from 55 "
+        "to 52 -- an arithmetic defect in the stage label, not a movement. "
+        "RE-DERIVED BY scripts/regate_cascade_2026_08_19.py (old vs new) and by "
+        "scripts/regate_across_revisions.py, which walks EVERY commit that touched the "
+        "classifier and reports at which of them the stored numbers reproduce: 48/3/1/3 "
+        "appears first at f2bf16022 and is unchanged at every revision since, so this topic "
+        "is current rather than merely unexamined."),
     "remainder_dispositions": {
         "EXCLUDED": 31, "ELIGIBLE_NOT_POOLABLE": 2, "ELIGIBLE_NO_RESULTS_YET": 13,
         "what_this_says": (

@@ -53,7 +53,21 @@ def main() -> int:
             # AST gives the exact node. Every keyword of the SAME CALL is inspected together,
             # which is what "the unit is the call" actually means. Falls back to the line test
             # only when the file will not parse, and says so rather than passing silently.
+            # AND THE SAME AST PASS DECIDES WHERE THE HAZARD *IS*, NOT ONLY WHERE IT IS SAFE.
+            #
+            # Until 2026-08-19 the final loop was still a raw line scan, so a COMMENT SAYING
+            # `text=True` COUNTED AS A SITE. Two of the eighteen baselined entries are exactly
+            # that -- lines 8 and 20 of lint_encoding_defaults.py, which are prose describing
+            # the hazard. They were absorbed into the baseline instead of being recognised,
+            # and the ratchet then made every future comment about the rule cost a refusal.
+            #
+            #     A LINT THAT COUNTS ITS OWN DOCUMENTATION AS A VIOLATION TAXES WRITING THE
+            #     RULE DOWN. The AST was already being walked for the safe case; asking it
+            #     which lines carry a real keyword costs nothing and removes the class.
+            #
+            # The line fallback survives for files that will not parse, and is announced.
             keyword_safe: set[int] = set()
+            keyword_real: set[int] = set()
             parsed_ok = True
             try:
                 tree = ast.parse(chr(10).join(lines))
@@ -66,13 +80,18 @@ def main() -> int:
                     names = {k.arg for k in node.keywords if k.arg}
                     if not ({"text", "universal_newlines"} & names):
                         continue
-                    if "encoding" in names:
-                        # Safe: this call decodes with an explicit codec, not the codepage.
-                        for k in node.keywords:
-                            if k.arg in ("text", "universal_newlines"):
+                    for k in node.keywords:
+                        if k.arg in ("text", "universal_newlines"):
+                            keyword_real.add(k.value.lineno)
+                            if "encoding" in names:
+                                # Safe: decodes with an explicit codec, not the codepage.
                                 keyword_safe.add(k.value.lineno)
             for i, line in enumerate(lines, 1):
                 if not PAT.search(line) or SKIP.search(line):
+                    continue
+                if parsed_ok and i not in keyword_real:
+                    # The token is present but it is not a keyword of any call on this line:
+                    # a comment, a docstring, or a string literal. Not a site.
                     continue
                 if parsed_ok and i in keyword_safe:
                     continue

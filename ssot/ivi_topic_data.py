@@ -70,15 +70,17 @@ IVI_PRISMA = {
     "identification": {"ctgov_query1": 16, "ctgov_query2": 47,
                        "note": "Query 2 supersedes query 1 for coverage; both are recorded, "
                                "because query 1's miss is a finding about search recall."},
-    "eligibility_ctgov": {"role_located": 47, "topic_is_experimental_arm": 34,
-                          "topic_is_comparator_arm": 6, "topic_is_background": 5,
-                          "not_assessable": 2},
+    # 43, not 47: FOUR records now have no readable role (was 2), and counting them among the
+    # located ones is the arithmetic defect corrected corpus-wide on 2026-08-19.
+    "eligibility_ctgov": {"role_located": 43, "topic_is_experimental_arm": 34,
+                          "topic_is_comparator_arm": 6, "topic_is_background": 3,
+                          "not_assessable": 4},
     "included": {"in_this_object": 5,
                  "nct": ["NCT01453608", "NCT02937454", "NCT02642562",
                          "NCT03037931", "NCT03036462"]},
     "reconciliation": {
-        "arithmetic": ("47 identified = 34 experimental + 6 comparator + 5 background "
-                       "+ 2 not_assessable"),
+        "arithmetic": ("47 identified = 34 experimental + 6 comparator + 3 background "
+                       "+ 4 not_assessable; 43 of the 47 had a role located"),
         "reconciles": True,
         "unscreened_remainder": 0,
         "remainder_means": (
@@ -92,13 +94,40 @@ IVI_PRISMA = {
 
 IVI_CASCADE = {
     "k0_surfaced": 47,
-    "k2_role_located": 47,
+    "k2_role_located": 43,
     "k3_experimental": 34,
     "k4_comparator": 6,
-    "k5_background": 5,
-    "kNA_not_assessable": 2,
+    "k5_background": 3,
+    "kNA_not_assessable": 4,
     "k_included_in_object": 5,
     "k_unscreened_remainder": 0,
+    "restated_2026_08_19_trailing_placebo": {
+        "k2_was": 47, "k2_now": 43,
+        "k5_was": 5, "k5_now": 3,
+        "kNA_was": 2, "kNA_now": 4,
+        "k3_unchanged": 34,
+        "why_the_remainder_does_not_move": (
+            "BOTH MOVERS WENT INTO NOT_ASSESSABLE, WHICH IS NOT A SCREENING QUEUE. k3 is "
+            "unchanged at 34, so the 29-trial remainder and its dispositions stand exactly as "
+            "screened. A restatement that changes k5 and kNA without touching k3 changes what "
+            "the page CLAIMS TO HAVE READ, not what it screened -- and those are two different "
+            "corrections that would be indistinguishable if only a total were reported."),
+        "the_two_records": {
+            "NCT00125996": "background -> NOT_ASSESSABLE: the registration declares NO "
+                           "armGroups at all, so role cannot be read from an absent field.",
+            "NCT00386126": "background -> NOT_ASSESSABLE: same, no armGroups.",
+        },
+        "this_is_the_law_being_applied_not_bent": (
+            "'background_or_coadministered' asserts the drug was given in every arm. On a "
+            "record with no arms declared, that assertion has no input. ABSENT INPUT IS "
+            "NOT_ASSESSABLE, NEVER A VERDICT -- the same law the preconditions run on, "
+            "reaching the classifier two commits later than it reached them."),
+        "measured_how": (
+            "Old classifier loaded from git at 7a08bcbe1; surfaced set re-executed from this "
+            "object's own query and returned 47, identical to the stored k0, so none of the "
+            "delta is registry drift. scripts/regate_cascade_2026_08_19.py."),
+        "no_included_trial_changed_role": "Checked against this object's own five.",
+    },
     "k_unscreened_remainder_note": (
         "Was 29; all 29 screened on 2026-08-19 (scripts/screen_ivi_remainder.py, dispositions "
         "on the object at screening_of_remainder.iv_iron_2026_08_19, each keyed to the "

@@ -27,7 +27,7 @@ from ivi_topic_data import IVI_CASCADE, IVI_EXTRACTION, IVI_PRISMA, IVI_SEARCH
 from apx_topic_data import APX_CASCADE, APX_EXTRACTION, APX_PRISMA, APX_SEARCH
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-PAGE_STANDARD_VERSION = "1.3.0-2026-08-19"
+PAGE_STANDARD_VERSION = "1.4.0-2026-08-19"
 
 HELD = "HELD"
 REFUSING = "REFUSING"
@@ -133,8 +133,8 @@ PRISMA = {
     "eligibility_ctgov": {
         "role_located": 21,
         "topic_is_experimental_arm": 16,
-        "topic_is_comparator_arm": 3,
-        "topic_is_background": 2,
+        "topic_is_comparator_arm": 5,
+        "topic_is_background": 0,
         "not_assessable": 0,
     },
     "included": {
@@ -146,16 +146,26 @@ PRISMA = {
         "ids": ["NCT02666664", "NCT02988115", "NCT02973841"],
     },
     "reconciliation": {
-        "arithmetic": "21 CTGov identified = 16 experimental + 3 comparator + 2 background + 0 unassessable",
+        "arithmetic": "21 CTGov identified = 16 experimental + 5 comparator + 0 background + 0 unassessable",
         "reconciles": True,
         "included_plus_recorded_exclusions": "1 included + 3 recorded exclusions = 4 registrations the page ever carried",
         "gap_stated_plainly": (
-            "16 CTGov trials place bempedoic acid in an EXPERIMENTAL arm (restated 2026-08-19 "
-            "from 17: the placebo-discriminator moved one to comparator and two to background). "
-            "This object includes ONE. Fourteen of the remaining fifteen were SCREENED on "
-            "2026-08-19 and none was both eligible and poolable. ONE is newly unscreened -- "
-            "NCT05263778 -- because the restatement moved it into the experimental set after "
-            "the screen had run. An UNSCREENED REMAINDER OF 1, recorded as a number."),
+            "16 CTGov trials place bempedoic acid in an EXPERIMENTAL arm. THE ROUTE FROM 17 TO "
+            "16 IS NOT WHAT THIS SENTENCE USED TO SAY, and it took re-deriving across every "
+            "revision of the classifier to see it -- scripts/regate_across_revisions.py. It "
+            "went 17 -> 15 at 92d84da72, where the both-arms rule moved NCT06450366 and "
+            "NCT07614958 experimental -> background; then 15 -> 16 at f2bf16022, where the "
+            "placebo-discriminator moved NCT05263778 comparator -> EXPERIMENTAL. The old "
+            "sentence credited the placebo-discriminator with the whole delta and described "
+            "its one move in the OPPOSITE direction. Then at e20f94068 the same two records "
+            "moved background -> COMPARATOR, leaving k3 at 16 and background at 0. This object "
+            "includes ONE. All fifteen of the rest have been "
+            "SCREENED -- fourteen in the first pass and NCT05263778 in a second, after the "
+            "restatement moved it into the experimental set -- and none was both eligible and "
+            "poolable. The unscreened remainder is 0."),
+        "background_is_now_zero_and_it_is_computed": (
+            "0 background is the result of classifying 21 records, not an unfilled field. "
+            "P17: a field whose name implies a check carries a computed value."),
     },
 }
 
@@ -240,20 +250,26 @@ SGLT2_PRISMA = {
     "identification": {"ctgov_query1": 23, "ctgov_query2": 56,
                        "pubmed_total": 1452, "pubmed_retrieved": 50,
                        "note": "Query 2 supersedes query 1 for coverage; both are recorded."},
-    "eligibility_ctgov": {"role_located": 56, "topic_is_experimental_arm": 46,
-                          "topic_is_comparator_arm": 2, "topic_is_background": 8,
+    "eligibility_ctgov": {"role_located": 56, "topic_is_experimental_arm": 49,
+                          "topic_is_comparator_arm": 1, "topic_is_background": 6,
                           "not_assessable": 0},
     "included": {"in_this_object": 4,
                  "nct": ["NCT03036124", "NCT03057977", "NCT03057951", "NCT03619213"]},
     "reconciliation": {
-        "arithmetic": "56 identified = 46 experimental + 2 comparator + 8 background + 0 unassessable",
+        "arithmetic": "56 identified = 49 experimental + 1 comparator + 6 background + 0 unassessable",
         "reconciles": True,
         "gap_stated_plainly": (
-            "36 trials place an SGLT2 inhibitor in an EXPERIMENTAL arm (corrected from 43: "
-            "seven had it in BOTH arms as background). This object includes FOUR. The other 32 "
-            "were SCREENED on 2026-08-19 on two axes; ZERO were both eligible and poolable, so "
-            "k stands at 4 on a screen rather than on assumption. There is no unscreened "
-            "remainder."),
+            "49 trials place an SGLT2 inhibitor in an EXPERIMENTAL arm. This object includes "
+            "FOUR. The other 45 have ALL been screened -- 32 on two axes, 1 in the object's "
+            "own screening.records, 10 in the three-state vocabulary, and 2 on the 2026-08-19 "
+            "re-gate -- and ZERO are both eligible and poolable, so k stands at 4 on a screen "
+            "rather than on assumption. There is no unscreened remainder."),
+        "this_sentence_has_said_43_then_36_then_46_and_now_49": (
+            "Every one of those was true when written and none was re-derived when the "
+            "classifier next changed. The number is now REPRODUCIBLE FROM A COMMAND rather "
+            "than carried in prose: scripts/regate_cascade_2026_08_19.py re-executes the query "
+            "and re-classifies, and scripts/lint_cascade_arithmetic.py refuses the object if "
+            "this line stops reconciling with the cascade beside it."),
     },
 }
 
@@ -304,16 +320,81 @@ SGLT2_EXTRACTION = {
 TOPIC_DATA = {
     "sglt2-hf": {"search": SGLT2_SEARCH, "prisma": SGLT2_PRISMA,
                  "k_cascade": {"k0_surfaced": 56, "k2_role_located": 56,
-                               "k3_experimental": 46, "k4_comparator": 2,
-                               "k5_background": 8, "kNA_not_assessable": 0,
+                               "k3_experimental": 49, "k4_comparator": 1,
+                               "k5_background": 6, "kNA_not_assessable": 0,
                                "k_included_in_object": 4, "k_unscreened_remainder": 0,
+                               # THE STORED CASCADE DID NOT REPRODUCE, AND THAT IS ITS OWN
+                               # FINDING. See `restated_2026_08_19_two_missed_revisions` below:
+                               # 46/2/8 is reproducible ONLY at f2bf16022. Two later classifier
+                               # commits shipped the same night and were never carried back to
+                               # a page that had already been gated.
+                               "restated_2026_08_19_two_missed_revisions": {
+                                   "k3_was": 46, "k3_now": 49,
+                                   "k4_was": 2, "k4_now": 1,
+                                   "k5_was": 8, "k5_now": 6,
+                                   "reproduced_across_four_revisions": {
+                                       "b65d892de": "36 / 12 / 8 / 0",
+                                       "f2bf16022": "46 /  2 / 8 / 0   <- the stored numbers",
+                                       "c5b98b329": "48 /  2 / 6 / 0",
+                                       "e20f94068": "49 /  1 / 6 / 0   <- current",
+                                   },
+                                   "so_it_is_not_registry_drift": (
+                                       "The surfaced set was re-executed and returned 56, "
+                                       "identical to the stored k0, and the stored 46/2/8 "
+                                       "reproduces EXACTLY at one revision and at no other. "
+                                       "That identifies a MISSED RE-RUN, not changed data. "
+                                       "scripts/regate_sglt2_three_revisions.py."),
+                                   "what_made_it_look_current": (
+                                       "This object already carried a "
+                                       "`restated_2026_08_19_placebo_discriminator` block "
+                                       "naming its own 36 -> 46 delta and dated the same day "
+                                       "as the two commits that superseded it. A RESTATEMENT "
+                                       "BLOCK IS A CLAIM ABOUT A MOMENT, AND IT AGES SILENTLY: "
+                                       "the presence of a correction note is what made the "
+                                       "page look re-run when it had not been."),
+                                   "the_three_records": {
+                                       "NCT04157751": "background -> experimental (c5b98b329, "
+                                                      "leading-anchor placebo naming). Already "
+                                                      "present in this object's screening.",
+                                       "NCT06434025": "background -> experimental (c5b98b329). "
+                                                      "NEWLY UNSCREENED; now screened.",
+                                       "NCT07025629": "comparator -> experimental (e20f94068). "
+                                                      "NEWLY UNSCREENED; now screened.",
+                                   },
+                                   "no_included_trial_changed_role": (
+                                       "Checked against this object's own four across all four "
+                                       "revisions, not assumed."),
+                               },
                                "k_unscreened_remainder_note_2026_08_19": (
                                    "Was 10 after the placebo-discriminator restatement; all 10 "
                                    "screened 2026-08-19, dispositions at "
-                                   "screening_of_remainder.sglt2_newly_unscreened_2026_08_19."),
+                                   "screening_of_remainder.sglt2_newly_unscreened_2026_08_19. "
+                                   "TWO MORE arrived on the re-gate of the same day "
+                                   "(NCT06434025, NCT07025629) and are screened at "
+                                   "screening_of_remainder.sglt2_regate_2026_08_19."),
                                "remainder_dispositions": {
+                                   "_scope": (
+                                       "THE COUNTS ON THIS LINE COVER THE TEN-TRIAL BATCH ONLY, "
+                                       "not the whole remainder, and saying so is the point. "
+                                       "The full remainder is 45 = k3 49 - 4 included, and it "
+                                       "was screened in FOUR passes that do not share one "
+                                       "vocabulary: 32 on TWO AXES (eligibility / poolability, "
+                                       "screening_of_remainder), 1 in the object's native "
+                                       "screening.records (EMPULSE NCT04157751), 10 in the "
+                                       "THREE-STATE vocabulary below, and 2 on the re-gate "
+                                       "(screening_of_remainder.sglt2_regate_2026_08_19). "
+                                       "32 + 1 + 10 + 2 = 45 reconciles. They are NOT summed "
+                                       "into one tally, because the two-axis pass records "
+                                       "eligibility and poolability separately and collapsing "
+                                       "it into EXCLUDED / ELIGIBLE_NOT_POOLABLE would be a "
+                                       "mapping this project invented rather than one it ran."),
                                    "EXCLUDED": 7, "ELIGIBLE_NOT_POOLABLE": 1,
                                    "ELIGIBLE_NO_RESULTS_YET": 2,
+                                   "regate_batch_2026_08_19": {
+                                       "EXCLUDED": 1, "ELIGIBLE_NO_RESULTS_YET": 1,
+                                       "note": "NCT07025629 excluded on POPULATION (post-ICU "
+                                               "discharge, not chronic HF); NCT06434025 "
+                                               "eligible and not yet recruiting."},
                                    "what_this_says": (
                                        "SEVEN OF TEN FAIL A CRITERION, and six of those seven "
                                        "fail on POPULATION -- acute myocardial infarction, "
@@ -337,9 +418,40 @@ TOPIC_DATA = {
     "bempedoic-acid-review": {"search": SEARCH, "prisma": PRISMA,
                               "k_cascade": {
                                   "k0_surfaced": 21, "k2_role_located": 21,
-                                  "k3_experimental": 16, "k4_comparator": 3,
-                                  "k5_background": 2, "kNA_not_assessable": 0,
+                                  "k3_experimental": 16, "k4_comparator": 5,
+                                  "k5_background": 0, "kNA_not_assessable": 0,
                                   "k_included_in_object": 1, "k_unscreened_remainder": 0,
+                                  "restated_2026_08_19_trailing_placebo": {
+                                      "k4_was": 3, "k4_now": 5,
+                                      "k5_was": 2, "k5_now": 0,
+                                      "k3_unchanged": 16,
+                                      "why_no_trial_needs_rescreening": (
+                                          "k3 IS UNCHANGED, so the screened set is unchanged. "
+                                          "The two movers (NCT06450366, NCT07614958) went "
+                                          "background -> COMPARATOR, and both were already "
+                                          "recorded on this object as trials the "
+                                          "placebo-discriminator had moved OUT of the "
+                                          "experimental set. They have now moved once more, "
+                                          "within the non-experimental half, and the "
+                                          "remainder is untouched."),
+                                      "and_k5_is_now_zero_which_is_a_claim": (
+                                          "NO surfaced trial has bempedoic acid in every arm. "
+                                          "That is a COMPUTED zero -- 21 records classified, 0 "
+                                          "landing in background -- and not an empty field. "
+                                          "It reads oddly for an add-on lipid agent and it is "
+                                          "correct: the programme's non-experimental records "
+                                          "are ACTIVE-COMPARATOR designs (bempedoic acid as "
+                                          "the control against another agent), not "
+                                          "background-therapy designs."),
+                                      "measured_how": (
+                                          "Old classifier loaded from git at 7a08bcbe1; "
+                                          "surfaced set re-executed and returned 21, identical "
+                                          "to the stored k0. "
+                                          "scripts/regate_cascade_2026_08_19.py."),
+                                      "no_included_trial_changed_role": (
+                                          "This object includes one trial, NCT02993406, and it "
+                                          "did not move."),
+                                  },
                                   "k_unscreened_remainder_note_2026_08_19": (
                                       "Was 1 after the placebo-discriminator restatement; "
                                       "NCT05263778 screened 2026-08-19 and EXCLUDED on "
@@ -655,7 +767,138 @@ def build(topic):
     props["P8_registration_identity"] = prop(
         HELD, f"{_n} of {_n} trial(s) verified live against the registry.")
 
+    # --- P18 / P19 / P20, standard 1.4.0 -------------------------------------------------
+    #
+    # ADDED HERE BECAUSE ADDING THEM TO PAGE-STANDARD.md ALONE WOULD BE A FALSE ALL-CLEAR.
+    # A page stamped 1.4.0 asserts it was built to a standard containing P18-P20; if nothing
+    # evaluates them, the stamp claims three properties that were never assessed. The version
+    # string exists to make staleness VISIBLE, and a stamp that outruns the checks behind it
+    # makes staleness invisible in the newest possible way.
+    props.update(_p18_p19_p20(obj))
+
     return _finish(obj, path, original, before_keys, props, topic)
+
+
+def _p18_p19_p20(obj):
+    """The 1.4.0 properties, all three computed from the object and the filesystem."""
+    out = {}
+    kc = obj.get("k_cascade") or {}
+
+    # --- P18: a restated quantity is reproducible by a COMMAND -----------------------------
+    # sglt2-hf's cascade reproduced at exactly one classifier revision and no other, while the
+    # object carried a `restated_*` note that made it look current. A restatement block is a
+    # claim about a MOMENT. What makes a number durable is the command that re-derives it.
+    restated = sorted(k for k in kc if k.startswith("restated_") or k.startswith("regated_"))
+    named, missing = [], []
+    for key in restated:
+        blob = json.dumps(kc[key])
+        found = sorted(set(re.findall(r"(?:scripts|ssot)/[A-Za-z0-9_./-]+\.py", blob)))
+        real = [s for s in found
+                if os.path.exists(os.path.join(os.path.dirname(ROOT), s))]
+        (named if real else missing).append((key, real))
+    if not restated:
+        out["P18_restatement_is_reproducible"] = prop(
+            REFUSING,
+            "No restatement block on this cascade, so there is nothing to re-derive. This is "
+            "NOT_ASSESSABLE dressed as a refusal rather than a pass: a topic that has never "
+            "been restated has not demonstrated that a restatement of it would be checkable.")
+    elif missing:
+        out["P18_restatement_is_reproducible"] = prop(
+            REFUSING,
+            f"{len(missing)} restatement block(s) name no script that exists on disk: "
+            f"{[k for k, _ in missing]}. A corrected number carried only in prose is one "
+            f"nobody can re-derive when the instrument next changes.")
+    else:
+        out["P18_restatement_is_reproducible"] = prop(
+            HELD,
+            f"{len(named)} restatement block(s), each naming a script that resolves on disk: "
+            + "; ".join(f"{k} -> {', '.join(s)}" for k, s in named))
+
+    # --- P19: a promotion reaches every derived block --------------------------------------
+    # alirocumab-lipid's headline moved to k=8 while prisma_flow.included, k_included_in_object,
+    # the prediction interval, the estimator-sensitivity table and the whole published-meta
+    # comparison stayed at k=6. One page, two answers.
+    n_trials = len(((obj.get("inputs") or {}).get("trials") or []))
+    ks = {name: blk.get("k")
+          for name, blk in (((obj.get("results") or {}).get("by_outcome")) or {}).items()
+          if isinstance(blk, dict) and isinstance(blk.get("k"), int)}
+    pf = ((obj.get("prisma_flow") or {}).get("included") or {})
+    disagree = []
+    if n_trials and isinstance(kc.get("k_included_in_object"), int) \
+            and kc["k_included_in_object"] != n_trials:
+        disagree.append(f"k_cascade.k_included_in_object={kc['k_included_in_object']} vs "
+                        f"len(inputs.trials)={n_trials}")
+    if n_trials and isinstance(pf.get("in_this_object"), int) \
+            and pf["in_this_object"] != n_trials:
+        disagree.append(f"prisma_flow.included.in_this_object={pf['in_this_object']} vs "
+                        f"len(inputs.trials)={n_trials}")
+    if n_trials and isinstance(pf.get("nct"), list) and len(pf["nct"]) != n_trials:
+        disagree.append(f"len(prisma_flow.included.nct)={len(pf['nct'])} vs "
+                        f"len(inputs.trials)={n_trials}")
+    # The published-meta comparison is where the superseded headline actually survived, so it
+    # is checked HERE by the same rule the dedicated lint uses -- a field named for this review
+    # must hold this review's number.
+    for path_, text in _walk_strings(obj.get("published_comparison") or {}):
+        key = re.sub(r"\[\d+\]$", "", path_.rsplit(".", 1)[-1])
+        if not re.match(r"^(ours|our|our_[a-z0-9_]+|this_review)$", key, re.I):
+            continue
+        for m in re.finditer(r"\bk\s*=\s*(\d+)", text):
+            if ks and int(m.group(1)) not in set(ks.values()):
+                disagree.append(f"published_comparison{path_} says k={m.group(1)}; the "
+                                f"pooled outcome(s) declare {sorted(set(ks.values()))}")
+    if disagree:
+        out["P19_promotion_reaches_derived_blocks"] = prop(
+            REFUSING,
+            "The object's own statements of how many trials it includes DISAGREE: "
+            + "; ".join(disagree)
+            + ". A promotion applied to the headline and not to the derived blocks leaves one "
+              "page carrying two answers.")
+    else:
+        out["P19_promotion_reaches_derived_blocks"] = prop(
+            HELD,
+            f"inputs.trials, k_cascade.k_included_in_object and prisma_flow.included all say "
+            f"{n_trials}; no first-person field in published_comparison declares a k the "
+            f"pooled outcome(s) do not.")
+
+    # --- P20: the cascade reconciles with itself -------------------------------------------
+    stages = {k: kc.get(k) for k in ("k0_surfaced", "k2_role_located", "k3_experimental",
+                                     "k4_comparator", "k5_background", "kNA_not_assessable")}
+    if any(not isinstance(v, int) or isinstance(v, bool) for v in stages.values()):
+        out["P20_cascade_reconciles"] = prop(
+            REFUSING,
+            f"One or more stages are absent or non-integer: "
+            f"{ {k: v for k, v in stages.items() if not isinstance(v, int)} }. Absent input is "
+            f"NOT_ASSESSABLE, and an unreconcilable cascade is not a reconciled one.")
+    else:
+        located = stages["k3_experimental"] + stages["k4_comparator"] + stages["k5_background"]
+        total = located + stages["kNA_not_assessable"] + (kc.get("kUNREACHABLE") or 0)
+        bad = []
+        if stages["k2_role_located"] != located:
+            bad.append(f"k2_role_located={stages['k2_role_located']} but k3+k4+k5={located} "
+                       f"-- the stage named 'role located' is counting records whose role "
+                       f"could not be located")
+        if stages["k0_surfaced"] != total:
+            bad.append(f"k0_surfaced={stages['k0_surfaced']} but the stages sum to {total}")
+        out["P20_cascade_reconciles"] = prop(
+            REFUSING if bad else HELD,
+            "; ".join(bad) if bad else
+            f"k2_role_located={located} == k3+k4+k5, and k0_surfaced={stages['k0_surfaced']} "
+            f"== k3+k4+k5+kNA. Both checked, and every failing limb would be reported rather "
+            f"than the first.")
+    return out
+
+
+def _walk_strings(node, path=""):
+    if isinstance(node, dict):
+        for k, v in node.items():
+            for r in _walk_strings(v, path + "." + k):
+                yield r
+    elif isinstance(node, list):
+        for i, v in enumerate(node):
+            for r in _walk_strings(v, "%s[%d]" % (path, i)):
+                yield r
+    elif isinstance(node, str):
+        yield path, node
 
 
 

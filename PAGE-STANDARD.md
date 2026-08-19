@@ -1,6 +1,6 @@
 # The page standard, versioned
 
-**`PAGE_STANDARD_VERSION = "1.3.0-2026-08-19"`**
+**`PAGE_STANDARD_VERSION = "1.4.0-2026-08-19"`**
 
 Until tonight this standard existed only as practice and as one exemplary object
 (`arni-hfref`). It had **no version marker anywhere in the repo** — `grep` for `build_stamp`
@@ -31,7 +31,7 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P7 | **Published-meta comparison** | with a denominator, present in BOTH the page and the Word manuscript, charts aligned |
 | P8 | **Registration identity** | every trial keyed to a registration id verified against the registry |
 | P9 | **Build stamp** | naming this standard version |
-| P10 | **Served-bytes verification** | the property is confirmed in bytes served over HTTP, not in a source file and not by an exit code |
+| P10 | **Served-bytes verification** | the property is confirmed in bytes served over HTTP, not in a source file and not by an exit code — **and not by a hash alone**. `md5(served) == md5(disk)` proves the wire agrees with the disk and says nothing about whether the disk agrees with the object, because **a stale file matches its own disk copy perfectly**. A content check must accompany it, with its expected strings PROJECTED FROM THE OBJECT rather than typed into the verifier |
 | P11 | **Coded field governs** | where the object holds BOTH a coded field and a free-text label for the same thing, the verdict is taken from the CODE; the text only corroborates. Where the code is absent and the verdict falls back to text, **the verdict says so on its face** |
 | P12 | **The known-answer suite ran** | the suite executed and passed in this build. An import error is a BUILD FAILURE, not a skipped test |
 | P13 | **Keyed by entity, never by module constant** | a function that accepts an identifier must REFUSE when it holds no record keyed to it. Per-entity data is keyed by entity; it is never reached for from whichever constant is in scope |
@@ -39,6 +39,9 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P15 | **A short-circuiting check reports all failing limbs** | a check that returns on first failure must report EVERY limb that fails, or state that the named limb is merely the first tested. A single reason drawn from an ordered sequence of tests is a fact about the sequence |
 | P16 | **A guard is proven in three parts** | it **must be able to fire**; it **must not fire on the correct case**; and **neither can be established by the build reporting success**. All three are demonstrated, not assumed |
 | P17 | **Negative claims are computed, never asserted** | any field whose name implies a check — `shared_with_other_topics`, `conflicts`, `unresolved`, `discrepancies` — carries a computed value and names what it was computed against. A literal `false` or `[]` in such a field is a claim, not a result |
+| P18 | **A restated quantity is reproducible by a command** | a number that has been corrected carries the COMMAND that re-derives it, and a gate that refuses the object when it stops reconciling. A `restated_*` note is a claim about a MOMENT and ages silently — its presence shows someone once looked, never that anyone looked last |
+| P19 | **A promotion reaches every derived block, or it is not applied** | when k, the included set, or the headline estimate changes, every quantity DERIVED from them moves in the same pass — prediction interval, estimator sensitivity, PRISMA flow, cascade `k_included`, and the published-meta comparison. A page carrying two answers is worse than a page carrying the old one |
+| P20 | **The cascade reconciles with itself** | `k2_role_located == k3 + k4 + k5`, and `k0 == k3 + k4 + k5 + kNA (+ kUNREACHABLE)`. A stage that does not reconcile with the stages beside it is a number the reader it was written for cannot check |
 
 ## Reading the remainder — the same number, opposite diagnoses
 
@@ -93,6 +96,47 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.4.0-2026-08-19
+Adds P18, P19, P20 and strengthens P10. All four come from **re-gating five topics that were
+already complete**, and every one of them was invisible on a page that read as finished.
+
+**P18 — a restated quantity is reproducible by a command.** `sglt2-hf`'s stored cascade
+reproduces at exactly one classifier revision (`f2bf16022`) and at no other. Two later commits
+shipped the same night and were never carried back. **What made the page look current is that
+it carried a correction note** — a `restated_2026_08_19_placebo_discriminator` block naming its
+own 36 → 46 delta, dated the same day as the commits that superseded it. The same PRISMA
+sentence has now said 43, then 36, then 46, then 49; each was true when written. A fifth
+correct number is not the fix. The fix is that the number is produced by a command and refused
+by a gate.
+
+**P19 — a promotion reaches every derived block.** `alirocumab-lipid` was restated from k=6 to
+k=8 in its headline and results. Left at k=6: `prisma_flow.included`, `k_cascade.k_included_in_object`,
+the whole published-meta comparison including a field named `ours`, the estimator-sensitivity
+table, and **the prediction interval — whose own text calls it "the number to quote"**. One
+page, two answers, and the superseded one in the table a reader consults to compare us against
+the literature.
+
+**P20 — the cascade reconciles with itself.** Three of five objects stored `k0` in
+`k2_role_located`, so **the stage named "role located" counted the records whose role could not
+be located** and `kNA` was added twice. It is invisible on the two objects whose `kNA` is 0 —
+*a sum that is right whenever the thing it omits is zero has not been tested.*
+
+**P10 strengthened.** The served-bytes verifier's first run returned `md5 served == disk: OK`
+on a page that was stale, because that topic's pooled estimates had not changed and only its
+cascade sentence had. A hash cannot detect staleness; only content projected from the object
+can.
+
+Two further lessons from the same night, recorded here because they are about instruments
+rather than pages:
+
+- **A round trip through a parser is not a copy.** A reproduction gate failed because SEs were
+  re-derived from per-trial CIs rounded to 2 dp for display; a guard-proof restored a planted
+  object by re-serialising a parsed copy and left the tree in a state neither the builder nor
+  git had produced. Where the original bytes exist, restore those.
+- **A lint that counts its own documentation as a violation taxes writing the rule down.**
+  `lint_subprocess_decode.py` read a comment saying `text=True` as a hazard site; two of its
+  eighteen baselined entries were prose describing the rule.
 
 ### 1.3.0-2026-08-19
 Adds P15, P16, P17 — all three from defects that produced *correct-looking output*.

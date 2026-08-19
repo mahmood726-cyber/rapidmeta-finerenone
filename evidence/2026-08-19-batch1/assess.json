@@ -14,9 +14,9 @@
      "PASS",
      "inputs.trials: all 4 trial(s) carry arms with a readable role"
     ],
-    "comparators_identified_and_consistent": [
+    "comparators_identified": [
      "PASS",
-     "outcomes.comparator: all 1 outcome(s) name 'not recorded on the page this object was extracted from'"
+     "every outcome names a comparator type ['not recorded on the page this object was extracted from']; none declares 'mixed'. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged."
     ],
     "estimand_named": [
      "PASS",
@@ -164,12 +164,12 @@
      "present: question carries 151 characters"
     ],
     "arm_role_resolved": [
-     "PASS",
-     "inputs.trials: all 6 trial(s) carry arms with a readable role"
+     "NOT-ASSESSABLE",
+     "cannot assess: inputs.trials has 2 trial(s) with no readable arms ['NCT02289963', 'NCT02585778'] and 0 with a blank arm role []. Absent role data is not a wrong role."
     ],
-    "comparators_identified_and_consistent": [
+    "comparators_identified": [
      "PASS",
-     "outcomes.comparator: all 1 outcome(s) name 'placebo'"
+     "every outcome names a comparator type ['placebo']; none declares 'mixed'. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged."
     ],
     "estimand_named": [
      "PASS",
@@ -177,40 +177,45 @@
     ],
     "criteria_stated": [
      "NOT-ASSESSABLE",
-     "cannot assess: no key screening"
+     "cannot assess: no key screening.eligibility"
     ],
     "criteria_predefined": [
-     "NOT-ASSESSABLE",
-     "cannot assess: the object records neither an eligibility provenance block nor a statement about its protocol"
+     "FAIL",
+     "screening.eligibility_provenance.predefined is false: the criteria were DERIVED post hoc from this object's own question and recorded exclusions. That is auditable (R29/R30/R31) and is not pre-specification (C5/C7). This FAIL is permanent and correct."
     ],
     "eligibility_met": [
      "NOT-ASSESSABLE",
-     "cannot assess: criteria are not stated (no key screening), so whether any trial met them cannot be decided"
+     "cannot assess: criteria are not stated (no key screening.eligibility), so whether any trial met them cannot be decided"
     ],
     "contributes_a_randomised_contrast": [
-     "PASS",
-     "inputs.trials.arms: all 6 readable trial(s) contribute one topic-vs-control randomised contrast"
+     "NOT-ASSESSABLE",
+     "cannot assess: 2 of 8 trial(s) carry no readable arm roles ['NCT02289963', 'NCT02585778']"
     ]
    },
-   "n_pass": 5,
-   "n_fail": 0,
-   "n_not_assessable": 3,
-   "failed_preconditions": [],
+   "n_pass": 3,
+   "n_fail": 1,
+   "n_not_assessable": 4,
+   "failed_preconditions": [
+    "criteria_predefined"
+   ],
    "unassessable_preconditions": [
+    "arm_role_resolved",
     "criteria_stated",
-    "criteria_predefined",
-    "eligibility_met"
+    "eligibility_met",
+    "contributes_a_randomised_contrast"
    ],
    "builds": false,
    "reconciliation": {
-    "old_k_by_nct": 6,
+    "old_k_by_nct": 8,
     "old_ids": [
      "NCT01507831",
      "NCT01617655",
      "NCT01623115",
      "NCT01644175",
      "NCT01709500",
-     "NCT02107898"
+     "NCT02107898",
+     "NCT02289963",
+     "NCT02585778"
     ],
     "already_removed_by_object": [
      "NCT01035255",
@@ -229,9 +234,15 @@
      "NCT01623115",
      "NCT01644175",
      "NCT01709500",
-     "NCT02107898"
+     "NCT02107898",
+     "NCT02585778"
     ],
-    "disappeared": [],
+    "disappeared": [
+     {
+      "nct": "NCT02289963",
+      "reason": "STRICTER CHECK: topic drug resolves to the COMPARATOR arm, not the intervention"
+     }
+    ],
     "appeared_experimental": [
      "NCT01644188",
      "NCT01644474",
@@ -244,7 +255,6 @@
      "NCT02326220",
      "NCT02476006",
      "NCT02584504",
-     "NCT02585778",
      "NCT02642159",
      "NCT02715726",
      "NCT02957682",
@@ -261,8 +271,8 @@
      "NCT06381947",
      "NCT07581808"
     ],
-    "n_disappeared": 0,
-    "n_appeared": 27
+    "n_disappeared": 1,
+    "n_appeared": 26
    }
   },
   "apixaban-vte": {
@@ -277,7 +287,7 @@
      "NOT-ASSESSABLE",
      "cannot assess: inputs.trials has 2 trial(s) with no readable arms ['NCT02366871', 'NCT02829957'] and 0 with a blank arm role []. Absent role data is not a wrong role."
     ],
-    "comparators_identified_and_consistent": [
+    "comparators_identified": [
      "NOT-ASSESSABLE",
      "cannot assess: 1 of 1 outcome(s) carry no readable comparator ['primary']"
     ],
@@ -308,7 +318,7 @@
    "failed_preconditions": [],
    "unassessable_preconditions": [
     "arm_role_resolved",
-    "comparators_identified_and_consistent",
+    "comparators_identified",
     "criteria_stated",
     "criteria_predefined",
     "eligibility_met",
@@ -379,9 +389,9 @@
      "PASS",
      "inputs.trials: all 2 trial(s) carry arms with a readable role"
     ],
-    "comparators_identified_and_consistent": [
+    "comparators_identified": [
      "PASS",
-     "outcomes.comparator: all 1 outcome(s) name 'placebo'"
+     "every outcome names a comparator type ['placebo']; none declares 'mixed'. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged."
     ],
     "estimand_named": [
      "PASS",
@@ -393,7 +403,7 @@
     ],
     "criteria_predefined": [
      "FAIL",
-     "no eligibility provenance, and absent_from_source.protocol says: 'No protocol record was recoverable from the page.'. Predefinition cannot be shown without one."
+     "screening.eligibility_provenance.predefined is false: the criteria were DERIVED post hoc from this object's own question and recorded exclusions. That is auditable (R29/R30/R31) and is not pre-specification (C5/C7). This FAIL is permanent and correct."
     ],
     "eligibility_met": [
      "NOT-ASSESSABLE",
@@ -462,9 +472,9 @@
      "NOT-ASSESSABLE",
      "cannot assess: inputs.trials has 2 trial(s) with no readable arms ['NCT00846365', 'NCT01033071'] and 0 with a blank arm role []. Absent role data is not a wrong role."
     ],
-    "comparators_identified_and_consistent": [
+    "comparators_identified": [
      "PASS",
-     "outcomes.comparator: all 1 outcome(s) name 'olmesartan medoxomil plus hydrochlorothiazide'"
+     "every outcome names a comparator type ['active']; none declares 'mixed'. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged."
     ],
     "estimand_named": [
      "PASS",
@@ -563,9 +573,9 @@
      "PASS",
      "inputs.trials: all 1 trial(s) carry arms with a readable role"
     ],
-    "comparators_identified_and_consistent": [
+    "comparators_identified": [
      "PASS",
-     "outcomes.comparator: all 1 outcome(s) name 'placebo'"
+     "every outcome names a comparator type ['placebo']; none declares 'mixed'. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged."
     ],
     "estimand_named": [
      "PASS",
@@ -645,9 +655,9 @@
      "PASS",
      "inputs.trials: all 5 trial(s) carry arms with a readable role"
     ],
-    "comparators_identified_and_consistent": [
+    "comparators_identified": [
      "PASS",
-     "outcomes.comparator: all 2 outcome(s) name 'placebo'"
+     "every outcome names a comparator type ['placebo']; none declares 'mixed'. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged."
     ],
     "estimand_named": [
      "PASS",
@@ -736,7 +746,7 @@
      "NOT-ASSESSABLE",
      "cannot assess: inputs.trials has 2 trial(s) with no readable arms ['NCT00303459', 'NCT00319020'] and 0 with a blank arm role []. Absent role data is not a wrong role."
     ],
-    "comparators_identified_and_consistent": [
+    "comparators_identified": [
      "NOT-ASSESSABLE",
      "cannot assess: 1 of 1 outcome(s) carry no readable comparator ['primary']"
     ],
@@ -767,7 +777,7 @@
    "failed_preconditions": [],
    "unassessable_preconditions": [
     "arm_role_resolved",
-    "comparators_identified_and_consistent",
+    "comparators_identified",
     "criteria_stated",
     "criteria_predefined",
     "eligibility_met",

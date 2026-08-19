@@ -53,34 +53,84 @@ ALI_PRISMA = {
     "_scope": "PRISMA 2020 flow, counted from the executed searches above.",
     "identification": {"ctgov_query1": 54, "ctgov_query2": 99,
                        "note": "Query 2 supersedes query 1 for coverage; both recorded."},
-    "eligibility_ctgov": {"role_located": 99, "topic_is_experimental_arm": 87,
-                          "topic_is_comparator_arm": 5, "topic_is_background": 6,
-                          "not_assessable": 1},
-    "included": {"in_this_object": 6,
+    # `role_located` IS 97, NOT 99, AND THE DIFFERENCE IS THE WHOLE POINT OF THE FIELD.
+    # It formerly read 99 -- the surfaced total -- so the two records whose role could NOT be
+    # read were counted as records whose role WAS read. See scripts/lint_cascade_arithmetic.py,
+    # limb A. The overclaim direction: the instrument looked exhaustive.
+    "eligibility_ctgov": {"role_located": 97, "topic_is_experimental_arm": 89,
+                          "topic_is_comparator_arm": 5, "topic_is_background": 3,
+                          "not_assessable": 2},
+    "included": {"in_this_object": 8,
                  "nct": ["NCT01507831", "NCT01617655", "NCT01623115",
-                         "NCT01644175", "NCT01709500", "NCT02107898"]},
+                         "NCT01644175", "NCT01709500", "NCT02107898",
+                         # RECOVERED BY SCREENING 2026-08-19 and promoted into inputs.trials
+                         # and results the same night. This list said 6 for as long as the
+                         # object said 8, which is how a PRISMA flow and its own review come
+                         # to disagree about how many trials the review includes.
+                         "NCT02289963", "NCT02585778"]},
     "reconciliation": {
-        "arithmetic": ("99 identified = 87 experimental + 5 comparator + 6 background "
-                       "+ 1 not_assessable"),
+        "arithmetic": ("99 identified = 89 experimental + 5 comparator + 3 background "
+                       "+ 2 not_assessable; 97 of the 99 had a role located"),
         "reconciles": True,
         "unscreened_remainder": 0,
         "remainder_means": (
-            "87 trials place alirocumab in the randomised experimental arm; 6 are in this "
-            "object; the other 81 were ALL SCREENED on 2026-08-19 and the remainder is now 0. "
-            "Dispositions: 33 excluded, 20 eligible but not poolable, 26 eligible with no "
-            "results yet, and 2 ELIGIBLE AND POOLABLE AND NOT IN THIS OBJECT."),
+            "89 trials place alirocumab in the randomised experimental arm; 8 are in this "
+            "object; the other 81 were ALL SCREENED and the remainder is 0. Dispositions: 34 "
+            "excluded, 21 eligible but not poolable, 26 eligible with no results yet. The two "
+            "ELIGIBLE-AND-POOLABLE trials that were in this cell on 2026-08-19 are no longer "
+            "in it: they were extracted, re-pooled and promoted into the included set, which "
+            "is the only disposition that closes that cell honestly."),
     },
 }
 
 ALI_CASCADE = {
     "k0_surfaced": 99,
-    "k2_role_located": 99,
-    "k3_experimental": 87,
+    "k2_role_located": 97,
+    "k3_experimental": 89,
     "k4_comparator": 5,
-    "k5_background": 6,
-    "kNA_not_assessable": 1,
-    "k_included_in_object": 6,
+    "k5_background": 3,
+    "kNA_not_assessable": 2,
+    "k_included_in_object": 8,
     "k_unscreened_remainder": 0,
+    "restated_2026_08_19_trailing_placebo": {
+        "k2_was": 99, "k2_now": 97,
+        "k3_was": 87, "k3_now": 89,
+        "k5_was": 6, "k5_now": 3,
+        "kNA_was": 1, "kNA_now": 2,
+        "k_included_was": 6, "k_included_now": 8,
+        "two_separate_corrections_in_one_restatement": (
+            "THEY ARE NOT THE SAME CORRECTION AND ARE NOT MERGED. (1) The CLASSIFIER moved "
+            "three of the 99 surfaced records, under the trailing-placebo repair of commit "
+            "e20f94068. (2) The INCLUDED COUNT was already 8 in inputs.trials and in "
+            "results.by_outcome after the 2026-08-19 recovery, while the cascade and the "
+            "PRISMA flow still said 6. Only (1) is a movement; (2) is a slot that was never "
+            "updated when the headline was."),
+        "classifier_delta_measured_how": (
+            "The surfaced set was RE-EXECUTED from this object's own recorded query and came "
+            "back at 99 -- identical to the stored k0 -- so no part of the delta is registry "
+            "drift. The old classifier was LOADED FROM GIT at 7a08bcbe1 rather than "
+            "reimplemented from its commit message. scripts/regate_cascade_2026_08_19.py."),
+        "the_three_records": {
+            "NCT01812707": (
+                "background -> EXPERIMENTAL. A Japanese atorvastatin-background trial whose "
+                "placebo arm carries 'Drug: Placebo (for alirocumab)' alongside atorvastatin. "
+                "Now screened: ELIGIBLE, and NOT POOLABLE -- its primary and all six of its "
+                "secondaries are at WEEK 12 and this object's estimand is week 24."),
+            "NCT03004001": (
+                "background -> EXPERIMENTAL. Nephrotic-syndrome dyslipidaemia, TERMINATED at "
+                "n=3. Now screened: EXCLUDED on POPULATION."),
+            "NCT03067844": (
+                "background -> NOT_ASSESSABLE, which is a REFUSAL and not an exclusion. The "
+                "registration contradicts itself: its PLACEBO_COMPARATOR arm labelled "
+                "'Placebo' carries 'Drug: Alirocumab' and declares no placebo record at all, "
+                "while its EXPERIMENTAL arm declares the same drug. Reading that as 'given in "
+                "both arms' would be a decision rather than a reading."),
+        },
+        "no_included_trial_changed_role": (
+            "Checked against this object's own eight, not assumed. So no estimate on this page "
+            "moves because of the classifier -- what moves is the denominator the page reports "
+            "its search against."),
+    },
     "k3_corrected_from": (
         "k3 was 74 and background 18 before the placebo-name fix of 2026-08-19. The ODYSSEY "
         "registrations name the placebo arm's intervention 'Placebo (for alirocumab)', so a "
@@ -90,13 +140,19 @@ ALI_CASCADE = {
         "name. 8.4% of intervention records to hand name the drug their placebo substitutes "
         "for, so this was an industry-wide convention rather than one registry's data entry."),
     "remainder_dispositions": {
-        "EXCLUDED": 33,
-        "ELIGIBLE_NOT_POOLABLE": 20,
+        "EXCLUDED": 34,
+        "ELIGIBLE_NOT_POOLABLE": 21,
         "ELIGIBLE_NO_RESULTS_YET": 26,
-        "ELIGIBLE_POOLABLE_NOT_INCLUDED": 2,
+        "ELIGIBLE_POOLABLE_NOT_INCLUDED": 0,
+        "arithmetic": "89 experimental - 8 included = 81 remainder = 34 + 21 + 26 + 0",
+        "zero_is_computed_not_asserted": (
+            "ELIGIBLE_POOLABLE_NOT_INCLUDED is 0 because the two trials that were in that cell "
+            "were EXTRACTED AND POOLED, not because nothing was found. The cell is named and "
+            "kept at zero rather than deleted, because deleting it would make the gap this "
+            "review had in its own evidence base unreadable from the finished page."),
         "what_this_says": (
-            "READ BY THE REMAINDER-DIAGNOSIS RULE (PAGE-STANDARD, 'Reading the remainder'): 33 "
-            "of 81 fail a criterion, 20 are eligible with a different estimand, and 26 have not "
+            "READ BY THE REMAINDER-DIAGNOSIS RULE (PAGE-STANDARD, 'Reading the remainder'): 34 "
+            "of 81 fail a criterion, 21 are eligible with a different estimand, and 26 have not "
             "reported. This is the FRAGMENTED-EVIDENCE shape rather than the too-broad-query "
             "shape -- most exclusions are comparator failures (active-comparator and "
             "double-dummy designs), not population failures, so the query is well aimed at a "
@@ -105,9 +161,19 @@ ALI_CASCADE = {
             "NCT02585778 (n=517) and NCT02289963 (n=199) both register 'Percent Change From "
             "Baseline in Calculated LDL-C at Week 24 - Intent-to-treat' -- WORD FOR WORD THIS "
             "OBJECT'S ESTIMAND -- and both randomise alirocumab against placebo on background "
-            "lipid-modifying therapy. NEITHER IS IN THIS OBJECT'S SIX. That is not a screening "
-            "outcome; it is a gap in this review's own evidence base, and it is recorded as a "
-            "named verdict rather than folded into a tally."),
+            "lipid-modifying therapy. NEITHER WAS IN THIS OBJECT'S SIX when screening found "
+            "them. That was not a screening outcome; it was a gap in this review's own "
+            "evidence base. BOTH ARE NOW IN THE INCLUDED SET: extracted from their own posted "
+            "results, re-pooled, and the old and new estimates shown side by side "
+            "(recovery_2026_08_19). k went 6 -> 8 and the point moved 0.16 points, from "
+            "-54.66 to -54.82 -- the recovery CONFIRMS the estimate rather than overturning "
+            "it, which is the honest headline and is why it is stated here rather than only "
+            "where it flatters."),
+        "the_newly_experimental_two": (
+            "NCT01812707 and NCT03004001 entered the remainder on 2026-08-19 when the "
+            "trailing-placebo repair moved them out of background. Neither is poolable: one "
+            "reports every rank at WEEK 12, the other fails POPULATION. Both are screened and "
+            "recorded at screening_of_remainder.alirocumab_newly_unscreened_2026_08_19."),
     },
 }
 

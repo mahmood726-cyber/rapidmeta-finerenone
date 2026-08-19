@@ -257,6 +257,81 @@ this file while it was being written.**
   blocks *new* hazards without demanding an unrelated 18-site cleanup
 - **Fires** verified tonight by planting one new hazard → exit 1; removed → exit 0. Verified by
   **planting, not by reading the comparison**, which is the distinction this file is about
+- **2026-08-19 — the detector counted its own documentation.** The final loop was a raw line
+  scan, so a COMMENT containing `text=True` counted as a site. **Two of the eighteen baselined
+  entries were exactly that** — prose in `lint_encoding_defaults.py` describing the hazard.
+  They had been absorbed into the baseline rather than recognised, and the ratchet then made
+  every future comment about the rule cost a refusal. *A lint that counts its own
+  documentation as a violation taxes writing the rule down.* The AST was already being walked
+  for the safe case; asking it which lines carry a real keyword removed the class.
+  **Baseline 18 → 16.** Fires-proof observed live: it refused the five new hazards introduced
+  by the re-gate scripts before they were fixed
+
+### 11. A cascade that does not reconcile with itself
+- **Found** 2026-08-19, re-gating five completed topics. Three of five stored `k0` in
+  `k2_role_located`, so **the stage named "role located" counted the records whose role could
+  not be located** and `kNA` was added twice — once as itself, once inside the count saying it
+  was resolved. alirocumab 99 vs 98, attr-cm 55 vs 52, iv-iron 47 vs 45
+- **Why it survived** it is invisible where `kNA = 0`, which is two of the five. *A sum that is
+  right whenever the thing it omits is zero has not been tested*
+- **Detector** `scripts/lint_cascade_arithmetic.py` — five limbs, every failing one reported;
+  `NO_CASCADE` and `NOT_ASSESSABLE` are distinct states and neither is a pass
+- **Also a property** PAGE-STANDARD **P20**, evaluated by `build_to_standard.py` so a page
+  states it rather than only a lint knowing it
+- **Fires** proven in `scripts/prove_regate_guards.py` by planting the **real shipped value**
+  read from git `21e9cfcf3`, not a fixture
+
+### 12. A superseded estimate surviving in a field named `ours`
+- **Found** 2026-08-19. `alirocumab-lipid` was restated k=6 → k=8; its
+  `published_comparison.divergence_decomposed.ours` still read *"−54.66 … k=6 … PREDICTION
+  INTERVAL −74.1 to −35.2, which is the number to quote."* A gated page carrying two estimates
+  for its own review, with the superseded one in the table a reader consults to compare us
+  against the literature
+- **Why the existing detector could not see it** `lint_block_contradicts_object.py` scopes
+  `published_comparison` out **entirely** as a FOREIGN_SUBJECT, because it describes other
+  people's reviews and that exclusion killed one of its two false-alarm families. **The
+  scope-out is at block level; the first person is at field level.** *A block excluded because
+  it describes other work is exactly where a field named `ours` hides*
+- **Detector** `scripts/lint_ours_matches_pool.py`. The subject is decided by the **key**
+  (`ours`, `our_*`, `this_review`), never by parsing a sentence, so this is not the removed
+  prose check returning. Three limbs: the point at the precision the field itself quotes, a
+  `k=N` claim, and `our <decimal>` in prose
+- **Two false alarms fixed, not baselined** `incretin-hfpef-review`'s first-person field holds
+  an **NCT-id list**; `NCT04847557` was read as a number. *A field can be first-person and not
+  be a numeric claim.* Identifiers are stripped and limb 1 needs a decimal to be assessable —
+  the conservative direction is stated, not hidden
+- **Limb 3 promoted from advisory only after every hit was read** 3 occurrences, 3 true, 0
+  baselined
+
+### 13. A restatement block that ages silently
+- **Found** 2026-08-19. `sglt2-hf`'s stored cascade reproduces at **exactly one** classifier
+  revision (`f2bf16022`) and at no other; two later commits shipped the same night and were
+  never carried back. The surfaced set re-executed to the same size, so it is a **missed
+  re-run, not changed data**
+- **What made it look current is that it carried a correction note.** *A restatement is a claim
+  about a moment. Its presence shows someone once looked, never that anyone looked last*
+- **Detector** `scripts/regate_across_revisions.py <topic>` — re-executes the topic's own query,
+  loads **every** commit that touched the classifier from git, and reports at which of them the
+  stored cascade reproduces. Exit 1 when the newest revision is not among them
+- **Also a property** PAGE-STANDARD **P18**
+- **And it found a second defect of its own class** `bempedoic-acid-review`'s legacy block said
+  the placebo-discriminator "moved one to comparator and two to background". It caused
+  **neither**: the two-to-background move belongs to `92d84da72`, and its own single move ran
+  in the **opposite direction** (comparator → experimental). *The number 16 was right and the
+  story of how it got there was wrong* — P15 one stage later
+
+### 14. A promotion that reaches the headline and not the derived blocks
+- **Found** 2026-08-19. The k=6 → k=8 recovery moved the headline and `results.by_outcome` and
+  left behind: `prisma_flow.included` (6, with six NCTs, against eight in `inputs.trials`),
+  `k_cascade.k_included_in_object` (6), the entire published-meta comparison, the
+  estimator-sensitivity table, and **the prediction interval — whose own text calls it "the
+  number to quote"**
+- **Detector** PAGE-STANDARD **P19**, evaluated in `build_to_standard.py`: `inputs.trials`,
+  `k_cascade.k_included_in_object` and `prisma_flow.included` must agree, and no first-person
+  field in `published_comparison` may declare a `k` the pooled outcomes do not
+- **Recompute gate** `scripts/recompute_alirocumab_k8.py` refuses to emit anything derived
+  unless the stored headline first reproduces from the object's own per-trial values, and
+  checks its REML against metafor's result already stored on the object
 
 ---
 
