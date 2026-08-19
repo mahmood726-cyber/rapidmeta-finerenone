@@ -1,0 +1,58 @@
+{
+  "read_utc": "2026-08-19",
+  "seat": "agy (Antigravity CLI)",
+  "model_as_it_named_itself": "Gemini 3.1 Pro (Gemini family)",
+  "family": "google -- decorrelated from anthropic (this lane) and openai (the Codex seat)",
+  "liveness": "Proven by a real exec that returned model tokens AND named its own family, not by a status page or a quota meter.",
+
+  "what_it_was_asked": "For each of 12 sets of 2-3 review descriptions, whether the members ask THE SAME question or DIFFERENT questions, answering SAME / DIFFERENT / UNCLEAR with one sentence of reason.",
+
+  "BLINDING_AND_HOW_IT_WAS_ENFORCED": {
+    "no_topic_names": "Members were labelled A, B, C. Verified programmatically: no topic name appears anywhere in the packet.",
+    "no_verdict_and_no_hint_of_a_merge": "The word merge does not appear in the prompt. It was never told that a merge was proposed, which member was preferred, or that any decision depended on the answer.",
+    "shuffled": "Set order was randomised with a fixed seed so position carries no signal.",
+    "why_this_matters": "This is the judgement where our own reading is least trustworthy, because we had already decided. A second reading that knows the decision is not a second reading."
+  },
+
+  "RESULT": {
+    "DIFFERENT": 0,
+    "SAME": 2,
+    "UNCLEAR": 10,
+    "headline": "NO CLUSTER IS CONTRADICTED. agy did not call a single pair two different questions, so no merge is blocked by this read."
+  },
+
+  "AND_THE_UNCLEARS_ARE_THE_FINDING": {
+    "what_it_said_without_being_told": "In ten of the twelve, agy's stated reason is that the QUESTION FIELD IS AUTO-GENERATED BOILERPLATE or absent -- 'auto-generated boilerplate about registered primary outcomes', 'merely ask if a pooled estimate is possible', 'member B provides no question at all'.",
+    "why_that_is_a_cross_family_confirmation": "This lane had independently found that 37 of the corpus's 144 questions are the object's own TITLE with `on each trial's own registered primary outcome?` appended, and had used that to dismiss two false 'different question' alarms. A different model family, given no hint and no topic names, reached the same diagnosis from the text alone.",
+    "and_it_is_SHARPER_than_this_lane_s_own_handling": "This lane's `questions_differ()` returns FALSE for a templated question -- 'an absent question is not a different question' -- which is correct as logic and reports as though the question axis had been checked. IT HAD NOT BEEN. agy's UNCLEAR is the more honest label, and it is adopted here.",
+    "what_the_merges_therefore_rest_on": "IDENTICAL TRIAL SETS, a RICHER SURVIVOR, a PROVEN UNION and REVERSIBILITY -- not on a comparison of questions. For ten of the twelve clusters there was no question to compare. That is stated rather than implied."
+  },
+
+  "the_two_it_could_judge": {
+    "lefamulin-cabp + lefamulin-cap": "SAME -- 'both members pose the exact same specific clinical question regarding lefamulin versus moxifloxacin'.",
+    "pcsk9-inhibitors-cv-review + pcsk9-review": "SAME -- 'both members present identical text detailing specific cardiovascular outcomes'. NOTE: this cluster is DEFERRED, not merged, because the survivor has no page."
+  },
+
+  "what_this_read_does_NOT_establish": [
+    "NOT that the merges are correct. It establishes only that a second, blind, cross-family reader did not find two questions where we found one.",
+    "NOT that the ten UNCLEAR clusters are safe to merge on the question axis. It establishes that the axis is UNCHECKABLE from the text as it stands, which is a different and weaker thing.",
+    "NOT anything about trial sets, richness, or the union proof. It was shown questions and trial lists and asked only about questions."
+  ],
+
+  "WHAT_IT_OBLIGES": "Every surviving object in the ten UNCLEAR clusters now absorbs another topic while its own `question` field is boilerplate. A review that has absorbed another and still cannot state what it asks is the next thing owed on these topics, and it is recorded as owed rather than described.",
+
+  "verdicts": [
+    {"set": "S01", "cluster": ["bamlanivimab-covid", "bamlanivimab-outp"], "verdict": "UNCLEAR", "reason": "The questions are auto-generated boilerplate about registered primary outcomes, leaving the intended clinical questions unspecified."},
+    {"set": "S02", "cluster": ["bezlotoxumab-cdi", "bezlotoxumab-cdiff"], "verdict": "UNCLEAR", "reason": "The questions consist of auto-generated boilerplate rather than real clinical questions, making comparison impossible."},
+    {"set": "S03", "cluster": ["ceftolozane-infection-auto-full-review", "ceftolozane-taz-auto-full-review"], "verdict": "UNCLEAR", "reason": "The questions merely ask if a pooled estimate is possible, which is boilerplate and fails to state the underlying question."},
+    {"set": "S04", "cluster": ["cvncov-covid19", "cvncov-sarscov2"], "verdict": "UNCLEAR", "reason": "Both members use boilerplate text instead of stating specific research questions, so their alignment cannot be determined."},
+    {"set": "S05", "cluster": ["ertapenem-auto-full-review", "ertapenem-infect-auto-full-review"], "verdict": "UNCLEAR", "reason": "Both members use auto-generated boilerplate asking if a pooled estimate is possible, revealing no actual clinical question."},
+    {"set": "S06", "cluster": ["lefamulin-cabp-auto-full-review", "lefamulin-cap-auto-full-review"], "verdict": "SAME", "reason": "Both members pose the exact same specific clinical question regarding lefamulin versus moxifloxacin."},
+    {"set": "S07", "cluster": ["lenacapavir-prep", "lenacapavir-prep-review"], "verdict": "UNCLEAR", "reason": "Member A asks a detailed clinical question, but member B uses boilerplate, preventing a definitive comparison."},
+    {"set": "S08", "cluster": ["mavacamten-ohcm", "mavacamten-ohcm-review"], "verdict": "UNCLEAR", "reason": "Member A provides no question text at all, making it impossible to compare against member B's specific question."},
+    {"set": "S09", "cluster": ["omecamtiv-heartfail", "omecamtiv-hf", "omecamtiv-hfref"], "verdict": "UNCLEAR", "reason": "All three members rely on boilerplate regarding primary outcomes, offering no real clinical questions to compare."},
+    {"set": "S10", "cluster": ["pcsk9-inhibitors-cv-review", "pcsk9-review"], "verdict": "SAME", "reason": "Both members present identical text detailing specific cardiovascular outcomes, clearly asking the exact same question."},
+    {"set": "S11", "cluster": ["sacubitril-heartfail", "sacubitril-valsartan-hf"], "verdict": "UNCLEAR", "reason": "Both questions are boilerplate about the trial's own registered primary outcome, providing no real clinical details."},
+    {"set": "S12", "cluster": ["sotatercept-pah", "sotatercept-pah-auto2"], "verdict": "UNCLEAR", "reason": "Member A uses boilerplate and member B provides no question text at all, leaving the intended questions completely unknown."}
+  ]
+}
