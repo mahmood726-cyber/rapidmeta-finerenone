@@ -113,9 +113,16 @@ def check(topic, obj):
         #
         # A populated `pooled` at k=1 is a single trial's result. Only at k>=2 does "no
         # meta-analysis was performed" contradict the object.
+        # AND "POOLED IS PRESENT" IS NOT "SOMETHING WAS POOLED", which is the same
+        # presence-versus-property error that let `population_stated` pass a truncated registry
+        # string. attr-cm-review carries a `pooled` dict with point=null and withdrawn=true --
+        # a RECORD OF A REFUSAL TO POOL, correctly kept, with the reason on it. Its r_output
+        # saying ABSENT is right, and testing the dict's truthiness accused it.
+        pooled = blk.get("pooled") or {}
+        really_pooled = (pooled.get("point") is not None) and not pooled.get("withdrawn")
         r = blk.get("r_output")
         if (isinstance(r, dict) and ABSENT_CLAIM.search(json.dumps(r))
-                and blk.get("pooled") and isinstance(blk.get("k"), int) and blk["k"] >= 2):
+                and really_pooled and isinstance(blk.get("k"), int) and blk["k"] >= 2):
             out.append(("results.by_outcome.%s.r_output" % name,
                         "declares its own state ABSENT while its outcome carries a pooled "
                         "estimate", json.dumps(r)[:110]))
