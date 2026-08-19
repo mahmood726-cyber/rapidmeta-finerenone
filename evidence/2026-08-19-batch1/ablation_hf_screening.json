@@ -1,0 +1,365 @@
+{
+ "screened_utc": "2026-08-19",
+ "topic": "ablation-af-heart-failure",
+ "criteria_status": "DERIVED POST HOC on 2026-08-19, when ablation-af-review was split into three reviews. predefined: false.",
+ "remainder": 43,
+ "tally": {
+  "EXCLUDED": 20,
+  "ELIGIBLE_NOT_POOLABLE": 12,
+  "ELIGIBLE_NO_RESULTS_YET": 11,
+  "ELIGIBLE_POOLABLE_NOT_INCLUDED": 0
+ },
+ "eligible_poolable_not_included_is_zero_because": "FOUR trials were the only candidates for this cell -- NCT03062241, NCT04160000, NCT04342832 and NCT04649801, each eligible with a composite primary. All four were checked LIVE against the registry and NONE has posted results (hasResults=false, no resultsSection). The zero is what four lookups returned, not a cell nobody filled.",
+ "exclusions_by_failing_limb": {
+  "INTERVENTION": 11,
+  "POPULATION": 1,
+  "COMPARATOR": 8
+ },
+ "av_node_ablation_boundary": "EIGHT exclusions turn on ONE judgement: AV-node / AV-junction ablation is not this review's intervention. It ablates the conduction system, requires a permanent pacemaker, and is rate control delivered by ablation rather than restoration of sinus rhythm. Every one of the eight says `ablation` in its arm labels, which is why identity is taken from what the arm DOES. Two of them -- NCT01522898 and NCT06833138 -- register EXACTLY this review's estimand, so the boundary is what excludes them and not the outcome. A reader who draws it elsewhere can see precisely what including them would add.",
+ "trials": [
+  {
+   "nct": "NCT00292162",
+   "verdict": "ELIGIBLE_NOT_POOLABLE",
+   "axis": "POOLABILITY",
+   "criterion": "ESTIMAND",
+   "field_read": "outcomesModule",
+   "reason": "ELIGIBLE: chronic heart failure + AF, radiofrequency ablation against a medical-therapy arm (ACE inhibitor, beta blocker, aldosterone antagonist). It HAS posted results. Its primaries are all LEFT VENTRICULAR EJECTION FRACTION by MRI (change, baseline, and at 6 months) and its secondaries are plasma BNP. No mortality or heart-failure-event outcome at ANY rank. n=41."
+  },
+  {
+   "nct": "NCT00589303",
+   "verdict": "EXCLUDED",
+   "axis": "ELIGIBILITY",
+   "criterion": "INTERVENTION",
+   "field_read": "armsInterventionsModule.armGroups",
+   "reason": "AV NODE ABLATION AND PACEMAKER against drug therapy. Rate control delivered by ablating the conduction system, not AF ablation. POPULATION holds (AF + heart failure) and COMPARATOR holds (rate and rhythm control drugs); the intervention limb is the one that fails. TERMINATED at n=27, which is NOT the stated ground."
+  },
+  {
+   "nct": "NCT00652522",
+   "verdict": "ELIGIBLE_NOT_POOLABLE",
+   "axis": "POOLABILITY",
+   "criterion": "ESTIMAND",
+   "field_read": "outcomesModule",
+   "reason": "ELIGIBLE: persistent AF + heart failure with an ICD; AF ablation added to ICD/CRT in one arm against ICD/CRT plus best medical treatment in the other, so the device is in BOTH arms and the randomised contrast is the ablation. Primary is LVEF by transthoracic echocardiography. n=202."
+  },
+  {
+   "nct": "NCT00729911",
+   "verdict": "ELIGIBLE_NOT_POOLABLE",
+   "axis": "POOLABILITY",
+   "criterion": "ESTIMAND",
+   "field_read": "outcomesModule",
+   "reason": "ELIGIBLE: AF ablation against amiodarone -- a rhythm-control drug, so a medical-therapy comparator -- in congestive heart failure. Primary is TIME TO RECURRENCE OF AF lasting longer than 15 seconds. An arrhythmia-recurrence endpoint, not a clinical composite. n=203."
+  },
+  {
+   "nct": "NCT00839566",
+   "verdict": "EXCLUDED",
+   "axis": "ELIGIBILITY",
+   "criterion": "INTERVENTION",
+   "field_read": "armsInterventionsModule.armGroups",
+   "reason": "AV ABLATION against rate control and a sinus-rhythm arm. Conduction-system ablation again. POPULATION holds. TERMINATED at n=12, not the stated ground."
+  },
+  {
+   "nct": "NCT00878384",
+   "verdict": "ELIGIBLE_NOT_POOLABLE",
+   "axis": "POOLABILITY",
+   "criterion": "ESTIMAND",
+   "field_read": "outcomesModule",
+   "reason": "ELIGIBLE: catheter ablation against medical rate control in AF + heart failure. Primary is PEAK OXYGEN CONSUMPTION at cardiopulmonary exercise testing -- a functional endpoint. n=52."
+  },
+  {
+   "nct": "NCT01181414",
+   "verdict": "EXCLUDED",
+   "axis": "ELIGIBILITY",
+   "criterion": "INTERVENTION",
+   "field_read": "armsInterventionsModule.armGroups",
+   "reason": "ATRIOVENTRICULAR JUNCTION ABLATION with radiofrequency against drug control of ventricular rate, in cardiac resynchronisation. Conduction-system ablation. POPULATION holds (chronic heart failure, dilated cardiomyopathy, AF)."
+  },
+  {
+   "nct": "NCT01233648",
+   "verdict": "EXCLUDED",
+   "axis": "ELIGIBILITY",
+   "criterion": "POPULATION",
+   "field_read": "conditionsModule.conditions",
+   "reason": "conditions = ['Atrial Fibrillation'] ONLY -- no heart failure or ventricular dysfunction is registered, and this review's population is AF WITH heart failure. INTERVENTION also fails: the comparison is rate control via CRT-D and AV-nodal ablation against rhythm control by 'pharmacologic, electrical or ablative therapies', so neither arm is catheter ablation of AF as such. Both limbs named; the population limb is the ground."
+  },
+  {
+   "nct": "NCT01411371",
+   "verdict": "ELIGIBLE_NOT_POOLABLE",
+   "axis": "POOLABILITY",
+   "criterion": "ESTIMAND",
+   "field_read": "outcomesModule",
+   "reason": "ELIGIBLE: catheter ablation of persistent AF against medical treatment alone, in AF + heart failure. Primary is DIFFERENCE IN EJECTION FRACTION between groups. Settled on the estimand, which the registry states, rather than on its UNKNOWN recruitment status, which it does not: an UNKNOWN status is a fact about the registrant's updating, not about whether the trial reported."
+  },
+  {
+   "nct": "NCT01522898",
+   "verdict": "EXCLUDED",
+   "axis": "ELIGIBILITY",
+   "criterion": "INTERVENTION",
+   "field_read": "armsInterventionsModule.armGroups",
+   "reason": "AV NODAL ABLATION against medical ventricular rate control, with resynchronisation. Conduction-system ablation. POPULATION holds (heart failure + AF) and the primary -- 'All-cause mortality and non-fatal heart failure events' -- IS this review's estimand, which is why the intervention limb has to be stated plainly: this trial would pool, and it is not eligible."
+  },
+  {
+   "nct": "NCT01639495",
+   "verdict": "EXCLUDED",
+   "axis": "ELIGIBILITY",
+   "criterion": "COMPARATOR",
+   "field_read": "armsInterventionsModule.armGroups",
+   "reason": "SINGLE ARM -- one EXPERIMENTAL arm, a THERMOCOOL SMARTTOUCH catheter, and no control. POPULATION also fails: 'Drug Refractory Symptomatic Paroxysmal Atrial Fibrillation', no heart failure. Both named; the absence of any comparator is the ground."
+  },
+  {
+   "nct": "NCT01877473",
+   "verdict": "EXCLUDED",
+   "axis": "ELIGIBILITY",
+   "criterion": "COMPARATOR",
+   "field_read": "armsInterventionsModule.armGroups",
+   "reason": "ABLATION AGAINST ABLATION -- 'Reverse remodeling' against 'Standard ablation', both arms carrying Procedure: Ablation. A technique comparison, not ablation against medical therapy. POPULATION also fails (persistent AF, no heart failure). WITHDRAWN at n=0."
+  },
+  {
+   "nct": "NCT02137187",
+   "verdict": "EXCLUDED",
+   "axis": "ELIGIBILITY",
+   "criterion": "INTERVENTION",
+   "field_read": "armsInterventionsModule.armGroups",
+   "reason": "AV JUNCTION ABLATION with CRT against optimised drug therapy. Conduction-system ablation. POPULATION also fails: conditions = ['Permanent Atrial Fibrillation'] with no heart failure registered."
+  },
+  {
+   "nct": "NCT02321085",
+   "verdict": "ELIGIBLE_NOT_POOLABLE",
+   "axis": "POOLABILITY",
+   "criterion": "ESTIMAND",
+   "field_read": "outcomesModule",
+   "reason": "Primaries are improvement of LEFT VENTRICULAR FUNCTION and FUNCTIONAL CAPACITY by rhythm control. AND THE INTERVENTION LIMB CANNOT BE SETTLED FROM THE RECORD: both arms are 'Procedure: Sinus Rhythm control' and 'Procedure: Pulse Rate control', which do not say whether the rhythm-control arm is delivered by ablation. Recorded as not-poolable on the estimand, which IS settled, with the unsettled limb named rather than guessed."
+  },
+  {
+   "nct": "NCT02509754",
+   "verdict": "ELIGIBLE_NOT_POOLABLE",
+   "axis": "POOLABILITY",
+   "criterion": "ESTIMAND",
+   "field_read": "outcomesModule",
+   "reason": "ELIGIBLE: AF catheter ablation against a rate-control arm in persistent AF with congestive heart failure due to LV systolic dysfunction. Primary is a composite of IMPROVEMENT IN LVEF -- a physiological composite, not a clinical event composite. n=180."
+  },
+  {
+   "nct": "NCT02686749",
+   "verdict": "ELIGIBLE_NOT_POOLABLE",
+   "axis": "POOLABILITY",
+   "criterion": "ESTIMAND",
+   "field_read": "outcomesModule",
+   "reason": "ELIGIBLE: catheter ablation against an FDA-approved antiarrhythmic drug in congestive heart failure with AF. Primary is 'First Hospitalization for Heart Failure, Recurrence of AF or ...' -- a composite that includes ARRHYTHMIA RECURRENCE, so it is not this review's mortality-and-heart-failure composite. TERMINATED at n=4 of its planned enrolment, named but not the ground."
+  },
+  {
+   "nct": "NCT03062241",
+   "verdict": "ELIGIBLE_NO_RESULTS_YET",
+   "axis": "STATUS",
+   "criterion": "NO RESULTS POSTED",
+   "field_read": "hasResults / resultsSection",
+   "reason": "ELIGIBLE AND ITS ESTIMAND IS THE CLOSEST MATCH IN THE REMAINDER: cryoablation against a NO_INTERVENTION conventional-treatment arm in AF with severe heart failure, primary 'Composite outcome of hospitalization due to heart failure worsening, mortality, use of mechanical left ventricle support and heart transplant'. CHECKED LIVE AGAINST THE REGISTRY: hasResults=false and no resultsSection. There is nothing to extract. n=330."
+  },
+  {
+   "nct": "NCT03410966",
+   "verdict": "EXCLUDED",
+   "axis": "ELIGIBILITY",
+   "criterion": "COMPARATOR",
+   "field_read": "armsInterventionsModule.armGroups",
+   "reason": "ONE ARM ONLY -- 'Intervention group', trans-catheter ablation, no control arm declared. POPULATION holds (AF + diastolic heart failure) and the primary is AF recurrence, so the estimand would fail too; the absent comparator is the ground."
+  },
+  {
+   "nct": "NCT03573869",
+   "verdict": "ELIGIBLE_NOT_POOLABLE",
+   "axis": "POOLABILITY",
+   "criterion": "ESTIMAND",
+   "field_read": "outcomesModule",
+   "reason": "ELIGIBLE: cryoballoon ablation against a NO_INTERVENTION standard-treatment arm in AF with systolic heart failure. Primary is TIME TO EXCEED AN AF BURDEN CUT-OFF OF 1% -- an arrhythmia-burden endpoint. n=404."
+  },
+  {
+   "nct": "NCT04160000",
+   "verdict": "ELIGIBLE_NO_RESULTS_YET",
+   "axis": "STATUS",
+   "criterion": "NO RESULTS POSTED",
+   "field_read": "hasResults / resultsSection",
+   "reason": "ELIGIBLE, AND THE SINGLE TRIAL IN THIS REMAINDER MOST LIKELY TO CHANGE THE ANSWER. Catheter ablation against rate- or rhythm-control antiarrhythmic drugs in AF with diastolic heart failure, primary 'TIME TO COMPOSITE OF HEART FAILURE HOSPITALIZATIONS AND/OR CARDIOVASCULAR MORTALITY' -- a time-to-first-event composite of exactly this review's shape -- with all-cause mortality and cardiovascular hospitalisation among its secondaries. CHECKED LIVE: hasResults=false, no resultsSection. n=360, status UNKNOWN."
+  },
+  {
+   "nct": "NCT04282850",
+   "verdict": "ELIGIBLE_NOT_POOLABLE",
+   "axis": "POOLABILITY",
+   "criterion": "ESTIMAND",
+   "field_read": "outcomesModule",
+   "reason": "ELIGIBLE: pulmonary vein isolation against a NO_INTERVENTION medical-management arm in AF with heart failure and normal ejection fraction. Primary is CHANGE IN AF BURDEN. TERMINATED at n=13, named but not the ground."
+  },
+  {
+   "nct": "NCT04327596",
+   "verdict": "ELIGIBLE_NOT_POOLABLE",
+   "axis": "POOLABILITY",
+   "criterion": "ESTIMAND",
+   "field_read": "outcomesModule",
+   "reason": "ELIGIBLE: radiofrequency AF ablation against a NO_INTERVENTION conventional-treatment arm in HFpEF. Primary is RATE OF HEALTHCARE UTILISATION. TERMINATED at n=2."
+  },
+  {
+   "nct": "NCT04342832",
+   "verdict": "ELIGIBLE_NO_RESULTS_YET",
+   "axis": "STATUS",
+   "criterion": "NO RESULTS POSTED",
+   "field_read": "hasResults / resultsSection",
+   "reason": "ELIGIBLE with a near-matching estimand: cryoballoon ablation against a NO_INTERVENTION standard-medical-care arm in AF with HFrEF, primary 'Composite of all-cause mortality, unplanned cardiovascular hospitalizations and stroke (time-to-event analysis)'. It includes STROKE and its hospitalisation limb is cardiovascular rather than heart-failure, so it is a near neighbour and not this estimand. CHECKED LIVE: hasResults=false. TERMINATED at n=64 having posted nothing."
+  },
+  {
+   "nct": "NCT04649801",
+   "verdict": "ELIGIBLE_NO_RESULTS_YET",
+   "axis": "STATUS",
+   "criterion": "NO RESULTS POSTED",
+   "field_read": "hasResults / resultsSection",
+   "reason": "ELIGIBLE: AF ablation against a NO_INTERVENTION conventional arm in end-stage heart failure. COMPLETED at n=194 and CHECKED LIVE: hasResults=false, no resultsSection -- a completed trial that has posted nothing, which is a different state from one still running and is recorded as the same disposition for the same reason: there is nothing to extract. Its primary, 'Mortality or transplantation', is in any case not this review's composite -- named so the disposition does not rest on the posting alone."
+  },
+  {
+   "nct": "NCT04664686",
+   "verdict": "EXCLUDED",
+   "axis": "ELIGIBILITY",
+   "criterion": "COMPARATOR",
+   "field_read": "armsInterventionsModule.armGroups",
+   "reason": "AF CATHETER ABLATION AGAINST AV NODE ABLATION -- both arms are ablation, so the contrast is between two ablation strategies rather than against medical therapy. POPULATION holds (AF + heart failure)."
+  },
+  {
+   "nct": "NCT05023590",
+   "verdict": "EXCLUDED",
+   "axis": "ELIGIBILITY",
+   "criterion": "COMPARATOR",
+   "field_read": "armsInterventionsModule.armGroups",
+   "reason": "CRYO ABLATION AGAINST RADIOFREQUENCY ABLATION, both delivered during open-chest mitral valve surgery. A technique comparison. POPULATION also fails: AF with mitral valve failure, no heart failure registered."
+  },
+  {
+   "nct": "NCT05434819",
+   "verdict": "EXCLUDED",
+   "axis": "ELIGIBILITY",
+   "criterion": "INTERVENTION",
+   "field_read": "armsInterventionsModule.armGroups",
+   "reason": "SURGICAL AF ablation against no surgical ablation. This review's intervention is CATHETER-BASED ablation; a surgical maze performed during cardiac surgery is a different procedure with a different risk profile and a different population pathway. POPULATION holds (AF + heart failure) and the comparator is a genuine no-ablation arm, so the intervention limb alone decides it. RECRUITING, n=2000."
+  },
+  {
+   "nct": "NCT05508256",
+   "verdict": "ELIGIBLE_NO_RESULTS_YET",
+   "axis": "STATUS",
+   "criterion": "NOT YET REPORTED",
+   "field_read": "statusModule.overallStatus",
+   "reason": "ELIGIBLE: CE-marked catheter ablation against a NO_INTERVENTION usual-medical-care arm in AF with HFpEF and HFmrEF, primary a composite of cardiovascular events. RECRUITING at n=1548 -- THE LARGEST UNREPORTED TRIAL IN THIS REMAINDER, and one of the two that will determine whether this question has an answer."
+  },
+  {
+   "nct": "NCT05760833",
+   "verdict": "EXCLUDED",
+   "axis": "ELIGIBILITY",
+   "criterion": "COMPARATOR",
+   "field_read": "armsInterventionsModule.armGroups",
+   "reason": "PULMONARY VEIN ISOLATION AGAINST ATRIOVENTRICULAR NODE ABLATION -- both arms ablation. WITHDRAWN at n=0."
+  },
+  {
+   "nct": "NCT05827172",
+   "verdict": "ELIGIBLE_NOT_POOLABLE",
+   "axis": "POOLABILITY",
+   "criterion": "ESTIMAND",
+   "field_read": "outcomesModule",
+   "reason": "ELIGIBLE: AF ablation against an OTHER-typed 'Medical therapy (rate or rhythm control)' arm in persistent AF with HFrEF. Primary is DIFFERENCE IN EJECTION FRACTION. n=96, COMPLETED."
+  },
+  {
+   "nct": "NCT06125925",
+   "verdict": "ELIGIBLE_NO_RESULTS_YET",
+   "axis": "STATUS",
+   "criterion": "NOT YET REPORTED",
+   "field_read": "statusModule.overallStatus",
+   "reason": "ELIGIBLE with a matching estimand shape: radiofrequency catheter ablation against a medical-therapy arm in AF with HFpEF, primary a 'Composite endpoint of worsening heart failure requiring unplanned ...'. RECRUITING at n=436."
+  },
+  {
+   "nct": "NCT06207383",
+   "verdict": "EXCLUDED",
+   "axis": "ELIGIBILITY",
+   "criterion": "COMPARATOR",
+   "field_read": "armsInterventionsModule.armGroups",
+   "reason": "AF ABLATION AGAINST CONDUCTION SYSTEM PACING PLUS ATRIOVENTRICULAR NODAL ABLATION. The comparator arm is itself an ablation strategy. POPULATION holds."
+  },
+  {
+   "nct": "NCT06299514",
+   "verdict": "EXCLUDED",
+   "axis": "ELIGIBILITY",
+   "criterion": "INTERVENTION",
+   "field_read": "armsInterventionsModule.armGroups",
+   "reason": "'PACE AND ABLATE' -- pacemaker implantation with AV-node ablation -- against pharmacological therapy. Conduction-system ablation, so the intervention limb fails even though the comparator is exactly the medical therapy this review wants."
+  },
+  {
+   "nct": "NCT06528262",
+   "verdict": "EXCLUDED",
+   "axis": "ELIGIBILITY",
+   "criterion": "INTERVENTION",
+   "field_read": "armsInterventionsModule.armGroups",
+   "reason": "THE RANDOMISED CONTRAST IS A DRUG: enavogliflozin against placebo, given AFTER catheter ablation. Ablation is background, present in both arms, and the estimate would be attributable to the SGLT2 inhibitor. POPULATION also fails: conditions = ['Atrial Fibrillation'] with no heart failure."
+  },
+  {
+   "nct": "NCT06740539",
+   "verdict": "ELIGIBLE_NO_RESULTS_YET",
+   "axis": "STATUS",
+   "criterion": "NOT YET REPORTED",
+   "field_read": "statusModule.overallStatus",
+   "reason": "ELIGIBLE: catheter ablation against a NO_INTERVENTION drug-control arm in HFpEF with AF, primary a composite of all-cause death or readmission. NOT_YET_RECRUITING at n=304."
+  },
+  {
+   "nct": "NCT06833138",
+   "verdict": "EXCLUDED",
+   "axis": "ELIGIBILITY",
+   "criterion": "INTERVENTION",
+   "field_read": "armsInterventionsModule.armGroups",
+   "reason": "PACEMAKER IMPLANTATION WITH ATRIOVENTRICULAR NODE ABLATION against a NO_INTERVENTION arm, in HFpEF with persistent AF. Conduction-system ablation. Its primary -- 'Time to the composite of all-cause mortality or hospitalization ...' -- IS this review's estimand, which again is why the intervention boundary is stated rather than assumed."
+  },
+  {
+   "nct": "NCT07118488",
+   "verdict": "EXCLUDED",
+   "axis": "ELIGIBILITY",
+   "criterion": "COMPARATOR",
+   "field_read": "armsInterventionsModule.armGroups",
+   "reason": "SINGLE ARM -- multitarget pulsed-field ablation, no control. POPULATION also fails: longstanding persistent AF with no heart failure registered."
+  },
+  {
+   "nct": "NCT07238452",
+   "verdict": "ELIGIBLE_NO_RESULTS_YET",
+   "axis": "STATUS",
+   "criterion": "NOT YET REPORTED",
+   "field_read": "statusModule.overallStatus",
+   "reason": "ELIGIBLE: pulmonary vein isolation against optimal medical therapy (pharmacological rate control) in HFrEF with AF, primary 'Composite of cardiovascular mortality, stroke, and total number of ...'. NOT_YET_RECRUITING at n=1056."
+  },
+  {
+   "nct": "NCT07254455",
+   "verdict": "ELIGIBLE_NO_RESULTS_YET",
+   "axis": "STATUS",
+   "criterion": "NOT YET REPORTED",
+   "field_read": "statusModule.overallStatus",
+   "reason": "ELIGIBLE: CASTLE-HFpEF -- catheter ablation against a NO_INTERVENTION standard-medical- therapy arm in AF with HFpEF, primary a composite of all-cause mortality, stroke or transient ischaemic attack. NOT_YET_RECRUITING at n=900. Named because it is the explicit HFpEF successor to one of this review's two included trials."
+  },
+  {
+   "nct": "NCT07272902",
+   "verdict": "ELIGIBLE_NO_RESULTS_YET",
+   "axis": "STATUS",
+   "criterion": "NOT YET REPORTED",
+   "field_read": "statusModule.overallStatus",
+   "reason": "ELIGIBLE: catheter ablation against medical rate-control therapy in AF with HFmrEF and HFpEF. RECRUITING at n=84, and its primary is 'FEASIBILITY OF TRIAL CONDUCT' -- so it will not contribute an effect estimate when it does report. Settled on status, which is the uncontestable ground, with the estimand named so the reader is not left expecting a future contribution."
+  },
+  {
+   "nct": "NCT07359872",
+   "verdict": "EXCLUDED",
+   "axis": "ELIGIBILITY",
+   "criterion": "INTERVENTION",
+   "field_read": "armsInterventionsModule.armGroups",
+   "reason": "THE RANDOMISED CONTRAST IS A DRUG: relaxin against placebo, with 'standard of care (including ablation)' in BOTH arms and a crossover design. Ablation is background. POPULATION also fails: AF, arrhythmia, oxidative stress and stroke, no heart failure."
+  },
+  {
+   "nct": "NCT07385417",
+   "verdict": "ELIGIBLE_NO_RESULTS_YET",
+   "axis": "STATUS",
+   "criterion": "NOT YET REPORTED",
+   "field_read": "statusModule.overallStatus",
+   "reason": "ELIGIBLE ON THE ARMS AND THE POPULATION LIMB IS FLAGGED RATHER THAN ASSUMED: AF ablation by electroporation against a NO_INTERVENTION 'best medical AF treatment' arm, and the trial's TITLE names heart failure while conditionsModule.conditions lists only ['Atrial Fibrillation (AF)']. THE CODED FIELD GOVERNS AND IT DOES NOT CARRY HEART FAILURE; the free text does. Recorded as eligible-not-yet-reported because status settles it either way, with the discrepancy stated so the verdict does not rest on the coded field alone. RECRUITING at n=200."
+  },
+  {
+   "nct": "NCT07630454",
+   "verdict": "EXCLUDED",
+   "axis": "ELIGIBILITY",
+   "criterion": "INTERVENTION",
+   "field_read": "armsInterventionsModule.armGroups",
+   "reason": "THE RANDOMISED CONTRAST IS A DRUG: tirzepatide plus lifestyle against lifestyle alone, after catheter ablation. Ablation is background in both arms."
+  }
+ ]
+}
