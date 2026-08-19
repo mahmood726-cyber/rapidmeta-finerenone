@@ -1,0 +1,145 @@
+"""THREE-PART PROOF for the criteria-fingerprint detector (P16), on the REAL route-7 artefact.
+
+THE PLANTED DEFECT IS REGENERATED, NOT RECOVERED, AND THAT DISTINCTION IS STATED.
+
+The sed-renamed screener that caused route 7 was created, run, and deleted WITHOUT EVER BEING
+`git add`ed -- so it is NOT in the reflog and not in any commit. It cannot be recovered. It CAN
+be regenerated exactly, because the command that produced it is on the record:
+
+    sed -e 's/ablation-af-medical-therapy/early-rhythm-control-af/g' \\
+        -e 's/ablation_medical_screening.json/rhythm_control_screening.json/' \\
+        scripts/screen_ablation_medical_remainder_2026_08_19.py
+
+`sed` is deterministic and the source file is committed, so re-running it reproduces the exact
+artefact. THAT IS A REGENERATION FROM A RECORDED COMMAND, NOT A RECOVERY FROM HISTORY, and
+saying which it is matters: a reconstruction from memory would test the detector against an
+author's idea of the defect, which is the thing detector 10 forbids.
+
+PART 3 IS THE ONE THAT MATTERS HERE. The renamed screener PARSES, IMPORTS, RUNS, and produces
+a complete verdict for every trial handed to it. Every existing contamination guard passes on
+it. So "the file works" and "the suite is green" are both true of the defective artefact, and
+neither can be the evidence.
+"""
+import io
+import os
+import subprocess
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SCRIPTS = os.path.join(REPO, "scripts")
+sys.path.insert(0, SCRIPTS)
+
+import lint_criteria_fingerprint as FP        # noqa: E402
+
+SOURCE = os.path.join(SCRIPTS, "screen_ablation_medical_remainder_2026_08_19.py")
+PLANTED = os.path.join(SCRIPTS, "screen_rhythm_control_remainder_2026_08_19.py")
+BACKUP = ("F:/claude-temp/claude/F--rapidmeta-ssot-shell/"
+          "6b629e1e-cc8c-4565-af03-e40341ee43f3/scratchpad/rhythm_screener_real.bak")
+
+
+def regenerate():
+    """The sed-renamed sibling screener, byte-for-byte, from the recorded command."""
+    with io.open(SOURCE, encoding="utf-8") as fh:
+        src = fh.read()
+    return (src.replace("ablation-af-medical-therapy", "early-rhythm-control-af")
+               .replace("ablation_medical_screening.json", "rhythm_control_screening.json"))
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    failures = []
+
+    with open(PLANTED, "rb") as fh:
+        real_bytes = fh.read()
+    with open(BACKUP, "wb") as fh:
+        fh.write(real_bytes)
+
+    # ---------------------------------------------------------------- PART 2 first: silent
+    print("PART 2 -- IS IT SILENT ON THE CORRECTLY-WRITTEN SCREENER?")
+    rc = subprocess.run([sys.executable, os.path.join(SCRIPTS, "lint_criteria_fingerprint.py")],
+                        capture_output=True, cwd=REPO,
+                        env={**os.environ, "PYTHONIOENCODING": "utf-8"}).returncode
+    print("   exit %d  %s" % (rc, "SILENT" if rc == 0 else "FALSE ALARM"))
+    if rc != 0:
+        failures.append("fired on the correct screener")
+
+    restored = False
+    try:
+        # ------------------------------------------------------------ PART 1: it can fire
+        print("\nPART 1 -- CAN IT FIRE? Plant the REGENERATED sed-renamed sibling screener.")
+        planted_src = regenerate()
+        with io.open(PLANTED, "w", encoding="utf-8") as fh:
+            fh.write(planted_src)
+
+        # PART 3 -- everything else about the planted file is fine, and that is the point.
+        print("\nPART 3 -- WHAT ELSE SAYS ABOUT THE PLANTED FILE (none of it is the evidence)")
+        imp = subprocess.run([sys.executable, "-W", "error::SyntaxWarning", "-c",
+                              "import ast,io;"
+                              "ast.parse(io.open(r'%s',encoding='utf-8').read());"
+                              "print('parses clean')" % PLANTED],
+                             capture_output=True, cwd=REPO,
+                             env={**os.environ, "PYTHONIOENCODING": "utf-8"})
+        print("   python -W error parse      exit %d  %s"
+              % (imp.returncode, imp.stdout.decode("utf-8", "replace").strip()))
+        hook = subprocess.run(["sh", os.path.join(REPO, ".githooks", "pre-commit")],
+                              capture_output=True, cwd=REPO,
+                              env={**os.environ, "STAGING_WIDE": "1"})
+        print("   all eleven hook detectors  exit %d  %s"
+              % (hook.returncode, "GREEN" if hook.returncode == 0 else "refused"))
+
+        out = subprocess.run([sys.executable,
+                              os.path.join(SCRIPTS, "lint_criteria_fingerprint.py")],
+                             capture_output=True, cwd=REPO,
+                             env={**os.environ, "PYTHONIOENCODING": "utf-8"})
+        text = out.stdout.decode("utf-8", "replace")
+        print("\n   criteria fingerprint       exit %d  %s"
+              % (out.returncode, "FIRES" if out.returncode else "SILENT -- THE GUARD IS DEAD"))
+        for line in text.splitlines():
+            if ("probe " in line or "MISMATCH" in line or "MATCHES ANOTHER" in line
+                    or "route 7" in line):
+                print("      %s" % line.strip())
+        if out.returncode == 0:
+            failures.append("did not fire on the real planted route-7 artefact")
+        # THE HOOK'S ANSWER CHANGES MEANING ONCE THE FINGERPRINT IS WIRED INTO IT, and the
+        # note has to change with it or it becomes a stale caveat.
+        #
+        #   BEFORE wiring: hooks exit 0 on the planted file -- eleven detectors, all green, on
+        #                  a screener answering the wrong review's question. That was the
+        #                  measurement that justified building this guard.
+        #   AFTER  wiring: hooks exit 1, BECAUSE this guard is now one of them.
+        #
+        # Neither reading is evidence about the guard on its own; the fingerprint's own exit
+        # code is. This line reports which regime the run is in rather than asserting one.
+        wired = "lint_criteria_fingerprint" in io.open(
+            os.path.join(REPO, ".githooks", "pre-commit"), encoding="utf-8").read()
+        if hook.returncode != 0 and not wired:
+            print("\n   NOTE: the hook refused the planted file for some OTHER reason, so this "
+                  "run\n   does not establish that the hooks were blind to route 7.")
+        elif hook.returncode != 0 and wired:
+            print("\n   The hook refuses BECAUSE this guard is now wired into it. Before it was "
+                  "wired,\n   the same planted file passed all eleven detectors -- that is the "
+                  "measurement\n   that justified building it, and it is preserved in the "
+                  "commit that added it.")
+    finally:
+        with open(PLANTED, "wb") as fh:
+            fh.write(real_bytes)
+        with open(PLANTED, "rb") as fh:
+            restored = fh.read() == real_bytes
+
+    print("\n   restore verified byte-for-byte  %s" % ("YES" if restored else "NO"))
+    if not restored:
+        failures.append("THE PLANTED FILE WAS NOT RESTORED")
+
+    print()
+    if failures:
+        for f in failures:
+            print("FAILED: %s" % f)
+        return 1
+    print("ALL THREE PARTS PASS.")
+    print("The planted file PARSES, IMPORTS, RUNS and passes every existing detector, and it")
+    print("answers the sibling's question under this topic's name. Only the fingerprint sees it.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

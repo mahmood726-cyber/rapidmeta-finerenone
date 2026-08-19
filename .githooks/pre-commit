@@ -59,3 +59,10 @@ case $? in
   1) echo "REFUSED: a registration id is written beside another trial's acronym (scripts/lint_identifier_pairing.py)"; exit 1 ;;
   *) echo "REFUSED: identifier-pairing check could not run -- empty acronym vocabulary. A check with nothing to check against passes everything."; exit 1 ;;
 esac
+
+# ROUTE 7 -- A SCREENER THAT ASKS THE NEIGHBOURING TOPIC'S QUESTION UNDER THIS TOPIC'S NAME.
+# The six earlier contamination routes carried one topic's DATA; this carries its CRITERIA, and
+# the output is complete, plausible and INVERTED. A sed-renamed sibling screener parses, imports,
+# runs, and passes every other detector in this file -- proven by planting the regenerated
+# artefact (scripts/prove_criteria_fingerprint.py). Only a behavioural fingerprint sees it.
+python "$R/scripts/lint_criteria_fingerprint.py" >/dev/null || { echo "REFUSED: a screener does not implement its own review's criteria (scripts/lint_criteria_fingerprint.py)"; exit 1; }
