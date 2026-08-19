@@ -89,7 +89,7 @@ def verdict_is_publishable():
 
 
 def register_precondition(name, reads, handbook_section, unit="object", unit_source="",
-                          accepts=None):
+                          accepts=None, verdict_over="object"):
     """Registration gate. Adds ONE requirement to the five detectors: name your authority."""
     if not handbook_section or not str(handbook_section).strip():
         raise AssessorRejected(
@@ -97,7 +97,7 @@ def register_precondition(name, reads, handbook_section, unit="object", unit_sou
             f"it enforces is an opinion, and it does not register.")
 
     def deco(fn):
-        REGISTRY.register(name, fn, reads, accepts, unit, unit_source)
+        REGISTRY.register(name, fn, reads, accepts, unit, unit_source, verdict_over)
         _SECTIONS[name] = handbook_section
         _UNITS[name] = unit
         return fn

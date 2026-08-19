@@ -1,0 +1,687 @@
+"""Sweep SSOT objects for asserted negative check-like fields.
+
+The sweep is read-only with respect to SSOT JSON objects. It scans each
+ssot/<topic>/<topic>.json file, records negative-looking leaves whose key or
+immediate parent key implies a check was run, and writes a markdown evidence
+report.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+
+CHECK_SIGNALS = (
+    "check",
+    "checked",
+    "verified",
+    "validated",
+    "reconcil",
+    "conflict",
+    "discrep",
+    "mismatch",
+    "duplicate",
+    "shared",
+    "unresolved",
+    "missing",
+    "error",
+    "fail",
+    "clean",
+    "agree",
+    "consistent",
+    "audit",
+    "screen",
+)
+
+NEGATIVE_STRINGS = {"none", "no", "clean", "n/a", "not applicable"}
+
+DATE_RE = re.compile(
+    r"\b(?:20\d{2}-\d{2}-\d{2}|"
+    r"(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)"
+    r"[a-z]*\s+20\d{2})\b",
+    re.IGNORECASE,
+)
+FILE_RE = re.compile(
+    r"(?:^|[\s'\"`(])(?:[\w.-]+[/\\])+[\w .()=-]+\."
+    r"(?:json|csv|tsv|txt|md|html|htm|pdf|py|r|xlsx|xml|ris)\b|"
+    r"\b[\w .()=-]+\.(?:json|csv|tsv|txt|md|html|htm|pdf|py|r|xlsx|xml|ris)\b",
+    re.IGNORECASE,
+)
+NCT_RE = re.compile(r"\bNCT\d{8}\b")
+COUNT_TEXT_RE = re.compile(
+    r"\b(?:n\s*=\s*)?\d+\s+"
+    r"(?:trial|trials|id|ids|row|rows|record|records|file|files|source|sources|"
+    r"query|queries|study|studies|arm|arms|cell|cells|topic|topics|object|objects)\b",
+    re.IGNORECASE,
+)
+
+METHOD_KEY_RE = re.compile(
+    r"(?:method|how|algorithm|script|command|query|computed_by|recomputed_by|"
+    r"derived_from|calculated_by|source_method)",
+    re.IGNORECASE,
+)
+DATE_KEY_RE = re.compile(r"(?:date|dated|checked_on|verified_on|validated_on|built_utc)", re.IGNORECASE)
+SOURCE_KEY_RE = re.compile(
+    r"(?:source|file|path|staged_as|checked_against|registry|url|link|pmid|doi)",
+    re.IGNORECASE,
+)
+COUNT_KEY_RE = re.compile(
+    r"(?:^n_|_n$|count|total|number|num_|_num|k_|_k$|trials_checked|records_checked|"
+    r"rows_checked|ids_checked|sources_checked)",
+    re.IGNORECASE,
+)
+METHOD_TEXT_RE = re.compile(
+    r"\b(?:computed|recomputed|calculated|derived|script|command|query|searched|"
+    r"opened|read from|crosswalk|joined|matched against|checked against)\b",
+    re.IGNORECASE,
+)
+NAME_TOKEN_RE = re.compile(r"[a-z0-9]+")
+GENERIC_NAME_TOKENS = {
+    "a",
+    "against",
+    "and",
+    "by",
+    "check",
+    "checked",
+    "count",
+    "date",
+    "file",
+    "for",
+    "how",
+    "id",
+    "ids",
+    "in",
+    "is",
+    "method",
+    "n",
+    "no",
+    "none",
+    "not",
+    "of",
+    "on",
+    "path",
+    "source",
+    "the",
+    "to",
+    "total",
+    "url",
+    "with",
+}
+STRICT_EVIDENCE_KEY_RE = re.compile(
+    r"(?:checked|verified|validated|screened|searched|reconciled|audited)_"
+    r"(?:against|by|count|date|file|files|how|method|n|on|path|source|sources|total|with)"
+    r"|(?:trials_checked|records_checked|rows_checked|ids_checked|sources_checked)",
+    re.IGNORECASE,
+)
+
+
+@dataclass(frozen=True)
+class JsonObject:
+    topic: str
+    path: Path
+    data: Any
+    ncts: frozenset[str]
+
+
+@dataclass(frozen=True)
+class NotAssessable:
+    topic: str
+    path: Path
+    reason: str
+
+
+@dataclass(frozen=True)
+class Hit:
+    topic: str
+    path: str
+    value: str
+    key: str
+    parent_key: str
+    evidence_status: str
+    sibling_how: str
+    evidence_reasons: tuple[str, ...]
+    prose_only: bool
+    off_topic_ncts: tuple[str, ...]
+    off_topic_siblings: tuple[str, ...]
+
+
+def markdown_escape(text: object) -> str:
+    value = str(text)
+    value = value.encode("ascii", "backslashreplace").decode("ascii")
+    value = value.replace("\r", " ").replace("\n", " ")
+    value = value.replace("|", "\\|")
+    return value
+
+
+def compact(text: object, limit: int = 160) -> str:
+    value = " ".join(str(text).split())
+    value = value.encode("ascii", "backslashreplace").decode("ascii")
+    if len(value) <= limit:
+        return value
+    return value[: limit - 3] + "..."
+
+
+def value_label(value: Any) -> str | None:
+    if isinstance(value, bool):
+        return "false" if value is False else None
+    if isinstance(value, list):
+        return "[]" if not value else None
+    if isinstance(value, dict):
+        return "{}" if not value else None
+    if isinstance(value, (int, float)) and value == 0:
+        return "0"
+    if isinstance(value, str) and value.strip().casefold() in NEGATIVE_STRINGS:
+        return json.dumps(value)
+    return None
+
+
+def checklike_name(*names: str) -> bool:
+    joined = " ".join(name.casefold() for name in names if name)
+    return any(signal in joined for signal in CHECK_SIGNALS)
+
+
+def dotted_child(parent: str, key: str) -> str:
+    if not parent:
+        return key
+    return f"{parent}.{key}"
+
+
+def dotted_index(parent: str, index: int) -> str:
+    return f"{parent}[{index}]" if parent else f"[{index}]"
+
+
+def gather_strings(value: Any, prefix: str) -> list[tuple[str, str]]:
+    if isinstance(value, str):
+        return [(prefix, value)]
+    if isinstance(value, list):
+        strings: list[tuple[str, str]] = []
+        for index, item in enumerate(value):
+            strings.extend(gather_strings(item, dotted_index(prefix, index)))
+        return strings
+    if isinstance(value, dict):
+        strings = []
+        for key, item in value.items():
+            strings.extend(gather_strings(item, dotted_child(prefix, str(key))))
+        return strings
+    return []
+
+
+def direct_strings(value: Any, prefix: str) -> list[tuple[str, str]]:
+    if isinstance(value, str):
+        return [(prefix, value)]
+    if isinstance(value, list) and all(isinstance(item, str) for item in value):
+        return [(dotted_index(prefix, index), item) for index, item in enumerate(value)]
+    return []
+
+
+def name_tokens(name: str) -> set[str]:
+    return {
+        token
+        for token in NAME_TOKEN_RE.findall(name.casefold())
+        if token not in GENERIC_NAME_TOKENS
+    }
+
+
+def sibling_is_relevant(current_key: str, parent_key: str, sibling_key: str) -> bool:
+    if parent_key and checklike_name(parent_key):
+        return True
+
+    current = current_key.casefold()
+    sibling = sibling_key.casefold()
+    if current and (
+        sibling.startswith(f"{current}_")
+        or sibling.startswith(f"{current}-")
+        or current.startswith(f"{sibling}_")
+        or current.startswith(f"{sibling}-")
+    ):
+        return True
+
+    if name_tokens(current_key) & name_tokens(sibling_key):
+        return True
+
+    return bool(STRICT_EVIDENCE_KEY_RE.search(sibling_key) and checklike_name(current_key))
+
+
+def has_count_key(key: str, value: Any) -> bool:
+    if not COUNT_KEY_RE.search(key):
+        return False
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def evidence_for_sibling(key: str, value: Any) -> list[str]:
+    reasons: list[str] = []
+    key_text = key.casefold()
+
+    if METHOD_KEY_RE.search(key_text):
+        reasons.append("method-key")
+    if DATE_KEY_RE.search(key_text):
+        reasons.append("date-key")
+    if SOURCE_KEY_RE.search(key_text):
+        reasons.append("source-key")
+    if has_count_key(key_text, value):
+        reasons.append("count-key")
+
+    for _, text in direct_strings(value, key):
+        if DATE_RE.search(text):
+            reasons.append("date-value")
+        if FILE_RE.search(text):
+            reasons.append("file-value")
+        if COUNT_TEXT_RE.search(text):
+            reasons.append("count-value")
+        if METHOD_TEXT_RE.search(text):
+            reasons.append("method-value")
+
+    return sorted(set(reasons))
+
+
+def prose_siblings(parent: dict[str, Any], current_key: str, parent_key: str) -> list[tuple[str, str]]:
+    strings: list[tuple[str, str]] = []
+    for key, value in parent.items():
+        if key == current_key:
+            continue
+        if not sibling_is_relevant(current_key, parent_key, str(key)):
+            continue
+        strings.extend(direct_strings(value, str(key)))
+    return strings
+
+
+def sibling_assessment(
+    parent: dict[str, Any] | None,
+    current_key: str,
+    parent_key: str,
+    object_ncts: frozenset[str],
+) -> tuple[str, str, tuple[str, ...], bool, tuple[str, ...], tuple[str, ...]]:
+    if parent is None:
+        return ("NO_EVIDENCE_SIBLING", "no sibling object", (), False, (), ())
+
+    evidence_bits: list[str] = []
+    for key, value in parent.items():
+        if key == current_key:
+            continue
+        if not sibling_is_relevant(current_key, parent_key, str(key)):
+            continue
+        reasons = evidence_for_sibling(str(key), value)
+        if reasons:
+            evidence_bits.append(f"{key} ({', '.join(reasons)})")
+
+    strings = prose_siblings(parent, current_key, parent_key)
+    off_topic: set[str] = set()
+    off_topic_sources: list[str] = []
+    for sibling_path, text in strings:
+        missing = sorted({match.group(0) for match in NCT_RE.finditer(text)} - set(object_ncts))
+        if missing:
+            off_topic.update(missing)
+            off_topic_sources.append(f"{sibling_path}: {', '.join(missing)}")
+
+    if evidence_bits:
+        return (
+            "WITH_EVIDENCE_SIBLING",
+            "; ".join(evidence_bits[:4]),
+            tuple(evidence_bits),
+            False,
+            tuple(sorted(off_topic)),
+            tuple(off_topic_sources),
+        )
+
+    prose_only = bool(strings)
+    if prose_only:
+        sample = "; ".join(f"{path}={compact(text, 90)}" for path, text in strings[:2])
+        return (
+            "PROSE_ONLY_SIBLING",
+            sample,
+            (),
+            True,
+            tuple(sorted(off_topic)),
+            tuple(off_topic_sources),
+        )
+
+    return ("NO_EVIDENCE_SIBLING", "no method/date/source/count sibling", (), False, (), ())
+
+
+def collect_input_ncts(data: Any) -> frozenset[str]:
+    trials = data.get("inputs", {}).get("trials", []) if isinstance(data, dict) else []
+    found: set[str] = set()
+    if not isinstance(trials, list):
+        return frozenset()
+    for trial in trials:
+        if not isinstance(trial, dict):
+            continue
+        raw = trial.get("nct")
+        if isinstance(raw, str):
+            found.update(match.group(0) for match in NCT_RE.finditer(raw))
+        elif isinstance(raw, list):
+            for item in raw:
+                if isinstance(item, str):
+                    found.update(match.group(0) for match in NCT_RE.finditer(item))
+    return frozenset(found)
+
+
+def canonical_object_paths(root: Path) -> tuple[list[Path], list[Path]]:
+    ssot = root / "ssot"
+    present: list[Path] = []
+    absent: list[Path] = []
+    for directory in sorted(path for path in ssot.iterdir() if path.is_dir()):
+        candidate = directory / f"{directory.name}.json"
+        if candidate.exists():
+            present.append(candidate)
+        else:
+            absent.append(candidate)
+    return present, absent
+
+
+def read_objects(paths: list[Path]) -> tuple[list[JsonObject], list[NotAssessable]]:
+    objects: list[JsonObject] = []
+    not_assessable: list[NotAssessable] = []
+    for path in paths:
+        topic = path.parent.name
+        try:
+            data = json.loads(path.read_text(encoding="utf-8-sig"))
+        except Exception as exc:  # noqa: BLE001 - report every unreadable object.
+            not_assessable.append(NotAssessable(topic, path, f"{type(exc).__name__}: {exc}"))
+            continue
+        objects.append(JsonObject(topic, path, data, collect_input_ncts(data)))
+    return objects, not_assessable
+
+
+def walk_hits(
+    obj: JsonObject,
+    value: Any,
+    path: str = "",
+    key: str = "",
+    parent_key: str = "",
+    parent: dict[str, Any] | None = None,
+) -> list[Hit]:
+    label = value_label(value)
+    hits: list[Hit] = []
+    if label is not None and checklike_name(key, parent_key):
+        status, sibling_how, reasons, prose_only, off_ncts, off_sources = sibling_assessment(
+            parent,
+            key,
+            parent_key,
+            obj.ncts,
+        )
+        hits.append(
+            Hit(
+                topic=obj.topic,
+                path=path,
+                value=label,
+                key=key,
+                parent_key=parent_key,
+                evidence_status=status,
+                sibling_how=sibling_how,
+                evidence_reasons=reasons,
+                prose_only=prose_only,
+                off_topic_ncts=off_ncts,
+                off_topic_siblings=off_sources,
+            )
+        )
+        return hits
+
+    if isinstance(value, dict):
+        for child_key, child_value in value.items():
+            child_key_text = str(child_key)
+            hits.extend(
+                walk_hits(
+                    obj,
+                    child_value,
+                    dotted_child(path, child_key_text),
+                    child_key_text,
+                    key,
+                    value,
+                )
+            )
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            hits.extend(
+                walk_hits(
+                    obj,
+                    item,
+                    dotted_index(path, index),
+                    key,
+                    parent_key,
+                    parent,
+                )
+            )
+    return hits
+
+
+def find_duplicate_seeding_blocks(value: Any, path: str = "") -> list[tuple[str, dict[str, Any]]]:
+    found: list[tuple[str, dict[str, Any]]] = []
+    if isinstance(value, dict):
+        for key, child in value.items():
+            child_path = dotted_child(path, str(key))
+            if key == "duplicate_seeding_check" and isinstance(child, dict):
+                found.append((child_path, child))
+            found.extend(find_duplicate_seeding_blocks(child, child_path))
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            found.extend(find_duplicate_seeding_blocks(child, dotted_index(path, index)))
+    return found
+
+
+def known_answer(objects: list[JsonObject], hits: list[Hit]) -> dict[str, Any]:
+    sglt2 = next((obj for obj in objects if obj.topic == "sglt2-hf"), None)
+    if sglt2 is None:
+        return {"status": "NOT_ASSESSABLE", "reason": "sglt2-hf object not parsed"}
+
+    blocks = find_duplicate_seeding_blocks(sglt2.data)
+    if not blocks:
+        return {"status": "NOT_ASSESSABLE", "reason": "duplicate_seeding_check not found"}
+
+    path, block = blocks[0]
+    negative_hits = [hit for hit in hits if hit.topic == "sglt2-hf" and path in hit.path]
+    checked_against = block.get("checked_against")
+    n_trials_checked = block.get("n_trials_checked")
+    shared = block.get("shared_with_other_topics")
+    state = block.get("state")
+    source_path_evidence = isinstance(checked_against, str) and bool(FILE_RE.search(checked_against))
+    count_evidence = isinstance(n_trials_checked, (int, float)) and not isinstance(n_trials_checked, bool)
+    computed = state == "CHECKED" and source_path_evidence and count_evidence and shared is True
+    asserted_under_block = [
+        hit.path
+        for hit in negative_hits
+        if hit.evidence_status in {"NO_EVIDENCE_SIBLING", "PROSE_ONLY_SIBLING"}
+    ]
+    return {
+        "status": "COMPUTED" if computed else "FAILED",
+        "path": path,
+        "state": state,
+        "checked_against": checked_against,
+        "n_trials_checked": n_trials_checked,
+        "shared_with_other_topics": shared,
+        "negative_hits_under_block": len(negative_hits),
+        "asserted_hits_under_block": asserted_under_block,
+    }
+
+
+def sort_key(hit: Hit) -> tuple[int, str, str]:
+    rank = {
+        "NO_EVIDENCE_SIBLING": 0,
+        "PROSE_ONLY_SIBLING": 1,
+        "WITH_EVIDENCE_SIBLING": 2,
+    }[hit.evidence_status]
+    return (rank, hit.topic, hit.path)
+
+
+def write_report(
+    root: Path,
+    output: Path,
+    present_paths: list[Path],
+    absent_paths: list[Path],
+    not_assessable: list[NotAssessable],
+    hits: list[Hit],
+    known: dict[str, Any],
+) -> None:
+    sorted_hits = sorted(hits, key=sort_key)
+    with_evidence = [hit for hit in hits if hit.evidence_status == "WITH_EVIDENCE_SIBLING"]
+    without_evidence = [hit for hit in hits if hit.evidence_status != "WITH_EVIDENCE_SIBLING"]
+    prose_only = [hit for hit in hits if hit.evidence_status == "PROSE_ONLY_SIBLING"]
+    bare_without_evidence = [hit for hit in hits if hit.evidence_status == "NO_EVIDENCE_SIBLING"]
+    off_topic = [hit for hit in hits if hit.off_topic_ncts]
+
+    lines: list[str] = []
+    lines.append("# Asserted Negatives Sweep - 2026-08-19 Corpus")
+    lines.append("")
+    lines.append("Scope: `ssot/<topic>/<topic>.json` only; no network; SSOT JSON objects were not modified.")
+    lines.append("")
+    lines.append("## Method")
+    lines.append("")
+    lines.append(
+        "- A hit is a leaf value equal to `false`, `[]`, `{}`, `0`, `\"none\"`, `\"no\"`, "
+        "`\"clean\"`, `\"n/a\"`, or `\"not applicable\"`."
+    )
+    lines.append(
+        "- The leaf is reportable only when the leaf key or immediate parent key contains "
+        "one of the requested check/comparison/reconciliation signals."
+    )
+    lines.append(
+        "- A sibling counts as computed evidence when it names a method, date, source file/path, "
+        "or count. Rows without such a sibling are ranked first."
+    )
+    lines.append("")
+    lines.append("## Static vs Dynamic Disclosure")
+    lines.append("")
+    lines.append("| item | type | source |")
+    lines.append("| --- | --- | --- |")
+    lines.append("| negative leaf values | static | task instruction |")
+    lines.append("| check-name signal substrings | static | task instruction |")
+    lines.append("| sibling-evidence cue regexes | static heuristic | task instruction, applied conservatively to direct relevant siblings |")
+    lines.append("| canonical object list, hits, counts, and NCT sets | dynamic | parsed `ssot/<topic>/<topic>.json` files |")
+    lines.append("")
+    lines.append("## Coverage")
+    lines.append("")
+    lines.append("| item | count |")
+    lines.append("| --- | ---: |")
+    lines.append(f"| canonical object files found | {len(present_paths)} |")
+    lines.append(f"| parsed objects | {len(present_paths) - len(not_assessable)} |")
+    lines.append(f"| NOT_ASSESSABLE parse/read failures | {len(not_assessable)} |")
+    lines.append(f"| immediate ssot directories without `<dir>.json` | {len(absent_paths)} |")
+    lines.append("")
+
+    if not_assessable:
+        lines.append("### NOT_ASSESSABLE Objects")
+        lines.append("")
+        lines.append("| topic | path | reason |")
+        lines.append("| --- | --- | --- |")
+        for item in not_assessable:
+            rel = item.path.relative_to(root)
+            lines.append(
+                f"| {markdown_escape(item.topic)} | `{markdown_escape(rel)}` | "
+                f"{markdown_escape(compact(item.reason, 240))} |"
+            )
+        lines.append("")
+
+    lines.append("## Known-Answer Check")
+    lines.append("")
+    lines.append("| check | returned |")
+    lines.append("| --- | --- |")
+    for key in (
+        "status",
+        "path",
+        "state",
+        "checked_against",
+        "n_trials_checked",
+        "shared_with_other_topics",
+        "negative_hits_under_block",
+        "asserted_hits_under_block",
+    ):
+        lines.append(f"| `{key}` | `{markdown_escape(known.get(key))}` |")
+    lines.append("")
+
+    lines.append("## Bucket Counts")
+    lines.append("")
+    lines.append("| bucket | count |")
+    lines.append("| --- | ---: |")
+    lines.append(f"| hits WITH a method/date/source/count sibling (probably computed) | {len(with_evidence)} |")
+    lines.append(f"| hits WITHOUT such a sibling (probably asserted) | {len(without_evidence)} |")
+    lines.append(f"| bare hits with no evidence sibling and no prose sibling | {len(bare_without_evidence)} |")
+    lines.append(f"| hits whose sibling is PROSE ONLY, naming no file/count/date/method evidence | {len(prose_only)} |")
+    lines.append(f"| fields with sibling prose mentioning off-object NCT IDs | {len(off_topic)} |")
+    lines.append("")
+
+    lines.append("## Cross-Contamination Signature")
+    lines.append("")
+    if off_topic:
+        lines.append("| topic | dotted path | value | off-object NCT IDs | sibling prose source |")
+        lines.append("| --- | --- | --- | --- | --- |")
+        for hit in sorted(off_topic, key=lambda item: (item.topic, item.path)):
+            lines.append(
+                f"| {markdown_escape(hit.topic)} | `{markdown_escape(hit.path)}` | "
+                f"`{markdown_escape(hit.value)}` | `{', '.join(hit.off_topic_ncts)}` | "
+                f"{markdown_escape(compact('; '.join(hit.off_topic_siblings), 220))} |"
+            )
+    else:
+        lines.append("No hit had sibling prose mentioning an NCT ID outside that object's `inputs.trials[].nct` set.")
+    lines.append("")
+
+    lines.append("## All Hits")
+    lines.append("")
+    lines.append("| topic | dotted path | value | sibling recording how checked? |")
+    lines.append("| --- | --- | --- | --- |")
+    for hit in sorted_hits:
+        if hit.evidence_status == "WITH_EVIDENCE_SIBLING":
+            sibling = "YES: " + hit.sibling_how
+        elif hit.evidence_status == "PROSE_ONLY_SIBLING":
+            sibling = "PROSE ONLY: " + hit.sibling_how
+        else:
+            sibling = "NO: " + hit.sibling_how
+        lines.append(
+            f"| {markdown_escape(hit.topic)} | `{markdown_escape(hit.path)}` | "
+            f"`{markdown_escape(hit.value)}` | {markdown_escape(compact(sibling, 240))} |"
+        )
+    lines.append("")
+
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def run(root: Path, output: Path) -> tuple[list[Hit], list[NotAssessable], dict[str, Any]]:
+    present_paths, absent_paths = canonical_object_paths(root)
+    objects, not_assessable = read_objects(present_paths)
+    hits: list[Hit] = []
+    for obj in objects:
+        hits.extend(walk_hits(obj, obj.data))
+    known = known_answer(objects, hits)
+    write_report(root, output, present_paths, absent_paths, not_assessable, hits, known)
+    return hits, not_assessable, known
+
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--root", type=Path, default=Path.cwd())
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("evidence/2026-08-19-corpus/asserted_negatives.md"),
+    )
+    return parser.parse_args()
+
+
+def main() -> int:
+    args = parse_args()
+    root = args.root.resolve()
+    output = args.output
+    if not output.is_absolute():
+        output = root / output
+    hits, not_assessable, known = run(root, output)
+
+    with_evidence = sum(1 for hit in hits if hit.evidence_status == "WITH_EVIDENCE_SIBLING")
+    without_evidence = len(hits) - with_evidence
+    prose_only = sum(1 for hit in hits if hit.evidence_status == "PROSE_ONLY_SIBLING")
+    bare_without_evidence = sum(1 for hit in hits if hit.evidence_status == "NO_EVIDENCE_SIBLING")
+    off_topic = sum(1 for hit in hits if hit.off_topic_ncts)
+    print(f"wrote {output.relative_to(root)}")
+    print(f"hits={len(hits)} with_evidence={with_evidence} without_evidence={without_evidence}")
+    print(f"bare_without_evidence={bare_without_evidence} prose_only={prose_only}")
+    print(f"off_object_nct_hits={off_topic}")
+    print(f"not_assessable={len(not_assessable)} known_answer={known.get('status')}")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

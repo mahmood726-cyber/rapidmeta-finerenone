@@ -179,6 +179,57 @@ def _iterated_expressions(fn):
     return out
 
 
+class VerdictUnitMismatch(AssessorRejected):
+    pass
+
+
+def check_verdict_unit(name, fn, unit, verdict_over):
+    """DETECTOR 5b: WHAT DOES THE VERDICT RANGE OVER? -- not what does the loop range over.
+
+    Detector 5 verifies that a check declaring unit="outcome" actually ITERATES outcomes. That
+    is necessary and it is not sufficient, and the gap let the same defect through twice in one
+    check.
+
+    `comparators_identified_and_consistent` declared unit="outcome". It DID iterate outcomes,
+    so detector 5 passed it. It then compared those outcomes TO EACH OTHER and returned ONE
+    verdict about the object -- and FAILed iv-iron-hf, whose six outcomes legitimately rest on
+    different contrasts, and sglt2-hf before it.
+
+        ITERATING THE RIGHT UNIT IS NOT THE SAME AS JUDGING AT THE RIGHT UNIT.
+
+    A check that loops over outcomes and emits one (state, reason) is making an OBJECT-level
+    judgement using outcomes as evidence. That is often correct -- "every outcome names a
+    quantity" is a proper object-level aggregation. What is NOT correct is declaring the unit
+    as `outcome` while judging the object, because the declaration is what a reader trusts when
+    deciding whether a FAIL is about one outcome or about the whole topic.
+
+    So every assessor now declares BOTH:
+        unit_source  what it iterates    (detector 5)
+        verdict_over what it JUDGES      (this detector)
+    and a check whose verdict_over is not "object" must return a per-unit mapping, not a single
+    tuple. None of the current preconditions do; all of them therefore declare
+    verdict_over="object", which is simply true and was previously left implicit and wrong.
+    """
+    if verdict_over == "object":
+        return
+    src = None
+    try:
+        src = inspect.getsource(fn)
+    except (OSError, TypeError):
+        raise VerdictUnitMismatch(f"{name}: source unreadable, cannot verify verdict unit.")
+    tree = ast.parse(_dedent(src))
+    returns = [n for n in ast.walk(tree) if isinstance(n, ast.Return) and n.value is not None]
+    # A per-unit verdict is a dict/comprehension keyed by the unit; a bare 2-tuple is not.
+    per_unit = any(isinstance(r.value, (ast.Dict, ast.DictComp, ast.ListComp)) for r in returns)
+    if not per_unit:
+        raise VerdictUnitMismatch(
+            f"{name}: declares verdict_over={verdict_over!r} but every return is a single "
+            f"value, so it emits ONE verdict about the OBJECT. Iterating {verdict_over}s does "
+            f"not make the verdict a {verdict_over} verdict. Declare verdict_over='object' if "
+            f"the judgement is object-level -- which is what a reader needs to know when "
+            f"deciding whether a FAIL indicts one {verdict_over} or the whole topic.")
+
+
 def check_unit(name, fn, unit, unit_source):
     """`unit_source` is a token that MUST appear in what the function iterates.
 
@@ -203,7 +254,8 @@ class Registry:
         self._by_name = {}
         self._paths = {}
 
-    def register(self, name, fn, reads, accepts=None, unit="object", unit_source=""):
+    def register(self, name, fn, reads, accepts=None, unit="object", unit_source="",
+                 verdict_over=None):
         """DETECTOR 1 (duplicate path) + DETECTOR 2 (text equality) + DETECTOR 3 (types).
 
         `reads`   - every dotted path this assessor reads. Required, non-empty.
@@ -231,14 +283,16 @@ class Registry:
             raise AssessorRejected(f"{name}: source unreadable, cannot verify text handling.")
 
         check_unit(name, fn, unit, unit_source)          # DETECTOR 5
+        check_verdict_unit(name, fn, unit, verdict_over if verdict_over is not None else unit)  # 5b
 
         self._paths[key] = name
         self._by_name[name] = (fn, tuple(reads), dict(accepts or {}), unit)
         return fn
 
-    def assessor(self, name, reads, accepts=None, unit="object", unit_source=""):
+    def assessor(self, name, reads, accepts=None, unit="object", unit_source="",
+                 verdict_over=None):
         def deco(fn):
-            self.register(name, fn, reads, accepts, unit, unit_source)
+            self.register(name, fn, reads, accepts, unit, unit_source, verdict_over)
             return fn
         return deco
 
