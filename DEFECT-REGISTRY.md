@@ -461,6 +461,52 @@ rather than to present it as complete.
 
 ---
 
+### E9. Absence of a count is not a count of zero — **corpus-wide, and large**
+
+**Codex census, 2026-08-19, verified independently: of 135 topic objects, 3 carry a
+`k_cascade`. 132 do not.**
+
+The census also reports **0 topics with a nonzero unscreened remainder** — which is true, and
+which read alone is one of the most misleading numbers this project could publish. It is zero
+because 132 topics **never counted k at all**. The three that do are exactly the three built to
+the standard tonight.
+
+> **A corpus of 135 topics reporting "0 unscreened remainder" is not a clean backlog. It is 132
+> topics that have never been asked the question.**
+
+The census earns its keep precisely by refusing to conflate the two: `NO_CASCADE` is reported as
+a distinct state from `remainder: 0`, and `REMAINDER_ABSENT` as a third. Had it folded them, the
+corpus would appear fully screened.
+
+This is E4 wearing corpus clothing — withholding at the level of the whole project rather than
+one classifier. **No detector is needed to find it; it is now measured.** What is open is the
+work: 132 topics owe a cascade. Recorded here so the number cannot quietly become "we screened
+everything".
+
+Also verified: 0 topics where `k_included_in_object > k3_experimental` (arithmetically
+impossible), and 0 parse errors across 135 objects.
+
+### E10. Classes an outside critic named that this registry did not have
+**agy / Gemini 3.1 Pro, asked to name what is MISSING rather than to review what is present.**
+Eight returned; these are the ones this repo can neither rule out nor currently detect:
+
+| class | why it is invisible to everything above |
+|---|---|
+| **Pagination cursor abandonment** | a fetcher takes page 1 and stops, omitting evidence **without raising** — silent omission, the withholding family, at the retrieval layer *before any object exists* |
+| **Order-dependent processing** | a pool that changes with input order; every existing check reads one final state and cannot see it |
+| **Denominator mismatch** | a rate divided by enrolled rather than ITT — every field involved is individually valid |
+| **Float precision loss in log-pooling** | underflow/rounding in intermediate transforms; the output is a plausible number |
+| **Implicit type coercion** | an identifier cast to numeric, stripping leading zeros — would defeat the identifier detector, which assumes the id survived as text |
+
+Pagination abandonment is the one to build first, because it sits at **the surfacing stage** —
+the place E4's own statement identifies as where the remaining withholding exposure lives, and
+the one place nothing in this repository currently looks. Tonight's own searches are clean by
+inspection (`totalCount 47`, 47 returned), but that is one topic checked by hand, not a check.
+
+**None of these is detected. They are listed because a registry that only contains classes its
+authors thought of is a measure of imagination, not of exposure** — and asking a different model
+family what was missing cost one call.
+
 ## What this file does not claim
 
 It does not claim the corpus is free of these defects. It claims that for **CLOSED** entries a
