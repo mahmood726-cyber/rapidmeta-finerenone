@@ -327,6 +327,164 @@ SGLT2_EXTRACTION = {
     ],
 }
 
+COLC_SEARCH = {
+    "executed_by": "lane 1 (Claude, Anthropic family)",
+    "databases": [
+        {"database": "ClinicalTrials.gov API v2",
+         "tool": "mcp__plugin_bio-research_c-trials__search_trials",
+         "query_as_executed": ("intervention=\"colchicine\"; condition=\"coronary artery disease "
+                               "OR myocardial infarction OR cardiovascular disease OR stroke OR "
+                               "atherosclerosis\"; study_type=INTERVENTIONAL; page_size=100; "
+                               "count_total=true"),
+         "date_executed": "2026-08-19", "http_status": 200,
+         "records_returned": 137, "total_reported": 137,
+         "recall_on_included_set": "3/3",
+         "pagination_verified": ("100 + 37 = 137 == totalCount and the cursor returned null on "
+                                 "page 2. THE PROOF IS THE SUM ACROSS PAGES. Page 2 held CLEAR "
+                                 "SYNERGY (n=7,264), one of the review's own included trials and "
+                                 "the largest -- a screen stopped at page 1 would have reported "
+                                 "a complete-looking cascade over 100 records and been 27 per "
+                                 "cent short."),
+         "identifiers_recorded_at": "evidence/2026-08-19-batch1/colchicine_surfaced_137.json"},
+        {"database": "PubMed",
+         "tool": "mcp__plugin_bio-research_pubmed__search_articles",
+         "query_as_executed": ("colchicine AND (cardiovascular OR coronary OR \"myocardial "
+                               "infarction\" OR stroke OR atherosclerosis) AND (randomized "
+                               "controlled trial[Publication Type] OR randomised OR randomized)"),
+         "date_executed": "2026-08-19", "http_status": 200,
+         "records_returned": 523, "total_reported": 523,
+         "recall_on_included_set": "3/3, and 4/4 counting LoDoCo2",
+         "pagination_verified": "100 x 5 + 23 = 523 == total_count, has_more FALSE on the last page.",
+         "why_this_limb_was_required": (
+             "The registry screen found EIGHT records with posted results against FIFTY-THREE "
+             "completed or terminated with none, and CONVINCE, CHANCE-3 and CLEAR SYNERGY are "
+             "all in the fifty-three. A REGISTRY-ONLY REVIEW HERE WOULD HAVE REFUSED TO POOL ON "
+             "THE GROUND THAT ITS OWN ANCHOR TRIALS HAD NOT REPORTED -- a finding about the "
+             "database presented as a finding about the literature."),
+         "what_is_unexamined": ("NO DISPOSITION HAS BEEN APPLIED TO ANY OF THE 523. Three "
+                                "publications were read and 520 were not. This limb establishes "
+                                "the denominator and recall and nothing else."),
+         "identifiers_recorded_at": "evidence/2026-08-19-batch1/colchicine_pubmed_523.json"},
+        {"database": "ANZCTR",
+         "tool": "NOT EXECUTED",
+         "query_as_executed": "NOT EXECUTED FOR THIS TOPIC",
+         "date_executed": "2026-08-19", "http_status": None,
+         "records_returned": None, "total_reported": None,
+         "recall_on_included_set": "NOT MEASURED",
+         "what_is_unexamined": (
+             "LoDoCo2 (ACTRN12614000093684) and COPS are registered on ANZCTR and NOWHERE on "
+             "ClinicalTrials.gov. LoDoCo2 reaches this review through PubMed alone, so its ARMS "
+             "and ENDPOINTS are read from the publication and its REGISTRATION IS UNREAD. COPS "
+             "does not reach this review at all.")},
+    ],
+    "pagination_verified": "Both executed limbs exhausted; the third was not run and says so.",
+}
+
+COLC_PRISMA = {
+    "_scope": "PRISMA 2020 flow, counted from the executed searches above.",
+    "identification": {"ctgov": 137, "pubmed": 523},
+    "eligibility_ctgov": {
+        "role_located": 133, "topic_is_experimental_arm": 117,
+        "topic_is_comparator_arm": 13, "topic_is_background": 3, "not_assessable": 4,
+        "note": ("One search over the drug, one arm-role cascade; the seven readings are "
+                 "applied after it by a stated precedence.")},
+    "assigned_to_this_reading": 48,
+    "included": {
+        "in_this_object": 3,
+        "contributing_to_the_pool": 0,
+        "registration_ids": ["NCT02551094", "NCT03048825", "ACTRN12614000093684"],
+        "nct": ["NCT02551094", "NCT03048825"],
+        "not_registered_on_ctgov": ["ACTRN12614000093684 (LoDoCo2)"],
+        "why_two_lists": (
+            "`nct` names only the ClinicalTrials.gov registrations, because that is what the "
+            "name means and an ANZCTR id written there would be a type lie that breaks every "
+            "registry lookup. `registration_ids` names EVERY included trial, which is what a "
+            "PRISMA included count is.")},
+    "reconciliation": {
+        "arithmetic": ("48 of 137 assigned to this reading, of which 42 eligible, of which 3 "
+                       "carry a published primary result. LoDoCo2 is one of those 3 and is NOT "
+                       "one of the 137."),
+        "reconciles": True,
+        "unscreened_remainder": 0,
+        "remainder_means": "ZERO on the registry limb. The PubMed limb's 520 unread records are "
+                           "a SEPARATE remainder and are declared as such, never folded in.",
+        "two_denominators_kept_apart": (
+            "LoDoCo2 contributes an estimate and is not in the registry cascade. Folding it in "
+            "would make the registry counts stop reconciling and would hide the reason -- that "
+            "the trial is registered on a registry this project did not search.")},
+}
+
+COLC_CASCADE = {
+    "k0_surfaced": 137,
+    "k2_role_located": 133,
+    "k3_experimental": 117,
+    "k4_comparator": 13,
+    "k5_background": 3,
+    "kNA_not_assessable": 4,
+    "k_assigned_to_this_reading": 48,
+    "k_eligible": 42,
+    "k_with_posted_results": 3,
+    "k_included_in_object": 3,
+    "k_pooled": 0,
+    "k_unscreened_remainder": 0,
+    "reproduced_by": "scripts/screen_colchicine_split_2026_08_19.py",
+    "what_the_drop_from_42_to_3_means": (
+        "IT IS A FINDING OF THE SEARCH, NOT OF THE SCREEN. Thirty-nine eligible trials have run "
+        "or are running and have published no primary result this pass could read. Per "
+        "PAGE-STANDARD.md a body of eligible-but-unreported trials means the query is well aimed "
+        "and the field is still in flight -- and the disposition split sharpens it: 53 of the "
+        "137 are COMPLETED, TERMINATED or WITHDRAWN with NOTHING posted to the registry, against "
+        "33 that have genuinely not reported yet. Those two states were separated deliberately, "
+        "because folded together they read as a field still in flight when half of it is not."),
+    "and_the_registration_count_is_not_a_study_count": (
+        "NCT04906720 and NCT06731595 are ONE trial under two registration ids -- identical "
+        "official title, org identifier, enrolment 248, dates, status and conditions. 137 is a "
+        "count of REGISTRATIONS and at most 136 studies."),
+}
+
+COLC_EXTRACTION = {
+    "_why": "Every cell says whether it was READ or DERIVED and carries what it was read from.",
+    "verified_utc": "2026-08-19",
+    "source": {
+        "publications": "the three trials' own abstracts, as PubMed prints them",
+        "read_via": "mcp__plugin_bio-research_pubmed__get_article_metadata",
+        "attribution": "According to PubMed. Each carries its PMID and DOI.",
+        "what_was_NOT_read": ("No full text. Component-level counts, analysis populations and "
+                              "subgroups are absent and are recorded as absent.")},
+    "cells": [
+        {"field": "COLCOT primary endpoint definition", "label": "READ",
+         "source_path": "PMID 31733140, abstract, METHODS",
+         "verbatim": ("a composite of death from cardiovascular causes, resuscitated cardiac "
+                      "arrest, myocardial infarction, stroke, or urgent hospitalization for "
+                      "angina leading to coronary revascularization")},
+        {"field": "LoDoCo2 primary endpoint definition", "label": "READ",
+         "source_path": "PMID 32865380, abstract, METHODS",
+         "verbatim": ("a composite of cardiovascular death, spontaneous (nonprocedural) "
+                      "myocardial infarction, ischemic stroke, or ischemia-driven coronary "
+                      "revascularization")},
+        {"field": "CLEAR SYNERGY primary endpoint definition", "label": "READ",
+         "source_path": "PMID 39555823, abstract, METHODS",
+         "verbatim": ("a composite of death from cardiovascular causes, recurrent myocardial "
+                      "infarction, stroke, or unplanned ischemia-driven coronary "
+                      "revascularization")},
+        {"field": "components shared by all three", "value": "1 of 10", "label": "DERIVED",
+         "derived_by": ("set intersection over the three component lists, decomposed from the "
+                        "verbatim definitions above"),
+         "note": ("THE FINDING OF THIS PAGE. Only cardiovascular death is common to all three. "
+                  "Resuscitated cardiac arrest is in COLCOT alone; myocardial infarction is ANY "
+                  "/ SPONTANEOUS ONLY / RECURRENT across the three; stroke is ANY TYPE in two "
+                  "and ISCHAEMIC ONLY in one; and the revascularisation trigger differs in all "
+                  "three.")},
+        {"field": "CLEAR SYNERGY randomised", "value": "7,062 published against 7,264 registered",
+         "label": "READ", "source_path": "PMID 39555823 abstract; NCT03048825 enrollmentInfo",
+         "note": ("A 202-participant discrepancy, NAMED AND NOT RECONCILED. The factorial-"
+                  "population explanation is plausible and is not evidence. The published figure "
+                  "is used because it is the denominator of the effect estimate beside it.")},
+        {"field": "trials with a published primary", "value": "3 of 42 eligible",
+         "label": "DERIVED", "derived_by": "hasResults over the registry set, plus the PubMed limb"},
+    ],
+}
+
 TOPIC_DATA = {
     "sglt2-hf": {"search": SGLT2_SEARCH, "prisma": SGLT2_PRISMA,
                  "k_cascade": {"k0_surfaced": 56, "k2_role_located": 56,
@@ -555,6 +713,10 @@ TOPIC_DATA = {
                    "k_cascade": IVI_CASCADE,
                    "primary_outcome_key": "hfh_cvd_recurrent",
                    "extraction": IVI_EXTRACTION},
+    "colchicine-cvd-coronary": {"search": COLC_SEARCH, "prisma": COLC_PRISMA,
+                                "k_cascade": COLC_CASCADE,
+                                "primary_outcome_key": "mace",
+                                "extraction": COLC_EXTRACTION},
 }
 
 
@@ -995,8 +1157,20 @@ def _p18_p19_p20(obj):
             and pf["in_this_object"] != n_trials:
         disagree.append(f"prisma_flow.included.in_this_object={pf['in_this_object']} vs "
                         f"len(inputs.trials)={n_trials}")
-    if n_trials and isinstance(pf.get("nct"), list) and len(pf["nct"]) != n_trials:
-        disagree.append(f"len(prisma_flow.included.nct)={len(pf['nct'])} vs "
+    # A FIELD NAMED `nct` CANNOT CARRY A TRIAL THAT HAS NO NCT, and this check read only that
+    # field. `colchicine-cvd-coronary` includes LoDoCo2, registered as ACTRN12614000093684 on
+    # ANZCTR and nowhere on ClinicalTrials.gov, so its included list held 2 identifiers against
+    # 3 trials and P19 refused -- CORRECTLY, on the numbers, for the wrong reason. The two ways
+    # to make it pass were to widen the field or to write an ANZCTR id into a field called
+    # `nct`, and the second is a type lie that would have made every downstream registry lookup
+    # fail on a trial this project cannot look up anyway.
+    #
+    # `registration_ids` is read when present and `nct` otherwise, so the check is unchanged for
+    # every existing topic and admits ISRCTN, EudraCT, ChiCTR and JPRN when they arrive.
+    ids = pf.get("registration_ids") if isinstance(pf.get("registration_ids"), list) \
+        else pf.get("nct")
+    if n_trials and isinstance(ids, list) and len(ids) != n_trials:
+        disagree.append(f"len(prisma_flow.included registration ids)={len(ids)} vs "
                         f"len(inputs.trials)={n_trials}")
     # The published-meta comparison is where the superseded headline actually survived, so it
     # is checked HERE by the same rule the dedicated lint uses -- a field named for this review
