@@ -290,16 +290,54 @@ with sync_playwright() as p:
         _src = (ROOT / f"{a}.html").read_text(encoding="utf-8", errors="replace")
         if 'name="rapidmeta:page-state" content="RETIRED"' in _src:
             import re as _re
-            _m = _re.search(r'name="rapidmeta:absorbed-by" content="([^"]+)"', _src)
-            _l = _re.search(r'class="go" href="([^"]+)"', _src)
+            # A TOPIC CAN BE RETIRED BY MERGE **OR** BY SPLIT, and this test read only the merge
+            # spelling. `absorbed-by` names one survivor; `split-into` names several. The first
+            # topic retired by split failed here as "declares RETIRED and names no absorber" --
+            # a correct tombstone reported as a broken page, because the checker knew one word
+            # for successor. IDENTICAL to the `absorbed_by` / `split_into` miss in
+            # project_dashboard_index.py the same hour, which makes it class 25 twice over in
+            # two instruments. Read EITHER, and check EVERY link rather than the first.
+            _m = (_re.search(r'name="rapidmeta:absorbed-by" content="([^"]+)"', _src)
+                  or _re.search(r'name="rapidmeta:split-into" content="([^"]+)"', _src))
+            _links = _re.findall(r'class="go" href="([^"]+)"', _src)
             _bad = []
             if not _m:
-                _bad.append("declares RETIRED and names no absorber")
-            if not _l:
-                _bad.append("declares RETIRED and offers no link to the surviving review")
-            elif not (ROOT / _l.group(1)).exists():
-                _bad.append("links to %s, which does not exist -- a reader would 404"
-                            % _l.group(1))
+                _bad.append("declares RETIRED and names neither an absorber nor a split target")
+            if not _links:
+                _bad.append("declares RETIRED and offers no link to a surviving review")
+            for _href in _links:
+                if not (ROOT / _href).exists():
+                    _bad.append("links to %s, which does not exist -- a reader would 404"
+                                % _href)
+            if _bad:
+                signals["page_errors"].append((a, "; ".join(_bad)))
+            else:
+                signals["fully_ok"].append(a)
+            continue
+
+        # A REVIEW THAT PUBLISHES NO POOLED ESTIMATE IS NOT A BROKEN DASHBOARD EITHER. It
+        # carries no RapidMeta app because there is no pool to render, so every app-level probe
+        # below would report a page error for a page behaving exactly as intended -- the same
+        # missing concept that made the checker reject the tombstone, one state along.
+        #
+        # ENCODE THE DISTINCTION RATHER THAN EXEMPT THE FILE. It is checked for what it IS: it
+        # must DECLARE that it publishes nothing, SAY so where a reader sees it rather than only
+        # in a meta tag, name at least one trial, and every link it offers must resolve. A page
+        # that quietly rendered nothing would still fail all four.
+        if 'name="rapidmeta:pooled-estimate" content="NONE"' in _src:
+            import re as _re
+            _links = _re.findall(r'class="go" href="([^"]+)"', _src)
+            _bad = []
+            if "No pooled estimate" not in _src:
+                _bad.append("declares no pooled estimate in a meta tag but nowhere a reader "
+                            "would see it")
+            if not _re.search(r"NCT\d{8}", _src):
+                _bad.append("publishes no estimate AND names no trial -- there is nothing on "
+                            "this page")
+            for _href in _links:
+                if not (ROOT / _href).exists():
+                    _bad.append("links to %s, which does not exist -- a reader would 404"
+                                % _href)
             if _bad:
                 signals["page_errors"].append((a, "; ".join(_bad)))
             else:
