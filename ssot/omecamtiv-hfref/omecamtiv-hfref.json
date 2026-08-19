@@ -1,103 +1,117 @@
 {
  "app_id": "omecamtiv-hfref",
- "schema_version": 2,
- "title": "Omecamtiv Hfref: NOT POOLABLE -- k=1",
- "built": "2026-08-18",
- "build_mode": "verdict-only",
- "topic_state": "NOT POOLABLE -- k=1, decided from the registrations",
- "verification_basis": "Each seeded registration read from ClinicalTrials.gov on 2026-08-18: brief title, registered primary outcome measures, and arm groups with their types.",
- "inputs": {
-  "trials": [
-   {
-    "id": "NCT02929329",
-    "nct": "NCT02929329",
-    "registration": "NCT02929329",
-    "registry": "ClinicalTrials.gov",
-    "label": "Registrational Study With Omecamtiv Mecarbil (AMG 423) to Treat Chronic Heart Failure With Reduced Ejection Fraction",
-    "registered_primaries": [
-     "Time to Cardiovascular Death or First Heart Failure Event"
-    ],
-    "arms_as_registered": [
-     {
-      "type": "EXPERIMENTAL",
-      "interventions": "Drug: Omecamtiv Mecarbil Drug: Standard of Care Omecamtiv Mecarbil"
-     },
-     {
-      "type": "PLACEBO_COMPARATOR",
-      "interventions": "Drug: Placebo Drug: Standard of Care Placebo"
-     }
-    ],
-    "source_url": "https://clinicaltrials.gov/study/NCT02929329",
-    "read_utc": "2026-08-18",
-    "registered_secondaries": [
-     "Time to Cardiovascular Death",
-     "Change From Baseline in Kansas City Cardiomyopathy Questionnaire Total Symptom Score (KCCQ TSS) at Week 24",
-     "Time to First Heart Failure Hospitalization",
-     "Time to All-cause Death"
-    ],
-    "registered_other_outcomes": [],
-    "all_ranks_read_utc": "2026-08-18"
-   }
-  ]
- },
- "outcomes": [
-  {
-   "id": "primary",
-   "type": "primary",
-   "name": "the trial's own registered primary outcome",
-   "definition": "Recorded per trial in inputs.trials[].registered_primaries, verbatim from the registration.",
-   "measure": "not applicable",
-   "measure_note": "THE GENERATOR'S OWN IDIOM FOR ABSENCE. This topic publishes no estimate, so there is no measure it was expressed in. Not a borrowed value: sibling objects whose estimate was WITHDRAWN legitimately carry the withdrawn measure, which is a different case.",
-   "comparator": null,
-   "comparator_type": "not applicable",
-   "definition_note": "Registered endpoint definitions are recorded per trial on this object."
-  }
+ "state": "RETIRED",
+ "retired_utc": "2026-08-19",
+ "absorbed_by": "omecamtiv-heartfail",
+ "absorbed_by_page": "OMECAMTIV_HEARTFAIL_AUTO_FULL_REVIEW.html",
+ "absorbed_by_url": "https://mahmood726-cyber.github.io/rapidmeta-finerenone/OMECAMTIV_HEARTFAIL_AUTO_FULL_REVIEW.html",
+ "authorised_by": "Mahmood, 2026-08-19",
+ "why": "This topic held the same trials as omecamtiv-heartfail. It was retired rather than deleted: its entire former object is preserved below AND carried into the survivor under `absorbed_topics`, and the merge was refused unless every leaf of it could be found in the survivor afterwards.",
+ "a_tombstone_is_not_an_absence": "A later auditor must be able to SEE that a merge happened rather than infer it from a gap. Deleting this file would have made the corpus tidier and the history unreadable.",
+ "trials_it_held": [
+  "NCT02929329"
  ],
- "results": {
-  "by_outcome": {
-   "primary": {
-    "k": 1,
-    "poolable": false,
-    "poolable_reason": "k=1. THE PAGE SEEDS exactly one registration. A single trial is reported as a single trial and a topic with none has nothing to report; either way no pool is possible and none is displayed. AUTHORITY: Cochrane Handbook 6.5 (2024) section 10.10.3 -- 'A systematic review need not contain any meta-analyses.' A topic that ends in a sourced non-poolable verdict is a complete review, not a failed one. THE RESIDUE EXCLUSION WAS MADE CONDITIONAL BEFORE THIS COUNT WAS TAKEN. Four identifiers appear across many unrelated pages as build contamination, and a global denylist wrongly reported three heart-failure pages as seeding nothing when each seeds PARADIGM-HF, which on those pages is the genuine trial. A residue id is now KEPT when the topic's own subject appears in that trial's registered title or interventions, and development codes are matched as well as generic names.",
-    "pooled": {
-     "point": null,
-     "ci_low": null,
-     "ci_high": null,
-     "withdrawn": true,
-     "withdrawn_reason": "k=1. THE PAGE SEEDS exactly one registration. A single trial is reported as a single trial and a topic with none has nothing to report; either way no pool is possible and none is displayed. AUTHORITY: Cochrane Handbook 6.5 (2024) section 10.10.3 -- 'A systematic review need not contain any meta-analyses.' A topic that ends in a sourced non-poolable verdict is a complete review, not a failed one. THE RESIDUE EXCLUSION WAS MADE CONDITIONAL BEFORE THIS COUNT WAS TAKEN. Four identifiers appear across many unrelated pages as build contamination, and a global denylist wrongly reported three heart-failure pages as seeding nothing when each seeds PARADIGM-HF, which on those pages is the genuine trial. A residue id is now KEPT when the topic's own subject appears in that trial's registered title or interventions, and development codes are matched as well as generic names.",
-     "withdrawn_utc": "2026-08-18"
-    },
-    "per_trial": [],
-    "what_this_verdict_does_not_establish": "NOT that the seeded trial is poor. NOT that the drug is ineffective. NOT that no second trial exists in the world -- only that this page seeds one, and a page cannot pool trials it does not carry. If a second eligible trial is identified, this verdict should be revisited.",
-    "model": "random-effects",
-    "estimator_used": "not applicable",
-    "source_page_pooled": false,
-    "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
-    "estimand_established": null,
-    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass."
+ "THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT": {
+  "app_id": "omecamtiv-hfref",
+  "schema_version": 2,
+  "title": "Omecamtiv Hfref: NOT POOLABLE -- k=1",
+  "built": "2026-08-18",
+  "build_mode": "verdict-only",
+  "topic_state": "NOT POOLABLE -- k=1, decided from the registrations",
+  "verification_basis": "Each seeded registration read from ClinicalTrials.gov on 2026-08-18: brief title, registered primary outcome measures, and arm groups with their types.",
+  "inputs": {
+   "trials": [
+    {
+     "id": "NCT02929329",
+     "nct": "NCT02929329",
+     "registration": "NCT02929329",
+     "registry": "ClinicalTrials.gov",
+     "label": "Registrational Study With Omecamtiv Mecarbil (AMG 423) to Treat Chronic Heart Failure With Reduced Ejection Fraction",
+     "registered_primaries": [
+      "Time to Cardiovascular Death or First Heart Failure Event"
+     ],
+     "arms_as_registered": [
+      {
+       "type": "EXPERIMENTAL",
+       "interventions": "Drug: Omecamtiv Mecarbil Drug: Standard of Care Omecamtiv Mecarbil"
+      },
+      {
+       "type": "PLACEBO_COMPARATOR",
+       "interventions": "Drug: Placebo Drug: Standard of Care Placebo"
+      }
+     ],
+     "source_url": "https://clinicaltrials.gov/study/NCT02929329",
+     "read_utc": "2026-08-18",
+     "registered_secondaries": [
+      "Time to Cardiovascular Death",
+      "Change From Baseline in Kansas City Cardiomyopathy Questionnaire Total Symptom Score (KCCQ TSS) at Week 24",
+      "Time to First Heart Failure Hospitalization",
+      "Time to All-cause Death"
+     ],
+     "registered_other_outcomes": [],
+     "all_ranks_read_utc": "2026-08-18"
+    }
+   ]
+  },
+  "outcomes": [
+   {
+    "id": "primary",
+    "type": "primary",
+    "name": "the trial's own registered primary outcome",
+    "definition": "Recorded per trial in inputs.trials[].registered_primaries, verbatim from the registration.",
+    "measure": "not applicable",
+    "measure_note": "THE GENERATOR'S OWN IDIOM FOR ABSENCE. This topic publishes no estimate, so there is no measure it was expressed in. Not a borrowed value: sibling objects whose estimate was WITHDRAWN legitimately carry the withdrawn measure, which is a different case.",
+    "comparator": null,
+    "comparator_type": "not applicable",
+    "definition_note": "Registered endpoint definitions are recorded per trial on this object."
    }
-  }
- },
- "risk_of_bias_verdict": "Not assessed. A risk-of-bias assessment grades the trials contributing to a pooled result, and this page publishes none.",
- "handbook_authority": {
-  "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
-  "version": "Version 6.5, 2024",
-  "verified_on": "2026-08-18",
-  "sections": "10.10.3",
-  "a_review_need_not_pool": "'A systematic review need not contain any meta-analyses.'"
- },
- "carried_contrasts": [],
- "sources": {},
- "question": "Omecamtiv Hfref: NOT POOLABLE -- k=1 on the trial's own registered primary outcome?",
- "generator_schema_patch_2026_08_18": {
-  "relocations": "SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our schema wrote it elsewhere on the same object. A relocation, not a new claim.",
-  "genuinely_empty": "GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is empty on acs-antiplatelet-review, which builds.",
-  "rule": "Every field added falls into RELOCATION, GENUINELY EMPTY, or DERIVED FROM RECORDED CONTENT. A field falling into none was REFUSED. Adding a key to satisfy a generator is not the same as adding the content that key should hold.",
-  "fields": [
-   "carried_contrasts=[] (empty)",
-   "sources={} (empty)",
-   "question (derived)"
-  ]
- },
- "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over."
+  ],
+  "results": {
+   "by_outcome": {
+    "primary": {
+     "k": 1,
+     "poolable": false,
+     "poolable_reason": "k=1. THE PAGE SEEDS exactly one registration. A single trial is reported as a single trial and a topic with none has nothing to report; either way no pool is possible and none is displayed. AUTHORITY: Cochrane Handbook 6.5 (2024) section 10.10.3 -- 'A systematic review need not contain any meta-analyses.' A topic that ends in a sourced non-poolable verdict is a complete review, not a failed one. THE RESIDUE EXCLUSION WAS MADE CONDITIONAL BEFORE THIS COUNT WAS TAKEN. Four identifiers appear across many unrelated pages as build contamination, and a global denylist wrongly reported three heart-failure pages as seeding nothing when each seeds PARADIGM-HF, which on those pages is the genuine trial. A residue id is now KEPT when the topic's own subject appears in that trial's registered title or interventions, and development codes are matched as well as generic names.",
+     "pooled": {
+      "point": null,
+      "ci_low": null,
+      "ci_high": null,
+      "withdrawn": true,
+      "withdrawn_reason": "k=1. THE PAGE SEEDS exactly one registration. A single trial is reported as a single trial and a topic with none has nothing to report; either way no pool is possible and none is displayed. AUTHORITY: Cochrane Handbook 6.5 (2024) section 10.10.3 -- 'A systematic review need not contain any meta-analyses.' A topic that ends in a sourced non-poolable verdict is a complete review, not a failed one. THE RESIDUE EXCLUSION WAS MADE CONDITIONAL BEFORE THIS COUNT WAS TAKEN. Four identifiers appear across many unrelated pages as build contamination, and a global denylist wrongly reported three heart-failure pages as seeding nothing when each seeds PARADIGM-HF, which on those pages is the genuine trial. A residue id is now KEPT when the topic's own subject appears in that trial's registered title or interventions, and development codes are matched as well as generic names.",
+      "withdrawn_utc": "2026-08-18"
+     },
+     "per_trial": [],
+     "what_this_verdict_does_not_establish": "NOT that the seeded trial is poor. NOT that the drug is ineffective. NOT that no second trial exists in the world -- only that this page seeds one, and a page cannot pool trials it does not carry. If a second eligible trial is identified, this verdict should be revisited.",
+     "model": "random-effects",
+     "estimator_used": "not applicable",
+     "source_page_pooled": false,
+     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+     "estimand_established": null,
+     "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass."
+    }
+   }
+  },
+  "risk_of_bias_verdict": "Not assessed. A risk-of-bias assessment grades the trials contributing to a pooled result, and this page publishes none.",
+  "handbook_authority": {
+   "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+   "version": "Version 6.5, 2024",
+   "verified_on": "2026-08-18",
+   "sections": "10.10.3",
+   "a_review_need_not_pool": "'A systematic review need not contain any meta-analyses.'"
+  },
+  "carried_contrasts": [],
+  "sources": {},
+  "question": "Omecamtiv Hfref: NOT POOLABLE -- k=1 on the trial's own registered primary outcome?",
+  "generator_schema_patch_2026_08_18": {
+   "relocations": "SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our schema wrote it elsewhere on the same object. A relocation, not a new claim.",
+   "genuinely_empty": "GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is empty on acs-antiplatelet-review, which builds.",
+   "rule": "Every field added falls into RELOCATION, GENUINELY EMPTY, or DERIVED FROM RECORDED CONTENT. A field falling into none was REFUSED. Adding a key to satisfy a generator is not the same as adding the content that key should hold.",
+   "fields": [
+    "carried_contrasts=[] (empty)",
+    "sources={} (empty)",
+    "question (derived)"
+   ]
+  },
+  "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over."
+ }
 }
