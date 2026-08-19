@@ -30,6 +30,9 @@ import json
 import os
 import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import retirement as R                                       # noqa: E402
+
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 EV = os.path.join(REPO, "evidence", "2026-08-19-batch1")
 ADJ = os.path.join(EV, "merge_adjudication.json")
@@ -162,6 +165,34 @@ def run(apply_changes=False):
                            % (survivor, ", ".join(retire), "y" if len(retire) == 1 else "y")),
                 "what_would_unblock_it": ("build and deliver a page for %s, then re-run this "
                                           "script" % survivor)})
+            continue
+
+        # THIS SCRIPT IS NOT IDEMPOTENT, AND THAT COST REAL DAMAGE. A second run against a
+        # cluster already merged re-absorbs an ALREADY-TOMBSTONED object into the survivor and
+        # wraps the tombstone in a further retirement layer, whose own `state` then reads
+        # RETIRED -- so `THE_OBJECT_AS_IT_STOOD_AT_RETIREMENT` holds a copy of the retirement
+        # record rather than the object. Exactly that happened on 2026-08-19: nineteen files
+        # rewritten at 16:36:01, eight minutes after the merge commit, left uncommitted in the
+        # working tree. It was then MISREAD AS CORPUS DAMAGE and nearly triggered a destructive
+        # revert (DEFECT-REGISTRY class 26).
+        #
+        # A cluster whose retirees are all already retired is DONE, not pending. Skip it.
+        _already = [rt for rt in retire if R.is_retired(load(rt))]
+        if _already and len(_already) == len(retire):
+            print("already merged %-32s <- %s  (retirees are tombstones; skipping)"
+                  % (survivor, ", ".join(retire)))
+            skipped.append({"cluster": r["cluster"], "verdict": "ALREADY_MERGED",
+                            "note": ("every topic in `retire` is already RETIRED. Re-running "
+                                     "would re-absorb tombstones into the survivor and nest "
+                                     "the retirement record inside itself.")})
+            continue
+        if _already:
+            print("REFUSED %-34s <- PARTIALLY merged already: %s"
+                  % (survivor, ", ".join(_already)))
+            skipped.append({"cluster": r["cluster"], "verdict": "PARTIALLY_MERGED",
+                            "note": ("%s already retired while others are not. A partial "
+                                     "re-run is not safe either way; resolve by hand."
+                                     % ", ".join(_already))})
             continue
 
         surv = load(survivor)

@@ -1,17 +1,16 @@
 {
  "audited_utc": "2026-08-19",
  "why_this_was_measured": "A blind cross-family reader (agy, Gemini 3.1 Pro) returned UNCLEAR on ten of twelve merge clusters, and its reason every time was that the question field is auto-generated boilerplate. It reached that from the text alone, with no topic names and no hint that anything depended on the answer.",
- "live_topics": 138,
+ "live_topics": 135,
  "by_state": {
   "STATES_A_QUESTION": 83,
-  "TITLE_ECHO": 20,
-  "TEMPLATED": 34,
-  "RETIRED_TOMBSTONE": 11,
-  "ABSENT": 1
+  "TITLE_ECHO": 19,
+  "TEMPLATED": 33,
+  "RETIRED_TOMBSTONE": 14
  },
  "topics_that_actually_state_a_question": 83,
- "headline": "83 of 138 live topics state a question. The other 55 carry a template, an echo of their own title, or nothing.",
- "WHAT_THIS_GATES": "Every question-based check in this corpus can only reach the 83. P21's ambiguous-question split cannot find an ambiguity in a title. The merge adjudicator's `questions_differ()` returns FALSE for a templated question -- correct as logic, and it REPORTS AS THOUGH THE AXIS HAD BEEN CHECKED. A future duplicate detector that hopes to separate two reviews by what they ask has 55 topics it cannot separate.",
+ "headline": "83 of 135 live topics state a question. The other 52 carry a template, an echo of their own title, or nothing.",
+ "WHAT_THIS_GATES": "Every question-based check in this corpus can only reach the 83. P21's ambiguous-question split cannot find an ambiguity in a title. The merge adjudicator's `questions_differ()` returns FALSE for a templated question -- correct as logic, and it REPORTS AS THOUGH THE AXIS HAD BEEN CHECKED. A future duplicate detector that hopes to separate two reviews by what they ask has 52 topics it cannot separate.",
  "and_it_is_the_3_of_135_shape": "The number at the top of DEFECT-REGISTRY.md is 3 of 135 topics ever asked for a k cascade, where the other 132 read as clean because nothing had interrogated them. This is the same shape on a different field: a templated question is not a bad question, it is an ABSENT one wearing the shape of a present one.",
  "what_this_does_NOT_claim": "NOT that the templated topics are wrong, and NOT that their trials or estimates are affected. It claims only that their `question` field carries no content a check can read, and that every question-based claim about this corpus has this denominator.",
  "rows": [
@@ -538,12 +537,6 @@
    "question": "Lenacapavir Hiv: NOT POOLABLE -- no registration declares a clinical endpoint at any rank on the clinical quantity this page pools?"
   },
   {
-   "topic": "lenacapavir-prep-review",
-   "state": "TEMPLATED",
-   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
-   "question": "Lenacapavir for HIV pre-exposure prophylaxis: NOT POOLABLE -- COMPARATOR on each trial's own registered primary outcome?"
-  },
-  {
    "topic": "lenacapavir-prep",
    "state": "STATES_A_QUESTION",
    "why": null,
@@ -590,12 +583,6 @@
    "state": "STATES_A_QUESTION",
    "why": null,
    "question": "Does mavacamten improve clinical response in symptomatic obstructive hypertrophic cardiomyopathy? This page publishes no estimate and holds one trial."
-  },
-  {
-   "topic": "mavacamten-ohcm",
-   "state": "ABSENT",
-   "why": "the object records no question at all",
-   "question": ""
   },
   {
    "topic": "mdr-tb-shortened",
@@ -671,12 +658,6 @@
   },
   {
    "topic": "pcsk9-inhibitors-cv-review",
-   "state": "TITLE_ECHO",
-   "why": "the question is byte-identical to the title",
-   "question": "Multiple trial-declared outcomes: Time to Cardiovascular Death, Myocardial Infarction, Hospitalization for Unstable Angina, Stroke, or Coronary Revascular | Time to First Occurrence of Major Adverse Cardiovascular Event "
-  },
-  {
-   "topic": "pcsk9-review",
    "state": "TITLE_ECHO",
    "why": "the question is byte-identical to the title",
    "question": "Multiple trial-declared outcomes: Time to Cardiovascular Death, Myocardial Infarction, Hospitalization for Unstable Angina, Stroke, or Coronary Revascular | Time to First Occurrence of Major Adverse Cardiovascular Event "
