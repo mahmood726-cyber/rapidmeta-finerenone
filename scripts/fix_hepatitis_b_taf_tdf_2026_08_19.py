@@ -1,0 +1,169 @@
+#!/usr/bin/env python3
+"""`hepatitis-b-taf-tdf-review` -- the first infectious-disease unit, and it had four defects.
+
+THE SEVERE ONE: THE COMPARATOR ARM IS NOT IN THE OBJECT. Both registrations carry THREE arms:
+
+    TAF 25 mg        EXPERIMENTAL
+    TDF 300 mg       ACTIVE_COMPARATOR      <- the comparator the review is named for
+    Open-label TAF   EXPERIMENTAL           <- the open-label extension
+
+The object stored `TAF 25 mg` against `Open-label TAF` -- THE TWO EXPERIMENTAL ARMS -- and
+dropped the ACTIVE_COMPARATOR entirely. So the served pooled `OR 0.913 (0.691-1.206)` compares
+TAF AGAINST TAF. Worse than a wrong comparator: the open-label extension enrols EVERYONE WHO
+COMPLETED THE DOUBLE-BLIND PERIOD, so it contains the TDF patients who rolled over and largely
+the same people as the arm it is compared with.
+
+    A CONTROL ARM THAT IS NOT A CONTROL. The number is not a weak comparison or a mismatched
+    one; it is not a comparison. And nothing about it looks wrong: 0.91 with a CI spanning 1 in
+    a head-to-head of two tenofovir prodrugs is exactly what a reader would expect to see.
+
+AND THE DASHBOARD SERVES IT WHILE BEING UNABLE TO CHECK IT. The row for this page carries
+`pooled_OR: 0.912997` and `ssot_state: UNMAPPED` -- PAGE_MAP has no entry, so the projection
+gate that exists to stop exactly this could not see the row. The gate's own output says the
+unmapped rows are "uncheckable, never clean", and there are 601 of them serving a value, 562
+with a page on disk. This is one of them, now mapped.
+
+THIRD: `estimand_established: true` SITTING ON TOP OF A REASON THAT SAYS IT IS NOT. The object's
+own `poolable_reason` reads "The extractor recovered a pooled result from this page ... Whether
+they SHOULD have been pooled is not established by conversion". A boolean asserting the opposite
+of the prose beside it.
+
+FOURTH, AND IT IS MINE: THE QUESTION PACKETED BECAUSE OF MY OWN TOKEN FILTER. The restatement
+script required topic tokens longer than three characters, so `taf` and `tdf` -- the entire
+subject of this review -- were discarded, no coded intervention matched, and the topic was
+routed for escalation. THE DRUG NAME WAS TOO SHORT FOR THE FILTER. And the question was
+derivable all along from a field the coded-fields route never reads: the registrations'
+`officialTitle`, which states in plain words "Study to Compare Tenofovir Alafenamide (TAF)
+Versus Tenofovir Disoproxil Fumarate (TDF)".
+
+USAGE
+    python scripts/fix_hepatitis_b_taf_tdf_2026_08_19.py [--apply]
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import ctgov_transport as X                                             # noqa: E402
+
+TOPIC = "hepatitis-b-taf-tdf-review"
+PATH = os.path.join(REPO, "ssot", TOPIC, TOPIC + ".json")
+PAGE = "HEPATITIS_B_TAF_TDF_REVIEW.html"
+
+REASON = (
+    "THE COMPARATOR ARM IS NOT IN THIS OBJECT. Both registrations carry three arms, read from "
+    "ClinicalTrials.gov 2026-08-19: 'TAF 25 mg' (EXPERIMENTAL), 'TDF 300 mg' "
+    "(ACTIVE_COMPARATOR) and 'Open-label TAF' (EXPERIMENTAL). This object stored 'TAF 25 mg' "
+    "against 'Open-label TAF' -- THE TWO EXPERIMENTAL ARMS -- and the ACTIVE_COMPARATOR the "
+    "review is named for is absent. The pooled OR 0.913 (0.691-1.206) therefore compares TAF "
+    "WITH TAF. It is not a weak or mismatched comparison; it is not a comparison. The "
+    "open-label arm additionally enrols every participant who completed the double-blind "
+    "period, so it contains the TDF patients who rolled over and largely the same people as the "
+    "arm it is set against. SEPARATELY, the estimator was DerSimonian-Laird at k=2, and DL is "
+    "refused below k=10 in this project. AND THE OBJECT ALREADY CONTRADICTED ITSELF: "
+    "estimand_established was true while its own poolable_reason said the pool was RECOVERED "
+    "from the page and not established.")
+
+
+def run(apply_it):
+    with io.open(PATH, "r", encoding="utf-8") as fh:
+        o = json.load(fh)
+
+    arms = {}
+    for t in o["inputs"]["trials"]:
+        st, s, d = X.fetch_raw(t["nct"], fields="protocolSection")
+        if st != X.OK:
+            print("REFUSED: %s unreachable" % t["nct"])
+            return 1
+        ps = s.get("protocolSection") or {}
+        arms[t["nct"]] = {
+            "official_title": (ps.get("identificationModule") or {}).get("officialTitle"),
+            "arms_as_the_registry_lists_them": [
+                {"label": a.get("label"), "type": a.get("type")}
+                for a in ((ps.get("armsInterventionsModule") or {}).get("armGroups") or [])],
+        }
+        stored = [a.get("label") for a in (t.get("arms") or [])]
+        comp = [a["label"] for a in arms[t["nct"]]["arms_as_the_registry_lists_them"]
+                if a["type"] == "ACTIVE_COMPARATOR"]
+        print("  %s" % t["nct"])
+        print("     registry arms : %s" % ", ".join(
+            "%s [%s]" % (a["label"], a["type"])
+            for a in arms[t["nct"]]["arms_as_the_registry_lists_them"]))
+        print("     object stored : %s" % ", ".join(stored))
+        print("     ACTIVE_COMPARATOR %s in the object: %s"
+              % (comp, "YES" if any(c in stored for c in comp) else "NO -- IT IS ABSENT"))
+
+    pr = o["results"]["by_outcome"]["primary"]
+    pl = pr.get("pooled") or {}
+    if pl.get("point") is None:
+        print("\nalready withdrawn")
+        return 0
+
+    if not apply_it:
+        print("\nDRY RUN -- nothing written.")
+        return 0
+
+    pr["pooled_superseded"] = dict(pl)
+    pr["pooled_superseded_because"] = REASON
+    pr["pooled"] = {"measure": pl.get("measure"), "point": None, "ci_low": None,
+                    "ci_high": None, "ci_level": pl.get("ci_level", 95),
+                    "scale": pl.get("scale", "log"), "withdrawn": True,
+                    "withdrawn_utc": "2026-08-19", "withdrawn_reason": REASON}
+    pr["poolable"] = False
+    pr["poolable_reason"] = REASON
+    # The boolean asserted the opposite of the prose beside it.
+    pr["estimand_established"] = False
+    pr["estimand_established_corrected"] = (
+        "Was `true` while this object's own poolable_reason said the pool had been RECOVERED "
+        "from the page and was not established by conversion. A boolean asserting the opposite "
+        "of the text beside it.")
+    pr["arms_as_the_registry_lists_them_read_utc"] = "2026-08-19"
+    for t in o["inputs"]["trials"]:
+        t["arms_as_the_registry_lists_them_VERBATIM"] = \
+            arms[t["nct"]]["arms_as_the_registry_lists_them"]
+        t["official_title"] = arms[t["nct"]]["official_title"]
+        t["arms_stored_on_this_object_are_NOT_the_comparison"] = (
+            "The stored pair is the two EXPERIMENTAL arms. The ACTIVE_COMPARATOR is absent. "
+            "The stored counts are preserved and are used for nothing.")
+
+    # The question, derived from a field the coded-fields route never reads.
+    o["title"] = "Tenofovir alafenamide versus tenofovir disoproxil fumarate in chronic hepatitis B"
+    o["question"] = (
+        "In adults with chronic hepatitis B, does tenofovir alafenamide compared with tenofovir "
+        "disoproxil fumarate increase the proportion achieving HBV DNA below 29 IU/mL?")
+    o["question_restated_2026_08_19"] = {
+        "was": ("Multiple trial-declared outcomes: Percentage of Participants With Hepatitis B "
+                "Virus (HBV) DNA < 29 IU/mL | ... -- the TITLE AND THE QUESTION were both a "
+                "registry outcome string."),
+        "derived_from": {
+            "field": "identificationModule.officialTitle on both registrations",
+            "verbatim": [arms[n]["official_title"] for n in sorted(arms)],
+            "and_the_outcome_from": "outcomesModule.primaryOutcomes[0].measure",
+        },
+        "why_the_coded_fields_route_failed": (
+            "The restatement script required topic tokens LONGER THAN THREE CHARACTERS, so "
+            "`taf` and `tdf` -- the entire subject of this review -- were discarded and no "
+            "coded intervention matched. THE DRUG NAME WAS TOO SHORT FOR THE FILTER. The "
+            "officialTitle states the comparison in plain words and is not read by that route "
+            "at all."),
+    }
+    with io.open(PATH, "w", encoding="utf-8", newline="") as fh:
+        fh.write(json.dumps(o, indent=1, ensure_ascii=False))
+
+    pm = os.path.join(REPO, "ssot", "PAGE_MAP.json")
+    with io.open(pm, "r", encoding="utf-8") as fh:
+        pmap = json.load(fh)
+    if os.path.exists(os.path.join(REPO, PAGE)):
+        pmap[PAGE] = "ssot/%s/%s.json" % (TOPIC, TOPIC)
+        with io.open(pm, "w", encoding="utf-8", newline="") as fh:
+            fh.write(json.dumps(pmap, indent=1, ensure_ascii=False, sort_keys=True))
+        print("\n  mapped %s -> %s, so the projection gate can see it" % (PAGE, TOPIC))
+    print("  estimate WITHDRAWN, old value kept under pooled_superseded")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(run("--apply" in sys.argv))
