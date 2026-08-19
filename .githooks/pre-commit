@@ -39,6 +39,10 @@ python "$R/scripts/lint_no_false_allclear.py" >/dev/null || { echo "REFUSED: cod
 # A REVIEW QUESTION MUST NOT BE ONE OF ITS TRIALS' REGISTRY FIELDS.
 python "$R/scripts/lint_question_is_a_question.py" >/dev/null || { echo "REFUSED: a NEW topic's question/title is a copied registry field, above the known baseline (scripts/lint_question_is_a_question.py) -- see BLOCKED-ablation-af-review-2026-08-19.md"; exit 1; }
 
+# A STORED BLOCK MAY NOT ASSERT A STATE THE OBJECT CONTRADICTS. P6 once refused with a reason
+# that was not true -- "k=1, no meta-analysis was performed" on an object that pooled six.
+python "$R/scripts/lint_block_contradicts_object.py" >/dev/null || { echo "REFUSED: a stored block asserts a state its own object contradicts (scripts/lint_block_contradicts_object.py)"; exit 1; }
+
 # RESTRAINT (E4). Every other check here catches overreach. This one catches an instrument
 # REFUSING where an independent instrument decides -- the class that silently shrank evidence
 # bases corpus-wide and that no guard could see, because withholding leaves no trace in the
