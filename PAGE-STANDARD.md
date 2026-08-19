@@ -46,6 +46,8 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P22 | **Deliberate trial sharing is recorded on both sides** | a trial legitimately appearing in more than one topic carries, on each object, **which other topics hold it and why**. Sharing is legitimate; unrecorded sharing is not. Every page that shares states that **a corpus-level k obtained by summing per-topic k double-counts** |
 | P23 | **Recall is measured against the review's own included set** | every executed search reports how many of the trials this review includes it actually surfaced. A **design filter** (phase, status, study type) is a recall hazard: `NA` is not a phase, and enumerating phases drops every registrant who declared none. A query that misses is **recorded, not replaced** |
 | P24 | **Every disposition in a taxonomy is demonstrably reachable** | each state a screen can assign must be reached by at least one real instance in the run, or be reported as **reached zero times and why**. *A disposition that cannot be reached is not a conservative default* — it looks cautious, so a zero there invites no suspicion at all |
+| P25 | **A pipe never interprets output it has not proved was produced** | any filter over a subprocess must assert the subprocess **succeeded** before reading its output, and an **empty result from a filter is NOT_ASSESSABLE, never a negative finding**. *A filter over a subprocess's output converts a loud failure into a quiet one* |
+| P26 | **An agreement rate is computed over independent answers only** | repetition by one instrument is not independence. Duplicate answers from a single seat are deduplicated before any agreement is counted, and a seat that returned nothing is **absent, not concurring** |
 
 ## Reading the remainder — the same number, opposite diagnoses
 
@@ -100,6 +102,30 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.8.0-2026-08-19
+Adds P25 and P26, both found in the **harness** of a cross-family adjudication rather than in
+its results — which is the worst place for them, because the harness is what makes the results
+mean anything.
+
+**P25 — a pipe never interprets output it has not proved was produced.** `codex exec` refused
+with *"Not inside a trusted directory and --skip-git-repo-check was not specified"*, and the
+`grep` filtering its output turned that refusal into **zero matching lines**.
+
+> **A filter over a subprocess's output converts a loud failure into a quiet one.**
+
+And the specific damage here is the worst available: **zero answers is indistinguishable from
+zero disagreements.** A dead seat would have read as a concurring one, turning an *absent
+check* into *evidence of agreement* — in a procedure whose entire value is that the second seat
+can dissent. So: assert the exit status before reading, and treat an empty filter result as
+NOT_ASSESSABLE rather than as a negative finding. This is the same family as the pipeline
+`$?` lesson already in the operating rules, arriving through a filter instead of a pipeline.
+
+**P26 — an agreement rate is computed over independent answers only.** Codex emitted every
+answer twice. The duplicates were verified self-consistent (33 distinct trials, 0 answered
+differently between copies) and then **deduplicated**, because counting one model's repeated
+answer as two votes **manufactures agreement out of verbosity**. Repetition by one instrument
+is not independence, and a seat that returned nothing is absent rather than concurring.
 
 ### 1.7.0-2026-08-19
 Adds P24, and records two method lessons from the screen that produced it.
