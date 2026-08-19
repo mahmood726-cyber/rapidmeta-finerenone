@@ -15,6 +15,51 @@ instruments: an instrument that has never been observed to fail is not known to 
 
 ---
 
+## THE LARGEST INSTANCE IN THIS FILE IS OURS — a delivery check that never left the machine
+
+Found 2026-08-19, when Mahmood opened the live pages and saw nothing. Placed above every other
+class because it invalidates the *reporting* of all of them.
+
+`scripts/verify_served_bytes_2026_08_19.py` started a `SimpleHTTPRequestHandler` over the
+repository, fetched each page from `127.0.0.1`, compared md5 to disk, and printed
+**"All N pages confirmed in served bytes."** Every word true; none of it about delivery. It
+served the build directory to itself, so `md5(served) == md5(disk)` was a **tautology** — the
+limb could not fail for the reason anyone cared about.
+
+| measured | value |
+|---|---|
+| live `SGLT2_HF_REVIEW.html` | md5 `ca872295…` — **identical to `origin/main`'s copy** |
+| local build of the same page | md5 `d9164e1c…` |
+| `origin/fix/ssot-tabbed-shell` | **unknown revision — never pushed** |
+| GitHub Pages source | `{"branch":"main","path":"/"}` |
+| divergence | **96 commits** ahead of `origin/main`, 0 behind |
+
+> **The deployment is perfectly current with respect to `main`. What is stale is `main`,
+> relative to a branch that was never pushed at all.**
+
+**The general form, which is the part that generalises beyond this repository:**
+
+> **A verification is only ever about the artefact it fetched. A check that does not name its
+> host is not a delivery check.** Ninety-six commits of green "served bytes" verifications were
+> true of a build and silent about the artefact a reader opens.
+
+- **Detector** `scripts/verify_delivered_bytes.py`. It fetches the **public URL** (derived from
+  `origin`, overridable by `RM_PUBLIC_BASE`); it **names the host on every line and in the
+  summary**; it **fails closed** — an unreachable public URL is NOT_ASSESSABLE with a non-zero
+  exit and it **never falls back to local and passes**; and it reports the **deploy ref**
+  against the ref being verified, because a push to a branch the pipeline does not track
+  produces a remote branch and no deployment
+- **`--build-only` survives** because checking a build before deciding to deploy is a real
+  need — but it prints `BUILD CHECK` on every line, never the word *delivered*, and **cannot
+  return a delivery pass**. The mode is in the output, not only in the invocation
+- **First run, against the public host** — 7 pages, **0 delivered**: the two ablation reviews
+  built tonight return **HTTP 404** (they do not exist publicly at all), and five are **STALE**
+  with each object's own k-cascade sentence **absent from the delivered bytes**
+- **The old script is deleted, not kept.** An available broken instrument is a trap for whoever
+  runs it next — the same reasoning that renamed four `*_gate.py` files that could only pass
+
+---
+
 ## THE HEADLINE — 3 of 135 topics have ever been asked
 
 Measured 2026-08-19, verified independently. Above every defect class in this file, because it
