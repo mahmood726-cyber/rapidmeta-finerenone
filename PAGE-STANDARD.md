@@ -51,6 +51,7 @@ search**, and two topics with identical remainders can mean opposite things:
 | **POPULATION failures** | the surfacing query is **too broad** — it is reaching outside the review's own population | narrow the query; the cost is reviewer time spent excluding trials that were never candidates |
 | **ESTIMAND failures** (eligible, not poolable) | the query is well-aimed and the **evidence base is genuinely fragmented** | nothing to fix in the search; the limit is real and belongs in the interpretation |
 | **NOT-YET-REPORTED** | the query is well-aimed and the **field is still in flight** | name the largest pending trials — they are what will change the answer |
+| **COMPARATOR failures — few trials declare a control arm at all** | the query is well-aimed and **the field has produced few controlled trials**. This is a fact about the literature, not about us | say so plainly; the limit is the evidence that exists, and no better query recovers it |
 
 Observed, on the same night, on two topics with the same criteria discipline:
 
@@ -59,6 +60,13 @@ Observed, on the same night, on two topics with the same criteria discipline:
 - `sglt2-hf` — 10 screened, **7 excluded, six of those on POPULATION**: acute myocardial
   infarction, heart transplant, diabetic nephropathy, congenital heart disease, acute
   decompensation. The surfacing query reaches well beyond its own population.
+- `attr-cm-review` — 46 screened, 31 excluded, and **only 6 of the 46 declare a placebo arm at
+  all**. A drug programme dominated by open-label extension and single-arm studies. No better
+  query recovers randomised evidence that was never generated.
+
+**"Few controlled trials exist" is a different finding from "our query was too broad", and a
+reader must be able to tell them apart.** Both produce a large excluded count; only one is a
+criticism of the search.
 
 > **This is a fact about our search, not about the evidence — and it was invisible while the
 > remainder was carried as a number rather than screened.** A remainder is not a queue to be
