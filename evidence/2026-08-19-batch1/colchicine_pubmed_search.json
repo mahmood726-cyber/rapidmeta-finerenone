@@ -1,0 +1,48 @@
+{
+  "topic": "colchicine-cvd-review, and every one of the seven readings it was split into",
+  "executed_utc": "2026-08-19",
+  "database": "PubMed",
+  "tool": "mcp__plugin_bio-research_pubmed__search_articles",
+  "attribution": "According to PubMed. Article identifiers and DOIs below were retrieved from PubMed via that tool and are reproduced with their DOIs.",
+
+  "WHY_A_PUBMED_LIMB_IS_NOT_OPTIONAL_ON_THIS_TOPIC": {
+    "the_registry_holds_almost_no_results_for_these_trials": "The complete ClinicalTrials.gov screen of 137 registrations returned only EIGHT records with a posted results section, against FIFTY-THREE that are COMPLETED, TERMINATED or WITHDRAWN and have posted NOTHING. Those two states were deliberately separated in the screen, and the separation is the reason this limb exists.",
+    "and_it_is_the_LARGEST_trials_that_are_missing": "CONVINCE (NCT02898610, n=3,154), CHANCE-3 (NCT05439356, n=8,343) and CLEAR SYNERGY (NCT03048825, n=7,264) ALL report `hasResults: false`. Every one of them has published. A registry-only review of this topic would refuse to pool on the grounds that its own anchor trials had not reported, WHICH WOULD BE A FINDING ABOUT THE DATABASE PRESENTED AS A FINDING ABOUT THE LITERATURE.",
+    "contrast_with_the_two_topics_before_this_one": "`azilsartan` and all four `bosentan-pah` readings were built registry-only and each search block SAYS SO. That was acceptable there because the question was answerable from registered evidence. Here it is not, and the difference is recorded rather than inherited."
+  },
+
+  "query_as_executed": "colchicine AND (cardiovascular OR coronary OR \"myocardial infarction\" OR stroke OR atherosclerosis) AND (randomized controlled trial[Publication Type] OR randomised OR randomized)",
+  "sort": "relevance",
+  "max_results_requested": 100,
+
+  "PAGINATION_SHORTFALL_DECLARED": {
+    "total_count_reported_by_pubmed": 523,
+    "records_returned": 100,
+    "has_more": true,
+    "THE_OTHER_423_ARE_UNEXAMINED_NOT_EXCLUDED": "This row is INCOMPLETE and says so on its face. Class 20 in DEFECT-REGISTRY -- cursor abandonment -- was closed on this very topic four hours ago, on a search where abandoning page 2 would have lost CLEAR SYNERGY, the largest trial in the review's own included set. A DECLARED shortfall passes `scripts/lint_search_pagination_declared.py`; an undeclared one does not. NOTHING IN ANY READING MAY BE BUILT ON THIS LIMB UNTIL IT IS EXHAUSTED OR ITS REMAINDER IS SCREENED.",
+    "what_exhausting_it_requires": "Five further calls at retstart 100, 200, 300, 400, 500, then the same disposition taxonomy applied to every returned record. Not done."
+  },
+
+  "recall_against_the_object_s_included_set_and_its_two_off_registry_trials": {
+    "method": "Each identifier below was RESOLVED BY LOOKUP through get_article_metadata and its title read, never matched by position in the result list and never recalled. Reading a result list by position is P35 one level down (P39), and the first attempt at this table did exactly that before the identifiers were read out of the `identifiers` field.",
+    "COLCOT": {"pmid": "31733140", "doi": "10.1056/NEJMoa1912388", "title_as_pubmed_prints_it": "Efficacy and Safety of Low-Dose Colchicine after Myocardial Infarction.", "journal": "N Engl J Med", "date": "2019-11-16", "nct": "NCT02551094", "surfaced_by_this_query": true},
+    "LoDoCo2": {"pmid": "32865380", "doi": "10.1056/NEJMoa2021372", "title_as_pubmed_prints_it": "Colchicine in Patients with Chronic Coronary Disease.", "journal": "N Engl J Med", "date": "2020-08-31", "nct": "not registered on ClinicalTrials.gov -- ANZCTR", "surfaced_by_this_query": true, "note": "THIS TRIAL IS THE REASON THE LIMB MATTERS TWICE OVER. It is registered on ANZCTR and CANNOT be surfaced by any ClinicalTrials.gov query, so the registry search's failure to return it is a property of the database and not a recall failure. PubMed reaches it."},
+    "CLEAR_SYNERGY_colchicine_report": {"pmid": "39555823", "doi": "10.1056/NEJMoa2405922", "title_as_pubmed_prints_it": "Colchicine in Acute Myocardial Infarction.", "journal": "N Engl J Med", "date": "2024-11-17", "nct": "NCT03048825", "surfaced_by_this_query": true},
+    "recall": "3/3 on the object's ClinicalTrials.gov-registered included set, and 4/4 counting LoDoCo2, which the registry limb structurally cannot reach.",
+    "CONVINCE_and_COPS": "NOT RESOLVED IN THIS PASS. CONVINCE (NCT02898610) and COPS (ANZCTR) have not had their publications looked up, so no PMID is asserted for either. An identifier this file does not hold is recorded as absent, never guessed."
+  },
+
+  "A_SIBLING_REPORT_WAS_SURFACED_AND_IS_NOT_THIS_TOPIC_S": {
+    "pmid": "39555814",
+    "doi": "10.1056/NEJMoa2405923",
+    "title_as_pubmed_prints_it": "Routine Spironolactone in Acute Myocardial Infarction.",
+    "why_it_is_recorded_here": "It is the SPIRONOLACTONE report of the SAME 2x2 factorial trial, CLEAR SYNERGY / OASIS-9 (NCT03048825), published in the same journal on the same day, with a DOI differing by one digit from the colchicine report. ONE REGISTRATION, TWO PAPERS, TWO DIFFERENT RANDOMISED COMPARISONS. Attaching the wrong one to this review would produce a complete, plausible, sourced page reporting the effect of a mineralocorticoid antagonist under the heading of colchicine. Named here so the next reader meets it before making the mistake rather than after."
+  },
+
+  "what_this_limb_does_NOT_yet_do": [
+    "It is NOT exhausted -- 100 of 523, declared above.",
+    "It applies NO disposition to any returned record. No screening, no cascade, no arm roles. It establishes recall and nothing else.",
+    "It resolves no effect estimate. Not one hazard ratio in this file has been read from a paper, and the pooled estimate on the parent object REMAINS WITHDRAWN.",
+    "It does not search ANZCTR, where LoDoCo2 and COPS are registered. PubMed reaches their reports; their registrations are unread."
+  ]
+}
