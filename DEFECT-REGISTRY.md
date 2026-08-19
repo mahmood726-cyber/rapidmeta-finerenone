@@ -422,13 +422,37 @@ stamp, and that sentence should be a gate, not prose a reader may or may not not
   build per page. That is the residual half of E8.
 
 ### E7. Asserted verdicts — a property whose value is a constant
-The general form of §8c. A `prop(REFUSING, "...")` or `prop(HELD, "...")` with no branch on
-object state is a verdict that was **decided when the code was written**, not derived from what
-is on the page.
 
-**Mechanically detectable and not built**: walk the AST for `prop(...)` calls whose verdict
-argument is a module-level constant and whose enclosing block contains no reference to `obj`.
-Listed as an exposure rather than as future work, per this file's own standard.
+**Swept corpus-wide by Codex (openai family) on 2026-08-19, independent of the lane that found
+the class.** 580 files, 0 parse failures, **28 findings**: 6 of signature (a) `prop(<CONST>,…)`,
+2 of (b) same verdict on every path, 14 of (c) hardcoded verdict payload, 6 of (d) a validation
+command with no failing process outcome. Two categories it was asked about returned **zero**
+(`passed` / `valid` literal keys), and it said so rather than filling them.
+
+**Verified rather than accepted — a sample of 5, all 5 confirmed as described.** Agent findings
+have a history in this project of flagging correct code, so the sweep's output is evidence to
+check, not a result to adopt.
+
+**And the honest severity is lower than the count suggests, which is the part worth recording.**
+Four files *named* `*_gate.py` — `internal_consistency_gate`, `arm_role_gate`,
+`metric_consistency_gate`, `subject_role_gate` — have **no failing exit at all**: confirmed
+independently, they can only ever pass. But none is wired into `.githooks/pre-commit` or any
+runner, so **nothing currently gates on them**. They are dormant reports carrying gate names.
+
+> A file named `*_gate.py` that cannot fail is not presently a defect — it is a **trap for
+> whoever wires it in next**, who will reasonably assume a thing called a gate can block.
+
+Likewise `r_validate.py` counts failures, prints `Failed: N`, and exits 0 — defensible for a
+reporting tool, and it is not wired as a gate either. Codex's category (d) is broader than the
+defect, and that is recorded here rather than quietly dropped.
+
+**Still OPEN, and deliberately.** The sweep produced a list; it did not produce a detector. The
+buildable form remains an AST walk for `prop()` calls whose verdict argument is a constant and
+whose enclosing block never references the object, plus a check that any file matching
+`*_gate.py` contains a reachable non-zero exit. Findings on file, detector not written.
+
+The general form of §8c: a `prop(REFUSING, …)` with no branch on object state is a verdict
+**decided when the code was written**, not derived from what is on the page.
 
 **This entry exists because two new classes (8b, 8c) were found within the hour after this file
 was written, while doing ordinary build work.** The registry is a snapshot of what has been
