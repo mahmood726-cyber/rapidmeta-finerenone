@@ -248,6 +248,15 @@ function fmt(v, d) {
   if (typeof v !== 'number') v = Number(v);
   return d == null ? String(v) : v.toFixed(d);
 }
+// Withdrawal reasons come from the objects and are inserted into a title attribute and into
+// cell text, so they are escaped. Added with the state-aware OR cell below -- the first draft
+// of that cell called esc() before this existed, which is a ReferenceError that would have
+// blanked the whole table.
+function esc(s) {
+  return String(s == null ? '' : s)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
 
 function renderSummary() {
   const el = document.getElementById('summary');
@@ -329,13 +338,24 @@ function renderRows(rows) {
   document.getElementById('tableWrap').style.display = 'block';
 
   body.innerHTML = rows.map(r => {
+    // AN ABSENCE MUST NAME ITS OWN CAUSE. This cell used to render every empty value as
+    // "— (k<2 / continuous?)", which attributes the absence to the WRONG REASON whenever the
+    // real reason is that the review WITHDREW its estimate or no longer exists. 92 rows were in
+    // that state. A reader told "k<2" about a withdrawal has been told something false.
+    const st = r.ssot_state;
     const orHtml = r.pooled_OR != null
       ? (() => {
           const sig = (r.ci_low > 1) || (r.ci_high < 1);
           const cls = sig ? 'or-sig' : 'or-ns';
           return '<span class="' + cls + '">' + fmt(r.pooled_OR, 2) + '</span> [' + fmt(r.ci_low, 2) + '–' + fmt(r.ci_high, 2) + ']';
         })()
-      : '<span class="or-na">— (k<2 / continuous?)</span>';
+      : (st === 'WITHDRAWN'
+          ? '<span class="or-na" title="' + esc(r.ssot_withdrawn_reason || '') + '">estimate withdrawn by the review</span>'
+          : st === 'RETIRED'
+            ? '<span class="or-na">review retired &rarr; ' + esc(r.ssot_absorbed_by || '') + '</span>'
+            : st === 'NO_POOL'
+              ? '<span class="or-na">the review records no pooled estimate</span>'
+              : '<span class="or-na">— (k<2 / continuous?)</span>');
 
     const flagHtml = r.integrity_flags === 0
       ? '<span class="flag-clean">✓</span>'

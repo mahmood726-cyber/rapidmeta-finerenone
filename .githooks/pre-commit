@@ -82,6 +82,7 @@ python "$R/scripts/standard_version_agreement_gate.py" >/dev/null || { echo "REF
 # trial falling out. Runtime half: topic_identity.require_terms().
 python "$R/scripts/lint_string_where_collection_expected.py" >/dev/null || { echo "REFUSED: a bare string reaches a parameter that is membership-tested (scripts/lint_string_where_collection_expected.py)"; exit 1; }
 python "$R/scripts/lint_pmid_names_two_trials.py" >/dev/null || { echo "REFUSED: one PMID is attributed to two different trials somewhere in the corpus (scripts/lint_pmid_names_two_trials.py). It is wrong on at least one side and the command cannot say which -- look both up."; exit 1; }
+python "$R/scripts/dashboard_projection_gate.py" >/dev/null || { echo "REFUSED: the dashboard data is stale against the objects, or serves a pooled estimate for a topic whose object withdrew one (scripts/dashboard_projection_gate.py). Re-run: python scripts/project_dashboard_index.py --apply"; exit 1; }
 
 # A PUBLISHED ESTIMATE THE PAGE CANNOT DISPLAY IS ONE NOBODY CAN VERIFY. Twice in one
 # session, on the first two CONTINUOUS endpoints ever gated: the object stored four
