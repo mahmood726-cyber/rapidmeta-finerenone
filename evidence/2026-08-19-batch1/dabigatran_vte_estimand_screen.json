@@ -1,0 +1,780 @@
+{
+ "topic": "dabigatran-vte-review",
+ "screened_utc": "2026-08-19",
+ "what_this_decides": "Whether each reading holds a poolable quantity. It does NOT compute a pool and does not write one.",
+ "tests": [
+  "P37 composite names are not definitions",
+  "P38 a shared estimand is not a shared comparator",
+  "P45 the construct is not the measurable endpoint"
+ ],
+ "readings": {
+  "TREATMENT": {
+   "reading": "TREATMENT",
+   "n_trials_read": 5,
+   "verdict": "POOL_NOT_ADMISSIBLE",
+   "failing_limbs": [
+    {
+     "property": "P38",
+     "finding": "The reading holds 2 DIFFERENT COMPARATOR FAMILIES: OTHER_DOAC, VKA. A shared estimand would not make these poolable -- the contrast differs, not just the measurement.",
+     "families": {
+      "VKA": [
+       "NCT00291330",
+       "NCT00680186",
+       "NCT02979561"
+      ],
+      "OTHER_DOAC": [
+       "NCT03129555"
+      ]
+     }
+    },
+    {
+     "property": "P37",
+     "finding": "4 DISTINCT registered-primary titles across 5 trials. Compared on their verbatim text, not on the word 'composite'.",
+     "titles": {
+      "NCT00291330": "Number of Participants With Recurrent Symptomatic Venous Thromboembolism (VTE) and Deaths Related to VTE",
+      "NCT00680186": "Number of Participants With Recurrent Symptomatic Venous Thromboembolism (VTE) and Deaths Related to VTE",
+      "NCT02744092": "Cumulative Non-Fatal VTE Recurrence at 6 Months (%)",
+      "NCT02979561": "recurrent PE",
+      "NCT03129555": "Primary efficacy outcome: a composite endpoint of new venous thromboembolism or all-cause death."
+     }
+    }
+   ],
+   "endpoints_needing_a_human_read": {
+    "NCT00291330": {
+     "title_names_a_bleeding_component": false,
+     "title_names_a_thrombotic_component": true,
+     "description_mentions_bleeding": true,
+     "description_mentions_thrombosis": true,
+     "established_by": "NOT_ESTABLISHED -- the description mentions both but the registered TITLE does not fuse them. A mention is not a component declaration (the RE-COVER adjudication sentence is the case this rule exists for). NEEDS_HUMAN_READ, which is neither a pass nor a failure.",
+     "needs_human_read": true
+    },
+    "NCT00680186": {
+     "title_names_a_bleeding_component": false,
+     "title_names_a_thrombotic_component": true,
+     "description_mentions_bleeding": true,
+     "description_mentions_thrombosis": true,
+     "established_by": "NOT_ESTABLISHED -- the description mentions both but the registered TITLE does not fuse them. A mention is not a component declaration (the RE-COVER adjudication sentence is the case this rule exists for). NEEDS_HUMAN_READ, which is neither a pass nor a failure.",
+     "needs_human_read": true
+    }
+   },
+   "restricted_subsets_that_survive_the_named_axis": [
+    {
+     "restricted_on": "comparator family = VKA",
+     "k_sharing_the_comparator": 3,
+     "members": [
+      "NCT00291330",
+      "NCT00680186",
+      "NCT02979561"
+     ],
+     "k_ALSO_sharing_one_registered_primary_title": 2,
+     "those_members": [
+      "NCT00291330",
+      "NCT00680186"
+     ],
+     "k_of_those_WITH_POSTED_RESULTS": 2,
+     "the_ones_that_have_reported": [
+      "NCT00291330",
+      "NCT00680186"
+     ],
+     "the_shared_title": "number of participants with recurrent symptomatic venous thromboembolism (vte) and deaths related to vte",
+     "status": "A NAMED-AXIS SUBSET, reported not pooled. Sharing a comparator and a title is necessary, not sufficient -- the components still have to be read, and no estimate is computed here.",
+     "caveat_on_the_title_grouping": "Titles are grouped by EXACT text, so this count is a LOWER BOUND. NCT00168818 registers 'Total Venous Thromboembolic Event and All-cause Mortality During Treatment Period' while NCT00152971 and NCT00657150 register the same words prefixed 'Number of Participants With'. Loosening the match would be comparing endpoints on their titles, which is the exact error P37 names -- so the grouping stays exact and the components are read by a human instead."
+    }
+   ],
+   "all_failing_limbs_reported": true,
+   "note_if_clean": null,
+   "trials": [
+    {
+     "nct": "NCT00291330",
+     "state": "READ",
+     "acronym": "RE-COVER I",
+     "brief_title": "Efficacy and Safety of Dabigatran Compared to Warfarin for 6 Month Treatment of Acute Symptomatic Venous Thromboembolism",
+     "enrollment": 2564,
+     "arm_labels_as_the_registry_lists_them": [
+      "dabigatran etexilate 150 mg",
+      "warfarin (INR 2-3)"
+     ],
+     "comparator_families_present": [
+      "VKA"
+     ],
+     "registered_primary_title": "Number of Participants With Recurrent Symptomatic Venous Thromboembolism (VTE) and Deaths Related to VTE",
+     "registered_primary_description_verbatim": "All suspected recurrent VTEs and all deaths and bleeding events were evaluated by an independent central adjudication committee, and all analyses are based on the events that were centrally confirmed by this committee.",
+     "registered_primary_time_frame": "For statistical analysis 1: from randomisation to end of post treatment period (ptp), planned to be up to day 224. For statistical analysis 2: from randomisation to 6 months (up to day 180)",
+     "n_registered_primaries": 1,
+     "all_registered_primary_titles": [
+      "Number of Participants With Recurrent Symptomatic Venous Thromboembolism (VTE) and Deaths Related to VTE"
+     ],
+     "read_utc": "2026-08-19",
+     "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+     "source_url": "https://clinicaltrials.gov/study/NCT00291330",
+     "disposition": "ELIGIBLE_WITH_RESULTS"
+    },
+    {
+     "nct": "NCT00680186",
+     "state": "READ",
+     "acronym": "RE-COVER II",
+     "brief_title": "Phase III Study Testing Efficacy & Safety of Oral Dabigatran Etexilate vs Warfarin for 6 m Treatment for Acute Symp Venous Thromboembolism (VTE)",
+     "enrollment": 2589,
+     "arm_labels_as_the_registry_lists_them": [
+      "Dabigatran etexilate (150mg bid)",
+      "Warfarin (INR 2.0-3.0)"
+     ],
+     "comparator_families_present": [
+      "VKA"
+     ],
+     "registered_primary_title": "Number of Participants With Recurrent Symptomatic Venous Thromboembolism (VTE) and Deaths Related to VTE",
+     "registered_primary_description_verbatim": "All suspected recurrent VTEs and all deaths and bleeding events were evaluated by an independent central adjudication committee, and all analyses are based on the events that were centrally confirmed by this committee.",
+     "registered_primary_time_frame": "For statistical analysis 1: from randomisation to end of post treatment period (ptp), planned to be up to day 224. For statistical analysis 2: from randomisation to 6 months (up to day 180)",
+     "n_registered_primaries": 1,
+     "all_registered_primary_titles": [
+      "Number of Participants With Recurrent Symptomatic Venous Thromboembolism (VTE) and Deaths Related to VTE"
+     ],
+     "read_utc": "2026-08-19",
+     "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+     "source_url": "https://clinicaltrials.gov/study/NCT00680186",
+     "disposition": "ELIGIBLE_WITH_RESULTS"
+    },
+    {
+     "nct": "NCT02744092",
+     "state": "READ",
+     "acronym": "CANVAS",
+     "brief_title": "Direct Oral Anticoagulants (DOACs) Versus LMWH +/- Warfarin for VTE in Cancer",
+     "enrollment": 811,
+     "arm_labels_as_the_registry_lists_them": [
+      "Randomized Arm 1 (DOACs)",
+      "Randomized Arm 2 (LMWH)",
+      "Preference Cohort 1 (DOACs)",
+      "Preference Cohort 2 (LMWH)"
+     ],
+     "comparator_families_present": [],
+     "registered_primary_title": "Cumulative Non-Fatal VTE Recurrence at 6 Months (%)",
+     "registered_primary_description_verbatim": "To compare the effectiveness of anticoagulation with a DOAC (intervention) with LMWH/warfarin (comparator) for preventing VTE recurrence in patients with cancer based on cumulative VTE recurrence reported by patients or clinicians at 6 months. Only VTEs that were nonfatal were considered because of the challenges of attributing cause of death in cancer patients to tumor progression vs. VTE.",
+     "registered_primary_time_frame": "6 months",
+     "n_registered_primaries": 1,
+     "all_registered_primary_titles": [
+      "Cumulative Non-Fatal VTE Recurrence at 6 Months (%)"
+     ],
+     "read_utc": "2026-08-19",
+     "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+     "source_url": "https://clinicaltrials.gov/study/NCT02744092",
+     "disposition": "ELIGIBLE_WITH_RESULTS"
+    },
+    {
+     "nct": "NCT02979561",
+     "state": "READ",
+     "acronym": "Re-Spire",
+     "brief_title": "Pradaxa or Warfarin for Prevention of Recurrent VTE in Patients With Angiographically Confirmed Acute Massive Pulmonary Embolism undergoIng Endovascul",
+     "enrollment": 200,
+     "arm_labels_as_the_registry_lists_them": [
+      "group of dabigatran",
+      "group of warfarin"
+     ],
+     "comparator_families_present": [
+      "VKA"
+     ],
+     "registered_primary_title": "recurrent PE",
+     "registered_primary_description_verbatim": "according to Echocardiogram, scintigraphy of the lungs",
+     "registered_primary_time_frame": "6 month",
+     "n_registered_primaries": 2,
+     "all_registered_primary_titles": [
+      "recurrent PE",
+      "death"
+     ],
+     "read_utc": "2026-08-19",
+     "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+     "source_url": "https://clinicaltrials.gov/study/NCT02979561",
+     "disposition": "ELIGIBLE_COMPLETED_NO_RESULTS_POSTED"
+    },
+    {
+     "nct": "NCT03129555",
+     "state": "READ",
+     "acronym": "DANNOAC-VTE",
+     "brief_title": "The Danish Non-vitamin K Antagonist Oral Anticoagulation Study in Patients With Venous Thromboembolism (DANNOAC-VTE)",
+     "enrollment": 5000,
+     "arm_labels_as_the_registry_lists_them": [
+      "Dabigatran",
+      "Rivaroxaban",
+      "Edoxaban",
+      "Apixaban"
+     ],
+     "comparator_families_present": [
+      "OTHER_DOAC"
+     ],
+     "registered_primary_title": "Primary efficacy outcome: a composite endpoint of new venous thromboembolism or all-cause death.",
+     "registered_primary_description_verbatim": "First occurrence of new venous thromboembolism or all-cause death. Information of endpoints and comorbidity is obtained from the Danish National Patient Register based on ICD-10 diagnostic codes and information of vital status and date of death will be obtained from the Central Person Register. Information of prescribed drug will be obtained using information from the Danish Registry of Medicinal Product Statistics.",
+     "registered_primary_time_frame": "6 months.",
+     "n_registered_primaries": 1,
+     "all_registered_primary_titles": [
+      "Primary efficacy outcome: a composite endpoint of new venous thromboembolism or all-cause death."
+     ],
+     "read_utc": "2026-08-19",
+     "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+     "source_url": "https://clinicaltrials.gov/study/NCT03129555",
+     "disposition": "ELIGIBLE_NO_RESULTS_YET"
+    }
+   ]
+  },
+  "EXTENDED": {
+   "reading": "EXTENDED",
+   "n_trials_read": 2,
+   "verdict": "POOL_NOT_ADMISSIBLE",
+   "failing_limbs": [
+    {
+     "property": "P38",
+     "finding": "The reading holds 2 DIFFERENT COMPARATOR FAMILIES: PLACEBO, VKA. A shared estimand would not make these poolable -- the contrast differs, not just the measurement.",
+     "families": {
+      "VKA": [
+       "NCT00329238"
+      ],
+      "PLACEBO": [
+       "NCT00558259"
+      ]
+     }
+    },
+    {
+     "property": "P37",
+     "finding": "2 DISTINCT registered-primary titles across 2 trials. Compared on their verbatim text, not on the word 'composite'.",
+     "titles": {
+      "NCT00329238": "Composite of Recurrent VTE or VTE Death at 36 Months",
+      "NCT00558259": "Centrally Confirmed Symptomatic Recurrent Venous Thrombotic Events (VTE) Including Unexplained Death During the Intended Treatment Period"
+     }
+    }
+   ],
+   "endpoints_needing_a_human_read": {},
+   "restricted_subsets_that_survive_the_named_axis": [],
+   "all_failing_limbs_reported": true,
+   "note_if_clean": null,
+   "trials": [
+    {
+     "nct": "NCT00329238",
+     "state": "READ",
+     "acronym": "RE-MEDY",
+     "brief_title": "Secondary Prevention of Venous Thrombo Embolism (VTE).",
+     "enrollment": 2867,
+     "arm_labels_as_the_registry_lists_them": [
+      "Dabigatran",
+      "Warfarin (INR of 2.0-3.0)"
+     ],
+     "comparator_families_present": [
+      "VKA"
+     ],
+     "registered_primary_title": "Composite of Recurrent VTE or VTE Death at 36 Months",
+     "registered_primary_description_verbatim": "Endpoint is a composite of recurrent Venous Thromboembolic Event (VTE) and death related to VTE. VTE was defined as the composite of symptomatic Deep Vein Thrombosis (DVT) of the leg and Pulmonary embolism (PE). All recurrent VTEs required objective verification by definitive diagnostic evaluation. In case of death, autopsy was an additional way to confirm VTE.",
+     "registered_primary_time_frame": "36 months",
+     "n_registered_primaries": 2,
+     "all_registered_primary_titles": [
+      "Composite of Recurrent VTE or VTE Death at 36 Months",
+      "Composite of Recurrent VTE or VTE Death at 18 Months"
+     ],
+     "read_utc": "2026-08-19",
+     "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+     "source_url": "https://clinicaltrials.gov/study/NCT00329238",
+     "disposition": "ELIGIBLE_WITH_RESULTS"
+    },
+    {
+     "nct": "NCT00558259",
+     "state": "READ",
+     "acronym": "RE-SONATE",
+     "brief_title": "Twice-daily Oral Direct Thrombin Inhibitor Dabigatran Etexilate in the Long Term Prevention of Recurrent Symptomatic VTE",
+     "enrollment": 1353,
+     "arm_labels_as_the_registry_lists_them": [
+      "dabigatran etexilate 150 mg BID",
+      "matching placebo twice daily (BID)"
+     ],
+     "comparator_families_present": [
+      "PLACEBO"
+     ],
+     "registered_primary_title": "Centrally Confirmed Symptomatic Recurrent Venous Thrombotic Events (VTE) Including Unexplained Death During the Intended Treatment Period",
+     "registered_primary_description_verbatim": "Symptomatic recurrent VTE is the composite of recurrent deep vein thrombosis (DVT) , fatal or non-fatal pulmonary embolism (PE). Whilst the endpoint is time to event, the measured values present the number of participant with event and the hazard ratio presents the time to event.",
+     "registered_primary_time_frame": "6 months",
+     "n_registered_primaries": 1,
+     "all_registered_primary_titles": [
+      "Centrally Confirmed Symptomatic Recurrent Venous Thrombotic Events (VTE) Including Unexplained Death During the Intended Treatment Period"
+     ],
+     "read_utc": "2026-08-19",
+     "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+     "source_url": "https://clinicaltrials.gov/study/NCT00558259",
+     "disposition": "ELIGIBLE_WITH_RESULTS"
+    }
+   ]
+  },
+  "SURGICAL": {
+   "reading": "SURGICAL",
+   "n_trials_read": 7,
+   "verdict": "POOL_NOT_ADMISSIBLE",
+   "failing_limbs": [
+    {
+     "property": "P38",
+     "finding": "The reading holds 3 DIFFERENT COMPARATOR FAMILIES: LMWH_OR_HEPARIN, OTHER_DOAC, PLACEBO. A shared estimand would not make these poolable -- the contrast differs, not just the measurement.",
+     "families": {
+      "LMWH_OR_HEPARIN": [
+       "NCT00152971",
+       "NCT00168818",
+       "NCT00657150",
+       "NCT01225822"
+      ],
+      "PLACEBO": [
+       "NCT00246025"
+      ],
+      "OTHER_DOAC": [
+       "NCT01431456"
+      ]
+     }
+    },
+    {
+     "property": "P37",
+     "finding": "6 DISTINCT registered-primary titles across 7 trials. Compared on their verbatim text, not on the word 'composite'.",
+     "titles": {
+      "NCT00152971": "Number of Participants With Total Venous Thromboembolic Event and All-cause Mortality During Treatment Period",
+      "NCT00168818": "Total Venous Thromboembolic Event and All-cause Mortality During Treatment Period",
+      "NCT00246025": "Percentage of Participants Who Have a Composite Endpoint Consisting of Total Venous Thromboembolic Event (VTE) and All Cause Mortality During the Treatment Period.",
+      "NCT00657150": "Number of Participants With Total Venous Thromboembolic Event and All-cause Mortality During Treatment Period",
+      "NCT01225822": "Number of Participants With Venous Thromboembolic (VTE) Events",
+      "NCT01431456": "The primary safety outcome is the incidence of bleeding events occurring during the study period of 135 days (including follow-up). Major bleeding events and clinically relevant non-major bleeding events were defined according to accepted guidelines",
+      "NCT06581965": "Venous thromboembolic events"
+     }
+    }
+   ],
+   "endpoints_needing_a_human_read": {},
+   "restricted_subsets_that_survive_the_named_axis": [
+    {
+     "restricted_on": "comparator family = LMWH_OR_HEPARIN",
+     "k_sharing_the_comparator": 4,
+     "members": [
+      "NCT00152971",
+      "NCT00168818",
+      "NCT00657150",
+      "NCT01225822"
+     ],
+     "k_ALSO_sharing_one_registered_primary_title": 2,
+     "those_members": [
+      "NCT00152971",
+      "NCT00657150"
+     ],
+     "k_of_those_WITH_POSTED_RESULTS": 2,
+     "the_ones_that_have_reported": [
+      "NCT00152971",
+      "NCT00657150"
+     ],
+     "the_shared_title": "number of participants with total venous thromboembolic event and all-cause mortality during treatment period",
+     "status": "A NAMED-AXIS SUBSET, reported not pooled. Sharing a comparator and a title is necessary, not sufficient -- the components still have to be read, and no estimate is computed here.",
+     "caveat_on_the_title_grouping": "Titles are grouped by EXACT text, so this count is a LOWER BOUND. NCT00168818 registers 'Total Venous Thromboembolic Event and All-cause Mortality During Treatment Period' while NCT00152971 and NCT00657150 register the same words prefixed 'Number of Participants With'. Loosening the match would be comparing endpoints on their titles, which is the exact error P37 names -- so the grouping stays exact and the components are read by a human instead."
+    }
+   ],
+   "all_failing_limbs_reported": true,
+   "note_if_clean": null,
+   "trials": [
+    {
+     "nct": "NCT00152971",
+     "state": "READ",
+     "acronym": null,
+     "brief_title": "Dabigatran Etexilate vs Enoxaparin in Prevention of Venous Thromboembolism (VTE) Post Total Knee Replacement",
+     "enrollment": 2615,
+     "arm_labels_as_the_registry_lists_them": [
+      "Dabigatran Dose 1",
+      "Dabigatran Dose 2",
+      "Enoxaparin"
+     ],
+     "comparator_families_present": [
+      "LMWH_OR_HEPARIN"
+     ],
+     "registered_primary_title": "Number of Participants With Total Venous Thromboembolic Event and All-cause Mortality During Treatment Period",
+     "registered_primary_description_verbatim": "Total Venous Thromboembolic Event (VTE) includes both proximal and distal deep vein thrombosis (DVT) (detected by routine bilateral venography), symptomatic DVT (confirmed by venous compression ultrasound, venography or autopsy) and pulmonary embolism (PE) (confirmed by pulmonary V-Q scintigraphy, chest x-ray, pulmonary angiography, spiral CT or autopsy).\n\nAll of these components and all deaths were centrally adjudicated by the VTE events committee, which was not aware of the treatment allocation of the patients.",
+     "registered_primary_time_frame": "First administration until 12-15 days",
+     "n_registered_primaries": 1,
+     "all_registered_primary_titles": [
+      "Number of Participants With Total Venous Thromboembolic Event and All-cause Mortality During Treatment Period"
+     ],
+     "read_utc": "2026-08-19",
+     "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+     "source_url": "https://clinicaltrials.gov/study/NCT00152971",
+     "disposition": "ELIGIBLE_WITH_RESULTS"
+    },
+    {
+     "nct": "NCT00168818",
+     "state": "READ",
+     "acronym": null,
+     "brief_title": "Dabigatran Etexilate in Extended Venous Thromboembolism (VTE) Prevention After Hip Replacement Surgery",
+     "enrollment": 3494,
+     "arm_labels_as_the_registry_lists_them": [
+      "dabigatran etexilate 75 mg",
+      "dabigatran etexilate 110 mg",
+      "enoxaparin"
+     ],
+     "comparator_families_present": [
+      "LMWH_OR_HEPARIN"
+     ],
+     "registered_primary_title": "Total Venous Thromboembolic Event and All-cause Mortality During Treatment Period",
+     "registered_primary_description_verbatim": "Total Venous Thromboembolic Event (VTE) includes both proximal and distal deep vein thrombosis (DVT) (detected by routine bilateral venography), symptomatic DVT (confirmed by venous compression ultrasound, venography or autopsy) and pulmonary embolism (PE) (confirmed by pulmonary V-Q scintigraphy, chest x-ray, pulmonary angiography, spiral CT or autopsy).\n\nAll of these components and all deaths were centrally adjudicated by the VTE events committee, which was not aware of the treatment allocation of the patients.",
+     "registered_primary_time_frame": "First administration until 31-38 days",
+     "n_registered_primaries": 1,
+     "all_registered_primary_titles": [
+      "Total Venous Thromboembolic Event and All-cause Mortality During Treatment Period"
+     ],
+     "read_utc": "2026-08-19",
+     "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+     "source_url": "https://clinicaltrials.gov/study/NCT00168818",
+     "disposition": "ELIGIBLE_WITH_RESULTS"
+    },
+    {
+     "nct": "NCT00246025",
+     "state": "READ",
+     "acronym": null,
+     "brief_title": "A Study of BIBR 1048 in Prevention of Venous Thromboembolism in Patients With TKR Surgery.",
+     "enrollment": 512,
+     "arm_labels_as_the_registry_lists_them": [
+      "Dabigatran etexilate 110 mg",
+      "Dabigatran etexilate 150 mg",
+      "Dabigatran etexilate 220 mg",
+      "Placebo"
+     ],
+     "comparator_families_present": [
+      "PLACEBO"
+     ],
+     "registered_primary_title": "Percentage of Participants Who Have a Composite Endpoint Consisting of Total Venous Thromboembolic Event (VTE) and All Cause Mortality During the Treatment Period.",
+     "registered_primary_description_verbatim": "number of participants with the composite endpoint (total Venous Thromboembolic Event (VTE) and all cause mortality",
+     "registered_primary_time_frame": "2 weeks study medication",
+     "n_registered_primaries": 1,
+     "all_registered_primary_titles": [
+      "Percentage of Participants Who Have a Composite Endpoint Consisting of Total Venous Thromboembolic Event (VTE) and All Cause Mortality During the Treatment Period."
+     ],
+     "read_utc": "2026-08-19",
+     "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+     "source_url": "https://clinicaltrials.gov/study/NCT00246025",
+     "disposition": "ELIGIBLE_WITH_RESULTS"
+    },
+    {
+     "nct": "NCT00657150",
+     "state": "READ",
+     "acronym": null,
+     "brief_title": "Dabigatran Etexilate Compared With Enoxaparin in Prevention of Venous Thromboembolism (VTE) Following Total Hip Arthroplasty",
+     "enrollment": 2055,
+     "arm_labels_as_the_registry_lists_them": [
+      "Dabigatran etexilate",
+      "Enoxaparin"
+     ],
+     "comparator_families_present": [
+      "LMWH_OR_HEPARIN"
+     ],
+     "registered_primary_title": "Number of Participants With Total Venous Thromboembolic Event and All-cause Mortality During Treatment Period",
+     "registered_primary_description_verbatim": "Total Venous Thromboembolic Event (VTE) includes both proximal and distal deep vein thrombosis (DVT) (detected by routine venography), symptomatic DVT (confirmed by venous duplex, ultrasound, venography or autopsy) and pulmonary embolism (PE) (confirmed by pulmonary V-Q scintigraphy, chest x-ray, pulmonary angiography, spiral CT or autopsy).\n\nAll of these components and all deaths were centrally adjudicated by the VTE events committee, which was not aware of the treatment allocation of the patients.",
+     "registered_primary_time_frame": "28-35 days",
+     "n_registered_primaries": 1,
+     "all_registered_primary_titles": [
+      "Number of Participants With Total Venous Thromboembolic Event and All-cause Mortality During Treatment Period"
+     ],
+     "read_utc": "2026-08-19",
+     "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+     "source_url": "https://clinicaltrials.gov/study/NCT00657150",
+     "disposition": "ELIGIBLE_WITH_RESULTS"
+    },
+    {
+     "nct": "NCT01225822",
+     "state": "READ",
+     "acronym": null,
+     "brief_title": "BIBR 1048 Dose Range Finding Study in Prevention of Venous Thromboembolism in Patients With Primary Elective Total Hip or Knee Replacement Surgery",
+     "enrollment": 1973,
+     "arm_labels_as_the_registry_lists_them": [
+      "BIBR 1048 50 mg bis in die(b.i.d)",
+      "BIBR 1048 150 mg b.i.d",
+      "BIBR 1048 225 mg b.i.d",
+      "BIBR 1048 300 mg quaque die(q.d)",
+      "Enoxaparin 40 mg subcutaneous(s.c)"
+     ],
+     "comparator_families_present": [
+      "LMWH_OR_HEPARIN"
+     ],
+     "registered_primary_title": "Number of Participants With Venous Thromboembolic (VTE) Events",
+     "registered_primary_description_verbatim": "Deep vein thrombosis (DVT) (proximal and distal) as detected by routine bilateral venography on day 8 +/- 2, plus symptomatic DVT confirmed by venography during the treatment period or PE confirmed by objective testing",
+     "registered_primary_time_frame": "Treatment period (up to day 8+/-2 days visit)",
+     "n_registered_primaries": 2,
+     "all_registered_primary_titles": [
+      "Number of Participants With Venous Thromboembolic (VTE) Events",
+      "Number of Participants With Major Bleeding Events (MBE)"
+     ],
+     "read_utc": "2026-08-19",
+     "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+     "source_url": "https://clinicaltrials.gov/study/NCT01225822",
+     "disposition": "ELIGIBLE_WITH_RESULTS"
+    },
+    {
+     "nct": "NCT01431456",
+     "state": "READ",
+     "acronym": "DARINA",
+     "brief_title": "Safety of DAbigatran and RIvaroxaban Versus NAdroparin in the Prevention of Venous Thromboembolism After Knee Arthroplasty Surgery",
+     "enrollment": 148,
+     "arm_labels_as_the_registry_lists_them": [
+      "Dabigatran",
+      "Rivaroxaban",
+      "Nadroparin"
+     ],
+     "comparator_families_present": [
+      "OTHER_DOAC"
+     ],
+     "registered_primary_title": "The primary safety outcome is the incidence of bleeding events occurring during the study period of 135 days (including follow-up). Major bleeding events and clinically relevant non-major bleeding events were defined according to accepted guidelines",
+     "registered_primary_description_verbatim": "Major and clinically relevant non-major bleeding",
+     "registered_primary_time_frame": "135 days",
+     "n_registered_primaries": 1,
+     "all_registered_primary_titles": [
+      "The primary safety outcome is the incidence of bleeding events occurring during the study period of 135 days (including follow-up). Major bleeding events and clinically relevant non-major bleeding events were defined according to accepted guidelines"
+     ],
+     "read_utc": "2026-08-19",
+     "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+     "source_url": "https://clinicaltrials.gov/study/NCT01431456",
+     "disposition": "ELIGIBLE_COMPLETED_NO_RESULTS_POSTED"
+    },
+    {
+     "nct": "NCT06581965",
+     "state": "READ",
+     "acronym": "DISTINCT",
+     "brief_title": "inDividual, Targeted thrombosIS Prophylaxis Versus the Standard 'One Size Fits All' Approach in Patients Undergoing Total hIp or Total kNee replaCemen",
+     "enrollment": 10078,
+     "arm_labels_as_the_registry_lists_them": [
+      "DISTINCT 1 short duration prophylaxis",
+      "DISTINCT 1 control",
+      "DISTINCT 2 observational arm",
+      "DISTINCT 3 extended prophylaxis",
+      "DISTINCT 3 control"
+     ],
+     "comparator_families_present": [],
+     "registered_primary_title": "Venous thromboembolic events",
+     "registered_primary_description_verbatim": "Number of VTEs in the first 3 months postoperative.",
+     "registered_primary_time_frame": "90 days postoperative",
+     "n_registered_primaries": 2,
+     "all_registered_primary_titles": [
+      "Venous thromboembolic events",
+      "Major bleeding"
+     ],
+     "read_utc": "2026-08-19",
+     "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+     "source_url": "https://clinicaltrials.gov/study/NCT06581965",
+     "disposition": "ELIGIBLE_NO_RESULTS_YET"
+    }
+   ]
+  },
+  "CEREBRAL": {
+   "reading": "CEREBRAL",
+   "n_trials_read": 5,
+   "verdict": "POOL_NOT_ADMISSIBLE",
+   "failing_limbs": [
+    {
+     "property": "P45",
+     "finding": "1 trial(s) register a primary that fuses a THROMBOTIC and a BLEEDING component in one endpoint. That measures neither efficacy nor safety, so it cannot join either.",
+     "trials": [
+      "NCT02913326"
+     ],
+     "detail": {
+      "NCT02913326": {
+       "title_names_a_bleeding_component": true,
+       "title_names_a_thrombotic_component": true,
+       "description_mentions_bleeding": true,
+       "description_mentions_thrombosis": true,
+       "established_by": "THE REGISTERED TITLE ITSELF"
+      }
+     }
+    },
+    {
+     "property": "P38",
+     "finding": "The reading holds 2 DIFFERENT COMPARATOR FAMILIES: OTHER_DOAC, VKA. A shared estimand would not make these poolable -- the contrast differs, not just the measurement.",
+     "families": {
+      "VKA": [
+       "NCT02913326",
+       "NCT03217448"
+      ],
+      "OTHER_DOAC": [
+       "NCT06551402",
+       "NCT06551415"
+      ]
+     }
+    },
+    {
+     "property": "P37",
+     "finding": "4 DISTINCT registered-primary titles across 5 trials. Compared on their verbatim text, not on the word 'composite'.",
+     "titles": {
+      "NCT02913326": "Percentage of Participants With Composite of Venous Thrombotic Event (VTE) or Major Bleeding Event (MBE) According to International Society on Thrombosis and Haemostasis (ISTH) Criteria in Full Observation Period.",
+      "NCT03217448": "The incidence of recanalized cerebral veins after 6 months",
+      "NCT06551402": "The proportion of subjects who have partial or complete venous recanalization by Day 180",
+      "NCT06551415": "The proportion of subjects who have partial or complete venous recanalization by Day 180",
+      "NCT07352358": "Proportion of patients achieving complete recanalization at day 7"
+     }
+    }
+   ],
+   "endpoints_needing_a_human_read": {},
+   "restricted_subsets_that_survive_the_named_axis": [
+    {
+     "restricted_on": "comparator family = OTHER_DOAC",
+     "k_sharing_the_comparator": 2,
+     "members": [
+      "NCT06551402",
+      "NCT06551415"
+     ],
+     "k_ALSO_sharing_one_registered_primary_title": 2,
+     "those_members": [
+      "NCT06551402",
+      "NCT06551415"
+     ],
+     "k_of_those_WITH_POSTED_RESULTS": 0,
+     "the_ones_that_have_reported": [],
+     "the_shared_title": "the proportion of subjects who have partial or complete venous recanalization by day 180",
+     "status": "A NAMED-AXIS SUBSET, reported not pooled. Sharing a comparator and a title is necessary, not sufficient -- the components still have to be read, and no estimate is computed here.",
+     "caveat_on_the_title_grouping": "Titles are grouped by EXACT text, so this count is a LOWER BOUND. NCT00168818 registers 'Total Venous Thromboembolic Event and All-cause Mortality During Treatment Period' while NCT00152971 and NCT00657150 register the same words prefixed 'Number of Participants With'. Loosening the match would be comparing endpoints on their titles, which is the exact error P37 names -- so the grouping stays exact and the components are read by a human instead."
+    }
+   ],
+   "all_failing_limbs_reported": true,
+   "note_if_clean": null,
+   "trials": [
+    {
+     "nct": "NCT02913326",
+     "state": "READ",
+     "acronym": null,
+     "brief_title": "A Clinical Trial Comparing Efficacy and Safety of Dabigatran Etexilate With Warfarin in Patients With Cerebral Venous and Dural Sinus Thrombosis (RE-S",
+     "enrollment": 120,
+     "arm_labels_as_the_registry_lists_them": [
+      "Dabigatran etexilate",
+      "Warfarin"
+     ],
+     "comparator_families_present": [
+      "VKA"
+     ],
+     "registered_primary_title": "Percentage of Participants With Composite of Venous Thrombotic Event (VTE) or Major Bleeding Event (MBE) According to International Society on Thrombosis and Haemostasis (ISTH) Criteria in Full Observation Period.",
+     "registered_primary_description_verbatim": "Composite of the percentage of participants with MBE according to ISTH criteria and VTE (recurring cerebral venous thrombosis (CVT); deep venous thrombosis (DVT) of any limb, pulmonary embolism (PE), splanchnic vein thrombosis) in full observation period. All components were adjudicated in a blinded manner.\n\nMajor bleeds were defined according to the ISTH definition of a major bleed, as follows:\n\n* Symptomatic bleeding in a critical area or organ, such as intracranial, intraspinal, intraocular, retroperitoneal, intra-articular or pericardial, or intramuscular with compartment syndrome and/or\n* Bleeding associated with a reduction in haemoglobin of at least 2 grams/deciLitre (1.24 millimole/Litre) within 24 h, or leading to transfusion of 2 or more units of blood or packed cells and/or\n* Fatal bleed",
+     "registered_primary_time_frame": "From first administration of trial medication until 6 days after last administration of trial medication, up to 25 weeks.",
+     "n_registered_primaries": 1,
+     "all_registered_primary_titles": [
+      "Percentage of Participants With Composite of Venous Thrombotic Event (VTE) or Major Bleeding Event (MBE) According to International Society on Thrombosis and Haemostasis (ISTH) Criteria in Full Observation Period."
+     ],
+     "read_utc": "2026-08-19",
+     "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+     "source_url": "https://clinicaltrials.gov/study/NCT02913326",
+     "disposition": "ELIGIBLE_WITH_RESULTS"
+    },
+    {
+     "nct": "NCT03217448",
+     "state": "READ",
+     "acronym": null,
+     "brief_title": "The Efficacy and Safety of Dabigatran Etexilate for the Treatment of Cerebral Venous Thrombosis",
+     "enrollment": 80,
+     "arm_labels_as_the_registry_lists_them": [
+      "Dabigatran etexilate group",
+      "Warfarin group"
+     ],
+     "comparator_families_present": [
+      "VKA"
+     ],
+     "registered_primary_title": "The incidence of recanalized cerebral veins after 6 months",
+     "registered_primary_description_verbatim": "cerebral venous recanalisation rate after anticoagulation treatment for 6 months.",
+     "registered_primary_time_frame": "0-6 months after randomization",
+     "n_registered_primaries": 1,
+     "all_registered_primary_titles": [
+      "The incidence of recanalized cerebral veins after 6 months"
+     ],
+     "read_utc": "2026-08-19",
+     "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+     "source_url": "https://clinicaltrials.gov/study/NCT03217448",
+     "disposition": "ELIGIBLE_COMPLETED_NO_RESULTS_POSTED"
+    },
+    {
+     "nct": "NCT06551402",
+     "state": "READ",
+     "acronym": null,
+     "brief_title": "Dabigatran Versus Rivaroxaban in Cerebral Venous Thrombosis",
+     "enrollment": 200,
+     "arm_labels_as_the_registry_lists_them": [
+      "dabigatran",
+      "rivaroxaban"
+     ],
+     "comparator_families_present": [
+      "OTHER_DOAC"
+     ],
+     "registered_primary_title": "The proportion of subjects who have partial or complete venous recanalization by Day 180",
+     "registered_primary_description_verbatim": "the investigators will perform magnetic resonance venography for all patients after 6 months to show if there is partial or complete recanalization of the affected venous sinus",
+     "registered_primary_time_frame": "180 days",
+     "n_registered_primaries": 2,
+     "all_registered_primary_titles": [
+      "The proportion of subjects who have partial or complete venous recanalization by Day 180",
+      "Rate of drug-related hemorrhagic complications"
+     ],
+     "read_utc": "2026-08-19",
+     "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+     "source_url": "https://clinicaltrials.gov/study/NCT06551402",
+     "disposition": "ELIGIBLE_NO_RESULTS_YET"
+    },
+    {
+     "nct": "NCT06551415",
+     "state": "READ",
+     "acronym": null,
+     "brief_title": "Dabigatran Versus Apixaban in Cerebral Venous Thrombosis",
+     "enrollment": 200,
+     "arm_labels_as_the_registry_lists_them": [
+      "Dabigatran",
+      "apixaban"
+     ],
+     "comparator_families_present": [
+      "OTHER_DOAC"
+     ],
+     "registered_primary_title": "The proportion of subjects who have partial or complete venous recanalization by Day 180",
+     "registered_primary_description_verbatim": "The investigators will perform magnetic resonance venography for all patients after 6 months to show if there is partial or complete recanalization of the affected venous sinus",
+     "registered_primary_time_frame": "180 days",
+     "n_registered_primaries": 2,
+     "all_registered_primary_titles": [
+      "The proportion of subjects who have partial or complete venous recanalization by Day 180",
+      "Rate of drug-related hemorrhagic complications"
+     ],
+     "read_utc": "2026-08-19",
+     "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+     "source_url": "https://clinicaltrials.gov/study/NCT06551415",
+     "disposition": "ELIGIBLE_NO_RESULTS_YET"
+    },
+    {
+     "nct": "NCT07352358",
+     "state": "READ",
+     "acronym": "ABACVT",
+     "brief_title": "Randomized Trial of Anticoagulation Plus Batroxobin for Acute Cerebral Venous Thrombosis",
+     "enrollment": 72,
+     "arm_labels_as_the_registry_lists_them": [
+      "batroxobin plus anticoagulation",
+      "standard anticoagulation treatment group"
+     ],
+     "comparator_families_present": [],
+     "registered_primary_title": "Proportion of patients achieving complete recanalization at day 7",
+     "registered_primary_description_verbatim": "",
+     "registered_primary_time_frame": "On the seventh day after treatment",
+     "n_registered_primaries": 1,
+     "all_registered_primary_titles": [
+      "Proportion of patients achieving complete recanalization at day 7"
+     ],
+     "read_utc": "2026-08-19",
+     "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+     "source_url": "https://clinicaltrials.gov/study/NCT07352358",
+     "disposition": "ELIGIBLE_NO_RESULTS_YET"
+    }
+   ]
+  }
+ },
+ "the_objects_own_four_trials": {
+  "landing": {
+   "NCT00329238": {
+    "declared": "EXTENDED",
+    "in_the_surfaced_set_as": "EXTENDED"
+   },
+   "NCT02913326": {
+    "declared": "CEREBRAL",
+    "in_the_surfaced_set_as": "CEREBRAL"
+   },
+   "NCT00168805": {
+    "declared": "SURGICAL",
+    "in_the_surfaced_set_as": "NOT_SURFACED"
+   },
+   "NCT01505881": {
+    "declared": "NOT_A_VTE_TRIAL",
+    "in_the_surfaced_set_as": "NOT_SURFACED"
+   }
+  },
+  "distinct_readings_spanned": [
+   "CEREBRAL",
+   "EXTENDED",
+   "SURGICAL"
+  ],
+  "finding": "The object's four trials span 3 DIFFERENT READINGS (CEREBRAL, EXTENDED, SURGICAL) plus one that is not a venous thromboembolism trial at all. Its withdrawn estimate did not have an estimand problem a better endpoint choice would fix -- IT POOLED ACROSS THREE DIFFERENT QUESTIONS."
+ }
+}
