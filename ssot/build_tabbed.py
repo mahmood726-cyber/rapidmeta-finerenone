@@ -573,6 +573,45 @@ def _downloads_html(canon):
             % (NL, NL, rows, NL))
 
 
+def _projected_paper_html(canon):
+    """The manuscript PROJECTED FROM THIS OBJECT, with every section's source field on it.
+
+    PREFERRED OVER THE DOCMODEL FILE, and the reason is the contamination incident this
+    module's own docstring records: a manuscript read from a FIXED PATH belongs to whoever
+    wrote that path. A manuscript projected from `canon` cannot be another review's, because
+    it is derived from this review's fields and carries their names.
+
+    Returns "" when the object supports no section, so the caller falls through to the
+    absent-state banner rather than printing an empty manuscript.
+    """
+    try:
+        import paper_projector as ppj
+        secs = ppj.project(canon)
+    except Exception as exc:                       # noqa: BLE001 - reported, never silent
+        return ("<div class='absent-state' role='note'><strong>Not assessable.</strong> "
+                "The manuscript projector failed on this object (%s: %s). That is a broken "
+                "instrument, and it is reported rather than shown as an absent "
+                "manuscript.</div>" % (e(type(exc).__name__), e(str(exc)[:200])))
+    if not any(s.state == ppj.WRITTEN for s in secs):
+        return ""
+    out = ["<div class='card'>", "<h2>Paper</h2>",
+           "<p class='muted'>Every paragraph below is PROJECTED from a field of this "
+           "object, and names it. <strong>A section with no field behind it is not "
+           "written</strong> &mdash; it is refused, by name, so a reader can tell an absent "
+           "procedure from an unmentioned one.</p>"]
+    for s in secs:
+        out.append("<h3>%s</h3>" % e(s.heading))
+        for text, fields in s.paras:
+            out.append("<p>%s<br><small class='muted'>&larr; %s</small></p>"
+                       % (e(text), e(", ".join(fields))))
+        for what, missing in s.refusals:
+            out.append("<div class='absent-state' role='note'><strong>Refused:</strong> %s "
+                       "&mdash; no field: <code>%s</code></div>"
+                       % (e(what), e(", ".join(missing))))
+    out.append("</div>")
+    return NL.join(out)
+
+
 def _paper_panel(canon):
     """The Paper Studio tab, from THIS object's manuscript or an honest state.
 
@@ -582,6 +621,9 @@ def _paper_panel(canon):
     a fixed path, rendered it, and every check passed because a manuscript was
     present -- just not this page's.
     """
+    projected = _projected_paper_html(canon)
+    if projected:
+        return projected
     d = _doc_dir_for(canon)
     app = (canon.get("app_id") or "unknown")
     model = os.path.join(d, "manuscript_docmodel.json") if d else None

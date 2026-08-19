@@ -1413,7 +1413,16 @@ def tabbed_body(canon, parts, page):
         body = "".join(chunks)
         text = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", body)).strip()
         data = len(re.findall(r"<(?:table|svg|li)[ >/]", body))
-        if len(text) < FLOOR_CHARS or data < 1:
+        # THE DATA LIMB IS A TEST FOR A DATA PANEL, AND THE PAPER TAB IS NOT ONE.
+        # `data < 1` catches an analysis tab that talks about a forest plot without carrying
+        # one, which is a real protection worth keeping. A MANUSCRIPT IS PROSE BY DEFINITION
+        # and contains no table, figure or list -- so the limb classified 11,124 characters of
+        # projected manuscript as "not held in this object" and printed a red banner saying no
+        # manuscript had been generated, DIRECTLY ABOVE THE MANUSCRIPT. The thin-content limb
+        # still applies to this tab: a page with no manuscript falls under FLOOR_CHARS and is
+        # correctly reported absent.
+        prose_tab = tid in ("paper",)
+        if len(text) < FLOOR_CHARS or (data < 1 and not prose_tab):
             skipped.append((tid, len(text), data))
             # Emit the tab with an honest state instead of dropping it. Any thin
             # body it did carry is shown beneath the statement rather than being
