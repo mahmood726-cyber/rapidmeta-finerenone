@@ -57,6 +57,31 @@ import paper as pp
 import wysiwyg as wy          # noqa: E402
 
 NL = pj.NL
+
+def _v(x, absent="—", limit=None):
+    """Escape a value for HTML, rendering ABSENCE as a dash rather than as the word "None".
+
+    THE DEFECT THIS CLOSES, CAUGHT BY THE PRE-PUSH GATE ON SIX PAGES AT ONCE. The builder used
+    `_v((x))` in fifty places. `str(None)` is the four-character string "None", so an absent
+    field rendered as a table cell reading None -- and the criteria table on six pages showed
+
+        limb  |  value  |  derived from
+        None  |  None   |  None
+
+    which is not an absence marker. IT IS A VALUE, and a reader has no way to tell it from a
+    field whose content is the word None. This is the leak class recorded in the project's own
+    lessons: a Python None reaching rendered output, which previously shipped to 1110
+    dashboards before anyone saw it.
+
+    `str()` IS THE BUG, NOT THE ESCAPING. Escaping "None" faithfully produces "None".
+    """
+    if x is None:
+        return absent
+    t = str(x)
+    if limit:
+        t = t[:limit]
+    return html.escape(t) if t.strip() else absent
+
 e = html.escape
 
 READER_JS = """
@@ -98,7 +123,7 @@ def paper_studio(canon, res, p):
     ce = res.get("cross_engine") or {}
     o = canon["outcomes"][0]
     ks = res.get("k_status") or {}
-    meas = e(str(pooled.get("measure", "")))
+    meas = _v((pooled.get("measure", "")))
 
     def li(h, body):
         return ("    <li><strong>%s.</strong> %s</li>%s" % (h, body, NL)) if body else ""
@@ -141,7 +166,7 @@ def paper_studio(canon, res, p):
     if het.get("i2") is not None:
         snips.append(("Heterogeneity", "I-squared %s%%" % pj.fmt(het["i2"])))
     if g.get("certainty"):
-        snips.append(("Certainty", "GRADE certainty: %s" % e(str(g["certainty"]))))
+        snips.append(("Certainty", "GRADE certainty: %s" % _v((g["certainty"]))))
     chips = "".join('    <button type="button" class="chip" data-ins="%s">%s'
                     '</button>%s' % (v, k, NL) for k, v in snips)
 
@@ -177,7 +202,7 @@ def paper_studio(canon, res, p):
         refs += ("    <li>%s. <em>%s</em> %s;%s. "
                  "<a href='%s'>PMID %s</a> [HTTP %s]%s%s</li>%s"
                  % (bits[0], bits[1], bits[2], vol or bits[3],
-                    e(c.get("url", "")), e(pmid), e(str(st)),
+                    e(c.get("url", "")), e(pmid), _v((st)),
                     (" <a href='%s'>doi</a>" % e(c["doi_url"])) if c.get("doi_url") else "",
                     (" <small>%s</small>" % p(_pre(note))) if note else "", NL))
     ratio = ("  <p><small>%s of %s references trace to a record this review "
@@ -380,7 +405,7 @@ def output_card(canon, p):
                 "<td>%s</td></tr>%s"
                 % (p(o["name"]), pj.fmt(r.get("k")),
                    " (lower bound)" if ks.get("is_lower_bound") else "",
-                   ("%s %s (%s to %s)" % (e(str(pl.get("measure", ""))),
+                   ("%s %s (%s to %s)" % (_v((pl.get("measure", ""))),
                                           pj.fmt(pl["point"]),
                                           pj.fmt(pl["ci_low"]),
                                           pj.fmt(pl["ci_high"]))
@@ -390,13 +415,13 @@ def output_card(canon, p):
     c0 = (reg.get("commits") or [{}])[0]
     first = next(iter(canon["results"]["by_outcome"].values()), {})
     repro = pj.kv_card("Reproducibility artifact", [
-        ("Canonical object", "<code>%s</code>" % e(str(reg.get("path", "")))),
-        ("Registered at", "<code>%s</code> %s" % (e(str(c0.get("sha", ""))[:12]),
-                                                  e(str(c0.get("committed_utc", ""))))),
+        ("Canonical object", "<code>%s</code>" % _v((reg.get("path", "")))),
+        ("Registered at", "<code>%s</code> %s" % (_v(c0.get("sha", ""), limit=12),
+                                                  _v((c0.get("committed_utc", ""))))),
         ("Permalink", ("<a href='%s'>%s</a>" % (e(c0["permalink"]), e(c0["permalink"])))
          if c0.get("permalink") else ""),
-        ("Schema", e(str(canon.get("schema_version", "")))),
-        ("Built", e(str(canon.get("built", "")))),
+        ("Schema", _v((canon.get("schema_version", "")))),
+        ("Built", _v((canon.get("built", "")))),
         # BUILD STAMP. The generator commit this page was produced from, in the
         # served bytes.
         #
@@ -423,7 +448,7 @@ def output_card(canon, p):
         # commit can be built against two different versions of it.
         ("Generator build", "<code>%s</code>%s, built to STANDARD v%s"
                             % (e(_generator_stamp()[0]), e(_generator_stamp()[1]),
-                               e(str(_standard_version())))),
+                               _v((_standard_version())))),
         ("Statistical engine", p((first.get("cross_engine") or {}).get("engine", ""))),
     ], "Everything a third party needs to rebuild this page. Each figure on the "
        "Analysis tab downloads as an SVG carrying exactly the values shown.")
@@ -591,7 +616,7 @@ def _projected_paper_html(canon):
         return ("<div class='absent-state' role='note'><strong>Not assessable.</strong> "
                 "The manuscript projector failed on this object (%s: %s). That is a broken "
                 "instrument, and it is reported rather than shown as an absent "
-                "manuscript.</div>" % (e(type(exc).__name__), e(str(exc)[:200])))
+                "manuscript.</div>" % (e(type(exc).__name__), _v(exc, limit=200)))
     if not any(s.state == ppj.WRITTEN for s in secs):
         return ""
     out = ["<div class='card'>", "<h2>Paper</h2>",
@@ -709,10 +734,10 @@ def _standard_block(canon, e_):
     for name, prop in (stamp.get("properties") or {}).items():
         cls = "ok" if prop.get("state") == "HELD" else "warn"
         rows.append("<tr class='%s'><td>%s</td><td><strong>%s</strong></td><td>%s</td></tr>"
-                    % (cls, e_(name), e_(str(prop.get("state"))), e_(str(prop.get("reason")))))
+                    % (cls, e_(name), _v((prop.get("state"))), _v((prop.get("reason")))))
 
     casc = canon.get("k_cascade") or {}
-    casc_rows = "".join("<tr><td>%s</td><td>%s</td></tr>" % (e_(k), e_(str(v)))
+    casc_rows = "".join("<tr><td>%s</td><td>%s</td></tr>" % (e_(k), _v((v)))
                         for k, v in casc.items() if not k.startswith("_"))
 
     prov = (canon.get("screening") or {}).get("eligibility_provenance") or {}
@@ -722,22 +747,22 @@ def _standard_block(canon, e_):
             "<h3>Inclusion criteria — derived, post hoc</h3>"
             "<p><strong>predefined: %s &nbsp;|&nbsp; post_hoc: %s</strong> — derived %s</p>"
             "<p><small>%s</small></p>"
-            % (e_(str(prov.get("predefined"))), e_(str(prov.get("post_hoc"))),
-               e_(str(prov.get("derived_on"))),
-               e_(str(prov.get("authority_permitting_this", "")))))
+            % (_v((prov.get("predefined"))), _v((prov.get("post_hoc"))),
+               _v((prov.get("derived_on"))),
+               _v((prov.get("authority_permitting_this", "")))))
         prov_html += "<table><tr><th>limb</th><th>value</th><th>derived from</th></tr>"
         for el in prov.get("elements") or []:
             prov_html += ("<tr><td>%s</td><td>%s</td><td><code>%s</code></td></tr>"
-                          % (e_(str(el.get("limb"))), e_(str(el.get("value"))[:160]),
-                             e_(str(el.get("derived_from")))))
+                          % (_v(el.get("limb")), _v(el.get("value"), limit=160),
+                             _v(el.get("derived_from"))))
         prov_html += "</table>"
 
     pv = canon.get("precondition_verdict") or {}
     pre_rows = "".join(
         "<tr><td>%s</td><td><strong>%s</strong></td><td><small>%s</small></td>"
         "<td><small>%s</small></td></tr>"
-        % (e_(n), e_(str(v.get("verdict"))), e_(str(v.get("reason"))[:220]),
-           e_(str(v.get("authority"))[:200]))
+        % (e_(n), _v(v.get("verdict")), _v(v.get("reason"), limit=220),
+           _v(v.get("authority"), limit=200))
         for n, v in (pv.get("verdicts") or {}).items())
 
     # P6 and P7 detail. The property TABLE already carries each refusal and its reason; these
@@ -757,10 +782,10 @@ def _standard_block(canon, e_):
             ro_html += ("<h3>Analysis output — %s (quoted verbatim)</h3>"
                         "<p><small>%s &nbsp;|&nbsp; call: <code>%s</code></small></p>"
                         "<pre style='overflow-x:auto'>%s</pre>"
-                        % (e_(str(_oid)), e_(str(ro.get("_environment", ""))),
-                           e_(str(ro.get("call", ""))), e_(str(ro.get("verbatim")))))
+                        % (_v((_oid)), _v((ro.get("_environment", ""))),
+                           _v((ro.get("call", ""))), _v((ro.get("verbatim")))))
             if ro.get("reproduces_the_stored_value"):
-                ro_html += "<p><small>%s</small></p>" % e_(str(ro["reproduces_the_stored_value"]))
+                ro_html += "<p><small>%s</small></p>" % _v((ro["reproduces_the_stored_value"]))
             continue
     ro = (next(iter(_by.values()), {}) or {}).get("r_output") or {}
     if ro and not ro_html:
@@ -770,12 +795,12 @@ def _standard_block(canon, e_):
                    "<small>Provenance: %s</small><br>"
                    "<code>%s</code></p>"
                    "<p><small>Heterogeneity: %s<br>What would change it: %s</small></p>"
-                   % (e_(str(ro.get("state"))), e_(str(ro.get("_why_absent"))),
-                      e_(str(stands.get("estimate", ""))),
-                      e_(str(stands.get("provenance", ""))),
-                      e_(str(stands.get("verbatim_from_registry", ""))),
-                      e_(str(ro.get("heterogeneity_reason", ""))),
-                      e_(str(ro.get("what_would_change_it", "")))))
+                   % (_v((ro.get("state"))), _v((ro.get("_why_absent"))),
+                      _v((stands.get("estimate", ""))),
+                      _v((stands.get("provenance", ""))),
+                      _v((stands.get("verbatim_from_registry", ""))),
+                      _v((ro.get("heterogeneity_reason", ""))),
+                      _v((ro.get("what_would_change_it", "")))))
 
     pc = canon.get("published_comparison") or {}
     pc_html = ""
@@ -784,10 +809,10 @@ def _standard_block(canon, e_):
                    "<p><strong>Denominator: %s.</strong> %s</p>"
                    "<p><small><strong>Explicitly not done:</strong> %s</small></p>"
                    "<p><small>Blocked on: %s</small></p>"
-                   % (e_(str(pc.get("state"))), e_(str(pc.get("denominator"))),
-                      e_(str(pc.get("denominator_reason", ""))),
-                      e_(str(pc.get("explicitly_not_done", ""))),
-                      e_(str(pc.get("blocked_on", "")))))
+                   % (_v((pc.get("state"))), _v((pc.get("denominator"))),
+                      _v((pc.get("denominator_reason", ""))),
+                      _v((pc.get("explicitly_not_done", ""))),
+                      _v((pc.get("blocked_on", "")))))
 
     # The screen of the unscreened remainder. Sixteen verdicts each keyed to a registration
     # id, and the withholding question shown as asked rather than asserted as asked.
@@ -799,22 +824,22 @@ def _standard_block(canon, e_):
         rows_wq = "".join(
             "<tr><td><code>%s</code></td><td>%s</td><td><small>%s</small></td>"
             "<td><small>%s</small></td></tr>"
-            % (e_(str(k)), e_(str(v.get("name", ""))), e_(str(v.get("two_component", ""))),
-               e_(str(v.get("three_component", ""))))
+            % (_v((k)), _v((v.get("name", ""))), _v((v.get("two_component", ""))),
+               _v((v.get("three_component", ""))))
             for k, v in (wq_top.get("per_trial") or {}).items())
         md = wq_top.get("matcher_defect_found_and_not_relied_on") or {}
         wq_html = ("<h3>The withholding question, asked at every rank</h3>"
                    "<p><em>%s</em></p><p><small>%s</small></p>"
                    "<table><tr><th>registration</th><th>trial</th><th>two-component</th>"
                    "<th>three-component</th></tr>%s</table>"
-                   % (e_(str(wq_top.get("question", ""))),
-                      e_(str(wq_top.get("why_before_deciding", ""))), rows_wq))
+                   % (_v((wq_top.get("question", ""))),
+                      _v((wq_top.get("why_before_deciding", ""))), rows_wq))
         if md:
             wq_html += ("<div class='card warn'><h4>A matcher defect, found and not relied on"
                         "</h4><p>%s</p><p><small>%s</small></p><p><small>Class: %s</small></p>"
-                        "</div>" % (e_(str(md.get("what_happened", ""))),
-                                    e_(str(md.get("why_it_mattered", ""))),
-                                    e_(str(md.get("class", "")))))
+                        "</div>" % (_v((md.get("what_happened", ""))),
+                                    _v((md.get("why_it_mattered", ""))),
+                                    _v((md.get("class", "")))))
 
     sc = canon.get("screening_of_remainder") or {}
     sc_html = wq_html
@@ -823,18 +848,18 @@ def _standard_block(canon, e_):
         wq = sc.get("withholding_question") or {}
         limb_rows = "".join(
             "<tr><td>%s</td><td>%s</td><td><small>%s</small></td></tr>"
-            % (e_(str(k)), e_(str(v.get("n"))), e_(", ".join(v.get("ncts") or [])))
+            % (_v((k)), _v((v.get("n"))), e_(", ".join(v.get("ncts") or [])))
             for k, v in (sc.get("exclusions_by_failing_limb") or {}).items())
         mace_rows = "".join(
             "<tr><td>%s</td><td>%s</td><td>%s</td></tr>"
-            % (e_(str(h.get("nct"))), e_(str(hit.get("rank"))), e_(str(hit.get("measure"))))
+            % (_v((h.get("nct"))), _v((hit.get("rank"))), _v((hit.get("measure"))))
             for h in (wq.get("trials_with_a_mace_matching_outcome_at_some_rank") or [])
             for hit in (h.get("hits") or []))
         trial_rows = "".join(
             "<tr><td><code>%s</code></td><td><strong>%s</strong></td><td>%s</td>"
             "<td><small>%s</small></td></tr>"
-            % (e_(str(r.get("nct"))), e_(str(r.get("verdict"))),
-               e_(str(r.get("failing_limb") or "")), e_(str(r.get("reason"))[:260]))
+            % (_v(r.get("nct")), _v(r.get("verdict")),
+               _v(r.get("failing_limb") or ""), _v(r.get("reason"), limit=260))
             for r in (sc.get("rows") or []))
         sc_html += (
             "<h3>Screening of the remainder — %s screened, %s included, %s excluded, "
@@ -847,13 +872,13 @@ def _standard_block(canon, e_):
             "<h4>Every trial, with its reason</h4>"
             "<table><tr><th>registration</th><th>verdict</th><th>limb</th><th>reason</th></tr>"
             "%s</table>"
-            % (e_(str(sc.get("n_screened"))), e_(str(res.get("include"))),
-               e_(str(res.get("exclude"))), e_(str(res.get("not_assessable"))),
-               e_(str(sc.get("screened_against", ""))),
-               e_(str(sc.get("k_after_screening"))),
-               e_(str(sc.get("k_unchanged_because", ""))),
-               limb_rows, e_(str(wq.get("asked", ""))),
-               e_(str(wq.get("why_asked_before_deciding_not_to_pool", ""))),
+            % (_v((sc.get("n_screened"))), _v((res.get("include"))),
+               _v((res.get("exclude"))), _v((res.get("not_assessable"))),
+               _v((sc.get("screened_against", ""))),
+               _v((sc.get("k_after_screening"))),
+               _v((sc.get("k_unchanged_because", ""))),
+               limb_rows, _v((wq.get("asked", ""))),
+               _v((wq.get("why_asked_before_deciding_not_to_pool", ""))),
                mace_rows, trial_rows))
         # A correction to a recorded exclusion reason belongs on the page, not only in the
         # object: the page previously carried the wrong reason.
@@ -864,11 +889,11 @@ def _standard_block(canon, e_):
                             "<p>%s</p><p><small>How it happened: %s</small></p>"
                             "<p><small>Verdict: %s</small></p>"
                             "<p><small>Class: %s</small></p></div>"
-                            % (e_(str(st.get("id"))),
-                               e_(str(corr.get("the_recorded_reason_was_wrong", ""))),
-                               e_(str(corr.get("how_the_error_happened", ""))),
-                               e_(str(corr.get("the_verdict_still_stands_but_on_a_different_limb", ""))),
-                               e_(str(corr.get("class", "")))))
+                            % (_v((st.get("id"))),
+                               _v((corr.get("the_recorded_reason_was_wrong", ""))),
+                               _v((corr.get("how_the_error_happened", ""))),
+                               _v((corr.get("the_verdict_still_stands_but_on_a_different_limb", ""))),
+                               _v((corr.get("class", "")))))
 
     auth = pv.get("authority") or {}
     return (
@@ -883,13 +908,13 @@ def _standard_block(canon, e_):
         "<table><tr><th>precondition</th><th>verdict</th><th>reason</th><th>authority</th></tr>"
         "%s</table>"
         "<p><small>%s</small></p></div>"
-        % (e_(str(stamp.get("page_standard_version"))), e_(str(stamp.get("built_utc"))),
-           e_(str(stamp.get("built_by"))), e_(str(stamp.get("standard_document"))),
+        % (_v((stamp.get("page_standard_version"))), _v((stamp.get("built_utc"))),
+           _v((stamp.get("built_by"))), _v((stamp.get("standard_document"))),
            len(stamp.get("held") or []), len(stamp.get("refusing") or []),
            "".join(rows), casc_rows, prov_html, sc_html, ro_html, pc_html,
-           e_(str(auth.get("handbook", ""))), e_(str(auth.get("version", ""))),
-           e_(str(auth.get("verified_on", ""))), e_(str(pv.get("publishable"))),
-           pre_rows, e_(str(stamp.get("_ratchet", "")))))
+           _v((auth.get("handbook", ""))), _v((auth.get("version", ""))),
+           _v((auth.get("verified_on", ""))), _v((pv.get("publishable"))),
+           pre_rows, _v((stamp.get("_ratchet", "")))))
 
 
 def build(canon):
