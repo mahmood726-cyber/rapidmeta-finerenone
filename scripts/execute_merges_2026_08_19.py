@@ -92,6 +92,12 @@ TOMBSTONE_PAGE = """<!doctype html>
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{old_title} &mdash; retired, answered at {survivor}</title>
 <meta name="robots" content="noindex">
+<!-- A MACHINE-READABLE RETIREMENT MARKER. Every gate in this repository assumes a changed
+     *_REVIEW.html is a REVIEW: the export gate, the harness gate and the browser regression
+     check each refused this merge in turn, all three for the same missing concept. A retired
+     page must be able to SAY it is retired, in a form a checker can read without guessing. -->
+<meta name="rapidmeta:page-state" content="RETIRED">
+<meta name="rapidmeta:absorbed-by" content="{survivor}">
 <link rel="canonical" href="{host}{survivor_page}">
 <style>
  :root{{color-scheme:light dark}}

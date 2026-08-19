@@ -283,6 +283,28 @@ with sync_playwright() as p:
             else:
                 signals["fully_ok"].append(a)
             continue
+        # A RETIRED PAGE IS NOT A BROKEN REVIEW. It carries no RapidMeta app because there is
+        # no review left on it, so every app-level probe below would report a page error for a
+        # page that is behaving exactly as intended. It is checked for what it IS instead: it
+        # must declare its state, name its absorber, and link to a page that exists.
+        _src = (ROOT / f"{a}.html").read_text(encoding="utf-8", errors="replace")
+        if 'name="rapidmeta:page-state" content="RETIRED"' in _src:
+            import re as _re
+            _m = _re.search(r'name="rapidmeta:absorbed-by" content="([^"]+)"', _src)
+            _l = _re.search(r'class="go" href="([^"]+)"', _src)
+            _bad = []
+            if not _m:
+                _bad.append("declares RETIRED and names no absorber")
+            if not _l:
+                _bad.append("declares RETIRED and offers no link to the surviving review")
+            elif not (ROOT / _l.group(1)).exists():
+                _bad.append("links to %s, which does not exist -- a reader would 404"
+                            % _l.group(1))
+            if _bad:
+                signals["page_errors"].append((a, "; ".join(_bad)))
+            else:
+                signals["fully_ok"].append(a)
+            continue
         pg_errors = []
         pg.on('pageerror', lambda e: pg_errors.append(str(e)[:100]))
         try:
