@@ -51,7 +51,7 @@ DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "ablation_split_casca
 # stated here as its own declared set rather than borrowed from the ablation one.
 TOPIC_KEY = {
     "ablation-af-medical-therapy": "catheter ablation",
-    "early-rhythm-control-af": "catheter ablation",
+    "early-rhythm-control-af": "rhythm control strategy",
     "ablation-af-heart-failure": "catheter ablation",
 }
 INCLUDED = {
