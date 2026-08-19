@@ -146,10 +146,12 @@ PRISMA = {
         "reconciles": True,
         "included_plus_recorded_exclusions": "1 included + 3 recorded exclusions = 4 registrations the page ever carried",
         "gap_stated_plainly": (
-            "17 CTGov trials place bempedoic acid in an EXPERIMENTAL arm; this object includes "
-            "ONE. The other 16 are NOT excluded -- they were never screened against the stated "
-            "criteria. That is an UNSCREENED REMAINDER of 16, and it is recorded as a number "
-            "rather than omitted. Screening them is the next unit of work on this topic."),
+            "16 CTGov trials place bempedoic acid in an EXPERIMENTAL arm (restated 2026-08-19 "
+            "from 17: the placebo-discriminator moved one to comparator and two to background). "
+            "This object includes ONE. Fourteen of the remaining fifteen were SCREENED on "
+            "2026-08-19 and none was both eligible and poolable. ONE is newly unscreened -- "
+            "NCT05263778 -- because the restatement moved it into the experimental set after "
+            "the screen had run. An UNSCREENED REMAINDER OF 1, recorded as a number."),
     },
 }
 
@@ -553,7 +555,7 @@ def build(topic):
     props["P8_registration_identity"] = prop(
         HELD, f"{_n} of {_n} trial(s) verified live against the registry.")
 
-    return _finish(obj, path, original, before_keys, props)
+    return _finish(obj, path, original, before_keys, props, topic)
 
 
 
@@ -593,6 +595,60 @@ def _p6_refuse(obj, spec, props):
                   "absence is recorded as a finding with its cause and its trigger.")
 
 
+
+
+def _identical_output_alarm(topic, obj):
+    """RUNS ON EVERY BUILD, not only where someone thought to call it.
+
+    `invariants.identical_output_alarm` has caught three distinct defects tonight, on three
+    different kinds of artefact: a two-hop cache keyed on batch position (three articles
+    carrying 26, 53 and 86 references returning byte-identical results), `subject_role`
+    registered twice under two names, and -- here -- bempedoic's literal counts sitting BELOW
+    `**spec["k_cascade"]` inside one dict literal, overriding it by ORDERING, so two topics
+    rebuilt with identical k3 and remainder.
+
+    That fifth contamination route is the alarming one because it is NOT a shared constant.
+    Keying everything by entity does not prevent it; it is a language-level ordering hazard,
+    and the only thing that caught it was two topics reporting the same numbers.
+
+    So the check no longer waits to be invoked. Any built topic whose per-topic counts match
+    another topic's exactly is either not a different topic, or is not being read.
+    """
+    # COMPARE THE CORE CASCADE, NOT EVERY INTEGER KEY.
+    #
+    # A first version compared all int-valued keys and was silent on a genuine spec collision,
+    # because sglt2-hf carries one extra int (`k3_corrected_from: 43`, from the 43->36
+    # restatement) that bempedoic does not. The dicts differed by that one bookkeeping key and
+    # the alarm passed. AN ALARM DEFEATED BY AN EXTRA KEY IS NOT AN ALARM -- it fires only on
+    # whole-dict identity, which is the narrowest possible reading of "identical output".
+    #
+    # The core stages are what a reader would compare, so they are what this compares.
+    import glob
+    CORE = ("k0_surfaced", "k2_role_located", "k3_experimental", "k4_comparator",
+            "k5_background", "kNA_not_assessable", "k_included_in_object",
+            "k_unscreened_remainder")
+    mine = {k: v for k, v in (obj.get("k_cascade") or {}).items()
+            if k in CORE and isinstance(v, int)}
+    if len(mine) < 4:
+        return []
+    alarms = []
+    for other in sorted(glob.glob(os.path.join(ROOT, "*", "*.json"))):
+        name = os.path.basename(other)[:-5]
+        if name == topic or os.path.basename(os.path.dirname(other)) != name:
+            continue
+        try:
+            with open(other, "r", encoding="utf-8") as fh:
+                oo = json.load(fh)
+        except (ValueError, OSError):
+            continue
+        theirs = {k: v for k, v in (oo.get("k_cascade") or {}).items()
+                  if k in CORE and isinstance(v, int)}
+        if theirs and theirs == mine:
+            alarms.append(
+                f"IDENTICAL k_cascade: {topic} and {name} report byte-identical counts "
+                f"{mine}. Either they are not different topics, or one topic's cascade was "
+                f"written onto the other -- which has happened FIVE times in this file.")
+    return alarms
 
 
 def _deep_merge(existing, new):
@@ -646,7 +702,7 @@ def _duplicate_check(ncts):
             "shared": hits or None}
 
 
-def _finish(obj, path, original, before_keys, props):
+def _finish(obj, path, original, before_keys, props, topic=None):
     """Everything after the property block: stamp, additive check, write."""
     # GUARD: NO FOREIGN REGISTRATION ID ANYWHERE IN THE OBJECT.
     #
@@ -741,6 +797,15 @@ def _finish(obj, path, original, before_keys, props):
     if lost:
         print(f"[moved, verified] {len(lost)} path(s) relocated under declared moves "
               f"{list(moves.values())}; content confirmed present at the new location.")
+
+    # IDENTICAL-OUTPUT ALARM, ON EVERY BUILD. It has caught three distinct defects tonight on
+    # three kinds of artefact, and the fifth contamination route -- literal counts overriding a
+    # spread by dict ordering -- was caught by NOTHING ELSE. It no longer waits to be invoked.
+    alarms = _identical_output_alarm(topic, obj)
+    if alarms:
+        with open(path, "wb") as fh:
+            fh.write(original)
+        raise SystemExit("ABORTED: " + " | ".join(alarms) + " Original restored.")
 
     tmp = path + ".part"
     with open(tmp, "w", encoding="utf-8", newline="") as fh:
