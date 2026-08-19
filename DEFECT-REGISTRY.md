@@ -169,6 +169,42 @@ difference here is 3 versus 135.
 
 ---
 
+## THE SECOND HEADLINE — 80 of 135 topics state a question at all
+
+**Measured 2026-08-19, and measured only because a blind cross-family reader said so without
+being asked.** agy (Gemini 3.1 Pro, google family) was given twelve merge clusters with no topic
+names, no verdicts and no hint that a decision depended on the answer. It returned **UNCLEAR on
+ten of twelve**, and its stated reason every time was that the question field is *auto-generated
+boilerplate*.
+
+| state | topics | |
+|---|---:|---:|
+| **states a question** | **80** | 59.3% |
+| templated — the title plus `on each trial's own registered primary outcome?` | 34 | 25.2% |
+| an echo of its own title | 20 | 14.8% |
+| absent | 1 | 0.7% |
+
+*(135 live topics; 10 retired tombstones excluded from the denominator.)*
+
+> **A templated question is not a bad question. It is an ABSENT one wearing the shape of a
+> present one** — and that is the 3-of-135 shape from the headline above, on a different field.
+
+**This gates how much any question-based check can ever claim.** P21's ambiguous-question split
+cannot find an ambiguity in a title. The merge adjudicator's `questions_differ()` returns FALSE
+for a templated question — **correct as logic, and it reports as though the axis had been
+checked when it had not been.** agy's UNCLEAR is the honest label and it is adopted.
+
+**Therefore, stated plainly: the nine executed merges rest on identical trial sets, a richer
+survivor, a proven union and reversibility — NOT on a comparison of questions.** For ten of the
+twelve clusters there was no question to compare. That is a stronger position honestly stated
+than a weaker one asserted.
+
+`scripts/audit_templated_questions.py`. **Corrects an earlier claim in this session's own
+reporting** of "37 of 144", which used a denominator including retired tombstones and counted
+only one of the three non-stating forms.
+
+---
+
 ## The transport finding — read this before anything else here
 
 **The single most useful result of the night, because it explains eight separate instances at
@@ -546,6 +582,103 @@ this file while it was being written.**
   declarations to each other and never to the object's own k — a topic could declare UP while
   its k fell and pass, which is what `lint_block_contradicts_object.py` is for. A floor, not a
   ceiling
+
+### 25. A CASE-SENSITIVE LOOKUP THAT FINDS NOTHING LOOKS EXACTLY LIKE A CLEAN RESULT
+
+**Found 2026-08-19, and it nearly buried a real finding from another instrument.** The Codex
+seat reported that the dashboard serves withdrawn estimates. The first verification pass written
+here — to check that claim rather than believe it — returned **zero**:
+
+```
+rows with a numeric pooled value AND a mapped object: 0
+object says WITHDRAWN                                : 0
+```
+
+The lookup was `r.get('pooled_or')`. **The field is `pooled_OR`.** Every row was skipped, the
+tally was empty, and the output read exactly like a clean corpus — while 92 rows were in fact
+serving values their objects had withdrawn.
+
+> **A cross-family seat had handed over a true finding and this lane's own check said it was
+> false.** Had that zero been believed, the finding would have been recorded as *"Codex was
+> wrong"* — the most expensive possible outcome of a correct delegation.
+
+**Caught only because the same script printed the sample keys beside the count.** The diagnosis
+took one line of output that was there for another reason entirely.
+
+#### The fourth distinct form of the same shape
+
+*Something that never happened, looking exactly like something that happened and found nothing.*
+This registry already holds three:
+
+| form | what it looks like |
+|---|---|
+| an over-escaped `\\b` in a raw string | valid Python that matches nothing and **reports clean** |
+| `$?` read through a pipe | the exit code of `tail`, which is **always 0** |
+| a guard whose triggering condition never occurred | **green**, and unproven (P16's fourth clause) |
+| **a case-sensitive key lookup on a field that is spelled differently** | **an empty tally, indistinguishable from a clean one** |
+
+**The remedy is the one that has worked on the other three: make the instrument report what it
+looked at, not only what it found.** A count printed beside the keys it scanned is refutable; a
+count alone is not. Every sweep written in this session now prints its denominator and its
+NOT_ASSESSABLE reasons broken out, for exactly this reason.
+
+**Status: OPEN.** No detector. A general lint for case-mismatched dictionary access is possible
+in principle and is not written; what is written is the discipline above, and discipline is not
+a command. Recorded honestly as the weakest entry in this file.
+
+### 24. THE DASHBOARD SERVED 92 ESTIMATES THE OBJECTS HAD WITHDRAWN
+
+**Surfaced by the Codex seat (openai family) while running a different task, verified here
+before being recorded.** A cross-family seat's finding is a lead, not a result.
+
+`dashboard.html` renders a *Pooled OR (95% CI)* column from `outputs/portfolio_index.json`, a
+snapshot generated **2026-06-24**. Of its 711 rows carrying a numeric value:
+
+| | |
+|---:|---|
+| **83** | the object has **WITHDRAWN** its estimate |
+| **8** | the review **no longer exists** — retired into another topic |
+| 1 | the object carries no pooled value at all |
+| **92** | **served where the object does not support it** |
+| 847 | no SSOT object at all — **uncheckable, so 92 is a floor** |
+
+> **A withdrawal is the strongest statement a review in this corpus can make.** It is what an
+> object says when its trials do not share an endpoint, when its comparator is wrong, or when
+> its headline cannot be reproduced from its own trials. **Serving the number anyway undoes
+> every one of those decisions at once**, for every reader who never opens the page — and the
+> dashboard is the surface most readers actually look at.
+>
+> **It is class 23 at scale, on the aggregate surface.** That sweep was run over `index.html`'s
+> 522 cards and closed at zero. *It looked at one surface.*
+
+#### Fixed by PROJECTION, not by regenerating the snapshot
+
+A regenerated snapshot is correct for a day and wrong again the next time an object is
+withdrawn, **silently and with no symptom**. The pages solved this long ago: a page carries the
+version it was built to, so being out of date is *visible*. The dashboard's data gets the same.
+
+- `scripts/project_dashboard_index.py` writes each row's `ssot_state`, **moves** a not-live
+  value to `pooled_OR_superseded` rather than deleting it, and stamps an **objects fingerprint**
+  — a hash over every page's derived SSOT state.
+- **Why a fingerprint and not a timestamp.** A timestamp answers *when was this made*, which is
+  not the question. The question is *do the objects still say what this was built from*. **A
+  regenerated snapshot with a fresh timestamp and a stale withdrawal passes a date check and
+  fails this one.**
+- `scripts/dashboard_projection_gate.py`, **wired into `.githooks/pre-commit`**, refuses on
+  either half: a fingerprint that no longer matches (or is absent — *NOT_ASSESSABLE, never
+  fresh*), or **any row serving a value its object withdrew — a delivery failure, not a display
+  detail**. Exit 1 before, exit 0 after, with the can-fire proof on the case that shipped.
+
+#### And an absence must name its own cause
+
+The cell rendered every empty value as `— (k<2 / continuous?)`. **A reader told "k<2" about a
+withdrawal has been told something false.** It now renders the real state. Verified **in a real
+browser**, not by reading the source: 960 rows, 0 page errors. The first draft of that cell
+called `esc()` before the helper existed — a `ReferenceError` that would have blanked the entire
+table, and it was caught by *running* it.
+
+**What this does not do:** it does not compare the LIVE rows' *numbers* against their objects. A
+row left LIVE may still be stale by value.
 
 ### 23. THE CLASS SWEPT — *"the number was real and belonged to somebody else"*
 

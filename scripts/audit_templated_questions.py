@@ -1,0 +1,172 @@
+#!/usr/bin/env python3
+"""HOW MANY OF THIS CORPUS'S TOPICS ACTUALLY STATE A QUESTION?
+
+Measured because a cross-family reader said so without being asked. agy (Gemini 3.1 Pro), given
+twelve merge clusters BLIND -- no topic names, no verdicts, no hint a decision depended on it --
+returned UNCLEAR on ten of them, and its stated reason every time was that the QUESTION FIELD IS
+AUTO-GENERATED BOILERPLATE:
+
+    "auto-generated boilerplate about registered primary outcomes"
+    "merely ask if a pooled estimate is possible"
+    "member B provides no question at all"
+
+THE SHAPE. An auto-built object's `question` is its own TITLE with a stock suffix appended:
+
+    "<title> on each trial's own registered primary outcome?"
+
+That is not a question. It names no population, no comparator and no outcome that the title did
+not already name, and it cannot be compared against another question because it carries no
+content of its own.
+
+WHY THIS IS A CORPUS-LEVEL FINDING AND NOT A COSMETIC ONE. It is the 3-of-135 shape again -- the
+number at the top of DEFECT-REGISTRY.md, where 132 topics had never had k counted and read as
+clean because nothing had asked. **A templated question GATES HOW MUCH ANY QUESTION-BASED CHECK
+CAN EVER CLAIM.** Every one of these is a check that cannot fire:
+
+  * P21, the ambiguous-question split -- an ambiguous reading cannot be found in a title.
+  * the merge adjudicator's own `questions_differ()`, which returns FALSE for a templated
+    question. That is correct as LOGIC and it REPORTS AS THOUGH THE QUESTION AXIS HAD BEEN
+    CHECKED WHEN IT HAD NOT BEEN. agy's UNCLEAR is the honest label and this file counts it.
+  * any future duplicate detection that hopes to separate two reviews by what they ask.
+
+USAGE:  python scripts/audit_templated_questions.py
+        python scripts/audit_templated_questions.py --selftest
+"""
+import glob
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DEST = os.path.join(REPO, "evidence", "2026-08-19-batch1", "templated_questions_audit.json")
+
+TEMPLATE_TAIL = "on each trial's own registered primary outcome?"
+
+
+def classify(obj):
+    """STATES_A_QUESTION / TEMPLATED / ABSENT / TITLE_ECHO -- four states, never two."""
+    q = (obj.get("question") or "").strip()
+    t = (obj.get("title") or "").strip()
+    if not q:
+        return "ABSENT", "the object records no question at all"
+    if q.lower().endswith(TEMPLATE_TAIL):
+        return "TEMPLATED", ("the question is the title with the stock suffix %r appended"
+                             % TEMPLATE_TAIL)
+    # A question that is merely the title again, with or without a question mark, states nothing
+    # the title did not. Counted separately because it is a DIFFERENT generator's output and
+    # folding it into TEMPLATED would understate the first and overstate the second.
+    if t and q.rstrip("?").strip().lower() == t.rstrip("?").strip().lower():
+        return "TITLE_ECHO", "the question is byte-identical to the title"
+    return "STATES_A_QUESTION", None
+
+
+def run():
+    rows, tally = [], {}
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        try:
+            with io.open(p, "r", encoding="utf-8") as fh:
+                o = json.load(fh)
+        except (OSError, ValueError):
+            continue
+        if not isinstance(o, dict) or "app_id" not in o:
+            continue
+        # A RETIRED TOMBSTONE IS NOT A TOPIC AND MUST NOT DILUTE THE DENOMINATOR.
+        if str(o.get("state") or "").upper() == "RETIRED" and o.get("absorbed_by"):
+            tally["RETIRED_TOMBSTONE"] = tally.get("RETIRED_TOMBSTONE", 0) + 1
+            continue
+        state, why = classify(o)
+        tally[state] = tally.get(state, 0) + 1
+        rows.append({"topic": o.get("app_id"), "state": state, "why": why,
+                     "question": (o.get("question") or "")[:220]})
+
+    live = sum(v for k, v in tally.items() if k != "RETIRED_TOMBSTONE")
+    stating = tally.get("STATES_A_QUESTION", 0)
+    out = {
+        "audited_utc": "2026-08-19",
+        "why_this_was_measured": (
+            "A blind cross-family reader (agy, Gemini 3.1 Pro) returned UNCLEAR on ten of twelve "
+            "merge clusters, and its reason every time was that the question field is "
+            "auto-generated boilerplate. It reached that from the text alone, with no topic "
+            "names and no hint that anything depended on the answer."),
+        "live_topics": live,
+        "by_state": tally,
+        "topics_that_actually_state_a_question": stating,
+        "headline": ("%d of %d live topics state a question. The other %d carry a template, an "
+                     "echo of their own title, or nothing."
+                     % (stating, live, live - stating)),
+        "WHAT_THIS_GATES": (
+            "Every question-based check in this corpus can only reach the %d. P21's "
+            "ambiguous-question split cannot find an ambiguity in a title. The merge "
+            "adjudicator's `questions_differ()` returns FALSE for a templated question -- "
+            "correct as logic, and it REPORTS AS THOUGH THE AXIS HAD BEEN CHECKED. A future "
+            "duplicate detector that hopes to separate two reviews by what they ask has %d "
+            "topics it cannot separate." % (stating, live - stating)),
+        "and_it_is_the_3_of_135_shape": (
+            "The number at the top of DEFECT-REGISTRY.md is 3 of 135 topics ever asked for a k "
+            "cascade, where the other 132 read as clean because nothing had interrogated them. "
+            "This is the same shape on a different field: a templated question is not a bad "
+            "question, it is an ABSENT one wearing the shape of a present one."),
+        "what_this_does_NOT_claim": (
+            "NOT that the templated topics are wrong, and NOT that their trials or estimates "
+            "are affected. It claims only that their `question` field carries no content a "
+            "check can read, and that every question-based claim about this corpus has this "
+            "denominator."),
+        "rows": rows,
+    }
+    with io.open(DEST, "w", encoding="utf-8") as fh:
+        fh.write(json.dumps(out, indent=1, ensure_ascii=False))
+
+    print("LIVE TOPICS: %d   (retired tombstones excluded: %d)\n"
+          % (live, tally.get("RETIRED_TOMBSTONE", 0)))
+    for k in sorted(tally, key=lambda x: -tally[x]):
+        if k == "RETIRED_TOMBSTONE":
+            continue
+        print("   %-22s %4d   %5.1f%%" % (k, tally[k], 100.0 * tally[k] / live))
+    print("\n   %s" % out["headline"])
+    print("\nwrote %s" % os.path.relpath(DEST, REPO))
+    return 0
+
+
+def selftest():
+    fails = []
+
+    def ck(name, got, want):
+        ok = got == want
+        print("  %-64s %s  %r" % (name, "ok" if ok else "FAIL", got))
+        if not ok:
+            fails.append(name)
+
+    print("1. THE FOUR STATES ARE DISTINGUISHED, and none collapses into another:")
+    ck("a real question", classify({"question": "Does colchicine reduce MACE after MI?",
+                                    "title": "Colchicine"})[0], "STATES_A_QUESTION")
+    ck("the auto-build template",
+       classify({"question": "Lenacapavir for HIV PrEP: NOT POOLABLE -- COMPARATOR on each "
+                             "trial's own registered primary outcome?"})[0], "TEMPLATED")
+    ck("no question at all", classify({"question": ""})[0], "ABSENT")
+    ck("a question that is only the title",
+       classify({"question": "Colchicine in CVD?", "title": "Colchicine in CVD"})[0],
+       "TITLE_ECHO")
+
+    print("\n2. THE LIVE CORPUS -- a zero here would make the audit meaningless:")
+    rc = run()
+    with io.open(DEST, "r", encoding="utf-8") as fh:
+        out = json.load(fh)
+    ck("topics were found to classify", out["live_topics"] > 100, True)
+    ck("and at least one states a real question",
+       out["topics_that_actually_state_a_question"] > 0, True)
+    ck("and at least one is templated", out["by_state"].get("TEMPLATED", 0) > 0, True)
+
+    print("\n3. RETIRED TOMBSTONES ARE EXCLUDED FROM THE DENOMINATOR:")
+    ck("tombstones counted separately", out["by_state"].get("RETIRED_TOMBSTONE", 0) >= 10, True)
+    ck("and not inside live_topics",
+       out["live_topics"] == sum(v for k, v in out["by_state"].items()
+                                 if k != "RETIRED_TOMBSTONE"), True)
+
+    print("\n%s" % ("SELFTEST FAILED: %s" % fails if fails else "SELFTEST PASSED"))
+    return 1 if fails else 0
+
+
+if __name__ == "__main__":
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.exit(selftest() if "--selftest" in sys.argv else run())

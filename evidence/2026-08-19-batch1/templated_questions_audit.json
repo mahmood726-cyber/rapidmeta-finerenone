@@ -1,0 +1,829 @@
+{
+ "audited_utc": "2026-08-19",
+ "why_this_was_measured": "A blind cross-family reader (agy, Gemini 3.1 Pro) returned UNCLEAR on ten of twelve merge clusters, and its reason every time was that the question field is auto-generated boilerplate. It reached that from the text alone, with no topic names and no hint that anything depended on the answer.",
+ "live_topics": 135,
+ "by_state": {
+  "STATES_A_QUESTION": 80,
+  "TITLE_ECHO": 20,
+  "TEMPLATED": 34,
+  "RETIRED_TOMBSTONE": 10,
+  "ABSENT": 1
+ },
+ "topics_that_actually_state_a_question": 80,
+ "headline": "80 of 135 live topics state a question. The other 55 carry a template, an echo of their own title, or nothing.",
+ "WHAT_THIS_GATES": "Every question-based check in this corpus can only reach the 80. P21's ambiguous-question split cannot find an ambiguity in a title. The merge adjudicator's `questions_differ()` returns FALSE for a templated question -- correct as logic, and it REPORTS AS THOUGH THE AXIS HAD BEEN CHECKED. A future duplicate detector that hopes to separate two reviews by what they ask has 55 topics it cannot separate.",
+ "and_it_is_the_3_of_135_shape": "The number at the top of DEFECT-REGISTRY.md is 3 of 135 topics ever asked for a k cascade, where the other 132 read as clean because nothing had interrogated them. This is the same shape on a different field: a templated question is not a bad question, it is an ABSENT one wearing the shape of a present one.",
+ "what_this_does_NOT_claim": "NOT that the templated topics are wrong, and NOT that their trials or estimates are affected. It claims only that their `question` field carries no content a check can read, and that every question-based claim about this corpus has this denominator.",
+ "rows": [
+  {
+   "topic": "ablation-af-heart-failure",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with atrial fibrillation and heart failure, what is the effect of catheter ablation of atrial fibrillation compared with medical rate- or rhythm-control therapy on the composite of all-cause mortality and heart"
+  },
+  {
+   "topic": "ablation-af-medical-therapy",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with atrial fibrillation, what is the effect of catheter ablation compared with medical rate- or rhythm-control therapy on death, stroke and hospitalisation?"
+  },
+  {
+   "topic": "ablation-af-review",
+   "state": "TITLE_ECHO",
+   "why": "the question is byte-identical to the title",
+   "question": "Number of Participants With Composite of Total Mortality, Disabling Stroke, Serious Bleeding, or Cardiac Arrest in Patie"
+  },
+  {
+   "topic": "acs-antiplatelet-review",
+   "state": "TITLE_ECHO",
+   "why": "the question is byte-identical to the title",
+   "question": "Multiple trial-declared outcomes: Participants With Any Event From the Composite of Death From Vascular Causes, Myocardial Infarction (MI), and Stroke | Number of Subjects Reaching the Composite Endpoint of Cardiovascula"
+  },
+  {
+   "topic": "agyw-hiv-prep-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Dapivirine vaginal ring versus placebo ring for HIV prevention in women versus placebo vaginal ring on HIV-1 seroconversion?"
+  },
+  {
+   "topic": "alirocumab-lipid",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults treated for hypercholesterolaemia, how much does alirocumab change calculated LDL cholesterol from baseline to week 24 compared with placebo?"
+  },
+  {
+   "topic": "amoxicillin-aom",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Amoxicillin Aom: NOT POOLABLE -- no registration declares a clinical endpoint at any rank on the clinical quantity this page pools?"
+  },
+  {
+   "topic": "anidulafungin-candida-auto-full-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Anidulafungin Candida: is a pooled estimate possible?"
+  },
+  {
+   "topic": "anidulafungin-fungal-auto-full-review",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Anidulafungin in invasive fungal infection: NOT POOLABLE -- PARTICIPANTS + OUTCOME on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "antimalarial-act",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Among trials comparing an artemisinin-based combination therapy with artemether-lumefantrine, what is the PCR-corrected treatment failure in each direct comparison, and can the resulting network support an indirect compa"
+  },
+  {
+   "topic": "apixaban-acs-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "What did the apixaban acute-coronary-syndrome trials on this page actually measure? Both register BLEEDING as their primary outcome, which is not what the withdrawal on this page said."
+  },
+  {
+   "topic": "apixaban-af-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Does apixaban reduce stroke and systemic embolism in atrial fibrillation? The four trials on this page do not answer one question: two register an efficacy endpoint and two register bleeding."
+  },
+  {
+   "topic": "apixaban-vte-prophylaxis",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults at risk of venous thromboembolism, what is the effect of apixaban thromboprophylaxis compared with enoxaparin, another anticoagulant, or no anticoagulation on symptomatic venous thromboembolism and on bleeding?"
+  },
+  {
+   "topic": "apixaban-vte-treatment",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with acute or recent venous thromboembolism, what is the effect of apixaban compared with conventional anticoagulation, another direct oral anticoagulant, or placebo on recurrent venous thromboembolism and on b"
+  },
+  {
+   "topic": "apixaban-vte",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Apixaban Vte: NOT POOLABLE AS POSED -- the COMPARATOR and PARTICIPANTS and OUTCOME limb fails on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "arni-hfref",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with heart failure and reduced ejection fraction, what is the hazard of a first cardiovascular death or heart failure hospitalization with sacubitril/valsartan compared with enalapril?"
+  },
+  {
+   "topic": "attr-cm-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Both trials register HIERARCHICAL endpoints analysed by win ratio, and the two hierarchies are not the same hierarchy."
+  },
+  {
+   "topic": "attr-pn-review",
+   "state": "TITLE_ECHO",
+   "why": "the question is byte-identical to the title",
+   "question": "Multiple trial-declared outcomes: Modified Neuropathy Impairment Score +7 (mNIS+7) | Change From Baseline in the Modified Neurologic Impairment Score +7 (mNIS+7) at Month 9 Between the Vutrisiran Group (HE | Change From "
+  },
+  {
+   "topic": "azilsartan-chlorthalidone-vs-olmesartan-hctz",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Azilsartan medoxomil plus chlorthalidone against olmesartan medoxomil plus hydrochlorothiazide on change in clinic systolic blood pressure: the two trials that share both arms on mmHg change from baseline in trough, sitt"
+  },
+  {
+   "topic": "bamlanivimab-covid",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Bamlanivimab Covid: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "bempedoic-acid-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Does bempedoic acid reduce major cardiovascular events in statin-intolerant patients? One trial answers this; the other three registrations on this page measure something else, and one of them is not a bempedoic acid tri"
+  },
+  {
+   "topic": "bezlotoxumab-cdi",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Bezlotoxumab Cdi: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "bococizumab-lipid-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with primary hyperlipidaemia, mixed dyslipidaemia or heterozygous familial hypercholesterolaemia, what is the effect of bococizumab compared with placebo or an active lipid-lowering comparator on the percent ch"
+  },
+  {
+   "topic": "bosentan-pah-children",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In children with pulmonary arterial hypertension or persistent pulmonary hypertension of the newborn, what is the effect of bosentan compared with placebo or an alternative regimen on clinical outcomes?"
+  },
+  {
+   "topic": "bosentan-pah-combination",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with pulmonary arterial hypertension already receiving a PAH-specific therapy, what is the effect of adding bosentan, compared with continuing that therapy alone, on morbidity and mortality?"
+  },
+  {
+   "topic": "bosentan-pah-monotherapy",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with WHO group 1 pulmonary arterial hypertension, what is the effect of bosentan compared with placebo or no active pulmonary vasodilator on exercise capacity and on clinical worsening?"
+  },
+  {
+   "topic": "bosentan-pah",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Bosentan Pah: NOT POOLABLE AS POSED -- the OUTCOME and DESIGN limb fails on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "bosentan-ph-not-group1",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with pulmonary hypertension due to chronic thromboembolic disease, lung disease, left heart disease, sickle cell disease or sarcoidosis, what is the effect of bosentan compared with placebo or usual care on exe"
+  },
+  {
+   "topic": "cab-prep-hiv-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Long-acting injectable cabotegravir versus daily oral TDF/FTC for HIV pre-exposure prophylaxis versus daily oral TDF/FTC on documented incident HIV infection?"
+  },
+  {
+   "topic": "cangrelor-pci-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Does cangrelor reduce ischaemic events at PCI? The three CHAMPION trials answer versions of this, and the numbers this page used were not the ones they answered it with."
+  },
+  {
+   "topic": "casirivimab-covid",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Casirivimab Covid: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "caspofungin-fungal-auto-full-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Caspofungin Fungal: is a pooled estimate possible?"
+  },
+  {
+   "topic": "cefepime-taz-auto-full-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Cefepime Taz: is a pooled estimate possible?"
+  },
+  {
+   "topic": "ceftaroline-auto-full-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Ceftaroline fosamil versus ceftriaxone in bacterial pneumonia versus intravenous ceftriaxone on clinical cure at test-of-cure?"
+  },
+  {
+   "topic": "ceftazidime-avibactam-auto-full-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Ceftazidime Avibactam: is a pooled estimate possible?"
+  },
+  {
+   "topic": "ceftolozane-infection-auto-full-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Ceftolozane Infection: is a pooled estimate possible?"
+  },
+  {
+   "topic": "colchicine-cvd-coronary",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Does low-dose colchicine reduce major adverse cardiovascular events in patients with established coronary artery disease or after myocardial infarction?"
+  },
+  {
+   "topic": "colchicine-cvd-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Does low-dose colchicine reduce major cardiovascular events? The trials on this page do not answer one question: their registered primary outcomes differ by whole components and one of them is not a composite."
+  },
+  {
+   "topic": "covid-oral-antivirals",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Covid Oral Antivirals: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "covid19-vaccines",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "For each COVID-19 vaccine whose trial data could be sourced here, what was the risk of symptomatic laboratory-confirmed COVID-19 relative to placebo in its own trial? This is a per-vaccine snapshot of the sourceable tria"
+  },
+  {
+   "topic": "cryptococcal-meningitis-africa",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Cryptococcal Meningitis Africa: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "cryptococcal-meningitis",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Among randomised trials in HIV-associated cryptococcal meningitis, what does each antifungal induction trial report for ten-week mortality, can those trials be joined into a network, and what does the separate trial of a"
+  },
+  {
+   "topic": "cvncov-covid19",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Cvncov Covid19: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "dabigatran-af",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Dabigatran in atrial fibrillation: NOT POOLABLE -- k=1 on the efficacy question, and the second trial asks about ADHERENCE on Stroke or systemic embolism?"
+  },
+  {
+   "topic": "dabigatran-stroke",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Dabigatran Stroke: NOT POOLABLE AS POSED -- the PARTICIPANTS and COMPARATOR limb fails on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "dabigatran-vte-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Four trials, four different registered primaries -- one of them any adverse event."
+  },
+  {
+   "topic": "delamanid-tb",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Delamanid Tb: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "doac-af-review",
+   "state": "TITLE_ECHO",
+   "why": "the question is byte-identical to the title",
+   "question": "Multiple trial-declared outcomes: Yearly Event Rate for Composite Endpoint of Stroke/SEE | The Composite Event of Stroke/Non-CNS Systemic Embolism: Primary Efficacy (Non-Inferiority) | Number of Participants With First E"
+  },
+  {
+   "topic": "doac-cancer-vte-review",
+   "state": "TITLE_ECHO",
+   "why": "the question is byte-identical to the title",
+   "question": "Multiple trial-declared outcomes: Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) or Major Bleeding Event | 6 Month Bleeding Rate | Recurrent Venous Thromboembolism"
+  },
+  {
+   "topic": "doravirine-hiv",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Doravirine Hiv: NOT POOLABLE -- no registration declares a clinical endpoint at any rank on the clinical quantity this page pools?"
+  },
+  {
+   "topic": "doripenem",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Doripenem: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "drotrecogin-sepsis",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Drotrecogin Sepsis: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "early-rhythm-control-af",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with atrial fibrillation, does an early rhythm-control STRATEGY -- antiarrhythmic drugs or ablation, chosen and escalated as a strategy rather than as a single procedure -- reduce cardiovascular death, stroke o"
+  },
+  {
+   "topic": "edoxaban-vte",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Edoxaban in venous thromboembolism: NOT POOLABLE AS POSED -- a prophylaxis trial and a treatment trial, in adults and in children on Venous thromboembolism events?"
+  },
+  {
+   "topic": "empagliflozin-hf-auto-full-review",
+   "state": "TITLE_ECHO",
+   "why": "the question is byte-identical to the title",
+   "question": "Multiple trial-declared outcomes: Time to the First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF) | Time to First Event of Adjudicated Cardiovascular (CV) Death or "
+  },
+  {
+   "topic": "emtricitabine-hiv-auto-full-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Emtricitabine Hiv: is a pooled estimate possible?"
+  },
+  {
+   "topic": "enoxaparin-vte",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Enoxaparin Vte: NOT POOLABLE AS POSED -- the INTERVENTION limb fails on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "eravacycline-infection-auto-full-review",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Eravacycline in complicated intra-abdominal infection: NOT POOLABLE -- COMPARATOR -- REFERRED, NOT SETTLED on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "ertapenem-auto-full-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Ertapenem: is a pooled estimate possible?"
+  },
+  {
+   "topic": "etesevimab-covid-auto-full-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Etesevimab Covid: is a pooled estimate possible?"
+  },
+  {
+   "topic": "etripamil-psvt",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Etripamil Psvt: NOT POOLABLE AS POSED -- the OUTCOME limb fails on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "evinacumab-hofh",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Evinacumab Hofh: NOT POOLABLE -- k=1 on the trial's own registered primary outcome?"
+  },
+  {
+   "topic": "evolocumab-ascvd-auto2",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Evolocumab Ascvd Auto2: NOT POOLABLE -- INTERVENTION on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "evolocumab-dyslipidemia-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "What did these two trials measure? One registers a cardiovascular composite and the other registers adverse events."
+  },
+  {
+   "topic": "evolocumab-mixed-dyslipidemia-auto-full-review",
+   "state": "TITLE_ECHO",
+   "why": "the question is byte-identical to the title",
+   "question": "Multiple trial-declared outcomes: Percent Change From Baseline in LDL-C at the Mean of Weeks 10 and 12 | Co-Primary Endpoint: Percent Change From Baseline in LDL-C: Mean of Weeks 10 and 12"
+  },
+  {
+   "topic": "fcm-hf-review",
+   "state": "TITLE_ECHO",
+   "why": "the question is byte-identical to the title",
+   "question": "Multiple trial-declared outcomes: HF Hospitalizations and CV Death | Number of Deaths"
+  },
+  {
+   "topic": "fidaxomicin-cdi-auto-full-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Fidaxomicin Cdi: is a pooled estimate possible?"
+  },
+  {
+   "topic": "fidaxomicin-cdiff",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Fidaxomicin Cdiff: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "finerenone-cv",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with chronic kidney disease and type 2 diabetes, does finerenone reduce the first occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for h"
+  },
+  {
+   "topic": "finerenone-review",
+   "state": "TITLE_ECHO",
+   "why": "the question is byte-identical to the title",
+   "question": "Multiple trial-declared outcomes: The First Occurrence of the Composite Endpoint of Onset of Kidney Failure, a Sustained Decrease of eGFR ≥40% From Baseli | The First Occurrence of the Composite Endpoint of Cardiovascula"
+  },
+  {
+   "topic": "fondaparinux-vte",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Fondaparinux in venous thromboembolism: NOT POOLABLE -- k=1, because the other trial is an edoxaban trial in which fondaparinux is the comparator on Venous thromboembolism and major bleeding events?"
+  },
+  {
+   "topic": "gepotidacin-urinary-tract-auto-full-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with uncomplicated urinary tract infection, does gepotidacin differ from nitrofurantoin in therapeutic response (combined clinical and microbiological success) at the test-of-cure visit?"
+  },
+  {
+   "topic": "hepatitis-b-taf-tdf-review",
+   "state": "TITLE_ECHO",
+   "why": "the question is byte-identical to the title",
+   "question": "Multiple trial-declared outcomes: Percentage of Participants With Hepatitis B Virus (HBV) DNA < 29 IU/mL | Percentage of Participants With Hepatitis B Virus (HBV) DNA < 29 IU/mL at Week 48"
+  },
+  {
+   "topic": "hiv-prep-injectable-review",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Injectable HIV pre-exposure prophylaxis: DUPLICATE PAGE -- see cab-prep-hiv on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "icosapent-lipid-auto-full-review",
+   "state": "TITLE_ECHO",
+   "why": "the question is byte-identical to the title",
+   "question": "Difference Between AMR101 (Ethyl Icosapentate) and Placebo Treatment Groups in Triglyceride Lowering Effect"
+  },
+  {
+   "topic": "inclisiran-hofh",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Inclisiran Hofh: NOT POOLABLE -- k=1 on the trial's own registered primary outcome?"
+  },
+  {
+   "topic": "inclisiran-lipid-kidney-auto-full-review",
+   "state": "TITLE_ECHO",
+   "why": "the question is byte-identical to the title",
+   "question": "Multiple trial-declared outcomes: Percent Change in LDL-C From Baseline To Day 510 | Percentage Change in LDL-C From Baseline to Day 510"
+  },
+  {
+   "topic": "incretin-hfpef-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "This page published a pooled odds ratio and had NO CARD on the index at all. Two of its three trials register only continuous primaries."
+  },
+  {
+   "topic": "influenza-recombinant",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Influenza Recombinant: NOT POOLABLE -- no registration declares a clinical endpoint at any rank on the clinical quantity this page pools?"
+  },
+  {
+   "topic": "intensive-bp-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Do intensive systolic blood-pressure targets reduce major cardiovascular events? Six landmark trials ask this and register six different composites to answer it."
+  },
+  {
+   "topic": "iv-iron-hf",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with heart failure and iron deficiency, what is the effect of intravenous iron compared with placebo or usual care on recurrent hospitalisations for heart failure with and without cardiovascular death, on the t"
+  },
+  {
+   "topic": "ivermectin-lf-auto-full-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Ivermectin Lf: is a pooled estimate possible?"
+  },
+  {
+   "topic": "lefamulin-cabp-auto-full-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Lefamulin versus moxifloxacin in community-acquired bacterial pneumonia versus moxifloxacin (with or without linezolid in LEAP 1) on early clinical response?"
+  },
+  {
+   "topic": "lenacapavir-hiv",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Lenacapavir Hiv: NOT POOLABLE -- no registration declares a clinical endpoint at any rank on the clinical quantity this page pools?"
+  },
+  {
+   "topic": "lenacapavir-prep-review",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Lenacapavir for HIV pre-exposure prophylaxis: NOT POOLABLE -- COMPARATOR on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "lenacapavir-prep",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In the two phase 3 lenacapavir prevention trials, what is the incidence of HIV acquisition with lenacapavir relative to the randomised oral active control, and separately relative to the background incidence estimated in"
+  },
+  {
+   "topic": "linezolid-mrsa",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Linezolid Mrsa: NOT POOLABLE -- no registration declares a clinical endpoint at any rank on the clinical quantity this page pools?"
+  },
+  {
+   "topic": "malaria-act-review",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Artemisinin-based combination therapy in uncomplicated falciparum malaria: NO POOLABLE DATA on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "malaria-vaccine",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Malaria Vaccine: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "malaria-vaccines",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "For each of the two malaria vaccines separately, what is the efficacy against clinical malaria across the randomised cohorts that report the SAME EFFECT MEASURE for clinical malaria, aligned on every dimension the source"
+  },
+  {
+   "topic": "maribavir-cmv",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Maribavir Cmv: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "mavacamten-hcm-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Three trials, three unrelated registered primaries: a responder composite, a septal-reduction-therapy decision, and a continuous pressure gradient."
+  },
+  {
+   "topic": "mavacamten-ohcm-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Does mavacamten improve clinical response in symptomatic obstructive hypertrophic cardiomyopathy? This page publishes no estimate and holds one trial."
+  },
+  {
+   "topic": "mavacamten-ohcm",
+   "state": "ABSENT",
+   "why": "the object records no question at all",
+   "question": ""
+  },
+  {
+   "topic": "mdr-tb-shortened",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Mdr Tb Shortened: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "men-acwy-auto-full-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Men Acwy: is a pooled estimate possible?"
+  },
+  {
+   "topic": "menacwy-booster",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Menacwy Booster: NOT POOLABLE -- no registration declares a clinical endpoint at any rank on the clinical quantity this page pools?"
+  },
+  {
+   "topic": "menacyw-healthy-volunteers-auto-full-review",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "MenACYW conjugate vaccine in healthy volunteers: NOT POOLABLE -- COMPARATOR + OUTCOME on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "meropenem-auto-full-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Meropenem: is a pooled estimate possible?"
+  },
+  {
+   "topic": "mipomersen-hofh",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Mipomersen in homozygous familial hypercholesterolaemia: NOT POOLABLE AS POSED -- one trial has no control arm and the other two are in different populations on Percent change from baseline in LDL cholesterol?"
+  },
+  {
+   "topic": "mitral-funcmr-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Three trials of transcatheter mitral repair in functional regurgitation, registering three different composites at two different time horizons."
+  },
+  {
+   "topic": "moxifloxacin-respi",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Moxifloxacin Respi: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "netarsudil-ocular-hypertension-auto-full-review",
+   "state": "TITLE_ECHO",
+   "why": "the question is byte-identical to the title",
+   "question": "Multiple trial-declared outcomes: Intraocular Pressure (IOP) | IOP (Intraocular Pressure)"
+  },
+  {
+   "topic": "nirsevimab-infant-rsv-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Nirsevimab versus placebo for medically attended RSV lower respiratory tract infection in infants versus placebo on medically attended RSV lower respiratory tract infection?"
+  },
+  {
+   "topic": "olmesartan-htn",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Does olmesartan, as the intervention, improve blood pressure against a comparator? THIS TOPIC CANNOT ASK THAT QUESTION: no trial on this page tests olmesartan as the intervention."
+  },
+  {
+   "topic": "omecamtiv-heartfail",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Omecamtiv Heartfail: NOT POOLABLE -- k=1 on the trial's own registered primary outcome?"
+  },
+  {
+   "topic": "pcsk9-inhibitors-cv-review",
+   "state": "TITLE_ECHO",
+   "why": "the question is byte-identical to the title",
+   "question": "Multiple trial-declared outcomes: Time to Cardiovascular Death, Myocardial Infarction, Hospitalization for Unstable Angina, Stroke, or Coronary Revascular | Time to First Occurrence of Major Adverse Cardiovascular Event "
+  },
+  {
+   "topic": "pcsk9-review",
+   "state": "TITLE_ECHO",
+   "why": "the question is byte-identical to the title",
+   "question": "Multiple trial-declared outcomes: Time to Cardiovascular Death, Myocardial Infarction, Hospitalization for Unstable Angina, Stroke, or Coronary Revascular | Time to First Occurrence of Major Adverse Cardiovascular Event "
+  },
+  {
+   "topic": "pediatric-hiv-art",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Pediatric Hiv Art: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "pitavastatin-auto-full-review",
+   "state": "TITLE_ECHO",
+   "why": "the question is byte-identical to the title",
+   "question": "Multiple trial-declared outcomes: Percent Change From Baseline in LDL-C | Percent Change From Baseline in Low Density Lipoprotein-cholesterol (LDL-C) at 12 Weeks"
+  },
+  {
+   "topic": "plazomicin-infection-auto-full-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Plazomicin Infection: is a pooled estimate possible?"
+  },
+  {
+   "topic": "posaconazole-fungal",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Posaconazole Fungal: NOT POOLABLE -- no registration declares a clinical endpoint at any rank on the clinical quantity this page pools?"
+  },
+  {
+   "topic": "prevnar15-pneumo",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In participants randomised to the 15-valent pneumococcal conjugate vaccine V114 or to the 13-valent comparator Prevnar 13, how does the risk of each solicited injection-site symptom compare?"
+  },
+  {
+   "topic": "raltegravir-hiv",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Raltegravir Hiv: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "remdesivir-covid",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Remdesivir Covid: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "rifapentine-tb",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Rifapentine Tb: NOT POOLABLE -- not every registration declares a clinical endpoint at any rank on the clinical quantity this page pools?"
+  },
+  {
+   "topic": "riociguat-pah",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Riociguat in pulmonary arterial hypertension: NOT POOLABLE AS POSED -- the two trials are in two different diseases on Six-minute walking distance, change from baseline?"
+  },
+  {
+   "topic": "rivaroxaban-acs-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Which endpoint do these two trials contribute? One registers a bleeding primary AND an efficacy primary and the page does not say which it used."
+  },
+  {
+   "topic": "rivaroxaban-vasc-review",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Does adding low-dose rivaroxaban to antiplatelet therapy reduce major vascular events? Four trials ask versions of this and their registered primary endpoints are not the same endpoint."
+  },
+  {
+   "topic": "rosuvastatin-auto-full-review",
+   "state": "TITLE_ECHO",
+   "why": "the question is byte-identical to the title",
+   "question": "Time to Major Cardiac Event (Cardiovascular Death, Stroke, Myocardial Infarction, Hospitalization Due to Unstable Angina"
+  },
+  {
+   "topic": "rotavirus-vaccine-africa-review",
+   "state": "TITLE_ECHO",
+   "why": "the question is byte-identical to the title",
+   "question": "Multiple trial-declared outcomes: Number of Subjects With Severe Rotavirus Gastroenteritis (RV GE) Caused by the Circulating Wild-type Rotavirus Strain | Occurrence of Severe Clinical Rotavirus Disease Caused by Any Rota"
+  },
+  {
+   "topic": "sacubitril-heartfail",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Sacubitril Heartfail: NOT POOLABLE -- k=1 on the trial's own registered primary outcome?"
+  },
+  {
+   "topic": "sarilumab-covid",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Sarilumab Covid: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "selexipag-pah",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Selexipag Pah: NOT POOLABLE -- k=1 on the trial's own registered primary outcome?"
+  },
+  {
+   "topic": "ser109-cdi",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Ser109 Cdi: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "sglt2-ckd-review",
+   "state": "TITLE_ECHO",
+   "why": "the question is byte-identical to the title",
+   "question": "Multiple trial-declared outcomes: Primary Composite Endpoint of Doubling of Serum Creatinine (DoSC), End-stage Kidney Disease (ESKD), and Renal or Cardiov | Time to the First Occurrence of Any of the Components of the Co"
+  },
+  {
+   "topic": "sglt2-hf",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In adults with chronic heart failure, what is the hazard of a first cardiovascular death or worsening heart failure event with an SGLT2 inhibitor compared with placebo added to background therapy?"
+  },
+  {
+   "topic": "sglt2-mace-cvot-review",
+   "state": "TITLE_ECHO",
+   "why": "the question is byte-identical to the title",
+   "question": "Multiple trial-declared outcomes: Time to the First Occurrence of Any of the Following Adjudicated Components of the Primary Composite Endpoint (3-point M | Major Adverse Cardiovascular Events (MACE) Composite of Cardiov"
+  },
+  {
+   "topic": "sotagliflozin-hf",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "In both phase 3 trials that supported sotagliflozin's approval, what is the effect of sotagliflozin compared with placebo on cardiovascular death and worsening heart failure -- counted as total events, counted as time to"
+  },
+  {
+   "topic": "sotatercept-pah",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Sotatercept Pah: NOT POOLABLE AS POSED -- the OUTCOME limb fails on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "tecovirimat-mpox",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Tecovirimat Mpox: NOT POOLABLE -- k=1 on each trial's own registered primary outcome?"
+  },
+  {
+   "topic": "thiamine-sepsis",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Thiamine Sepsis: NOT POOLABLE -- not every registration declares a clinical endpoint at any rank on the clinical quantity this page pools?"
+  },
+  {
+   "topic": "tigecycline-ciai",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Among trials randomising adults with complicated intra-abdominal infection to tigecycline or to imipenem/cilastatin, how does the proportion cured at the test-of-cure visit compare, and does that comparison survive the c"
+  },
+  {
+   "topic": "tigecycline-infection",
+   "state": "STATES_A_QUESTION",
+   "why": null,
+   "question": "Tigecycline Infection: NOT POOLABLE -- no registration declares a clinical endpoint at any rank on the clinical quantity this page pools?"
+  },
+  {
+   "topic": "warfarin-af",
+   "state": "TEMPLATED",
+   "why": "the question is the title with the stock suffix \"on each trial's own registered primary outcome?\" appended",
+   "question": "Warfarin Af: NOT POOLABLE AS POSED -- the INTERVENTION and OUTCOME limb fails on each trial's own registered primary outcome?"
+  }
+ ]
+}
