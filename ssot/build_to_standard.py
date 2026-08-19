@@ -24,6 +24,7 @@ from assessment import FAIL, HANDBOOK_AUTHORITY, NOT_ASSESSABLE, PASS
 from attr_topic_data import ATTR_CASCADE, ATTR_EXTRACTION, ATTR_PRISMA, ATTR_SEARCH
 from ali_topic_data import ALI_CASCADE, ALI_EXTRACTION, ALI_PRISMA, ALI_SEARCH
 from ivi_topic_data import IVI_CASCADE, IVI_EXTRACTION, IVI_PRISMA, IVI_SEARCH
+from apx_topic_data import APX_CASCADE, APX_EXTRACTION, APX_PRISMA, APX_SEARCH
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 PAGE_STANDARD_VERSION = "1.3.0-2026-08-19"
@@ -361,6 +362,20 @@ TOPIC_DATA = {
                        "k_cascade": ATTR_CASCADE,
                        "primary_outcome_key": "primary",
                        "extraction": ATTR_EXTRACTION},
+    # REGISTERED BUT NOT BUILDABLE YET, AND THE REFUSAL IS DELIBERATE.
+    #
+    # apixaban-vte's search, PRISMA counts and cascade are executed facts and are keyed here so
+    # the build is one decision away. `primary_outcome_key` is deliberately ABSENT: the builder
+    # REFUSES a topic missing any per-topic block, and this topic must not build until the
+    # question is decided -- see BLOCKED-apixaban-vte-2026-08-19.md. Its two included trials sit
+    # on opposite sides of the registry's own coded primaryPurpose split, so criteria derived
+    # "from the object's own recorded fields" would have to pick one trial and discard the other.
+    #
+    # A REFUSAL THAT COMES FROM THE BUILDER'S OWN COMPLETENESS RULE is better than a comment
+    # asking someone not to run it.
+    "apixaban-vte": {"search": APX_SEARCH, "prisma": APX_PRISMA,
+                     "k_cascade": APX_CASCADE,
+                     "extraction": APX_EXTRACTION},
     "iv-iron-hf": {"search": IVI_SEARCH, "prisma": IVI_PRISMA,
                    "k_cascade": IVI_CASCADE,
                    "primary_outcome_key": "hfh_cvd_recurrent",
