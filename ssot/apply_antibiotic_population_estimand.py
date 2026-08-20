@@ -1,0 +1,188 @@
+"""Four antibiotic topics: the analysis population is part of the estimand, and two pool across it.
+
+ESTABLISHED FROM THE REGISTRATIONS, ClinicalTrials.gov API v2, 2026-08-21. Identity first:
+every trial keyed by registration ID, then its REGISTERED PRIMARY OUTCOME TEXT verbatim,
+then the judgement.
+
+    ceftaroline-auto-full-review          pooled RR 1.1049 (1.0494 to 1.1633), k = 3
+        NCT00509106  "Clinical Cure Rate ... at the Test of Cure (TOC) in the Modified
+                      Intent-to-Treat Efficacy (MITTE) Population"
+        NCT00621504  "Clinical Cure Rate at Test-of-Cure (TOC) in the Modified
+                      Intent-to-Treat Efficacy (MITTE) Populations"
+        NCT01371838  "Clinical Cure Rate ... at Test of Cure (TOC) in CE Population"
+        -> TWO MITTE RESULTS POOLED WITH ONE CE RESULT.
+
+    tigecycline-ciai                      pooled RR 0.9351 (0.8885 to 0.9842), k = 3
+        NCT00081744  NO PRIMARY OUTCOME IS RECORDED ON THE REGISTRATION AT ALL
+        NCT00136201  "Clinical response for all microbiologically evaluable and
+                      microbiologically modified intent-to-treat subjects"
+        NCT01721408  "Clinical Response at the Test-of-Cure (TOC) Assessment Within the
+                      Clinically Evaluable (CE) Population"
+        -> ME/m-mITT POOLED WITH CE, PLUS A TRIAL WHOSE PRIMARY IS UNREGISTERED.
+
+    gepotidacin-urinary-tract-auto-full-review   both trials register the identical primary,
+        "Number of Participants With Therapeutic Response (Combined Per Participant Clinical
+        and Microbiological Response)". CONSISTENT.
+
+    lefamulin-cabp-auto-full-review              both register "Early Clinical Response
+        (ECR)". CONSISTENT.
+
+WHY THE POPULATION IS PART OF THE ESTIMAND AND NOT A DETAIL.
+
+In antibiotic trials the CLINICALLY EVALUABLE population excludes protocol violators,
+indeterminate responses and, in microbiologically-defined analyses, patients without a
+qualifying pathogen. It is a SELECTED SUBSET of the modified intent-to-treat population and
+systematically yields HIGHER cure rates. A ratio of cure rates computed in CE is therefore
+not an estimate of the same quantity as one computed in MITTE, and pooling them makes the
+result depend on which trials happened to register which population.
+
+    THIS IS THE COMPOSITE-ENDPOINT CLASS IN ANOTHER COORDINATE. There the components
+    differed between trials; here the DENOMINATOR POPULATION does. In both, an estimate is
+    assembled across quantities that are not the same quantity.
+
+WHAT IS NOT CLAIMED. NOT that either pooled value is wrong arithmetically. NOT that the
+direction would reverse -- that is not established and would need the per-population counts.
+NOT that the trials are non-inferiority designs: THE REGISTRATIONS FETCHED DO NOT USE THE
+WORD, so that design question is UNRESOLVED from the registry and is recorded as unresolved
+rather than assumed from what these programmes are usually like.
+
+NO STORED NUMBER IS CHANGED.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import atomic_write
+
+TODAY = "2026-08-21"
+STAMP = TODAY.replace("-", "_")
+
+FINDINGS = {
+    "ceftaroline-auto-full-review": {
+        "outcome": "primary",
+        "registered": {
+            "NCT00509106": ("Clinical Cure Rate for Ceftaroline Compared to That for "
+                            "Ceftriaxone at the Test of Cure (TOC) in the Modified "
+                            "Intent-to-Treat Efficacy (MITTE) Population", "MITTE"),
+            "NCT00621504": ("Clinical Cure Rate at Test-of-Cure (TOC) in the Modified "
+                            "Intent-to-Treat Efficacy (MITTE) Populations", "MITTE"),
+            "NCT01371838": ("Clinical Cure Rate for Ceftaroline Compared to That for "
+                            "Ceftriaxone at Test of Cure (TOC) in CE Population", "CE"),
+        },
+        "mixed": True,
+    },
+    "tigecycline-ciai": {
+        "outcome": "cure_toc_me",
+        "registered": {
+            "NCT00081744": ("NO PRIMARY OUTCOME IS RECORDED ON THIS REGISTRATION", None),
+            "NCT00136201": ("Clinical response for all microbiologically evaluable and "
+                            "microbiologically modified intent-to-treat subjects",
+                            "ME and m-mITT"),
+            "NCT01721408": ("Clinical Response at the Test-of-Cure (TOC) Assessment Within "
+                            "the Clinically Evaluable (CE) Population", "CE"),
+        },
+        "mixed": True,
+    },
+    "gepotidacin-urinary-tract-auto-full-review": {
+        "outcome": "primary",
+        "registered": {
+            "NCT04020341": ("Number of Participants With Therapeutic Response (Combined Per "
+                            "Participant Clinical and Microbiological Response)", "TR"),
+            "NCT04187144": ("Number of Participants With Therapeutic Response (Combined Per "
+                            "Participant Clinical and Microbiological Response)", "TR"),
+        },
+        "mixed": False,
+    },
+    "lefamulin-cabp-auto-full-review": {
+        "outcome": "primary",
+        "registered": {
+            "NCT02559310": ("Early Clinical Response (ECR)", "ECR"),
+            "NCT02813694": ("Early Clinical Response (ECR)", "ECR"),
+        },
+        "mixed": False,
+    },
+}
+
+
+def main():
+    dry = "--apply" not in sys.argv
+    for topic, spec in sorted(FINDINGS.items()):
+        path = os.path.join(REPO, "ssot", topic, topic + ".json")
+        if not os.path.exists(path):
+            print("%-44s OBJECT ABSENT -- named, not skipped" % topic)
+            continue
+        obj = json.load(io.open(path, encoding="utf-8"))
+        blk = ((obj.get("results") or {}).get("by_outcome") or {}).get(spec["outcome"])
+        if not isinstance(blk, dict):
+            print("%-44s outcome %r absent -- named" % (topic, spec["outcome"]))
+            continue
+        ncts = set(t.get("nct") for t in (obj.get("inputs") or {}).get("trials") or [])
+        missing = [n for n in spec["registered"] if n not in ncts]
+        if missing:
+            sys.exit("REFUSED on %s: %r not on the object (%r)"
+                     % (topic, missing, sorted(ncts)))
+
+        pops = sorted({p for _t, p in spec["registered"].values() if p})
+        lines = "; ".join(
+            "%s registers %r (population: %s)"
+            % (n, spec["registered"][n][0][:110], spec["registered"][n][1] or "NONE RECORDED")
+            for n in sorted(spec["registered"]))
+
+        if spec["mixed"]:
+            blk["POOL_FINDINGS_%s" % STAMP] = {
+                "a_this_pool_crosses_analysis_populations": (
+                    "THE ANALYSIS POPULATION IS PART OF THE ESTIMAND AND THIS POOL CROSSES "
+                    "IT. Read from the registrations on %s: %s. The populations pooled are "
+                    "%s." % (TODAY, lines, " and ".join(pops))),
+                "b_why_that_matters": (
+                    "A CLINICALLY EVALUABLE population EXCLUDES protocol violators and "
+                    "indeterminate responses, and microbiologically-defined populations "
+                    "exclude patients without a qualifying pathogen. Those are SELECTED "
+                    "SUBSETS of the modified intent-to-treat population and systematically "
+                    "yield HIGHER cure rates. A cure-rate ratio computed in one is not an "
+                    "estimate of the same quantity as one computed in another, so this "
+                    "pooled value depends on which trial registered which population."),
+                "c_what_is_not_claimed": (
+                    "NOT that the arithmetic is wrong. NOT that the direction would reverse "
+                    "-- that would need the per-population counts and is NOT established. "
+                    "And NOT that these are non-inferiority trials: THE REGISTRATIONS "
+                    "FETCHED DO NOT USE THAT WORD, so the design question is unresolved "
+                    "from the registry rather than assumed."),
+            }
+            note = "MIXED populations: %s" % ", ".join(pops)
+        else:
+            blk["POOL_FINDINGS_%s" % STAMP] = {
+                "a_the_analysis_population_was_checked_and_is_consistent": (
+                    "CHECKED AND CLEAN. Read from the registrations on %s: %s. Both trials "
+                    "register the same primary in the same population, so this pool does "
+                    "NOT cross an analysis-population boundary. Recorded because a check "
+                    "that only speaks when it finds something cannot be told from a check "
+                    "that was never run." % (TODAY, lines)),
+                "b_what_remains_unresolved": (
+                    "Whether these are non-inferiority designs is NOT established: the "
+                    "registration fields fetched do not use the word, and a pooled ratio "
+                    "from non-inferiority trials answers a different question from a "
+                    "superiority pool. Unresolved, not assumed."),
+            }
+            note = "consistent: %s" % ", ".join(pops)
+
+        obj.setdefault("display_change_announced", []).append({
+            "date": TODAY,
+            "change": "analysis-population estimand check recorded on the pooled outcome",
+            "values_moved": "NONE",
+            "what_changed": note,
+            "why": ("The analysis population is part of the estimand and no field recorded "
+                    "whether this pool crossed it."),
+        })
+        print("%-44s %s" % (topic, note))
+        if not dry:
+            atomic_write.write_json(path, obj, indent=1)
+    if dry:
+        print("DRY RUN -- pass --apply to write")
+
+
+if __name__ == "__main__":
+    main()

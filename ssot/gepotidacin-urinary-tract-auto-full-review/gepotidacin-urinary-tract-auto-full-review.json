@@ -139,7 +139,11 @@
      "cost_of_this_check": "Under a minute, on data already retrieved. It did not resolve the question; it removed the answer that would have been assumed."
     },
     "estimator_used": "REML",
-    "schema_alias_note": "estimator_used mirrors the estimator this pool actually used (REML, already recorded). The generator reads res[\"estimator_used\"]; our schema wrote it as \"estimator\". SAME VALUE, PLACED WHERE THE CONSUMER LOOKS -- not a new claim."
+    "schema_alias_note": "estimator_used mirrors the estimator this pool actually used (REML, already recorded). The generator reads res[\"estimator_used\"]; our schema wrote it as \"estimator\". SAME VALUE, PLACED WHERE THE CONSUMER LOOKS -- not a new claim.",
+    "POOL_FINDINGS_2026_08_21": {
+     "a_the_analysis_population_was_checked_and_is_consistent": "CHECKED AND CLEAN. Read from the registrations on 2026-08-21: NCT04020341 registers 'Number of Participants With Therapeutic Response (Combined Per Participant Clinical and Microbiological Respon' (population: TR); NCT04187144 registers 'Number of Participants With Therapeutic Response (Combined Per Participant Clinical and Microbiological Respon' (population: TR). Both trials register the same primary in the same population, so this pool does NOT cross an analysis-population boundary. Recorded because a check that only speaks when it finds something cannot be told from a check that was never run.",
+     "b_what_remains_unresolved": "Whether these are non-inferiority designs is NOT established: the registration fields fetched do not use the word, and a pooled ratio from non-inferiority trials answers a different question from a superiority pool. Unresolved, not assumed."
+    }
    }
   }
  },
@@ -150,6 +154,13 @@
    "values_moved": "NONE",
    "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
    "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "analysis-population estimand check recorded on the pooled outcome",
+   "values_moved": "NONE",
+   "what_changed": "consistent: TR",
+   "why": "The analysis population is part of the estimand and no field recorded whether this pool crossed it."
   }
  ],
  "render": [

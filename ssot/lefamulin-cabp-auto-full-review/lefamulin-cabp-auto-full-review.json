@@ -126,7 +126,11 @@
      "sections": "6.4.1 (risk ratio); 10.10.4.4 (REML default); 10.10.4.4-5 (k<=3)",
      "estimator_note": "REML is the Handbook 6.5 default tau-squared estimator. At k=2 the Handbook notes that random-effects estimates of between-study variance are very imprecise, and 10.10.4.5 recommends the Hartung-Knapp adjustment where k is small."
     },
-    "estimator_used": "REML"
+    "estimator_used": "REML",
+    "POOL_FINDINGS_2026_08_21": {
+     "a_the_analysis_population_was_checked_and_is_consistent": "CHECKED AND CLEAN. Read from the registrations on 2026-08-21: NCT02559310 registers 'Early Clinical Response (ECR)' (population: ECR); NCT02813694 registers 'Early Clinical Response (ECR)' (population: ECR). Both trials register the same primary in the same population, so this pool does NOT cross an analysis-population boundary. Recorded because a check that only speaks when it finds something cannot be told from a check that was never run.",
+     "b_what_remains_unresolved": "Whether these are non-inferiority designs is NOT established: the registration fields fetched do not use the word, and a pooled ratio from non-inferiority trials answers a different question from a superiority pool. Unresolved, not assumed."
+    }
    }
   }
  },
@@ -138,6 +142,13 @@
    "values_moved": "NONE",
    "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
    "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "analysis-population estimand check recorded on the pooled outcome",
+   "values_moved": "NONE",
+   "what_changed": "consistent: ECR",
+   "why": "The analysis population is part of the estimand and no field recorded whether this pool crossed it."
   }
  ],
  "carried_contrasts": [],

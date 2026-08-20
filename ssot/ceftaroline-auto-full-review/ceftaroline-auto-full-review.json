@@ -172,6 +172,11 @@
      "variance_inflation_floor": "A FLOOR OF 1 IS APPLIED TO THE VARIANCE-INFLATION FACTOR so the adjustment can never NARROW an interval below the unadjusted one. That guard is the recognised modification for exactly this instability, and its existence is evidence the small-k behaviour is a KNOWN problem with KNOWN handling rather than a novel judgement.",
      "no_rule_is_decided_here": "The house rule is REML with Hartung-Knapp below k=10, settled days ago. Whether it means ALWAYS or WITH A FLOOR AT k=3 is a decision about this corpus, not a computation, and it has been referred rather than taken. BOTH INTERVALS STAND ON THIS PAGE UNTIL IT IS MADE. Nothing is unpublished and no reader is left with only the narrower one.",
      "what_this_means_for_this_pool": "THE PUBLISHED INTERVAL EXCLUDES 1 AND THE HOUSE-RULE INTERVAL CROSSES IT. A SIGNIFICANCE VERDICT TURNS ON THE INTERVAL METHOD ALONE. A reader shown only the published interval has been told something firmer than the evidence supports; a reader shown only the wider one loses that the contributing trials agree. BOTH ARE HERE."
+    },
+    "POOL_FINDINGS_2026_08_21": {
+     "a_this_pool_crosses_analysis_populations": "THE ANALYSIS POPULATION IS PART OF THE ESTIMAND AND THIS POOL CROSSES IT. Read from the registrations on 2026-08-21: NCT00509106 registers 'Clinical Cure Rate for Ceftaroline Compared to That for Ceftriaxone at the Test of Cure (TOC) in the Modified ' (population: MITTE); NCT00621504 registers 'Clinical Cure Rate at Test-of-Cure (TOC) in the Modified Intent-to-Treat Efficacy (MITTE) Populations' (population: MITTE); NCT01371838 registers 'Clinical Cure Rate for Ceftaroline Compared to That for Ceftriaxone at Test of Cure (TOC) in CE Population' (population: CE). The populations pooled are CE and MITTE.",
+     "b_why_that_matters": "A CLINICALLY EVALUABLE population EXCLUDES protocol violators and indeterminate responses, and microbiologically-defined populations exclude patients without a qualifying pathogen. Those are SELECTED SUBSETS of the modified intent-to-treat population and systematically yield HIGHER cure rates. A cure-rate ratio computed in one is not an estimate of the same quantity as one computed in another, so this pooled value depends on which trial registered which population.",
+     "c_what_is_not_claimed": "NOT that the arithmetic is wrong. NOT that the direction would reverse -- that would need the per-population counts and is NOT established. And NOT that these are non-inferiority trials: THE REGISTRATIONS FETCHED DO NOT USE THAT WORD, so the design question is unresolved from the registry rather than assumed."
     }
    }
   }
@@ -183,6 +188,13 @@
    "values_moved": "NONE",
    "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
    "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "analysis-population estimand check recorded on the pooled outcome",
+   "values_moved": "NONE",
+   "what_changed": "MIXED populations: CE, MITTE",
+   "why": "The analysis population is part of the estimand and no field recorded whether this pool crossed it."
   }
  ],
  "carried_contrasts": [],
