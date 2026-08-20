@@ -917,7 +917,17 @@ def check_superseded(canon, rep):
         got = pool_generic(effects, res.get("estimator_used", "DL"), 95,
                            log_scale=outcome["measure"] not in ("MD", "SMD"))
         if got is None:
-            return
+            # `continue`, NOT `return`. This sits inside `for oid, res in
+            # by_outcome.items()`, and a `return` here abandons EVERY REMAINING OUTCOME --
+            # so one unpoolable superseded figure would silently stop the check for all the
+            # others, and the report would show no block, which reads as "checked and
+            # clean". Every sibling exit in this loop already uses `continue`; this one word
+            # was the odd one out.
+            #
+            # LATENT, NOT REALISED, and measured rather than assumed: 1 of 155 objects
+            # carries a superseded block and it has a single outcome, so today the two are
+            # equivalent. It would bite the first time a multi-outcome object keeps one.
+            continue
         for f in ("point", "ci_low", "ci_high"):
             if f in sup:
                 dec = len(str(sup[f]).split(".")[1]) if "." in str(sup[f]) else 0
