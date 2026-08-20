@@ -31,8 +31,31 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="repla
 Z = {90: 1.644853627, 95: 1.959963985, 97.5: 2.241402728, 99: 2.575829304}
 
 
-class Report:
-    def __init__(self):
+def _declared_outcome(canon, oid):
+    """The outcomes[] entry for a results block, or a NAMED error.
+
+    A bare next() over canon["outcomes"] raises StopIteration, which names neither the
+    topic nor the block. On cangrelor-pci-review an undeclared results block --
+    corrected_composite_3component, carrying a LIVE pooled point of 0.9646 -- killed two
+    separate page builds that way. The idiom appeared TEN TIMES across the builders and
+    validators, so repairing the crash where it surfaced was repairing a symptom.
+
+    NOT A .get() WITH A DEFAULT. A default here would let a validator run to completion on
+    a block it cannot describe, which turns a loud defect into a silent one -- the same
+    trade as .get(k, default) masking a present-but-null key. The renderer refuses such a
+    block ON THE PAGE; a validator raises, and now says why.
+    """
+    for o in canon.get("outcomes") or []:
+        if isinstance(o, dict) and o.get("id") == oid:
+            return o
+    raise KeyError(
+        "results.by_outcome[%r] is not declared in outcomes[]. The block exists and may "
+        "carry a pooled estimate; there is no registered name, measure or comparator to "
+        "describe it. Declared outcomes: %r"
+        % (oid, [o.get("id") for o in (canon.get("outcomes") or []) if isinstance(o, dict)]))
+
+
+def __init__(self):
         self.blocks: list[tuple[str, str]] = []
         self.passes: list[str] = []
         # A THIRD outcome, added for the cross-engine check. Some findings are
@@ -43,6 +66,8 @@ class Report:
         # into blocks would stop a build for something nobody did wrong.
         self.notes: list[tuple[str, str]] = []
 
+
+class Report:
     def block(self, rule, msg):
         self.blocks.append((rule, msg))
 
@@ -762,7 +787,7 @@ def check_pooled_recompute(canon, rep):
         rec = res.get("pooled")
         if not rec:
             continue
-        outcome = next(o for o in canon["outcomes"] if o["id"] == oid)
+        outcome = _declared_outcome(canon, oid)
         if rec.get("measure") and rec["measure"] != outcome["measure"]:
             rep.block("pooled-measure-mismatch",
                       f"outcome {oid!r} declares measure {outcome['measure']!r} but its "
@@ -880,7 +905,7 @@ def check_superseded(canon, rep):
                       f"trials it came from, so it cannot be recomputed and could hold any "
                       f"value while being rendered to a reader.")
             continue
-        outcome = next(o for o in canon["outcomes"] if o["id"] == oid)
+        outcome = _declared_outcome(canon, oid)
         effects = [t["by_outcome"][oid]["effect"]
                    for t in canon["inputs"]["trials"]
                    if t["id"] in ids and t.get("by_outcome", {}).get(oid, {}).get("effect")]
@@ -1346,7 +1371,7 @@ def check_direction_anchor(canon, rep):
     """
     for oid, res in canon["results"]["by_outcome"].items():
         rec = res.get("pooled")
-        outcome = next(o for o in canon["outcomes"] if o["id"] == oid)
+        outcome = _declared_outcome(canon, oid)
         if not rec:
             # An object that declines to pool used to leave this detector with
             # nothing to do, and direction_of_benefit -- which says which way
@@ -1793,7 +1818,7 @@ def check_subgroup_recompute(canon, rep):
                                       f"{only[field]}. A stratum of one is its "
                                       f"member, not an independent number.")
                 continue
-            outcome = next(o for o in canon["outcomes"] if o["id"] == oid)
+            outcome = _declared_outcome(canon, oid)
             if effects:
                 got = pool_generic(effects,
                                    res.get("estimator_used", "DerSimonian-Laird"),
@@ -2471,7 +2496,7 @@ def check_estimand_homogeneity(canon, rep):
     exactly why arithmetic checking cannot catch it.
     """
     for oid, res in canon["results"]["by_outcome"].items():
-        outcome = next(o for o in canon["outcomes"] if o["id"] == oid)
+        outcome = _declared_outcome(canon, oid)
         want = (outcome.get("estimand") or {}).get("id")
         if not want:
             # SCOPED, deliberately. A risk ratio or a mean difference on a
@@ -2578,7 +2603,7 @@ def check_regimen_homogeneity(canon, rep):
     legitimate it must be the trial's own, declared and anchored.
     """
     for oid, res in canon["results"]["by_outcome"].items():
-        outcome = next(o for o in canon["outcomes"] if o["id"] == oid)
+        outcome = _declared_outcome(canon, oid)
         if outcome.get("type") == "exploratory" or not res.get("pooled"):
             continue
         regs = {r.get("regimen") for r in (res.get("per_trial") or [])}
@@ -2780,7 +2805,7 @@ def check_pool_uniformity(canon, rep):
             # regime is left alone rather than blocked for lacking a field that
             # did not exist when it shipped -- the same scoping the estimand and
             # analysed-scope rules already use.
-            outcome = next(o for o in canon["outcomes"] if o["id"] == oid)
+            outcome = _declared_outcome(canon, oid)
             if outcome.get("estimand"):
                 rep.block("pool-uniformity-undeclared",
                           f"outcome {oid!r} declares an estimand and publishes a "
@@ -2796,7 +2821,7 @@ def check_pool_uniformity(canon, rep):
         # contradiction detector was pointed at poolable_reason alone and could
         # not see it. A rule that checks one of the several places a claim can
         # live is a rule that relocates the defect.
-        outcome_for_scan = next(o for o in canon["outcomes"] if o["id"] == oid)
+        outcome_for_scan = _declared_outcome(canon, oid)
         reason = " ".join(str(x).lower() for x in (
             res.get("poolable_reason", ""),
             res.get("heterogeneity_status", ""),

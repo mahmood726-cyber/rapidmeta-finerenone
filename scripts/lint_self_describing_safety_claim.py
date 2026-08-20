@@ -34,6 +34,12 @@ whether a command tests any of them -- that requires knowing what every script d
 a REPORTER with a ratchet, not a verifier, and it says so rather than printing PASS. The
 list is the work item; each sentence is either backed by a named command or it is this
 class.
+
+    PROVEN BY GRAFT 2026-08-20: scripts/prove_never_fired_by_graft.py constructs an
+    input this check must refuse, inside a temp tree so it is the only corpus the check
+    can see, and requires a non-zero exit. Before that this check had never fired on
+    any real run -- CAPABLE OF FAILING, CONDITION NOT YET OBSERVED, which is a
+    legitimate state and a different one from vacuous.
 """
 import io
 import json

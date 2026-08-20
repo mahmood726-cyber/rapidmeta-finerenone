@@ -496,7 +496,29 @@ def _not_contributing(canon, p, e):
 
 
 def _outcome_section(canon, oid, p, e):
-    outcome = next(o for o in canon["outcomes"] if o["id"] == oid)
+    # AN OUTCOME BLOCK WITH NO DECLARATION IS REFUSED BY NAME, NOT CRASHED ON.
+    #
+    # This was a bare `next(o for o in canon["outcomes"] if o["id"] == oid)`. On
+    # `cangrelor-pci-review` the block `corrected_composite_3component` exists in
+    # results.by_outcome and is declared in NO outcomes[] entry, so next() raised
+    # StopIteration and THE WHOLE PAGE BUILD DIED.
+    #
+    # AND THE CRASH AND THE MISSING ESTIMATE ARE THE SAME DEFECT. That block holds a LIVE
+    # pooled point -- 0.9646, k=2, not withdrawn -- while the topic's `primary` is
+    # withdrawn. So the object publishes an estimate its own page has never shown: 0.9646
+    # appears nowhere in the delivered bytes. CANGRELOR was already on the open list as one
+    # of two pages serving nothing for a pooled point its object holds, and this is why.
+    #
+    # Corpus-wide there is exactly ONE such orphan block, this one. A refusal by name makes
+    # the second one visible on the page instead of taking the build down.
+    outcome = next((o for o in canon["outcomes"] if o["id"] == oid), None)
+    if outcome is None:
+        return ("<div class='absent-state' role='note'><strong>Not rendered.</strong> "
+                "The results block <code>%s</code> is not declared in this object's "
+                "<code>outcomes</code>, so there is no registered name, measure or "
+                "comparator to render it under. IT IS NOT EMPTY: the block exists and may "
+                "carry a pooled estimate. Declaring the outcome is a CONTENT change and is "
+                "not made here.</div>" % e(oid))
     res = canon["results"]["by_outcome"][oid]
     pooled, het = res.get("pooled"), res.get("heterogeneity") or {}
     # The INDEX is kept, not just the record: a per-trial note that references

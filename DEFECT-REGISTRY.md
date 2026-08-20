@@ -2911,6 +2911,265 @@ above are **not retrofitted** and remain in the baseline: they are on the record
 unfired, which is the honest state, and rewriting fifty instruments in one unreviewed pass
 is the shape of half the entries in this file.
 
+## Class 59 — A FORMATTER THAT DROPS UNKNOWN KEYS ERASES CORRECTION HISTORY SPECIFICALLY
+
+Not "renderers should print all their keys". That is the remedy, and stating the class that
+way loses what makes it dangerous.
+
+**`_grade_step_words` handled five keys — `domain`, `levels`, `from`, `to`, `reason` — and
+silently discarded every other.** On `alirocumab-lipid` one rating step carries
+`reason_superseded_2026_08_20`:
+
+> "k = 8 and the interval (−60.23 to −49.42) excludes the null."
+
+That sentence, holding the pool's own interval, **vanished from the delivered page**, and it
+vanished because of the fix written to make the page more readable.
+
+### The keys at risk are, without exception, records of where we were previously wrong
+
+Swept across the corpus, the unknown keys sitting at known-key render sites are:
+
+| key | what it is |
+|---|---|
+| `reason_superseded_2026_08_20` | the reason a GRADE rating gave before it was corrected |
+| `what_the_split_does_not_establish` | the bound written when one pool became two |
+| `value_the_index_published` | the number the dashboard served before it was withdrawn |
+| `value_withdrawn_reproduces_as` | what the withdrawn estimate refits to |
+| `previous_values` | the estimates this block replaced |
+| `i2_definition_evidence` | why this I² is defined the way it is |
+| `k3_corrected_from` | the count before the arm-role correction |
+
+**Every one is a record of a past error and its repair.** Nothing on that list is ordinary
+data. The vocabulary of this project's corrections — `superseded`, `restated`, `previous`,
+`corrected_from`, `withdrawn_note`, `_does_not_establish` — is by construction *unusual*, so
+a formatter that knows the ordinary keys and drops the rest **removes precisely the
+correction record and leaves the current claim standing.**
+
+### That makes it self-concealing, and the selection effect runs the wrong way
+
+A page that has lost `reason_superseded_2026_08_20` still shows its GRADE rating, its
+interval, its downgrade reason. **It reads as complete.** What is missing is the evidence
+that it was ever different — so the defect removes its own trace, and a reader has nothing to
+notice the absence of.
+
+**And it strikes hardest where the work has been best.** A thin, neglected object carries no
+`superseded` keys because nothing about it has ever been corrected; it is *immune*. The
+topics carrying the most such keys are `sglt2-hf`, `alirocumab-lipid`,
+`apixaban-vte-prophylaxis`, `rivaroxaban-vasc-review`, `sotagliflozin-hf` — the four clean
+topics and the ones most reworked. **Every quality signal we have points at the pages this
+class damages most.**
+
+### State of the sweep
+
+`scripts/audit_projector_key_filters.py`. Predicted 6–10 renderers; **found 42**, of which
+**27 print only the keys they name**, against **192 object-side hits**. The prediction was
+wrong by a factor of five in the direction that understated the risk.
+
+The count then came down again on the **sole-rendering discriminator** — a renderer is a
+filter only where it is the node's *only* rendering. That test is sound and it is kept, but
+**it was formulated after seeing 192 hits, not before**, which is exactly where motivated
+reasoning enters. It is recorded as a judgement in the sweep's own docstring, not as a
+measurement. **One renderer adjudicated, 27 unadjudicated.** Nobody should read "42, mostly
+fine" until each has been read against the pages it produces.
+
+Found by `prove_register_change_moved_no_content.py`, whose estimate invariant compares
+every number on every page rather than sampling — and which found this on the one page in
+the corpus where it could be found.
+
+## Class 60 — A METRIC A DEGENERATE ARTEFACT MAXIMISES WILL, GIVEN A GUARD, DEFEND DEGENERACY
+
+**Three instances tonight, and they only became one class on the third.**
+
+| | the measure | what a degenerate artefact scores | what it did |
+|---|---|---|---|
+| **ACS / totals** | section count, word count | a page of headings scores full marks on both | SGLT2 and ARNI read as siblings — 27 sections against 29 — while one had 219 words in the four sections a reader opens |
+| **P47 weighting** | manuscript length, section presence | a manuscript of refusals has every section and reasonable length | the page passed `manuscript_guard`, which knows delivered length and section count and said the two pages were siblings |
+| **BOCOCIZUMAB** | machine-vocabulary count | **an empty page scores ZERO. A perfect score.** | the guard restored the empty tab over an 81-sentence manuscript, twice, in two independent checks |
+
+The first two were reporting failures. **The third had a guard behind it, and that is the
+difference that makes this a class.** `BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW` served the honest
+absent-state banner — two sentences, no manuscript, zero machine vocabulary — and the
+rebuild gave it a real paper. Both the rollout predicate and the invariance check read that
+as a regression and **rolled the page back to blankness.**
+
+> **A quality metric that a blank page maximises will, given a guard, actively defend
+> blankness.**
+
+And note what kind of error it is not. The stale-baseline fault and the concurrency fault
+compared the **wrong values**. This one compared the right values correctly and reached the
+wrong verdict, because **the metric assumed both sides were the same kind of thing.**
+
+### The rule
+
+**Before a metric guards anything, ask what a degenerate artefact scores on it.** An empty
+page. A page of boilerplate. A page of pure refusals. If any of them beats a good page, the
+metric will be enforced against the good page eventually — not as a possibility, but as the
+thing that happens the first time a good page appears.
+
+### Measured, not assumed
+
+`scripts/audit_degenerate_artefact_scores.py` constructs the three degenerates and a real
+page and calls the actual metric functions on them:
+
+| artefact | sentences | machine | rate | flow paths |
+|---|---|---|---|---|
+| EMPTY | 2 | 0 | **0%** | 0 |
+| BOILERPLATE | 7 | 0 | **0%** | 0 |
+| REFUSALS | 8 | 0 | **0%** | 0 |
+| **REAL** | 3 | 1 | **33%** | 0 |
+
+**Three of the four rollout predicates defend all three degenerates.** Machine sentences,
+machine-vocabulary rate, and field paths in the flow are all *maximised* by an empty page.
+
+**The only one a blank page loses is sentence count** — which is why the gained-a-manuscript
+branch is keyed on it rather than on any quality measure. **A count of things present is the
+only one of these a degenerate artefact cannot win, and it is the crudest of them.** Even
+that is beaten by boilerplate and by refusals.
+
+### The uncomfortable case is the refusals page
+
+Refusing by name is **required** behaviour here. A page that does nothing else is honest, it
+carries no machine vocabulary, no unglossed statistics, no field paths in prose — it scores
+at or near the top of every readability measure written tonight — and it is worthless to a
+reader. P47 exists for exactly that reason. **These metrics do not know it**, and the check
+says so in its own output rather than leaving it to be noticed.
+
+## Class 61 — THREE INSTRUMENTS IN ONE NIGHT THAT PUNISH A PAGE FOR BEING HONEST
+
+This is a pattern about **us**, not about the pages.
+
+| instrument | the honest thing the page did | what the instrument did |
+|---|---|---|
+| `pool_broken` in `regression_check.py` | withdrew a pool **on purpose, with a stated reason** | scored it as a broken pool, in the BLOCKING set |
+| a regex I wrote, and relayed to Mahmood | printed a **withdrawal notice** naming the numbers it was not serving | read `0.06` and `1.79` out of that notice and reported them as what the page serves |
+| **P47**, written tonight to fix exactly this | refused four reader-facing sections **by name**, saying what is missing and why | failed the page — while **passing** a page of content-free filler |
+
+Each page did the disclosed, careful thing and each instrument marked it down **for saying
+so**. The general form was already in the registry as one line — *a checker that reads a
+disclosure as the defect it discloses penalises a page in proportion to how honestly it
+documents itself* — and three instances in one night promote it from an observation to a
+directional bias in how this project builds instruments.
+
+**The P47 inversion is the sharpest of the three and it is counterintuitive, so state it
+exactly:**
+
+> **P47 fails the honest page and passes the empty one.** The refusals page tells a reader
+> precisely what is missing and why. The boilerplate page tells them nothing and looks
+> complete. As written, the criterion **penalises disclosure and rewards padding.**
+
+Measured, not argued — `scripts/prove_p47_against_degenerates.py` scores the real Section
+shape against P47's real predicate:
+
+| artefact | P47 |
+|---|---|
+| EMPTY (no sections) | FAILS |
+| **REFUSALS** (all four correctly refused) | **FAILS** |
+| **BOILERPLATE** (73 words/section, names no finding, estimate, trial or field) | **PASSES** |
+| REAL | PASSES |
+
+**Why this matters now rather than later:** P47 is in `PAGE-STANDARD.md`, it ratchets, and
+**133 topics have not been built to it yet.** A topic author under pressure to clear P47 has
+a cheap passing move available, and it produces something worse than the refusal it
+replaces.
+
+**NOT PATCHED, DELIBERATELY.** A word-count threshold cannot be repaired by raising the
+threshold. The fix has to be a SPECIFICITY test — does the section name a finding, an
+estimate, a trial, a field this object holds? — and designing that at five in the morning is
+how a bad criterion gets ratcheted into the standard for 133 topics. The hole is recorded in
+the standard itself so the next person to open it meets the known failing case rather than
+trusting the criterion.
+
+## Class 62 — THE CRASH IS THE LUCKY SYMPTOM, AND DEFENSIVE CODING WOULD HAVE REMOVED IT
+
+`cangrelor-pci-review` holds a results block `corrected_composite_3component` that is
+declared in **no** `outcomes[]` entry. A bare
+
+```python
+outcome = next(o for o in canon["outcomes"] if o["id"] == oid)
+```
+
+raised `StopIteration` and killed the page build. It was fixed at the site where it
+surfaced — and **the next bare `next()` downstream killed the build again.** The idiom
+appears **ten times** across `build_tabbed.py` and `validate_v2.py`; repairing the crash
+where it appeared was repairing a symptom.
+
+**And the crash and the invisible estimate are the same defect.** That block carries a LIVE
+pooled point — **0.9646, k=2, not withdrawn** — while the topic's `primary` is withdrawn. So
+the object publishes an estimate the delivered page has never shown: `0.9646` appears
+nowhere in the bytes. CANGRELOR was already on the open list as one of two pages serving
+nothing for a pooled point its object holds, and **this is why** — reached from a completely
+different route, an accidental sample while looking for something else.
+
+> **A build that dies gets noticed inside a batch. An estimate that never renders is silent
+> forever.**
+
+**So the instinct to make the crash go away would have made this permanent.** Had that
+lookup been written defensively from the start — a `.get()`, a `try/except`, a default —
+there would have been no crash, a page still missing its estimate, and **nothing to
+notice**. It is the same trade as `.get(k, default)` masking a present-but-null key, and the
+same as a `k` that agrees while the trial set differs.
+
+**Defensive coding on a lookup that should never fail converts a loud defect into a silent
+one.**
+
+The two paths are therefore fixed differently, on purpose:
+
+- **the renderers** refuse the block **on the page**, so the silence becomes something a
+  reader meets;
+- **the validators** route through `_declared_outcome()`, which raises a **named** error
+  listing the declared ids — explicitly **not** a default, because a default lets a
+  validator run to completion on a block it cannot describe.
+
+**Bounded, with its population stated so a singleton is not mistaken for a broken sweep:**
+**1 orphan block across 155 objects.** Zero elsewhere, and the zero was measured.
+
+## Class 63 — THE FILE WHOSE ENTIRE SUBJECT IS CHECKS THAT CANNOT FAIL, THAT COULD NOT FAIL
+
+`scripts/prove_never_fired_by_graft.py` exists to resolve checks that have never fired: it
+constructs an input each one must refuse and requires a non-zero exit. **It printed the exit
+codes and returned 0 whatever they were.**
+
+A graft that does not fire is the entire finding, and the file reported it as text.
+
+**It was caught by `lint_gate_can_fail.py`, four hours after that rule was widened** from
+the filename `*_gate.py` to the role — any file named `lint_`, `audit_`, `check_`,
+`verify_`, `prove_`. Under the old scoping this file would not have been examined at all,
+because it is named `prove_`. **The widening has now paid for itself twice**: it surfaced 45
+verdict-returning files that cannot fail, and it caught the one written to prove that other
+files can.
+
+Recorded as its own instance rather than folded into class 48 — *the instruments are a
+larger source of defects than the data* — because the specific shape is sharper than the
+general one, and the general one is already too comfortable to be useful.
+
+## Class 64 — A GREP FOR AN IDIOM IS A STRING MATCH ON A HABIT
+
+`cangrelor-pci-review` killed **three** page builds on the same construct, and the
+population was measured wrong twice:
+
+| | |
+|---|---|
+| `grep 'next(o for o in canon["outcomes"]'` | **10 sites** |
+| the third crash | at a site written `next(x for x in canon["outcomes"] ...)` |
+
+**The loop variable was renamed and the string match missed it.** Each repair was then made
+where the traceback pointed — three symptom repairs in a row, each one confident it was the
+last, and the third cost a full batch cycle.
+
+> **The habit varies and the idiom does not.** `next(<genexp>)` with no default is a
+> *shape*; a shape is what an AST walk finds and what a grep cannot.
+
+`scripts/audit_bare_next_over_generator.py` measures it as
+`Call(func=Name('next'), args=[GeneratorExp])` with one argument. Its positive control is
+the exact failing shape **with the loop variable renamed**, because a rename is what defeated
+the grep.
+
+**Result: 12 `next(<genexp>)` calls across the nine render and validate files, all 12
+supplying a default, 0 bare.** The zero states its own denominator — *looked and found none,
+12 such calls exist and every one supplies a default* — so it cannot be read as a search that
+could not match. That is class 52 applied to this sweep's own clean result.
+
+
 ## OPEN — carried, not fixed
 
 ### O1. A check that reads a different working tree than the one being built

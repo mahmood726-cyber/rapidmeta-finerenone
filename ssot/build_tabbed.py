@@ -413,7 +413,21 @@ def panels_card(res, p):
 def output_card(canon, p):
     sof = ""
     for oid, r in canon["results"]["by_outcome"].items():
-        o = next(x for x in canon["outcomes"] if x["id"] == oid)
+        # THE THIRD SITE OF THE SAME BARE next(), AND THE THIRD BUILD IT KILLED.
+        #
+        # cangrelor-pci-review's `corrected_composite_3component` is declared in no
+        # outcomes[] entry. build_app_v2:501 was fixed, then build_tabbed:1025 killed the
+        # build, then this one. Each repair was made where the traceback pointed, which is
+        # repairing a symptom three times.
+        #
+        # A row that cannot be described is SKIPPED FROM THIS SUMMARY TABLE and named in
+        # the outcome section instead, where the refusal is rendered for a reader. Skipping
+        # it silently here would be the wrong half of the trade -- but the same block IS
+        # refused visibly further down the page, so the reader is told once rather than not
+        # at all.
+        o = next((x for x in canon["outcomes"] if x["id"] == oid), None)
+        if o is None:
+            continue
         pl = r.get("pooled") or {}
         g = r.get("grade") or {}
         ks = r.get("k_status") or {}
@@ -1020,9 +1034,38 @@ def build(canon):
 
     parts = []
     for oid in canon["results"]["by_outcome"]:
+        # AN UNDECLARED OUTCOME BLOCK IS REFUSED BY NAME, NOT CRASHED ON -- AND THIS IS THE
+        # SECOND SITE, WHICH IS THE POINT.
+        #
+        # `cangrelor-pci-review` holds a results block `corrected_composite_3component`
+        # that appears in NO outcomes[] entry. The bare next() in build_app_v2 raised
+        # StopIteration and killed the build; that one was fixed and THE NEXT BARE next()
+        # DOWNSTREAM KILLED IT AGAIN, here. The idiom appears TEN TIMES across
+        # build_tabbed.py and validate_v2.py, so fixing the crash where it surfaced was
+        # fixing a symptom.
+        #
+        # AND THE CRASH IS THE LUCKY SYMPTOM. That block carries a LIVE pooled point --
+        # 0.9646, k=2, not withdrawn -- while the topic's primary is withdrawn, so the
+        # object publishes an estimate the delivered page has never shown: 0.9646 appears
+        # nowhere in the bytes. A build that dies gets noticed inside a batch. An estimate
+        # that never renders is silent, and this one reached the open list by accident,
+        # while somebody was looking for something else.
+        #
+        # SO A DEFENSIVE .get() HERE WOULD HAVE BEEN THE WORSE FIX: no crash, a page still
+        # missing its estimate, and nothing to notice. The refusal is rendered ON THE PAGE
+        # for that reason -- it converts the silence back into something a reader meets.
+        outcome = next((o for o in canon["outcomes"] if o["id"] == oid), None)
+        if outcome is None:
+            parts.append(
+                "<div class='absent-state' role='note'><strong>Not rendered.</strong> "
+                "The results block <code>%s</code> is not declared in this object's "
+                "<code>outcomes</code>, so it has no registered name, measure or "
+                "comparator to be rendered under. IT IS NOT EMPTY -- it may carry a pooled "
+                "estimate, and on this object it does. Declaring the outcome is a CONTENT "
+                "change and is not made by the builder.</div>" % e_(oid))
+            continue
         d = G._outcome_section(canon, oid, p, e_)
         res = canon["results"]["by_outcome"][oid]
-        outcome = next(o for o in canon["outcomes"] if o["id"] == oid)
         if isinstance(d, str):          # original returns one string
             d = {"name": p(outcome["name"]), "trials": d, "headline": "",
                  "estimand": "", "hb": "", "sens": "", "dissent": "",

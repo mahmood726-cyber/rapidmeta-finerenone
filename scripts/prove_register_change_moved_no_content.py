@@ -34,7 +34,7 @@ import html as htmllib
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from lint_paper_reads_as_prose import panel_text, FIELD_PATH
+from lint_paper_reads_as_prose import panel_text, FIELD_PATH, SENT
 
 NUM = re.compile(r"(?<![\w.])\d+\.\d{1,4}(?![\w])")
 NCT = re.compile(r"\bNCT\d{8}\b")
@@ -180,7 +180,26 @@ def main():
     fb, fa = flow_paths(before), flow_paths(after)
     print("")
     print("FIELD PATHS INSIDE THE SENTENCE FLOW  before %d, after %d" % (fb, fa))
-    if fa >= fb:
+    # A PAGE THAT HAD NO MANUSCRIPT CANNOT SHOW A FALL, AND MUST NOT BE ASKED FOR ONE.
+    #
+    # BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW served the absent-state banner -- no manuscript at
+    # all -- so its "before" carried ZERO field paths for the trivial reason that it carried
+    # no sentences. The rebuild produced an 81-sentence manuscript with 2 paths, and this
+    # check read 0 -> 2 as "the pass did nothing" and refused a page that had just gained
+    # its entire paper.
+    #
+    # THE SAME ASSUMPTION AS THE ROLLOUT'S OWN PREDICATE, IN A SECOND PLACE: both were
+    # written for pages that already had a manuscript, and neither said so. A comparison
+    # against an empty baseline is not a comparison.
+    _bs = panel_text(before)[0] or []
+    before_sentences = sum(len([s for s in SENT.split(t) if len(s.strip()) > 25])
+                           for _h, t in _bs)
+    if before_sentences < 6:
+        print("      the BEFORE page carried %d sentence(s) -- it served the absent-state "
+              "banner" % before_sentences)
+        print("      and had no manuscript. NOT ASKED FOR A FALL: there was nothing to fall "
+              "from.")
+    elif fa >= fb:
         failures.append("field paths in the sentence flow did not fall (%d -> %d) -- the "
                         "pass did nothing" % (fb, fa))
 

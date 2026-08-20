@@ -59,7 +59,7 @@ NONZERO = re.compile(
 # (class, one-line name, command or None, marker proving it has fired, notes)
 CLASSES = [
     ("44", "an instrument that cannot tell 'nothing to do' from 'did nothing'",
-     "scripts/lint_no_false_allclear.py", None, ""),
+     "scripts/lint_no_false_allclear.py", "PROVEN BY GRAFT", ""),
     ("--", "THE ACCUSING DIRECTION -- four wrong accusations in one night, none caught "
      "by the instrument that made them",
      "scripts/lint_instrument_declares_a_control.py", "PROOF PASSED",
@@ -69,10 +69,10 @@ CLASSES = [
      "scripts/test_apply_reml_guard.py", "skipTest",
      "the two after-the-pass proofs SKIP rather than pass when unrun"),
     ("46", "a field's own prose naming a defence that does not exist",
-     "scripts/lint_method_claim_has_a_field.py", None,
+     "scripts/lint_method_claim_has_a_field.py", "PROVEN BY GRAFT",
      "the graft test constructs a failing input from a real object"),
     ("47", "a resolver returning a container where a leaf was named",
-     "scripts/audit_path_resolvers.py", None,
+     "scripts/audit_path_resolvers.py", "NOT A GATE",
      "returned NOT_ASSESSABLE across 782 files, which is the only reason its own broken "
      "extraction did not read as a clean corpus"),
     ("48", "the instruments are a larger source of defects than the data",
@@ -84,7 +84,7 @@ CLASSES = [
      "HOOKED 2026-08-20. The 1,300-guard population is NOT gated -- a check that blocks on "
      "a population blocks everything."),
     ("50", "a page-scale compliance apparatus asserting rigour no result required",
-     "scripts/lint_self_describing_safety_claim.py", None, ""),
+     "scripts/lint_self_describing_safety_claim.py", "PROVEN BY GRAFT", ""),
     ("51", "an unexpectedly large number from a new measurement needs checking first",
      None, None, "a discipline, and no command expresses it"),
     ("52", "a check reporting zero has two readings and only one is reassuring",
@@ -105,6 +105,34 @@ CLASSES = [
      "come back NEW. THE BASELINE IS NOT A CLEARANCE -- FOURIER's swapped arms still carry "
      "their counts and icosapent's arms table still tells a reader the treatment was "
      "placebo. It records that they are SEEN."),
+    ("56", "N documented classes is not N controls -- the table itself",
+     "scripts/audit_class_mechanisation.py", "PROOF PASSED",
+     "--gate refuses when a class names a command that cannot fail. Its own first version "
+     "scored a pytest file with fourteen proofs as unable to fail, because it looked for "
+     "sys.exit."),
+    ("57", "a check weakened by the fix it just caught",
+     "scripts/prove_register_change_moved_no_content.py", "SIXTH COLUMN",
+     "REFUSED a real build: the provenance marker appended a visible 2 after "
+     "'0.7062 0.8258', a sixth column a reader could take for data, introduced by the fix "
+     "for readability. FIRED ON A LIVE INSTANCE, which is stronger than a self-test."),
+    ("58", "a check whose triggering condition has never occurred",
+     "scripts/lint_container_repr_on_a_page.py", "require_controls",
+     "positive control is a CONSTRUCTED fixture of the delivered GRADE cell, not a live "
+     "page -- a control that says 'the corpus is dirty' stops asserting anything the day "
+     "it is clean. Negative control is an English sentence with a colon and a quotation."),
+    ("59", "a formatter dropping unknown keys erases CORRECTION HISTORY specifically",
+     "scripts/audit_projector_key_filters.py", "require_controls",
+     "positive control is the exact alirocumab step that lost its interval sentence; "
+     "negative is a step with only the five known keys. 27 of 42 renderers remain "
+     "UNADJUDICATED and the file says so."),
+    ("--", "a zero-byte object -- the write that destroyed before it wrote",
+     "scripts/lint_object_write_is_atomic.py", "require_controls",
+     "ssot/atomic_write.py makes it IMPOSSIBLE rather than detectable: serialise, temp "
+     "sibling, fsync, os.replace. 146 existing non-atomic writers baselined."),
+    ("--", "two processes writing one rollout ledger",
+     "scripts/rebuild_paper_corpus_2026_08_20.py", "acquire_lock",
+     "O_EXCL lockfile holding the pid, released in a finally; every ledger row records "
+     "which run wrote it. It cost two correctly-built pages before it existed."),
 ]
 
 
@@ -122,6 +150,12 @@ def can_fail(rel):
                 body = body[end + 3:]
             break
     if NONZERO.search(body):
+        return True
+    # A CALL TO require_controls IS A REACHABLE NON-ZERO EXIT. It raises ControlFailed,
+    # which subclasses SystemExit -- so a file that fails ONLY through its controls was
+    # scored "cannot fail" by the regex, which is the same blindness that scored a pytest
+    # file with fourteen assertions as unable to fail. Both are now recognised.
+    if re.search(r"require_controls\s*\(", body):
         return True
     # A PYTEST FILE FAILS THROUGH `assert`, NOT THROUGH sys.exit. The first version of this
     # check scored scripts/test_apply_reml_guard.py -- fourteen proofs, two of which SKIP

@@ -32,6 +32,12 @@ rule here WILL be breached. Five detectors are the only thing that has worked.
 THE KNOWN-ANSWER SET IS DRAWN FROM THE CORPUS, NOT FROM FIXTURES -- which is the property
 this project keeps finding missing. Each claim below must PASS on `arni-hfref`, whose object
 backs it, and FAIL on any object that does not. `--selftest` asserts both directions.
+
+    PROVEN BY GRAFT 2026-08-20: scripts/prove_never_fired_by_graft.py constructs an
+    input this check must refuse, inside a temp tree so it is the only corpus the check
+    can see, and requires a non-zero exit. Before that this check had never fired on
+    any real run -- CAPABLE OF FAILING, CONDITION NOT YET OBSERVED, which is a
+    legitimate state and a different one from vacuous.
 """
 import io
 import json

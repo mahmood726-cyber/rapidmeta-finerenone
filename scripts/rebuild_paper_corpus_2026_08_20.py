@@ -43,8 +43,42 @@ import lint_paper_reads_as_prose as L
 import prove_register_change_moved_no_content as PROVE
 
 
+# PAGES THIS ROLLOUT MUST NOT TOUCH, BY NAME.
+#
+# ARNI_HF_REVIEW.html is deliberately excluded from rebuilds: its manuscript is an AUTHORED
+# docmodel that the projector reproduces at about 11%, so a rebuild would replace 11,182
+# words of written argument with a projection of the object.
+#
+# THIS ROLLOUT ATTEMPTED TO BUILD IT. The standing instruction has been in force all night
+# and the batch runner had no exclusion for it -- what stopped the build was
+# ssot/manuscript_guard.py refusing on MANUSCRIPT_SHRINK, i.e. ANOTHER guard catching it.
+# ARNI is byte-identical to HEAD, verified by hash, so nothing was lost. But an instruction
+# enforced by a guard that happens to cover it is not enforced; it is lucky.
+#
+# The list is checked BEFORE the backup copy is taken, so an excluded page is never even
+# copied, let alone built.
+DO_NOT_REBUILD = {
+    "ARNI_HF_REVIEW.html": (
+        "authored docmodel manuscript; the projector reproduces ~11% of it, so a rebuild "
+        "replaces written argument with a projection. Standing instruction, and "
+        "ssot/manuscript_guard.py is the second line rather than the first."),
+}
+
+
 LOCK = os.path.join(REPO, "outputs", ".paper_register_rollout.lock")
 RUN_ID = "%d@%s" % (os.getpid(), time.strftime("%H%M%S"))
+
+
+# AND THE LOCK DOES NOT PROTECT THE LEDGER FROM A PERSON.
+#
+# While run 26224 was mid-batch I cleared a failed row by hand, twice, and both edits were
+# silently overwritten: the running process holds the ledger in memory and rewrites it after
+# every page. THE SAME CLASS AS TWO CONCURRENT ROLLOUTS -- state written by two writers,
+# resolved by whichever wrote last -- with a person as the second writer instead of a second
+# process. The lock file holds the pid and I could have read it before editing.
+#
+# Nothing here can stop that; it is recorded because the fix is to READ THE LOCK, and the
+# lock now exists precisely so there is something to read.
 
 
 def acquire_lock():
@@ -144,6 +178,32 @@ def object_for(page_name, mapped):
     return None
 
 
+def restore(backup, page, why):
+    """Put the old bytes back, and NEVER raise while doing it.
+
+    A ROLLBACK THAT ASSUMES ITS BACKUP EXISTS CRASHES THE WHOLE BATCH. This run died on
+    APIXABAN_VTE_TREATMENT with FileNotFoundError moving a .rollback that was not there,
+    and took the remaining pages of the batch with it. THE RESTORE PATH IS THE LAST THING
+    THAT SHOULD BE ABLE TO FAIL: it runs only when something has already gone wrong.
+
+    Returns True if the old bytes are back, False if the file on disk is the NEW build and
+    the caller must say so rather than implying a restore happened.
+    """
+    if not os.path.exists(backup):
+        why.append("AND ITS BACKUP WAS GONE -- the file on disk is the NEW build and was "
+                   "NOT restored. Check it by hand before pushing.")
+        return False
+    try:
+        if os.path.exists(page):
+            os.remove(page)
+        os.replace(backup, page)
+        return True
+    except OSError as exc:
+        why.append("AND THE RESTORE ITSELF FAILED (%s) -- the file on disk is not "
+                   "necessarily either version. Check it by hand." % exc)
+        return False
+
+
 def measure(path):
     try:
         return L.measure(path)
@@ -210,6 +270,12 @@ def main():
 
     for name in batch:
         page = os.path.join(REPO, name)
+        if name in DO_NOT_REBUILD:
+            led["failed"][name] = "[%s] EXCLUDED BY NAME: %s" % (RUN_ID,
+                                                                 DO_NOT_REBUILD[name])
+            print("  %-52s EXCLUDED -- not copied, not built" % name)
+            save_ledger(led)
+            continue
         topic = object_for(name, mapped)
         if not topic:
             led["unresolved"].append(name)
@@ -227,9 +293,10 @@ def main():
         # THE OCCURRENCE PREDICATE. False when the build did not run.
         ran = os.path.getmtime(page) >= started and r.returncode == 0
         if not ran:
-            shutil.move(backup, page)
-            led["failed"][name] = "build did not produce a new file (exit %d): %s" % (
-                r.returncode, out.strip()[-200:])
+            _why = []
+            restore(backup, page, _why)
+            led["failed"][name] = "[%s] build did not produce a new file (exit %d): %s %s" % (
+                RUN_ID, r.returncode, out.strip()[-200:], " ".join(_why))
             print("  %-52s BUILD FAILED -- old bytes restored" % name)
             save_ledger(led)
             continue
@@ -242,14 +309,41 @@ def main():
             ok, why = False, ["the rebuilt page has no readable Paper panel"]
         else:
             fp = PROVE.flow_paths(io.open(page, encoding="utf-8", errors="replace").read())
-            if before_m["sentences"] and m["machine"] > before_m["machine"]:
-                ok = False
-                why.append("machine sentences rose %d -> %d"
-                           % (before_m["machine"], m["machine"]))
-            if fp > before_m["flow_paths"]:
-                ok = False
-                why.append("field paths in the flow rose %d -> %d"
-                           % (before_m["flow_paths"], fp))
+            # A PAGE THAT HAD NO MANUSCRIPT CANNOT REGRESS INTO HAVING ONE.
+            #
+            # BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW served the honest absent-state banner --
+            # "No manuscript has been generated for bococizumab-lipid-review" -- so its
+            # baseline was 2 sentences and 0 machine. The rebuild produced a projected
+            # manuscript of 11 machine sentences, and this check called that a REGRESSION
+            # and rolled the page back to the empty banner.
+            #
+            # THE PREDICATE ASSUMED EVERY PAGE ALREADY HAD A MANUSCRIPT. Comparing absolute
+            # counts is only meaningful when both sides are manuscripts; a page GAINING one
+            # rises on every absolute measure by construction. The comparison is on the
+            # RATE, and a page with almost nothing before is reported as a gain rather than
+            # judged against a baseline that describes an empty tab.
+            NO_MANUSCRIPT_BEFORE = 6      # sentences; the absent-state banner is 2
+            gained = before_m["sentences"] < NO_MANUSCRIPT_BEFORE <= m["sentences"]
+            if gained:
+                why.append("GAINED A MANUSCRIPT: %d sentences where the page previously "
+                           "served the absent-state banner (%d). Not judged against the "
+                           "old counts -- there was nothing to compare."
+                           % (m["sentences"], before_m["sentences"]))
+            else:
+                rate_before = (float(before_m["machine"]) / before_m["sentences"]
+                               if before_m["sentences"] else 0.0)
+                rate_after = (float(m["machine"]) / m["sentences"]
+                              if m["sentences"] else 0.0)
+                if before_m["sentences"] and rate_after > rate_before + 0.01:
+                    ok = False
+                    why.append("machine-vocabulary RATE rose %.0f%% -> %.0f%% (%d/%d -> "
+                               "%d/%d)" % (100 * rate_before, 100 * rate_after,
+                                           before_m["machine"], before_m["sentences"],
+                                           m["machine"], m["sentences"]))
+                if fp > before_m["flow_paths"]:
+                    ok = False
+                    why.append("field paths in the flow rose %d -> %d"
+                               % (before_m["flow_paths"], fp))
             pr = subprocess.run([sys.executable,
                                  os.path.join(REPO, "scripts",
                                               "prove_register_change_moved_no_content.py"),
@@ -268,7 +362,7 @@ def main():
             print("  %-52s OK  machine %d->%d  paths %d->%d"
                   % (name, before_m["machine"], m["machine"], before_m["flow_paths"], fp))
         else:
-            shutil.move(backup, page)
+            restore(backup, page, why)
             led["failed"][name] = "[%s] %s" % (RUN_ID, "; ".join(why))
             print("  %-52s REFUSED -- old bytes restored" % name)
             for w in why:

@@ -40,6 +40,7 @@ USAGE
 """
 from __future__ import annotations
 import io
+import json
 import os
 import subprocess
 import sys
@@ -67,8 +68,73 @@ def staged_numstat():
     return rows
 
 
+def empty_or_unparseable(rows):
+    """Objects that are zero bytes or do not parse. A NAMED VERDICT, not an exception.
+
+    ON 2026-08-20 AN APPLIER TRUNCATED `apixaban-vte-prophylaxis.json` TO ZERO BYTES.
+    `io.open(path, "w", newline="\\\\n")` opened the file -- which truncates -- and then
+    raised on the illegal newline value, so the failure landed AFTER the destruction and
+    BEFORE the write. Nothing in this repository was watching for it: every guard here
+    compares NEW content to OLD, and there was no new content to compare.
+
+    THIS CHECK DID STOP THE COMMIT -- BY CRASHING. `json.load` on an empty file raises, the
+    hook exits non-zero, and the zero-byte object cannot be committed. THAT IS PROTECTION BY
+    EXCEPTION, AND IT DISAPPEARS THE MOMENT SOMEONE WRAPS THIS CALL IN A try/except FOR AN
+    UNRELATED REASON -- which is a normal thing for a future author to do, because a
+    traceback from a checker looks like a bug in the checker.
+
+    So the empty object becomes a VERDICT the check states in words, with the same
+    three-state discipline as everything else: it parses, it is empty, or it does not parse.
+    A protection that reads as a crash is one refactor away from being no protection.
+    """
+    bad = []
+    for _a, _r, p in rows:
+        full = os.path.join(REPO, p)
+        if not os.path.exists(full):
+            continue                      # a deletion: the net-delete rule covers it
+        try:
+            size = os.path.getsize(full)
+        except OSError as exc:
+            bad.append((p, "UNREADABLE (%s)" % exc))
+            continue
+        if size == 0:
+            bad.append((p, "ZERO BYTES -- the file was truncated and never written"))
+            continue
+        try:
+            json.load(io.open(full, encoding="utf-8"))
+        except ValueError as exc:
+            bad.append((p, "DOES NOT PARSE (%s)" % str(exc)[:70]))
+        except OSError as exc:
+            bad.append((p, "UNREADABLE (%s)" % exc))
+    return bad
+
+
 def check(rows):
     return [(a, r, p) for a, r, p in rows if r > a]
+
+
+def _empty_verdict(rows):
+    """Stated in words rather than raised. Returns the exit code."""
+    empties = empty_or_unparseable(rows)
+    if not empties:
+        return 0
+    print()
+    print("=" * 78)
+    print("SSOT OBJECT EMPTY OR UNPARSEABLE -- %d staged object(s)" % len(empties))
+    print("=" * 78)
+    for p, why in empties:
+        print("   %-56s %s" % (p, why))
+    print()
+    print("A ZERO-BYTE OBJECT IS NOT A SHRUNKEN ONE. The net-deletion rule compares new")
+    print("content against old, and here there is no new content to compare -- which is why")
+    print("this check used to stop such a commit by RAISING inside json.load rather than by")
+    print("judging. Protection by exception disappears the first time somebody wraps the")
+    print("call in a try/except, so it is a verdict now.")
+    print()
+    print("An applier truncated apixaban-vte-prophylaxis.json on 2026-08-20: io.open(path,")
+    print("'w', newline=...) opened the file, which truncates, and raised afterwards. Use")
+    print("ssot/atomic_write.py -- serialise first, temp sibling, fsync, os.replace.")
+    return 1
 
 
 def main() -> int:
@@ -94,9 +160,10 @@ def main() -> int:
         print("-> SELFTEST PASS" if ok else "-> SELFTEST FAILED")
         return 0 if ok else 1
 
-    offenders = check(staged_numstat())
+    staged = staged_numstat()
+    offenders = check(staged)
     if not offenders:
-        return 0
+        return _empty_verdict(staged)
 
     reason = os.environ.get("SSOT_ALLOW_NET_DELETION", "").strip()
     print()

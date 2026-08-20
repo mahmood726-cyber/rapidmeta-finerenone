@@ -1,6 +1,6 @@
 # The page standard, versioned
 
-**`PAGE_STANDARD_VERSION = "1.21.0-2026-08-20"`**
+**`PAGE_STANDARD_VERSION = "1.22.0-2026-08-20"`**
 
 > **This line was `1.6.0` while the version log below already ran to `1.12.0` and
 > `ssot/build_to_standard.py` stamped `1.13.0`.** The marker whose entire purpose is to make
@@ -133,6 +133,48 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.22.0-2026-08-20
+
+**P47 HAS A KNOWN FAILING CASE AND IT IS RECORDED HERE RATHER THAN QUIETLY CARRIED.**
+
+P47 says a manuscript whose reader-facing sections are refusals is not complete. It is in
+this standard, it ratchets, and **133 topics have not been built to it yet** — so it is a
+metric that guards something, and class 60 says: *before a metric guards anything, ask what
+a degenerate artefact scores on it.*
+
+Asked, and measured by `scripts/prove_p47_against_degenerates.py` against P47's real
+predicate and the real Section shape the projector emits:
+
+| artefact | P47 | why |
+|---|---|---|
+| EMPTY — no sections at all | FAILS | all four absent |
+| **REFUSALS — every reader-facing section correctly refused by name** | **FAILS** | all four refused |
+| **BOILERPLATE — 73 words per section, naming no finding, estimate, trial or field** | **PASSES** | ≥ `MIN_WORDS`, does not refuse |
+| REAL | PASSES | — |
+
+**P47 FAILS THE HONEST PAGE AND PASSES THE EMPTY ONE.** The refusals page tells a reader
+precisely what is missing and why. The boilerplate page tells them nothing and looks
+complete. **As written, the criterion penalises disclosure and rewards padding** — and a
+topic author under pressure to clear P47 has a cheap passing move available that produces
+something worse than the refusal it replaces.
+
+This is the same directional bias as `pool_broken` scoring a deliberately withdrawn pool as
+broken, and as the regex that read a withdrawal notice as the defect it disclosed. Three
+instruments in one night that punish a page for being honest — registry class 61.
+
+**P47 IS NOT WITHDRAWN AND NOT PATCHED.** It catches the case it was written for: on
+2026-08-20, 141 of 141 projectable topics failed it, including all eight then at 4/4 on P46,
+and that measurement stands. What it cannot do is tell filler from substance.
+
+**The repair is a SPECIFICITY test, not a higher word count** — does the section name a
+finding, an estimate, a trial, a field this object holds? Raising `MIN_WORDS` makes the
+filler longer. That criterion is not written here because designing it at five in the
+morning is how a bad criterion gets ratcheted into a standard for 133 topics, and a standard
+that records its own failing case is worth more than one that quietly has one.
+
+**Until it is written, P47 passing is not evidence that a manuscript says anything.** Anyone
+quoting a P47 number should quote this paragraph with it.
 
 ### 1.21.0-2026-08-20
 
