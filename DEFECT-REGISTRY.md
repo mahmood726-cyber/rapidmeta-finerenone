@@ -3448,6 +3448,40 @@ excluded.** The reported figure was over the whole population. It was true, and 
 so a reader can reconcile them, and the guard is baselined with the reason.
 
 
+## Class 71 — A FUNCTION WHOSE NAME PROMISES ONE THING AND WHOSE RETURN VALUE IS ANOTHER
+
+`projectors.forest_svg(res, outcome)` does **not** return an SVG. With no `window` it
+returns `fig(...)` — a complete Analysis-tab **card** carrying its own `<h3>`, download
+links and explanatory note. Only the `window is not None` branch returns the image.
+
+Wiring the manuscript projector's figure slot, I called it and wrapped the result in a
+numbered `<figure>` with a `<figcaption>`. The reader got the heading **"Forest plot" twice
+with two different captions**, and a whole Analysis-tab card nested inside a manuscript
+figure — in the one session whose standing instruction is:
+
+> **Take the logic, never the template.**
+
+**THE LOGIC AND THE PRESENTATION WERE FUSED IN ONE FUNCTION AND THE NAME DISCLOSED
+NEITHER.** The instruction is usually read as being about other people's code — allmeta,
+the MITRAL html. It applies just as hard inside our own module, and it is harder to obey
+there, because a name like `forest_svg` reads as a promise that the fusion has already been
+undone.
+
+**This is the sibling of the field-name-is-not-an-address class.** There, a name that looks
+like a path is not one. Here, a name that states a return type does not state it. Both are
+the same failure: *an identifier read as a contract it never carried.* And both are
+invisible at the call site — the call compiles, runs, and returns something truthy.
+
+**The fix is the shape to copy:** add `bare=True` as a keyword **defaulting to False**, so
+no existing caller changes behaviour, and document the trap on the function itself rather
+than in the caller that tripped over it. Changing the default would have been the tidier
+API and would have silently altered every Analysis tab in the corpus.
+
+*Caught on the first SGLT2 build by reading the rendered headings, not by any gate. No
+check in this project asserts that a function's return shape matches what its name claims,
+and none is proposed here — the honest remedy is the docstring and the keyword.*
+
+
 ## OPEN — carried, not fixed
 
 ### O1. A check that reads a different working tree than the one being built
