@@ -135,9 +135,41 @@ def _manuscript_prose(obj, key):
     # So a paragraph carrying an unresolved token is NOT returned. The section refuses,
     # and it refuses for the true reason -- the text exists and cannot be rendered here --
     # rather than for the false one it gave before, that no text exists.
+    # RESOLVE THE TOKENS RATHER THAN REFUSE OVER THEM, because every one of them is a
+    # quantity THIS OBJECT ALREADY HOLDS. `paper.build_tokens` resolves 50 of them from
+    # the object only -- k, pooled, ci_low, ci_high, i2, tau2, n_total, certainty,
+    # estimator -- and it is the same function `make_docx.py` uses, so the docx, the
+    # docmodel render and this projection cannot disagree about a number.
+    #
+    # THE LOGIC, NOT THE TEMPLATE. What is reused is the token table; the rendering stays
+    # here. Copying the docmodel renderer would have brought its headings and its layout
+    # with it, which is class 71 all over again.
+    #
+    # THE REFUSAL IS NOT REMOVED, IT IS NARROWED. A token that does NOT resolve still
+    # blocks the section, so `rests on [[k]] trials` can never reach a reader. Before
+    # this, ARNI's Discussion and Conclusions refused as CONTENT gaps while the object
+    # held 7 authored paragraphs and a 534-character conclusion -- the refusal was true
+    # about the projector and false about the object, and it was reported to Mahmood as
+    # evidence that objects lack substance.
+    if TOKEN_RE.search(out):
+        out = _resolve_tokens(obj, out)
     if TOKEN_RE.search(out):
         return None
     return out
+
+
+def _resolve_tokens(obj, text):
+    """Substitute `[[name]]` from the object's own quantities. Never invents one."""
+    try:
+        import paper as _paper
+        byo = ((obj.get("results") or {}).get("by_outcome") or {})
+        oid = next(iter(byo), None)
+        if oid is None:
+            return text
+        tok = _paper.build_tokens(obj, byo[oid], oid)
+    except Exception:                       # noqa: BLE001 - an unresolved token still blocks
+        return text
+    return TOKEN_RE.sub(lambda m: str(tok.get(m.group(0)[2:-2], m.group(0))), text)
 
 
 # `[[name]]` substitution tokens, as ARNI's authored docmodel uses them.
