@@ -3548,6 +3548,39 @@ unread. An instrument that checks one address for a consumer that checks two is 
 its own assumption, not the consumer.
 
 
+## Class 73 — AN OPEN-LIST ENTRY THAT MISDESCRIBES ITS OWN ITEM
+
+Four entries on the open list were checked against their artefacts on 2026-08-20 before
+being worked. **Three did not survive contact**, and the errors run in both directions:
+
+| entry says | artefact says | direction |
+|---|---|---|
+| 12 unread resolver bodies | **15**, and 9 of them are not resolvers at all | larger, then much smaller |
+| lint 50 stores a COUNT of claims | **no lint in this repo stores a count** — all six baselines store lists keyed by identity | the item does not exist |
+| 23 mislabelled `registration_primary_counts`, 2 fixed → 21 | **7** are arm-order inversions; 15 more differ on denominators; and **56 of 107 hold a fractional value in a field named `_events`** | smaller, beside a much larger unnamed one |
+| 18 unprovenanced percentages in `PAGE-STANDARD.md` | **41 of 42** name no artefact that produced them | more than double |
+
+**This is class 72 arriving in the record rather than in the output.** There, a refusal
+named what could not be done and a reader supplied the wrong cause. Here, an entry names an
+item and a reader — us — supplies the wrong scope. Both are **our own honest record read as
+a fact about the thing it describes**, and in both cases the misreading survived because
+nobody put the text beside the artefact.
+
+> **A list that drifts from what it describes stops being a list of open work and becomes a
+> list of remembered impressions.**
+
+The pattern in the errors is not random: **every one of the three wrong entries was wrong in
+a way that made the work look smaller or simpler than it is.** An estimate that is wrong in
+both directions is noise; estimates that are consistently optimistic are a bias, and this
+project has now measured that bias in its own record four times in one night — the 77
+forests read as 74, the 155-object value check quoted against pages, the 134 topics that
+are 154, and these.
+
+**The remedy is cheap and was not being done: read the entry against the artefact before
+working from it, and correct the entry in place as part of the work.** Not fixed as a
+process; recorded here so the next reader checks rather than trusts.
+
+
 ## OPEN — carried, not fixed
 
 ### O1. A check that reads a different working tree than the one being built
