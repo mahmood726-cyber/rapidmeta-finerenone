@@ -743,6 +743,49 @@ reported only the lost pairs — the more natural design — the revert would ha
 would have caught this at step one — an audit that refuses to report on files with uncommitted
 modifications until it says so. Recorded as not written.
 
+### 38. A RULE VIOLATED BY THE PEOPLE WHO HAVE JUST READ IT — *the availability is the defect, not the reader*
+
+**Fifteenth instance in this project. Three in one session, by an author who had read the rule
+that forbids it, quoted it in a commit message, and then did it again twice.**
+
+The rule is at the top of the operating notes and is unambiguous: *never use a shell heredoc
+for content containing escapes; write the file and run it.* `\r\n`, `\b` and `\n` arrive
+corrupted — a literal `0x08` byte has twice survived into a compiled regex that then matched
+nothing while reporting success.
+
+> **The recurrence is the finding. The individual failures are not.** Fifteen violations by
+> people who knew the rule is not fifteen lapses of attention; it is a statement about the
+> path. The heredoc is *available*, it is *shorter than the alternative*, and it *appears to
+> work* — the damage is invisible at the moment of use and surfaces later as a regex that
+> cannot match or a byte nobody typed.
+
+**A rule that is followed only by remembering it will be broken at the rate at which people
+forget.** That rate is not zero and does not improve with emphasis; this project has now
+demonstrated that over fifteen instances and at least four separate authors' worth of
+sessions.
+
+**Why the existing gates cannot close it.** `scripts/lint_control_chars.py` and
+`scripts/lint_escape_hazards.py` are wired into `.githooks/pre-commit` and they work — but
+they catch the **consequences**. A heredoc is *how a file is authored*, not *what is
+committed*, so by the time a commit gate can see anything the heredoc has already run and
+either left damage or not. Asking the commit path to refuse it is asking it to infer a
+process from its output, which it can do only in the cases where damage happened to be left.
+
+**It is the wrong layer, and that is structural rather than an omission.**
+
+**Status: OPEN, with the layer identified.** The check that would work is a **PreToolUse hook**
+in the harness, which sees the invocation before it runs. Sketched, with its two failure modes
+named, at `scripts/PROPOSED-heredoc-pretooluse-hook.md`. **Deliberately not installed**: a
+harness-level interceptor can refuse every Bash call if its matcher or exit convention is
+wrong, and it was proposed at the end of a session in which the author's own recoverable-error
+rate was rising.
+
+**The generalisation worth keeping.** When a rule is broken repeatedly by people who know it,
+stop writing the rule more forcefully and ask **which layer can make the wrong path
+unavailable**. If no layer can, the rule is advice and should be labelled as advice, so nobody
+mistakes documentation for enforcement — which is the same error as reading a `NOT_ASSESSABLE`
+as a pass.
+
 ### 37. A BASELINE IS THE MOST DANGEROUS PLACE FOR A REMEMBERED NUMBER
 
 **Because everything downstream is measured against it.** A wrong number in a report is wrong
