@@ -3724,6 +3724,53 @@ was written by the side doing the looking.
 content decision.*
 
 
+## Class 77 — AN INSTRUMENT NARROWS ITS POPULATION BY THE ASSUMPTION THAT MADE IT NECESSARY
+
+**Six instances in one run, and in every one the excluded region WAS the target region.**
+
+| instrument | what it narrowed | what the narrowing excluded |
+|---|---|---|
+| `audit_path_resolvers.py` | `^(\s*)def` under `re.M` ate the newlines | **every body** — 0 resolvers across 782 files, from the file written to find resolvers |
+| the `str(dict)` sweep | matched one repr shape | the container reprs actually on the page |
+| the paper-panel extractor | read the first 400,000 chars | the panel, which sits past that offset — reported **0 of 116** |
+| the F1000 mapper | keyed on ONE candidate address | the fallback the projector actually uses — called a working fix "missing" |
+| `prove_never_fired_by_graft` | grafted at one site | the site the check reads |
+| `audit_outcome_paths_call_both.py` | keyed on the literal `by_outcome`, then a 40-line window | **the `reported` and `declined` branches** — the two paths it existed to check — then the correct one, **by a single line** |
+
+### Why it is one mechanism and not six accidents
+
+> **A population is narrowed by the same assumption that made the instrument seem necessary,
+> so the excluded region and the target region are the same region.**
+
+The assumption that a resolver looks a certain way is what motivates a resolver sweep *and*
+what its regex encodes. The belief that a field lives at one address is what makes a mapper
+worth writing *and* what makes it check one address. **The instrument inherits the blind spot
+it was built to cover** — which is why the failure is never random and never lands somewhere
+harmless.
+
+**And every one of the six reported an all-clear or a near-zero.** That is the signature: a
+narrowed sweep does not error, it *reassures*.
+
+### The rule, as a rule and not six local decisions
+
+> **EVERY SWEEP CARRIES A FLOOR DERIVED FROM A CRUDER COUNT, AND EXITS `PROOF FAILED` RATHER
+> THAN ALL-CLEAR WHEN IT FALLS BELOW IT.**
+
+The floor must come from a **cruder** instrument than the sweep — a plain `grep`, a file
+count, a known-answer instance from the corpus — precisely because a cruder count does not
+share the sweep's assumption. Three forms, all now in use:
+
+- **A crude-count floor.** `audit_manuscript_prose_doors.py`: fewer than a third of the raw
+  `grep -c 'manuscript\.'` mentions and it exits `PROOF FAILED`.
+- **A known-answer floor.** `audit_outcome_paths_call_both.py`: if it cannot find `in
+  reported:` and `in declined:`, it exits — those are known to exist.
+- **A named-exclusion floor.** `prove_no_value_lost.py` and others: print the population, the
+  compared count, and the excluded count as three reconcilable numbers.
+
+**A sweep with no floor is not evidence.** Its zero and a genuinely clean corpus are the same
+output, and this run produced six of the former.
+
+
 ## OPEN — carried, not fixed
 
 ### O0. `cangrelor-pci-review` — a withdrawal note that overstates its own defect

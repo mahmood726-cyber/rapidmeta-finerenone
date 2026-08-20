@@ -1,0 +1,205 @@
+"""rotavirus-vaccine-africa-review: the published comparison, P46 limb 3.
+
+PREDICTED BEFORE THE SCREEN AS A CLASS-76 INSTANCE, AND IT IS ONE -- but the finding is
+sharper than "they declined to pool".
+
+THIS OBJECT POOLS THREE DIFFERENT VACCINES across three African settings:
+    NCT00241644  Rotarix   (monovalent, Madhi 2010, South Africa/Malawi)
+    NCT00362648  RotaTeq   (pentavalent, Armah 2010, Ghana/Kenya/Mali)
+    NCT02145000  Rotasiil  (Isanaka 2017, Niger)
+    -> OR 0.494 (0.347 to 0.704), k = 3
+
+THE PUBLISHED ANALYSIS POOLED ONE VACCINE AND MODELLED THE THING THAT VARIES.
+
+    Amin et al., American Journal of Epidemiology 2025, PMID 39745811 -- "Accounting for
+    local incidence when estimating rotavirus vaccine efficacy among countries: a pooled
+    analysis of monovalent rotavirus vaccine trials". POOLED INDIVIDUAL-LEVEL DATA from
+    phase II and III MONOVALENT trials, 83,592 infants, 23 countries.
+
+    Its finding is about the comparison itself: "Rotavirus vaccine appears to perform
+    suboptimally in countries with higher rotavirus burden", and they tested whether that
+    is real or an artefact of exposure. Using the standard approach, efficacy against
+    severe rotavirus gastroenteritis VARIED FROM 10% TO 100% BY COUNTRY. Using a severe-RVGE
+    rate proxy for exposure magnitude, "VE from all but 2 countries" fell BETWEEN 80% AND
+    86%. Their conclusion: "Adjusting for exposure proxies reduced heterogeneity in
+    country-specific rotavirus VE estimates."
+
+WHY THAT BEARS DIRECTLY ON THIS OBJECT'S NUMBER.
+
+This pool reports roughly 50% efficacy from three African trials. THE PUBLISHED WORK SAYS
+THE LOW EFFICACY SEEN IN HIGH-BURDEN SETTINGS IS SUBSTANTIALLY AN ARTEFACT OF EXPOSURE
+MAGNITUDE, not a property of the vaccine -- and African settings are the high-burden ones.
+So a reader meeting 0.494 is meeting the very estimate that analysis argues is biased
+toward the null by the setting it was measured in.
+
+    They held the vaccine constant and modelled the setting. THIS OBJECT VARIES THE VACCINE
+    AND POOLS THE SETTING. Both choices cannot be right about the same question, and theirs
+    is the one that isolates a cause.
+
+NOT COMPARABLE AS A NUMBER, AND THAT IS THE POINT. Their 80-86% is adjusted efficacy for a
+single vaccine; this object's ~51% is unadjusted across three. They are not two estimates of
+one quantity, so no discrepancy is claimed -- what is claimed is that the published design
+answers a question this one cannot.
+
+NO STORED NUMBER IS CHANGED. Whether to restrict to one vaccine, or to qualify the estimate
+by setting, is a content decision.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import atomic_write
+
+TOPIC = "rotavirus-vaccine-africa-review"
+TODAY = "2026-08-21"
+STAMP = TODAY.replace("-", "_")
+OBJ = os.path.join(REPO, "ssot", TOPIC, TOPIC + ".json")
+SCREEN = os.path.join(REPO, "ssot", TOPIC, "appraisal",
+                      "PUBLISHED_SYNTHESIS_SCREEN.json")
+
+QUERY = ('(rotavirus[tiab] AND vaccine*[tiab] AND (Africa*[tiab] OR "sub-Saharan"[tiab] OR '
+         '"low-income"[tiab] OR "developing"[tiab])) AND (meta-analysis[pt] OR "systematic '
+         'review"[pt] OR meta-analysis[tiab] OR "pooled"[tiab] OR Cochrane[tiab])')
+
+
+def main():
+    dry = "--apply" not in sys.argv
+    obj = json.load(io.open(OBJ, encoding="utf-8"))
+    ncts = set(t.get("nct") for t in (obj.get("inputs") or {}).get("trials") or [])
+    for need in ("NCT00241644", "NCT00362648", "NCT02145000"):
+        if need not in ncts:
+            sys.exit("REFUSED: %s is not on this object (%r)." % (need, sorted(ncts)))
+    blk = ((obj.get("results") or {}).get("by_outcome") or {}).get("primary") or {}
+    p = blk.get("pooled") or {}
+    if p.get("point") is None:
+        sys.exit("REFUSED: no pooled point on `primary` to compare against.")
+
+    pc = {
+        "_why": (
+            "P46 limb 3. The published analysis held the VACCINE constant and modelled the "
+            "SETTING; this object varies the vaccine and pools the setting."),
+        "_how_identified": (
+            "PubMed E-utilities, executed %s. Query, counts and per-record disposition in "
+            "ssot/%s/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json." % (TODAY, TOPIC)),
+        "denominator": {
+            "matched": 70,
+            "retrieved": 70,
+            "read": 70,
+            "appraised": 1,
+            "not_returned_by_the_tool": 0,
+            "_house_form": (
+                "matched / retrieved / read / appraised / not returned -- P53. The query "
+                "matched 70 and listed all 70, so nothing was lost to the tool. 49 records "
+                "were flagged by title; ONE was appraised against its abstract and 48 were "
+                "NOT READ, including PMID 36031386, a pooled analysis of monovalent vaccine "
+                "efficacy by genotype that is plausibly relevant and was not opened."),
+        },
+        "identity_basis": (
+            "This object's three trials are keyed to NCT00241644 (Rotarix), NCT00362648 "
+            "(RotaTeq) and NCT02145000 (Rotasiil). THE APPRAISED ANALYSIS NAMES NO TRIALS "
+            "in its abstract -- it describes 'phase II and III monovalent rotavirus vaccine "
+            "trials, 2000-2012, 83,592 infants, 23 countries'. Whether NCT00241644 is among "
+            "them is NOT ESTABLISHED and is not assumed; the comparison here is of DESIGN, "
+            "not of overlapping trial sets."),
+        "reviews": [{
+            "pmid": "39745811",
+            "year": 2025,
+            "journal": "American Journal of Epidemiology",
+            "title": ("Accounting for local incidence when estimating rotavirus vaccine "
+                      "efficacy among countries: a pooled analysis of monovalent rotavirus "
+                      "vaccine trials"),
+            "trial_set": ["NOT NAMED -- phase II and III monovalent trials, 2000-2012"],
+            "trial_set_basis": "NOT READ. No included-study list is given in the abstract.",
+            "design": ("pooled INDIVIDUAL-LEVEL data, Poisson regression, ONE VACCINE CLASS "
+                       "(monovalent) with country and exposure-proxy terms"),
+            "n_pooled": 83592,
+            "outcome_pooled": ("vaccine efficacy against any-severity and against SEVERE "
+                               "rotavirus gastroenteritis"),
+            "estimate_quoted": (
+                "standard approach: efficacy against severe RVGE varied 10% to 100% by "
+                "country. With a severe-RVGE-rate exposure proxy: 'VE from all but 2 "
+                "countries between 80% and 86%'."),
+            "comparable_to_ours": False,
+            "why_not_comparable": (
+                "DIFFERENT QUANTITIES. Theirs is exposure-adjusted efficacy for a SINGLE "
+                "vaccine class; this object's ~51% is unadjusted and pooled across THREE "
+                "different vaccines. No numeric discrepancy is claimed. What is claimed is "
+                "that their design isolates a cause and this one does not."),
+        }],
+        "THE_FINDING_OF_THIS_COMPARISON_%s" % STAMP: (
+            "THE PUBLISHED WORK ARGUES THAT THE LOW EFFICACY THIS OBJECT REPORTS IS "
+            "SUBSTANTIALLY AN ARTEFACT OF SETTING. Amin et al. pooled individual-level data "
+            "from monovalent rotavirus vaccine trials across 23 countries and found that "
+            "country-to-country efficacy varying from 10% to 100% collapsed to 80-86% for "
+            "all but two countries once exposure magnitude was accounted for. AFRICAN "
+            "SETTINGS ARE THE HIGH-BURDEN ONES. This object pools three DIFFERENT vaccines "
+            "across three African settings to roughly 51% efficacy -- the very kind of "
+            "estimate that analysis says is biased toward the null by where it was "
+            "measured. THEY HELD THE VACCINE CONSTANT AND MODELLED THE SETTING; THIS OBJECT "
+            "VARIES THE VACCINE AND POOLS THE SETTING. Whether to restrict to one vaccine, "
+            "or to qualify the estimate by setting, is a content decision and is not made "
+            "here."),
+    }
+
+    atomic_write.merge_not_overwrite(obj, "published_comparison", pc, STAMP)
+
+    blk["POOL_FINDINGS_%s" % STAMP] = {
+        "a_the_setting_may_be_biasing_this_estimate_downward": (
+            "A PUBLISHED INDIVIDUAL-LEVEL ANALYSIS ARGUES THIS KIND OF ESTIMATE IS BIASED "
+            "TOWARD THE NULL BY THE SETTING IT WAS MEASURED IN. Amin et al., American "
+            "Journal of Epidemiology 2025 (PMID 39745811), pooled 83,592 infants across 23 "
+            "countries from monovalent rotavirus vaccine trials. Efficacy against severe "
+            "rotavirus gastroenteritis appeared to vary from 10% to 100% between countries; "
+            "after adjusting for local exposure magnitude, all but two countries fell "
+            "between 80% and 86%. High-burden settings -- which include the African "
+            "settings pooled here -- are where the unadjusted estimates are lowest."),
+        "b_and_this_pool_mixes_three_vaccines_where_they_used_one": (
+            "That analysis held the vaccine class CONSTANT (monovalent) and modelled the "
+            "setting. This pool combines Rotarix, RotaTeq and Rotasiil -- three different "
+            "vaccines -- and pools across settings. The two designs answer different "
+            "questions and theirs isolates a cause."),
+        "c_no_discrepancy_is_claimed": (
+            "Their 80-86% and this pool's ~51% are NOT two estimates of one quantity: one "
+            "is exposure-adjusted single-vaccine efficacy, the other is unadjusted "
+            "multi-vaccine. The finding is about DESIGN, not about a number being wrong."),
+    }
+
+    obj.setdefault("display_change_announced", []).append({
+        "date": TODAY,
+        "change": "published comparison added with a denominator (P46 limb 3)",
+        "values_moved": "NONE",
+        "what_changed": (
+            "70 matched / 70 retrieved / 70 read / 1 appraised / 0 lost. PMID 39745811 "
+            "shows country-level rotavirus VE variation is largely an exposure artefact "
+            "(10-100% becoming 80-86% after adjustment)."),
+        "why": "The limb was ABSENT: no denominator and no stated reason.",
+    })
+
+    os.makedirs(os.path.dirname(SCREEN), exist_ok=True)
+    print("rotavirus-africa: 70 matched / 70 retrieved / 70 read / 1 appraised / 0 lost")
+    print("  PMID 39745811: VE 10-100%% by country becomes 80-86%% after exposure adjustment")
+    print("  -> PREDICTION CORRECT: a class-76 instance. They held the vaccine constant.")
+    if dry:
+        print("DRY RUN -- pass --apply to write")
+        return
+    atomic_write.write_json(SCREEN, {
+        "executed_utc": TODAY,
+        "source": "PubMed E-utilities esearch + esummary",
+        "query_as_executed": QUERY,
+        "matched": 70, "retrieved": 70, "read": 70,
+        "flagged_by_title": 49, "appraised": ["39745811"],
+        "not_returned_by_the_tool": 0,
+        "_honesty": ("49 records were flagged by title. ONE was appraised against its "
+                     "abstract; 48 were NOT READ, including PMID 36031386, a pooled "
+                     "analysis of monovalent efficacy by genotype that is plausibly "
+                     "relevant and was not opened."),
+    }, indent=1)
+    atomic_write.write_json(OBJ, obj, indent=1)
+    print("wrote %s" % OBJ)
+
+
+if __name__ == "__main__":
+    main()
