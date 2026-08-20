@@ -743,6 +743,37 @@ reported only the lost pairs — the more natural design — the revert would ha
 would have caught this at step one — an audit that refuses to report on files with uncommitted
 modifications until it says so. Recorded as not written.
 
+### 44. AN INSTRUMENT THAT CANNOT TELL "NOTHING TO DO" FROM "DID NOTHING" REPORTS THE SECOND AS THE FIRST
+
+**Three instances in one stretch of one session, all of them mine, all of them reporting
+success.** The more careful the success message, the more convincing the lie.
+
+| instrument | what it said | what had happened |
+|---|---|---|
+| four guard proofs for `_house_rule_table` | ALL PROOFS PASSED — and one proof said approvingly *"no build reported anything"* | the function was correct and **no build reached it**; both call sites are gated on `res.get("sensitivity")` and `finerenone-cv` has no such field. Every built page was empty |
+| the host poller | `STALE=0` → **HOST IS CURRENT** | it counted `grep -c ' STALE$'`; a reason column had been added to the summary, so every line ended in the reason. **Both counts were 0.** It reported success because it matched nothing |
+| a patch script | `poller patched` | the replacement string did not match. Nothing changed. The message was printed unconditionally, after the `replace` |
+
+**The shape.** Each has a success path reachable when the work did not occur, and none can
+distinguish that from the work being unnecessary. *Zero problems found* and *zero things
+examined* are the same output.
+
+**The fix is not a better pattern.** It is to assert the instrument engaged at all, and
+**refuse** when it did not:
+
+- the poller now counts verdict ROWS first and exits 2 with *"the PARSER is broken, not the
+  host"* when it parses none;
+- a proof must exercise the **call site**, not the callee — `PROVING A FUNCTION IS NOT
+  PROVING THE PATH`;
+- a patch reports the match count it actually made, never a fixed string.
+
+> **Ask every counter whether it counted anything before believing its count.** And never
+> trust a summariser over the thing it summarises: the false green here was caught only
+> because a direct run of the verifier disagreed with the poller wrapping it.
+
+This is class 41 turned inward — the instrument reporting on the world is now the instrument
+reporting on *itself*, and the same silence is being read as the same confirmation.
+
 ### 42. THE MANUSCRIPT GUARD PAID FOR ITSELF, ON A SCENARIO IT WAS NOT BUILT FOR
 
 **Recorded as prominently as any defect in this file, because a guard that fires only on the
