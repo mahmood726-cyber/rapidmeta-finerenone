@@ -3581,6 +3581,76 @@ working from it, and correct the entry in place as part of the work.** Not fixed
 process; recorded here so the next reader checks rather than trusts.
 
 
+## Class 74 — OUR ESTIMATES OF OUR OWN REMAINING WORK ARE BIASED, NOT NOISY
+
+**Five measured instances in one night, every one in the same direction.**
+
+| we said | it was | ratio |
+|---|---|---|
+| 74 further forests | **46** | 0.6× |
+| "0 values lost across 155 objects" — quoted against *pages* | 155 was the object population; the page population is 116 | wrong denominator |
+| 134 topics need reader-facing prose | **154 of 155** | 1.15× |
+| 12 unread resolvers · 21 mislabelled rows · 18 unprovenanced percentages | **15 · 7-beside-56 · 41** | all understated their scope |
+| 2 `measure: null` rows on EMPEROR | **40 of 170** declare the measure only through `derived_from`; the literal `measure: null` does not occur | 20× |
+
+> **An estimate wrong in both directions is noise. Estimates consistently wrong in one
+> direction are a bias — and this one is now measured rather than suspected.**
+
+**It belongs beside the silence thesis as its sibling.** Both are asymmetries nobody designed
+and neither was found by reasoning about the system: both were found *by counting*. The
+silence thesis says a system fails quietly in a preferred direction; this says our
+*description* of that system errs in a preferred direction too. The second is worse in one
+respect — a silent failure waits to be found, while an optimistic estimate is actively
+quoted into decisions. **The 134 went to Mahmood as the cost of tier 3.**
+
+### The operational consequence
+
+> **Any figure of ours describing REMAINING WORK is a floor until measured.**
+
+Not an estimate, not an approximation — a **floor**. It applies to the tier-3 cost already
+put in front of Mahmood, and to whatever the prose-walker scan and the 39 legacy pages come
+back with. A remaining-work figure that has not been re-derived should be reported as "at
+least N", and the sentence should say it has not been measured.
+
+### And the reason these survive: a date is not provenance
+
+Measured in `PAGE-STANDARD.md`: **41 of 42 percentages name no artefact that produced them.**
+Nearly every one carries a date instead.
+
+> **A date says when somebody looked, not what they ran, and you cannot re-run a date.**
+
+That is why `10.9%` survived a week of quotation. `scripts/audit_standard_percentages_provenanced.py`
+reports the count at two units — cell and row — because the unit changes the answer, and an
+unstated unit is the denominator defect in another form.
+
+
+## Class 75 — A MEASURE ESTABLISHED IN A QUOTE AND ABSENT FROM EVERY FIELD
+
+Measured across 155 objects: **170 trial-outcome effect blocks.**
+
+| | of 170 |
+|---|---|
+| name the measure explicitly on the effect | **129** |
+| declare it ONLY through `derived_from` | **40** |
+| nothing declares it at all | **1** |
+
+The 40 are not equally opaque, and the distinction is the finding: **24 are unambiguous**
+(`published_hazard_ratio` 13, `published_vaccine_efficacy_percent` 11) while **16 say only
+`published_ratio` or `published_ratio_and_its_interval` — "a ratio", without saying which.**
+All sixteen are `iv-iron-hf` recurrent-event outcomes, where a rate ratio and a hazard ratio
+are both plausible readings and **pooling one with the other is an estimand mismatch.**
+
+The single block with nothing is `cryptococcal-meningitis / COAT / coat_26wk_mortality`. Its
+measure **is** established — inside `provenance.source_quotes`: *"hazard ratio for death,
+1.73; 95% confidence interval, 1.06 to 2.82"*. **Recoverable by a reader, invisible to every
+consumer**, because no renderer reads a quotation looking for an estimand. That is the
+field-name-is-not-an-address family inverted: the fact is present and unaddressable.
+
+*The open-list entry for this said "the `measure: null` rows on both EMPEROR entries". There
+is no literal `measure: null` anywhere in that object, and it is four trials there, forty
+corpus-wide — the fifth entry tonight to understate its own scope.*
+
+
 ## OPEN — carried, not fixed
 
 ### O1. A check that reads a different working tree than the one being built

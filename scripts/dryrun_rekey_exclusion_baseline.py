@@ -15,6 +15,14 @@ the migration WITHOUT PERFORMING IT.
     reports how many entries would resolve, how many are already stale, and whether any two
     guards would collide onto one key.
 
+RUN 2026-08-20, AND THE RISK DID NOT MATERIALISE. 130 of 130 entries resolve to a live
+guard, 0 are stale, 130 live guards produce 130 distinct new keys, 0 collide, and 0 would be
+forgotten. THE MIGRATION IS LOSSLESS ON TODAY'S CORPUS.
+
+It is deliberately still unwritten. What this changes is that the next person meets a
+MEASURED DECISION rather than an open question: the thing that made it risky was never the
+work, it was not knowing whether the ratchet would silently shrink. It would not.
+
 A COLLISION IS THE FAILURE THAT MATTERS. `file:line` is unique by construction; text plus
 function is not. Two identical `if not x: continue` guards in one function would become one
 key, and the baseline would silently forget one of them -- turning a ratchet into a smaller
