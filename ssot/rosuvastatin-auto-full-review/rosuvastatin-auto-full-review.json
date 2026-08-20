@@ -273,7 +273,19 @@
     "registration_arm_count": 2,
     "registration_contrasts_read_utc": "2026-08-18",
     "registration_counts_read_utc": "2026-08-18",
-    "provenance": "NOT SUPPLIED BY THE REGISTRY. NCT00468923 posts NO RESULTS SECTION, so the arm-level values on this object did not come from it. Checked 2026-08-18. THIS IS A GENUINE LIMIT, RECORDED RATHER THAN LEFT BLANK -- and it raises the next question, which is OWED: if the registry did not supply these values, what did?"
+    "provenance": "NOT SUPPLIED BY THE REGISTRY. NCT00468923 posts NO RESULTS SECTION, so the arm-level values on this object did not come from it. Checked 2026-08-18. THIS IS A GENUINE LIMIT, RECORDED RATHER THAN LEFT BLANK -- and it raises the next question, which is OWED: if the registry did not supply these values, what did?",
+    "registered_primaries_fetched_2026_08_20": {
+     "source": "ClinicalTrials.gov API v2, NCT00468923",
+     "url": "https://clinicaltrials.gov/study/NCT00468923",
+     "read_utc": "2026-08-20",
+     "co_primary_outcomes": [
+      "The composite of; Cardiovascular death, non-fatal myocardial infarction, non-fatal stroke.",
+      "The composite of; cardiovascular death, resuscitated cardiac arrest, non-fatal myocardial infarction, non-fatal stroke, heart failure, arterial revascularizations"
+     ],
+     "registry_has_results": false,
+     "why_this_was_fetched": "This object published a pooled estimate over HOPE-3 and JUPITER while holding NO registered primary outcome for HOPE-3. The definition was absent, not merely different, and it had to be fetched before anything else could be said about the pool.",
+     "and_the_registry_posts_no_results": "`has_results` is false on this registration, so the stored HOPE-3 effect -- OR 0.7622 (0.6405 to 0.9070) -- cannot have come from the registry results section. The object records it as extractor recovery from the published page and cannot say WHICH of the two co-primaries it is a recovery of."
+    }
    }
   ]
  },
@@ -298,13 +310,14 @@
     "estimand_homogeneous_across_cohorts": null,
     "pool_uniformity": {
      "effect_measure": [
-      "NOT ESTABLISHED",
-      "not recorded on the page this object was extracted from"
+      "ESTABLISHED",
+      "both stored as odds ratios derived from arm counts, on the log scale"
      ],
      "estimand": [
-      "NOT ESTABLISHED",
-      "not recorded on the page this object was extracted from"
-     ]
+      "NOT ESTABLISHED, AND CHECKED",
+      "CHECKED ON 2026-08-20 AND FAILED, which is a different state from the 'not recorded on the page this object was extracted from' this field carried before -- that was the NEVER-CHECKED state written as though it were a negative finding. It has now been checked. JUPITER registers a FIVE-component composite: 'Time to Major Cardiac Event (Cardiovascular Death, Stroke, Myocardial Infarction, Hospitalization Due to Unstable Angina or Arterial Revascularization)'. HOPE-3 registers TWO co-primaries, 'The composite of; Cardiovascular death, non-fatal myocardial infarction, non-fatal stroke.' and 'The composite of; cardiovascular death, resuscitated cardiac arrest, non-fatal myocardial infarction, non-fatal stroke, heart failure, arterial revascularizations'. Neither is JUPITER's. JUPITER counts any stroke and any myocardial infarction where both HOPE-3 composites count non-fatal only; JUPITER counts hospitalisation for unstable angina and neither HOPE-3 composite does; HOPE-3's second adds resuscitated cardiac arrest and heart failure, which JUPITER's does not. Three, five and six components with no containment ordering between them."
+     ],
+     "superseded_2026_08_20": "This block previously read NOT ESTABLISHED with the reason 'not recorded on the page this object was extracted from' on both limbs -- the never-checked state. It has been checked."
     },
     "heterogeneity": {
      "i2": 80.17,
@@ -391,7 +404,15 @@
      "what_it_is": "The fit that produces the numbers this block now publishes, printed by metafor and pasted unaltered. The previous fit, under the estimator this pool used before 2026-08-20, is kept beside it under r_output_superseded_2026_08_20 rather than discarded.",
      "reproduction_of_the_previous_value": "Before this refit was applied, the OLD estimator was refitted on the same inputs and checked against the stored value: REPRODUCED. A pool whose old fit did not reproduce was not overwritten."
     },
-    "estimator_note_2026_08_20": "REML, applied 2026-08-20 under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The estimator this pool used before that date was DerSimonian-Laird inverse-variance on extracted effect estimates; that fit was reproduced first and is quoted under r_output_superseded_2026_08_20, so the movement is attributable rather than asserted."
+    "estimator_note_2026_08_20": "REML, applied 2026-08-20 under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The estimator this pool used before that date was DerSimonian-Laird inverse-variance on extracted effect estimates; that fit was reproduced first and is quoted under r_output_superseded_2026_08_20, so the movement is attributable rather than asserted.",
+    "estimand_established_reason_2026_08_20": "CHECKED ON 2026-08-20 AND FAILED, which is a different state from the 'not recorded on the page this object was extracted from' this field carried before -- that was the NEVER-CHECKED state written as though it were a negative finding. It has now been checked. JUPITER registers a FIVE-component composite: 'Time to Major Cardiac Event (Cardiovascular Death, Stroke, Myocardial Infarction, Hospitalization Due to Unstable Angina or Arterial Revascularization)'. HOPE-3 registers TWO co-primaries, 'The composite of; Cardiovascular death, non-fatal myocardial infarction, non-fatal stroke.' and 'The composite of; cardiovascular death, resuscitated cardiac arrest, non-fatal myocardial infarction, non-fatal stroke, heart failure, arterial revascularizations'. Neither is JUPITER's. JUPITER counts any stroke and any myocardial infarction where both HOPE-3 composites count non-fatal only; JUPITER counts hospitalisation for unstable angina and neither HOPE-3 composite does; HOPE-3's second adds resuscitated cardiac arrest and heart failure, which JUPITER's does not. Three, five and six components with no containment ordering between them.",
+    "THE_POOL_IS_REFERRED_2026_08_20": {
+     "state": "REFERRED, NOT WITHDRAWN",
+     "what_is_wrong": "The pooled odds ratio 0.6561 (0.484 to 0.8894) averages JUPITER's five-component composite with one of HOPE-3's two co-primaries, and the object cannot say which. This is the estimand-mixing shape that caused sglt2-hf's k=4 pool to be withdrawn.",
+     "why_it_is_referred_rather_than_withdrawn_here": "Withdrawing a published estimate is a published-number decision and this pass was scoped to establish the estimand, not to take that decision. The finding is complete and stated; the decision is Mahmood's.",
+     "what_a_reader_currently_sees": "NOTHING. ROSUVASTATIN_AUTO_FULL_REVIEW.html is a legacy build that never rendered this pooled estimate -- established two ways on 2026-08-20, by building the object to a scratch path and comparing shape, and by probing the delivered bytes for the served number. So no reader currently depends on it, which sets the urgency without changing the correctness.",
+     "what_would_make_a_pool_defensible": "Restricting to a shared estimand. HOPE-3's FIRST co-primary -- cardiovascular death, non-fatal myocardial infarction, non-fatal stroke -- is a three-point MACE, and a JUPITER value for the same three components would have to be recovered from its publication rather than from its registered five-component primary. That is a real piece of work and it is not a re-labelling."
+    }
    }
   }
  },
@@ -422,6 +443,13 @@
    "what_changed": "This pool was fitted with DerSimonian-Laird inverse-variance on extracted effect estimates. It is refitted with REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The old fit was reproduced against the stored value FIRST (REPRODUCED) and only then replaced. Stored values are also rounded at storage -- effects to 4 decimals, tau-squared and Q to 6, I-squared to 4 -- because several of these pools carried sixteen significant figures on a two- or three-study pool.",
    "why": "The corpus held two estimator conventions at once: 23 pools REML, 9 DerSimonian-Laird, 1 Paule-Mandel. Handbook 6.5 s10.10.4.4 records REML as RevMan's own current default and this project's statistics rules already refused DerSimonian-Laird below k=10, which every pool in this corpus is. The decision was taken on 2026-08-18 and not applied; applying it to some pools and not others would have been worse than either convention.",
    "interval_method": "z"
+  },
+  {
+   "date": "2026-08-20",
+   "change": "estimand checked and found not established; the pool is referred",
+   "values_moved": "NONE -- the pooled estimate is unchanged and is not withdrawn here",
+   "what_changed": "HOPE-3's registered primary outcomes were FETCHED from ClinicalTrials.gov and written onto the object. It registers two co-primaries and neither matches JUPITER's five-component composite. `estimand_established` was already False but carried the never-checked placeholder as its reason; it now carries a checked one.",
+   "why": "This object published a pooled estimate over an outcome whose definition it did not hold for one of its two trials. A pool cannot be compared against the literature, or defended, while nobody can say what it estimates."
   }
  ],
  "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",
