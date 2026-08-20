@@ -3902,6 +3902,58 @@ where k cannot support the model the page claims, say so **in the evidence's ter
 trials cannot inform a between-study variance* is a statement about the trials, not about us.
 
 
+## Class 82 — THE BREADTH FAILURE IS OURS. THIS REVISES `access-was-never-the-binding-constraint`.
+
+**The founding proposition was that published syntheses fail on SEARCH BREADTH and on
+CHECKING.** After a full run the evidence is:
+
+- **Their checking:** three confirmed failures — wrong trial sets, uncorrected multiplicity,
+  estimates that do not reproduce. **The thesis holds here.**
+- **Their breadth:** **zero confirmed failures.** Not one published synthesis has been shown
+  to have missed a trial we carried.
+- **Our breadth:** measured below, and **it is where the gap is.**
+
+### The table, from `scripts/audit_our_k_against_theirs.py`
+
+18 topics carry a published comparison. **9 of the 18 appraised reviews do not state a trial
+count**, so the comparable denominator is 9:
+
+| | of 9 stated |
+|---|---|
+| **ours LOWER** | **4** |
+| equal | 5 |
+| **ours HIGHER** | **0** |
+
+**We are never ahead.** `sglt2-mace-cvot` 2 against 3 · `incretin-hfpef` 2 against 4 ·
+`nirsevimab` 2 against 6 · `attr-pn` 3 against 10.
+
+### And the standard that keeps this honest
+
+> **A count that exceeds ours is not the same as named trials we missed.**
+
+| where ours is lower and the trials are **IDENTIFIED** — a nameable gap | **1** — `sglt2-mace-cvot` (CANVAS, named in Kluger's title) |
+|---|---|
+| where ours is lower and the set was **NOT READ** — counted only | **3** — `attr-pn`, `incretin-hfpef`, `nirsevimab` |
+
+**Exactly one nameable missing trial across the whole corpus.** The other three are a
+difference in stated counts and nothing more **until somebody opens the included-study
+table** — and nobody has.
+
+### Why this revises the memory rather than adding to it
+
+`access-was-never-the-binding-constraint` recorded that we could reach the evidence we
+needed. **That remains true and is now beside the point.** Reaching evidence and *searching
+for* it are different capabilities, and this corpus has the first without having
+demonstrated the second. A two-trial pool assembled from trials we already knew about is not
+a search; **on nine topics where a published count exists, ours never exceeded it.**
+
+> **The thesis was half right, and the wrong half was about us.**
+
+*Not a defect in any single object. Whether these searches should be widened is a content
+decision, and the one nameable case — CANVAS — is a decision about `sglt2-mace-cvot`
+specifically.*
+
+
 ## OPEN — carried, not fixed
 
 ### O0a. `NCT00081744` — a trial contributing to two published pools with no registered primary outcome
