@@ -63,6 +63,12 @@ import sys
 import glob
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+# BOTH CONTROLS ROUTE THROUGH THE SHARED ASSERTION rather than through two hand-written
+# sys.exit calls in this file. The next instrument gets the same refusal without its author
+# having to remember tonight.
+from instrument_controls import require_controls
 
 POSITIVE_CONTROL = ("attr-pn-review", "primary")
 NEGATIVE_CONTROL = ("malaria-vaccines", "r21_seasonal_first_12m")
@@ -300,16 +306,14 @@ def main():
         sys.exit("REFUSED: the negative control was not read. No count.")
     show(NEGATIVE_CONTROL, neg)
 
-    if pos["verdict"] != "MIXED":
-        sys.exit("\nREFUSED: the positive control is not flagged. NO COUNT PRINTED.")
-    if not pos["reciprocal"]:
-        sys.exit("\nREFUSED: the positive control's reciprocal drug is not found. NO COUNT.")
-    if neg["verdict"] == "MIXED":
-        sys.exit("\nREFUSED: THE NEGATIVE CONTROL IS FALSELY FLAGGED. A check that flags a "
-                 "pool for contrasts that are not in it accuses in the wrong direction, "
-                 "which is the failure mode this run exists to avoid. NO COUNT PRINTED.")
+    require_controls(
+        "audit_mixed_contrast_pools",
+        positive=("attr-pn-review/primary, established from NCT04136184's registration",
+                  (pos["verdict"], bool(pos["reciprocal"])), ("MIXED", True)),
+        negative=("malaria-vaccines/r21_seasonal_first_12m, which pools two R21 trials "
+                  "against a control vaccine and none of the topic's other contrasts",
+                  neg["verdict"], "MIXED"))
     print("")
-    print("    BOTH SIDES PASSED. Count follows.")
     print("")
 
     order = ["MIXED", "MIXED_INERT_AND_CARE", "ALL_SAME_AGENT", "ALL_ACTIVE", "ALL_INERT",

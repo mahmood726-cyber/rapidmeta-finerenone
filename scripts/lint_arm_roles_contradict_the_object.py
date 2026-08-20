@@ -78,8 +78,70 @@ def words(text):
     return set(w.lower() for w in WORD.findall(text or "") if w.lower() not in STOP)
 
 
-def main():
-    verbose = "--verbose" in sys.argv
+BASELINE = os.path.join(REPO, "scripts", "baselines", "arm_role_contradiction_baseline.json")
+
+
+def ratchet(hits, gate, write_if_missing=True):
+    """The ten known contradictions are recorded. A NEW one refuses.
+
+    NOT A CLEARANCE. Every entry is a defect that is still there -- FOURIER's swapped arms
+    still carry their counts, icosapent's arms table still tells a reader the treatment was
+    placebo. The baseline says only that they are SEEN, and correcting them is a
+    published-number decision. What the ratchet buys is that the eleventh is caught when it
+    is written rather than three weeks later.
+    """
+    present = sorted(hits)
+    if not os.path.exists(BASELINE):
+        if not write_if_missing:
+            return []
+        os.makedirs(os.path.dirname(BASELINE), exist_ok=True)
+        json.dump({"written": "2026-08-20",
+                   "not_a_clearance": (
+                       "Each entry is a live defect, recorded as SEEN and not as resolved. "
+                       "Correcting an arm role is a published-number decision."),
+                   "contradictions": present},
+                  io.open(BASELINE, "w", encoding="utf-8", newline=chr(10)), indent=1,
+                  ensure_ascii=False)
+        print("wrote baseline %s with %d contradictions" % (BASELINE, len(present)))
+        return []
+    known = set(json.load(io.open(BASELINE, encoding="utf-8")).get("contradictions") or [])
+    new = sorted(set(present) - known)
+    healed = sorted(known - set(present))
+    if healed:
+        print("%d baselined contradiction(s) are gone: %s" % (len(healed), ", ".join(healed)))
+    if new:
+        print("")
+        print("REFUSED: %d NEW arm-role contradiction(s) an object states against itself:"
+              % len(new))
+        for k in new:
+            print("    %s" % k)
+        print("")
+        print("Establish the contrast from the REGISTRATION before changing anything -- "
+              "attr-pn's")
+        print("roles looked obvious from the drug names and the registration said something")
+        print("sharper. If the row is correct as it stands, baseline it with a reason.")
+        if gate:
+            sys.exit(1)
+    else:
+        print("NO NEW ARM-ROLE CONTRADICTION. The baseline has not risen.")
+    return new
+
+
+def prove():
+    """A contradiction absent from the baseline must come back NEW."""
+    hits = collect()
+    fake = "PROOF/NCT00000000/A"
+    if fake not in ratchet(hits + [fake], gate=False, write_if_missing=False):
+        sys.exit("PROOF FAILED: an unbaselined contradiction was not reported as new. The "
+                 "ratchet cannot rise and is decorative.")
+    if ratchet(hits, gate=False, write_if_missing=False):
+        sys.exit("PROOF FAILED: the corpus as it stands reports new contradictions, so the "
+                 "baseline does not describe the corpus it was written from.")
+    print("PROOF PASSED: an unbaselined arm-role contradiction is reported NEW, and the")
+    print("corpus as it stands reports none.")
+
+
+def scan():
     a_hits, b_hits, c_hits = [], [], []
     trials_seen = 0
     trials_unread = 0
@@ -158,6 +220,22 @@ def main():
                     c_hits.append((topic, nct, " / ".join(treats), " / ".join(ctrls),
                                    ", ".join(sorted(shared))))
 
+    return a_hits, b_hits, c_hits, topics, trials_seen, trials_unread
+
+
+def collect():
+    """Stable keys for the ratchet: topic/nct/class."""
+    a, b, c, _t, _s, _u = scan()
+    keys = ["%s/%s/A" % (h[0], h[1]) for h in a]
+    keys += ["%s/%s/B" % (h[0], h[1]) for h in b]
+    keys += ["%s/%s/C" % (h[0], h[1]) for h in c]
+    return sorted(keys)
+
+
+def main():
+    verbose = "--verbose" in sys.argv
+    a_hits, b_hits, c_hits, topics, trials_seen, trials_unread = scan()
+
     print("ARM ROLES CONTRADICTED BY THE OBJECT'S OWN FIELDS")
     print("%d topics, %d trials with both roles readable, %d UNREAD (no arms or one role "
           "only)" % (topics, trials_seen, trials_unread))
@@ -197,4 +275,8 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if "--prove" in sys.argv:
+        prove()
+    else:
+        main()
+        ratchet(collect(), gate="--gate" in sys.argv)

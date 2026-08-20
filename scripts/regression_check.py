@@ -205,6 +205,11 @@ def _is_restoration(app, src):
 
 ssot_seen = []
 
+# Which searched-for markers were observed ANYWHERE this run. A count of zero for a
+# marker that occurs nowhere means the search cannot match; it does not mean the defect
+# is absent. See instrument_controls.zero_has_a_reading.
+marker_seen = {}
+
 signals = {
     "page_errors": [],
     "no_trials": [],
@@ -442,6 +447,15 @@ with sync_playwright() as p:
                                                   2200 + _SETTLE_MS)))
         if "Provisional RoB-2 and GRADE" not in banner_txt:
             signals["no_rob_banner"].append((a, banner_txt[:60]))
+        # CLASS 52 ACCOUNTING, AT THE SITE OF TWO OF ITS THREE INSTANCES. This signal
+        # keys on the marker `arni_hf_protocol` and has reported 0 on every run this
+        # project has ever made -- because the marker appears on NO page in the corpus,
+        # not because no page has the defect. A zero from a search whose term does not
+        # exist is NOT_ASSESSABLE, and until now it was read as clean AND it sat in the
+        # BLOCKING set. Every page is now asked whether the marker occurs at all, so the
+        # zero can state which of its two readings it is.
+        if "arni_hf_protocol" in proto_href:
+            marker_seen["arni_hf_protocol"] = marker_seen.get("arni_hf_protocol", 0) + 1
         if a != "ARNI_HF_REVIEW" and "arni_hf_protocol" in proto_href:
             signals["wrong_protocol_link"].append((a, proto_href))
         if not webr_tag:
@@ -579,6 +593,18 @@ for k, v in signals.items():
         print(f"   {item}")
     if len(v) > 6:
         print(f"   ... +{len(v)-6} more")
+
+# THE ZERO WITH TWO READINGS, STATED RATHER THAN IMPLIED (registry class 52).
+for _marker, _sig in (("arni_hf_protocol", "wrong_protocol_link"),):
+    _n = len(signals.get(_sig) or [])
+    if _n == 0 and not marker_seen.get(_marker):
+        print("")
+        print("NOT_ASSESSABLE: %s reported 0, AND the marker %r was not seen on ANY of the "
+              "%d pages" % (_sig, _marker, len(apps)))
+        print("    read this run. THE SEARCH CANNOT MATCH. This zero is not evidence that no")
+        print("    page has the defect, and this signal is in the BLOCKING set, so it has")
+        print("    been contributing a clean verdict it could never have contributed")
+        print("    otherwise. Either the marker is stale or the check is.")
 
 # Save raw
 Path("/tmp/regression_results.json").write_text(json.dumps({k: v for k, v in signals.items()}, default=str), encoding='utf-8')

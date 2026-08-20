@@ -150,3 +150,34 @@ case $? in
   1) echo "REFUSED: an object states its withholding direction without a counter-instance that exists, points back, and runs the other way (scripts/lint_withholding_direction_paired.py)"; exit 1 ;;
   *) echo "REFUSED: NO object declares a withholding direction -- the check has nothing to check against, which is a broken instrument and not a clean corpus."; exit 1 ;;
 esac
+
+# ---------------------------------------------------------------------------------------
+# 2026-08-20. THREE CLASSES MOVED FROM PROSE TO REFUSAL.
+#
+# Twelve classes were opened on 2026-08-20 and scripts/audit_class_mechanisation.py scored
+# them: ZERO mechanised and proven, six mechanised and unproven, six documented only. That
+# is the answer to "can this happen again" -- not the class count. The heredoc class was
+# breached nine times by an author who had just read the rule, and the tenth was stopped by
+# a hook that does not care whether anyone understands it.
+#
+# These three are the highest-recurrence of the twelve. Each has a --prove that constructs
+# a failing input and requires a refusal, because a gate never shown to fail is a gate
+# nobody has tested -- which is the subject of two of the three.
+# ---------------------------------------------------------------------------------------
+
+# THE ACCUSING DIRECTION. Four wrong accusations in one night, every one caught by a person
+# reading the instance and none by the instrument. A new corpus instrument declares a case
+# whose answer is already known -- and, where it can over-flag, a case it must NOT flag.
+python "$R/scripts/lint_instrument_declares_a_control.py" >/dev/null || { echo "REFUSED: a new corpus-wide instrument reports findings with no control (scripts/lint_instrument_declares_a_control.py). Route it through instrument_controls.require_controls, or declare '# no-control: <reason>'."; exit 1; }
+
+# EXCLUSION BY ABSENCE, corpus-wide subset only. 1,300 negative guards is a population; the
+# 125 inside a loop over the corpus are what decides WHAT A FIX REACHES, and `zero paper-*
+# sections` standing in for `built by an older generator` dropped three live pages.
+python "$R/scripts/audit_exclusion_by_absence.py" --gate >/dev/null || { echo "REFUSED: a NEW negative guard sits inside a corpus-wide loop (scripts/audit_exclusion_by_absence.py --gate). State the positive property, or baseline it with a reason."; exit 1; }
+
+# AND THE TABLE ITSELF. A class whose named command cannot fail is prose wearing a filename.
+python "$R/scripts/audit_class_mechanisation.py" --gate >/dev/null || { echo "REFUSED: a defect class names a command that cannot fail (scripts/audit_class_mechanisation.py --gate)."; exit 1; }
+
+# CLASS 55. The ten arm-role contradictions an object states against itself are baselined;
+# an eleventh refuses. Not a clearance -- FOURIER's swapped arms still carry their counts.
+python "$R/scripts/lint_arm_roles_contradict_the_object.py" --gate >/dev/null || { echo "REFUSED: a NEW arm-role contradiction (scripts/lint_arm_roles_contradict_the_object.py --gate). Establish the contrast from the REGISTRATION before changing anything."; exit 1; }

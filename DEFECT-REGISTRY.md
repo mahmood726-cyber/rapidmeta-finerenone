@@ -2753,6 +2753,90 @@ arms carry counts it inverts anything recomputed from them. `attr-pn` is the sta
 warning: there the roles looked obvious from the drug names, and the registration turned out
 to say something sharper still.
 
+## Class 56 — FIFTY-SIX DOCUMENTED CLASSES IS NOT FIFTY-SIX CONTROLS, AND THIS FILE SAID OTHERWISE
+
+**Documentation failed as a control under the best conditions it will ever get.** The
+heredoc class was breached **nine times** by an author who had read it completely; the tenth
+attempt was stopped by a hook that does not care whether anyone understands it. So the
+question this registry answers is not "have we recorded it" but **"is there a command that
+fails when it recurs, and has it been shown to fail on a real instance?"**
+
+`scripts/audit_class_mechanisation.py` asks that of the thirteen classes opened 2026-08-20,
+and it does not take my word for any column: `can_fail` parses the module for a *reachable*
+non-zero exit with the docstring stripped, `hooked` looks the command up in `.githooks/`,
+and `fired` requires a named self-test marker to exist in the file.
+
+**The first run: PROVEN 0, UNPROVEN 6, DOCUMENTED ONLY 6.** Eleven of the twelve
+instruments written that night could not fail. They print.
+
+**And the mechanism by which that happened is worth more than the count.**
+`scripts/lint_gate_can_fail.py` already enforces *"a file named `*_gate.py` must be able to
+fail"* — written after four files named gate turned out to be triage tools. **Every
+instrument written since has been named `lint_*` or `audit_*`.** Nobody evaded the rule. The
+rule was scoped to a filename and the filenames moved.
+
+**Its own first version scored `test_apply_reml_guard.py` — fourteen proofs, two of which
+SKIP rather than pass when unrun — as unable to fail**, because it looked for `sys.exit` and
+a pytest file fails through `assert`. A mechanisation audit blind to the one mechanism
+already in place is the defect it was written to measure, and it is recorded rather than
+quietly fixed.
+
+### What was mechanised, and what deliberately was not
+
+Three classes moved from prose to refusal. Each carries `--prove`, which constructs a
+failing input and requires a refusal, **because a gate never shown to fail is a gate nobody
+has tested — and that is the subject of two of the three.**
+
+**THE ACCUSING DIRECTION** — `scripts/instrument_controls.py` +
+`scripts/lint_instrument_declares_a_control.py`, hooked. Four wrong accusations in one
+night: 0.06 and 1.79 read out of a **withdrawal notice** and relayed to a reader as what the
+page serves; `pool_broken` against a pool withdrawn on purpose; two unbacked-claim findings
+against the flagship that were not unbacked; 49 never-taken branches from an extraction that
+captured code spans. **Every one was caught by a person reading the instance. Not one by the
+instrument.** So the reading becomes part of the instrument: a positive control whose answer
+is established *independently* — a registration, a delivered page, a recorded prior finding,
+never the same logic under test — and, where over-flagging is the failure mode, a **negative
+control it must not flag**. The mixed-contrast sweep's first draft accused two topics that
+contain mixed contrasts and pool across none of them; only the negative side catches that.
+
+The check sees **59 of the 115** files named `audit_`/`lint_`/`*_gate`; the rest take a path
+argument or iterate through a helper and are **NOT ASSESSED**. That residual is stated, not
+counted as clean. **57 uncontrolled instruments are baselined and the count must never
+rise** — they are not excused on the merits, they are excused because rewriting fifty
+tonight would itself be an unreviewed corpus-wide change, which is the shape of half the
+entries above.
+
+**EXCLUSION BY ABSENCE** — `scripts/audit_exclusion_by_absence.py --gate`, hooked. **1,300
+negative guards is a population and a check that blocks on a population blocks everything.**
+The subset that cost us something is the **125 inside a loop over the corpus**: a guard there
+decides what a *fix reaches*, and `zero paper-* sections` standing in for `built by an older
+generator` silently removed three live pages from the reading-order rollout, two of which
+serve nothing for a pooled point their own object holds. Ratcheted; each entry is a
+candidate, not a verdict.
+
+**CLASS 52, AT THE SITE OF TWO OF ITS THREE INSTANCES** — `scripts/regression_check.py`.
+`wrong_protocol_link` keys on `arni_hf_protocol`, which appears on **no page in the corpus**,
+and has therefore reported 0 on every run this project has ever made — **while sitting in the
+BLOCKING set**, contributing a clean verdict it could never have contributed otherwise. Every
+page is now asked whether the marker occurs *at all*, and a zero from a marker seen nowhere
+prints NOT_ASSESSABLE. **Reported UNPROVEN and stated as such**: proving it needs a browser
+run over the corpus, which has not happened since the change.
+
+**CLASS 55** — `scripts/lint_arm_roles_contradict_the_object.py --gate`, hooked. The ten
+contradictions are baselined and an eleventh refuses. **The baseline is not a clearance:**
+FOURIER's swapped arms still carry their counts and icosapent's arms table still tells a
+reader the treatment was placebo. It records that they are *seen*.
+
+### After the pass: PROVEN 5, UNPROVEN 5, DOCUMENTED ONLY 3
+
+The three still documented-only are the ones no command expresses — *the instruments are a
+larger source of defects than the data*, *an unexpectedly large number is where checking is
+most urgent*, *when one figure is defensible under two disagreeing definitions report both*.
+**They are disciplines, and a discipline is a person remembering, which is the control that
+has already failed nine times here.** Saying so is the point; a registry claiming fifty-six
+closed classes when most are prose would be the reporting-layer failure applied to our own
+defect record.
+
 ## OPEN — carried, not fixed
 
 ### O1. A check that reads a different working tree than the one being built

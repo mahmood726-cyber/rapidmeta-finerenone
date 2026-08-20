@@ -126,6 +126,105 @@ def object_sweep():
     return objects, reasons
 
 
+
+
+# ---------------------------------------------------------------------------------------
+# THE ENUMERABLE SUBSET, AND THE ONLY PART OF THIS FILE THAT CAN REFUSE.
+#
+# 1,300 negative guards is a POPULATION. Reading it is not work anyone should do, and a
+# check that blocks on a population blocks everything. The subset that actually cost us
+# something is narrow and countable:
+#
+#     A NEGATIVE GUARD INSIDE A LOOP OVER THE CORPUS.
+#
+# A negative guard inside one page's rendering is a local decision. A negative guard inside
+# a loop over every object or every page DECIDES WHAT A FIX REACHES -- and `zero paper-*
+# sections` standing in for `built by an older generator` silently removed three live pages
+# from the reading-order rollout, two of which serve nothing for a pooled point their own
+# object holds.
+#
+# RATCHET, NOT CLEARANCE. The subset present today is recorded in a baseline. It must not
+# grow. Each entry is a candidate, not a verdict: excluding a record that genuinely has no
+# comparator arm is correct, and only reading settles which. What the ratchet buys is that
+# THE NEXT ONE IS SEEN WHEN IT IS WRITTEN, rather than after it has quietly excluded
+# something from a corpus-wide pass.
+# ---------------------------------------------------------------------------------------
+
+CORPUS_LOOP = re.compile(
+    r"for\s+\w+.*\bin\b.*(?:glob\.glob\(|os\.listdir\(|os\.walk\(|PAGE_MAP|apps\b|"
+    r"topics\b|objects\b|pages\b)")
+
+BASELINE = os.path.join(REPO, "scripts", "baselines", "exclusion_by_absence_baseline.json")
+
+
+def indent_of(line):
+    return len(line) - len(line.lstrip())
+
+
+def corpus_wide_subset():
+    """Negative guards lexically inside a loop that iterates the corpus."""
+    out = []
+    for root in (os.path.join(REPO, "scripts"), os.path.join(REPO, "ssot")):
+        if not os.path.isdir(root):
+            continue
+        for dp, _d, names in os.walk(root):
+            for nm in sorted(names):
+                if not nm.endswith(".py"):
+                    continue
+                fp = os.path.join(dp, nm)
+                rel = os.path.relpath(fp, REPO).replace("\\", "/")
+                try:
+                    lines = io.open(fp, encoding="utf-8", errors="replace").read().split("\n")
+                except Exception:
+                    continue
+                # Stack of open corpus loops as (indent, header line number).
+                stack = []
+                for i, ln in enumerate(lines):
+                    if not ln.strip() or ln.strip().startswith("#"):
+                        continue
+                    ind = indent_of(ln)
+                    while stack and ind <= stack[-1][0]:
+                        stack.pop()
+                    if CORPUS_LOOP.search(ln):
+                        stack.append((ind, i + 1))
+                        continue
+                    if not stack:
+                        continue
+                    if not NEG_GUARD.search(ln):
+                        continue
+                    nxt = "\n".join(lines[i + 1:i + 3])
+                    if EXIT.search(nxt):
+                        out.append((rel, i + 1, stack[-1][1], ln.strip()[:76]))
+    return out
+
+
+def ratchet(subset, write_if_missing=True):
+    """-> (known, new, healed). Exits non-zero from main() when `new` is non-empty."""
+    key = lambda h: "%s:%d" % (h[0], h[1])
+    present = sorted(key(h) for h in subset)
+    if not os.path.exists(BASELINE):
+        if not write_if_missing:
+            return set(), [], []
+        os.makedirs(os.path.dirname(BASELINE), exist_ok=True)
+        json.dump({
+            "written": "2026-08-20",
+            "what": ("Negative guards lexically inside a loop over the corpus. A guard here "
+                     "decides what a corpus-wide fix REACHES, which is how the reading-order "
+                     "rollout's `zero paper sections` silently dropped three live pages."),
+            "not_a_verdict": ("Each entry is a CANDIDATE. Many are correct. The ratchet "
+                              "exists so the next one is seen when it is written."),
+            "guards": present,
+        }, io.open(BASELINE, "w", encoding="utf-8", newline="\n"), indent=1,
+            ensure_ascii=False)
+        print("wrote baseline %s with %d guards" % (BASELINE, len(present)))
+        return set(present), [], []
+    base = json.load(io.open(BASELINE, encoding="utf-8"))
+    known = set(base.get("guards") or [])
+    new = sorted(set(present) - known)
+    healed = sorted(known - set(present))
+    return known, new, healed
+
+
 def main():
     files, hits = code_sweep()
     objects, reasons = object_sweep()
@@ -165,5 +264,57 @@ def main():
     return 0
 
 
+def prove_ratchet():
+    """A guard not in the baseline must come back NEW. Otherwise the ratchet is decorative."""
+    subset = corpus_wide_subset()
+    fake = ("scripts/PROOF_not_a_real_file.py", 1, 1, "if not x:")
+    _k, new, _h = ratchet(subset + [fake], write_if_missing=False)
+    if "scripts/PROOF_not_a_real_file.py:1" not in new:
+        sys.exit("PROOF FAILED: a guard absent from the baseline was NOT reported as new. "
+                 "The ratchet cannot rise and therefore cannot fall either.")
+    _k, new2, _h = ratchet(subset, write_if_missing=False)
+    if new2:
+        sys.exit("PROOF FAILED: the unmodified corpus reports %d new guards, so the "
+                 "baseline does not describe the corpus it was written from." % len(new2))
+    print("PROOF PASSED: an unbaselined corpus-wide negative guard is reported NEW, and the")
+    print("corpus as it stands reports none. Both directions demonstrated.")
+
+
+def report_corpus_subset(gate):
+    subset = corpus_wide_subset()
+    print("")
+    print("THE ENUMERABLE SUBSET -- negative guards INSIDE a loop over the corpus: %d"
+          % len(subset))
+    print("A guard here decides what a corpus-wide FIX REACHES. The reading-order rollout's")
+    print("`zero paper-* sections` excluded three live pages, two of which serve nothing for")
+    print("a pooled point their object holds.")
+    for rel, ln, loop, txt in subset[:40]:
+        print("    %s:%d  (loop opened at line %d)" % (rel, ln, loop))
+        print("        %s" % txt)
+    if len(subset) > 40:
+        print("    ... +%d more" % (len(subset) - 40))
+    known, new, healed = ratchet(subset)
+    if healed:
+        print("")
+        print("%d guard(s) in the baseline are gone." % len(healed))
+    if new:
+        print("")
+        print("REFUSED: %d NEW negative guard(s) inside a corpus-wide loop:" % len(new))
+        for k in new:
+            print("    %s" % k)
+        print("")
+        print("State the POSITIVE property instead -- `built by generator X`, not `has zero")
+        print("X sections` -- or add it to the baseline with a line saying why the absence")
+        print("IS the property you mean.")
+        if gate:
+            sys.exit(1)
+    elif os.path.exists(BASELINE):
+        print("NO NEW CORPUS-WIDE NEGATIVE GUARD. The baseline has not risen.")
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    if "--prove" in sys.argv:
+        prove_ratchet()
+    else:
+        main()
+        report_corpus_subset("--gate" in sys.argv)
