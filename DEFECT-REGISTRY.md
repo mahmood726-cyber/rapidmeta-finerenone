@@ -3651,6 +3651,45 @@ is no literal `measure: null` anywhere in that object, and it is four trials the
 corpus-wide — the fifth entry tonight to understate its own scope.*
 
 
+## Class 74, continued — THE BIAS REACHED THE HEADLINE NUMBER, AND THE FIRST COUNTER-INSTANCE
+
+**Sixth instance, and it is the number every message of the night opened with.**
+
+Reported all night: *"P46 10 of 28, of which **2** rest on a provenance-shaped refusal."*
+Measured by `scripts/audit_p46_closure_quality.py`: **3** — `apixaban-vte-prophylaxis`,
+`bempedoic-acid-review`, `bococizumab-lipid-review`, all three on the comparison limb.
+
+**And a fourth thing was being counted as clean: 1 REFUSED/unclassified** (apixaban's
+risk-of-bias), which is established as neither evidence-shaped nor provenance-shaped.
+
+> **The headline is: 10 of 28, of which 3 provenance-shaped and 1 unclassified.**
+
+Uglier, and the true shape. **An unclassified refusal is a third state and folding it into
+either bucket is the reporting-layer failure** the three-state rule exists to prevent —
+committed in the summary line of a project whose subject is that rule.
+
+This one was relayed to Mahmood a dozen times.
+
+### Two framing errors in the same report
+
+**`acs-antiplatelet` was never in the denominator.** It was described as *blocked* on 227
+unexamined records; it publishes no pooled estimate, so it is not among the 28 topics P46
+scores at all. **Another unstated population** — a topic reported as blocked work inside a
+count it was never in.
+
+**AND THE FIRST PESSIMISTIC ERROR OF THE NIGHT: 8 topics sit at 0/4, not twelve.** Every
+prior instance ran optimistic. This one runs the other way, and it matters methodologically:
+**a bias measured only in one direction is a claim not yet tested against a counter-instance.**
+Now there is one. The pattern is *estimates are unreliable and skew optimistic*, not
+*estimates are always low* — and the operational rule is unchanged, because a floor is the
+safe reading under either.
+
+**Measured P46 remainder: 18 topics, 47 absent limbs** — 6 topics need one limb, 3 need two,
+1 needs three, 8 need four. By limb: comparison 15, risk of bias 11, model output 11, GRADE
+10. **Comparison first**: scarcest, and it is where all three soft closures sit, so one
+method touches 18 limbs rather than 15.
+
+
 ## OPEN — carried, not fixed
 
 ### O1. A check that reads a different working tree than the one being built
