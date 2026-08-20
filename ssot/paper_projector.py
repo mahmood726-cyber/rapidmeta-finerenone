@@ -320,6 +320,52 @@ _ROB_DOMAINS = {
     "overall": "overall",
 }
 
+REFERRED_PREFIX = "THE_POOL_IS_REFERRED_"
+
+
+def pool_referral(blk):
+    """The referral recorded on a pooled outcome, as a paragraph for the reader.
+
+    TWO POOLS WERE REFERRED ON 2026-08-20 -- sglt2-mace-cvot-review, whose two trials count
+    different stroke components and one of which registered a second co-primary this review
+    silently dropped; and attr-pn-review, whose three rows put patisiran on both sides of
+    one number. Both referrals were written onto the objects with their reasons. NO
+    RENDERER NAMED THE KEY, so a reader met the estimate and none of it.
+
+    THE REFERRAL EXISTED FOR US AND NOT FOR THEM -- registry class 65, on the very fields
+    written in response to naming class 65. It renders BESIDE THE NUMBER for the same
+    reason the estimand disclosure does: a disclosure a reader has to go looking for is the
+    same defect one layer out.
+
+    Returns (text, field paths) or (None, []). The key carries a date stamp, so this MATCHES
+    ON THE PREFIX rather than on one day's spelling -- a renderer keyed to
+    `THE_POOL_IS_REFERRED_2026_08_20` would go silent the next time a pool is referred.
+    """
+    for key in sorted(blk):
+        if not key.startswith(REFERRED_PREFIX):
+            continue
+        r = blk.get(key)
+        if not isinstance(r, dict):
+            continue
+        bits = []
+        state = str(r.get("state") or "REFERRED").strip()
+        defect = str(r.get("primary_defect") or "").strip()
+        what = str(r.get("what_is_wrong") or r.get("second_defect") or "").strip()
+        obstacle = str(r.get("obstacle") or "").strip()
+        bits.append("THIS POOL IS %s." % state)
+        if defect:
+            bits.append(defect if defect.endswith(".") else defect + ".")
+        if what:
+            bits.append(what)
+        if obstacle:
+            bits.append("The obstacle is %s." % obstacle.lower())
+        not_withdrawn = str(r.get("not_withdrawn_because") or "").strip()
+        if not_withdrawn:
+            bits.append(not_withdrawn)
+        return " ".join(bits), ["results.by_outcome.<this outcome>.%s" % key]
+    return None, []
+
+
 def _outcome_words(obj, oid):
     """The outcome's registered name, falling back to the key made readable.
 
@@ -886,6 +932,16 @@ def project(obj, journal="generic", length="standard"):
             f.append("outcomes[id=%s].comparator" % oid)
         txt += "."
         s.paras.append((txt, f))
+
+        # THE REFERRAL, BESIDE THE NUMBER IT QUALIFIES.
+        # A pool referred with its reason, and no renderer naming the key, is a referral
+        # that exists for us and not for the reader -- registry class 65 on the fields
+        # written in response to class 65. It goes here, immediately after the estimate
+        # sentence, not into a methods tab.
+        _ref_txt, _ref_f = pool_referral(blk)
+        if _ref_txt:
+            s.paras.append((_ref_txt,
+                            [p.replace("<this outcome>", oid) for p in _ref_f]))
 
         # HETEROGENEITY, WITH THE CAVEAT THE OBJECT ALREADY RECORDS.
         if het.get("i2") is not None:

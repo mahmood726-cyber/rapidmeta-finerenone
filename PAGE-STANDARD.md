@@ -1,6 +1,6 @@
 # The page standard, versioned
 
-**`PAGE_STANDARD_VERSION = "1.22.0-2026-08-20"`**
+**`PAGE_STANDARD_VERSION = "1.23.0-2026-08-20"`**
 
 > **This line was `1.6.0` while the version log below already ran to `1.12.0` and
 > `ssot/build_to_standard.py` stamped `1.13.0`.** The marker whose entire purpose is to make
@@ -133,6 +133,46 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.23.0-2026-08-20
+
+**P49 — a NOT_ASSESSABLE whose obstacle is ACCESS must record what was attempted, when, and
+what would actually resolve it.**
+
+`empagliflozin-hf`'s risk-of-bias D2 is NO_INFORMATION because the two methods sections
+could not be read. That is an obstacle in OUR ACCESS, not in the evidence, and the two are
+different verdicts: *a NO_INFORMATION written because a paywall stopped us is not the same
+as one written because a method was never described.*
+
+**A named exit is only useful if the next person knows which door was already tried.**
+Without the attempt on the record, the next session runs the same failed query, records the
+same verdict, and **the refusal calcifies while looking freshly checked** — a stale finding
+wearing a current date, which is the restatement-block failure this standard already carries
+at class 13.
+
+So an access-shaped NOT_ASSESSABLE records three things:
+
+| | `empagliflozin-hf` D2 |
+|---|---|
+| **what was attempted** | PMID→PMCID conversion for 32865377 (Packer 2020) and 34449189 (Anker 2021), each by name |
+| **when** | 2026-08-20 |
+| **what would resolve it** | a route that reaches NEJM full text. **Not another PMC query** — that door is now known to be shut |
+
+This is not a licence to leave domains unjudged. It is the opposite: it makes the unjudged
+domain a **queue item with an address** rather than a verdict, and it stops the next reader
+mistaking a repeated failure for a repeated check.
+
+**P50 — a referral must render where the estimate renders.**
+
+Two pools were referred on 2026-08-20 with their reasons written onto the objects, and **no
+renderer named the key**, so a reader met the estimate and none of the referral. The
+referral existed for us and not for them — registry class 65, committed on the very fields
+written in response to naming class 65.
+
+A pool carrying a referral now renders it **immediately after the estimate sentence**, not
+in a methods tab. The renderer matches on the key PREFIX rather than one day's date stamp,
+because a renderer keyed to `THE_POOL_IS_REFERRED_2026_08_20` goes silent the next time a
+pool is referred.
 
 ### 1.22.0-2026-08-20
 

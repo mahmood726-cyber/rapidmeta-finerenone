@@ -245,7 +245,13 @@
      }
     ],
     "registration_counts_read_utc": "2026-08-18",
-    "provenance": "REGISTRY -- ClinicalTrials.gov, NCT01131676, read 2026-08-18. Arm-level counts were COMPARED AGAINST the posted outcome measure 'Time to the First Occurrence of Any of the Following Adjudicated Components of t' and reconciled by denominator -- the registry posts this outcome as a RATE where this object holds a COUNT, and every denominator matches. Derived from a comparison that was run, not asserted."
+    "provenance": "REGISTRY -- ClinicalTrials.gov, NCT01131676, read 2026-08-18. Arm-level counts were COMPARED AGAINST the posted outcome measure 'Time to the First Occurrence of Any of the Following Adjudicated Components of t' and reconciled by denominator -- the registry posts this outcome as a RATE where this object holds a COUNT, and every denominator matches. Derived from a comparison that was run, not asserted.",
+    "registration_read_2026_08_20": {
+     "source": "ClinicalTrials.gov API v2, NCT01131676, read 2026-08-20",
+     "primary_outcomes_registered": 1,
+     "primary_verbatim": "Time to the First Occurrence of Any of the Following Adjudicated Components of the Primary Composite Endpoint (3-point MACE): CV Death (Including Fatal Stroke and Fatal MI), Non-fatal MI (Excluding Silent MI), and Non-fatal Stroke.",
+     "THE_STROKE_COMPONENT": "NON-FATAL STROKE, of any type. The composite counts haemorrhagic stroke as well as ischaemic."
+    }
    },
    {
     "id": "NCT01730534",
@@ -343,7 +349,15 @@
      }
     ],
     "registration_counts_read_utc": "2026-08-18",
-    "provenance": "REGISTRY -- ClinicalTrials.gov, NCT01730534, read 2026-08-18. Arm-level counts were COMPARED AGAINST the posted outcome measure 'Subjects Included in the Composite Endpoint of CV Death, MI or Ischemic Stroke' and matched exactly. Derived from a comparison that was run, not asserted."
+    "provenance": "REGISTRY -- ClinicalTrials.gov, NCT01730534, read 2026-08-18. Arm-level counts were COMPARED AGAINST the posted outcome measure 'Subjects Included in the Composite Endpoint of CV Death, MI or Ischemic Stroke' and matched exactly. Derived from a comparison that was run, not asserted.",
+    "registration_read_2026_08_20": {
+     "source": "ClinicalTrials.gov API v2, NCT01730534, read 2026-08-20",
+     "primary_outcomes_registered": 2,
+     "primary_verbatim_1_used_by_this_review": "Subjects Included in the Composite Endpoint of CV Death, MI or Ischemic Stroke",
+     "primary_verbatim_2_NOT_used_and_not_recorded": "Subjects Included in the Composite Endpoint of CV Death or Hospitalization Due to Heart Failure.",
+     "THE_STROKE_COMPONENT": "ISCHEMIC STROKE ONLY. Haemorrhagic stroke is NOT in this composite, and it IS in EMPA-REG's.",
+     "AND_THIS_TRIAL_HAS_TWO_CO_PRIMARIES": "CV death or hospitalisation for heart failure is registered at the SAME RANK. This review used the MACE composite and recorded no reason. Choosing between co-primaries is an analytic decision and an unrecorded one is not a methodological choice, it is an accident that happens to have a direction."
+    }
    }
   ]
  },
@@ -462,7 +476,17 @@
      "reproduction_of_the_previous_value": "Before this refit was applied, the OLD estimator was refitted on the same inputs and checked against the stored value: REPRODUCED. A pool whose old fit did not reproduce was not overwritten."
     },
     "estimator_note_2026_08_20": "REML, applied 2026-08-20 under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The estimator this pool used before that date was DerSimonian-Laird inverse-variance on extracted effect estimates; that fit was reproduced first and is quoted under r_output_superseded_2026_08_20, so the movement is attributable rather than asserted.",
-    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py.",
+    "THE_POOL_IS_REFERRED_2026_08_20": {
+     "state": "REFERRED, NOT WITHDRAWN",
+     "obstacle": "IN THE EVIDENCE",
+     "obstacle_means": "The registrations state DIFFERENT ENDPOINTS. That is a fact about the trials, not about what this project has got round to reading. Nothing further we do makes these two composites the same composite.",
+     "primary_defect": "THE STROKE COMPONENT IS NOT THE SAME COMPONENT. EMPA-REG's 3-point MACE counts NON-FATAL STROKE OF ANY TYPE; DECLARE's counts ISCHEMIC STROKE ONLY. Haemorrhagic stroke is inside one composite and outside the other. Two different endpoints sharing a name.",
+     "second_defect": "DECLARE registers TWO co-primaries and this review silently used one. The other -- CV death or hospitalisation for heart failure -- is at the same rank and is the endpoint on which DECLARE was positive. An unrecorded selection among co-primaries is an unrecorded analytic decision.",
+     "AND_THE_OBJECT_ALREADY_SAID_SO": "The outcome's own `name` begins 'Multiple trial-declared outcomes:' and then CONCATENATES FOUR DIFFERENT REGISTERED TITLES separated by pipes. `estimand_established` is FALSE. `estimand_id_means` says 'not recorded on the page this object was extracted from'. THREE FIELDS, ALL HONEST, ALL SAYING THE SAME THING -- AND THE POOL PUBLISHED ANYWAY. The defect was never that the object hid this; it is that a published estimate did not have to answer to it.",
+     "what_would_make_a_pool_defensible": "Either restrict to a component set both trials share -- CV death and non-fatal MI, dropping stroke, which is a different and smaller question -- or pool DECLARE's second co-primary against a matching endpoint elsewhere. Both are decisions, not relabellings, and neither is made here.",
+     "not_withdrawn_because": "Withdrawing a published estimate is a published-number decision and belongs to Mahmood. The estimate is unchanged; the finding is complete and stated."
+    }
    }
   }
  },
@@ -493,6 +517,13 @@
    "what_changed": "This pool was fitted with DerSimonian-Laird inverse-variance on extracted effect estimates. It is refitted with REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The old fit was reproduced against the stored value FIRST (REPRODUCED) and only then replaced. Stored values are also rounded at storage -- effects to 4 decimals, tau-squared and Q to 6, I-squared to 4 -- because several of these pools carried sixteen significant figures on a two- or three-study pool.",
    "why": "The corpus held two estimator conventions at once: 23 pools REML, 9 DerSimonian-Laird, 1 Paule-Mandel. Handbook 6.5 s10.10.4.4 records REML as RevMan's own current default and this project's statistics rules already refused DerSimonian-Laird below k=10, which every pool in this corpus is. The decision was taken on 2026-08-18 and not applied; applying it to some pools and not others would have been worse than either convention.",
    "interval_method": "z"
+  },
+  {
+   "date": "2026-08-20",
+   "change": "the pool is referred: the two trials do not share an endpoint",
+   "values_moved": "NONE -- the estimate is unchanged and is not withdrawn here",
+   "what_changed": "Both registrations were READ and written onto the object. EMPA-REG counts non-fatal stroke of any type; DECLARE counts ischaemic stroke only. DECLARE also registers a SECOND co-primary this review neither used nor recorded.",
+   "why": "A composite that includes haemorrhagic stroke and one that excludes it are not the same endpoint, and the object's own outcome name already said 'Multiple trial-declared outcomes' with four titles concatenated."
   }
  ],
  "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed."

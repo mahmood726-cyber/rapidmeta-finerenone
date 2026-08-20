@@ -3170,6 +3170,51 @@ supplying a default, 0 bare.** The zero states its own denominator — *looked a
 could not match. That is class 52 applied to this sweep's own clean result.
 
 
+## Class 65 — A CORRECT OBJECT, A CORRECT REFUSAL, AND NO CONSUMER OBLIGED TO READ IT
+
+Every other defect found on 2026-08-20 was an instrument or a projector saying something
+**wrong**. This one is different in kind: **the object is right, the fields are right, the
+refusal is right, and nothing is required to consult them.**
+
+`sglt2-mace-cvot-review` publishes a pooled odds ratio of **0.9074 (0.831 to 0.9908)**. Beside
+it, on the same object:
+
+| field | value |
+|---|---|
+| `outcomes[0].name` | **"Multiple trial-declared outcomes:"** followed by four different registered titles concatenated with pipes |
+| `estimand_established` | **false** |
+| `estimand_id_means` | "not recorded on the page this object was extracted from" |
+| `pool_uniformity.effect_measure` | "NOT ESTABLISHED" |
+
+**Four fields, all honest, all saying the same thing, and the page published anyway.**
+
+> **A declaration nobody is required to consult is documentation, and documentation has
+> failed as a control every time this project has tested it.**
+
+That is the same law as the heredoc rule — breached nine times by an author who had read it —
+**arriving in the DATA layer rather than the code layer.** `estimand_established: false` is
+breached by a renderer that was never told to ask.
+
+### Measured
+
+`scripts/audit_published_over_unestablished_estimand.py`, across 155 objects and the **34**
+pooled estimates currently published with a point set and not withdrawn:
+
+| `estimand_established` | count | meaning |
+|---|---|---|
+| TRUE | **7** | established and published |
+| **FALSE** | **2** | **the object looked and said no, and a reader meets the number anyway** |
+| NULL | 14 | never checked |
+| field ABSENT | 11 | the question was never posed |
+
+**Never summed.** A question nobody asked and a question answered NO are different states,
+and the objects' own `estimand_established_means` says so explicitly.
+
+The two FALSE are `rosuvastatin-auto-full-review` and `sglt2-mace-cvot-review` — **both
+referred tonight, for exactly this.** So the firing set is small and known; the structural
+gap is that nothing made it small.
+
+
 ## OPEN — carried, not fixed
 
 ### O1. A check that reads a different working tree than the one being built
