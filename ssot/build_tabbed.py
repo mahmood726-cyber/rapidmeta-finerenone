@@ -77,6 +77,22 @@ def _v(x, absent="—", limit=None):
     """
     if x is None:
         return absent
+    # A CONTAINER IS NOT A VALUE A READER CAN READ, and `str()` on one produces Python
+    # source. This function's own docstring above records `str()` IS THE BUG for the None
+    # case; the same str() put
+    #
+    #     {'domain': 'risk_of_bias', 'levels': -1, 'from': 'HIGH', 'to': 'MODERATE'}
+    #
+    # into a GRADE table cell and 738 screening-limb dicts onto
+    # EARLY_RHYTHM_CONTROL_AF_REVIEW.html. The lesson was learnt for one type and not for
+    # the type beside it. Keys and values are all printed -- nothing is summarised away.
+    if isinstance(x, dict):
+        t = ", ".join("%s %s" % (str(k).replace("_", " "), _v(v, absent=absent))
+                      for k, v in x.items()) or absent
+        return t if t == absent else t
+    if isinstance(x, (list, tuple, set)):
+        items = [_v(i, absent=absent) for i in x]
+        return "; ".join(i for i in items if i) or absent
     t = str(x)
     if limit:
         t = t[:limit]

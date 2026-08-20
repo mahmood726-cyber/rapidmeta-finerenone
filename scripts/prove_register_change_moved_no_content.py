@@ -38,6 +38,7 @@ from lint_paper_reads_as_prose import panel_text, FIELD_PATH
 
 NUM = re.compile(r"(?<![\w.])\d+\.\d{1,4}(?![\w])")
 NCT = re.compile(r"\bNCT\d{8}\b")
+R_OUTPUT = re.compile(r"\[R version|Random-Effects Model|\brma\(")
 
 
 def panel_raw(raw):
@@ -64,10 +65,26 @@ def verbatim_blocks(raw):
     have hidden exactly the defect the check had just caught.
     """
     raw = re.sub(r"(?is)<sup class=.prov-ref.[^>]*>.*?</sup>", "", raw)
+    # A REFUSAL IS NOT R OUTPUT, AND COMPARING IT AS THOUGH IT WERE FAILED SIX PAGES.
+    # On a topic with no stored model output the `quoted verbatim` section holds a REFUSAL,
+    # and that refusal legitimately changed in this pass: it used to end "-- no field:
+    # results.by_outcome.*.r_output.verbatim" inline, and the field moved to the provenance
+    # list. The check called that a changed verbatim block and restored six pages that were
+    # fine. Refusal blocks are removed, and only sections that actually contain R output
+    # are compared -- a section with none has nothing to compare, which is different from a
+    # section that matches.
+    raw = re.sub(r"(?is)<div class=.absent-state.[^>]*>.*?</div>", " ", raw)
     secs, _a = panel_text(raw)
     if secs is None:
         return {}
-    return dict((h, t) for h, t in secs if "quoted verbatim" in h.lower())
+    out = {}
+    for h, t in secs:
+        if "quoted verbatim" not in h.lower():
+            continue
+        if not re.search(R_OUTPUT, t):
+            continue
+        out[h] = t
+    return out
 
 
 def flow_paths(raw):

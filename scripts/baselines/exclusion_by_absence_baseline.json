@@ -125,6 +125,7 @@
   "scripts/test_manuscript_guard.py:70",
   "scripts/withdrawal_proportionality_sweep.py:100",
   "scripts/withdrawal_proportionality_sweep.py:89",
+  "ssot/apply_container_repr_2026_08_20.py:160",
   "ssot/apply_contrast_gap_2026_08_20.py:127",
   "ssot/build_to_standard.py:1079",
   "ssot/corpus_reconcile.py:347",
@@ -133,6 +134,7 @@
  ],
  "baselined_with_reason": {
   "scripts/lint_arm_roles_contradict_the_object.py:166": "`if not arms` IS the property meant. A trial with no arms is UNREAD, and the guard increments trials_unread before continuing rather than dropping the row silently -- the absence is counted and reported as a third state, which is the opposite of the reading-order rollout's defect.",
-  "scripts/lint_arm_roles_contradict_the_object.py:195": "`if not named` skips a trial-name segment containing no classifiable word, e.g. 'vs 2'. Nothing is excluded from a fix: the row continues to checks A and C, and only this one comparison is unavailable."
+  "scripts/lint_arm_roles_contradict_the_object.py:195": "`if not named` skips a trial-name segment containing no classifiable word, e.g. 'vs 2'. Nothing is excluded from a fix: the row continues to checks A and C, and only this one comparison is unavailable.",
+  "ssot/apply_container_repr_2026_08_20.py:160": "`if not DICT_IN_TEXT.search(raw): continue` -- the absence IS the property meant. An object with no embedded dict repr has nothing for this pass to repair, and skipping it is not an exclusion from a fix, it is the fix having no work there. The repaired count is reported per object, so a skipped object is visible as a zero rather than as a silence."
  }
 }
