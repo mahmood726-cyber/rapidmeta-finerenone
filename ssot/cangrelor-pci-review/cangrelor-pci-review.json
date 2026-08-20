@@ -883,5 +883,48 @@
   "sources": "Every endpoint definition AND every event count on this page is read from the trial's own ClinicalTrials.gov results record and carries a resolvable link. No journal sentence is quoted."
  },
  "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over.",
- "topic_state": "WITHDRAWAL SUPERSEDED -- corrected pool built, k=2, registry-sourced"
+ "topic_state": "WITHDRAWAL SUPERSEDED -- corrected pool built, k=2, registry-sourced",
+ "published_comparison": {
+  "_why": "P46 limb 3. A prespecified PATIENT-LEVEL pooled analysis of all three CHAMPION trials exists and DISAGREES with this object on the three-component composite, in a direction that changes the conclusion.",
+  "_how_identified": "PubMed E-utilities, executed 2026-08-20. Query, counts and per-record disposition in ssot/cangrelor-pci-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json.",
+  "denominator": {
+   "matched": 99,
+   "retrieved": 99,
+   "read": 99,
+   "appraised": 1,
+   "not_returned_by_the_tool": 0,
+   "_house_form": "matched / retrieved / read / appraised / not returned -- P53. The query matched 99 and listed all 99, so nothing was lost to the tool. 66 records were flagged by title; ONE was appraised against its abstract and 65 were NOT READ."
+  },
+  "identity_basis": "All three contributing trials are keyed to verified registrations on this object -- NCT00305162, NCT00385138, NCT01156571 -- and the appraised analysis NAMES ALL THREE (CHAMPION-PCI, CHAMPION-PLATFORM, CHAMPION-PHOENIX) in its abstract. The trial-set match is READ.",
+  "reviews": [
+   {
+    "pmid": "24011551",
+    "year": 2013,
+    "journal": "Lancet",
+    "title": "Effect of cangrelor on periprocedural outcomes in percutaneous coronary interventions: a pooled analysis of patient-level data",
+    "trial_set": [
+     "CHAMPION-PCI",
+     "CHAMPION-PLATFORM",
+     "CHAMPION-PHOENIX"
+    ],
+    "trial_set_basis": "ALL THREE NAMED in the abstract.",
+    "design": "PRESPECIFIED pooled analysis of PATIENT-LEVEL data, k = 3",
+    "n_pooled": 24910,
+    "outcome_pooled": "primary: death, myocardial infarction, ischaemia-driven revascularisation or stent thrombosis at 48 h. Secondary TRIPLE composite: all-cause death, myocardial infarction or ischaemia-driven revascularisation at 48 h.",
+    "estimate_quoted": "primary composite OR 0.81 (0.71 to 0.91), p = 0.0007; secondary triple composite OR 0.81 (0.71 to 0.92), p = 0.0014; stent thrombosis OR 0.59 (0.43 to 0.80)",
+    "comparable_to_ours": true,
+    "agreement": "DISAGREES. Their triple composite is OR 0.81 (0.71 to 0.92) on THREE trials; this object's corrected three-component composite is 0.9646 (0.8132 to 1.1442) on TWO. THE PUBLISHED INTERVAL EXCLUDES NO DIFFERENCE AND OURS DOES NOT -- opposite conclusions, not a rounding gap. The k difference is stated first because a dropped trial is the likeliest cause."
+   }
+  ],
+  "THE_FINDING_OF_THIS_COMPARISON_2026_08_20": "A MATERIAL DISAGREEMENT, AND IT IS NOT A CLASS-76 INSTANCE. Class 76 is about the published work choosing a better-defined target; here it chose the SAME target and got a different answer with MORE data. Steg 2013 pooled all three CHAMPION trials at patient level to OR 0.81 (0.71 to 0.92) on the triple composite; this object pools TWO to 0.9646 (0.8132 to 1.1442). One interval excludes no difference and the other does not. SEPARATELY, THIS OBJECT'S DECLARED PRIMARY OUTCOME CARRIES NO POOLED ESTIMATE AT ALL despite k = 3. Which trial is absent from the three-component pool, and whether 0.9646 should stand, is a content decision and is not made here."
+ },
+ "display_change_announced": [
+  {
+   "date": "2026-08-20",
+   "change": "published comparison added with a denominator (P46 limb 3)",
+   "values_moved": "NONE",
+   "what_changed": "99 matched / 99 retrieved / 99 read / 1 appraised / 0 lost. Steg 2013 (PMID 24011551), a prespecified patient-level pool of ALL THREE CHAMPION trials, reports OR 0.81 (0.71-0.92) on the triple composite against this object's 0.9646 (0.8132-1.1442) on k=2. The intervals disagree on whether no difference is excluded.",
+   "why": "The limb was ABSENT: no denominator and no stated reason."
+  }
+ ]
 }

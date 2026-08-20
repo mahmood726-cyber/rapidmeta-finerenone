@@ -524,7 +524,47 @@
    "what_changed": "This pool was fitted with DerSimonian-Laird. It is refitted with REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The old fit was reproduced against the stored value FIRST (REPRODUCED) and only then replaced. Stored values are also rounded at storage -- effects to 4 decimals, tau-squared and Q to 6, I-squared to 4 -- because several of these pools carried sixteen significant figures on a two- or three-study pool.",
    "why": "The corpus held two estimator conventions at once: 23 pools REML, 9 DerSimonian-Laird, 1 Paule-Mandel. Handbook 6.5 s10.10.4.4 records REML as RevMan's own current default and this project's statistics rules already refused DerSimonian-Laird below k=10, which every pool in this corpus is. The decision was taken on 2026-08-18 and not applied; applying it to some pools and not others would have been worse than either convention.",
    "interval_method": "z"
+  },
+  {
+   "date": "2026-08-20",
+   "change": "published comparison added with a denominator (P46 limb 3)",
+   "values_moved": "NONE",
+   "what_changed": "252 matched / 252 retrieved / 252 read / 1 appraised / 0 lost to the tool. FIDELITY (PMID 35023547), a prespecified IPD pooled analysis of the same two trials, reports HR 0.86 (0.78-0.95) against this object's 0.8655 (0.7877-0.951). They agree.",
+   "why": "The limb was ABSENT: no denominator and no stated reason."
   }
  ],
- "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed."
+ "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",
+ "published_comparison": {
+  "_why": "P46 limb 3. A prespecified INDIVIDUAL PATIENT-LEVEL pooled analysis of exactly these two trials exists, and this object's aggregate-data pool reproduces it.",
+  "_how_identified": "PubMed E-utilities, executed 2026-08-20. Query, counts and per-record disposition in ssot/finerenone-cv/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json.",
+  "denominator": {
+   "matched": 252,
+   "retrieved": 252,
+   "read": 252,
+   "appraised": 1,
+   "not_returned_by_the_tool": 0,
+   "_house_form": "matched / retrieved / read / appraised / not returned -- P53. The fifth is the instrument's own limit and is reported even when it is zero, because a denominator that hides its truncation is quoted as coverage. Here the query matched 252 and the request listed all 252, so nothing was lost to the tool. 48 records were flagged by title as FIDELITY-related; ONE was appraised against its abstract and the other 47 were NOT READ."
+  },
+  "identity_basis": "Both contributing trials are keyed to verified registrations -- NCT02540993 (FIGARO-DKD) and NCT02545049 (FIDELIO-DKD) -- and the appraised analysis names both trials in its author line ('FIDELIO-DKD and FIGARO-DKD investigators') and its abstract. The trial-set match is READ, not inferred from arithmetic.",
+  "reviews": [
+   {
+    "pmid": "35023547",
+    "year": 2022,
+    "journal": "European Heart Journal",
+    "title": "Cardiovascular and kidney outcomes with finerenone in patients with type 2 diabetes and chronic kidney disease: the FIDELITY pooled analysis",
+    "trial_set": [
+     "NCT02545049 (FIDELIO-DKD)",
+     "NCT02540993 (FIGARO-DKD)"
+    ],
+    "trial_set_basis": "NAMED in the abstract and the group authorship line.",
+    "design": "INDIVIDUAL PATIENT-LEVEL, PRESPECIFIED pooled analysis -- a stronger design than this object's aggregate-data pool",
+    "n_pooled": 13026,
+    "outcome_pooled": "composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke or hospitalisation for heart failure -- THE SAME COMPOSITE THIS OBJECT POOLS",
+    "estimate_quoted": "hazard ratio 0.86, 95% CI 0.78 to 0.95, P = 0.0018",
+    "comparable_to_ours": true,
+    "agreement": "AGREES. Published 0.86 (0.78 to 0.95); this object 0.8655 (0.7877 to 0.951). The two agree to the precision either is reported at, from different data levels -- individual patient records against published aggregates."
+   }
+  ],
+  "THE_FINDING_OF_THIS_COMPARISON_2026_08_20": "THIS IS THE CONTROL CASE FOR CLASS 76 AND IT WAS PREDICTED BEFORE THE SCREEN RAN. Four topics have now been found where the published synthesis chose a better-defined target than this corpus did. Here it did not: an aggregate-data pool of two trials REPRODUCES a prespecified individual-patient-data analysis of the same two trials to three significant figures. The pool was feasible -- one drug, one programme, complementary populations by design, pooling prespecified by the trialists -- and where the pool is feasible the method holds. THAT MAKES CLASS 76 A FINDING ABOUT FEASIBILITY RATHER THAN ABOUT ARITHMETIC, and it is the reason a pattern needs a case where it does not fire."
+ }
 }

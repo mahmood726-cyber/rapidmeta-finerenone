@@ -136,6 +136,53 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 
 ### 1.24.0-2026-08-20
 
+**P52 — THIS PIPELINE HAS NO FEASIBILITY STEP. IT POOLS, THEN ASKS WHETHER IT SHOULD HAVE.**
+
+Stated as a MISSING STEP rather than as an observation about particular topics, because it
+is a property of the pipeline and not of the four objects that revealed it.
+
+> **They asked whether the pool should exist before computing one; we computed one and
+> asked afterwards.**
+
+Registry class 76 records four topics where, given the same or overlapping trials, published
+work chose a more defensible target than this corpus did. **In three of the four, the
+feasibility assessment WAS the study and the refusal WAS the published result** — Samjoo
+2020 assessed an ATTR-PN network and declined it; Kluger 2018 reviewed three SGLT2 CVOTs and
+declined to pool them; Joseph 2022 harmonised the outcome before pooling. Our pipeline has
+no equivalent stage: `poolable_reason` is written *after* a pooled estimate exists, and on
+converted topics it records that a pool was *found*, not that one was *justified*.
+
+**What a feasibility step would ask, before any estimate is computed:** do the trials share
+an eligible population, is the outcome defined the same way in each, and is the contrast the
+same contrast? Each is answerable from the registrations this project already fetches.
+
+**A TESTABLE PREDICTION, RECORDED BEFORE THE WORK, so that class 76 predicts something
+rather than describing four cases.** Twelve comparison limbs remain absent. Prediction: **4
+of 12 will yield a class-76 instance**, and named — `malaria-vaccines` (pools RTS,S with
+R21, two different vaccines), `incretin-hfpef-review` (two different drugs),
+`rotavirus-vaccine-africa-review` (three different vaccines), and one of the two PrEP topics.
+Predicted **not** to yield one: `finerenone-cv` and `cangrelor-pci-review`, both pooling
+same-drug trials from a single programme, where a published pooled analysis of exactly those
+trials is likely to exist and agree.
+
+**The four hits so far are 4 of 4 and that is NOT the base rate** — every one was a topic
+already flagged for a mixed estimand, so they were selected for the property being measured.
+
+**P53 — A COMPARISON DENOMINATOR REPORTS THE INSTRUMENT'S LIMIT, NOT JUST THE POPULATION.**
+
+The house form for every published-synthesis screen, in this order:
+
+| **matched** | what the query returned as a count |
+| **retrieved** | how many identifiers the request actually listed |
+| **read** | how many summaries were fetched and parsed |
+| **appraised** | how many were read against their abstracts |
+| **not returned** | anything the tool could not deliver, **named separately** |
+
+The fifth row is the one that gets dropped. On `sglt2-mace-cvot-review` the query matched
+**313** and the request listed **300**: thirteen records were **never seen**, and that is a
+limit of the screen rather than of the literature. **A denominator that hides its own
+truncation is worse than no denominator**, because it is quoted as coverage.
+
 **P51 — EVERY CHECK IN THIS PROJECT TESTS THE POINT. NOTHING TESTS SPREAD OR PRECISION.**
 
 Stated as a gap, the way P47's failing case is stated, because anyone quoting an I-squared
