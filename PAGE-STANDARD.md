@@ -344,6 +344,37 @@ contributing contrasts are not of one kind, the object says so and the pool is r
 telling them, and the flag is true. `estimand_established_means` gains a sentence saying
 what it does not cover, on every object that carries it.
 
+**A THIRD THING THE FLAG DOES NOT COVER, AND IT BELONGS IN THE SAME SENTENCE RATHER THAN IN
+A SECOND PROPOSAL: THE ANALYSIS POPULATION.**
+
+The flag certifies that the trials measure the same *quantity*. It says nothing about the
+**denominator population that quantity was measured in** — and in infection trials that
+population is named inside the registered primary-outcome text and is not interchangeable.
+`CE` (clinically evaluable) excludes protocol violators and indeterminate responses; `ME`
+additionally excludes patients without a qualifying pathogen. **Both are selected subsets of
+ITT that systematically yield higher cure rates**, so a ratio computed in one is not an
+estimate of the same thing as a ratio computed in another.
+
+Measured by `scripts/audit_analysis_population_estimand.py` across **403 trial rows, 402
+registrations read**:
+
+| pooled outcomes carrying a point | **34** |
+|---|---|
+| cross an analysis-population boundary | **2** — `ceftaroline` (CE with MITTE), `tigecycline-ciai` (CE with ME and mITT) |
+| name exactly one population | 2 |
+| **name NONE — the registered text does not say** | **30** |
+
+> **The 30 are not clean. They are unexamined**, and the sweep cannot distinguish
+> *consistent* from *unknown*. A pooled estimate whose contributing trials do not state which
+> population they analysed has an estimand that is unestablished in a way no field currently
+> flags — including `estimand_established`, which may be `true` on every one of them.
+
+So the sentence `estimand_established_means` gains covers **three** exclusions, not two: it
+certifies the measurement, **not** the contrast, **not** the analysis population. Same field,
+same disclosure, one decision to make.
+
+*Not deployed. This is the proposal, extended.*
+
 **The gap generalises, and the sweep that measured it is
 `scripts/audit_mixed_contrast_pools.py`.** Across **32 pooled numbers in 26 topics** — every
 block with k≥2 publishing a point that is not withdrawn — **2 mix kinds of comparison**:

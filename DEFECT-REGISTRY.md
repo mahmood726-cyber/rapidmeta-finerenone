@@ -3852,7 +3852,73 @@ Twelve comparison limbs, four predicted to yield a class-76 instance, **five tes
 > quoted as though four cases established a law.
 
 
+## Class 80 — A FIELD THAT WOULD MAKE A TRUE-SOUNDING CLAIM ABOUT A PROCEDURE THAT DID NOT HAPPEN MUST STAY ABSENT
+
+`gepotidacin` and `lefamulin` received full RoB 2 assessments per result on 2026-08-21, from
+one assessor. The schema has a slot — `rob2.assessors` — and `lint_method_claim_has_a_field`
+resolves the two-assessor claim against it. **Writing it would have cleared the check.**
+
+**It was left absent, and that is the rule:**
+
+> **A field whose presence would assert a procedure that did not occur must stay empty, even
+> when the schema invites it, even when filling it clears a check, and even when the value
+> would be literally true of *something* that happened.**
+
+`rob2.assessors` does not mean "somebody assessed this". It means **the two-assessor
+procedure was followed**, because that is what the manuscript sentence it feeds says. One
+assessor recorded in a two-assessor field is the **un-tokened method claim in its live
+form** — the thing this project spent a night refusing to inherit from ARNI's *"Two assessors
+worked independently, drawn from different model families."*
+
+**The difference between avoiding that sentence and earning it is the whole point.** ARNI
+earned it: two entries, `openai / GPT-5` and `google / Gemini 3.1 Pro`, both flagged
+`is_object_assembler: false`. Until a second family has assessed these results blind, the
+field stays absent and each object carries `ONE_ASSESSOR_ONLY` saying so in its own words.
+
+**The second-assessor queue is now SIX topics:** `empagliflozin-hf`, `icosapent-lipid`,
+`inclisiran-lipid-kidney`, `bococizumab-lipid` from 2026-08-20, plus `gepotidacin` and
+`lefamulin`.
+
+
+## Class 81 — THE MODEL-OUTPUT LIMB IS EVIDENCE, NOT BOOKKEEPING
+
+Both closures on 2026-08-21 needed a fit that did not exist. **Running it produced a finding
+the stored value concealed, in both cases and in opposite directions:**
+
+| topic | stored | what the fit showed |
+|---|---|---|
+| `gepotidacin` | RR 1.2007 (0.9668–1.4912) | τ² 0.0172, **I² 70.48%** — the two trials disagree in *conclusion*: 1.0762 (0.9138–1.2676) includes no difference, 1.3426 (1.1334–1.5904) excludes it |
+| `lefamulin` | RR 0.9884 (0.9530–1.0250) | **τ² exactly 0**, Q 0.7316 on 1 df, p 0.3924 — the two trials agree closely |
+
+Both refits reproduced the stored point to four decimal places, so **neither finding was an
+error in the number** — they were properties of the pool that the point estimate cannot
+express and that nothing on the page said.
+
+> **P46 limb 4 has now twice paid for itself in evidence rather than in compliance.**
+
+**And "no R output is stored" is a fact about our pipeline, not about the evidence**, so a
+refusal citing it is provenance-shaped and does not discharge. Where a fit is possible, fit;
+where k cannot support the model the page claims, say so **in the evidence's terms** — *two
+trials cannot inform a between-study variance* is a statement about the trials, not about us.
+
+
 ## OPEN — carried, not fixed
+
+### O0a. `NCT00081744` — a trial contributing to two published pools with no registered primary outcome
+
+**On `tigecycline-ciai` and on `tigecycline-infection`, by name.**
+
+The registration carries **no primary outcome at all**. Not a mismatch between what was
+registered and what was extracted — **there is nothing to check the extracted result
+against.** The estimand for that row cannot be established at any level.
+
+Both topics publish a pooled estimate to which it contributes: `tigecycline-ciai`'s
+`cure_toc_me` is RR 0.9351 (0.8885–0.9842) on k=3.
+
+**Stated as UNVERIFIABLE, not as wrong.** If a reader asks what that row's result is checked
+against, the honest answer is nothing. Two other registrations are in the same state —
+`NCT00034645` and `NCT00044486` on `posaconazole-fungal` — making **3 distinct registrations
+across 4 topic-rows** of 402 read.
 
 ### O0. `cangrelor-pci-review` — a withdrawal note that overstates its own defect
 
