@@ -1,0 +1,381 @@
+"""Close sotagliflozin-hf's two open P46 limbs: the quoted model output, and RoB per result.
+
+Scored by scripts/p46_queue.py before this ran:
+
+    [ABSENT ] rob_per_result           no assessment and no stated reason
+    [HELD   ] grade_per_pool           2 of 2 pooled outcomes
+    [HELD   ] comparison_denominator   7 checks, 4 confirmed, 0 errors, 1 absent, 2 unresolved
+    [ABSENT ] model_output_verbatim    no quoted output and no stated reason
+
+BOTH GAPS ARE PRODUCIBLE, so both are produced. A refusal is only correct while the
+artefact cannot be produced, and P46's own wording requires a refusal to name an obstacle
+IN THE EVIDENCE -- neither of these had one. They were blanks.
+
+1. MODEL OUTPUT. ssot/sotagliflozin_pools.R refits both pools from the object's own
+   per-trial log points and log standard errors and REFUSES to write anything unless the
+   fit reproduces the served point, interval, tau-squared, Q and I-squared. Both
+   reproduced exactly. It also checks that the total-event pool sits further from 1 than
+   the first-event pool on the same two trials, which is the ordering a crossed estimand
+   would fail.
+
+2. RISK OF BIAS, PER RESULT, RoB 2, Handbook 6.5 chapter 8. Four results: two outcomes on
+   two trials. EVERY JUDGEMENT CITES A FIELD ON THIS OBJECT, and the domain that can
+   actually be judged from what we hold is domain 5.
+
+   The object records the full registered outcome list for both trials, read from
+   ClinicalTrials.gov on 2026-08-18 and stamped `all_ranks_captured_2026_08_18`. Handbook
+   8.7 says the method for domain 5 is to "attempt to retrieve the pre-specified analysis
+   intentions for each trial", which "allows for the identification of any outcome
+   measures or analyses that have been omitted from, or added to, the results report, post
+   hoc". THE REGISTRY ENUMERATION IS THAT RETRIEVAL, so domain 5 is judged rather than
+   defaulted -- and it separates the four results from each other:
+
+     * SCORED's primary endpoint WAS CHANGED DURING THE TRIAL. The object carries the
+       sentence verbatim in the trial's own source_quotes. Both SCORED results are HIGH.
+     * SOLOIST-WHF's total-event result IS its registered primary, word for word.
+     * NEITHER trial registered a time-to-FIRST-event analysis. Both hfcv_first values
+       come from the FDA integrated review, where SOLOIST's is described in the object's
+       own quote as "An analysis was performed on the primary endpoint using time to
+       first event analysis" -- an analysis ADDED to the results report, which is the
+       exact wording of 8.7.
+
+   The other four domains are NO_INFORMATION, and that is a statement about what we
+   reached rather than about the trials. Both are large, double-blind, placebo-controlled
+   phase 3 programmes; nothing here suggests they were badly run. We have not retrieved
+   their protocols or statistical analysis plans, and RoB 2's signalling questions for
+   domains 1 to 3 cannot be answered from a registration and an abstract. A rating of
+   SOME CONCERNS with no explanation reads as a judgement against the trial; NO
+   INFORMATION with a stated reason does not.
+
+   ONE EXCEPTION, and it is evidence rather than default. Domain 4 on SOLOIST-WHF's
+   first-event result is SOME CONCERNS because THIS OBJECT ALREADY HOLDS THE MEASUREMENT
+   BEING DIFFERENT: `parallel_ascertainment` records the same estimand under centrally
+   adjudicated events as 0.74 (0.57 to 0.95) against the 0.69 (0.56 to 0.85) the pool
+   uses. That is not a suspicion about ascertainment, it is the size of it.
+
+   THE CEILING IS STATED. No result in this review can reach LOW overall on the evidence
+   we can reach, because domains 1 to 3 are NO_INFORMATION on all four. What would change
+   it is named.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TOPIC = "sotagliflozin-hf"
+TODAY = "2026-08-20"
+OBJ = os.path.join(REPO, "ssot", TOPIC, TOPIC + ".json")
+FITS = os.path.join(REPO, "evidence", "2026-08-20-sotagliflozin", "fits.json")
+
+HANDBOOK = ("Higgins JPT, Savovic J, Page MJ, Elbers RG, Sterne JAC. Chapter 8: Assessing "
+            "risk of bias in a randomized trial. Cochrane Handbook for Systematic Reviews "
+            "of Interventions version 6.5, 2024.")
+
+NOINFO = ("NO_INFORMATION", "RoB 2's signalling questions for this domain cannot be "
+          "answered from a trial registration and a published abstract, and this review "
+          "has not retrieved either trial's protocol or statistical analysis plan. This "
+          "records WHAT WE REACHED, not a judgement about how the trial was run.")
+
+
+def dom(judgement, reason, evidence):
+    return {"judgement": judgement, "reason": reason, "evidence_on_this_object": evidence}
+
+
+def noinfo(field):
+    return dom(NOINFO[0], NOINFO[1], field)
+
+
+TRIALS = {
+    "NCT03521934": "SOLOIST-WHF",
+    "NCT03315143": "SCORED",
+}
+
+# ---------------------------------------------------------------------------------------
+# Domain 5, the one the evidence on this object can actually decide. Each entry states the
+# judgement, why, and the exact path whose content supports it.
+D5 = {
+    ("hfcv_total", "NCT03521934"): dom(
+        "LOW",
+        "THE POOLED ESTIMAND IS THIS TRIAL'S REGISTERED PRIMARY, WORD FOR WORD. The "
+        "registry lists exactly one primary outcome -- 'Number of Total Occurrences of "
+        "Cardiovascular (CV) Death, Hospitalizations for Heart Failure (HHF) and Urgent "
+        "Visits for Heart Failure (HF)' -- and that is the quantity this pool uses. There "
+        "is no set of multiple estimates from which this one could have been selected: it "
+        "is the pre-specified one. The full registered outcome list was read, so this is a "
+        "retrieval of the pre-specified analysis intentions and not an inference from the "
+        "publication's own framing.",
+        "inputs.trials[id=soloist-whf].registered_primaries; "
+        "inputs.trials[id=soloist-whf].by_outcome.hfcv_total.outcome_definition; "
+        "all_ranks_captured_2026_08_18"),
+    ("hfcv_first", "NCT03521934"): dom(
+        "HIGH",
+        "THIS ANALYSIS WAS NOT REGISTERED. The trial registered a TOTAL-occurrence "
+        "primary; a time-to-first-event analysis appears nowhere in its registered "
+        "primaries, secondaries or other outcomes. The value used here comes from the FDA "
+        "integrated review, whose own words -- quoted on this object -- are 'An analysis "
+        "was performed on the primary endpoint using time to first event analysis'. "
+        "Handbook 8.7 exists for exactly this: an analysis ADDED to the results report "
+        "post hoc, from among multiple estimates the trialists computed. Rated HIGH, and "
+        "the trial is not criticised for computing it -- the risk attaches to OUR use of a "
+        "selected result, not to their having produced one.",
+        "inputs.trials[id=soloist-whf].registered_primaries, .registered_secondaries, "
+        ".registered_other_outcomes; "
+        "inputs.trials[id=soloist-whf].by_outcome.hfcv_first.source_tier = regulator_fda; "
+        "inputs.trials[id=soloist-whf].by_outcome.hfcv_first.provenance.source_quotes"),
+    ("hfcv_total", "NCT03315143"): dom(
+        "HIGH",
+        "THE PRIMARY ENDPOINT WAS CHANGED DURING THE TRIAL, and this object carries the "
+        "sentence verbatim: 'The primary end point was changed during the trial to the "
+        "composite of the total number of deaths from cardiovascular causes, "
+        "hospitalizations for heart failure...'. The estimand this pool uses IS the "
+        "changed endpoint. Handbook 8.7 covers bias arising when 'the reported result is "
+        "selected (based on its direction, magnitude or statistical significance) from "
+        "among multiple intervention effect estimates'; a mid-trial change of the primary "
+        "is that situation at its clearest, and nothing available to us establishes that "
+        "the change was made blind to accumulating results. Rated HIGH. NOT EXCLUDED: "
+        "Handbook chapter 3 makes registration status no part of eligibility, and this "
+        "corpus settled the same question on 2026-08-18 for ANSWER-HF, deciding that an "
+        "endpoint problem is graded rather than used to remove a trial -- because a wrong "
+        "exclusion publishes a result we created, while a wrong inclusion leaves the "
+        "evidence intact.",
+        "inputs.trials[id=scored].design; "
+        "inputs.trials[id=scored].by_outcome.hfcv_total.provenance.source_quotes; "
+        "DECISIONS-COCHRANE-2026-08-18.md section 2"),
+    ("hfcv_first", "NCT03315143"): dom(
+        "HIGH",
+        "BOTH PROBLEMS AT ONCE, and they are independent. The trial's primary endpoint was "
+        "changed during the trial, and the first-event analysis used here was not "
+        "registered at all -- it comes from the FDA integrated review rather than from any "
+        "registered outcome. Either alone would rate HIGH under Handbook 8.7; together "
+        "they are the least secure of the four results in this review, and a reader should "
+        "know that the pool's more conservative estimand rests on its weaker provenance.",
+        "inputs.trials[id=scored].design; "
+        "inputs.trials[id=scored].registered_primaries, .registered_secondaries; "
+        "inputs.trials[id=scored].by_outcome.hfcv_first.source_tier = regulator_fda"),
+}
+
+D4 = {
+    ("hfcv_first", "NCT03521934"): dom(
+        "SOME_CONCERNS",
+        "THIS OBJECT ALREADY HOLDS THE MEASUREMENT COMING OUT DIFFERENTLY. Its "
+        "`parallel_ascertainment` block records the SAME estimand on the SAME trial under "
+        "centrally adjudicated events as 0.74 (0.57 to 0.95), against the 0.69 (0.56 to "
+        "0.85) this pool uses. That is not a suspicion about how outcomes were "
+        "ascertained; it is the size of the difference, measured. Both intervals exclude "
+        "1 and the direction is unchanged, so the concern is about precision and about "
+        "which ascertainment a reader is being shown -- which is why the object stores "
+        "the adjudicated value beside the used one rather than instead of it. SOME "
+        "CONCERNS rather than HIGH: outcome assessors were blinded by the trial's "
+        "double-blind design against a matching placebo, and the two ascertainments agree "
+        "on direction and on significance.",
+        "inputs.trials[id=soloist-whf].by_outcome.hfcv_first.parallel_ascertainment; "
+        "inputs.trials[id=soloist-whf].design"),
+}
+
+
+def build_rob():
+    byo = {}
+    for oid in ("hfcv_total", "hfcv_first"):
+        byo[oid] = {}
+        for nct, name in TRIALS.items():
+            d5 = D5[(oid, nct)]
+            d4 = D4.get((oid, nct)) or noinfo(
+                "inputs.trials[nct=%s].design records 'double-blind, randomised one to one "
+                "against placebo', which bears on blinding of outcome assessors, but the "
+                "remaining signalling questions for this domain need the protocol." % nct)
+            domains = {
+                "D1_randomisation": noinfo(
+                    "inputs.trials[nct=%s].design records 'randomised one to one against "
+                    "placebo' and nothing about sequence generation or allocation "
+                    "concealment." % nct),
+                "D2_deviations": noinfo(
+                    "inputs.trials[nct=%s].design records a double-blind design against a "
+                    "matching placebo, and .by_outcome.%s.analysed_scope records that the "
+                    "analysis set is all randomised patients -- but whether deviations "
+                    "arose from the trial context, and how they were handled, needs the "
+                    "protocol." % (nct, oid)),
+                "D3_missing_outcome_data": noinfo(
+                    "BOTH TRIALS WERE STOPPED EARLY because the sponsor withdrew funding "
+                    "(inputs.trials[nct=%s].design). Early termination bears on precision "
+                    "and is rated there, under GRADE imprecision; whether outcome data "
+                    "were MISSING for randomised participants, and whether missingness "
+                    "depended on the true value, is a different question and this review "
+                    "has not reached the completeness-of-follow-up figures that answer "
+                    "it." % nct),
+                "D4_measurement": d4,
+                "D5_selection_of_reported_result": d5,
+            }
+            judgements = [v["judgement"] for v in domains.values()]
+            if "HIGH" in judgements:
+                overall, why = "HIGH", (
+                    "RoB 2's algorithm takes the overall judgement to HIGH when any domain "
+                    "is HIGH. Domain 5 is HIGH here, and the reason is stated above.")
+            elif "SOME_CONCERNS" in judgements or "NO_INFORMATION" in judgements:
+                overall, why = "SOME_CONCERNS", (
+                    "No domain is HIGH, and domains 1 to 3 are NO_INFORMATION. A result "
+                    "cannot be LOW overall while three of five domains are unjudged, so "
+                    "the overall judgement is SOME CONCERNS -- carried by what we have not "
+                    "reached rather than by anything found.")
+            else:
+                overall, why = "LOW", "every domain LOW"
+            byo[oid][nct] = {
+                "trial": TRIALS[nct],
+                "nct": nct,
+                "result_assessed": ("the hazard ratio this trial contributes to the %s pool"
+                                    % oid),
+                "domains": domains,
+                "overall": overall,
+                "overall_reason": why,
+            }
+    return {
+        "tool": "RoB 2 (Cochrane risk-of-bias tool for randomized trials)",
+        "version": "22 August 2019 version, as reproduced in the Cochrane Handbook",
+        "handbook": HANDBOOK,
+        "assessed_utc": TODAY,
+        "unit_of_assessment": (
+            "A RESULT, not a study -- Handbook 8.2: risk of bias is assessed for a specific "
+            "result. The same trial is assessed TWICE here and lands differently: "
+            "SOLOIST-WHF's total-event result is its registered primary and its "
+            "first-event result was never registered at all. A study-level rating would "
+            "have averaged those two into one number and lost the only distinction this "
+            "assessment actually makes."),
+        "default_rule": (
+            "A domain that cannot be judged from the registration and the published report "
+            "is NO_INFORMATION, never SOME_CONCERNS. A rating of SOME CONCERNS with no "
+            "explanation reads as a judgement against the trial, and neither of these "
+            "trials has done anything to earn one."),
+        "what_this_assessment_could_actually_decide": (
+            "ONE DOMAIN OF FIVE, and it is worth saying plainly rather than burying in the "
+            "table. Domain 5 is judged from evidence -- the full registered outcome list "
+            "for both trials, read from ClinicalTrials.gov on 2026-08-18, which Handbook "
+            "8.7 names as the method for this domain. Domains 1 to 3 are NO_INFORMATION on "
+            "all four results. Domain 4 is judged on one result of four, and only because "
+            "this object happens to hold the same estimand measured a second way."),
+        "ceiling": {
+            "no_result_can_reach_LOW": True,
+            "statement": (
+                "NO RESULT IN THIS REVIEW CAN REACH LOW RISK OF BIAS ON THE EVIDENCE WE CAN "
+                "REACH, because domains 1 to 3 are NO_INFORMATION on all four results. That "
+                "is a limit of this review's retrieval, not a finding about SOLOIST-WHF or "
+                "SCORED, both of which are large double-blind placebo-controlled phase 3 "
+                "trials."),
+            "what_would_change_it": (
+                "Retrieving each trial's full published report with its supplementary "
+                "appendix, and its protocol and statistical analysis plan. Those answer the "
+                "signalling questions for domains 1 to 3 directly. For SCORED, the protocol "
+                "history would also settle whether the mid-trial endpoint change was made "
+                "blind to accumulating results -- which is the single fact that would move "
+                "domain 5 off HIGH on two of the four results."),
+            "why_stated_rather_than_left_implicit": (
+                "A ceiling that is not stated looks like a verdict. A reader who sees three "
+                "of five domains unjudged and no explanation will read the overall rating "
+                "as a criticism of the trials, and it is not one."),
+        },
+        "by_outcome": byo,
+        "what_this_does_not_establish": (
+            "That the pooled estimate is wrong, or that either trial is unreliable. Domain "
+            "5 being HIGH on three of four results means the RESULTS WE USE were selected "
+            "from among more analyses than were pre-specified -- on SCORED because its "
+            "primary was changed mid-trial, and on both first-event values because no "
+            "first-event analysis was ever registered. It is a reason to weigh the "
+            "total-event pool, which rests on SOLOIST's registered primary, above the "
+            "first-event pool, which rests on regulator-reported analyses on both trials."),
+    }
+
+
+def main():
+    dry = "--apply" not in sys.argv
+    obj = json.load(io.open(OBJ, encoding="utf-8"))
+    fits = json.load(io.open(FITS, encoding="utf-8"))
+    if set(fits) != {"hfcv_total", "hfcv_first"}:
+        sys.exit("REFUSED: fits.json holds %s, expected the two pooled outcomes."
+                 % sorted(fits))
+
+    before = json.dumps(obj, sort_keys=True)
+    changes = []
+
+    # ---- 1. the model output, quoted verbatim ---------------------------------------
+    for oid, f in fits.items():
+        blk = obj["results"]["by_outcome"][oid]
+        if blk.get("r_output") is not None:
+            sys.exit("REFUSED: %s already holds r_output; this script would overwrite it."
+                     % oid)
+        blk["r_output"] = {
+            "state": "PRESENT",
+            "environment": f["environment"],
+            "script": "ssot/sotagliflozin_pools.R",
+            "run_utc": TODAY,
+            "call": "metafor::rma(yi = ..., sei = ..., method = 'REML')",
+            "interval_method": f["interval_method"],
+            "reproduces_the_served_value": f["reproduces_the_served_value"],
+            "verbatim": f["verbatim"],
+            "what_it_is": (
+                "The fit that produces the estimate this page serves. It was checked "
+                "against the stored point, interval, tau-squared, Q and I-squared BEFORE "
+                "being quoted, and ssot/sotagliflozin_pools.R refuses to write anything if "
+                "that check fails -- because quoting a fit that does not reproduce the "
+                "served number would attribute the page to a model that did not produce "
+                "it."),
+            "hartung_knapp_sensitivity": f["hksj"],
+            "prediction_interval": {
+                "low": round(f["pi_low"], 4), "high": round(f["pi_high"], 4),
+                "note": ("At k = 2 a prediction interval is extremely weakly determined. It "
+                         "is reported because it was computed, not because it is "
+                         "informative."),
+            },
+        }
+        changes.append("r_output written on results.by_outcome.%s" % oid)
+
+    # ---- 2. risk of bias, per result -------------------------------------------------
+    if obj.get("risk_of_bias") is not None:
+        sys.exit("REFUSED: risk_of_bias already present; this script would overwrite it.")
+    obj["risk_of_bias"] = build_rob()
+    n = sum(len(v) for v in obj["risk_of_bias"]["by_outcome"].values())
+    if n != 4:
+        sys.exit("REFUSED: built %d result-level assessments, expected 4." % n)
+    changes.append("risk_of_bias written with %d result-level assessments" % n)
+
+    obj.setdefault("display_change_announced", []).append({
+        "date": TODAY,
+        "change": "two P46 limbs closed: model output quoted verbatim, and RoB 2 per result",
+        "values_moved": "NONE -- not one published number changes",
+        "what_changed": (
+            "Both pools were refitted from this object's own per-trial values and "
+            "reproduced the served estimate exactly, so the fit is quoted rather than the "
+            "estimate restated. A RoB 2 assessment was added for each of the four results "
+            "(two outcomes on two trials)."),
+        "why": (
+            "P46 asks the object to hold these or to state a reason for their absence, and "
+            "it held neither -- which is a BLANK, not a refusal. Both were producible from "
+            "evidence already on the object, and a refusal is only correct while the "
+            "artefact cannot be produced."),
+        "what_the_rob_assessment_found": (
+            "Three of the four results are HIGH on RoB 2 domain 5, selection of the "
+            "reported result. SCORED's primary endpoint was changed during the trial, and "
+            "NEITHER trial registered a time-to-first-event analysis -- both first-event "
+            "values come from the FDA integrated review. SOLOIST-WHF's total-event result "
+            "is LOW on that domain: it is its registered primary, word for word. This is "
+            "the same finding the unit of assessment exists to make -- ONE TRIAL, ASSESSED "
+            "TWICE, LANDING DIFFERENTLY."),
+    })
+
+    if dry:
+        print("DRY RUN -- pass --apply to write")
+    for c in changes:
+        print("  ", c)
+    if not dry:
+        with io.open(OBJ, "rb") as fh:
+            raw = fh.read()
+        nl = "\r\n" if b"\r\n" in raw.split(b"\n", 3)[0] + b"\n" else "\n"
+        with io.open(OBJ, "w", encoding="utf-8", newline=nl) as fh:
+            json.dump(obj, fh, indent=1, ensure_ascii=False)
+            fh.write("\n")
+        print("wrote %s (line endings %s)" % (OBJ, "CRLF" if nl == "\r\n" else "LF"))
+    if json.dumps(obj, sort_keys=True) == before:
+        sys.exit("REFUSED: the object is unchanged. Nothing was applied and reporting "
+                 "success would be the defect this project has met five times.")
+
+
+if __name__ == "__main__":
+    main()

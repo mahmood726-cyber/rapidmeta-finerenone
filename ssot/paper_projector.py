@@ -577,7 +577,34 @@ def project(obj, journal="generic", length="standard"):
                     "publish." % len(notr))
         s.paras.append((txt, ["grade.approach", "grade.by_outcome"]))
     else:
-        s.refusals.append(("the claim that certainty of evidence was graded", ["grade.approach"]))
+        # A GRADE RATING CAN LIVE PER POOLED OUTCOME AND NOT AT THE OBJECT ROOT, and this
+        # branch used to REFUSE in that case -- publishing "Refused: the claim that
+        # certainty of evidence was graded" on a page whose object holds three ratings.
+        #
+        # THAT IS A FALSE REFUSAL, WHICH IS WORSE THAN A MISSING ONE. A blank slot is
+        # visibly empty; a refusal is a positive statement, and this one said something
+        # untrue about its own object. Found on sotagliflozin-hf on 2026-08-20; measured
+        # across 155 objects it is the only topic that holds GRADE in that shape alone,
+        # so the fix reaches one page -- and the class reaches every projector branch that
+        # looks in ONE place and then reports an absence.
+        per = []
+        for oid, blk in (get(obj, "results.by_outcome") or {}).items():
+            g2 = blk.get("grade") if isinstance(blk, dict) else None
+            if isinstance(g2, dict) and g2.get("certainty"):
+                per.append((oid, g2))
+        if per:
+            s.paras.append((
+                "Certainty of evidence was rated per pooled outcome rather than in a single "
+                "review-level block, and %d outcome(s) carry a rating: %s. Each rating is "
+                "about its own estimand and about nothing else. %s"
+                % (len(per), "; ".join("%s %s" % (o, str(g2.get("certainty")).upper())
+                                       for o, g2 in per),
+                   next((str(g2.get("what_this_certainty_is_about")) for _, g2 in per
+                         if g2.get("what_this_certainty_is_about")), "")),
+                ["results.by_outcome.%s.grade" % o for o, _ in per]))
+        else:
+            s.refusals.append(("the claim that certainty of evidence was graded",
+                               ["grade.approach"]))
 
     # PRESPECIFICATION -- REFUSED PERMANENTLY, AND THE REFUSAL IS THE STATEMENT.
     pp = get(obj, "protocol")
@@ -835,10 +862,67 @@ def project(obj, journal="generic", length="standard"):
               ["risk_of_bias.ceiling.statement"])
     if rob.get("default_rule"):
         s.add(obj, str(rob["default_rule"]), ["risk_of_bias.default_rule"])
+    # `by_outcome` IS THE SHAPE THIS CORPUS ACTUALLY USES, and it was not in this list.
+    #
+    # Measured 2026-08-20 across 155 objects: ONE object holds risk of bias under
+    # `by_result`, and TEN hold it under `by_outcome` -- 36 result-level assessments, on
+    # alirocumab-lipid, arni-hfref, iv-iron-hf, bempedoic-acid-review, sglt2-hf and five
+    # others. Every one of those 36 reached NO READER. The section rendered its tool, its
+    # unit of assessment and its ceiling, and then no judgements, so a page could say
+    # "4 result-level assessments were made" and show none of them.
+    #
+    # P46 counts an object as holding risk of bias per result. IT DOES. The count was
+    # right and the delivery was empty, which is the class this project keeps meeting:
+    # counted is not delivered, and a summary with no detail beneath it cannot disagree
+    # with anything.
+    #
+    # `by_outcome` nests one level deeper -- outcome, then result -- so it is flattened
+    # with the outcome named in the row rather than folded away. THE SAME TRIAL APPEARS
+    # TWICE UNDER TWO OUTCOMES AND CAN LAND DIFFERENTLY, which is the entire point of
+    # assessing a result rather than a study, and a table keyed on the trial alone would
+    # destroy exactly that.
     rows, fields = [], []
-    for key in ("by_result", "results", "assessments", "by_trial"):
+    for key in ("by_outcome", "by_result", "results", "assessments", "by_trial"):
         blk = rob.get(key)
-        if isinstance(blk, dict):
+        if not isinstance(blk, dict) or not blk:
+            continue
+        if key == "by_outcome":
+            for oid, per in sorted(blk.items()):
+                if not isinstance(per, dict):
+                    continue
+                for rid, judgement in sorted(per.items()):
+                    if not isinstance(judgement, dict):
+                        rows.append(["%s -- %s" % (oid, rid), str(judgement), ""])
+                        continue
+                    label = judgement.get("trial") or rid
+                    # The reason a reader needs is the reason for the OVERALL judgement,
+                    # and then the domain that drove it. A domain judged HIGH with its
+                    # reason omitted is the same defect one level down.
+                    why = str(judgement.get("overall_reason")
+                              or judgement.get("reason") or "")
+                    doms = judgement.get("domains")
+                    if isinstance(doms, dict):
+                        # EVERY JUDGED DOMAIN, not only the adverse ones. Filtering to
+                        # HIGH and SOME_CONCERNS dropped the single most informative
+                        # sentence in this assessment -- the reason SOLOIST-WHF's
+                        # total-event result is LOW on domain 5, which is that the pooled
+                        # estimand IS its registered primary word for word. A table that
+                        # shows only what went wrong tells a reader nothing about what
+                        # went right, and the contrast between the two is the finding.
+                        # NO_INFORMATION is excluded because its reason is a fixed
+                        # sentence about what this review did not retrieve, repeated
+                        # identically on every result, and it is stated once above.
+                        driving = [(dn, dv) for dn, dv in sorted(doms.items())
+                                   if isinstance(dv, dict)
+                                   and dv.get("judgement") in ("HIGH", "SOME_CONCERNS", "LOW")]
+                        for dn, dv in driving:
+                            why += ("  %s: %s -- %s"
+                                    % (dn.replace("_", " "), dv.get("judgement"),
+                                       dv.get("reason") or ""))
+                    rows.append(["%s -- %s (%s)" % (oid, label, rid),
+                                 str(judgement.get("overall") or judgement.get("rating")
+                                     or "not judged"), why])
+        else:
             for rid, judgement in sorted(blk.items()):
                 if isinstance(judgement, dict):
                     rows.append([rid, str(judgement.get("overall") or judgement.get("rating")
@@ -846,8 +930,8 @@ def project(obj, journal="generic", length="standard"):
                                  str(judgement.get("reason") or judgement.get("why") or "")])
                 else:
                     rows.append([rid, str(judgement), ""])
-            fields.append("risk_of_bias.%s" % key)
-            break
+        fields.append("risk_of_bias.%s" % key)
+        break
     if rows:
         s.add_table(obj, "Risk-of-bias judgement for every included result",
                     ["Result", "Judgement", "Reason"], rows, fields)

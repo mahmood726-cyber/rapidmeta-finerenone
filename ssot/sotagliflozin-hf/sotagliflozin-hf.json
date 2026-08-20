@@ -1195,7 +1195,18 @@
       "10.10.4",
       "10.14"
      ],
-     "what_this_certainty_is_about": "The certainty of THIS estimand's pooled value and of nothing else. This object holds three estimands with three separate ratings, and they are not interchangeable: a reader who takes the rating from one and the number from another has produced a claim this object does not make. It is also a rating of a DRUG-WIDE average across two very different populations, not of the drug in heart failure."
+     "what_this_certainty_is_about": "The certainty of THIS estimand's pooled value and of nothing else. This object holds three estimands with three separate ratings, and they are not interchangeable: a reader who takes the rating from one and the number from another has produced a claim this object does not make. It is also a rating of a DRUG-WIDE average across two very different populations, not of the drug in heart failure.",
+     "risk_of_bias": {
+      "rated_down": 1,
+      "severity": "serious",
+      "unchanged_from": "the rating recorded before 2026-08-20, which already read 'risk_of_bias serious (-1)' with no domain detail behind it",
+      "now_supported_by": "A RoB 2 assessment of every result contributing to this pool, added 2026-08-20. 1 of 2 results are HIGH overall, all of them on domain 5, selection of the reported result. Per-result domain-5 judgements: SCORED (NCT03315143) HIGH, SOLOIST-WHF (NCT03521934) LOW.",
+      "reason": "The results this pool is built from were selected from among more analyses than were pre-specified. SCORED's primary endpoint was changed during the trial; neither trial registered a time-to-first-event analysis. Domains 1 to 3 are NO_INFORMATION on every result, which is a limit of this review's retrieval and is stated as one -- it is not counted as evidence of bias and it is not counted as evidence of its absence.",
+      "why_not_two_levels": "GRADE cautions against mechanical downgrading, and the -1 already stood before this assessment existed. The assessment SUPPORTS that level rather than forcing a further step.  On this outcome the strongest contributing result -- SOLOIST-WHF's, which is its registered primary word for word -- is LOW on domain 5, so the pool is not uniformly at high risk and -1 is the right step.",
+      "evidence": "risk_of_bias.by_outcome.hfcv_total",
+      "authority": "Cochrane Handbook 6.5 chapter 14 (GRADE); risk of bias per chapter 8."
+     },
+     "certainty_rechecked_2026_08_20": "Re-read against the risk-of-bias assessment added on 2026-08-20. The certainty stands at 'low' and its derivation is unchanged: start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -> low. What changed is that the risk_of_bias domain now HAS evidence behind it, where before it named a severity with an empty field beside it."
     },
     "source_page_pooled": true,
     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
@@ -1218,6 +1229,30 @@
      "no_rule_is_decided_here": "The house rule is REML with Hartung-Knapp below k=10, settled days ago. Whether it means ALWAYS or WITH A FLOOR AT k=3 is a decision about this corpus, not a computation, and it has been referred rather than taken. BOTH INTERVALS STAND ON THIS PAGE UNTIL IT IS MADE. Nothing is unpublished and no reader is left with only the narrower one.",
      "what_this_means_for_this_pool": "THE PUBLISHED INTERVAL EXCLUDES 1 AND THE HOUSE-RULE INTERVAL CROSSES IT. A SIGNIFICANCE VERDICT TURNS ON THE INTERVAL METHOD ALONE. A reader shown only the published interval has been told something firmer than the evidence supports; a reader shown only the wider one loses that the contributing trials agree. BOTH ARE HERE.",
      "read_the_width_with_care": "AT k=2 HARTUNG-KNAPP USES t ON ONE DEGREE OF FREEDOM -- 12.7062 against the normal 1.9600 -- and the interval is enormously wider. That width is a property of the method at very few studies, not a measurement of this evidence. It is recorded so a reader can see it; it is NOT presented as the better interval."
+    },
+    "r_output": {
+     "state": "PRESENT",
+     "environment": "R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1",
+     "script": "ssot/sotagliflozin_pools.R",
+     "run_utc": "2026-08-20",
+     "call": "metafor::rma(yi = ..., sei = ..., method = 'REML')",
+     "interval_method": "z",
+     "reproduces_the_served_value": "YES -- point, interval, tau^2, Q and I^2 all reproduce",
+     "verbatim": "sotagliflozin-hf :: hfcv_total   k = 2   measure = HR\n============================================================================================\nwhat is counted: Total events: cardiovascular death, hospitalisation for heart failure, or urgent heart-failure visit -- ALL occurrences, not only the first\ntrials: SOLOIST-WHF (NCT03521934), SCORED (NCT03315143)\n\nTHE FIT THAT PRODUCES THE ESTIMATE THIS PAGE SERVES -- metafor, REML, z interval:\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0163)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.4296, p-val = 0.5122\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb    ci.ub      \n -0.3325  0.0705  -4.7169  <.0001  -0.4707  -0.1944  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBack-transformed to the hazard-ratio scale:\n\n   pred  ci.lb  ci.ub  pi.lb  pi.ub \n 0.7171 0.6246 0.8234 0.6246 0.8234 \n\n\nCHECK AGAINST THE VALUE THE PAGE SERVES. The quote is not earned until this passes,\nand this script refuses to write anything if it does not:\n  point   refit 0.7171     served 0.7171      reproduced\n  ci_low  refit 0.6246     served 0.6246      reproduced\n  ci_high refit 0.8234     served 0.8234      reproduced\n  tau^2   refit 0.000000   stored 0.000000    reproduced\n  Q       refit 0.4296     stored 0.4296      reproduced\n  I^2     refit 0.00       stored 0.00        reproduced\n\nPrediction interval: 0.6246 to 0.8234. AT k = 2 THIS IS EXTREMELY WEAKLY DETERMINED\nand is reported because it was computed, not because it is informative.\n\nHartung-Knapp sensitivity at k <= 3, per Cochrane Handbook 6.5 s10.10.4.4-10.10.4.5,\nwhich advises comparing methods rather than choosing one when there are only two or\nthree studies. REPORTED AS A SENSITIVITY, NOT AS THE PRIMARY INTERVAL:\n  factor 0.429644 -- FLOORED to 1, the house modification metafor does not make\n  0.7171 (0.2928 to 1.7563), t on 1 degree(s) of freedom = 12.7062 against z = 1.9600\n  That width is a property of the method at very few studies, not a measurement of\n  this evidence.\n\nR environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1\nScript: ssot/sotagliflozin_pools.R",
+     "what_it_is": "The fit that produces the estimate this page serves. It was checked against the stored point, interval, tau-squared, Q and I-squared BEFORE being quoted, and ssot/sotagliflozin_pools.R refuses to write anything if that check fails -- because quoting a fit that does not reproduce the served number would attribute the page to a model that did not produce it.",
+     "hartung_knapp_sensitivity": {
+      "point": 0.7171058571098,
+      "ci_low": 0.2927907354154,
+      "ci_high": 1.756342493459,
+      "factor": 0.4296438626204,
+      "floored": true,
+      "t": 12.706204736175
+     },
+     "prediction_interval": {
+      "low": 0.6246,
+      "high": 0.8234,
+      "note": "At k = 2 a prediction interval is extremely weakly determined. It is reported because it was computed, not because it is informative."
+     }
     }
    },
    "hfcv_first": {
@@ -1460,7 +1495,19 @@
       "10.10.4",
       "10.14"
      ],
-     "what_this_certainty_is_about": "The certainty of THIS estimand's pooled value and of nothing else. This object holds three estimands with three separate ratings, and they are not interchangeable: a reader who takes the rating from one and the number from another has produced a claim this object does not make. It is also a rating of a DRUG-WIDE average across two very different populations, not of the drug in heart failure."
+     "what_this_certainty_is_about": "The certainty of THIS estimand's pooled value and of nothing else. This object holds three estimands with three separate ratings, and they are not interchangeable: a reader who takes the rating from one and the number from another has produced a claim this object does not make. It is also a rating of a DRUG-WIDE average across two very different populations, not of the drug in heart failure.",
+     "risk_of_bias": {
+      "rated_down": 1,
+      "severity": "serious",
+      "unchanged_from": "the rating recorded before 2026-08-20, which already read 'risk_of_bias serious (-1)' with no domain detail behind it",
+      "now_supported_by": "A RoB 2 assessment of every result contributing to this pool, added 2026-08-20. 2 of 2 results are HIGH overall, all of them on domain 5, selection of the reported result. Per-result domain-5 judgements: SCORED (NCT03315143) HIGH, SOLOIST-WHF (NCT03521934) HIGH.",
+      "reason": "The results this pool is built from were selected from among more analyses than were pre-specified. SCORED's primary endpoint was changed during the trial; neither trial registered a time-to-first-event analysis. Domains 1 to 3 are NO_INFORMATION on every result, which is a limit of this review's retrieval and is stated as one -- it is not counted as evidence of bias and it is not counted as evidence of its absence.",
+      "why_not_two_levels": "GRADE cautions against mechanical downgrading, and the -1 already stood before this assessment existed. The assessment SUPPORTS that level rather than forcing a further step.  BUT SEE THE FLAG BELOW: on this outcome the case for -2 is real.",
+      "evidence": "risk_of_bias.by_outcome.hfcv_first",
+      "authority": "Cochrane Handbook 6.5 chapter 14 (GRADE); risk of bias per chapter 8.",
+      "A_DECISION_WAITING_2026_08_20": "THE CASE FOR RATING THIS OUTCOME DOWN TWO LEVELS, TO VERY LOW, AND WHY IT WAS NOT TAKEN BY A SCRIPT. Unlike hfcv_total, BOTH contributing results are HIGH on domain 5 here, and the reason is the same on both: NEITHER TRIAL EVER REGISTERED A TIME-TO-FIRST-EVENT ANALYSIS. Both values come from the FDA integrated review. The entire weight of this pool therefore rests on analyses added to the results report after the fact, which is the situation Handbook 8.7 describes and a defensible reading of 'very serious'. Against that: both trials are large, double-blind and placebo-controlled; the first-event estimate agrees in direction and significance with the total-event one on the same trials; and the regulator, not the sponsor, is the source. MOVING A PUBLISHED CERTAINTY FROM LOW TO VERY LOW IS A JUDGEMENT, NOT A COMPUTATION. It is recorded here so it is a decision waiting rather than something nobody noticed."
+     },
+     "certainty_rechecked_2026_08_20": "Re-read against the risk-of-bias assessment added on 2026-08-20. The certainty stands at 'low' and its derivation is unchanged: start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -> low. What changed is that the risk_of_bias domain now HAS evidence behind it, where before it named a severity with an empty field beside it."
     },
     "source_page_pooled": true,
     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
@@ -1483,6 +1530,30 @@
      "no_rule_is_decided_here": "The house rule is REML with Hartung-Knapp below k=10, settled days ago. Whether it means ALWAYS or WITH A FLOOR AT k=3 is a decision about this corpus, not a computation, and it has been referred rather than taken. BOTH INTERVALS STAND ON THIS PAGE UNTIL IT IS MADE. Nothing is unpublished and no reader is left with only the narrower one.",
      "what_this_means_for_this_pool": "THE PUBLISHED INTERVAL EXCLUDES 1 AND THE HOUSE-RULE INTERVAL CROSSES IT. A SIGNIFICANCE VERDICT TURNS ON THE INTERVAL METHOD ALONE. A reader shown only the published interval has been told something firmer than the evidence supports; a reader shown only the wider one loses that the contributing trials agree. BOTH ARE HERE.",
      "read_the_width_with_care": "AT k=2 HARTUNG-KNAPP USES t ON ONE DEGREE OF FREEDOM -- 12.7062 against the normal 1.9600 -- and the interval is enormously wider. That width is a property of the method at very few studies, not a measurement of this evidence. It is recorded so a reader can see it; it is NOT presented as the better interval."
+    },
+    "r_output": {
+     "state": "PRESENT",
+     "environment": "R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1",
+     "script": "ssot/sotagliflozin_pools.R",
+     "run_utc": "2026-08-20",
+     "call": "metafor::rma(yi = ..., sei = ..., method = 'REML')",
+     "interval_method": "z",
+     "reproduces_the_served_value": "YES -- point, interval, tau^2, Q and I^2 all reproduce",
+     "verbatim": "sotagliflozin-hf :: hfcv_first   k = 2   measure = HR\n============================================================================================\nwhat is counted: First event only: the first occurrence of cardiovascular death, hospitalisation for heart failure, or urgent heart-failure visit\ntrials: SOLOIST-WHF (NCT03521934), SCORED (NCT03315143)\n\nTHE FIT THAT PRODUCES THE ESTIMATE THIS PAGE SERVES -- metafor, REML, z interval:\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0120)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.8842, p-val = 0.3471\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb    ci.ub      \n -0.2893  0.0615  -4.7071  <.0001  -0.4098  -0.1689  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBack-transformed to the hazard-ratio scale:\n\n   pred  ci.lb  ci.ub  pi.lb  pi.ub \n 0.7488 0.6638 0.8446 0.6638 0.8446 \n\n\nCHECK AGAINST THE VALUE THE PAGE SERVES. The quote is not earned until this passes,\nand this script refuses to write anything if it does not:\n  point   refit 0.7488     served 0.7488      reproduced\n  ci_low  refit 0.6638     served 0.6638      reproduced\n  ci_high refit 0.8446     served 0.8446      reproduced\n  tau^2   refit 0.000000   stored 0.000000    reproduced\n  Q       refit 0.8842     stored 0.8841      reproduced\n  I^2     refit 0.00       stored 0.00        reproduced\n\nPrediction interval: 0.6638 to 0.8446. AT k = 2 THIS IS EXTREMELY WEAKLY DETERMINED\nand is reported because it was computed, not because it is informative.\n\nHartung-Knapp sensitivity at k <= 3, per Cochrane Handbook 6.5 s10.10.4.4-10.10.4.5,\nwhich advises comparing methods rather than choosing one when there are only two or\nthree studies. REPORTED AS A SENSITIVITY, NOT AS THE PRIMARY INTERVAL:\n  factor 0.884161 -- FLOORED to 1, the house modification metafor does not make\n  0.7488 (0.3429 to 1.6351), t on 1 degree(s) of freedom = 12.7062 against z = 1.9600\n  That width is a property of the method at very few studies, not a measurement of\n  this evidence.\n\nR environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1\nScript: ssot/sotagliflozin_pools.R",
+     "what_it_is": "The fit that produces the estimate this page serves. It was checked against the stored point, interval, tau-squared, Q and I-squared BEFORE being quoted, and ssot/sotagliflozin_pools.R refuses to write anything if that check fails -- because quoting a fit that does not reproduce the served number would attribute the page to a model that did not produce it.",
+     "hartung_knapp_sensitivity": {
+      "point": 0.7487605201709,
+      "ci_low": 0.3428848018187,
+      "ci_high": 1.635074851941,
+      "factor": 0.8841608058436,
+      "floored": true,
+      "t": 12.706204736175
+     },
+     "prediction_interval": {
+      "low": 0.6638,
+      "high": 0.8446,
+      "note": "At k = 2 a prediction interval is extremely weakly determined. It is reported because it was computed, not because it is informative."
+     }
     }
    },
    "mace3_first": {
@@ -1896,7 +1967,181 @@
    "values_moved": "NONE",
    "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
    "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  },
+  {
+   "date": "2026-08-20",
+   "change": "two P46 limbs closed: model output quoted verbatim, and RoB 2 per result",
+   "values_moved": "NONE -- not one published number changes",
+   "what_changed": "Both pools were refitted from this object's own per-trial values and reproduced the served estimate exactly, so the fit is quoted rather than the estimate restated. A RoB 2 assessment was added for each of the four results (two outcomes on two trials).",
+   "why": "P46 asks the object to hold these or to state a reason for their absence, and it held neither -- which is a BLANK, not a refusal. Both were producible from evidence already on the object, and a refusal is only correct while the artefact cannot be produced.",
+   "what_the_rob_assessment_found": "Three of the four results are HIGH on RoB 2 domain 5, selection of the reported result. SCORED's primary endpoint was changed during the trial, and NEITHER trial registered a time-to-first-event analysis -- both first-event values come from the FDA integrated review. SOLOIST-WHF's total-event result is LOW on that domain: it is its registered primary, word for word. This is the same finding the unit of assessment exists to make -- ONE TRIAL, ASSESSED TWICE, LANDING DIFFERENTLY."
+  },
+  {
+   "date": "2026-08-20",
+   "change": "the risk-of-bias assessment promoted into the GRADE domain that reads it",
+   "values_moved": "NONE -- no certainty rating changes and no estimate moves",
+   "what_changed": "`grade.risk_of_bias` was null on both pooled outcomes while `certainty_derivation` read 'risk_of_bias serious (-1)'. The domain is now filled from the per-result RoB 2 assessment added the same day, naming which results are HIGH and on which domain.",
+   "why": "P19: a promotion must reach every derived block in one pass. A GRADE domain that names a severity with nothing behind it cannot be checked by a reader, and until today could not be checked by us either -- there was no assessment on this object.",
+   "what_was_deliberately_not_changed": "The certainty level on hfcv_first. Both of its contributing results are HIGH on domain 5 and a case for VERY LOW exists; it is written onto the object under grade.risk_of_bias.A_DECISION_WAITING_2026_08_20 rather than taken by a script."
   }
  ],
- "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over."
+ "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over.",
+ "risk_of_bias": {
+  "tool": "RoB 2 (Cochrane risk-of-bias tool for randomized trials)",
+  "version": "22 August 2019 version, as reproduced in the Cochrane Handbook",
+  "handbook": "Higgins JPT, Savovic J, Page MJ, Elbers RG, Sterne JAC. Chapter 8: Assessing risk of bias in a randomized trial. Cochrane Handbook for Systematic Reviews of Interventions version 6.5, 2024.",
+  "assessed_utc": "2026-08-20",
+  "unit_of_assessment": "A RESULT, not a study -- Handbook 8.2: risk of bias is assessed for a specific result. The same trial is assessed TWICE here and lands differently: SOLOIST-WHF's total-event result is its registered primary and its first-event result was never registered at all. A study-level rating would have averaged those two into one number and lost the only distinction this assessment actually makes.",
+  "default_rule": "A domain that cannot be judged from the registration and the published report is NO_INFORMATION, never SOME_CONCERNS. A rating of SOME CONCERNS with no explanation reads as a judgement against the trial, and neither of these trials has done anything to earn one.",
+  "what_this_assessment_could_actually_decide": "ONE DOMAIN OF FIVE, and it is worth saying plainly rather than burying in the table. Domain 5 is judged from evidence -- the full registered outcome list for both trials, read from ClinicalTrials.gov on 2026-08-18, which Handbook 8.7 names as the method for this domain. Domains 1 to 3 are NO_INFORMATION on all four results. Domain 4 is judged on one result of four, and only because this object happens to hold the same estimand measured a second way.",
+  "ceiling": {
+   "no_result_can_reach_LOW": true,
+   "statement": "NO RESULT IN THIS REVIEW CAN REACH LOW RISK OF BIAS ON THE EVIDENCE WE CAN REACH, because domains 1 to 3 are NO_INFORMATION on all four results. That is a limit of this review's retrieval, not a finding about SOLOIST-WHF or SCORED, both of which are large double-blind placebo-controlled phase 3 trials.",
+   "what_would_change_it": "Retrieving each trial's full published report with its supplementary appendix, and its protocol and statistical analysis plan. Those answer the signalling questions for domains 1 to 3 directly. For SCORED, the protocol history would also settle whether the mid-trial endpoint change was made blind to accumulating results -- which is the single fact that would move domain 5 off HIGH on two of the four results.",
+   "why_stated_rather_than_left_implicit": "A ceiling that is not stated looks like a verdict. A reader who sees three of five domains unjudged and no explanation will read the overall rating as a criticism of the trials, and it is not one."
+  },
+  "by_outcome": {
+   "hfcv_total": {
+    "NCT03521934": {
+     "trial": "SOLOIST-WHF",
+     "nct": "NCT03521934",
+     "result_assessed": "the hazard ratio this trial contributes to the hfcv_total pool",
+     "domains": {
+      "D1_randomisation": {
+       "judgement": "NO_INFORMATION",
+       "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
+       "evidence_on_this_object": "inputs.trials[nct=NCT03521934].design records 'randomised one to one against placebo' and nothing about sequence generation or allocation concealment."
+      },
+      "D2_deviations": {
+       "judgement": "NO_INFORMATION",
+       "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
+       "evidence_on_this_object": "inputs.trials[nct=NCT03521934].design records a double-blind design against a matching placebo, and .by_outcome.hfcv_total.analysed_scope records that the analysis set is all randomised patients -- but whether deviations arose from the trial context, and how they were handled, needs the protocol."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
+       "evidence_on_this_object": "BOTH TRIALS WERE STOPPED EARLY because the sponsor withdrew funding (inputs.trials[nct=NCT03521934].design). Early termination bears on precision and is rated there, under GRADE imprecision; whether outcome data were MISSING for randomised participants, and whether missingness depended on the true value, is a different question and this review has not reached the completeness-of-follow-up figures that answer it."
+      },
+      "D4_measurement": {
+       "judgement": "NO_INFORMATION",
+       "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
+       "evidence_on_this_object": "inputs.trials[nct=NCT03521934].design records 'double-blind, randomised one to one against placebo', which bears on blinding of outcome assessors, but the remaining signalling questions for this domain need the protocol."
+      },
+      "D5_selection_of_reported_result": {
+       "judgement": "LOW",
+       "reason": "THE POOLED ESTIMAND IS THIS TRIAL'S REGISTERED PRIMARY, WORD FOR WORD. The registry lists exactly one primary outcome -- 'Number of Total Occurrences of Cardiovascular (CV) Death, Hospitalizations for Heart Failure (HHF) and Urgent Visits for Heart Failure (HF)' -- and that is the quantity this pool uses. There is no set of multiple estimates from which this one could have been selected: it is the pre-specified one. The full registered outcome list was read, so this is a retrieval of the pre-specified analysis intentions and not an inference from the publication's own framing.",
+       "evidence_on_this_object": "inputs.trials[id=soloist-whf].registered_primaries; inputs.trials[id=soloist-whf].by_outcome.hfcv_total.outcome_definition; all_ranks_captured_2026_08_18"
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "No domain is HIGH, and domains 1 to 3 are NO_INFORMATION. A result cannot be LOW overall while three of five domains are unjudged, so the overall judgement is SOME CONCERNS -- carried by what we have not reached rather than by anything found."
+    },
+    "NCT03315143": {
+     "trial": "SCORED",
+     "nct": "NCT03315143",
+     "result_assessed": "the hazard ratio this trial contributes to the hfcv_total pool",
+     "domains": {
+      "D1_randomisation": {
+       "judgement": "NO_INFORMATION",
+       "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
+       "evidence_on_this_object": "inputs.trials[nct=NCT03315143].design records 'randomised one to one against placebo' and nothing about sequence generation or allocation concealment."
+      },
+      "D2_deviations": {
+       "judgement": "NO_INFORMATION",
+       "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
+       "evidence_on_this_object": "inputs.trials[nct=NCT03315143].design records a double-blind design against a matching placebo, and .by_outcome.hfcv_total.analysed_scope records that the analysis set is all randomised patients -- but whether deviations arose from the trial context, and how they were handled, needs the protocol."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
+       "evidence_on_this_object": "BOTH TRIALS WERE STOPPED EARLY because the sponsor withdrew funding (inputs.trials[nct=NCT03315143].design). Early termination bears on precision and is rated there, under GRADE imprecision; whether outcome data were MISSING for randomised participants, and whether missingness depended on the true value, is a different question and this review has not reached the completeness-of-follow-up figures that answer it."
+      },
+      "D4_measurement": {
+       "judgement": "NO_INFORMATION",
+       "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
+       "evidence_on_this_object": "inputs.trials[nct=NCT03315143].design records 'double-blind, randomised one to one against placebo', which bears on blinding of outcome assessors, but the remaining signalling questions for this domain need the protocol."
+      },
+      "D5_selection_of_reported_result": {
+       "judgement": "HIGH",
+       "reason": "THE PRIMARY ENDPOINT WAS CHANGED DURING THE TRIAL, and this object carries the sentence verbatim: 'The primary end point was changed during the trial to the composite of the total number of deaths from cardiovascular causes, hospitalizations for heart failure...'. The estimand this pool uses IS the changed endpoint. Handbook 8.7 covers bias arising when 'the reported result is selected (based on its direction, magnitude or statistical significance) from among multiple intervention effect estimates'; a mid-trial change of the primary is that situation at its clearest, and nothing available to us establishes that the change was made blind to accumulating results. Rated HIGH. NOT EXCLUDED: Handbook chapter 3 makes registration status no part of eligibility, and this corpus settled the same question on 2026-08-18 for ANSWER-HF, deciding that an endpoint problem is graded rather than used to remove a trial -- because a wrong exclusion publishes a result we created, while a wrong inclusion leaves the evidence intact.",
+       "evidence_on_this_object": "inputs.trials[id=scored].design; inputs.trials[id=scored].by_outcome.hfcv_total.provenance.source_quotes; DECISIONS-COCHRANE-2026-08-18.md section 2"
+      }
+     },
+     "overall": "HIGH",
+     "overall_reason": "RoB 2's algorithm takes the overall judgement to HIGH when any domain is HIGH. Domain 5 is HIGH here, and the reason is stated above."
+    }
+   },
+   "hfcv_first": {
+    "NCT03521934": {
+     "trial": "SOLOIST-WHF",
+     "nct": "NCT03521934",
+     "result_assessed": "the hazard ratio this trial contributes to the hfcv_first pool",
+     "domains": {
+      "D1_randomisation": {
+       "judgement": "NO_INFORMATION",
+       "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
+       "evidence_on_this_object": "inputs.trials[nct=NCT03521934].design records 'randomised one to one against placebo' and nothing about sequence generation or allocation concealment."
+      },
+      "D2_deviations": {
+       "judgement": "NO_INFORMATION",
+       "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
+       "evidence_on_this_object": "inputs.trials[nct=NCT03521934].design records a double-blind design against a matching placebo, and .by_outcome.hfcv_first.analysed_scope records that the analysis set is all randomised patients -- but whether deviations arose from the trial context, and how they were handled, needs the protocol."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
+       "evidence_on_this_object": "BOTH TRIALS WERE STOPPED EARLY because the sponsor withdrew funding (inputs.trials[nct=NCT03521934].design). Early termination bears on precision and is rated there, under GRADE imprecision; whether outcome data were MISSING for randomised participants, and whether missingness depended on the true value, is a different question and this review has not reached the completeness-of-follow-up figures that answer it."
+      },
+      "D4_measurement": {
+       "judgement": "SOME_CONCERNS",
+       "reason": "THIS OBJECT ALREADY HOLDS THE MEASUREMENT COMING OUT DIFFERENTLY. Its `parallel_ascertainment` block records the SAME estimand on the SAME trial under centrally adjudicated events as 0.74 (0.57 to 0.95), against the 0.69 (0.56 to 0.85) this pool uses. That is not a suspicion about how outcomes were ascertained; it is the size of the difference, measured. Both intervals exclude 1 and the direction is unchanged, so the concern is about precision and about which ascertainment a reader is being shown -- which is why the object stores the adjudicated value beside the used one rather than instead of it. SOME CONCERNS rather than HIGH: outcome assessors were blinded by the trial's double-blind design against a matching placebo, and the two ascertainments agree on direction and on significance.",
+       "evidence_on_this_object": "inputs.trials[id=soloist-whf].by_outcome.hfcv_first.parallel_ascertainment; inputs.trials[id=soloist-whf].design"
+      },
+      "D5_selection_of_reported_result": {
+       "judgement": "HIGH",
+       "reason": "THIS ANALYSIS WAS NOT REGISTERED. The trial registered a TOTAL-occurrence primary; a time-to-first-event analysis appears nowhere in its registered primaries, secondaries or other outcomes. The value used here comes from the FDA integrated review, whose own words -- quoted on this object -- are 'An analysis was performed on the primary endpoint using time to first event analysis'. Handbook 8.7 exists for exactly this: an analysis ADDED to the results report post hoc, from among multiple estimates the trialists computed. Rated HIGH, and the trial is not criticised for computing it -- the risk attaches to OUR use of a selected result, not to their having produced one.",
+       "evidence_on_this_object": "inputs.trials[id=soloist-whf].registered_primaries, .registered_secondaries, .registered_other_outcomes; inputs.trials[id=soloist-whf].by_outcome.hfcv_first.source_tier = regulator_fda; inputs.trials[id=soloist-whf].by_outcome.hfcv_first.provenance.source_quotes"
+      }
+     },
+     "overall": "HIGH",
+     "overall_reason": "RoB 2's algorithm takes the overall judgement to HIGH when any domain is HIGH. Domain 5 is HIGH here, and the reason is stated above."
+    },
+    "NCT03315143": {
+     "trial": "SCORED",
+     "nct": "NCT03315143",
+     "result_assessed": "the hazard ratio this trial contributes to the hfcv_first pool",
+     "domains": {
+      "D1_randomisation": {
+       "judgement": "NO_INFORMATION",
+       "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
+       "evidence_on_this_object": "inputs.trials[nct=NCT03315143].design records 'randomised one to one against placebo' and nothing about sequence generation or allocation concealment."
+      },
+      "D2_deviations": {
+       "judgement": "NO_INFORMATION",
+       "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
+       "evidence_on_this_object": "inputs.trials[nct=NCT03315143].design records a double-blind design against a matching placebo, and .by_outcome.hfcv_first.analysed_scope records that the analysis set is all randomised patients -- but whether deviations arose from the trial context, and how they were handled, needs the protocol."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
+       "evidence_on_this_object": "BOTH TRIALS WERE STOPPED EARLY because the sponsor withdrew funding (inputs.trials[nct=NCT03315143].design). Early termination bears on precision and is rated there, under GRADE imprecision; whether outcome data were MISSING for randomised participants, and whether missingness depended on the true value, is a different question and this review has not reached the completeness-of-follow-up figures that answer it."
+      },
+      "D4_measurement": {
+       "judgement": "NO_INFORMATION",
+       "reason": "RoB 2's signalling questions for this domain cannot be answered from a trial registration and a published abstract, and this review has not retrieved either trial's protocol or statistical analysis plan. This records WHAT WE REACHED, not a judgement about how the trial was run.",
+       "evidence_on_this_object": "inputs.trials[nct=NCT03315143].design records 'double-blind, randomised one to one against placebo', which bears on blinding of outcome assessors, but the remaining signalling questions for this domain need the protocol."
+      },
+      "D5_selection_of_reported_result": {
+       "judgement": "HIGH",
+       "reason": "BOTH PROBLEMS AT ONCE, and they are independent. The trial's primary endpoint was changed during the trial, and the first-event analysis used here was not registered at all -- it comes from the FDA integrated review rather than from any registered outcome. Either alone would rate HIGH under Handbook 8.7; together they are the least secure of the four results in this review, and a reader should know that the pool's more conservative estimand rests on its weaker provenance.",
+       "evidence_on_this_object": "inputs.trials[id=scored].design; inputs.trials[id=scored].registered_primaries, .registered_secondaries; inputs.trials[id=scored].by_outcome.hfcv_first.source_tier = regulator_fda"
+      }
+     },
+     "overall": "HIGH",
+     "overall_reason": "RoB 2's algorithm takes the overall judgement to HIGH when any domain is HIGH. Domain 5 is HIGH here, and the reason is stated above."
+    }
+   }
+  },
+  "what_this_does_not_establish": "That the pooled estimate is wrong, or that either trial is unreliable. Domain 5 being HIGH on three of four results means the RESULTS WE USE were selected from among more analyses than were pre-specified -- on SCORED because its primary was changed mid-trial, and on both first-event values because no first-event analysis was ever registered. It is a reason to weigh the total-event pool, which rests on SOLOIST's registered primary, above the first-event pool, which rests on regulator-reported analyses on both trials."
+ }
 }
