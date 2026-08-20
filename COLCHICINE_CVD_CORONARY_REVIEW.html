@@ -578,7 +578,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <h3 id="paper-methods-search">Methods — search</h3>
 <p>Searches were executed in ClinicalTrials.gov API v2 on 2026-08-19 with the query, verbatim: intervention=&quot;colchicine&quot;; condition=&quot;coronary artery disease OR myocardial infarction OR cardiovascular disease OR stroke OR atherosclerosis&quot;; study_type=INTERVENTIONAL; page_size=100; count_total=true. It returned 137 record(s).<br><small class='muted'>&larr; search.databases[0]</small></p>
 <p>Searches were executed in PubMed on 2026-08-19 with the query, verbatim: colchicine AND (cardiovascular OR coronary OR &quot;myocardial infarction&quot; OR stroke OR atherosclerosis) AND (randomized controlled trial[Publication Type] OR randomised OR randomized). It returned 523 record(s).<br><small class='muted'>&larr; search.databases[1]</small></p>
-<p>Searches were executed in ANZCTR on 2026-08-19 with the query, verbatim: NOT EXECUTED FOR THIS TOPIC. It returned None record(s).<br><small class='muted'>&larr; search.databases[2]</small></p>
+<p>Searches were executed in ANZCTR on 2026-08-19 with the query, verbatim: NOT EXECUTED FOR THIS TOPIC. It returned an unrecorded number of record(s).<br><small class='muted'>&larr; search.databases[2]</small></p>
 <h3 id="paper-methods-eligibility-criteria">Methods — eligibility criteria</h3>
 <p>PREDEFINED: no. Derived post hoc on 2026-08-19 when colchicine-cvd-review was split into seven readings. A trial is in THIS reading when its population is established coronary artery disease or recent myocardial infarction, read from the coded conditions and, where those name something true but not the population&#x27;s vascular disease, from the trial&#x27;s own title with the fallback recorded. It is ELIGIBLE when colchicine is the randomised contrast, the allocation is RANDOMIZED, and the registration declares at least two arms. A PRECEDENCE RULE ASSIGNS EVERY RECORD TO EXACTLY ONE READING and it is published in full on this page, because a rule that decides inclusion and is published nowhere is not a criterion but a habit.<br><small class='muted'>&larr; screening.eligibility</small></p>
 <p>Each criterion above is recorded with the source it was derived from in `screening.eligibility_provenance`; none is asserted here without one.<br><small class='muted'>&larr; screening.eligibility_provenance</small></p>
@@ -633,11 +633,11 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>keywords</code></div>
 <div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a CONTENT gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose &mdash; no field: <code>keywords</code></div>
 <h3 id="paper-data-availability">Data availability</h3>
-<p>Every trial in this review is keyed to a registration identifier, verified by live fetch of the raw ClinicalTrials.gov v2 record and comparison of the returned nctId against the id stored on this object on 2026-08-19.<br><small class='muted'>&larr; registration_identity.method</small></p>
+<p>2 of the 3 trials in this review are keyed to a registration identifier and verified by live fetch of the raw ClinicalTrials.gov v2 record and comparison of the returned nctId against the id stored on this object on 2026-08-19. The remaining 1 carries no identifier on this object; it is recorded below as NOT_ASSESSABLE, which is not the same as unregistered.<br><small class='muted'>&larr; registration_identity.method, registration_identity.trials</small></p>
 <div class='tscroll'><table><caption>Registration identifiers, and whether each was verified<br><small class='muted'>&larr; registration_identity.trials</small></caption>
 <tr><th>Registration</th><th>Verified</th><th>Link</th></tr>
 <tr><td>NCT02551094</td><td>True</td><td>https://clinicaltrials.gov/study/NCT02551094</td></tr>
-<tr><td>None</td><td>True</td><td>https://clinicaltrials.gov/study/None</td></tr>
+<tr><td>ACTRN12614000093684 (ANZCTR)</td><td>NOT_ASSESSABLE</td><td>NOT_ASSESSABLE</td></tr>
 <tr><td>NCT03048825</td><td>True</td><td>https://clinicaltrials.gov/study/NCT03048825</td></tr>
 </table></div>
 <h3 id="paper-software-availability">Software availability</h3>
@@ -649,9 +649,9 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <h3 id="paper-trial-characteristics">Trial characteristics</h3>
 <div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<br><small class='muted'>&larr; inputs.trials</small></caption>
 <tr><th>Registration</th><th>Trial</th><th>Arms</th><th>Participants</th></tr>
-<tr><td>ACTRN12614000093684</td><td>LoDoCo2</td><td>[{&#x27;label&#x27;: &#x27;colchicine 0.5 mg once daily&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;participants&#x27;: 2762}, {&#x27;label&#x27;: &#x27;placebo&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;participants&#x27;: 2760}]</td><td>not extracted</td></tr>
-<tr><td>NCT02551094</td><td>COLCOT</td><td>[{&#x27;label&#x27;: &#x27;colchicine 0.5 mg once daily&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;participants&#x27;: 2366}, {&#x27;label&#x27;: &#x27;placebo&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;participants&#x27;: 2379}]</td><td>not extracted</td></tr>
-<tr><td>NCT03048825</td><td>CLEAR SYNERGY</td><td>[{&#x27;label&#x27;: &#x27;colchicine 0.5 mg once daily&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;participants&#x27;: 3528}, {&#x27;label&#x27;: &#x27;placebo&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;participants&#x27;: 3534}]</td><td>not extracted</td></tr>
+<tr><td>ACTRN12614000093684</td><td>LoDoCo2</td><td>colchicine 0.5 mg once daily (treatment, n=2762) vs placebo (control, n=2760)</td><td>not extracted</td></tr>
+<tr><td>NCT02551094</td><td>COLCOT</td><td>colchicine 0.5 mg once daily (treatment, n=2366) vs placebo (control, n=2379)</td><td>not extracted</td></tr>
+<tr><td>NCT03048825</td><td>CLEAR SYNERGY</td><td>colchicine 0.5 mg once daily (treatment, n=3528) vs placebo (control, n=3534)</td><td>not extracted</td></tr>
 </table></div>
 <h3 id="paper-figure-legends">Figure legends</h3>
 <div class='tscroll'><table><caption>Figures, and what each one shows<br><small class='muted'>&larr; results.by_outcome</small></caption>

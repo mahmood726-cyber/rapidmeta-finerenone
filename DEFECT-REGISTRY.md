@@ -743,6 +743,273 @@ reported only the lost pairs — the more natural design — the revert would ha
 would have caught this at step one — an audit that refuses to report on files with uncommitted
 modifications until it says so. Recorded as not written.
 
+### 42. THE MANUSCRIPT GUARD PAID FOR ITSELF, ON A SCENARIO IT WAS NOT BUILT FOR
+
+**Recorded as prominently as any defect in this file, because a guard that fires only on the
+case it was designed around has not yet been shown to be real.**
+
+`ssot/manuscript_guard.py` was written at the end of a long session for a hypothetical: a
+rebuild of `ARNI_HF_REVIEW.html` replacing a 100,825-character authored docmodel with a 5,701
+character projection. That hazard was real and it never happened — ARNI was excluded from the
+rollout by name.
+
+What the guard actually caught, a day later, was **a different lane's improvement silently
+removing 43% of a different manuscript**:
+
+```
+DOAC_AF_REVIEW: delivered 19712 chars -> this build 11239 chars  (-42.98% text)
+Nothing was written.
+```
+
+The cause was `_arms_text`, written to stop a Python repr reaching readers — a genuine fix,
+proven against all 407 trial rows, which reduced eight prose fields per arm to the phrase
+`[+8 further fields recorded on the object]`. Among those eight:
+`label_corrected_because: "registry arm size 6076 is the dabigatran 150 mg group"` and a
+`label_correction_note` describing a positional-conversion error in the arm converter. **Those
+are findings in this corpus's own terms — the sentences it exists to publish.**
+
+> **A guard justified by one scenario, firing on an unrelated one, is the strongest evidence
+> available that a guard is load-bearing rather than ceremonial.** Nothing about the DOAC case
+> resembled ARNI: different topic, different mechanism, different author, opposite intent. The
+> guard did not know any of that. It knew the manuscript got smaller.
+
+**And the override was NOT used.** `RM_ALLOW_MANUSCRIPT_SHRINK=1` would have cleared all eleven
+refusals in one command, and the 43% would have gone out with the ten legitimate ones. The
+shrink was attributed page by page instead, and the one page whose loss was not attributable
+was the one that mattered.
+
+### 43. COUNTED IS NOT THE SAME AS DELIVERED — *a true statement about quantity, where the content belongs*
+
+`[+8 further fields recorded on the object]` is true. It is accurate, it discloses rather than
+conceals, it was written specifically so that nothing would be dropped silently — and it stood
+where 8,470 characters of authored prose had been.
+
+**It is the false-refusal shape, one level over:** class 29 records a refusal whose reason is
+true about something else; this is a *disclosure* whose content is true about the quantity of
+the thing it replaced. Both read as diligence. Both pass every check that reads them. A
+reviewer seeing "8 further fields recorded" concludes the fields are safe, which they are —
+*on the object*, which is not where a reader is.
+
+> **Disclosing an omission is not an alternative to not omitting.** It is what you do when the
+> omission is forced. When the content will fit, the content goes in.
+
+**The fix is structural, and that is the transferable part.** The fields being hidden were
+`label_corrected_because`, `label_correction_note`, `registry_role_contradiction_note`,
+`head_to_head_role_note`, `label_corrected` — **each invented one at a time, by different
+lanes, as each new kind of correction was found**. A keyword list catches only what has already
+been seen and is guaranteed to miss the next one. The rule that does not:
+
+> **A string over forty characters in a data cell is prose somebody wrote to be read.**
+
+It covers the field nobody has invented yet, which a name-based rule cannot.
+
+### 41. ONE ERROR, FIVE STORES — *reasoning from what an instrument shows to what is true of the world*
+
+**Promoted to its own class because the pattern is more useful than any of its instances, and
+because two fresh instances arrived within one stretch of one session, in two different stores,
+committed by someone who had just written up the first.**
+
+This project's standing rule names three stores:
+
+> *An absence reported by **an index**, by **a filesystem**, or by **your own search** is not an
+> absence in the world.*
+
+Two more have now been paid for, and both are worse than the original three, because the
+original three are obviously catalogues and these two feel like testimony:
+
+| # | store | what it reported | what was true |
+|--:|---|---|---|
+| 1 | an index | — | *(standing rule; pre-dates this entry)* |
+| 2 | a filesystem | — | *(standing rule)* |
+| 3 | your own search | — | *(standing rule)* |
+| 4 | **a passing gate** | 1 placeholder leak across 109 pages | **8** reached a reader; the gate's patterns are `>None<`, `: None`, `/None`, and seven instances were **mid-sentence** — it could never have seen them |
+| 5 | **an absent decision record** | no decision found, so *"a rule written and never applied"* | the decision existed at the repository root, dated, citing the Handbook, and had been **fully applied to all 19 objects** |
+| 6 | **a build directory** | 11 pages "unchanged, nothing to attribute" | those 11 had **no new build at all** — the guard refused them, so nothing was written, and the directory still held the PREVIOUS rollout's copy. One of them was losing **43%** of its manuscript |
+
+**Instance 6 is the subtlest and it happened inside the instrument written to attribute the
+others.** A guard-refused build writes no file. So *a page that came out identical* and *a page
+that was never built* are the same bytes on disk, and every length, hash and diff taken from
+that directory reports them as the same event. The attribution script's summary read
+**"110 of 111 fully explained"**; the 43% existed only in the guard's own log, and was found by
+reading the log instead of the summary.
+
+> **Print the summary AND the detail; the disagreement between them is the safety.** Here the
+> summary and the detail disagreed completely and only the detail was true. A script that
+> derives its population from a directory inherits every ambiguity that directory has —
+> including the one where absence and success look alike.
+
+**Why 4 and 5 are the dangerous ones.** An index is plainly a catalogue and a filesystem is
+plainly a lookup, so their limits are visible in what they are. A gate was *written to find
+this*, so its silence reads as evidence rather than as scope. A decision record is *the
+authority*, so its apparent absence reads as "no decision" rather than as "not consulted".
+**Both invert from instrument to world without anything in the reasoning looking wrong.**
+
+**The question that catches all five**, and it is one question, not five:
+
+> **Could this instrument have reported the thing I am concluding is absent?**
+
+For the gate: could a mid-sentence `None` make it fail? No — three lines of its own source say
+so. For the record: was it read? No — `ls DECIDED-*` was never run.
+
+**Neither instance was caught by re-reading.** Both were caught by going to the world: one
+`grep` over delivered pages, one `ls` over the repository root. *Re-reading a sound inference
+from a silent instrument returns the same sound inference every time.*
+
+> **The instances are recorded in full at class 39 (the gate) and class 40 (the record).** This
+> class exists so the sixth is recognised as the sixth.
+
+**Honest limit on this table.** The three standing stores are quoted from the rule as written;
+this entry does **not** re-derive the original incidents behind them, and a sixth candidate —
+an *evidence directory* — was raised from memory and **could not be confirmed as distinct from
+the filesystem instance**, so it is not listed. Recording that rather than rounding it up to
+six, because inflating the count of a class about false inference would be the class.
+
+### 40. A DECISION RECORD THAT NOBODY GREPS IS INDISTINGUISHABLE FROM A DECISION NOBODY TOOK
+
+**This is about how this project uses its own records, not about the question that exposed it.**
+
+Nineteen pooled outcomes carry a `house_rule_interval_*` block. Fifteen of them serve an
+interval that excludes the null beside a recorded one that does not. Reading only the objects,
+the obvious conclusion is *a rule was written and never applied* — and that is the conclusion
+that was reached, written up, and proposed as a unit of **fifteen P19 promotions**.
+
+It was wrong. `DECISIONS-COCHRANE-2026-08-18.md` had already settled it, at the repository
+root, in a file named for the purpose:
+
+> **Hartung-Knapp — DECIDED: sensitivity, not primary, at k≤3.** *"When there are only two or
+> three studies, we advise review authors to undertake a sensitivity analysis to compare
+> results from the different methods."* … **So HKSJ is not adopted as the primary interval.**
+> … *the Handbook's own remedy for the small-k case is to show both rather than to pick one.*
+
+The two intervals are not a contradiction. **They are the decision, executed.** The correct
+unit was a renderer change over at most eleven pages.
+
+**The check that would have prevented it was `ls DECIDED-*` and one `grep`.** It cost two
+commands once someone said the record existed. Nothing else about the investigation was
+careless — the measurement was right, every number in it survived checking, and the
+interpretation was still inverted.
+
+> **A record only exists to the extent that it is consulted.** This project keeps dated
+> decision records at its root precisely so a later lane does not re-litigate a settled
+> question — and a later lane re-litigated a settled question, from the objects, thoroughly,
+> and reached the opposite answer. *An unread record is not a weaker safeguard than no record;
+> it is indistinguishable from one, and it is worse, because it makes everyone feel safer.*
+
+**Rule.** Before proposing a unit of work on a methodological question — an estimator, an
+interval, an eligibility axis, a pooling decision — **grep the decision records first**. They
+are dated, at the root, named `DECIDED-*` / `DECISIONS-*` / `BLOCKED-*`.
+
+**And verify a reconstruction in BOTH directions.** This surfaced because someone recalled the
+decision from memory and said so, asking for it to be checked rather than believed. *Their
+memory was right and the fresh investigation was wrong* — and neither party knew which until
+the file was read. A remembered decision and a derived-from-evidence conclusion are both
+claims; the record adjudicates, and the direction of the correction cannot be predicted from
+which one felt better supported.
+
+**The shape worth generalising.** A remedy that stops at the projection layer is invisible from
+both ends: **the object holds it, so an object audit passes; the page lacks it, so a reader
+never sees it; and nothing compares the two.** Every check in this repository reads one side
+or the other. That is the gap this class occupies.
+
+### 39. A DEFAULT THAT A PRESENT-BUT-NULL KEY CAN NEVER REACH — *the care was real and the construct defeated it*
+
+**The worked example is the one where somebody was clearly thinking about absence.**
+
+```python
+d.get("records_returned", "an unrecorded number of")
+```
+
+`paper_projector.py:356`, inside the sentence that reports each executed search:
+
+> *"It returned %s record(s)."*
+
+Someone wrote a graceful fallback for the case where a search has no recorded count. They
+chose a phrase that reads correctly in the sentence — *"It returned an unrecorded number of
+record(s)"* — which is careful, deliberate work. **It can never be reached.** A `dict.get`
+default applies only to a **missing** key; it is never consulted for a key that is *present
+with a null value*. Six topics hold `records_returned: null`, and every one of them renders
+
+> *"It returned None record(s)."*
+
+**This is a better teaching case than a bare `""` default**, because nothing about the code
+looks wrong and the author was demonstrably not being careless. The construct defeated the
+care. A reviewer reading that line sees an absence being handled and moves on.
+
+**Where it was found, and how it presented.** As the leak `str(t.get("nct", ""))` → `"None"`
+in a registration table, caught by the pre-push placeholder gate on one page. The general
+form was found only by asking whether the same shape existed elsewhere.
+
+**The counting discipline this class needs, because the pattern over-reports.** A sweep of
+`ssot/*.py` and `scripts/*.py`, parsed rather than grepped, found **1535** two-argument
+`.get()` calls with a non-None default; **98** keys are observed present-and-null somewhere
+in the corpus; **89** sites intersect. *That is not 89 defects.* The intersection is on **key
+name**, not on **path** — `pmid` being null somewhere in an object is not `pmid` being null at
+`published_comparison.reviews[*].pmid`, which is what that renderer reads. **That is P33 one
+level up: a keyword for the name of a thing is not a test for the thing, and the sweep is the
+thing being tested here.**
+
+**THE FIRST CORROBORATION I REACHED FOR WAS WRONG, AND IT WAS WRONG IN THE REASSURING
+DIRECTION.** This entry originally read: *the placeholder gate found exactly one leak across
+109 rendered pages, so most of the 89 are latent.* Then the delivered pages were grepped
+directly:
+
+| | |
+|---|---:|
+| sites the pattern matched | 89 |
+| page-instances the **gate** reported | 1 |
+| page-instances **actually reaching a reader** | **8** |
+
+Seven delivered pages read *"It returned None record(s)."* right now — both AZILSARTANs, all
+four BOSENTANs, and COLCHICINE_CVD_CORONARY. **The gate does not see them.** Its patterns are
+`>None<`, `: None`, and `/None`; this one is **mid-sentence**, which no value-slot pattern
+matches.
+
+> **A gate's silence was used as evidence about the world.** The reasoning was "the gate found
+> one, therefore there is roughly one" — which assumes the gate can see the thing being
+> counted. It cannot. *An absence reported by an instrument is an absence in the instrument
+> until the world has been asked directly.* Report the number that reaches a reader beside the
+> number the pattern matched, and obtain the first by **looking at the delivered bytes**, never
+> by subtracting the gate's count from the sweep's.
+
+**A GATE IS THE FOURTH STORE, AND IT IS THE MOST PERSUASIVE OF THE FOUR.** This project already
+holds the rule that an absence reported by **an index**, by **a filesystem**, or by **your own
+search** is not an absence in the world. A **passing gate** is the same error wearing better
+clothes: an index is obviously a catalogue and a filesystem is obviously a lookup, but a gate
+was *written to find this*, so its silence feels like testimony rather than scope. It is scope.
+The question to put to a green gate before quoting it is not "did it pass" but **"could this
+instance have made it fail?"** — and here the answer was no, on every one of the seven, for a
+reason visible in three lines of its own source.
+
+> The provenance is worth keeping because it is unflattering: **the false inference was made
+> while writing this entry, by the author of this entry, about the very sweep this entry
+> governs.** It was not caught by re-reading it. It was caught by grepping the delivered pages,
+> which took one command. *The claim was falsified by measurement, not by argument* — and no
+> amount of re-reading the sentence would ever have falsified it, because the sentence was
+> perfectly reasonable and simply untrue.
+
+`.get('pmid', '')` remains latent on 48 topics — latent is not safe, it is *not yet*.
+
+**The fix is mechanical and the diagnosis is not, and the obvious repair is a trap.**
+`d.get(k) or DEFAULT` is wrong wherever `0`, `False` or `""` is meaningful. Here it is
+actively destructive: **a search returning 0 records is a real finding** — it is how a query
+that missed gets recorded, which P23 requires — and `0 or "an unrecorded number of"` replaces
+that finding with an absence phrase. The correct test is `is None`, never falsiness, and the
+difference is invisible until a zero arrives.
+
+| | key missing | present-and-null | 109 | **0** |
+|---|---|---|---|---|
+| shipped `.get(k, D)` | D | **"None"** | 109 | 0 |
+| `.get(k) or D` | D | D | 109 | **D — destroys a real zero** |
+| `v = .get(k); D if v is None else v` | D | D | 109 | 0 |
+
+**Same family as:** class 28 (a rule that cannot return nothing cannot tell you it does not
+know) and class 34 (a fallback that always produces something cannot report an absence). The
+distinguishing feature here is that the fallback *would* have reported the absence correctly.
+It was simply never called.
+
+**Status: OPEN.** One site fixed at three layers (generator, stamp, renderer). The remaining
+88 are named but not adjudicated: each needs its path checked against the data, not its key.
+
 ### 38. A RULE VIOLATED BY THE PEOPLE WHO HAVE JUST READ IT — *the availability is the defect, not the reader*
 
 **Fifteenth instance in this project. Three in one session, by an author who had read the rule

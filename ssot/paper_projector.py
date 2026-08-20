@@ -276,7 +276,8 @@ def _arms_text(value):
         # An empty list is an ABSENCE and is reported as one. `[]` on a page is a Python
         # object standing where a statement belongs.
         return "not recorded on this object"
-    rendered, extra = [], 0
+    IDENT = ("label", "name", "role", "participants", "randomised")
+    rendered, counted, notes = [], 0, []
     for arm in value:
         if not isinstance(arm, dict):
             rendered.append(str(arm))
@@ -295,12 +296,33 @@ def _arms_text(value):
         if bits:
             piece += " (%s)" % ", ".join(bits)
         rendered.append(piece)
-        extra += len([k for k in arm
-                      if k not in ("label", "name", "role", "participants", "randomised")])
+        # A NOTE IS NOT AN EXTRA FIELD. The first version of this counted everything
+        # outside IDENT, which on doac-af-review reduced 8470 characters to the phrase
+        # "[+8 further fields recorded on the object]" -- and among those eight was
+        # `label_corrected_because: "registry arm size 6076 is the dabigatran 150 mg
+        # group"`. A correction note is a FINDING in this corpus, not metadata, and
+        # replacing a finding with a count of findings is the shape this project audits
+        # for. It was unreadable inside a repr before; counted is not better enough.
+        #
+        # THE TEST IS STRUCTURAL, NOT A KEYWORD LIST. Prose is prose whatever the field
+        # is called, and a keyword list would only ever catch the names already seen --
+        # `label_corrected_because`, `registry_role_contradiction_note`,
+        # `head_to_head_role_note` were all invented one at a time. A string value over
+        # 40 characters in a data cell is a sentence somebody wrote to be read.
+        for k in sorted(arm):
+            if k in IDENT:
+                continue
+            v = arm.get(k)
+            if isinstance(v, str) and len(v.strip()) > 40:
+                notes.append("%s (%s): %s" % (label or "arm", k, v.strip()))
+            else:
+                counted += 1
     out = " vs ".join(rendered)
-    if extra:
-        out += "  [+%d further field%s recorded on the object]" % (extra,
-                                                                   "" if extra == 1 else "s")
+    if counted:
+        out += "  [+%d further field%s recorded on the object]" % (
+            counted, "" if counted == 1 else "s")
+    for note in notes:
+        out += "  " + note
     return out
 
 
@@ -351,9 +373,25 @@ def project(obj, journal="generic", length="standard"):
             s.refusals.append(("a search entry with no executed query",
                                ["search.databases[%d].query_as_executed" % i]))
             continue
+        # A DEFAULT A PRESENT-BUT-NULL KEY CAN NEVER REACH (registry class 39). These three
+        # defaults are careful, deliberate fallbacks -- "an unrecorded number of" reads
+        # correctly in the sentence around it -- and `dict.get`'s default applies only to a
+        # MISSING key, never to one present with a null value. Six topics hold
+        # `records_returned: null` and SEVEN DELIVERED PAGES read "It returned None
+        # record(s)." The care was real; the construct defeated it, and no gate sees it,
+        # because the leak detector matches None in a value slot or at the end of a URL and
+        # this one is mid-sentence.
+        #
+        # `or` WOULD BE WRONG HERE. A search returning 0 records is a real and important
+        # result -- it is how a query that missed is recorded -- and `0 or default` would
+        # replace it with the absence phrase. The test is `is None`, not falsiness.
+        def _dflt(key, fallback):
+            v = d.get(key)
+            return fallback if v is None else v
         txt = ("%s %s on %s with the query, verbatim: %s. It returned %s record(s)."
-               % (verb, d.get("database", "an unnamed source"), d.get("date_executed", "(no date recorded)"),
-                  q, d.get("records_returned", "an unrecorded number of")))
+               % (verb, _dflt("database", "an unnamed source"),
+                  _dflt("date_executed", "(no date recorded)"),
+                  q, _dflt("records_returned", "an unrecorded number of")))
         # A QUERY THAT MISSED AN INCLUDED TRIAL IS PART OF THE METHODS, NOT AN EMBARRASSMENT
         # TO OMIT. The object records it; the manuscript states it.
         if d.get("DEFECT_FOUND"):
