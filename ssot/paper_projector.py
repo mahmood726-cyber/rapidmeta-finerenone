@@ -1254,6 +1254,29 @@ def project(obj, journal="generic", length="standard"):
         else:
             s.refusals.append(("the reason the pool over %s is declined" % name,
                                ["results.by_outcome.%s.poolable_reason" % oid]))
+
+        # A DECLINED POOL CAN STILL CARRY A REFERRAL AND A FINDING, AND UNTIL NOW NEITHER
+        # RENDERED HERE.
+        #
+        # The reported branch above calls pool_referral() and pool_findings() immediately
+        # after the estimate; this branch called neither. So a finding recorded on an
+        # outcome WITHOUT a pooled point existed for us and not for the reader -- registry
+        # class 65, on the exact mechanism built to fix class 65, surviving on the one path
+        # nobody re-read. Found on cangrelor-pci-review, where BOTH of the object's pooled
+        # outcomes are unreachable: `primary` is declared but has no point, so it lands
+        # here; `corrected_composite_3component` has a point but no registered name, so the
+        # reported branch refuses it. THE OBJECT COULD NOT RENDER A FINDING AT ALL.
+        #
+        # A pool that was declined is exactly where a reader most needs to be told what the
+        # literature found instead.
+        _ref_txt, _ref_f = pool_referral(blk)
+        if _ref_txt:
+            s.paras.append((_ref_txt,
+                            [p.replace("<this outcome>", oid) for p in _ref_f]))
+        _fnd_txt, _fnd_f = pool_findings(blk)
+        if _fnd_txt:
+            s.paras.append((_fnd_txt,
+                            [p.replace("<this outcome>", oid) for p in _fnd_f]))
     secs.append(s)
 
     # ---- LIMITATIONS ------------------------------------------------------------------

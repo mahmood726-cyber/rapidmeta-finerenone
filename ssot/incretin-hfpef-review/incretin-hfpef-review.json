@@ -702,9 +702,48 @@
    "values_moved": "NONE",
    "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
    "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  },
+  {
+   "date": "2026-08-20",
+   "change": "published comparison added with a denominator (P46 limb 3)",
+   "values_moved": "NONE",
+   "what_changed": "51 matched / 51 retrieved / 51 read / 1 appraised / 0 lost. PMID 41906074 pools the same GLP-1 + GIP/GLP-1 mix across four trials and pools first HF hospitalisation to HR 0.52 (0.33-0.82) -- the outcome this object declares primary and does not pool.",
+   "why": "The limb was ABSENT: no denominator and no stated reason."
   }
  ],
  "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over.",
  "headline_outcome": "primary",
- "headline_outcome_note": "THE OBJECT DECLARES WHICH OUTCOME LEADS. A consumer that CHOOSES -- sorted()[0], first-key, first-match -- picks a different one than the page shows. That is the fifth instance of that class in this project, every one inside a tool built to prevent it. Choosing stops being the consumers job."
+ "headline_outcome_note": "THE OBJECT DECLARES WHICH OUTCOME LEADS. A consumer that CHOOSES -- sorted()[0], first-key, first-match -- picks a different one than the page shows. That is the fifth instance of that class in this project, every one inside a tool built to prevent it. Choosing stops being the consumers job.",
+ "published_comparison": {
+  "_why": "P46 limb 3. The published synthesis pools the SAME drug mix this object pools, across MORE trials, and pools the outcome this object declares primary and leaves unpooled.",
+  "_how_identified": "PubMed E-utilities, executed 2026-08-20. Query, counts and per-record disposition in ssot/incretin-hfpef-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json.",
+  "denominator": {
+   "matched": 51,
+   "retrieved": 51,
+   "read": 51,
+   "appraised": 1,
+   "not_returned_by_the_tool": 0,
+   "_house_form": "matched / retrieved / read / appraised / not returned -- P53. The query matched 51 and listed all 51, so nothing was lost to the tool. 36 records were flagged by title; ONE was appraised against its abstract and 35 were NOT READ."
+  },
+  "identity_basis": "This object's two trials are keyed to NCT04916470 (STEP-HFpEF DM, semaglutide) and NCT04847557 (SUMMIT, tirzepatide). The appraised review does NOT name its four trials in the abstract, so THE OVERLAP IS INFERRED from its eligibility criteria -- HFpEF with obesity, GLP-1 or GLP-1/GIP agonist -- and from its KCCQ estimate, and that inference is stated rather than presented as read.",
+  "reviews": [
+   {
+    "pmid": "41906074",
+    "year": 2026,
+    "journal": "BMC Cardiovascular Disorders",
+    "title": "GLP-1 and dual GIP/GLP-1 agonists in obese patients with HFpEF: a systematic review and meta-analysis of RCTs",
+    "trial_set": [
+     "NOT NAMED IN THE ABSTRACT -- four trials, n = 4,149"
+    ],
+    "trial_set_basis": "INFERRED, NOT READ. No included-study table was read. Overlap with this object's two trials is likely on eligibility grounds but is not established.",
+    "design": "systematic review and meta-analysis, prospectively registered (CRD420251237462)",
+    "n_pooled": 4149,
+    "outcome_pooled": "primary: first heart-failure hospitalisation. Secondary: KCCQ clinical summary score, six-minute walk distance, weight, all-cause mortality.",
+    "estimate_quoted": "first HF hospitalisation HR 0.52 (0.33 to 0.82) from two contributing trials; KCCQ +7.4 (4.9 to 9.9); 6MWD +17.6 m (10.7 to 24.5); weight -9.6% (-11.3 to -8.0); all-cause mortality HR 0.90 (0.67 to 1.22), which the authors call inconclusive rather than null",
+    "comparable_to_ours": true,
+    "agreement": "PARTIAL, AND THE INTERESTING PART IS WHERE WE ARE SILENT. On KCCQ, 7.4 (4.9 to 9.9) against this object's 7.43 (5.09 to 9.77) -- but THEIRS IS A POOL AND OURS IS k = 1, so this is not a reproduction. On the outcome this object declares PRIMARY it publishes NO POOLED ESTIMATE, while they pooled it to HR 0.52 (0.33 to 0.82)."
+   }
+  ],
+  "THE_FINDING_OF_THIS_COMPARISON_2026_08_20": "THEY POOLED WHERE WE DECLINED, WHICH IS THE OPPOSITE OF CLASS 76. This topic was NAMED IN ADVANCE as a predicted class-76 instance on the grounds that it pools two different drugs -- semaglutide and tirzepatide. The published synthesis pools that same class mix ACROSS MORE TRIALS, in a prospectively registered review, and pools the first-heart-failure-hospitalisation outcome that this object declares primary and leaves unpooled. THE PREDICTION WAS WRONG AND IS RECORDED AS WRONG. Whether this object should pool its primary is a content decision and is not made here."
+ }
 }
