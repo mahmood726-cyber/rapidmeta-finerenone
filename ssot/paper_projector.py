@@ -52,6 +52,7 @@ was done. There is no `|| "RoB 2"` anywhere in this file.
 """
 import io
 import json
+import math
 import re
 import os
 import sys
@@ -156,6 +157,7 @@ class Section(object):
         self.heading = heading
         self.paras = []          # [(text, [field paths])]
         self.tables = []         # [(caption, [headers], [[cells]], [field paths])]
+        self.figures = []        # [(n, caption, svg, refusal_reason, [field paths])]
         self.refusals = []       # [(what was not written, which field was absent)]
 
     def add(self, obj, text, fields):
@@ -189,9 +191,53 @@ class Section(object):
         self.tables.append((caption, list(headers), [list(r) for r in rows], list(fields)))
         return True
 
+    def add_figure(self, obj, caption, svg, fields, refusal=None):
+        """A FIGURE IS A PROJECTION TOO, and a figure that cannot be drawn REFUSES IN PLACE.
+
+        Added 2026-08-20, after Mahmood read SGLT2_HF's paper panel and said there was no
+        forest plot. There was not, in the paper -- but there were THREE, on the Analysis
+        tab of the same page, drawn by `projectors.forest_svg` from the same object. The
+        manuscript projector could emit prose, tables and refusals and had no way to carry
+        an image at all, so 1 delivered page out of 118 with a paper panel carried a figure
+        and that one is ARNI, served by the docmodel renderer rather than by this one.
+
+        TWO RULES, AND THE SECOND IS THE ONE THAT GETS DROPPED FOR EXPEDIENCE:
+
+        1. A FIGURE CARRIES A NUMBER, A CAPTION AND ITS SOURCE FIELDS. The same licence a
+           paragraph obeys: every field cited must resolve. A figure with no stated source
+           is a picture, not evidence, and it is read with more trust than a sentence.
+
+        2. A FIGURE THAT CANNOT BE DRAWN OCCUPIES ITS SLOT AND SAYS WHY. It does not
+           vanish. A gap where a funnel plot should be reads to reviewers as an oversight;
+           `k = 3, and a funnel has almost no power below about ten trials` reads as a
+           decision. This is P47's principle -- a refusal is content -- applied to figures,
+           and it is the reason `refusal` is a required argument in practice rather than a
+           convenience: passing an empty `svg` with no reason stores a sentence saying so.
+
+        THE DEGENERATE CASE IS EXCLUDED AT THE CALLER, NOT HERE. An outcome that exists but
+        cannot be plotted gets a refusal figure; an object with no outcomes at all must gain
+        NO figure, because a refusal figure for an outcome that does not exist would be
+        manufacturing content -- the exact shape of the constructed-fixture defect (class
+        58) read from the other direction.
+        """
+        missing = [f for f in fields if get(obj, f) is None]
+        if missing:
+            self.refusals.append((caption, missing))
+            return False
+        n = len(self.figures) + 1
+        if svg:
+            self.figures.append((n, caption, svg, None, list(fields)))
+            return True
+        self.figures.append((
+            n, caption, "",
+            refusal or ("not drawn, and NO REASON WAS RECORDED. That is the defect this "
+                        "slot exists to prevent, reported rather than hidden as a gap."),
+            list(fields)))
+        return False
+
     @property
     def state(self):
-        return WRITTEN if (self.paras or self.tables) else REFUSED
+        return WRITTEN if (self.paras or self.tables or self.figures) else REFUSED
 
 
 def _fmt_ci(p):
@@ -1559,6 +1605,112 @@ def project(obj, journal="generic", length="standard"):
         s.refusals.append(("the figure legends", ["results.by_outcome"]))
     secs.append(s)
 
+    # ---- FIGURES -----------------------------------------------------------------------
+    # The plots themselves, drawn by the SAME generator that already renders them on the
+    # Analysis tab of every one of these pages. Nothing is drawn here that the object does
+    # not already back, and nothing is taken from another review's document.
+    s = Section("figures", "Figures")
+    byo = get(obj, "results.by_outcome") or {}
+    if not byo:
+        # THE DEGENERATE CASE, EXCLUDED DELIBERATELY. No outcome means nothing to plot, and
+        # a refusal figure here would be a figure about a result that does not exist.
+        s.refusals.append(("the figures -- this object records no pooled outcome, so there "
+                           "is nothing to plot and no figure is manufactured to say so",
+                           ["results.by_outcome"]))
+    else:
+        try:
+            import projectors as _pj
+        except Exception:                              # noqa: BLE001 - reported, not silent
+            _pj = None
+        decl = dict((d["id"], d) for d in (obj.get("outcomes") or [])
+                    if isinstance(d, dict) and d.get("id"))
+        for oid, res in sorted(byo.items()):
+            if not isinstance(res, dict):
+                continue
+            oc = decl.get(oid) or {}
+            name = _outcome_words(obj, oid)
+            base = "results.by_outcome.%s" % oid
+            k = res.get("k")
+            kw = k if isinstance(k, int) else "not recorded"
+            # CITE WHAT ACTUALLY BACKS THE FIGURE. `base` always resolves -- we are
+            # iterating it -- so a figure is never lost to a missing sub-field; the
+            # sub-fields are named when they are there, and named in the reason when
+            # they are not.
+            src = [f for f in (base + ".per_trial", base + ".pooled")
+                   if get(obj, f) is not None] or [base]
+
+            # -- FOREST ------------------------------------------------------------------
+            svg = ""
+            if _pj is not None:
+                try:
+                    # bare=True -- the image only. The default return is an Analysis-tab
+                    # CARD with its own heading and downloads, and nesting that inside a
+                    # numbered <figure> gives the reader two headings and two captions for
+                    # one plot. Take the logic, never the template.
+                    svg = _pj.forest_svg(res, oc, bare=True)
+                except Exception:                      # noqa: BLE001 - becomes the reason
+                    svg = ""
+            pt = [r for r in (res.get("per_trial") or []) if isinstance(r, dict)]
+            usable = [r for r in pt
+                      if r.get("point") and r.get("ci_low") and r.get("ci_high")]
+            if not pt:
+                why = ("no per-trial estimates are stored for this outcome, so there are no "
+                       "rows to plot. The pooled value alone is a point, not a forest.")
+            elif not usable:
+                why = ("%d per-trial row(s) are stored and NONE carries a point estimate "
+                       "with both interval bounds. A forest drawn from points without "
+                       "intervals would show a precision the object does not hold."
+                       % len(pt))
+            else:
+                why = ("%d per-trial row(s) carry a plottable estimate and the generator "
+                       "still declined: on a log scale an interval bound at or below zero "
+                       "cannot be placed on the axis." % len(usable))
+            s.add_figure(
+                obj,
+                "Forest plot -- %s. Each contributing trial's stored estimate and interval, "
+                "with the pooled result. k = %s." % (name, kw),
+                svg, src, refusal=why)
+
+            # -- FUNNEL ------------------------------------------------------------------
+            # DECLINED BELOW k = 10, AND THE DECLINE IS THE POINT. The Analysis tab draws
+            # this at any k with a note that it cannot be read; a manuscript figure is read
+            # by reviewers as an assertion, so here it is refused with the threshold named.
+            # Cochrane Handbook 13.3.5.4.
+            fpan = (res.get("panels") or {}).get("funnel")
+            fsvg, fwhy = "", ""
+            if not isinstance(k, int) or k < 10:
+                fwhy = ("k = %s. A funnel plot and its asymmetry tests have almost no power "
+                        "below about ten trials (Cochrane Handbook 13.3.5.4), so a funnel "
+                        "drawn here would invite a reading of asymmetry this evidence "
+                        "cannot support. IT IS DECLINED RATHER THAN DRAWN, and this slot "
+                        "says so where the plot would have been." % kw)
+            elif not fpan:
+                fwhy = ("k = %s meets the threshold, but no funnel panel is stored on this "
+                        "outcome -- `%s.panels.funnel` is absent -- so the per-trial log "
+                        "effects and standard errors the plot needs are not held."
+                        % (kw, base))
+            elif _pj is not None:
+                try:
+                    pooled_pt = (res.get("pooled") or {}).get("point")
+                    pl = (res.get("panels") or {}).get("fit", {}).get("log_point")
+                    if pl is None:
+                        pl = math.log(pooled_pt) if pooled_pt and pooled_pt > 0 else 0.0
+                    fsvg = _pj.funnel_svg(
+                        [(x["log_effect"], x["se"], x["trial"]) for x in fpan], pl,
+                        null_log=0.0,
+                        measure=str((res.get("pooled") or {}).get("measure") or "Effect"),
+                        k_note="k = %s." % kw)
+                except Exception as _exc:              # noqa: BLE001 - becomes the reason
+                    fsvg, fwhy = "", ("the stored funnel panel could not be plotted (%s). A "
+                                      "broken instrument is reported, never shown as an "
+                                      "absent figure." % type(_exc).__name__)
+            s.add_figure(
+                obj,
+                "Funnel plot -- %s. Standard error against effect, with the pseudo-"
+                "confidence funnel drawn from the pooled estimate. k = %s." % (name, kw),
+                fsvg, src, refusal=fwhy)
+    secs.append(s)
+
     # ---- SUBMISSION CONFORMANCE --------------------------------------------------------
     s = Section("submission_conformance", "Submission conformance")
     bs = get(obj, "build_stamp") or {}
@@ -1605,7 +1757,7 @@ READING_ORDER = [
     "discussion", "conclusions", "limitations",
     "not_written", "funding", "references", "keywords",
     "data_availability", "software_availability", "note_on_registration",
-    "trial_characteristics", "figure_legends", "submission_conformance",
+    "trial_characteristics", "figure_legends", "figures", "submission_conformance",
 ]
 
 

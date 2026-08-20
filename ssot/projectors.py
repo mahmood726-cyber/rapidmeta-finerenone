@@ -608,8 +608,19 @@ def axis_title_svg(text, x, y):
             'fill="currentColor" opacity=".85">%s</text>%s' % (x, y, e(text), NL))
 
 
-def forest_svg(res, outcome, window=None):
+def forest_svg(res, outcome, window=None, bare=False):
     """A forest plot drawn from the stored per-trial and pooled estimates.
+
+    `bare=True` RETURNS THE IMAGE AND NOTHING ELSE. Despite the name, the default return
+    is not an SVG: it is `fig(...)` -- a card carrying its own <h3>, download links and
+    explanatory note, built for the Analysis tab. The manuscript projector wraps its own
+    <figure> with a numbered <figcaption>, so calling this without `bare` nests a complete
+    Analysis-tab card inside a figure and the reader gets the heading "Forest plot" twice
+    with two different captions. Caught on the first SGLT2 build, 2026-08-20: taking the
+    template along with the logic, in the one session whose standing instruction is to take
+    the logic and never the template.
+
+    Added as a keyword defaulting to False so no existing caller changes behaviour.
 
     THE PLOT CARRIES NO TEXT NUMBERS except the row value labels, which are the
     same projected estimates the table beside it prints, and the axis ticks,
@@ -700,7 +711,7 @@ def forest_svg(res, outcome, window=None):
            'width="100%%" role="img" aria-label="Forest plot of the stored '
            'per-trial and pooled estimates">%s%s%s</svg>'
            % (W, height, NL, ticks + body, NL))
-    if window is not None:
+    if window is not None or bare:
         return svg
     return fig(svg, "Forest plot", "forest.svg",
                "Drawn from the same stored estimates the table above lists. The "

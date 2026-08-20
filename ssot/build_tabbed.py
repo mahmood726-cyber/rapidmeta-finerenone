@@ -699,6 +699,22 @@ def _projected_paper_html(canon):
             for row in rows:
                 out.append("<tr>%s</tr>" % "".join("<td>%s</td>" % e(c) for c in row))
             out.append("</table>")
+        # A PROJECTED FIGURE. The SVG is generated markup from our own projector -- the
+        # same forest_svg that draws this page's Analysis tab -- so it is inserted as
+        # markup, while the CAPTION is escaped because it carries object values (the
+        # registered outcome name). A figure that could not be drawn keeps its number and
+        # states its reason IN PLACE OF the image, because a missing figure reads as an
+        # oversight and a declined one reads as a decision.
+        for n, caption, svg, reason, fields in getattr(s, "figures", []):
+            out.append("<figure>")
+            if svg:
+                out.append(svg)
+            else:
+                out.append("<div class='absent-state' role='note'><strong>Figure %d not "
+                           "drawn.</strong> %s</div>" % (n, e(reason or "")))
+            out.append("<figcaption>Figure %d. %s%s</figcaption>"
+                       % (n, e(caption), _mark(fields)))
+            out.append("</figure>")
         for what, missing in s.refusals:
             out.append("<div class='absent-state' role='note'><strong>Refused:</strong> "
                        "%s%s</div>" % (e(what), _mark(missing)))
