@@ -214,6 +214,9 @@ signals = {
     "wrong_protocol_link": [],
     "no_webr_tag": [],
     "pool_broken": [],
+    # THE THIRD STATE. Reported, and NOT in _blocking_keys: a page that withdraws its
+    # estimate with a reason is behaving correctly and must not be blocked for it.
+    "pool_withdrawn_with_reason": [],
     "fully_ok": [],
 }
 
@@ -443,15 +446,76 @@ with sync_playwright() as p:
             signals["wrong_protocol_link"].append((a, proto_href))
         if not webr_tag:
             signals["no_webr_tag"].append((a,))
+        # A POOL CAN BE ABSENT FOR TWO REASONS AND THIS SIGNAL KNEW ONLY ONE.
+        #
+        # THREE STATES, NOT TWO: rendered, WITHDRAWN-WITH-REASON, failed.
+        #
+        # Until 2026-08-20 an empty or "--" pooled display was `pool_broken`, full stop.
+        # But a page that WITHDRAWS its estimate deliberately renders exactly that, and
+        # withdrawing is a behaviour this project has spent the week increasing. So the
+        # check was scoring our most careful pages as our most broken ones, and every plan
+        # built on its output inherited the inversion.
+        #
+        # TIRZEPATIDE_ARDS_AUTO_FULL_REVIEW opens with "IDENTITY CORRECTED -- THIS IS A
+        # REVIEW OF ANDEXANET ALFA. Pooled: 0 trials, Quarantined: 3, Pooled estimate:
+        # withdrawn", explains that the figure it used to show was computed from arm sizes
+        # mistaken for event counts, and records a result it declines to pool. It was
+        # scored identically to a page whose renderer fell over.
+        #
+        # THE SAME BIAS, ONE LAYER UP, PRODUCED A FALSE REPORT THE SAME NIGHT: a regex
+        # matched the numerals inside that withdrawal notice and reported them as what the
+        # page serves. A CHECKER THAT READS A DISCLOSURE AS THE DEFECT IT DISCLOSES
+        # PENALISES A PAGE IN PROPORTION TO HOW HONESTLY IT DOCUMENTS ITSELF.
+        #
+        # There was already a declared-absent path here, keyed on
+        # `rapidmeta:pooled-estimate content="NONE"`. MEASURED 2026-08-20: ZERO pages in
+        # the corpus carry that meta tag, so that branch had never executed once -- a
+        # three-state mechanism that had never reached its third state. The declaration is
+        # therefore read from what the page SHOWS A READER, which is where 99 pages
+        # currently put it, and the meta tag remains as a stronger form.
+        #
+        # AND READING WHAT THE PAGE SHOWS IS RIGHT FOR A SECOND REASON, INDEPENDENT OF
+        # WHETHER ANY PAGE EMITS THE TAG. A withdrawal declared ONLY in metadata would
+        # satisfy a meta-tag check while telling the reader nothing -- the check would pass
+        # on a page whose reader still sees an unexplained "--". That is the same principle
+        # as verifying SERVED BYTES rather than a hash: the artefact a reader receives is
+        # the thing under test, and a marker they cannot see is not a disclosure.
         pool_clean = pool.strip()
+        _absent = False
         try:
             pool_f = float(pool_clean)
             if pool_f in (0.0,):
-                signals["pool_broken"].append((a, pool_clean))
+                _absent = True
         except (TypeError, ValueError):
-            # "--" or blank means pool failed
             if pool_clean in ("", "--", "NaN"):
-                signals["pool_broken"].append((a, pool_clean or "empty"))
+                _absent = True
+        if _absent:
+            # Withdrawn-with-reason must be DECLARED where a reader sees it, and must
+            # carry a REASON -- a bare "no pooled estimate" is not a withdrawal, it is a
+            # blank with a label. The same four-part rigour as the meta-tag path.
+            _decl = ("No pooled estimate" in _src or "no pooled estimate" in _src
+                     or "estimate is withdrawn" in _src
+                     or "Pooled estimate: withdrawn" in _src)
+            _reason = any(k in _src for k in
+                          ("withdrawn, not merely caveated", "Quarantined:",
+                           "why this review publishes no pooled estimate",
+                           "Why this review publishes no pooled estimate",
+                           "was withdrawn because", "is withdrawn because",
+                           "estimand", "not poolable", "declines to pool"))
+            _names_trial = bool(__import__("re").search(r"NCT\d{8}", _src))
+            if _decl and _reason and _names_trial:
+                signals.setdefault("pool_withdrawn_with_reason", []).append(
+                    (a, pool_clean or "empty"))
+            else:
+                _why = []
+                if not _decl:
+                    _why.append("no withdrawal declared where a reader sees it")
+                if not _reason:
+                    _why.append("no reason given for the absence")
+                if not _names_trial:
+                    _why.append("names no trial")
+                signals["pool_broken"].append(
+                    (a, (pool_clean or "empty") + " -- " + "; ".join(_why)))
 
         # DECLARED-ABSENT IS NOT MISSING, AND NEITHER IS A PASS (2026-08-17).
         #

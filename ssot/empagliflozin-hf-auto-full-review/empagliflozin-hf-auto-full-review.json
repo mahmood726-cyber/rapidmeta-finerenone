@@ -610,6 +610,14 @@
    "what_changed": "outcomes[0].estimand.family, outcomes[0].comparator, results.by_outcome.primary.heterogeneity_status. The 'What was measured' card is built from `outcomes[].estimand.family` and `outcomes[].comparator`, not from `pool_uniformity`, and both still held the extraction placeholder -- so a reader met 'the estimand is not recorded' and then the estimate.",
    "why": "Two fields answer one question and the previous pass corrected the one the reader does not see. This is the same shape as the 36 risk-of-bias assessments counted by P46 and rendered by nothing, at a different address: THE RENDERER AND THE RECORD READ DIFFERENT KEYS, AND THE RENDERER IS WHAT THE READER GETS.",
    "how_it_was_found": "By building the page to a scratch path and grepping the bytes, after the object was already correct. Asserting the write is not the test."
+  },
+  {
+   "date": "2026-08-20",
+   "change": "published comparison added, with its denominator",
+   "values_moved": "NONE",
+   "what_changed": "P46 limb 3 was ABSENT. It now holds 3 identified syntheses, 8 checks with a stated denominator, and a decomposition.",
+   "why": "A pooled estimate published with no comparison against the literature cannot be checked by a reader against anything.",
+   "what_it_found": "That NO identified synthesis pools EMPEROR-Reduced with EMPEROR-Preserved on this endpoint -- one predates the second trial, the other excludes the first. This review's estimate is UNREPLICATED rather than corroborated. Both errors in the table are ours."
   }
  ],
  "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",
@@ -647,5 +655,67 @@
   "why_it_was_wrong": "It asserted that the two trials' registered primaries DIFFER. They differ by the word 'the'. The sentence was generated rather than read, and it made this pool look incoherent when it is sound.",
   "why_this_direction_matters": "Every other defect found in this corpus this week made a page look BETTER than it was. This one made it look worse, and would have led someone to withdraw a good estimate. It survived precisely because of its direction: nobody audits a page for being too hard on itself.",
   "stated_before_any_number": true
+ },
+ "published_comparison": {
+  "_why": "Two trials, one drug, one endpoint verified word for word against both registrations -- and NO PUBLISHED SYNTHESIS THAT POOLS THEM TOGETHER. The two errors found are OURS and are in the table with the same weight as anything found in the literature.",
+  "_how_identified": "PubMed E-utilities; query, counts and a per-record decision in ssot/empagliflozin-hf-auto-full-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json. 130 records matched, 25 retrieved, 5 appraised, 125 NOT READ. NO INCLUDED-STUDY TABLE WAS READ for any of the five: their trial sets are INFERRED from abstract text, participant totals and search cut-off dates, and every check resting on an inferred set says so.",
+  "identity_basis": "Both contributing trials are keyed to a verified ClinicalTrials.gov registration -- NCT03057977 and NCT03057951 -- each carrying the registry's own posted primary-outcome title on this object, BEFORE any count was compared with anyone else's. A k that agrees is not a k that matches.",
+  "reviews": [
+   {
+    "id": "PM_EMPA_HF_2021",
+    "pmid": "34239906",
+    "citation": "Pan D, Xu L, Chen P, Jiang H, Shi D, Guo M. Empagliflozin in Patients With Heart Failure: A Systematic Review and Meta-Analysis of Randomized Controlled Trials. Front Cardiovasc Med 2021;8:683281. doi 10.3389/fcvm.2021.683281",
+    "their_k": 7,
+    "their_n": 5150,
+    "scope": "empagliflozin against placebo in heart failure, search closed 20 January 2021",
+    "trial_set_read": false,
+    "how_it_differs_from_ours": "Its search closed seven months before EMPEROR-Preserved reported, and its 5,150 participants are fewer than this review's two trials alone (9,718). So it pools one of our two plus six smaller trials we do not include. INFERRED from the cut-off date and the participant total, NOT read."
+   },
+   {
+    "id": "PM_SGLT2_HFPEF_2023",
+    "pmid": "36914068",
+    "citation": "Banerjee M, Pal R, Nair K, Mukhopadhyay S. SGLT2 inhibitors and cardiovascular outcomes in heart failure with mildly reduced and preserved ejection fraction. Indian Heart J 2023;75(2):122-127. doi 10.1016/j.ihj.2023.03.003",
+    "their_k": 6,
+    "their_n": 15769,
+    "scope": "SGLT2 inhibitors class-wide, HFmrEF and HFpEF only",
+    "trial_set_read": false,
+    "how_it_differs_from_ours": "Class-wide rather than empagliflozin-only, and it EXCLUDES reduced ejection fraction, so it excludes EMPEROR-Reduced -- half of this review."
+   },
+   {
+    "id": "PM_SGLT2_NMA_2023",
+    "pmid": "38179304",
+    "citation": "Kongmalai T, et al. Comparative cardiovascular benefits of individual SGLT2 inhibitors in type 2 diabetes and heart failure: a systematic review and network meta-analysis. Front Endocrinol 2023;14:1216160. doi 10.3389/fendo.2023.1216160",
+    "their_k": 11,
+    "their_n": 20438,
+    "scope": "network meta-analysis, type 2 diabetes with a history of heart failure",
+    "trial_set_read": false,
+    "how_it_differs_from_ours": "A different QUESTION -- relative efficacy between agents, not the size of the effect against placebo -- and a different population frame."
+   }
+  ],
+  "divergence_decomposed": {
+   "ours": "Odds ratio 0.7576 (0.6825 to 0.8409) for the first occurrence of adjudicated cardiovascular death or adjudicated hospitalisation for heart failure, k=2, random effects, REML. READ WITH THE CAVEAT ON THE ESTIMATE: the trials registered a time-to-first-event endpoint and published hazard ratios; this is an odds ratio over unequal follow-up.",
+   "theirs": "RR 0.77 (0.68 to 0.87) over seven empagliflozin trials whose search predates EMPEROR-Preserved; HR 0.80 (0.74 to 0.86) over six class-wide trials restricted to preserved and mildly reduced ejection fraction; and a network analysis reporting relative rather than absolute effect.",
+   "why_they_differ": "BY TRIAL SET AND BY MEASURE, AND NOT BY DISAGREEMENT. No identified synthesis pools these two trials together on this endpoint: one predates the second trial, the other excludes the first. Every published figure points the same direction as this review and not one of them is an independent check on it. THE HONEST SUMMARY IS THAT THIS PAIRING IS UNREPLICATED, bounded by the 125 records not read."
+  },
+  "denominator": {
+   "rows_checked": 8,
+   "confirmed": 3,
+   "errors": 2,
+   "errors_in_the_literature": 0,
+   "errors_in_this_review": 2,
+   "absent": 2,
+   "unresolved": 1,
+   "statement": "8 checks were applied and 3 came back clean, 2 found an error, 2 found something absent and 1 could not be settled at the layer available. The denominator is stated because a list of only the failures is not a finding, it is a selection.",
+   "symmetry": "Confirmations are listed in the same table, in the same detail, as errors. BOTH ERRORS FOUND ARE OURS -- a summary measure that is not the measure the trials reported, and a provenance block whose arm labels were inverted -- and the published literature is implicated in none of the rows. That is the result every cardiology topic reconciled in this corpus has produced.",
+   "what_this_denominator_does_not_cover": "The 125 records the screen retrieved and did not read, and the included-study table of every one of the five it did. NO PUBLISHED TRIAL SET HERE WAS READ; all are inferred. The check count is honest about the checks and the screen is separately honest about its size."
+  },
+  "THE_FINDING_OF_THIS_COMPARISON_2026_08_20": {
+   "state": "A FINDING ABOUT THE EVIDENCE, NOT A COMPARISON OUTCOME",
+   "what": "NO IDENTIFIED SYNTHESIS POOLS EMPEROR-REDUCED WITH EMPEROR-PRESERVED ON THIS ENDPOINT, and the reason is mechanical rather than mysterious.",
+   "why_the_gap_exists": "The closest empagliflozin-only synthesis (Pan 2021) CLOSED ITS SEARCH ON 20 JANUARY 2021 and EMPEROR-Preserved reported in August 2021, so the second trial could not have been in it. The nearest synthesis that DOES contain EMPEROR-Preserved (Banerjee 2023) is restricted to mildly reduced and preserved ejection fraction, which EXCLUDES EMPEROR-Reduced -- half of this review. One is seven months too early; the other excludes half the evidence. That is a specific account of the gap, and it is far stronger than reporting an absence.",
+   "so_what_it_means": "This review's estimate is NEITHER CORROBORATED NOR CONTRADICTED by the identified literature. IT IS UNREPLICATED. A reader should not take the direction agreeing across every published figure as independent support, because no published figure is answering this question.",
+   "and_closeness_is_not_corroboration": "Banerjee's HR 0.80 (0.74 to 0.86) sits close to this review's OR 0.7576 (0.6825 to 0.8409), and THAT CLOSENESS MEANS NOTHING. Different drug set -- class-wide against empagliflozin alone. Different population -- preserved and mildly reduced ejection fraction against the whole spectrum. Different measure -- a hazard ratio against an odds ratio over unequal follow-up. TWO NUMBERS THAT ARE CLOSE WHILE ANSWERING DIFFERENT QUESTIONS ARE THE THING THIS REVIEW EXISTS TO REFUSE, not evidence for it. It is recorded as UNRESOLVED in the check table for exactly that reason.",
+   "the_bound_on_this_claim": "It is 'NO IDENTIFIED SYNTHESIS', never 'no synthesis'. The screen matched 130 records, retrieved 25, appraised 5 and DID NOT READ 125. A synthesis pooling this pair could exist among them. And no included-study table was read for any of the five appraised, so even their trial sets are inferred from abstract text, participant totals and search cut-off dates."
+  }
  }
 }

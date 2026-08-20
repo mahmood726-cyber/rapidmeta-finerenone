@@ -743,6 +743,32 @@ reported only the lost pairs — the more natural design — the revert would ha
 would have caught this at step one — an audit that refuses to report on files with uncommitted
 modifications until it says so. Recorded as not written.
 
+### 52. A CHECK REPORTING ZERO HAS TWO READINGS AND ONLY ONE OF THEM IS REASSURING
+
+**Three instances in one night, and every time the two-state instrument returned the
+comforting one.**
+
+| the zero | comforting reading | true reading |
+|---|---|---|
+| resolver sweep: 0 resolvers in 782 files | no resolver has this shape | `^(\s*)def` ate the newlines; every body was empty |
+| `rapidmeta:pooled-estimate content="NONE"`: 0 pages | no page needs the withdrawn state | **no page emits the tag; the branch had never executed** |
+| `wrong_protocol_link`: 0 on every run ever | no page has a wrong protocol link | **`arni_hf_protocol` appears on 0 of 888 pages; the marker does not exist** |
+
+The last two are in the **same file**, `scripts/regression_check.py`, and `wrong_protocol_link`
+is **in the blocking set**. Two of two examined. That is not a rate, but it says **the file's
+clean signals are the ones to distrust, not its firing ones.**
+
+**The rule is not "check your regexes".** It is:
+
+> **EVERY ZERO MUST STATE WHICH OF THE TWO IT IS, AND A CHECK THAT CANNOT TELL MUST RETURN
+> `NOT_ASSESSABLE` — NEVER `PASS`.**
+
+Built into three instruments tonight as local decisions — the resolver sweep, the
+reader-facing lint, the containment lint. **It is the file's standard from here, not three
+local decisions.** A zero is a measurement of the instrument until it is shown to be a
+measurement of the world: name the population searched, and refuse when that population is
+empty.
+
 ### 51. AN UNEXPECTEDLY LARGE NUMBER FROM A NEW MEASUREMENT IS WHERE CHECKING IS MOST URGENT
 
 **And it was treated as a finding instead — in the measuring AND in the relaying.**
