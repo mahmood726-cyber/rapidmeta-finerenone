@@ -3726,6 +3726,33 @@ content decision.*
 
 ## OPEN — carried, not fixed
 
+### O0. `cangrelor-pci-review` — a withdrawal note that overstates its own defect
+
+**The honesty-penalty class, applied by us to ourselves.**
+
+The withdrawn card published **OR 0.81 (0.71–0.91)**. The withdrawal note tells a reader the
+page *"reported a significant benefit where the trials' own primary outcome does not support
+it."*
+
+**Steg et al., Lancet 2013 (PMID 24011551) — a prespecified pooled analysis of patient-level
+data from all three CHAMPION trials, 24,910 patients — reports the primary composite at OR
+0.81 (0.71–0.91).** The same value and the same interval, independently.
+
+So the withdrawn headline appears to have been **right**. What was wrong was its
+**provenance**: the object establishes that the card's stored numerators were all-cause
+mortality counts set against the primary composite's denominators, on all three trials. **A
+correct number standing on arithmetic that cannot produce it is a provenance failure, not an
+accuracy one** — and the note as written says the benefit is unsupported when the best
+available evidence supports it.
+
+**Disclosed, not resolved.** The agreement now renders where a reader meets the withdrawal,
+via `POOL_FINDINGS_` on the declared `primary` outcome: same value, same interval,
+independently reported, provenance unresolved. **Restating the withdrawal is a content
+decision about a published number and belongs to Mahmood.** Disclosing the agreement is not.
+
+*Two errors of mine on the way to this, both recorded in class 74's second half and both in
+a new direction: they accused our own corpus of carelessness it had not committed.*
+
 ### O1. A check that reads a different working tree than the one being built
 
 `scripts/regression_check.py` writes a nonce into the repo and fetches it over HTTP, so a server

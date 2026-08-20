@@ -1339,6 +1339,24 @@ def project(obj, journal="generic", length="standard"):
             _pooled.append("%s: %s %s across %s trials"
                            % (_nm, measure_words(p.get("measure")), ci_prose(p),
                               blk.get("k", "an unstated number of")))
+    # A QUALIFIED ESTIMATE MUST NOT APPEAR UNQUALIFIED IN THE ABSTRACT.
+    #
+    # The Results section renders a pool's referral and its findings immediately after the
+    # estimate. THE ABSTRACT REPEATED THE SAME NUMBERS AND CARRIED NEITHER -- and an
+    # abstract is frequently the only part read, so a referred pool quoted here bare is the
+    # withholding failure at the point of maximum exposure.
+    #
+    # A FLAG, NOT THE TEXT. Reproducing a full referral would swamp a 300-word abstract and
+    # the venue counts those words. This says a qualification exists and where to read it,
+    # which is what a reader needs to decide whether to go and look.
+    _qual = [oid for oid, blk in sorted((get(obj, "results.by_outcome") or {}).items())
+             if isinstance(blk, dict)
+             and (pool_referral(blk)[0] or pool_findings(blk)[0])]
+    if _pooled and _qual:
+        _pooled.append("%d of these pooled outcome(s) carr%s a stated qualification -- a "
+                       "referral or a recorded finding -- given in full in Results and not "
+                       "reproduced here"
+                       % (len(_qual), "ies" if len(_qual) == 1 else "y"))
     # ---- THE STRUCTURED ABSTRACT F1000RESEARCH REQUIRES --------------------------------
     #
     # Background / Methods / Results / Conclusions. TWO OF THE FOUR ARE FACTS AND TWO ARE
