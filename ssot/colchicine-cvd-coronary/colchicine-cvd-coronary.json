@@ -628,8 +628,14 @@
    },
    {
     "nct": null,
-    "verified": true,
-    "link": "https://clinicaltrials.gov/study/None"
+    "nct_is_null_because": "LoDoCo2 is registered as ACTRN12614000093684 on ANZCTR and is not registered on ClinicalTrials.gov. A field named `nct` cannot carry an ANZCTR identifier; writing one into it would be a type lie that breaks every registry lookup keyed on this field.",
+    "registration_id": "ACTRN12614000093684",
+    "registry": "ANZCTR",
+    "verified": "NOT_ASSESSABLE",
+    "verified_because": "This block's `method` is a live fetch of the ClinicalTrials.gov v2 record. That method cannot be applied to a trial with no ClinicalTrials.gov record, so no verification was performed for this trial. RECORDED AS NOT VERIFIED BY THIS METHOD, NEVER AS UNREGISTERED OR AS ABSENT: the identifier above is quoted from the trial's own published abstract, which prints it, and that is a source for the id and not a verification of it.",
+    "link": null,
+    "link_is_null_because": "The previous value was 'https://clinicaltrials.gov/study/None' -- a URL produced by formatting a null into an f-string. It resolved to nothing and asserted the wrong registry. A link is withheld rather than fabricated.",
+    "what_would_close_it": "A verification of ACTRN12614000093684 against ANZCTR, returning that registry's own record for the trial."
    },
    {
     "nct": "NCT03048825",

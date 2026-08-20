@@ -970,9 +970,17 @@ def build(topic):
                       "citation-string matching explicitly refused rather than substituted.")
 
     # --- P8 registration identity -------------------------------------------------------
-    _prior_trials = {t.get("nct"): t
-                     for t in ((obj.get("registration_identity") or {}).get("trials") or [])
-                     if t.get("nct")}
+    # AN ID-LESS ROW COULD NEVER RETAIN ANYTHING. This dict was keyed by `nct` and skipped
+    # every falsy one, so the ONE class of row that carries irreplaceable hand-written
+    # content -- the row explaining WHY it has no nct, on which registry the trial actually
+    # sits, and what would close the verification -- was the single row guaranteed to be
+    # discarded on the next stamping run. The comment below correctly warned that a rebuilt
+    # list drops what it does not re-derive; the key it chose then excluded the rows that
+    # needed the protection most. Id-less rows are keyed positionally instead.
+    _prior_trials = {}
+    for _i, _t in enumerate((obj.get("registration_identity") or {}).get("trials") or []):
+        if isinstance(_t, dict):
+            _prior_trials[_t.get("nct") or ("#%d" % _i)] = _t
     obj["registration_identity"] = _deep_merge(obj.get("registration_identity"), {
         "verified_utc": "2026-08-19",
         "method": "live fetch of the raw ClinicalTrials.gov v2 record and comparison of the "
@@ -981,16 +989,42 @@ def build(topic):
         # trials list silently dropped org_study_id and status_returned -- fields an earlier,
         # topic-specific version had verified against the registry. The key is the nct, and
         # anything already recorded against it survives.
-        "trials": [dict(_prior_trials.get(t.get("nct"), {}),
-                        **{"nct": t.get("nct"), "verified": True,
-                           "link": f"https://clinicaltrials.gov/study/{t.get('nct')}"})
-                   for t in ((obj.get("inputs") or {}).get("trials") or [])],
+        # A TRIAL WITH NO NCT GETS NO NCT URL AND NO `verified` CLAIM.
+        #
+        # This was `{"nct": t.get("nct"), "verified": True, "link":
+        # f"https://clinicaltrials.gov/study/{t.get('nct')}"}` for every trial. Two
+        # things were asserted that nothing computed. `verified` was a LITERAL True,
+        # which is a claim and not a result; and the link was an f-string over a value
+        # that may be None, which produced the stored string
+        # ".../study/None" on colchicine-cvd-coronary, where LoDoCo2 is registered on
+        # ANZCTR and NOWHERE on ClinicalTrials.gov -- a fact the object states in prose
+        # two fields above the row that contradicted it.
+        #
+        # The null was correct. `nct` means what its name means. What was wrong was
+        # building a ClinicalTrials.gov URL out of it and calling the result verified.
+        "trials": [_registration_row(t, _prior_trials, i)
+                   for i, t in enumerate(((obj.get("inputs") or {}).get("trials") or []))],
         "duplicate_seeding_check": _duplicate_check(
             [t.get("nct") for t in ((obj.get("inputs") or {}).get("trials") or [])]),
     })
-    _n = len(obj["registration_identity"]["trials"])
+    # ONE NUMBER USED TWICE CANNOT REPORT A SHORTFALL. This read
+    # f"{_n} of {_n} trial(s) verified live against the registry." -- built from the length
+    # of the list on both sides, so it said "all of them" whatever the list contained, and
+    # stamped HELD unconditionally. It stamped HELD on a topic one of whose trials has no
+    # identifier at all. The two sides are now counted separately, and P8 REFUSES when they
+    # differ, because a property that cannot fail is not a property.
+    _rows = obj["registration_identity"]["trials"]
+    _n = len(_rows)
+    _ok = sum(1 for t in _rows if isinstance(t, dict) and t.get("verified") is True)
     props["P8_registration_identity"] = prop(
-        HELD, f"{_n} of {_n} trial(s) verified live against the registry.")
+        HELD, f"{_ok} of {_n} trial(s) verified live against the registry."
+    ) if _ok == _n else prop(
+        REFUSING,
+        f"{_ok} of {_n} trial(s) verified live against the registry. The other "
+        f"{_n - _ok} carr{'ies' if _n - _ok == 1 else 'y'} no ClinicalTrials.gov "
+        f"identifier on this object, so this method could not be applied to "
+        f"{'it' if _n - _ok == 1 else 'them'}. Recorded as NOT_ASSESSABLE per trial, "
+        f"never as unregistered.")
 
     # --- P18 / P19 / P20, standard 1.4.0 -------------------------------------------------
     #
@@ -1399,6 +1433,41 @@ def _deep_merge(existing, new):
     for k, v in new.items():
         out[k] = _deep_merge(existing.get(k), v) if k in existing else v
     return out
+
+
+def _registration_row(trial, prior, index=0):
+    """One `registration_identity.trials` row, with nothing in it asserted.
+
+    An id-less trial is NOT_ASSESSABLE on both the verification and the link. That is a
+    complete outcome and is different from both "unregistered" and "unverified": LoDoCo2
+    holds ACTRN12614000093684 on ANZCTR, so it IS registered, and this object simply has
+    no ClinicalTrials.gov id with which to verify it against the registry this method
+    names. Writing `verified: true` beside a null id claimed a check that could not have
+    been performed, and it is the shape the registry files under negative claims that
+    were asserted rather than computed.
+    """
+    nct = (trial or {}).get("nct")
+    nct = nct.strip() if isinstance(nct, str) else nct
+    if not nct:
+        # Anything already recorded against this position survives, so a hand-written
+        # account of WHY there is no nct is not destroyed by the next stamping run.
+        return dict(prior.get("#%d" % index, {}), **{
+            "nct": None,
+            "verified": "NOT_ASSESSABLE",
+            "link": None,
+            "why": "This trial carries no ClinicalTrials.gov identifier on this object, so "
+                   "the verification this block's `method` describes -- a live fetch of the "
+                   "ClinicalTrials.gov v2 record -- could not be performed against it. "
+                   "RECORDED AS NOT VERIFIABLE BY THIS METHOD, NEVER AS UNREGISTERED: a "
+                   "trial registered on another registry has an identifier this field "
+                   "cannot carry, and a field named `nct` must mean what its name means.",
+            "what_would_close_it": "The trial's identifier in the registry it was actually "
+                                   "registered on, together with a verification against "
+                                   "that registry rather than against ClinicalTrials.gov.",
+        })
+    return dict(prior.get(nct, {}),
+                **{"nct": nct, "verified": True,
+                   "link": "https://clinicaltrials.gov/study/%s" % nct})
 
 
 def _duplicate_check(ncts):

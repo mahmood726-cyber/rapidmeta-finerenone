@@ -238,6 +238,72 @@ def measure_words(measure):
     return str(measure).replace("_", " ").lower() if "_" in str(measure) else str(measure)
 
 
+def _arms_text(value):
+    """The Arms cell, formatted -- because `str()` of a list of dicts is a Python repr.
+
+    This cell was `str(t.get("comparison") or t.get("arms") or "")`, so a reader received
+
+        [{&#x27;label&#x27;: &#x27;colchicine 0.5 mg once daily&#x27;, &#x27;role&#x27;: ...
+
+    on 189 trial rows across 62 topics -- 22 of the pages clean of it before the sixteen
+    new sections were projected into them. It is the same family as the `None` the push
+    gate caught, and the gate cannot see it, because a repr contains no bare None.
+
+    WRITTEN AGAINST EVERY SHAPE IN THE CORPUS, NOT THE ONE I FIRST LOOKED AT. Enumerated:
+    218 rows null, 117 `label/role/events/participants`, 23 empty lists, and eleven further
+    key sets carrying extras (`registry_label`, `label_corrected`, `regimen`,
+    `pcr_corrected_cure_percent`, ...). All of them share `label` and `role`; the rest are
+    per-topic. A formatter built from one instance encodes that instance's shape.
+
+    NOTHING IS SILENTLY DROPPED. Keys beyond the three rendered are COUNTED and the count
+    is stated in the cell, because some of them carry corrections that contradict the label
+    beside them -- `label_corrected: "LABELS SWAPPED, ARITHMETIC CORRECT"` is one. A reader
+    who cannot see that a field exists cannot ask for it.
+    """
+    if value is None:
+        return "not recorded on this object"
+    if isinstance(value, str):
+        return value
+    if isinstance(value, (int, float)):
+        return str(value)
+    if isinstance(value, dict):
+        value = [value]
+    if not isinstance(value, list):
+        # Never a repr. An unformattable shape is named, so it can be fixed.
+        return "NOT_ASSESSABLE -- arms recorded in an unrecognised shape (%s)" \
+            % type(value).__name__
+    if not value:
+        # An empty list is an ABSENCE and is reported as one. `[]` on a page is a Python
+        # object standing where a statement belongs.
+        return "not recorded on this object"
+    rendered, extra = [], 0
+    for arm in value:
+        if not isinstance(arm, dict):
+            rendered.append(str(arm))
+            continue
+        label = str(arm.get("label") or arm.get("name") or "").strip()
+        role = str(arm.get("role") or "").strip()
+        n = arm.get("participants")
+        if n is None:
+            n = arm.get("randomised")
+        bits = []
+        if role:
+            bits.append(role)
+        if n is not None:
+            bits.append("n=%s" % (int(n) if isinstance(n, float) and n.is_integer() else n))
+        piece = label or "unlabelled arm"
+        if bits:
+            piece += " (%s)" % ", ".join(bits)
+        rendered.append(piece)
+        extra += len([k for k in arm
+                      if k not in ("label", "name", "role", "participants", "randomised")])
+    out = " vs ".join(rendered)
+    if extra:
+        out += "  [+%d further field%s recorded on the object]" % (extra,
+                                                                   "" if extra == 1 else "s")
+    return out
+
+
 def _trials_by_identity(obj):
     """{registration id -> trial record}. IDENTITY, NEVER POSITION.
 
@@ -902,18 +968,53 @@ def project(obj, journal="generic", length="standard"):
     # ---- DATA AVAILABILITY -------------------------------------------------------------
     s = Section("data_availability", "Data availability")
     ri = get(obj, "registration_identity") or {}
-    if ri.get("method"):
-        s.add(obj, "Every trial in this review is keyed to a registration identifier, "
-                   "verified by %s%s." % (ri["method"],
-                                          (" on %s" % ri["verified_utc"])
-                                          if ri.get("verified_utc") else ""),
-              ["registration_identity.method"])
     trials = ri.get("trials")
-    if isinstance(trials, list) and trials:
+    _rows = [t for t in (trials or []) if isinstance(t, dict)]
+    # HOW MANY ARE KEYED IS COUNTED, NOT ASSERTED. This sentence read "Every trial in
+    # this review is keyed to a registration identifier, verified by <method>" for every
+    # object that had a method, including one whose own table beneath it showed a trial
+    # with no identifier at all. An assertion contradicted by the content under it reads
+    # as diligence, and `.get("nct", "")` returned the literal string "None" into that
+    # table because a key PRESENT with a null value never reaches the default.
+    _keyed = sum(1 for t in _rows if str(t.get("nct") or "").strip())
+    if ri.get("method"):
+        _on = (" on %s" % ri["verified_utc"]) if ri.get("verified_utc") else ""
+        if _rows and _keyed < len(_rows):
+            s.add(obj, "%d of the %d trials in this review are keyed to a registration "
+                       "identifier and verified by %s%s. The remaining %d %s no identifier "
+                       "on this object; %s recorded below as NOT_ASSESSABLE, which is not "
+                       "the same as unregistered."
+                  % (_keyed, len(_rows), ri["method"], _on, len(_rows) - _keyed,
+                     "carries" if len(_rows) - _keyed == 1 else "carry",
+                     "it is" if len(_rows) - _keyed == 1 else "they are"),
+                  ["registration_identity.method", "registration_identity.trials"])
+        else:
+            s.add(obj, "Every trial in this review is keyed to a registration identifier, "
+                       "verified by %s%s." % (ri["method"], _on),
+                  ["registration_identity.method"])
+    if _rows:
+        def _cell(v):
+            # An absent value is NOT_ASSESSABLE. Never "None", and never blank -- a blank
+            # is not a complete outcome, and "None" is a Python object reaching a reader.
+            t = str(v).strip() if v is not None else ""
+            return t if t and t != "None" else "NOT_ASSESSABLE"
+
+        def _reg(t):
+            # A REFUSAL MUST NOT DISCARD WHAT THE OBJECT KNOWS. Rendering NOT_ASSESSABLE
+            # here when the row holds `registration_id` and `registry` would tell a reader
+            # the trial has no identifier, which is the opposite of what the object says:
+            # LoDoCo2 is registered, on ANZCTR, and it is the ClinicalTrials.gov-shaped
+            # field that cannot carry it. Unassessable VERIFICATION is not an absent id.
+            if t.get("nct"):
+                return _cell(t.get("nct"))
+            ident, reg = t.get("registration_id"), t.get("registry")
+            if ident:
+                return "%s (%s)" % (ident, reg) if reg else str(ident)
+            return "NOT_ASSESSABLE"
         s.add_table(obj, "Registration identifiers, and whether each was verified",
                     ["Registration", "Verified", "Link"],
-                    [[str(t.get("nct", "")), str(t.get("verified", "")),
-                      str(t.get("link", ""))] for t in trials if isinstance(t, dict)],
+                    [[_reg(t), _cell(t.get("verified")), _cell(t.get("link"))]
+                     for t in _rows],
                     ["registration_identity.trials"])
     if isinstance(src, dict) and src:
         s.add(obj, "The underlying records are the %d source(s) listed under References; "
@@ -964,7 +1065,7 @@ def project(obj, journal="generic", length="standard"):
         s.add_table(obj, "Characteristics of every trial contributing to this review",
                     ["Registration", "Trial", "Arms", "Participants"],
                     [[nct, str(t.get("name") or ""),
-                      str(t.get("comparison") or t.get("arms") or ""),
+                      _arms_text(t.get("comparison") or t.get("arms")),
                       str(t.get("n") or t.get("n_total") or "not extracted")]
                      for nct, t in sorted(by_id.items())],
                     ["inputs.trials"])
