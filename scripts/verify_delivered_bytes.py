@@ -249,18 +249,29 @@ def main():
         for name, verdict, detail in limbs:
             print("    %-46s %-15s %s" % (name, verdict, detail))
         vs = [v for _n, v, _d in limbs]
-        verdicts.append((topic, FAIL if FAIL in vs else
-                         STALE if STALE in vs else
-                         NA if NA in vs else OK))
+        _v = (FAIL if FAIL in vs else STALE if STALE in vs else NA if NA in vs else OK)
+        # A THIRD STATE WITHOUT ITS REASON HARDENS INTO FURNITURE. The summary printed
+        # `early-rhythm-control-af  NOT_ASSESSABLE` for long enough that it read as a
+        # property of the topic rather than as a question nobody had answered. The reason
+        # was one line away: that object holds no pooled point and NO `build_stamp` at all,
+        # so `expected_from_object` returns nothing and there is no content assertion to
+        # make. Its BYTES are fine -- md5 identical, HTTP 200 -- and P10 is explicit that
+        # md5 alone is not a pass, because a stale file matches its own disk copy perfectly.
+        # So the verdict is right and only its silence was wrong.
+        _why = ""
+        if _v != OK:
+            _why = "; ".join("%s: %s" % (n, d.split(" -- ")[0])
+                             for n, v, d in limbs if v == _v)[:150]
+        verdicts.append((topic, _v, _why))
         print()
 
     print("SUMMARY -- host: %s" % host)
-    for topic, v in verdicts:
-        print("   %-30s %s" % (topic, v))
+    for topic, v, why in verdicts:
+        print("   %-30s %-16s %s" % (topic, v, why))
 
-    bad = [t for t, v in verdicts if v == FAIL]
-    stale = [t for t, v in verdicts if v == STALE]
-    na = [t for t, v in verdicts if v == NA]
+    bad = [t for t, v, _w in verdicts if v == FAIL]
+    stale = [t for t, v, _w in verdicts if v == STALE]
+    na = [t for t, v, _w in verdicts if v == NA]
     if args.build_only:
         print("\nBUILD CHECK COMPLETE. THIS IS NOT A DELIVERY RESULT and must not be reported")
         print("as one. Run without --build-only to verify what a reader receives.")

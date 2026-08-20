@@ -60,6 +60,73 @@ def _finding_block(res, key, role, p, nl):
     return "".join(out) + nl
 
 
+def _house_rule_table(res, p, e):
+    """The k<=3 sensitivity interval, for objects that hold ONE rather than a full grid.
+
+    THE DECISION WAS TAKEN AND THE REMEDY STOPPED AT THE PROJECTION LAYER.
+    `DECISIONS-COCHRANE-2026-08-18.md` settled it against Handbook 10.10.4.4-10.10.4.5 --
+    *"When there are only two or three studies, we advise review authors to undertake a
+    sensitivity analysis to compare results from the different methods"* -- and concluded
+    that HKSJ is NOT the primary interval but is REPORTED as a sensitivity analysis at
+    k <= 3, because the Handbook's remedy is to SHOW BOTH rather than to pick one.
+
+    Nineteen pooled outcomes carry the resulting `house_rule_interval_*` block. EIGHT of
+    them also carry a full `between_study_variance_method_comparison`, and only those eight
+    reached a page: `_method_table` renders that grid and nothing renders this block. So on
+    ELEVEN outcomes the analysis exists on the object, was correctly computed, and no
+    reader can see it -- including `finerenone-cv` and `sglt2-hf`.
+
+        A REMEDY THAT STOPS AT THE PROJECTION LAYER IS INVISIBLE FROM BOTH ENDS: the
+        object holds it, so an object audit passes; the page lacks it, so a reader never
+        sees it; and nothing compares the two.
+
+    This renders the two intervals the object actually holds, each with its estimator
+    named, and states that the POINT ESTIMATE IS UNCHANGED -- which is the whole finding.
+    What differs between them is the precision claim, and on fifteen of the nineteen the
+    published interval excludes the null while this one does not.
+    """
+    hr = next((res[k] for k in res if k.startswith("house_rule_interval")), None)
+    if not isinstance(hr, dict) or hr.get("ci_low") is None:
+        return ""
+    pub = hr.get("published_interval") or {}
+
+    def n4(x):
+        # `fmt` does not round -- every other table feeds it values the object already
+        # rounded at storage. `published_interval` does not: finerenone-cv holds
+        # 0.7876670478566473, which `fmt` would print in full at a reader beside
+        # 0.4699 and 1.594. Sixteen significant figures on a two-study pool is a
+        # precision claim nothing supports. Rounded to the corpus's own 4 dp.
+        if x is None:
+            return "not stated"
+        if isinstance(x, (int, float)):
+            return ("%.4f" % float(x)).rstrip("0").rstrip(".")
+        return str(x)
+    rows = ""
+    for label, est, lo, hi in (
+            ("as published", pub.get("estimator") or "as stored",
+             pub.get("ci_low"), pub.get("ci_high")),
+            ("sensitivity (Handbook 10.10.4.5)", hr.get("estimator") or "Hartung-Knapp",
+             hr.get("ci_low"), hr.get("ci_high"))):
+        if lo is None or hi is None:
+            continue
+        rows += ("    <tr><td>%s</td><td>%s</td><td class='num'>%s (%s to %s)</td></tr>%s"
+                 % (e(label), p(est), n4(hr.get("point")), n4(lo), n4(hi), NL))
+    if not rows:
+        return ""
+    note = hr.get("THE_POINT_ESTIMATE_IS_UNCHANGED") or ""
+    floor = hr.get("variance_inflation_floor") or ""
+    return ("  <h3>Does the answer depend on the pooling method?</h3>" + NL
+            + "  <p>With two or three studies the Cochrane Handbook (10.10.4.4&ndash;"
+              "10.10.4.5) asks for a sensitivity analysis comparing interval methods "
+              "rather than a choice between them. Both are given here; the published "
+              "interval is the first row.</p>" + NL
+            + "  <table>" + NL
+            + "    <tr><th>Interval</th><th>Method</th><th>Summary (95% CI)</th></tr>" + NL
+            + rows + "  </table>" + NL
+            + ("  <p><small>%s</small></p>%s" % (p(note), NL) if note else "")
+            + ("  <p><small>%s</small></p>%s" % (p(floor), NL) if floor else ""))
+
+
 def _method_table(sens, p, e, pooled=None):
     """Render the between-study-variance method comparison, if the object has one.
 
@@ -954,7 +1021,8 @@ def _outcome_section(canon, oid, p, e):
                 f"<th>I&sup2;</th><th>Effect on the conclusion</th></tr>\n"
                 f"{srows}  </table>\n"
                 f"  <p><strong>{p(s['conclusion'])}</strong></p>\n"
-                + _method_table(s, p, e, res.get("pooled")) + "</div>\n")
+                + (_method_table(s, p, e, res.get("pooled"))
+                   or _house_rule_table(res, p, e)) + "</div>\n")
     elif res.get("sensitivity"):
         s = res["sensitivity"]
         # An efficacy column and a `conclusion` line are VACCINE-shaped. This
@@ -997,7 +1065,25 @@ def _outcome_section(canon, oid, p, e):
                 + _table
                 + (f"  <p><strong>{p(concl)}</strong></p>\n" if concl else "")
                 + f"  <p><small>{p(s['authority'])}</small></p>\n"
-                + _method_table(s, p, e, res.get("pooled")) + "</div>\n")
+                + (_method_table(s, p, e, res.get("pooled"))
+                   or _house_rule_table(res, p, e)) + "</div>\n")
+
+    # AND THE CASE WITH NO `sensitivity` BLOCK AT ALL, which is the one that matters.
+    #
+    # Both branches above are gated on `res.get("sensitivity")`. `finerenone-cv` has NO
+    # sensitivity field -- it is None -- so the whole card was skipped and the fallback
+    # placed inside those branches could never run. It rendered correctly when called
+    # directly and never once from a build.
+    #
+    #     PROVING A FUNCTION IS NOT PROVING THE PATH. The four proofs written for
+    #     `_house_rule_table` called it directly, and one of them said approvingly that
+    #     "no build reported anything" -- which was true, and was the defect: nothing had
+    #     established that any build REACHES it. A guard proof must exercise the call
+    #     site, not only the callee.
+    if not sens:
+        _hr = _house_rule_table(res, p, e)
+        if _hr:
+            sens = "<div class='card'>\n" + _hr + "</div>\n"
 
     # Where the two judging families disagreed about whether a figure should be
     # published at all, the disagreement is shown rather than resolved silently
