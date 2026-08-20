@@ -176,7 +176,19 @@
     "POOL_FINDINGS_2026_08_21": {
      "a_this_pool_crosses_analysis_populations": "THE ANALYSIS POPULATION IS PART OF THE ESTIMAND AND THIS POOL CROSSES IT. Read from the registrations on 2026-08-21: NCT00509106 registers 'Clinical Cure Rate for Ceftaroline Compared to That for Ceftriaxone at the Test of Cure (TOC) in the Modified ' (population: MITTE); NCT00621504 registers 'Clinical Cure Rate at Test-of-Cure (TOC) in the Modified Intent-to-Treat Efficacy (MITTE) Populations' (population: MITTE); NCT01371838 registers 'Clinical Cure Rate for Ceftaroline Compared to That for Ceftriaxone at Test of Cure (TOC) in CE Population' (population: CE). The populations pooled are CE and MITTE.",
      "b_why_that_matters": "A CLINICALLY EVALUABLE population EXCLUDES protocol violators and indeterminate responses, and microbiologically-defined populations exclude patients without a qualifying pathogen. Those are SELECTED SUBSETS of the modified intent-to-treat population and systematically yield HIGHER cure rates. A cure-rate ratio computed in one is not an estimate of the same quantity as one computed in another, so this pooled value depends on which trial registered which population.",
-     "c_what_is_not_claimed": "NOT that the arithmetic is wrong. NOT that the direction would reverse -- that would need the per-population counts and is NOT established. And NOT that these are non-inferiority trials: THE REGISTRATIONS FETCHED DO NOT USE THAT WORD, so the design question is unresolved from the registry rather than assumed."
+     "c_what_is_not_claimed": "NOT that the arithmetic is wrong. NOT that the direction would reverse -- that would need the per-population counts and is NOT established. And NOT that these are non-inferiority trials: THE REGISTRATIONS FETCHED DO NOT USE THAT WORD, so the design question is unresolved from the registry rather than assumed.",
+     "a_no_published_pool_of_these_three_trials_was_found": "THIS SCREEN FOUND NO PUBLISHED SYNTHESIS POOLING THESE THREE TRIALS. The nearest relevant record is a NETWORK meta-analysis across many community-acquired pneumonia regimens (PMID 34540732), which answers a different question from a ceftaroline-versus-ceftriaxone pool. 42 records matched, 42 read, 18 flagged by title, ONE appraised; the rest were NOT READ, so absence here is absence FROM THIS SCREEN and not from the literature.",
+     "b_the_pool_crosses_an_analysis_population_boundary": "Two contributing trials register the primary in the MITTE population and one in the CE population. CE excludes protocol violators and indeterminate responses and systematically yields higher cure rates, so this ratio is assembled across quantities that are not the same quantity. GRADE indirectness is downgraded for it.",
+     "c_the_conclusion_survives_the_small_sample_correction": "Unlike tigecycline, ceftaroline's result holds under adjustment: the Hartung-Knapp interval at k = 3 is 1.0356 to 1.1787 on t = 4.3027 with 2 df, and it still excludes no difference. Recorded because the two topics separate on exactly this."
+    },
+    "r_output": {
+     "verbatim": "R version 4.6.0 (2026-04-24 ucrt) \nmetafor 5.0.1 \nrun_utc 2026-08-21\n\n================================================================\nTOPIC   ceftaroline-auto-full-review\nOUTCOME primary\nSTORED  RR 1.1049 (1.0494 to 1.1633), k = 3, random-effects / REML\nINPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):\n   NCT00509106      1.1118 (1.0046 to 1.2305)  yi=+0.105980  sei=0.051744\n   NCT00621504      1.0796 (0.9977 to 1.1682)  yi=+0.076591  sei=0.040247\n   NCT01371838      1.1340 (1.0348 to 1.2428)  yi=+0.125751  sei=0.046725\n----------------------------------------------------------------\nCALL: rma(yi = yi, sei = sei, method = \"REML\", test = \"knha\")\n\n\nRandom-Effects Model (k = 3; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  3.9822   -7.9643   -3.9643   -6.5780    8.0357   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0021)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 2) = 0.6553, p-val = 0.7206\n\nModel Results:\n\nestimate      se    zval    pval   ci.lb   ci.ub      \n  0.0997  0.0263  3.7953  0.0001  0.0482  0.1512  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n--- SAME FIT WITH HARTUNG-KNAPP (test = \"knha\") ---\n\nRandom-Effects Model (k = 3; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  3.9822   -7.9643   -3.9643   -6.5780    8.0357   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0021)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 2) = 0.6553, p-val = 0.7206\n\nModel Results:\n\nestimate      se    tval  df    pval   ci.lb   ci.ub    \n  0.0997  0.0150  6.6306   2  0.0220  0.0350  0.1644  * \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBACK-TRANSFORMED:\n   unadjusted     1.1048 (1.0494 to 1.1632)\n   Hartung-Knapp  1.1048 (1.0356 to 1.1787)   [t crit 4.3027 on 2 df]\n   tau^2 0.000000   Q 0.6553 on 2 df, p = 0.7206   I^2 0.00%\n\nAGREES WITH THE STORED POINT TO 4 dp: YES",
+     "_what_this_is": "Console output of the fit as printed. NOT re-typed.",
+     "call": "rma(yi = yi, sei = sei, method = \"REML\") and the knha fit",
+     "script": "ssot/fit_from_per_trial.R",
+     "run_utc": "2026-08-21",
+     "inputs_derivation": "yi = log(point); sei = (log(ci_high) - log(ci_low)) / (2 * 1.959964), from this object's own per_trial rows.",
+     "reproduces_stored_point": true
     }
    }
   }
@@ -195,6 +207,20 @@
    "values_moved": "NONE",
    "what_changed": "MIXED populations: CE, MITTE",
    "why": "The analysis population is part of the estimand and no field recorded whether this pool crossed it."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "model output, risk of bias and GRADE added",
+   "values_moved": "NONE",
+   "what_changed": "refit reproduces the stored point; certainty LOW",
+   "why": "Three limbs were ABSENT."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "published comparison added with a denominator (P46 limb 3)",
+   "values_moved": "NONE",
+   "what_changed": "42 matched / 42 read / 1 appraised",
+   "why": "The limb was ABSENT."
   }
  ],
  "carried_contrasts": [],
@@ -227,5 +253,210 @@
    "outcomes (derived)",
    "question (derived)"
   ]
+ },
+ "risk_of_bias": {
+  "tool": "RoB 2 (Cochrane risk-of-bias tool for randomized trials)",
+  "assessed_utc": "2026-08-21",
+  "assessed_per": "RESULT, not trial -- Handbook 8.2",
+  "by_outcome": {
+   "primary": {
+    "NCT00509106": {
+     "nct": "NCT00509106",
+     "trial": "FOCUS-style trial, IV ceftriaxone comparator",
+     "registered_enrolment": 622,
+     "registered_masking": "QUADRUPLE -- participant, care provider, investigator AND outcomes assessor",
+     "registered_analysis_population": "MITTE",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on every contributing registration.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- REGISTRY LACKS THE FIELD",
+       "reason": "Deviations and the analysis population actually used are not registered."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- REGISTRY LACKS THE FIELD",
+       "reason": "Neither missing-data counts nor their handling are registered."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTRATION DESIGN MODULES, READ",
+       "reason": "Clinical cure at test-of-cure is an ASSESSED JUDGEMENT. The outcomes assessor is masked on all three, which is what keeps this from being worse -- but masking is not uniform: two trials are QUADRUPLE and NCT01371838 is TRIPLE with THE CARE PROVIDER UNMASKED. A care provider who knows the assignment can influence co-interventions that feed a cure judgement."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED ACROSS THE THREE",
+       "reason": "The three registrations do not define the primary in the same analysis population -- two register MITTE and one registers CE. The result pooled here is each trial's own registered primary, so nothing was selected against registration; what is uncertain is whether the three are the same quantity."
+      }
+     },
+     "overall": "SOME_CONCERNS"
+    },
+    "NCT00621504": {
+     "nct": "NCT00621504",
+     "trial": "second registrational trial, IV ceftriaxone comparator",
+     "registered_enrolment": 606,
+     "registered_masking": "QUADRUPLE -- same four roles",
+     "registered_analysis_population": "MITTE",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on every contributing registration.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- REGISTRY LACKS THE FIELD",
+       "reason": "Deviations and the analysis population actually used are not registered."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- REGISTRY LACKS THE FIELD",
+       "reason": "Neither missing-data counts nor their handling are registered."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTRATION DESIGN MODULES, READ",
+       "reason": "Clinical cure at test-of-cure is an ASSESSED JUDGEMENT. The outcomes assessor is masked on all three, which is what keeps this from being worse -- but masking is not uniform: two trials are QUADRUPLE and NCT01371838 is TRIPLE with THE CARE PROVIDER UNMASKED. A care provider who knows the assignment can influence co-interventions that feed a cure judgement."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED ACROSS THE THREE",
+       "reason": "The three registrations do not define the primary in the same analysis population -- two register MITTE and one registers CE. The result pooled here is each trial's own registered primary, so nothing was selected against registration; what is uncertain is whether the three are the same quantity."
+      }
+     },
+     "overall": "SOME_CONCERNS"
+    },
+    "NCT01371838": {
+     "nct": "NCT01371838",
+     "trial": "Asian registrational trial, ceftriaxone plus placebo",
+     "registered_enrolment": 848,
+     "registered_masking": "TRIPLE -- participant, investigator and outcomes assessor; THE CARE PROVIDER IS NOT MASKED",
+     "registered_analysis_population": "CE",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on every contributing registration.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- REGISTRY LACKS THE FIELD",
+       "reason": "Deviations and the analysis population actually used are not registered."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- REGISTRY LACKS THE FIELD",
+       "reason": "Neither missing-data counts nor their handling are registered."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTRATION DESIGN MODULES, READ",
+       "reason": "Clinical cure at test-of-cure is an ASSESSED JUDGEMENT. The outcomes assessor is masked on all three, which is what keeps this from being worse -- but masking is not uniform: two trials are QUADRUPLE and NCT01371838 is TRIPLE with THE CARE PROVIDER UNMASKED. A care provider who knows the assignment can influence co-interventions that feed a cure judgement."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED ACROSS THE THREE",
+       "reason": "The three registrations do not define the primary in the same analysis population -- two register MITTE and one registers CE. The result pooled here is each trial's own registered primary, so nothing was selected against registration; what is uncertain is whether the three are the same quantity."
+      }
+     },
+     "overall": "SOME_CONCERNS"
+    }
+   }
+  },
+  "sources_read": [
+   "ClinicalTrials.gov API v2 NCT00509106",
+   "ClinicalTrials.gov API v2 NCT00621504",
+   "ClinicalTrials.gov API v2 NCT01371838"
+  ],
+  "sources_NOT_read": "The trial publications. D2 and D3 depend on them.",
+  "ceiling": {
+   "statement": "A domain that cannot be judged from the sources READ is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect.",
+   "shape_note": "A DICT, NOT A STRING -- registry class 70."
+  },
+  "ONE_ASSESSOR_ONLY": "ASSESSED BY ONE ASSESSOR and therefore INCOMPLETE under the two-AI specification. `rob2.assessors` is deliberately NOT written."
+ },
+ "grade": {
+  "approach": "GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.",
+  "rated_utc": "2026-08-21",
+  "not_rated_up": "No domain is rated UP; these are randomised trials starting HIGH.",
+  "by_outcome": {
+   "primary": {
+    "certainty": "LOW",
+    "k": 3,
+    "started_at": "HIGH",
+    "steps": [
+     {
+      "domain": "risk_of_bias",
+      "move": "HIGH to MODERATE, down 1 level(s)",
+      "reason": "All three results are SOME_CONCERNS: non-uniform masking (one trial's care provider unmasked) on an assessed cure endpoint, with D2 and D3 NO_INFORMATION."
+     },
+     {
+      "domain": "inconsistency",
+      "move": "no downgrade",
+      "reason": "The stored refit gives tau^2 EXACTLY ZERO, Q 0.6553 on 2 df, p = 0.7206, I-squared 0.00%. The three trials agree."
+     },
+     {
+      "domain": "indirectness",
+      "move": "MODERATE to LOW, down 1 level(s)",
+      "reason": "THE POOL CROSSES AN ANALYSIS-POPULATION BOUNDARY: two trials register the primary in MITTE and one in CE. CE excludes protocol violators and indeterminate responses and systematically yields higher cure rates, so the pooled ratio is assembled across quantities that are not the same quantity."
+     },
+     {
+      "domain": "imprecision",
+      "move": "no downgrade",
+      "reason": "k = 3 and the effect is consistent. The Hartung-Knapp interval, 1.0356 to 1.1787 on t = 4.3027 with 2 df, STILL EXCLUDES no difference, so the conclusion survives the small-k adjustment."
+     },
+     {
+      "domain": "publication_bias",
+      "move": "NOT ASSESSABLE -- no rating applied",
+      "reason": "k = 3; asymmetry tests have no power (Handbook 13.3.5.4)."
+     }
+    ],
+    "summary": "LOW certainty. Downgraded once for non-uniform masking with two unjudgeable domains, and once because the pool combines results defined in different analysis populations. NOT downgraded for inconsistency or imprecision, neither of which the fit supports.",
+    "RISK_OF_BIAS_DOMAIN_CONSUMES_THESE_RESULT_LEVEL_ASSESSMENTS": [
+     "NCT00509106: SOME_CONCERNS",
+     "NCT00621504: SOME_CONCERNS",
+     "NCT01371838: SOME_CONCERNS"
+    ]
+   }
+  }
+ },
+ "published_comparison": {
+  "_why": "P46 limb 3.",
+  "_how_identified": "PubMed E-utilities, executed 2026-08-21. Query, counts and per-record disposition in ssot/ceftaroline-auto-full-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json.",
+  "denominator": {
+   "matched": 42,
+   "retrieved": 42,
+   "read": 42,
+   "appraised": 1,
+   "flagged_by_title": 18,
+   "not_returned_by_the_tool": 0,
+   "_house_form": "matched / retrieved / read / appraised / not returned -- P53. 18 flagged by title; ONE appraised against its abstract and the rest NOT READ."
+  },
+  "identity_basis": "NOT READ. Only the title and the opening of the abstract were seen; the included-study list was not.",
+  "reviews": [
+   {
+    "pmid": "34540732",
+    "year": 2021,
+    "journal": "(indexed 2021; journal not extracted)",
+    "title": "Comparing Several Treatments with Antibiotics for Community-Acquired Pneumonia: A Systematic Review and Network Meta-Analysis",
+    "trial_set": [
+     "NOT READ -- a network across many antibiotic regimens"
+    ],
+    "trial_set_basis": "NOT READ. Only the title and the opening of the abstract were seen; the included-study list was not.",
+    "design": "systematic review and NETWORK meta-analysis across antibiotic classes",
+    "outcome_pooled": "NOT ESTABLISHED -- the outcome list was not read",
+    "estimate_quoted": null,
+    "comparable_to_ours": false,
+    "why_not_comparable": "A NETWORK ACROSS MANY AGENTS ANSWERS A DIFFERENT QUESTION from a three-trial pool of ceftaroline against ceftriaxone. No published pool of THESE THREE TRIALS was found in this screen."
+   }
+  ],
+  "THE_FINDING_OF_THIS_COMPARISON_2026_08_21": "THIS SCREEN FOUND NO PUBLISHED SYNTHESIS POOLING THESE THREE TRIALS. The nearest relevant record is a NETWORK meta-analysis across many community-acquired pneumonia regimens (PMID 34540732), which answers a different question from a ceftaroline-versus-ceftriaxone pool. 42 records matched, 42 read, 18 flagged by title, ONE appraised; the rest were NOT READ, so absence here is absence FROM THIS SCREEN and not from the literature. Two contributing trials register the primary in the MITTE population and one in the CE population. CE excludes protocol violators and indeterminate responses and systematically yields higher cure rates, so this ratio is assembled across quantities that are not the same quantity. GRADE indirectness is downgraded for it. Unlike tigecycline, ceftaroline's result holds under adjustment: the Hartung-Knapp interval at k = 3 is 1.0356 to 1.1787 on t = 4.3027 with 2 df, and it still excludes no difference. Recorded because the two topics separate on exactly this."
  }
 }

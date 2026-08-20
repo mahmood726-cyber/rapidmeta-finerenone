@@ -1,0 +1,271 @@
+"""ceftaroline and tigecycline-ciai: model output, risk of bias and GRADE.
+
+READ FROM THE REGISTRATIONS, ClinicalTrials.gov API v2, 2026-08-21. Identity before
+judgement.
+
+    ceftaroline-auto-full-review          RR 1.1049 (1.0494 to 1.1633), k = 3
+      NCT00509106  n=622  RANDOMIZED  QUADRUPLE [participant, care provider, investigator,
+                                                 OUTCOMES ASSESSOR]  vs IV ceftriaxone
+      NCT00621504  n=606  RANDOMIZED  QUADRUPLE (same four roles)     vs IV ceftriaxone
+      NCT01371838  n=848  RANDOMIZED  TRIPLE [participant, investigator, OUTCOMES ASSESSOR]
+                                              -- CARE PROVIDER NOT MASKED
+                                              vs ceftriaxone plus placebo
+
+    tigecycline-ciai                      RR 0.9351 (0.8885 to 0.9842), k = 3
+      NCT00081744  n=850  RANDOMIZED  DOUBLE, WHO IS MASKED IS NOT SPECIFIED
+                          AND NO PRIMARY OUTCOME IS REGISTERED AT ALL (open item O0a)
+      NCT00136201  n=200  RANDOMIZED  MASKING: NONE -- AN OPEN-LABEL TRIAL
+                          and only ONE arm group is registered
+      NCT01721408  n=470  RANDOMIZED  TRIPLE [participant, investigator, OUTCOMES ASSESSOR]
+
+TWO FINDINGS THE STORED VALUES DID NOT CARRY.
+
+1. TIGECYCLINE POOLS AN OPEN-LABEL TRIAL WITH TWO MASKED ONES, ON A CLINICAL-RESPONSE
+   ENDPOINT. `Clinical response at test-of-cure` is an assessed judgement, and NCT00136201
+   registers masking NONE. That is not a subtlety about who was masked -- nobody was.
+
+2. THE INFERIORITY CONCLUSION DOES NOT SURVIVE THE SMALL-k ADJUSTMENT. The unadjusted
+   interval, 0.8885 to 0.9842, EXCLUDES no difference. The Hartung-Knapp interval at k = 3,
+   0.8327 to 1.0501 on t = 4.3027 with 2 df, INCLUDES IT. A reader told that tigecycline is
+   inferior on clinical cure is reading the unadjusted interval only.
+
+   Ceftaroline's superiority conclusion DOES survive: 1.0356 to 1.1787 under the same
+   adjustment. The two topics separate on exactly this, which is why the adjusted interval is
+   carried on both rather than only where it changes the answer.
+
+BOTH REFITS REPRODUCE THE STORED POINT to four decimal places, so neither finding is an
+error in the number -- both are properties of the pool the point estimate cannot express.
+
+AND BOTH POOLS CROSS AN ANALYSIS-POPULATION BOUNDARY, already recorded on each object: two
+MITTE results with one CE result on ceftaroline; ME/m-mITT with CE on tigecycline. That
+finding is consumed by the GRADE indirectness domain here rather than restated.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import atomic_write
+
+TODAY = "2026-08-21"
+STAMP = TODAY.replace("-", "_")
+S = (r"F:\claude-temp\claude\F--rapidmeta-ssot-shell"
+     r"\1b81ef60-0aa7-48a6-b23e-0c385cde4482\scratchpad")
+
+CEILING = {
+    "statement": ("A domain that cannot be judged from the sources READ is NO_INFORMATION, "
+                  "never LOW. Low-by-default asserts a fact; high-by-default invents a "
+                  "defect."),
+    "shape_note": "A DICT, NOT A STRING -- registry class 70.",
+}
+D1 = {"judgement": "LOW", "basis": "REGISTRATION DESIGN MODULE, READ",
+      "reason": "allocation is recorded as RANDOMIZED on every contributing registration.",
+      "what_is_NOT_established": "The concealment MECHANISM is not on the registry."}
+D2 = {"judgement": "NO_INFORMATION", "basis": "NOT ESTABLISHED -- REGISTRY LACKS THE FIELD",
+      "reason": "Deviations and the analysis population actually used are not registered."}
+D3 = {"judgement": "NO_INFORMATION", "basis": "NOT ESTABLISHED -- REGISTRY LACKS THE FIELD",
+      "reason": "Neither missing-data counts nor their handling are registered."}
+
+SPEC = {
+    "ceftaroline-auto-full-review": {
+        "outcome": "primary", "log": "fit_ceft.log", "k": 3, "certainty": "LOW",
+        "trials": {
+            "NCT00509106": ("FOCUS-style trial, IV ceftriaxone comparator", 622, "QUADRUPLE "
+                            "-- participant, care provider, investigator AND outcomes "
+                            "assessor", "MITTE"),
+            "NCT00621504": ("second registrational trial, IV ceftriaxone comparator", 606,
+                            "QUADRUPLE -- same four roles", "MITTE"),
+            "NCT01371838": ("Asian registrational trial, ceftriaxone plus placebo", 848,
+                            "TRIPLE -- participant, investigator and outcomes assessor; "
+                            "THE CARE PROVIDER IS NOT MASKED", "CE"),
+        },
+        "d4": {"judgement": "SOME_CONCERNS", "basis": "REGISTRATION DESIGN MODULES, READ",
+               "reason": ("Clinical cure at test-of-cure is an ASSESSED JUDGEMENT. The "
+                          "outcomes assessor is masked on all three, which is what keeps "
+                          "this from being worse -- but masking is not uniform: two trials "
+                          "are QUADRUPLE and NCT01371838 is TRIPLE with THE CARE PROVIDER "
+                          "UNMASKED. A care provider who knows the assignment can influence "
+                          "co-interventions that feed a cure judgement.")},
+        "d5": {"judgement": "SOME_CONCERNS",
+               "basis": "REGISTERED PRIMARY OUTCOMES COMPARED ACROSS THE THREE",
+               "reason": ("The three registrations do not define the primary in the same "
+                          "analysis population -- two register MITTE and one registers CE. "
+                          "The result pooled here is each trial's own registered primary, "
+                          "so nothing was selected against registration; what is uncertain "
+                          "is whether the three are the same quantity.")},
+        "grade_steps": [
+            {"domain": "risk_of_bias", "move": "HIGH to MODERATE, down 1 level(s)",
+             "reason": ("All three results are SOME_CONCERNS: non-uniform masking (one "
+                        "trial's care provider unmasked) on an assessed cure endpoint, with "
+                        "D2 and D3 NO_INFORMATION.")},
+            {"domain": "inconsistency", "move": "no downgrade",
+             "reason": ("The stored refit gives tau^2 EXACTLY ZERO, Q 0.6553 on 2 df, "
+                        "p = 0.7206, I-squared 0.00%. The three trials agree.")},
+            {"domain": "indirectness", "move": "MODERATE to LOW, down 1 level(s)",
+             "reason": ("THE POOL CROSSES AN ANALYSIS-POPULATION BOUNDARY: two trials "
+                        "register the primary in MITTE and one in CE. CE excludes protocol "
+                        "violators and indeterminate responses and systematically yields "
+                        "higher cure rates, so the pooled ratio is assembled across "
+                        "quantities that are not the same quantity.")},
+            {"domain": "imprecision", "move": "no downgrade",
+             "reason": ("k = 3 and the effect is consistent. The Hartung-Knapp interval, "
+                        "1.0356 to 1.1787 on t = 4.3027 with 2 df, STILL EXCLUDES no "
+                        "difference, so the conclusion survives the small-k adjustment.")},
+            {"domain": "publication_bias", "move": "NOT ASSESSABLE -- no rating applied",
+             "reason": "k = 3; asymmetry tests have no power (Handbook 13.3.5.4)."},
+        ],
+        "grade_summary": ("LOW certainty. Downgraded once for non-uniform masking with two "
+                          "unjudgeable domains, and once because the pool combines results "
+                          "defined in different analysis populations. NOT downgraded for "
+                          "inconsistency or imprecision, neither of which the fit supports."),
+    },
+    "tigecycline-ciai": {
+        "outcome": "cure_toc_me", "log": "fit_tige.log", "k": 3, "certainty": "VERY_LOW",
+        "trials": {
+            "NCT00081744": ("study 301", 850, "DOUBLE -- WHO IS MASKED IS NOT SPECIFIED on "
+                            "the registration", None),
+            "NCT00136201": ("study 316", 200, "NONE -- AN OPEN-LABEL TRIAL", "ME and m-mITT"),
+            "NCT01721408": ("study B1811185", 470, "TRIPLE -- participant, investigator and "
+                            "outcomes assessor", "CE"),
+        },
+        "d4": {"judgement": "HIGH", "basis": "REGISTRATION DESIGN MODULES, READ",
+               "reason": ("NCT00136201 REGISTERS MASKING: NONE -- IT IS AN OPEN-LABEL TRIAL "
+                          "-- and the pooled endpoint is CLINICAL RESPONSE at test-of-cure, "
+                          "an assessed judgement. This is not a question of which roles were "
+                          "masked; nobody was. NCT00081744 records DOUBLE masking WITHOUT "
+                          "SAYING WHO. Only NCT01721408 masks the outcomes assessor. HIGH is "
+                          "scored on a registered fact, not inferred.")},
+        "d5": {"judgement": "NO_INFORMATION",
+               "basis": "ONE CONTRIBUTING TRIAL REGISTERS NO PRIMARY OUTCOME AT ALL",
+               "reason": ("NCT00081744 carries NO registered primary outcome, so there is "
+                          "nothing to check its extracted result against and the estimand "
+                          "for that row cannot be established AT ANY LEVEL. That is "
+                          "UNVERIFIABLE rather than wrong, and it is open item O0a. The "
+                          "other two register primaries in DIFFERENT analysis populations.")},
+        "grade_steps": [
+            {"domain": "risk_of_bias", "move": "HIGH to LOW, down 2 level(s)",
+             "reason": ("D4 is HIGH: an OPEN-LABEL trial contributes to a pooled ASSESSED "
+                        "clinical-response endpoint, and a second trial does not say who was "
+                        "masked. D5 is NO_INFORMATION because one contributing trial "
+                        "registers no primary outcome at all. Two levels, not one, because a "
+                        "HIGH domain is not the same as several SOME_CONCERNS.")},
+            {"domain": "inconsistency", "move": "no downgrade",
+             "reason": ("The stored refit gives tau^2 0.000025, Q 2.1564 on 2 df, p = 0.3402, "
+                        "I-squared 1.16%. The three trials agree closely -- WHICH IS NOT "
+                        "REASSURING HERE: agreement between an open-label trial and masked "
+                        "trials does not remove the open-label problem, it only means the "
+                        "estimates are similar.")},
+            {"domain": "indirectness", "move": "LOW to VERY LOW, down 1 level(s)",
+             "reason": ("THE POOL CROSSES AN ANALYSIS-POPULATION BOUNDARY: ME/m-mITT with "
+                        "CE, and one trial's population is unknown because it registers no "
+                        "primary. The pooled ratio is assembled across quantities that are "
+                        "not the same quantity.")},
+            {"domain": "imprecision", "move": "VERY LOW -- already at the floor",
+             "reason": ("AND THIS IS THE FINDING: the unadjusted interval 0.8885 to 0.9842 "
+                        "EXCLUDES no difference, but the Hartung-Knapp interval at k = 3, "
+                        "0.8327 to 1.0501 on t = 4.3027 with 2 df, INCLUDES IT. The "
+                        "inferiority conclusion does not survive the small-k adjustment. The "
+                        "rating cannot fall below VERY LOW, so this is recorded as "
+                        "warranting a downgrade the scale cannot express.")},
+            {"domain": "publication_bias", "move": "NOT ASSESSABLE -- no rating applied",
+             "reason": "k = 3; asymmetry tests have no power (Handbook 13.3.5.4)."},
+        ],
+        "grade_summary": ("VERY LOW certainty. An open-label trial contributes to a pooled "
+                          "assessed endpoint; one contributing trial registers no primary "
+                          "outcome and so cannot be checked at all; the pool crosses "
+                          "analysis populations; and the inferiority conclusion does not "
+                          "survive the Hartung-Knapp adjustment at k = 3."),
+    },
+}
+
+
+def main():
+    dry = "--apply" not in sys.argv
+    for topic, spec in sorted(SPEC.items()):
+        path = os.path.join(REPO, "ssot", topic, topic + ".json")
+        obj = json.load(io.open(path, encoding="utf-8"))
+        blk = ((obj.get("results") or {}).get("by_outcome") or {}).get(spec["outcome"])
+        if not isinstance(blk, dict):
+            sys.exit("REFUSED: %s has no `%s`." % (topic, spec["outcome"]))
+        ncts = set(t.get("nct") for t in (obj.get("inputs") or {}).get("trials") or [])
+        for n in spec["trials"]:
+            if n not in ncts:
+                sys.exit("REFUSED: %s not on %s." % (n, topic))
+        logp = os.path.join(S, spec["log"])
+        if not os.path.exists(logp):
+            sys.exit("REFUSED: fit log %s absent." % logp)
+        body = io.open(logp, encoding="utf-8", errors="replace").read().strip()
+        if "AGREES WITH THE STORED POINT TO 4 dp: YES" not in body:
+            sys.exit("REFUSED on %s: the refit does not reproduce the stored point." % topic)
+
+        blk["r_output"] = {
+            "verbatim": body,
+            "_what_this_is": "Console output of the fit as printed. NOT re-typed.",
+            "call": 'rma(yi = yi, sei = sei, method = "REML") and the knha fit',
+            "script": "ssot/fit_from_per_trial.R",
+            "run_utc": TODAY,
+            "inputs_derivation": ("yi = log(point); sei = (log(ci_high) - log(ci_low)) / "
+                                  "(2 * 1.959964), from this object's own per_trial rows."),
+            "reproduces_stored_point": True,
+        }
+
+        by_outcome = {spec["outcome"]: {}}
+        for nct, (name, enrol, mask, pop) in sorted(spec["trials"].items()):
+            by_outcome[spec["outcome"]][nct] = {
+                "nct": nct, "trial": name, "registered_enrolment": enrol,
+                "registered_masking": mask,
+                "registered_analysis_population": pop or "NONE REGISTERED",
+                "domains": {
+                    "D1_randomisation_process": D1,
+                    "D2_deviations_from_intended_intervention": D2,
+                    "D3_missing_outcome_data": D3,
+                    "D4_measurement_of_the_outcome": spec["d4"],
+                    "D5_selection_of_the_reported_result": spec["d5"],
+                },
+                "overall": ("HIGH" if spec["d4"]["judgement"] == "HIGH"
+                            else "SOME_CONCERNS"),
+            }
+        atomic_write.merge_not_overwrite(obj, "risk_of_bias", {
+            "tool": "RoB 2 (Cochrane risk-of-bias tool for randomized trials)",
+            "assessed_utc": TODAY, "assessed_per": "RESULT, not trial -- Handbook 8.2",
+            "by_outcome": by_outcome,
+            "sources_read": ["ClinicalTrials.gov API v2 %s" % n for n in sorted(spec["trials"])],
+            "sources_NOT_read": "The trial publications. D2 and D3 depend on them.",
+            "ceiling": CEILING,
+            "ONE_ASSESSOR_ONLY": (
+                "ASSESSED BY ONE ASSESSOR and therefore INCOMPLETE under the two-AI "
+                "specification. `rob2.assessors` is deliberately NOT written."),
+        }, STAMP)
+
+        atomic_write.merge_not_overwrite(obj, "grade", {
+            "approach": ("GRADE, following the Cochrane Handbook chapter 14. Randomised "
+                         "evidence starts HIGH and is rated down with reasons."),
+            "rated_utc": TODAY,
+            "not_rated_up": "No domain is rated UP; these are randomised trials starting HIGH.",
+            "by_outcome": {spec["outcome"]: {
+                "certainty": spec["certainty"], "k": spec["k"], "started_at": "HIGH",
+                "steps": spec["grade_steps"], "summary": spec["grade_summary"],
+                "RISK_OF_BIAS_DOMAIN_CONSUMES_THESE_RESULT_LEVEL_ASSESSMENTS": sorted(
+                    "%s: %s" % (n, by_outcome[spec["outcome"]][n]["overall"])
+                    for n in spec["trials"]),
+            }},
+        }, STAMP)
+
+        obj.setdefault("display_change_announced", []).append({
+            "date": TODAY, "change": "model output, risk of bias and GRADE added",
+            "values_moved": "NONE",
+            "what_changed": "refit reproduces the stored point; certainty %s"
+                            % spec["certainty"],
+            "why": "Three limbs were ABSENT.",
+        })
+        print("%-40s refit reproduces; certainty %s" % (topic, spec["certainty"]))
+        if not dry:
+            atomic_write.write_json(path, obj, indent=1)
+    if dry:
+        print("DRY RUN -- pass --apply to write")
+
+
+if __name__ == "__main__":
+    main()

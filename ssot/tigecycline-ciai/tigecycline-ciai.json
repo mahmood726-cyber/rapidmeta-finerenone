@@ -811,7 +811,20 @@
     "POOL_FINDINGS_2026_08_21": {
      "a_this_pool_crosses_analysis_populations": "THE ANALYSIS POPULATION IS PART OF THE ESTIMAND AND THIS POOL CROSSES IT. Read from the registrations on 2026-08-21: NCT00081744 registers 'NO PRIMARY OUTCOME IS RECORDED ON THIS REGISTRATION' (population: NONE RECORDED); NCT00136201 registers 'Clinical response for all microbiologically evaluable and microbiologically modified intent-to-treat subjects' (population: ME and m-mITT); NCT01721408 registers 'Clinical Response at the Test-of-Cure (TOC) Assessment Within the Clinically Evaluable (CE) Population' (population: CE). The populations pooled are CE and ME and m-mITT.",
      "b_why_that_matters": "A CLINICALLY EVALUABLE population EXCLUDES protocol violators and indeterminate responses, and microbiologically-defined populations exclude patients without a qualifying pathogen. Those are SELECTED SUBSETS of the modified intent-to-treat population and systematically yield HIGHER cure rates. A cure-rate ratio computed in one is not an estimate of the same quantity as one computed in another, so this pooled value depends on which trial registered which population.",
-     "c_what_is_not_claimed": "NOT that the arithmetic is wrong. NOT that the direction would reverse -- that would need the per-population counts and is NOT established. And NOT that these are non-inferiority trials: THE REGISTRATIONS FETCHED DO NOT USE THAT WORD, so the design question is unresolved from the registry rather than assumed."
+     "c_what_is_not_claimed": "NOT that the arithmetic is wrong. NOT that the direction would reverse -- that would need the per-population counts and is NOT established. And NOT that these are non-inferiority trials: THE REGISTRATIONS FETCHED DO NOT USE THAT WORD, so the design question is unresolved from the registry rather than assumed.",
+     "a_a_fifteen_study_network_finds_no_difference_where_this_pool_finds_inferiority": "A PUBLISHED NETWORK META-ANALYSIS OF FIFTEEN STUDIES AND 6,745 PARTICIPANTS CONCLUDES: 'No differences in clinical and microbiological outcomes were observed between different carbapenems and TGC' (Yu et al., Medicine 2019, PMID 31577763). THIS POOL REPORTS RR 0.9351 (0.8885 to 0.9842) ON THREE TRIALS -- an interval that excludes no difference, read as tigecycline being inferior on clinical cure.",
+     "b_and_our_own_small_sample_correction_agrees_with_them": "THE INFERIORITY CONCLUSION DOES NOT SURVIVE THIS OBJECT'S OWN ADJUSTMENT. The Hartung-Knapp interval at k = 3 is 0.8327 to 1.0501 on t = 4.3027 with 2 degrees of freedom, and it INCLUDES no difference. A reader taking inferiority from this page is reading the unadjusted interval only.",
+     "c_the_evidence_base_here_is_weaker_than_the_interval_suggests": "One contributing trial is OPEN-LABEL (NCT00136201 registers masking NONE) on an assessed clinical-response endpoint; one registers NO PRIMARY OUTCOME AT ALL (NCT00081744, open item O0a) so its result cannot be checked against anything; and the three define their primary in DIFFERENT ANALYSIS POPULATIONS. GRADE certainty is VERY LOW.",
+     "d_what_is_not_established": "WHICH twelve studies the network carries that this object does not. The abstract names none and no included-study table was read, so the gap is COUNTED AND NOT IDENTIFIED."
+    },
+    "r_output": {
+     "verbatim": "R version 4.6.0 (2026-04-24 ucrt) \nmetafor 5.0.1 \nrun_utc 2026-08-21\n\n================================================================\nTOPIC   tigecycline-ciai\nOUTCOME cure_toc_me\nSTORED  RR 0.9351 (0.8885 to 0.9842), k = 3, random / REML\nINPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):\n   study-301        0.9783 (0.8999 to 1.0636)  yi=-0.021939  sei=0.042636\n   study-316        0.8838 (0.7879 to 0.9914)  yi=-0.123524  sei=0.058610\n   study-b1811185   0.9231 (0.8546 to 0.9972)  yi=-0.080018  sei=0.039368\n----------------------------------------------------------------\nCALL: rma(yi = yi, sei = sei, method = \"REML\", test = \"knha\")\n\n\nRandom-Effects Model (k = 3; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  3.2079   -6.4158   -2.4158   -5.0295    9.5842   \n\ntau^2 (estimated amount of total heterogeneity): 0.0000 (SE = 0.0021)\ntau (square root of estimated tau^2 value):      0.0050\nI^2 (total heterogeneity / total variability):   1.16%\nH^2 (total variability / sampling variability):  1.01\n\nTest for Heterogeneity:\nQ(df = 2) = 2.1564, p-val = 0.3402\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb    ci.ub    \n -0.0671  0.0261  -2.5699  0.0102  -0.1183  -0.0159  * \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n--- SAME FIT WITH HARTUNG-KNAPP (test = \"knha\") ---\n\nRandom-Effects Model (k = 3; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  3.2079   -6.4158   -2.4158   -5.0295    9.5842   \n\ntau^2 (estimated amount of total heterogeneity): 0.0000 (SE = 0.0021)\ntau (square root of estimated tau^2 value):      0.0050\nI^2 (total heterogeneity / total variability):   1.16%\nH^2 (total variability / sampling variability):  1.01\n\nTest for Heterogeneity:\nQ(df = 2) = 2.1564, p-val = 0.3402\n\nModel Results:\n\nestimate      se     tval  df    pval    ci.lb   ci.ub    \n -0.0671  0.0270  -2.4885   2  0.1306  -0.1831  0.0489    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBACK-TRANSFORMED:\n   unadjusted     0.9351 (0.8884 to 0.9842)\n   Hartung-Knapp  0.9351 (0.8327 to 1.0501)   [t crit 4.3027 on 2 df]\n   tau^2 0.000025   Q 2.1564 on 2 df, p = 0.3402   I^2 1.16%\n\nAGREES WITH THE STORED POINT TO 4 dp: YES",
+     "_what_this_is": "Console output of the fit as printed. NOT re-typed.",
+     "call": "rma(yi = yi, sei = sei, method = \"REML\") and the knha fit",
+     "script": "ssot/fit_from_per_trial.R",
+     "run_utc": "2026-08-21",
+     "inputs_derivation": "yi = log(point); sei = (log(ci_high) - log(ci_low)) / (2 * 1.959964), from this object's own per_trial rows.",
+     "reproduces_stored_point": true
     }
    }
   }
@@ -947,7 +960,227 @@
    "values_moved": "NONE",
    "what_changed": "MIXED populations: CE, ME and m-mITT",
    "why": "The analysis population is part of the estimand and no field recorded whether this pool crossed it."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "model output, risk of bias and GRADE added",
+   "values_moved": "NONE",
+   "what_changed": "refit reproduces the stored point; certainty VERY_LOW",
+   "why": "Three limbs were ABSENT."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "published comparison added with a denominator (P46 limb 3)",
+   "values_moved": "NONE",
+   "what_changed": "22 matched / 22 read / 1 appraised",
+   "why": "The limb was ABSENT."
   }
  ],
- "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed."
+ "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",
+ "risk_of_bias": {
+  "tool": "RoB 2 (Cochrane risk-of-bias tool for randomized trials)",
+  "assessed_utc": "2026-08-21",
+  "assessed_per": "RESULT, not trial -- Handbook 8.2",
+  "by_outcome": {
+   "cure_toc_me": {
+    "NCT00081744": {
+     "nct": "NCT00081744",
+     "trial": "study 301",
+     "registered_enrolment": 850,
+     "registered_masking": "DOUBLE -- WHO IS MASKED IS NOT SPECIFIED on the registration",
+     "registered_analysis_population": "NONE REGISTERED",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on every contributing registration.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- REGISTRY LACKS THE FIELD",
+       "reason": "Deviations and the analysis population actually used are not registered."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- REGISTRY LACKS THE FIELD",
+       "reason": "Neither missing-data counts nor their handling are registered."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "HIGH",
+       "basis": "REGISTRATION DESIGN MODULES, READ",
+       "reason": "NCT00136201 REGISTERS MASKING: NONE -- IT IS AN OPEN-LABEL TRIAL -- and the pooled endpoint is CLINICAL RESPONSE at test-of-cure, an assessed judgement. This is not a question of which roles were masked; nobody was. NCT00081744 records DOUBLE masking WITHOUT SAYING WHO. Only NCT01721408 masks the outcomes assessor. HIGH is scored on a registered fact, not inferred."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "NO_INFORMATION",
+       "basis": "ONE CONTRIBUTING TRIAL REGISTERS NO PRIMARY OUTCOME AT ALL",
+       "reason": "NCT00081744 carries NO registered primary outcome, so there is nothing to check its extracted result against and the estimand for that row cannot be established AT ANY LEVEL. That is UNVERIFIABLE rather than wrong, and it is open item O0a. The other two register primaries in DIFFERENT analysis populations."
+      }
+     },
+     "overall": "HIGH"
+    },
+    "NCT00136201": {
+     "nct": "NCT00136201",
+     "trial": "study 316",
+     "registered_enrolment": 200,
+     "registered_masking": "NONE -- AN OPEN-LABEL TRIAL",
+     "registered_analysis_population": "ME and m-mITT",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on every contributing registration.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- REGISTRY LACKS THE FIELD",
+       "reason": "Deviations and the analysis population actually used are not registered."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- REGISTRY LACKS THE FIELD",
+       "reason": "Neither missing-data counts nor their handling are registered."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "HIGH",
+       "basis": "REGISTRATION DESIGN MODULES, READ",
+       "reason": "NCT00136201 REGISTERS MASKING: NONE -- IT IS AN OPEN-LABEL TRIAL -- and the pooled endpoint is CLINICAL RESPONSE at test-of-cure, an assessed judgement. This is not a question of which roles were masked; nobody was. NCT00081744 records DOUBLE masking WITHOUT SAYING WHO. Only NCT01721408 masks the outcomes assessor. HIGH is scored on a registered fact, not inferred."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "NO_INFORMATION",
+       "basis": "ONE CONTRIBUTING TRIAL REGISTERS NO PRIMARY OUTCOME AT ALL",
+       "reason": "NCT00081744 carries NO registered primary outcome, so there is nothing to check its extracted result against and the estimand for that row cannot be established AT ANY LEVEL. That is UNVERIFIABLE rather than wrong, and it is open item O0a. The other two register primaries in DIFFERENT analysis populations."
+      }
+     },
+     "overall": "HIGH"
+    },
+    "NCT01721408": {
+     "nct": "NCT01721408",
+     "trial": "study B1811185",
+     "registered_enrolment": 470,
+     "registered_masking": "TRIPLE -- participant, investigator and outcomes assessor",
+     "registered_analysis_population": "CE",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on every contributing registration.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- REGISTRY LACKS THE FIELD",
+       "reason": "Deviations and the analysis population actually used are not registered."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- REGISTRY LACKS THE FIELD",
+       "reason": "Neither missing-data counts nor their handling are registered."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "HIGH",
+       "basis": "REGISTRATION DESIGN MODULES, READ",
+       "reason": "NCT00136201 REGISTERS MASKING: NONE -- IT IS AN OPEN-LABEL TRIAL -- and the pooled endpoint is CLINICAL RESPONSE at test-of-cure, an assessed judgement. This is not a question of which roles were masked; nobody was. NCT00081744 records DOUBLE masking WITHOUT SAYING WHO. Only NCT01721408 masks the outcomes assessor. HIGH is scored on a registered fact, not inferred."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "NO_INFORMATION",
+       "basis": "ONE CONTRIBUTING TRIAL REGISTERS NO PRIMARY OUTCOME AT ALL",
+       "reason": "NCT00081744 carries NO registered primary outcome, so there is nothing to check its extracted result against and the estimand for that row cannot be established AT ANY LEVEL. That is UNVERIFIABLE rather than wrong, and it is open item O0a. The other two register primaries in DIFFERENT analysis populations."
+      }
+     },
+     "overall": "HIGH"
+    }
+   }
+  },
+  "sources_read": [
+   "ClinicalTrials.gov API v2 NCT00081744",
+   "ClinicalTrials.gov API v2 NCT00136201",
+   "ClinicalTrials.gov API v2 NCT01721408"
+  ],
+  "sources_NOT_read": "The trial publications. D2 and D3 depend on them.",
+  "ceiling": {
+   "statement": "A domain that cannot be judged from the sources READ is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect.",
+   "shape_note": "A DICT, NOT A STRING -- registry class 70."
+  },
+  "ONE_ASSESSOR_ONLY": "ASSESSED BY ONE ASSESSOR and therefore INCOMPLETE under the two-AI specification. `rob2.assessors` is deliberately NOT written."
+ },
+ "grade": {
+  "approach": "GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.",
+  "rated_utc": "2026-08-21",
+  "not_rated_up": "No domain is rated UP; these are randomised trials starting HIGH.",
+  "by_outcome": {
+   "cure_toc_me": {
+    "certainty": "VERY_LOW",
+    "k": 3,
+    "started_at": "HIGH",
+    "steps": [
+     {
+      "domain": "risk_of_bias",
+      "move": "HIGH to LOW, down 2 level(s)",
+      "reason": "D4 is HIGH: an OPEN-LABEL trial contributes to a pooled ASSESSED clinical-response endpoint, and a second trial does not say who was masked. D5 is NO_INFORMATION because one contributing trial registers no primary outcome at all. Two levels, not one, because a HIGH domain is not the same as several SOME_CONCERNS."
+     },
+     {
+      "domain": "inconsistency",
+      "move": "no downgrade",
+      "reason": "The stored refit gives tau^2 0.000025, Q 2.1564 on 2 df, p = 0.3402, I-squared 1.16%. The three trials agree closely -- WHICH IS NOT REASSURING HERE: agreement between an open-label trial and masked trials does not remove the open-label problem, it only means the estimates are similar."
+     },
+     {
+      "domain": "indirectness",
+      "move": "LOW to VERY LOW, down 1 level(s)",
+      "reason": "THE POOL CROSSES AN ANALYSIS-POPULATION BOUNDARY: ME/m-mITT with CE, and one trial's population is unknown because it registers no primary. The pooled ratio is assembled across quantities that are not the same quantity."
+     },
+     {
+      "domain": "imprecision",
+      "move": "VERY LOW -- already at the floor",
+      "reason": "AND THIS IS THE FINDING: the unadjusted interval 0.8885 to 0.9842 EXCLUDES no difference, but the Hartung-Knapp interval at k = 3, 0.8327 to 1.0501 on t = 4.3027 with 2 df, INCLUDES IT. The inferiority conclusion does not survive the small-k adjustment. The rating cannot fall below VERY LOW, so this is recorded as warranting a downgrade the scale cannot express."
+     },
+     {
+      "domain": "publication_bias",
+      "move": "NOT ASSESSABLE -- no rating applied",
+      "reason": "k = 3; asymmetry tests have no power (Handbook 13.3.5.4)."
+     }
+    ],
+    "summary": "VERY LOW certainty. An open-label trial contributes to a pooled assessed endpoint; one contributing trial registers no primary outcome and so cannot be checked at all; the pool crosses analysis populations; and the inferiority conclusion does not survive the Hartung-Knapp adjustment at k = 3.",
+    "RISK_OF_BIAS_DOMAIN_CONSUMES_THESE_RESULT_LEVEL_ASSESSMENTS": [
+     "NCT00081744: HIGH",
+     "NCT00136201: HIGH",
+     "NCT01721408: HIGH"
+    ]
+   }
+  }
+ },
+ "published_comparison": {
+  "_why": "P46 limb 3.",
+  "_how_identified": "PubMed E-utilities, executed 2026-08-21. Query, counts and per-record disposition in ssot/tigecycline-ciai/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json.",
+  "denominator": {
+   "matched": 22,
+   "retrieved": 22,
+   "read": 22,
+   "appraised": 1,
+   "flagged_by_title": 12,
+   "not_returned_by_the_tool": 0,
+   "_house_form": "matched / retrieved / read / appraised / not returned -- P53. 12 flagged by title; ONE appraised against its abstract and the rest NOT READ."
+  },
+  "identity_basis": "NOT READ. No included-study list in the abstract, so the twelve studies this object does not carry are COUNTED AND NOT IDENTIFIED.",
+  "reviews": [
+   {
+    "pmid": "31577763",
+    "year": 2019,
+    "journal": "Medicine",
+    "title": "Carbapenems vs tigecycline for the treatment of complicated intra-abdominal infections: A Bayesian network meta-analysis",
+    "trial_set": [
+     "NOT NAMED -- fifteen studies, 6,745 participants"
+    ],
+    "trial_set_basis": "NOT READ. No included-study list in the abstract, so the twelve studies this object does not carry are COUNTED AND NOT IDENTIFIED.",
+    "design": "Bayesian network meta-analysis, MCMC, random effects, six agents",
+    "n_pooled": 6745,
+    "outcome_pooled": "clinical treatment success and microbiological treatment success, plus adverse events and mortality",
+    "estimate_quoted": "Quoted conclusion: 'No differences in clinical and microbiological outcomes were observed between different carbapenems and TGC.' On adverse events tigecycline was WORSE than imipenem/cilastatin: OR 1.53 (95% CrI 1.02 to 2.41).",
+    "comparable_to_ours": true,
+    "agreement": "DISAGREES ON THE CONCLUSION. They find no difference in clinical outcome across fifteen studies; this object's unadjusted interval excludes no difference across three. NOTE THAT THIS OBJECT'S OWN HARTUNG-KNAPP INTERVAL, 0.8327 to 1.0501, AGREES WITH THEM."
+   }
+  ],
+  "THE_FINDING_OF_THIS_COMPARISON_2026_08_21": "A PUBLISHED NETWORK META-ANALYSIS OF FIFTEEN STUDIES AND 6,745 PARTICIPANTS CONCLUDES: 'No differences in clinical and microbiological outcomes were observed between different carbapenems and TGC' (Yu et al., Medicine 2019, PMID 31577763). THIS POOL REPORTS RR 0.9351 (0.8885 to 0.9842) ON THREE TRIALS -- an interval that excludes no difference, read as tigecycline being inferior on clinical cure. THE INFERIORITY CONCLUSION DOES NOT SURVIVE THIS OBJECT'S OWN ADJUSTMENT. The Hartung-Knapp interval at k = 3 is 0.8327 to 1.0501 on t = 4.3027 with 2 degrees of freedom, and it INCLUDES no difference. A reader taking inferiority from this page is reading the unadjusted interval only. One contributing trial is OPEN-LABEL (NCT00136201 registers masking NONE) on an assessed clinical-response endpoint; one registers NO PRIMARY OUTCOME AT ALL (NCT00081744, open item O0a) so its result cannot be checked against anything; and the three define their primary in DIFFERENT ANALYSIS POPULATIONS. GRADE certainty is VERY LOW. WHICH twelve studies the network carries that this object does not. The abstract names none and no included-study table was read, so the gap is COUNTED AND NOT IDENTIFIED."
+ }
 }
