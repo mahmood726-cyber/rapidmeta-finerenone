@@ -42,15 +42,29 @@ R_OUTPUT = re.compile(r"\[R version|Random-Effects Model|\brma\(")
 
 
 def panel_raw(raw):
-    i = raw.find('id="paper"')
+    """The Paper panel's raw HTML, using the SAME boundary as lint_paper_reads_as_prose.
+
+    THIS FUNCTION HAD ITS OWN COPY OF THE BOUNDARY LOGIC AND IT WAS THE OLD, BROKEN ONE.
+    While the measuring instrument's boundary was corrected to end at the next
+    `class="panel"`, this one still ended at "the next element with an id I recognise" --
+    so on pages where no such element follows it returned a segment carrying no arrows at
+    all, and `flow_paths` reported 0 before AND 13 after, i.e. the register change made
+    things WORSE. It had not; the two halves of the same measurement disagreed because the
+    boundary was implemented twice and fixed once.
+
+    ONE IMPLEMENTATION NOW. A duplicated definition is a defect waiting for one copy to be
+    repaired.
+    """
+    i = raw.find('id="pn-paper"')
+    if i < 0:
+        i = raw.find('id="paper"')
     if i < 0:
         return ""
-    start = raw.rfind("<", 0, i)
-    rest = raw[start:]
-    for m in re.finditer(r'id="(?:pn-)?(?:analysis|extract|dm|data|home|dash|method)"',
-                         rest[10:]):
-        return rest[:10 + m.start()]
-    return rest
+    h2 = raw.find("<h2", i)
+    if h2 < 0:
+        return ""
+    end = raw.find('class="panel"', h2)
+    return raw[h2:end if end > 0 else len(raw)]
 
 
 def verbatim_blocks(raw):

@@ -2837,6 +2837,80 @@ has already failed nine times here.** Saying so is the point; a registry claimin
 closed classes when most are prose would be the reporting-layer failure applied to our own
 defect record.
 
+## Class 57 — A CHECK WEAKENED BY THE FIX IT JUST CAUGHT
+
+`prove_register_change_moved_no_content.py` compares the `quoted verbatim` R sections of a
+page before and after a change, as exact strings, because P46's fourth criterion requires
+the model output verbatim and a reader checking the arithmetic needs exactly those
+characters.
+
+It **refused a build**. The register change had added a provenance superscript to the end of
+every projected paragraph, and the R model results end:
+
+```
+   pred  ci.lb  ci.ub  pi.lb  pi.ub
+ 0.7636 0.7062 0.8258 0.7062 0.8258
+```
+
+so the page served `0.7636 0.7062 0.8258 0.7062 0.8258 2` — **a sixth column a reader could
+take for data, introduced by the fix for readability.** Markers now go in front of
+preformatted blocks.
+
+**And then the obvious next step was the trap.** With the marker moved, the check still
+failed, because the marker is *inside* the extracted text. The natural repair is to strip
+`<sup class='prov-ref'>` before comparing — which is correct, and which **would have been
+the exact wrong thing to do an hour earlier**. Had the marker stayed appended, the same
+strip would have silently concealed the sixth column the check had just caught. The check
+would have gone on passing, on a page serving a fabricated number, with the line that hid it
+sitting in the file as a reasonable-looking normalisation.
+
+**A normalisation added to make a check pass is only safe once you can say what it would
+hide if the underlying thing had not moved.** The reasoning is in the function's docstring,
+not only the strip — because the strip alone reads as obviously fine, and that is the
+problem.
+
+**The near-identical case in the same pass, which the same discipline caught:** a topic with
+no stored model output holds a *refusal* in its `quoted verbatim` section, and that refusal
+legitimately changed — it used to end `-- no field: results.by_outcome.*.r_output.verbatim`
+inline, and the field moved to the provenance list. The check called that a changed verbatim
+block and restored six good pages. The repair — remove refusal blocks, compare only sections
+that actually contain R output — is a *narrowing of scope*, not a normalisation, and it can
+be stated without reference to what it might hide. That is the test for telling the two
+apart.
+
+## Class 58 — A CHECK WHOSE TRIGGERING CONDITION HAS NEVER OCCURRED, AND THE GENERAL FIX
+
+Three instances in one file tonight: `wrong_protocol_link` keyed on a marker present on no
+page; the `rapidmeta:pooled-estimate` meta tag emitted by no page; the resolver sweep
+returning zero across 782 files. Class 52 named the symptom — *a zero has two readings and
+only one is reassuring*. **This is the remedy**, and it came out of writing
+`lint_container_repr_on_a_page.py`.
+
+That sweep's positive control is a **constructed fixture** — the exact GRADE cell as it was
+delivered on 2026-08-20 — and not a live page. The reasoning matters more than the fixture:
+
+> **A check whose positive control is "the corpus is currently dirty" stops working the
+> moment the corpus is clean.** It passes its own control today, is fixed tomorrow, and from
+> then on its control asserts nothing — it has become one of the three above, reporting a
+> zero that means "nothing can match" while reading as "nothing is wrong". The fix that
+> retires the defect also retires the evidence that the detector works.
+
+So the positive control must be **independent of the corpus state**: a constructed input the
+check must flag, carried inside the check, which keeps failing if the detector is broken
+however clean the pages become. The corpus is what the check *measures*; it is not what
+proves the check can measure.
+
+**And the negative control follows the same logic in the other direction** — here, an
+ordinary English sentence carrying a colon and a quotation, which must NOT match. Without
+it, tightening the pattern until nothing matches is indistinguishable from fixing the defect.
+
+**Where this applies.** Any detector keyed on a marker, a vocabulary or a pattern — which is
+most of `scripts/`. `instrument_controls.require_controls` is where it is enforced;
+`lint_instrument_declares_a_control.py` ratchets it for new instruments. The three instances
+above are **not retrofitted** and remain in the baseline: they are on the record as
+unfired, which is the honest state, and rewriting fifty instruments in one unreviewed pass
+is the shape of half the entries in this file.
+
 ## OPEN — carried, not fixed
 
 ### O1. A check that reads a different working tree than the one being built
