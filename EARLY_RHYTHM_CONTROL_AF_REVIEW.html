@@ -12,6 +12,25 @@
     reader on a dark desktop got dark without ever asking for it. Dark is now
     strictly opt-in through the toggle, and nothing about the machine changes
     what the page opens as. */
+ /* THE PROVENANCE COLUMN. Field paths used to sit inside the sentence flow, one per
+    paragraph, 1,233 times across the corpus; a reader met "results.by_outcome.x.
+    heterogeneity.i2" between one sentence and the next and read the page as machine
+    output. The paths are NOT removed -- transparency is the property, and a reader who
+    wants to know where a number came from must still get there in one action. They now sit
+    at the end of their section, VISIBLY, keyed by superscript.
+
+    NOT A HOVER. A hover is invisible to anyone who does not know to hover, and provenance
+    a reader cannot see exists is the same defect as a withdrawal declared only in a meta
+    tag. The block announces itself; reading it is optional, knowing it is there is not. */
+ .prov-ref{font-size:.68em;line-height:0;vertical-align:super;color:var(--accent);
+       font-family:var(--sans,system-ui,sans-serif);padding-left:.15em}
+ .prov-block{margin:.6rem 0 1.4rem;padding:.5rem .8rem;border-left:2px solid var(--line);
+       background:var(--soft)}
+ .prov-title{margin:0 0 .3rem;font-size:.78rem;letter-spacing:.02em;color:var(--muted);
+       font-family:var(--sans,system-ui,sans-serif);text-transform:uppercase}
+ .prov-list{margin:0;padding-left:1.4rem}
+ .prov-list li{font-size:.78rem;line-height:1.45;color:var(--muted)}
+ .prov-list code{font-size:.95em;word-break:break-word}
  body:has(#dm:checked){--bg:#0f1115;--fg:#e8e8ec;--line:#33363d;--muted:#a8adb8;
        --warnb:#d99b3c;--warnbg:#241d10;--accent:#7aa2ff;
        --paper:#15181e;--paperfg:#e8e8ec;--thbg:#1c2029;--soft:#1a1e26}
@@ -218,7 +237,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
  <label for="rt-statistics">Statistics</label>
 </nav>
 <div class="panels">
-  <section class="panel" id="pn-protocol">
+  <section class="panel" id="pn-protocol"><span id="protocol"></span>
   <p class='toc'><strong>In this section:</strong> <a href="#protocol-registration-and-administrative-informa">Registration and administrative information (PROSPERO field set)</a></p>
 <div class='card'>
   <h3 id="protocol-registration-and-administrative-informa">Registration and administrative information (PROSPERO field set)</h3>
@@ -275,7 +294,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT00184249</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT00196183</small></h3>
@@ -310,17 +329,17 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT00265629</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT00313443</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT00338715</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;HOLDS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND HOLDS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT00379301</small></h3>
@@ -365,7 +384,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT00626652</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT00652522</small></h3>
@@ -400,12 +419,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT00721149</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT00729911</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails POPULATION. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;, &#x27;RHYTHM&#x27;]</p>
+  <p>fails POPULATION. ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;, &#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT00736294</small></h3>
@@ -420,7 +439,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT00744835</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT00791089</small></h3>
@@ -435,7 +454,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT00821015</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT00821353</small></h3>
@@ -465,12 +484,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT00886080</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT00889681</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT00903370</small></h3>
@@ -530,7 +549,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT01113294</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT01116557</small></h3>
@@ -555,7 +574,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT01181414</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails INTERVENTION, COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;FAILS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;NODAL&#x27;, &#x27;RATE&#x27;]</p>
+  <p>fails INTERVENTION, COMPARATOR. ALL limbs: POPULATION HOLDS, INTERVENTION FAILS, COMPARATOR FAILS, ESTIMAND FAILS. arms: [&#x27;NODAL&#x27;, &#x27;RATE&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT01182376</small></h3>
@@ -580,7 +599,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT01246466</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT01259622</small></h3>
@@ -610,7 +629,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT01353586</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT01360918</small></h3>
@@ -635,7 +654,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT01377636</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails POPULATION, COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;FAILS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails POPULATION, COMPARATOR. ALL limbs: POPULATION FAILS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT01391091</small></h3>
@@ -655,7 +674,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT01430949</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT01432743</small></h3>
@@ -670,7 +689,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT01448265</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT01466842</small></h3>
@@ -695,7 +714,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT01513031</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT01521988</small></h3>
@@ -705,7 +724,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT01522898</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails INTERVENTION, COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;FAILS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;HOLDS&#x27;}. arms: [&#x27;RATE&#x27;, &#x27;NODAL&#x27;]</p>
+  <p>fails INTERVENTION, COMPARATOR. ALL limbs: POPULATION HOLDS, INTERVENTION FAILS, COMPARATOR FAILS, ESTIMAND HOLDS. arms: [&#x27;RATE&#x27;, &#x27;NODAL&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT01534962</small></h3>
@@ -735,7 +754,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT01608893</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails INTERVENTION, COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;FAILS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RATE&#x27;, &#x27;RATE&#x27;]</p>
+  <p>fails INTERVENTION, COMPARATOR. ALL limbs: POPULATION HOLDS, INTERVENTION FAILS, COMPARATOR FAILS, ESTIMAND FAILS. arms: [&#x27;RATE&#x27;, &#x27;RATE&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT01611701</small></h3>
@@ -765,7 +784,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT01661205</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT01672138</small></h3>
@@ -820,7 +839,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT01798277</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails POPULATION. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;HOLDS&#x27;}. arms: [&#x27;RHYTHM&#x27;, &#x27;RHYTHM&#x27;]</p>
+  <p>fails POPULATION. ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR UNSETTLED, ESTIMAND HOLDS. arms: [&#x27;RHYTHM&#x27;, &#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT01831856</small></h3>
@@ -895,7 +914,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT01976507</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT01991951</small></h3>
@@ -930,7 +949,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT02025465</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails INTERVENTION, COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;FAILS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RATE&#x27;, &#x27;RATE&#x27;]</p>
+  <p>fails INTERVENTION, COMPARATOR. ALL limbs: POPULATION HOLDS, INTERVENTION FAILS, COMPARATOR FAILS, ESTIMAND FAILS. arms: [&#x27;RATE&#x27;, &#x27;RATE&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT02051621</small></h3>
@@ -940,7 +959,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT02101541</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT02106663</small></h3>
@@ -960,7 +979,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT02168972</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT02171364</small></h3>
@@ -1010,12 +1029,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT02260206</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails POPULATION. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;COMPARATOR&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;, &#x27;NONE&#x27;]</p>
+  <p>fails POPULATION. ALL limbs: POPULATION FAILS, INTERVENTION UNSETTLED, COMPARATOR UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;, &#x27;NONE&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT02267889</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT02269774</small></h3>
@@ -1060,7 +1079,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT02359890</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT02364401</small></h3>
@@ -1070,12 +1089,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT02393885</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT02414815</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT02438176</small></h3>
@@ -1090,7 +1109,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT02467166</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT02467179</small></h3>
@@ -1110,7 +1129,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT02485925</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT02492256</small></h3>
@@ -1155,7 +1174,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT02553239</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT02558699</small></h3>
@@ -1170,7 +1189,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT02588183</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT02611869</small></h3>
@@ -1235,7 +1254,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT02817776</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT02817815</small></h3>
@@ -1245,7 +1264,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT02821351</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT02825979</small></h3>
@@ -1255,12 +1274,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT02839304</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT02878213</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT02892162</small></h3>
@@ -1290,7 +1309,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT02944968</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT02968147</small></h3>
@@ -1330,7 +1349,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT03062046</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT03062241</small></h3>
@@ -1350,12 +1369,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT03226847</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT03242941</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT03295422</small></h3>
@@ -1385,7 +1404,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT03354663</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT03355456</small></h3>
@@ -1415,12 +1434,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT03401593</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails POPULATION. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;COMPARATOR&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;, &#x27;NONE&#x27;]</p>
+  <p>fails POPULATION. ALL limbs: POPULATION FAILS, INTERVENTION UNSETTLED, COMPARATOR UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;, &#x27;NONE&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT03410966</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT03437356</small></h3>
@@ -1430,7 +1449,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT03437733</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;HOLDS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND HOLDS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT03443232</small></h3>
@@ -1450,7 +1469,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT03459196</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT03481023</small></h3>
@@ -1460,12 +1479,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT03489096</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT03513029</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT03536806</small></h3>
@@ -1490,7 +1509,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT03589742</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT03592823</small></h3>
@@ -1500,12 +1519,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT03624881</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT03643224</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT03646643</small></h3>
@@ -1515,7 +1534,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT03650556</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT03682887</small></h3>
@@ -1535,12 +1554,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT03723070</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT03750435</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT03775512</small></h3>
@@ -1565,7 +1584,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT03819946</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails POPULATION. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;COMPARATOR&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;, &#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails POPULATION. ALL limbs: POPULATION FAILS, INTERVENTION UNSETTLED, COMPARATOR UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;, &#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT03827915</small></h3>
@@ -1595,7 +1614,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT03915691</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails POPULATION. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;, &#x27;RHYTHM&#x27;]</p>
+  <p>fails POPULATION. ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR UNSETTLED, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;, &#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT03989726</small></h3>
@@ -1645,7 +1664,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT04133168</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT04153747</small></h3>
@@ -1750,7 +1769,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT04468334</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT04473963</small></h3>
@@ -1760,7 +1779,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT04474054</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT04497376</small></h3>
@@ -1785,12 +1804,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT04523545</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT04542785</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails INTERVENTION, COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;FAILS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RATE&#x27;, &#x27;RATE&#x27;]</p>
+  <p>fails INTERVENTION, COMPARATOR. ALL limbs: POPULATION HOLDS, INTERVENTION FAILS, COMPARATOR FAILS, ESTIMAND FAILS. arms: [&#x27;RATE&#x27;, &#x27;RATE&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT04560387</small></h3>
@@ -1805,7 +1824,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT04633265</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT04649801</small></h3>
@@ -1815,7 +1834,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT04652778</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT04659213</small></h3>
@@ -1850,7 +1869,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT04694092</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails INTERVENTION, COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;FAILS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RATE&#x27;, &#x27;RATE&#x27;]</p>
+  <p>fails INTERVENTION, COMPARATOR. ALL limbs: POPULATION HOLDS, INTERVENTION FAILS, COMPARATOR FAILS, ESTIMAND FAILS. arms: [&#x27;RATE&#x27;, &#x27;RATE&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT04704050</small></h3>
@@ -1865,7 +1884,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT04775264</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT04780438</small></h3>
@@ -1885,7 +1904,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT04842253</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails POPULATION. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;COMPARATOR&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;, &#x27;NONE&#x27;]</p>
+  <p>fails POPULATION. ALL limbs: POPULATION FAILS, INTERVENTION UNSETTLED, COMPARATOR UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;, &#x27;NONE&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT04844801</small></h3>
@@ -1935,7 +1954,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT05114954</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT05119231</small></h3>
@@ -1965,12 +1984,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT05164107</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT05173779</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT05185310</small></h3>
@@ -2000,7 +2019,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT05311098</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT05333445</small></h3>
@@ -2015,12 +2034,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT05397886</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails POPULATION. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;COMPARATOR&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;, &#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails POPULATION. ALL limbs: POPULATION FAILS, INTERVENTION UNSETTLED, COMPARATOR UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;, &#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT05400928</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT05418725</small></h3>
@@ -2035,7 +2054,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT05426759</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT05454111</small></h3>
@@ -2055,7 +2074,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT05477147</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT05496088</small></h3>
@@ -2080,7 +2099,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT05552963</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT05557526</small></h3>
@@ -2090,7 +2109,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT05565183</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT05575544</small></h3>
@@ -2105,12 +2124,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT05618340</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT05641883</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT05652517</small></h3>
@@ -2130,17 +2149,17 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT05731882</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT05752487</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT05758805</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT05780996</small></h3>
@@ -2155,7 +2174,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT05794464</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT05805189</small></h3>
@@ -2200,7 +2219,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT05905835</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT05939076</small></h3>
@@ -2210,12 +2229,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT05950971</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails INTERVENTION, COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;FAILS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RATE&#x27;, &#x27;RATE&#x27;]</p>
+  <p>fails INTERVENTION, COMPARATOR. ALL limbs: POPULATION HOLDS, INTERVENTION FAILS, COMPARATOR FAILS, ESTIMAND FAILS. arms: [&#x27;RATE&#x27;, &#x27;RATE&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT05971693</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT05978388</small></h3>
@@ -2235,12 +2254,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT06039722</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06056557</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06096246</small></h3>
@@ -2250,7 +2269,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT06106594</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06111443</small></h3>
@@ -2270,7 +2289,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT06128174</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06142604</small></h3>
@@ -2290,7 +2309,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT06170606</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06181578</small></h3>
@@ -2300,7 +2319,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT06200311</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails POPULATION. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;HOLDS&#x27;}. arms: [&#x27;RHYTHM&#x27;, &#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails POPULATION. ALL limbs: POPULATION FAILS, INTERVENTION HOLDS, COMPARATOR UNSETTLED, ESTIMAND HOLDS. arms: [&#x27;RHYTHM&#x27;, &#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06207383</small></h3>
@@ -2315,32 +2334,32 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT06223789</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06232798</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06260670</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06271967</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06272981</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06296888</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06334250</small></h3>
@@ -2375,12 +2394,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT06452589</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06455098</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06470555</small></h3>
@@ -2390,7 +2409,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT06495216</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06505798</small></h3>
@@ -2450,12 +2469,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT06676072</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06696170</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06699342</small></h3>
@@ -2505,17 +2524,17 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT06759909</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06765356</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06828939</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06836999</small></h3>
@@ -2530,7 +2549,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT06846502</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06869083</small></h3>
@@ -2540,7 +2559,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT06876896</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails POPULATION, COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;FAILS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails POPULATION, COMPARATOR. ALL limbs: POPULATION FAILS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06883864</small></h3>
@@ -2560,7 +2579,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT06959121</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT06962176</small></h3>
@@ -2570,7 +2589,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT06969378</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07002450</small></h3>
@@ -2585,7 +2604,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT07018596</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07035288</small></h3>
@@ -2610,7 +2629,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT07067372</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07068646</small></h3>
@@ -2625,7 +2644,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT07118488</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;HOLDS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND HOLDS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07119528</small></h3>
@@ -2665,12 +2684,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT07227532</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07236619</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07238452</small></h3>
@@ -2690,7 +2709,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT07271238</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07272902</small></h3>
@@ -2700,32 +2719,32 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT07275697</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails INTERVENTION, COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;FAILS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;USUAL&#x27;, &#x27;USUAL&#x27;]</p>
+  <p>fails INTERVENTION, COMPARATOR. ALL limbs: POPULATION HOLDS, INTERVENTION FAILS, COMPARATOR FAILS, ESTIMAND FAILS. arms: [&#x27;USUAL&#x27;, &#x27;USUAL&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07281521</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07294742</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07298473</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07301190</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07308847</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07316270</small></h3>
@@ -2735,37 +2754,37 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT07320560</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07320976</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07321002</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07331727</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails INTERVENTION, COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;FAILS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;USUAL&#x27;, &#x27;NONE&#x27;]</p>
+  <p>fails INTERVENTION, COMPARATOR. ALL limbs: POPULATION HOLDS, INTERVENTION FAILS, COMPARATOR FAILS, ESTIMAND FAILS. arms: [&#x27;USUAL&#x27;, &#x27;NONE&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07358611</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07359872</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails INTERVENTION, COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;FAILS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;USUAL&#x27;, &#x27;USUAL&#x27;]</p>
+  <p>fails INTERVENTION, COMPARATOR. ALL limbs: POPULATION HOLDS, INTERVENTION FAILS, COMPARATOR FAILS, ESTIMAND FAILS. arms: [&#x27;USUAL&#x27;, &#x27;USUAL&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07382024</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails INTERVENTION, COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;FAILS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;HOLDS&#x27;}. arms: [&#x27;USUAL&#x27;, &#x27;USUAL&#x27;]</p>
+  <p>fails INTERVENTION, COMPARATOR. ALL limbs: POPULATION HOLDS, INTERVENTION FAILS, COMPARATOR FAILS, ESTIMAND HOLDS. arms: [&#x27;USUAL&#x27;, &#x27;USUAL&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07389941</small></h3>
@@ -2795,17 +2814,17 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT07428564</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07429214</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07446244</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07447297</small></h3>
@@ -2815,12 +2834,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT07450755</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07452211</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07453940</small></h3>
@@ -2835,7 +2854,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT07459387</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07486739</small></h3>
@@ -2860,7 +2879,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT07499531</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07512037</small></h3>
@@ -2900,22 +2919,22 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT07572253</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07575269</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07575828</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07586176</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07610018</small></h3>
@@ -2960,12 +2979,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT07675395</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07686328</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07687862</small></h3>
@@ -2980,12 +2999,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT07720557</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;UNSETTLED&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION UNSETTLED, ESTIMAND FAILS. arms: [&#x27;OTHER_DECLARED&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07721948</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07726901</small></h3>
@@ -3010,7 +3029,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card rec'>
   <h3> <small>NCT07752771</small></h3>
   <p><strong>This review's decision: included.</strong></p>
-  <p>fails COMPARATOR. ALL limbs: {&#x27;POPULATION&#x27;: &#x27;HOLDS&#x27;, &#x27;COMPARATOR&#x27;: &#x27;FAILS&#x27;, &#x27;INTERVENTION&#x27;: &#x27;HOLDS&#x27;, &#x27;ESTIMAND&#x27;: &#x27;FAILS&#x27;}. arms: [&#x27;RHYTHM&#x27;]</p>
+  <p>fails COMPARATOR. ALL limbs: POPULATION HOLDS, COMPARATOR FAILS, INTERVENTION HOLDS, ESTIMAND FAILS. arms: [&#x27;RHYTHM&#x27;]</p>
 </div>
 <div class='card rec'>
   <h3> <small>NCT07752940</small></h3>
@@ -3018,7 +3037,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p>the rules cannot settle INTERVENTION, COMPARATOR from declared fields. arms: [&#x27;OTHER_DECLARED&#x27;, &#x27;NONE&#x27;]</p>
 </div>
  </section>
-<!--end-screen-->  <section class="panel" id="pn-extract">
+<!--end-screen-->  <section class="panel" id="pn-extract"><span id="extract"></span>
   <p class='toc'><strong>In this section:</strong> <a href="#extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</a> &middot; <a href="#extract-sources">Sources</a> &middot; <a href="#extract-each-trial-s-own-registered-primary-comp">Each trial&#x27;s own registered primary composite</a> &middot; <a href="#extract-each-trial-s-own-registered-primary-comp-2">Each trial&#x27;s own registered primary composite</a> &middot; <a href="#extract-what-was-measured">What was measured</a> &middot; <a href="#extract-pooled-result">Pooled result</a> &middot; <a href="#extract-contributing-trials">Contributing trials</a> &middot; <a href="#extract-endpoint-definitions-read-from-the-regis">Endpoint definitions, read from the registry</a></p>
 <div class='card'>
   <h2 id="extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</h2>
@@ -3086,7 +3105,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
 </section>
   </section>
-<!--end-extract-->  <section class="panel" id="pn-analysis">
+<!--end-extract-->  <section class="panel" id="pn-analysis"><span id="analysis"></span>
   <p class='toc'><strong>In this section:</strong> <a href="#analysis-each-trial-s-own-registered-primary-com">Each trial&#x27;s own registered primary composite</a> &middot; <a href="#analysis-risk-of-bias">Risk of bias</a> &middot; <a href="#analysis-gosh">GOSH</a> &middot; <a href="#analysis-trial-sequential-analysis">Trial-sequential analysis</a> &middot; <a href="#analysis-meta-regression">Meta-regression</a></p>
 <h2 id="analysis-each-trial-s-own-registered-primary-com">Each trial&#x27;s own registered primary composite</h2>
 <div class='card'>
@@ -3174,104 +3193,213 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-19</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>059f003ca</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>aa850700e</code> (uncommitted generator changes -- NOT REPRODUCIBLE from this stamp alone), built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
  </section>
-<!--end-report-->  <section class="panel" id="pn-paper">
-  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-sections-not-written-and-why">Sections not written, and why</a> &middot; <a href="#paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-keywords">Keywords</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a></p>
+<!--end-report-->  <section class="panel" id="pn-paper"><span id="paper"></span>
+  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-sections-not-written-and-why">Sections not written, and why</a> &middot; <a href="#paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-keywords">Keywords</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a></p>
 <div class='card'>
 <h2 id="paper-paper">Paper</h2>
-<p class='muted'>Every paragraph below is PROJECTED from a field of this object, and names it. <strong>A section with no field behind it is not written</strong> &mdash; it is refused, by name, so a reader can tell an absent procedure from an unmentioned one.</p>
+<p class='muted'>Every statement below is projected from a field of this object. The superscripts are sources: each section ends with the fields its statements came from, in order. <strong>A section with no field behind it is not written</strong> &mdash; it is refused, by name, so a reader can tell an absent procedure from an unmentioned one.</p>
 <h3 id="paper-title-and-review-question">Title and review question</h3>
-<p>Early rhythm control as a STRATEGY in atrial fibrillation: what the strategy trials report, and why their four registered primaries do not pool<br><small class='muted'>&larr; title</small></p>
-<p>In adults with atrial fibrillation, does an early rhythm-control STRATEGY -- antiarrhythmic drugs or ablation, chosen and escalated as a strategy rather than as a single procedure -- reduce cardiovascular death, stroke or hospitalisation compared with usual care?<br><small class='muted'>&larr; question</small></p>
-<h3 id="paper-methods-search">Methods — search</h3>
-<p>Searches were executed in ClinicalTrials.gov API v2 -- Q1 RHYTHM-CONTROL STRATEGY, not a procedure on 2026-08-19 with the query, verbatim: {&quot;query.cond&quot;: &quot;atrial fibrillation&quot;, &quot;query.intr&quot;: &quot;rhythm control OR early rhythm control OR rate control OR catheter ablation OR antiarrhythmic&quot;, &quot;filter.advanced&quot;: &quot;AREA[StudyType]INTERVENTIONAL&quot;}. It returned 959 record(s).<br><small class='muted'>&larr; search.databases[0]</small></p>
-<h3 id="paper-methods-eligibility-criteria">Methods — eligibility criteria</h3>
-<p>ELIGIBILITY turns on whether the trial randomised a RHYTHM-CONTROL STRATEGY against usual care or rate control. A trial in which every arm receives rhythm control -- one drug against another, or ablation against a drug -- does not contrast the strategy and is EXCLUDED on the comparator axis, which is where 125 of the 147 exclusions fall.<br><small class='muted'>&larr; screening.eligibility</small></p>
-<h3 id="paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</h3>
-<p>k is reported at every stage rather than as a single number: k0 surfaced 959; k2 role located 701; k3 experimental 380; k4 comparator 175; k5 background 146; kNA not assessable 258; kUNREACHABLE 0; k included in object 1; candidate pool k3 plus k4 555; k unscreened remainder 88.<br><small class='muted'>&larr; k_cascade</small></p>
-<p>The PRISMA 2020 flow counts are recorded in `prisma_flow` and reconcile with the executed searches above.<br><small class='muted'>&larr; prisma_flow</small></p>
-<p>The unscreened remainder is 88.<br><small class='muted'>&larr; k_cascade.k_unscreened_remainder</small></p>
-<h3 id="paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</h3>
-<p>Before deciding which outcomes could be combined, every trial was read at every registered rank -- primary, secondary and other -- asking: does each trial report, AT ANY RANK -- primary, secondary or other -- an outcome matching what the others report, before any decision about which pools are possible? NO, AND DECISIVELY SO RAFT-AF REGISTERS NO SECONDARY OUTCOME AT ALL. There is nothing below its primary to harmonise on, so no estimand can be shared by all four trials -- not because nobody looked, but because one of the four has nothing there. This is the opposite outcome to sglt2-hf and apixaban prophylaxis, where asking the same question RECOVERED a pool from secondary rank. The question is worth asking precisely because its answer is not predictable. A CHECK WHOSE ANSWER IS NOT PREDICTABLE IS A CHECK; ONE THAT ALWAYS RECOVERS IS A BIAS. The same question was asked on three topics in one night and gave two different answers: on sglt2-hf and on apixaban prophylaxis it RECOVERED a pool from an estimand sitting at secondary rank, and here it returns a DECISIVE NO -- RAFT-AF registers no secondary outcome at all, so there is nothing below its primary to harmonise on. This review records the negative as evidence that the procedure is capable of returning one.<br><small class='muted'>&larr; withholding_question.question, withholding_question.why_before_deciding</small></p>
-<h3 id="paper-methods-synthesis">Methods — synthesis</h3>
-<p>For primary, a none -- single trial model was fitted with the not applicable estimator.<br><small class='muted'>&larr; results.by_outcome.primary.model, results.by_outcome.primary.estimator_used</small></p>
-<p>Intervals are 95% confidence intervals.<br><small class='muted'>&larr; config.confidence_level</small></p>
-<p>Records were screened in duplicate by TWO INDEPENDENT MODEL FAMILIES -- agy (google (Gemini 3.1 Pro)), codex (openai (GPT-5)) -- each blind to the other&#x27;s answers. 264 records were read by both. Agreement was 81.6% on the code and 88.3% on the disposition, over the vocabulary recorded with the rate. 88 records were read by ONE seat only and are reported as single-read, not as agreement. The two independent screens were performed by two MODEL FAMILIES, not by two people. A reader of &#x27;screened in duplicate&#x27; would ordinarily assume two human reviewers, so this field says what was actually done. The families are independent of each other in training and vendor, which is the property duplicate screening is for; they are not independent of the criteria, which one author wrote. Disagreements: Disagreements are held as NEEDS_ADJUDICATION and hand-read against the registration; 8 records where ONE SEAT CONTRADICTED ITSELF within its own answer stream are NOT_ASSESSABLE for that seat and were not resolved by picking a side.<br><small class='muted'>&larr; screening.duplicate_screening</small></p>
-<p>Risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials) (22 August 2019 version, as reproduced in the Cochrane Handbook), following Higgins JPT, Savovic J, Page MJ, Elbers RG, Sterne JAC. Chapter 8: Assessing risk of bias in a randomized trial. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1. A RESULT, not a study -- Handbook 8.2: &#x27;risk of bias is assessed for a specific result&#x27;. Every judgement below names its outcome. 1 result-level assessments were made. A domain that cannot be judged from the registration and the published report is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect.<br><small class='muted'>&larr; risk_of_bias.tool, risk_of_bias.by_outcome</small></p>
-<p>A ceiling applies to every risk-of-bias judgement in this review; it is stated with the assessment itself rather than summarised here.<br><small class='muted'>&larr; risk_of_bias.ceiling</small></p>
-<p>Certainty of evidence was rated with GRADE, following Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1, Chapter 14: Completing &#x27;Summary of findings&#x27; tables and grading the certainty of the evidence. HIGH for a body of randomised evidence, then rated down with reasons. 0 pooled outcome(s) were rated. No domain is rated UP. Rating up for large effect or dose-response applies to observational evidence that has not already been rated down, and neither condition holds here. 1 outcome(s) were NOT rated because their pool is declined or withdrawn: there is no effect estimate to rate the certainty of, and rating one would be certainty about a number this review refused to publish.<br><small class='muted'>&larr; grade.approach, grade.by_outcome</small></p>
-<div class='absent-state' role='note'><strong>Refused:</strong> the claim that the review methods were prespecified before data collection. THIS REFUSAL IS PERMANENT AND IS NOT A GAP TO BE FILLED. A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively. Writing one now and calling it prespecified would invalidate every other refusal on these pages, because a reader who caught it would be right to disbelieve all of them. Eligibility criteria were derived POST HOC from the trials and the methodological authority, and the derivation is recorded element by element in `screening.eligibility_provenance` with the source of each. MECIR R107 permits post-hoc eligibility criteria PROVIDED THEY ARE DECLARED AS SUCH. They are declared, here and on the page, and the page says &#x27;derived, post hoc&#x27; in its heading. &mdash; no field: <code>protocol.prespecified = false (declared, not missing)</code></div>
-<h3 id="paper-results">Results</h3>
-<p>Each trial&#x27;s own registered primary composite. These 1 trials are NOT pooled, and the reason is stated rather than the outcome being quietly omitted: The four trials surfaced by the strategy question register FOUR DIFFERENT primary composites, differing at the component level: CASTLE-AF and RAFT-AF count all-cause death plus heart-failure events; CABANA counts total mortality, disabling stroke, serious bleeding and cardiac arrest; EAST-AFNET 4 counts CARDIOVASCULAR death, stroke and hospitalisation. One counts all-cause death, another counts cardiovascular death, and two count event classes the others do not. The withholding question was asked at every registered rank and found no shared estimand, because RAFT-AF registers no secondary outcome at all.<br><small class='muted'>&larr; outcomes[id=primary].name, results.by_outcome.primary.poolable_reason</small></p>
-<h3 id="paper-limitations">Limitations</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the limitations section &mdash; no field: <code>screening.known_limitation</code></div>
+<p>Early rhythm control as a STRATEGY in atrial fibrillation: what the strategy trials report, and why their four registered primaries do not pool<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>In adults with atrial fibrillation, does an early rhythm-control STRATEGY -- antiarrhythmic drugs or ablation, chosen and escalated as a strategy rather than as a single procedure -- reduce cardiovascular death, stroke or hospitalisation compared with usual care?<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>title</code></li>
+<li><code>question</code></li>
+</ol></div>
 <h3 id="paper-abstract">Abstract</h3>
-<p>Question. In adults with atrial fibrillation, does an early rhythm-control STRATEGY -- antiarrhythmic drugs or ablation, chosen and escalated as a strategy rather than as a single procedure -- reduce cardiovascular death, stroke or hospitalisation compared with usual care?<br><small class='muted'>&larr; question</small></p>
-<div class='absent-state' role='note'><strong>Refused:</strong> the findings sentence of the abstract -- this review pools nothing, and the reason is given in Results rather than an estimate being manufactured here &mdash; no field: <code>results.by_outcome.*.pooled.point</code></div>
+<p>Question. In adults with atrial fibrillation, does an early rhythm-control STRATEGY -- antiarrhythmic drugs or ablation, chosen and escalated as a strategy rather than as a single procedure -- reduce cardiovascular death, stroke or hospitalisation compared with usual care?<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the findings sentence of the abstract -- this review pools nothing, and the reason is given in Results rather than an estimate being manufactured here<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>question</code></li>
+<li><code>results.by_outcome.*.pooled.point</code></li>
+</ol></div>
 <h3 id="paper-introduction">Introduction</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> Background.  &mdash; no field: <code>protocol.rationale</code></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the Introduction -- no background or rationale is recorded on this object. This is a CONTENT gap, not a rendering one: no change to this projector produces it, and it is written by adding `protocol.rationale` to the object &mdash; no field: <code>protocol.rationale</code></div>
-<h3 id="paper-certainty-of-the-evidence">Certainty of the evidence</h3>
-<p>Certainty was rated with GRADE. HIGH for a body of randomised evidence, then rated down with reasons.<br><small class='muted'>&larr; grade.approach</small></p>
-<p>No domain is rated UP. Rating up for large effect or dose-response applies to observational evidence that has not already been rated down, and neither condition holds here.<br><small class='muted'>&larr; grade.not_rated_up</small></p>
-<div class='tscroll'><table><caption>Certainty of the evidence, by outcome, with every rating step<br><small class='muted'>&larr; grade.by_outcome.primary</small></caption>
-<tr><th>Outcome</th><th>Certainty</th><th>k</th><th>Started at</th><th>Rating steps</th></tr>
-<tr><td>primary</td><td>not rated</td><td>?</td><td></td><td>no downgrade recorded</td></tr>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Introduction -- no background or rationale is recorded on this object. This is a CONTENT gap, not a rendering one: no change to this projector produces it, and it is written by adding `protocol.rationale` to the object<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>protocol.rationale</code></li>
+</ol></div>
+<h3 id="paper-methods-search">Methods — search</h3>
+<p>Searches were executed in ClinicalTrials.gov API v2 -- Q1 RHYTHM-CONTROL STRATEGY, not a procedure on 2026-08-19 with the query, verbatim: {&quot;query.cond&quot;: &quot;atrial fibrillation&quot;, &quot;query.intr&quot;: &quot;rhythm control OR early rhythm control OR rate control OR catheter ablation OR antiarrhythmic&quot;, &quot;filter.advanced&quot;: &quot;AREA[StudyType]INTERVENTIONAL&quot;}. It returned 959 record(s).<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>search.databases[0]</code></li>
+</ol></div>
+<h3 id="paper-methods-eligibility-criteria">Methods — eligibility criteria</h3>
+<p>ELIGIBILITY turns on whether the trial randomised a RHYTHM-CONTROL STRATEGY against usual care or rate control. A trial in which every arm receives rhythm control -- one drug against another, or ablation against a drug -- does not contrast the strategy and is EXCLUDED on the comparator axis, which is where 125 of the 147 exclusions fall.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>screening.eligibility</code></li>
+</ol></div>
+<h3 id="paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</h3>
+<p>The PRISMA 2020 flow counts are recorded in `prisma_flow` and reconcile with the executed searches above.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>The unscreened remainder is 88.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<div class='tscroll'><table><caption>Records at every stage of screening. k is reported at each stage rather than as a single number, because each stage is what the instrument at that stage could actually decide.<sup class='prov-ref' title='source 3 for this section'>3</sup></caption>
+<tr><th>Stage</th><th>Records</th></tr>
+<tr><td>Records surfaced by the executed searches</td><td>959</td></tr>
+<tr><td>Records where the topic drug&#x27;s role in the trial could be located</td><td>701</td></tr>
+<tr><td>Records where the topic drug is the randomised intervention</td><td>380</td></tr>
+<tr><td>Records where the topic drug is the comparator instead</td><td>175</td></tr>
+<tr><td>Records where the topic drug is background therapy in both arms</td><td>146</td></tr>
+<tr><td>Records where the role could not be decided either way</td><td>258</td></tr>
+<tr><td>kUNREACHABLE</td><td>0</td></tr>
+<tr><td>Trials included in this review</td><td>1</td></tr>
+<tr><td>candidate pool k3 plus k4</td><td>555</td></tr>
+<tr><td>Surfaced records not yet screened</td><td>88</td></tr>
 </table></div>
-<h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
-<p>Risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials). The unit of assessment is A RESULT, not a study -- Handbook 8.2: &#x27;risk of bias is assessed for a specific result&#x27;. Every judgement below names its outcome.<br><small class='muted'>&larr; risk_of_bias.tool</small></p>
-<p>NO RESULT IN THIS REVIEW CAN REACH LOW RISK OF BIAS ON THE EVIDENCE WE CAN REACH, AND THAT IS A FACT ABOUT OUR ACCESS RATHER THAN ABOUT THE TRIALS. The two domains that would distinguish LOW from SOME CONCERNS need documents this review does not hold: D1 needs allocation concealment and baseline data, which are in neither the registration nor the published abstract; D5 needs the trial&#x27;s statistical analysis plan, which is not held for any trial. SOME CONCERNS IS THEREFORE THE CEILING, NOT A FINDING. A trial rated SOME CONCERNS here may well be at low risk of bias -- we cannot show it, and we do not imply the opposite. Retrieving each trial&#x27;s full published report and its statistical analysis plan or protocol. Until then the rating is bounded by what we read, and the bound is reported rather than the reader inferring it.<br><small class='muted'>&larr; risk_of_bias.ceiling.statement</small></p>
-<p>A domain that cannot be judged from the registration and the published report is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect.<br><small class='muted'>&larr; risk_of_bias.default_rule</small></p>
-<div class='tscroll'><table><caption>Risk-of-bias judgement for every included result<br><small class='muted'>&larr; risk_of_bias.by_outcome</small></caption>
-<tr><th>Result</th><th>Judgement</th><th>Reason</th></tr>
-<tr><td>primary -- EAST-AFNET 4 (NCT01288352)</td><td>NO_INFORMATION</td><td>  D1 randomisation: SOME_CONCERNS --   D3 missing outcome data: LOW --   D4 measurement: SOME_CONCERNS -- </td></tr>
-</table></div>
-<h3 id="paper-disagreements-between-sources">Disagreements between sources</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the reconciliation against other sources &mdash; no field: <code>reconciliation</code></div>
-<h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the comparison with published syntheses -- no published synthesis is recorded for this topic, so no denominator can be given &mdash; no field: <code>published_comparison</code></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>prisma_flow</code></li>
+<li><code>k_cascade.k_unscreened_remainder</code></li>
+<li><code>k_cascade</code></li>
+</ol></div>
+<h3 id="paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</h3>
+<p>Before deciding which outcomes could be combined, every trial was read at every registered rank -- primary, secondary and other -- asking: does each trial report, AT ANY RANK -- primary, secondary or other -- an outcome matching what the others report, before any decision about which pools are possible? NO, AND DECISIVELY SO RAFT-AF REGISTERS NO SECONDARY OUTCOME AT ALL. There is nothing below its primary to harmonise on, so no estimand can be shared by all four trials -- not because nobody looked, but because one of the four has nothing there. This is the opposite outcome to sglt2-hf and apixaban prophylaxis, where asking the same question RECOVERED a pool from secondary rank. The question is worth asking precisely because its answer is not predictable. A CHECK WHOSE ANSWER IS NOT PREDICTABLE IS A CHECK; ONE THAT ALWAYS RECOVERS IS A BIAS. The same question was asked on three topics in one night and gave two different answers: on sglt2-hf and on apixaban prophylaxis it RECOVERED a pool from an estimand sitting at secondary rank, and here it returns a DECISIVE NO -- RAFT-AF registers no secondary outcome at all, so there is nothing below its primary to harmonise on. This review records the negative as evidence that the procedure is capable of returning one.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>withholding_question.question, withholding_question.why_before_deciding</code></li>
+</ol></div>
+<h3 id="paper-methods-synthesis">Methods — synthesis</h3>
+<p>For each trial&#x27;s own registered primary composite, a none -- single trial model was fitted with the not applicable estimator.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Intervals are 95% confidence intervals.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>Records were screened in duplicate by TWO INDEPENDENT MODEL FAMILIES -- agy (google (Gemini 3.1 Pro)), codex (openai (GPT-5)) -- each blind to the other&#x27;s answers. 264 records were read by both. Agreement was 81.6% on the code and 88.3% on the disposition, over the vocabulary recorded with the rate. 88 records were read by ONE seat only and are reported as single-read, not as agreement. The two independent screens were performed by two MODEL FAMILIES, not by two people. A reader of &#x27;screened in duplicate&#x27; would ordinarily assume two human reviewers, so this field says what was actually done. The families are independent of each other in training and vendor, which is the property duplicate screening is for; they are not independent of the criteria, which one author wrote. Disagreements: Disagreements are held as NEEDS_ADJUDICATION and hand-read against the registration; 8 records where ONE SEAT CONTRADICTED ITSELF within its own answer stream are NOT_ASSESSABLE for that seat and were not resolved by picking a side.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<p>Risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials) (22 August 2019 version, as reproduced in the Cochrane Handbook), following Higgins JPT, Savovic J, Page MJ, Elbers RG, Sterne JAC. Chapter 8: Assessing risk of bias in a randomized trial. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1. A RESULT, not a study -- Handbook 8.2: &#x27;risk of bias is assessed for a specific result&#x27;. Every judgement below names its outcome. 1 result-level assessments were made. A domain that cannot be judged from the registration and the published report is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect.<sup class='prov-ref' title='source 4 for this section'>4</sup></p>
+<p>A ceiling applies to every risk-of-bias judgement in this review; it is stated with the assessment itself rather than summarised here.<sup class='prov-ref' title='source 5 for this section'>5</sup></p>
+<p>Certainty of evidence was rated with GRADE, following Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1, Chapter 14: Completing &#x27;Summary of findings&#x27; tables and grading the certainty of the evidence. HIGH for a body of randomised evidence, then rated down with reasons. 0 pooled outcome(s) were rated. No domain is rated UP. Rating up for large effect or dose-response applies to observational evidence that has not already been rated down, and neither condition holds here. 1 outcome(s) were NOT rated because their pool is declined or withdrawn: there is no effect estimate to rate the certainty of, and rating one would be certainty about a number this review refused to publish.<sup class='prov-ref' title='source 6 for this section'>6</sup></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that the review methods were prespecified before data collection. THIS REFUSAL IS PERMANENT AND IS NOT A GAP TO BE FILLED. A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively. Writing one now and calling it prespecified would invalidate every other refusal on these pages, because a reader who caught it would be right to disbelieve all of them. Eligibility criteria were derived POST HOC from the trials and the methodological authority, and the derivation is recorded element by element in `screening.eligibility_provenance` with the source of each. MECIR R107 permits post-hoc eligibility criteria PROVIDED THEY ARE DECLARED AS SUCH. They are declared, here and on the page, and the page says &#x27;derived, post hoc&#x27; in its heading.<sup class='prov-ref' title='source 7 for this section'>7</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>results.by_outcome.primary.model, results.by_outcome.primary.estimator_used</code></li>
+<li><code>config.confidence_level</code></li>
+<li><code>screening.duplicate_screening</code></li>
+<li><code>risk_of_bias.tool, risk_of_bias.by_outcome</code></li>
+<li><code>risk_of_bias.ceiling</code></li>
+<li><code>grade.approach, grade.by_outcome</code></li>
+<li><code>protocol.prespecified = false (declared, not missing)</code></li>
+</ol></div>
+<h3 id="paper-results">Results</h3>
+<p>Each trial&#x27;s own registered primary composite. These 1 trials are NOT pooled, and the reason is stated rather than the outcome being quietly omitted: The four trials surfaced by the strategy question register FOUR DIFFERENT primary composites, differing at the component level: CASTLE-AF and RAFT-AF count all-cause death plus heart-failure events; CABANA counts total mortality, disabling stroke, serious bleeding and cardiac arrest; EAST-AFNET 4 counts CARDIOVASCULAR death, stroke and hospitalisation. One counts all-cause death, another counts cardiovascular death, and two count event classes the others do not. The withholding question was asked at every registered rank and found no shared estimand, because RAFT-AF registers no secondary outcome at all.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>outcomes[id=primary].name, results.by_outcome.primary.poolable_reason</code></li>
+</ol></div>
 <h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the verbatim model output -- no analysis output is stored on this object, so nothing can be quoted and nothing is paraphrased in its place &mdash; no field: <code>results.by_outcome.*.r_output.verbatim</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the verbatim model output -- no analysis output is stored on this object, so nothing can be quoted and nothing is paraphrased in its place<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>results.by_outcome.*.r_output.verbatim</code></li>
+</ol></div>
+<h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
+<p>Risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials). The unit of assessment is A RESULT, not a study -- Handbook 8.2: &#x27;risk of bias is assessed for a specific result&#x27;. Every judgement below names its outcome.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>NO RESULT IN THIS REVIEW CAN REACH LOW RISK OF BIAS ON THE EVIDENCE WE CAN REACH, AND THAT IS A FACT ABOUT OUR ACCESS RATHER THAN ABOUT THE TRIALS. The two domains that would distinguish LOW from SOME CONCERNS need documents this review does not hold: D1 needs allocation concealment and baseline data, which are in neither the registration nor the published abstract; D5 needs the trial&#x27;s statistical analysis plan, which is not held for any trial. SOME CONCERNS IS THEREFORE THE CEILING, NOT A FINDING. A trial rated SOME CONCERNS here may well be at low risk of bias -- we cannot show it, and we do not imply the opposite. Retrieving each trial&#x27;s full published report and its statistical analysis plan or protocol. Until then the rating is bounded by what we read, and the bound is reported rather than the reader inferring it.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>A domain that cannot be judged from the registration and the published report is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<div class='tscroll'><table><caption>Risk-of-bias judgement for every included result<sup class='prov-ref' title='source 4 for this section'>4</sup></caption>
+<tr><th>Result</th><th>Judgement</th><th>Reason</th></tr>
+<tr><td>each trial&#x27;s own registered primary composite -- EAST-AFNET 4 (NCT01288352)</td><td>NO_INFORMATION</td><td>  D1 randomisation: SOME_CONCERNS --   D3 missing outcome data: LOW --   D4 measurement: SOME_CONCERNS -- </td></tr>
+</table></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>risk_of_bias.tool</code></li>
+<li><code>risk_of_bias.ceiling.statement</code></li>
+<li><code>risk_of_bias.default_rule</code></li>
+<li><code>risk_of_bias.by_outcome</code></li>
+</ol></div>
+<h3 id="paper-certainty-of-the-evidence">Certainty of the evidence</h3>
+<p>Certainty was rated with GRADE. HIGH for a body of randomised evidence, then rated down with reasons.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>No domain is rated UP. Rating up for large effect or dose-response applies to observational evidence that has not already been rated down, and neither condition holds here.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<div class='tscroll'><table><caption>Certainty of the evidence, by outcome, with every rating step<sup class='prov-ref' title='source 3 for this section'>3</sup></caption>
+<tr><th>Outcome</th><th>Certainty</th><th>k</th><th>Started at</th><th>Rating steps</th></tr>
+<tr><td>each trial&#x27;s own registered primary composite</td><td>not rated</td><td>?</td><td></td><td>no downgrade recorded</td></tr>
+</table></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>grade.approach</code></li>
+<li><code>grade.not_rated_up</code></li>
+<li><code>grade.by_outcome.primary</code></li>
+</ol></div>
+<h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the comparison with published syntheses -- no published synthesis is recorded for this topic, so no denominator can be given<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>published_comparison</code></li>
+</ol></div>
+<h3 id="paper-disagreements-between-sources">Disagreements between sources</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the reconciliation against other sources<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>reconciliation</code></li>
+</ol></div>
 <h3 id="paper-discussion">Discussion</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>discussion</code></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a discussion written by the renderer would be an argument no field supports &mdash; no field: <code>discussion</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a discussion written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>discussion</code></li>
+</ol></div>
 <h3 id="paper-conclusions">Conclusions</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>conclusions</code></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a conclusions written by the renderer would be an argument no field supports &mdash; no field: <code>conclusions</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a conclusions written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>conclusions</code></li>
+</ol></div>
+<h3 id="paper-limitations">Limitations</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the limitations section<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>screening.known_limitation</code></li>
+</ol></div>
 <h3 id="paper-sections-not-written-and-why">Sections not written, and why</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the list of refused properties &mdash; no field: <code>build_stamp.refusing</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the list of refused properties<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>build_stamp.refusing</code></li>
+</ol></div>
 <h3 id="paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>funding</code></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a CONTENT gap. A submission requires it and this object does not carry it; it is not inferable from anything held here &mdash; no field: <code>funding</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> <sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a CONTENT gap. A submission requires it and this object does not carry it; it is not inferable from anything held here<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>funding</code></li>
+<li><code>funding</code></li>
+</ol></div>
 <h3 id="paper-references">References</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the reference list &mdash; no field: <code>sources</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the reference list<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>sources</code></li>
+</ol></div>
 <h3 id="paper-keywords">Keywords</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>keywords</code></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a CONTENT gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose &mdash; no field: <code>keywords</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> <sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a CONTENT gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>keywords</code></li>
+<li><code>keywords</code></li>
+</ol></div>
 <h3 id="paper-data-availability">Data availability</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the data availability statement &mdash; no field: <code>registration_identity, sources</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the data availability statement<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>registration_identity, sources</code></li>
+</ol></div>
 <h3 id="paper-software-availability">Software availability</h3>
-<p>Intervals are reported at the 95% level.<br><small class='muted'>&larr; config.confidence_level</small></p>
+<p>Intervals are reported at the 95% level.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>config.confidence_level</code></li>
+</ol></div>
 <h3 id="paper-note-on-registration">Note on registration</h3>
-<p>Protocol status. Prespecified: False. A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively. Writing one now and calling it prespecified would invalidate every other refusal on these pages, because a reader who caught it would be right to disbelieve all of them.<br><small class='muted'>&larr; protocol</small></p>
-<p>Eligibility criteria were derived POST HOC from the trials and the methodological authority, and the derivation is recorded element by element in `screening.eligibility_provenance` with the source of each.<br><small class='muted'>&larr; protocol.what_was_actually_done</small></p>
-<p>Authority: MECIR R107 permits post-hoc eligibility criteria PROVIDED THEY ARE DECLARED AS SUCH. They are declared, here and on the page, and the page says &#x27;derived, post hoc&#x27; in its heading.<br><small class='muted'>&larr; protocol.authority_permitting_it</small></p>
+<p>Protocol status. Prespecified: False. A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively. Writing one now and calling it prespecified would invalidate every other refusal on these pages, because a reader who caught it would be right to disbelieve all of them.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Eligibility criteria were derived POST HOC from the trials and the methodological authority, and the derivation is recorded element by element in `screening.eligibility_provenance` with the source of each.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>Authority: MECIR R107 permits post-hoc eligibility criteria PROVIDED THEY ARE DECLARED AS SUCH. They are declared, here and on the page, and the page says &#x27;derived, post hoc&#x27; in its heading.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>protocol</code></li>
+<li><code>protocol.what_was_actually_done</code></li>
+<li><code>protocol.authority_permitting_it</code></li>
+</ol></div>
 <h3 id="paper-trial-characteristics">Trial characteristics</h3>
-<div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<br><small class='muted'>&larr; inputs.trials</small></caption>
+<div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<sup class='prov-ref' title='source 1 for this section'>1</sup></caption>
 <tr><th>Registration</th><th>Trial</th><th>Arms</th><th>Participants</th></tr>
 <tr><td>NCT01288352</td><td>EAST-AFNET 4</td><td>Early standardised rhythm control (treatment, n=1395) vs Usual care (control, n=1394)  [+2 further fields recorded on the object]</td><td>not extracted</td></tr>
 </table></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>inputs.trials</code></li>
+</ol></div>
 <h3 id="paper-figure-legends">Figure legends</h3>
-<div class='tscroll'><table><caption>Figures, and what each one shows<br><small class='muted'>&larr; results.by_outcome</small></caption>
+<div class='tscroll'><table><caption>Figures, and what each one shows<sup class='prov-ref' title='source 1 for this section'>1</sup></caption>
 <tr><th>Outcome</th><th>Figure</th><th>What it shows</th></tr>
 <tr><td>Each trial&#x27;s own registered primary composite</td><td>Forest plot</td><td>not pooled; the reason is given in Results</td></tr>
 </table></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>results.by_outcome</code></li>
+</ol></div>
 <h3 id="paper-submission-conformance">Submission conformance</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the submission conformance statement &mdash; no field: <code>build_stamp</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the submission conformance statement<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>build_stamp</code></li>
+</ol></div>
 </div>  </section>
 <!--end-paper--> <section class="panel" id="pn-statistics">
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No statistical panel set is held in this object.</div>

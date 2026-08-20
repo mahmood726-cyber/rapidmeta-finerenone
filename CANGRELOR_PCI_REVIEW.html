@@ -12,6 +12,25 @@
     reader on a dark desktop got dark without ever asking for it. Dark is now
     strictly opt-in through the toggle, and nothing about the machine changes
     what the page opens as. */
+ /* THE PROVENANCE COLUMN. Field paths used to sit inside the sentence flow, one per
+    paragraph, 1,233 times across the corpus; a reader met "results.by_outcome.x.
+    heterogeneity.i2" between one sentence and the next and read the page as machine
+    output. The paths are NOT removed -- transparency is the property, and a reader who
+    wants to know where a number came from must still get there in one action. They now sit
+    at the end of their section, VISIBLY, keyed by superscript.
+
+    NOT A HOVER. A hover is invisible to anyone who does not know to hover, and provenance
+    a reader cannot see exists is the same defect as a withdrawal declared only in a meta
+    tag. The block announces itself; reading it is optional, knowing it is there is not. */
+ .prov-ref{font-size:.68em;line-height:0;vertical-align:super;color:var(--accent);
+       font-family:var(--sans,system-ui,sans-serif);padding-left:.15em}
+ .prov-block{margin:.6rem 0 1.4rem;padding:.5rem .8rem;border-left:2px solid var(--line);
+       background:var(--soft)}
+ .prov-title{margin:0 0 .3rem;font-size:.78rem;letter-spacing:.02em;color:var(--muted);
+       font-family:var(--sans,system-ui,sans-serif);text-transform:uppercase}
+ .prov-list{margin:0;padding-left:1.4rem}
+ .prov-list li{font-size:.78rem;line-height:1.45;color:var(--muted)}
+ .prov-list code{font-size:.95em;word-break:break-word}
  body:has(#dm:checked){--bg:#0f1115;--fg:#e8e8ec;--line:#33363d;--muted:#a8adb8;
        --warnb:#d99b3c;--warnbg:#241d10;--accent:#7aa2ff;
        --paper:#15181e;--paperfg:#e8e8ec;--thbg:#1c2029;--soft:#1a1e26}
@@ -143,6 +162,7 @@
  #rt-report:checked ~ .tabnav label[for="rt-report"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  #rt-paper:checked ~ .panels > #pn-paper{height:auto;overflow:visible}
  #rt-paper:checked ~ .tabnav label[for="rt-paper"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-paper:focus-visible ~ .tabnav label[for="rt-paper"]{outline:3px solid var(--accent);outline-offset:2px}
  #rt-statistics:checked ~ .panels > #pn-statistics{height:auto;overflow:visible}
  #rt-statistics:checked ~ .tabnav label[for="rt-statistics"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  @media print{.panel{height:auto;overflow:visible}.tabnav{display:none}}
@@ -213,11 +233,11 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <label for="rt-extract">4. Extraction</label>
   <label for="rt-analysis">5. Analysis Suite</label>
  <label for="rt-report">6. Scientific Output</label>
- <label for="rt-paper">7. Paper Studio</label>
+  <label for="rt-paper">7. Paper Studio</label>
  <label for="rt-statistics">Statistics</label>
 </nav>
 <div class="panels">
-  <section class="panel" id="pn-protocol">
+  <section class="panel" id="pn-protocol"><span id="protocol"></span>
   <p class='toc'><strong>In this section:</strong> <a href="#protocol-registration-and-administrative-informa">Registration and administrative information (PROSPERO field set)</a> &middot; <a href="#protocol-what-this-object-claims-to-contain">What this object claims to contain</a></p>
 <div class='card'>
   <h3 id="protocol-registration-and-administrative-informa">Registration and administrative information (PROSPERO field set)</h3>
@@ -256,8 +276,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <!--end-search--> <section class="panel" id="pn-screen">
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No screening log is recorded for this review. The included set was reconciled against published syntheses rather than screened from a search, so no records-identified, excluded-with-reason or dual-screening counts exist.</div>
  </section>
-<!--end-screen-->  <section class="panel" id="pn-extract">
-  <p class='toc'><strong>In this section:</strong> <a href="#extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</a> &middot; <a href="#extract-sources">Sources</a> &middot; <a href="#extract-death-myocardial-infarction-or-ischaemia">Death, myocardial infarction or ischaemia-driven revascularisation at 48 hours -- and stent thrombosis in one of the three trials</a> &middot; <a href="#extract-death-myocardial-infarction-or-ischaemia-2">Death, myocardial infarction or ischaemia-driven revascularisation at 48 hours -- and stent thrombosis in one of the three trials</a> &middot; <a href="#extract-what-was-measured">What was measured</a> &middot; <a href="#extract-pooled-result">Pooled result</a> &middot; <a href="#extract-contributing-trials">Contributing trials</a> &middot; <a href="#extract-endpoint-definitions-read-from-the-regis">Endpoint definitions, read from the registry</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision">The methods rule governing this decision</a></p>
+<!--end-screen-->  <section class="panel" id="pn-extract"><span id="extract"></span>
+  <p class='toc'><strong>In this section:</strong> <a href="#extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</a> &middot; <a href="#extract-sources">Sources</a> &middot; <a href="#extract-death-myocardial-infarction-or-ischaemia">Death, myocardial infarction or ischaemia-driven revascularisation at 48 hours -- and stent thrombosis in one of the three trials</a> &middot; <a href="#extract-death-myocardial-infarction-or-ischaemia-2">Death, myocardial infarction or ischaemia-driven revascularisation at 48 hours -- and stent thrombosis in one of the three trials</a> &middot; <a href="#extract-what-was-measured">What was measured</a> &middot; <a href="#extract-pooled-result">Pooled result</a> &middot; <a href="#extract-contributing-trials">Contributing trials</a> &middot; <a href="#extract-endpoint-definitions-read-from-the-regis">Endpoint definitions, read from the registry</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision">The methods rule governing this decision</a> &middot; <a href="#extract-corrected-composite-3component-not-decla">corrected_composite_3component (not declared in outcomes)</a></p>
 <div class='card'>
   <h2 id="extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</h2>
   <p>One row per extracted value. Every row carries the value, the verbatim sentence it was read from, a resolvable link to the source, and whether the number was read or derived. Where any of those is absent the row says so rather than omitting the value.</p>
@@ -321,11 +341,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <div class='tscroll'><table>
     <caption>Table 6. Endpoint definitions, read from the registry</caption>
 
-    <tr><th>Trial</th><th>Registered primary outcome measure</th>
+    <tr><th>Trial</th><th>Rank in its own trial</th>
+        <th>Registered outcome measure</th>
         <th>Description, verbatim</th><th>Analysis set / window</th></tr>
-    <tr><td><strong>CHAMPION-PCI</strong><br><small><a href="https://clinicaltrials.gov/study/NCT00305162" rel="noopener">NCT00305162</a></small></td><td>Incidence of All-cause Mortality, Myocardial Infarction (MI), and Ischemia-driven Revascularization (IDR)</td><td>(composite incidence)</td><td>48 hours after randomisation. Registry primary-outcome counts: cangrelor 290 of 3889 against clopidogrel 276 of 3865.</td></tr>
-    <tr><td><strong>CHAMPION-PLATFORM</strong><br><small><a href="https://clinicaltrials.gov/study/NCT00385138" rel="noopener">NCT00385138</a></small></td><td>Incidence of All-cause Mortality, Myocardial Infarction (MI), and Ischemia-driven Revascularization (IDR)</td><td>mITT population; (composite incidence)</td><td>48 hours after randomisation. Registry primary-outcome counts: cangrelor 185 of 2654 against clopidogrel 210 of 2641.</td></tr>
-    <tr><td><strong>CHAMPION-PHOENIX</strong><br><small><a href="https://clinicaltrials.gov/study/NCT01156571" rel="noopener">NCT01156571</a></small></td><td>The Composite Incidence of All-cause Mortality, Myocardial Infarction (MI), Ischemia-driven Revascularization (IDR) and Stent Thrombosis (ST)</td><td>Clinical Events Committee (CEC)-adjudicated results (modified intent-to-treat \[mITT\] population)</td><td>48 hours after randomisation. Registry primary-outcome counts: cangrelor 257 of 5470 against clopidogrel 322 of 5469.</td></tr>
+    <tr><td><strong>CHAMPION-PCI</strong><br><small><a href="https://clinicaltrials.gov/study/NCT00305162" rel="noopener">NCT00305162</a></small></td><td>PRIMARY -- this registration&#x27;s only primary outcome</td><td>Incidence of All-cause Mortality, Myocardial Infarction (MI), and Ischemia-driven Revascularization (IDR)</td><td>(composite incidence)</td><td>48 hours after randomisation. Registry primary-outcome counts: cangrelor 290 of 3889 against clopidogrel 276 of 3865.</td></tr>
+    <tr><td><strong>CHAMPION-PLATFORM</strong><br><small><a href="https://clinicaltrials.gov/study/NCT00385138" rel="noopener">NCT00385138</a></small></td><td>PRIMARY -- this registration&#x27;s only primary outcome</td><td>Incidence of All-cause Mortality, Myocardial Infarction (MI), and Ischemia-driven Revascularization (IDR)</td><td>mITT population; (composite incidence)</td><td>48 hours after randomisation. Registry primary-outcome counts: cangrelor 185 of 2654 against clopidogrel 210 of 2641.</td></tr>
+    <tr><td><strong>CHAMPION-PHOENIX</strong><br><small><a href="https://clinicaltrials.gov/study/NCT01156571" rel="noopener">NCT01156571</a></small></td><td>PRIMARY -- this registration&#x27;s only primary outcome</td><td>The Composite Incidence of All-cause Mortality, Myocardial Infarction (MI), Ischemia-driven Revascularization (IDR) and Stent Thrombosis (ST)</td><td>Clinical Events Committee (CEC)-adjudicated results (modified intent-to-treat \[mITT\] population)</td><td>48 hours after randomisation. Registry primary-outcome counts: cangrelor 257 of 5470 against clopidogrel 322 of 5469.</td></tr>
   </table></div>
 </div>
 <div class='card'>
@@ -335,8 +356,9 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p>not recorded on the page this object was built from</p>
 </div>
 </section>
-  </section>
-<!--end-extract-->  <section class="panel" id="pn-analysis">
+<h2 id="extract-corrected-composite-3component-not-decla">corrected_composite_3component (not declared in outcomes)</h2>
+<div class='absent-state' role='note'><strong>Not rendered.</strong> The results block <code>corrected_composite_3component</code> is not declared in this object's <code>outcomes</code>, so it has no registered name, measure or comparator to be rendered under. IT IS NOT EMPTY -- it may carry a pooled estimate, and on this object it does. Declaring the outcome is a CONTENT change and is not made by the builder.</div>  </section>
+<!--end-extract-->  <section class="panel" id="pn-analysis"><span id="analysis"></span>
   <p class='toc'><strong>In this section:</strong> <a href="#analysis-death-myocardial-infarction-or-ischaemi">Death, myocardial infarction or ischaemia-driven revascularisation at 48 hours -- and stent thrombosis in one of the three trials</a> &middot; <a href="#analysis-forest-plot">Forest plot</a> &middot; <a href="#analysis-risk-of-bias">Risk of bias</a> &middot; <a href="#analysis-gosh">GOSH</a> &middot; <a href="#analysis-trial-sequential-analysis">Trial-sequential analysis</a> &middot; <a href="#analysis-meta-regression">Meta-regression</a></p>
 <h2 id="analysis-death-myocardial-infarction-or-ischaemi">Death, myocardial infarction or ischaemia-driven revascularisation at 48 hours -- and stent thrombosis in one of the three trials</h2>
 <div class='card fwcard'>
@@ -519,7 +541,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
   </section>
 <!--end-analysis--> <section class="panel" id="pn-report">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No GRADE assessment or reconciliation record is held in this object, so the certainty of this evidence has not been rated.</div>
+<div class="absent-state" role="note"><strong>Partially held.</strong> Part of the reporting record is held and is shown below. No GRADE certainty rating is carried, so the certainty column is left as an em dash rather than guessed.</div>
 <div class='card'>
   <h3>Summary of findings</h3>
   <div class='tscroll'><table>
@@ -534,22 +556,197 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <div class='tscroll'><table>
     <caption>Table 8. Reproducibility artifact</caption>
 
-    <tr><th scope='col'>Canonical object</th><td><code></code></td></tr>
-    <tr><th scope='col'>Registered at</th><td><code></code> </td></tr>
+    <tr><th scope='col'>Canonical object</th><td><code>—</code></td></tr>
+    <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2-authored-from-source</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-18T00:00Z</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>d1339a8cb</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>e68b70f27</code>, built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
  </section>
-<!--end-report--> <section class="panel" id="pn-paper">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No manuscript has been generated for this review.</div>
+<!--end-report-->  <section class="panel" id="pn-paper"><span id="paper"></span>
+  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-sections-not-written-and-why">Sections not written, and why</a> &middot; <a href="#paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-keywords">Keywords</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a></p>
 <div class='card'>
-  <h2>Paper Studio</h2>
-  <div class='absent-state' role='note'><strong>Not held in this object.</strong> No manuscript has been generated for cangrelor-pci-review. A manuscript belongs to one review, so none from another review is shown here &mdash; this tab is empty of content rather than filled with someone else&rsquo;s.</div>
-</div>
- </section>
+<h2 id="paper-paper">Paper</h2>
+<p class='muted'>Every statement below is projected from a field of this object. The superscripts are sources: each section ends with the fields its statements came from, in order. <strong>A section with no field behind it is not written</strong> &mdash; it is refused, by name, so a reader can tell an absent procedure from an unmentioned one.</p>
+<h3 id="paper-title-and-review-question">Title and review question</h3>
+<p>Cangrelor versus clopidogrel at percutaneous coronary intervention<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Does cangrelor reduce ischaemic events at PCI? The three CHAMPION trials answer versions of this, and the numbers this page used were not the ones they answered it with.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>title</code></li>
+<li><code>question</code></li>
+</ol></div>
+<h3 id="paper-abstract">Abstract</h3>
+<p>Question. Does cangrelor reduce ischaemic events at PCI? The three CHAMPION trials answer versions of this, and the numbers this page used were not the ones they answered it with.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the findings sentence of the abstract -- this review pools nothing, and the reason is given in Results rather than an estimate being manufactured here<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>question</code></li>
+<li><code>results.by_outcome.*.pooled.point</code></li>
+</ol></div>
+<h3 id="paper-introduction">Introduction</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Introduction -- no background or rationale is recorded on this object. This is a CONTENT gap, not a rendering one: no change to this projector produces it, and it is written by adding `protocol.rationale` to the object<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>protocol.rationale</code></li>
+</ol></div>
+<h3 id="paper-methods-search">Methods — search</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the entire search description<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>search.databases</code></li>
+</ol></div>
+<h3 id="paper-methods-eligibility-criteria">Methods — eligibility criteria</h3>
+<p>not recorded on the page this object was built from<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>screening.eligibility</code></li>
+</ol></div>
+<h3 id="paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the k cascade<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>k_cascade</code></li>
+</ol></div>
+<h3 id="paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</h3>
+<p>Every registered rank -- primary, secondary and other -- was read for 3 of 3 contributing trials before any decision about which outcomes could be combined; each records the time it was read.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>inputs.trials[].all_ranks_read_utc</code></li>
+</ol></div>
+<h3 id="paper-methods-synthesis">Methods — synthesis</h3>
+<p>For death, myocardial infarction or ischaemia-driven revascularisation at 48 hours -- and stent thrombosis in one of the three trials, a random-effects model was fitted with the none estimator.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>For corrected composite 3component, a random-effects model was fitted with the REML estimator.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>Methodological decisions follow not recorded on the page this object was built from, version not recorded on the page this object was built from, and the sections relied on are listed in the object rather than cited generically.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that records were screened in duplicate by two independent reviewers<sup class='prov-ref' title='source 4 for this section'>4</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that risk of bias was assessed with a named tool<sup class='prov-ref' title='source 5 for this section'>5</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that certainty of evidence was graded<sup class='prov-ref' title='source 6 for this section'>6</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that the review methods were prespecified before data collection<sup class='prov-ref' title='source 7 for this section'>7</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>results.by_outcome.primary.model, results.by_outcome.primary.estimator_used</code></li>
+<li><code>results.by_outcome.corrected_composite_3component.model, results.by_outcome.corrected_composite_3component.estimator_used</code></li>
+<li><code>methodological_authority.reference</code></li>
+<li><code>screening.duplicate_screening</code></li>
+<li><code>risk_of_bias.tool</code></li>
+<li><code>grade.approach</code></li>
+<li><code>protocol.prespecified</code></li>
+</ol></div>
+<h3 id="paper-results">Results</h3>
+<p>Death, myocardial infarction or ischaemia-driven revascularisation at 48 hours -- and stent thrombosis in one of the three trials. These 3 trials are NOT pooled, and the reason is stated rather than the outcome being quietly omitted: THE NUMERATORS AND THE DENOMINATORS ON THIS PAGE COME FROM DIFFERENT OUTCOMES, ON ALL THREE TRIALS. Each row carried the primary composite&#x27;s participant denominators -- 3,889 and 3,865; 2,654 and 2,641; 5,470 and 5,469, all exactly right -- against event counts of 8 and 5, 6 and 18, and 18 and 18. Those counts are NOT the composite&#x27;s. They are ALL-CAUSE MORTALITY, a SECONDARY outcome on every one of the three: CHAMPION-PCI&#x27;s &#x27;Individual Incidence of All-cause Mortality&#x27; is 8 against 5, CHAMPION-PLATFORM&#x27;s &#x27;Incidence of All-cause Mortality&#x27; is 6 against 18, and CHAMPION-PHOENIX&#x27;s 18 against 18 is the DEATH row of its stent-thrombosis/death/MI breakdown. THE REGISTRY&#x27;S OWN PRIMARY-COMPOSITE COUNTS ARE 290 AND 276, 185 AND 210, AND 257 AND 322 -- between one and two ORDERS OF MAGNITUDE larger than what the page used. A mortality numerator over a composite denominator is not a small error in a rate; it is a quantity that corresponds to nothing. AND THE CORRECTION REVERSES THE CONCLUSION, WHICH IS WHY THIS MATTERS MORE THAN A TIDINESS COMPLAINT. Pooling the registry&#x27;s own primary counts by DerSimonian-Laird gives OR 0.8955 (0.7526 to 1.0656), I-squared 64 per cent -- AN INTERVAL THAT CROSSES NO EFFECT. The card published OR 0.81 (0.71 to 0.91), which EXCLUDES it. The page reported a significant benefit where the trials&#x27; own primary outcomes do not establish one. SEPARATELY AND SUFFICIENT ON ITS OWN: THE COMPOSITES ARE NOT THE SAME. CHAMPION-PHOENIX&#x27;s registered primary is &#x27;The Composite Incidence of All-cause Mortality, Myocardial Infarction (MI), Ischemia-driven Revascularization (IDR) AND STENT THROMBOSIS (ST)&#x27; -- four components. CHAMPION-PCI&#x27;s and CHAMPION-PLATFORM&#x27;s are mortality, MI and IDR: three. One whole component is present in one trial and absent from the other two, so even with correct counts these three would not share one estimand.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the result sentence for the outcome recorded as `corrected_composite_3component` -- its REGISTERED TEXT is not held, and an internal identifier is not an outcome name<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>outcomes[id=primary].name, results.by_outcome.primary.poolable_reason</code></li>
+<li><code>outcomes[id=corrected_composite_3component].name</code></li>
+</ol></div>
+<h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the verbatim model output -- no analysis output is stored on this object, so nothing can be quoted and nothing is paraphrased in its place<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>results.by_outcome.*.r_output.verbatim</code></li>
+</ol></div>
+<h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the risk-of-bias assessment<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>risk_of_bias</code></li>
+</ol></div>
+<h3 id="paper-certainty-of-the-evidence">Certainty of the evidence</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> Certainty of the evidence, by outcome, with every rating step<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the certainty assessment -- no GRADE record is held, so the certainty column elsewhere on this page is an em dash rather than a guess<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>grade.by_outcome</code></li>
+<li><code>grade</code></li>
+</ol></div>
+<h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the comparison with published syntheses -- no published synthesis is recorded for this topic, so no denominator can be given<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>published_comparison</code></li>
+</ol></div>
+<h3 id="paper-disagreements-between-sources">Disagreements between sources</h3>
+<p>not recorded on the page this object was built from<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>not recorded on the page this object was built from<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>reconciliation.why_this_step_exists</code></li>
+<li><code>reconciliation.clean_because</code></li>
+</ol></div>
+<h3 id="paper-discussion">Discussion</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a discussion written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>discussion</code></li>
+</ol></div>
+<h3 id="paper-conclusions">Conclusions</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a conclusions written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>conclusions</code></li>
+</ol></div>
+<h3 id="paper-limitations">Limitations</h3>
+<p>Known limitation of the screen: not recorded on the page this object was built from<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Eligible trials that do not contribute: All three included registrations contribute to this review; none was dropped.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>What is not claimed: that the journal reports were consulted<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<p>1 claim(s) previously made about this review were corrected and the corrections are retained on the object rather than overwritten.<sup class='prov-ref' title='source 4 for this section'>4</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>screening.known_limitation</code></li>
+<li><code>eligible_but_not_contributing.note</code></li>
+<li><code>verification_basis.what_is_not_claimed</code></li>
+<li><code>claims_corrected</code></li>
+</ol></div>
+<h3 id="paper-sections-not-written-and-why">Sections not written, and why</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the list of refused properties<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>build_stamp.refusing</code></li>
+</ol></div>
+<h3 id="paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> <sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a CONTENT gap. A submission requires it and this object does not carry it; it is not inferable from anything held here<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>funding</code></li>
+<li><code>funding</code></li>
+</ol></div>
+<h3 id="paper-references">References</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the reference list<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>sources</code></li>
+</ol></div>
+<h3 id="paper-keywords">Keywords</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> <sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a CONTENT gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>keywords</code></li>
+<li><code>keywords</code></li>
+</ol></div>
+<h3 id="paper-data-availability">Data availability</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the data availability statement<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>registration_identity, sources</code></li>
+</ol></div>
+<h3 id="paper-software-availability">Software availability</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the software and environment statement<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>results.by_outcome.*.r_output._environment, config.confidence_level</code></li>
+</ol></div>
+<h3 id="paper-note-on-registration">Note on registration</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the registration note<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>protocol</code></li>
+</ol></div>
+<h3 id="paper-trial-characteristics">Trial characteristics</h3>
+<div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<sup class='prov-ref' title='source 1 for this section'>1</sup></caption>
+<tr><th>Registration</th><th>Trial</th><th>Arms</th><th>Participants</th></tr>
+<tr><td>NCT00305162</td><td>CHAMPION-PCI</td><td>Cangrelor (treatment, n=3889) vs Clopidogrel (control, n=3865)  [+2 further fields recorded on the object]</td><td>not extracted</td></tr>
+<tr><td>NCT00385138</td><td>CHAMPION-PLATFORM</td><td>Cangrelor (treatment, n=2654) vs Clopidogrel (control, n=2641)  [+2 further fields recorded on the object]</td><td>not extracted</td></tr>
+<tr><td>NCT01156571</td><td>CHAMPION-PHOENIX</td><td>Cangrelor (treatment, n=5470) vs Clopidogrel (control, n=5469)  [+2 further fields recorded on the object]</td><td>not extracted</td></tr>
+</table></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>inputs.trials</code></li>
+</ol></div>
+<h3 id="paper-figure-legends">Figure legends</h3>
+<div class='tscroll'><table><caption>Figures, and what each one shows<sup class='prov-ref' title='source 1 for this section'>1</sup></caption>
+<tr><th>Outcome</th><th>Figure</th><th>What it shows</th></tr>
+<tr><td>(no registered text held for `corrected_composite_3component`)</td><td>Forest plot</td><td>estimate 0.965 (0.813 to 1.14) across 2 trials</td></tr>
+<tr><td>Death, myocardial infarction or ischaemia-driven revascularisation at 48 hours -- and stent thrombosis in one of the three trials</td><td>Forest plot</td><td>not pooled; the reason is given in Results</td></tr>
+</table></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>results.by_outcome</code></li>
+</ol></div>
+<h3 id="paper-submission-conformance">Submission conformance</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the submission conformance statement<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>build_stamp</code></li>
+</ol></div>
+</div>  </section>
 <!--end-paper--> <section class="panel" id="pn-statistics">
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No statistical panel set is held in this object.</div>
  </section>
@@ -589,7 +786,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   }
 })();
 </script>
-
+<div class='card warn'><h2>Page standard</h2><p><strong>UNSTAMPED — unknown-version.</strong> This page carries no <code>build_stamp</code>, so the standard it was built to cannot be established. That is a statement about the record, not a claim that the page is below standard.</p></div>
 <p><small>Every number on this page is projected from a single canonical object,
 and each measured cell names the source analysis it was read from. That is what is
 machine-checked. It does not establish that the underlying sources are right, only

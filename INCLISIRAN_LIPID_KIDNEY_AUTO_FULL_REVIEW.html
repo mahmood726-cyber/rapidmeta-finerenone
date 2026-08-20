@@ -12,6 +12,25 @@
     reader on a dark desktop got dark without ever asking for it. Dark is now
     strictly opt-in through the toggle, and nothing about the machine changes
     what the page opens as. */
+ /* THE PROVENANCE COLUMN. Field paths used to sit inside the sentence flow, one per
+    paragraph, 1,233 times across the corpus; a reader met "results.by_outcome.x.
+    heterogeneity.i2" between one sentence and the next and read the page as machine
+    output. The paths are NOT removed -- transparency is the property, and a reader who
+    wants to know where a number came from must still get there in one action. They now sit
+    at the end of their section, VISIBLY, keyed by superscript.
+
+    NOT A HOVER. A hover is invisible to anyone who does not know to hover, and provenance
+    a reader cannot see exists is the same defect as a withdrawal declared only in a meta
+    tag. The block announces itself; reading it is optional, knowing it is there is not. */
+ .prov-ref{font-size:.68em;line-height:0;vertical-align:super;color:var(--accent);
+       font-family:var(--sans,system-ui,sans-serif);padding-left:.15em}
+ .prov-block{margin:.6rem 0 1.4rem;padding:.5rem .8rem;border-left:2px solid var(--line);
+       background:var(--soft)}
+ .prov-title{margin:0 0 .3rem;font-size:.78rem;letter-spacing:.02em;color:var(--muted);
+       font-family:var(--sans,system-ui,sans-serif);text-transform:uppercase}
+ .prov-list{margin:0;padding-left:1.4rem}
+ .prov-list li{font-size:.78rem;line-height:1.45;color:var(--muted)}
+ .prov-list code{font-size:.95em;word-break:break-word}
  body:has(#dm:checked){--bg:#0f1115;--fg:#e8e8ec;--line:#33363d;--muted:#a8adb8;
        --warnb:#d99b3c;--warnbg:#241d10;--accent:#7aa2ff;
        --paper:#15181e;--paperfg:#e8e8ec;--thbg:#1c2029;--soft:#1a1e26}
@@ -540,7 +559,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2-converted-from-extractor</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-17T12:06Z</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>366583b03</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>aa850700e</code> (uncommitted generator changes -- NOT REPRODUCIBLE from this stamp alone), built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
@@ -587,36 +606,72 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-sections-not-written-and-why">Sections not written, and why</a> &middot; <a href="#paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-keywords">Keywords</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a></p>
 <div class='card'>
 <h2 id="paper-paper">Paper</h2>
-<p class='muted'>Every paragraph below is PROJECTED from a field of this object, and names it. <strong>A section with no field behind it is not written</strong> &mdash; it is refused, by name, so a reader can tell an absent procedure from an unmentioned one.</p>
+<p class='muted'>Every statement below is projected from a field of this object. The superscripts are sources: each section ends with the fields its statements came from, in order. <strong>A section with no field behind it is not written</strong> &mdash; it is refused, by name, so a reader can tell an absent procedure from an unmentioned one.</p>
 <h3 id="paper-title-and-review-question">Title and review question</h3>
-<p>Multiple trial-declared outcomes: Percent Change in LDL-C From Baseline To Day 510 | Percentage Change in LDL-C From Baseline to Day 510<br><small class='muted'>&larr; title</small></p>
-<p>This object records its review question and its title as the SAME string, so no question distinct from the title is stated here. A question copied from a title has not been asked.<br><small class='muted'>&larr; question</small></p>
+<p>Multiple trial-declared outcomes: Percent Change in LDL-C From Baseline To Day 510 | Percentage Change in LDL-C From Baseline to Day 510<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>This object records its review question and its title as the SAME string, so no question distinct from the title is stated here. A question copied from a title has not been asked.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>title</code></li>
+<li><code>question</code></li>
+</ol></div>
 <h3 id="paper-abstract">Abstract</h3>
-<p>Question. Multiple trial-declared outcomes: Percent Change in LDL-C From Baseline To Day 510 | Percentage Change in LDL-C From Baseline to Day 510<br><small class='muted'>&larr; question</small></p>
-<p>Findings. Multiple trial-declared outcomes: Percent Change in LDL-C From Baseline To Day 510 | Percentage Change in LDL-C From Baseline to Day 510: mean difference -54 (-58.3 to -49.6) across 3 trials.<br><small class='muted'>&larr; results.by_outcome</small></p>
+<p>Question. Multiple trial-declared outcomes: Percent Change in LDL-C From Baseline To Day 510 | Percentage Change in LDL-C From Baseline to Day 510<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Findings. Multiple trial-declared outcomes: Percent Change in LDL-C From Baseline To Day 510 | Percentage Change in LDL-C From Baseline to Day 510: mean difference -54 (-58.3 to -49.6) across 3 trials.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>question</code></li>
+<li><code>results.by_outcome</code></li>
+</ol></div>
 <h3 id="paper-introduction">Introduction</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the Introduction -- no background or rationale is recorded on this object. This is a CONTENT gap, not a rendering one: no change to this projector produces it, and it is written by adding `protocol.rationale` to the object &mdash; no field: <code>protocol.rationale</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Introduction -- no background or rationale is recorded on this object. This is a CONTENT gap, not a rendering one: no change to this projector produces it, and it is written by adding `protocol.rationale` to the object<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>protocol.rationale</code></li>
+</ol></div>
 <h3 id="paper-methods-search">Methods — search</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the entire search description &mdash; no field: <code>search.databases</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the entire search description<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>search.databases</code></li>
+</ol></div>
 <h3 id="paper-methods-eligibility-criteria">Methods — eligibility criteria</h3>
-<p>not recorded on the page this object was extracted from<br><small class='muted'>&larr; screening.eligibility</small></p>
+<p>not recorded on the page this object was extracted from<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>screening.eligibility</code></li>
+</ol></div>
 <h3 id="paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the k cascade &mdash; no field: <code>k_cascade</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the k cascade<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>k_cascade</code></li>
+</ol></div>
 <h3 id="paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the statement that outcomes were sought below the primary &mdash; no field: <code>withholding_question, inputs.trials[].all_ranks_read_utc</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the statement that outcomes were sought below the primary<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>withholding_question, inputs.trials[].all_ranks_read_utc</code></li>
+</ol></div>
 <h3 id="paper-methods-synthesis">Methods — synthesis</h3>
-<p>For primary, a random-effects model was fitted with the REML estimator.<br><small class='muted'>&larr; results.by_outcome.primary.model, results.by_outcome.primary.estimator_used</small></p>
-<p>Methodological decisions follow not recorded on the page this object was extracted from, version not recorded on the page this object was extracted from, and the sections relied on are listed in the object rather than cited generically.<br><small class='muted'>&larr; methodological_authority.reference</small></p>
-<div class='absent-state' role='note'><strong>Refused:</strong> the claim that records were screened in duplicate by two independent reviewers &mdash; no field: <code>screening.duplicate_screening</code></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the claim that risk of bias was assessed with a named tool &mdash; no field: <code>risk_of_bias.tool</code></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the claim that certainty of evidence was graded &mdash; no field: <code>grade.approach</code></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the claim that the review methods were prespecified before data collection &mdash; no field: <code>protocol.prespecified</code></div>
+<p>For multiple trial-declared outcomes: Percent Change in LDL-C From Baseline To Day 510 | Percentage Change in LDL-C From Baseline to Day 510, a random-effects model was fitted with the REML estimator.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Methodological decisions follow not recorded on the page this object was extracted from, version not recorded on the page this object was extracted from, and the sections relied on are listed in the object rather than cited generically.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that records were screened in duplicate by two independent reviewers<sup class='prov-ref' title='source 3 for this section'>3</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that risk of bias was assessed with a named tool<sup class='prov-ref' title='source 4 for this section'>4</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that certainty of evidence was graded<sup class='prov-ref' title='source 5 for this section'>5</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that the review methods were prespecified before data collection<sup class='prov-ref' title='source 6 for this section'>6</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>results.by_outcome.primary.model, results.by_outcome.primary.estimator_used</code></li>
+<li><code>methodological_authority.reference</code></li>
+<li><code>screening.duplicate_screening</code></li>
+<li><code>risk_of_bias.tool</code></li>
+<li><code>grade.approach</code></li>
+<li><code>protocol.prespecified</code></li>
+</ol></div>
 <h3 id="paper-results">Results</h3>
-<p>The pooled mean difference for multiple trial-declared outcomes: Percent Change in LDL-C From Baseline To Day 510 | Percentage Change in LDL-C From Baseline to Day 510 was -54 (-58.3 to -49.6) across 3 trials, against not recorded on the page this object was extracted from.<br><small class='muted'>&larr; outcomes[id=primary].name, results.by_outcome.primary.pooled, outcomes[id=primary].comparator</small></p>
-<p>Between-trial heterogeneity was I-squared 74.1%, tau-squared 10.6, Q 7.14, degrees of freedom 2. Q = 7.1426 on 2 df, I-squared 74.1 per cent, tau-squared 10.60 under REML.<br><small class='muted'>&larr; results.by_outcome.primary.heterogeneity.i2, results.by_outcome.primary.heterogeneity.tau2, results.by_outcome.primary.heterogeneity.q, results.by_outcome.primary.heterogeneity.df, results.by_outcome.primary.heterogeneity_status</small></p>
-<p>The grounds for pooling are recorded as: THE POOL STANDS, AND EVERY STEP OF IT WAS CHECKED RATHER THAN ASSUMED. THE ESTIMAND IS THE SAME IN ALL THREE REGISTRATIONS. ORION-9 registers &#x27;Percent Change in LDL-C From Baseline To Day 510&#x27;; ORION-10 and ORION-11 register &#x27;Percentage Change in LDL-C From Baseline to Day 510&#x27;. Same quantity, same anchor, same day, all three analysed by ANCOVA and reported by the registry as a &#x27;Mean Difference (Final Values)&#x27;. THE ONLY DIFFERENCE BETWEEN THE THREE STRINGS IS &#x27;Percent&#x27; AGAINST &#x27;Percentage&#x27; -- orthography, which is precisely the trap that has manufactured false disagreements in this repository before, and it is not one here. ALL THREE PER-TRIAL VALUES ARE THE REGISTRY&#x27;S OWN, DIGIT FOR DIGIT: ORION-9 -49.52 (-55.04 to -43.99), ORION-10 -57.64 (-60.86 to -54.43), ORION-11 -53.50 (-56.66 to -50.35). ALL THREE ARM PAIRS SUM TO THEIR REGISTRATION&#x27;S RECORDED ENROLMENT EXACTLY: 242+240=482, 781+780=1561, 810+807=1617. ARM LABELS AND ROLES ARE CORRECT ON ALL THREE. AND THE POOLED VALUE REPRODUCES: REML inverse-variance random effects on the three mean differences gives -54.0014 (-58.1652 to -49.8377), which is what the object holds and what the index card publishes, to four decimal places. THE CARD, THE OBJECT AND THE INDEPENDENT RECOMPUTATION ALL AGREE.  [RESTATED 2026-08-20. This sentence was written while the pool was fitted with DerSimonian-Laird inverse-variance on extracted effect estimates. It is now REML, under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: &quot;Decision: REML, everywhere.&quot; The estimate moved from -54.00144508917459 (-58.16516691761607 to -49.83772326073311) to -53.97 (-58.3 to -49.64) and tau-squared from 9.524722803298308 to 10.595364. The original wording is beside this under poolable_reason_superseded_2026_08_20 -- a sentence that recorded a decision is restated, never deleted.] Where a later pool on this page rests on the same grounds, they are not restated.<br><small class='muted'>&larr; results.by_outcome.primary.poolable_reason</small></p>
+<p>The pooled mean difference for multiple trial-declared outcomes: Percent Change in LDL-C From Baseline To Day 510 | Percentage Change in LDL-C From Baseline to Day 510 was -54 (-58.3 to -49.6) across 3 trials, against not recorded on the page this object was extracted from.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>The trials&#x27; results were loosely consistent with one another: I-squared, the share of the variation between them that is more than chance alone would produce, was 74.1%; the estimated variance of the true effects between trials (tau-squared) was 10.6, the heterogeneity test statistic Q was 7.14, on degrees of freedom 2. Q = 7.1426 on 2 df, I-squared 74.1 per cent, tau-squared 10.60 under REML.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>The grounds for pooling are recorded as: THE POOL STANDS, AND EVERY STEP OF IT WAS CHECKED RATHER THAN ASSUMED. THE ESTIMAND IS THE SAME IN ALL THREE REGISTRATIONS. ORION-9 registers &#x27;Percent Change in LDL-C From Baseline To Day 510&#x27;; ORION-10 and ORION-11 register &#x27;Percentage Change in LDL-C From Baseline to Day 510&#x27;. Same quantity, same anchor, same day, all three analysed by ANCOVA and reported by the registry as a &#x27;Mean Difference (Final Values)&#x27;. THE ONLY DIFFERENCE BETWEEN THE THREE STRINGS IS &#x27;Percent&#x27; AGAINST &#x27;Percentage&#x27; -- orthography, which is precisely the trap that has manufactured false disagreements in this repository before, and it is not one here. ALL THREE PER-TRIAL VALUES ARE THE REGISTRY&#x27;S OWN, DIGIT FOR DIGIT: ORION-9 -49.52 (-55.04 to -43.99), ORION-10 -57.64 (-60.86 to -54.43), ORION-11 -53.50 (-56.66 to -50.35). ALL THREE ARM PAIRS SUM TO THEIR REGISTRATION&#x27;S RECORDED ENROLMENT EXACTLY: 242+240=482, 781+780=1561, 810+807=1617. ARM LABELS AND ROLES ARE CORRECT ON ALL THREE. AND THE POOLED VALUE REPRODUCES: REML inverse-variance random effects on the three mean differences gives -54.0014 (-58.1652 to -49.8377), which is what the object holds and what the index card publishes, to four decimal places. THE CARD, THE OBJECT AND THE INDEPENDENT RECOMPUTATION ALL AGREE.  [RESTATED 2026-08-20. This sentence was written while the pool was fitted with DerSimonian-Laird inverse-variance on extracted effect estimates. It is now REML, under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: &quot;Decision: REML, everywhere.&quot; The estimate moved from -54.00144508917459 (-58.16516691761607 to -49.83772326073311) to -53.97 (-58.3 to -49.64) and tau-squared from 9.524722803298308 to 10.595364. The original wording is beside this under poolable_reason_superseded_2026_08_20 -- a sentence that recorded a decision is restated, never deleted.] Where a later pool on this page rests on the same grounds, they are not restated.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>outcomes[id=primary].name, results.by_outcome.primary.pooled, outcomes[id=primary].comparator</code></li>
+<li><code>results.by_outcome.primary.heterogeneity.i2, results.by_outcome.primary.heterogeneity.tau2, results.by_outcome.primary.heterogeneity.q, results.by_outcome.primary.heterogeneity.df, results.by_outcome.primary.heterogeneity_status</code></li>
+<li><code>results.by_outcome.primary.poolable_reason</code></li>
+</ol></div>
 <h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
-<p>call: metafor::rma(yi = ..., sei = ..., method = &#x27;REML&#x27;) -- inclisiran-lipid-kidney-auto-full-review :: primary   k = 3   measure = MD
+<p><sup class='prov-ref' title='source 1 for this section'>1</sup>call: metafor::rma(yi = ..., sei = ..., method = &#x27;REML&#x27;) -- inclisiran-lipid-kidney-auto-full-review :: primary   k = 3   measure = MD
 ================================================================================================
 trials: NCT03397121, NCT03399370, NCT03400800
 
@@ -684,64 +739,127 @@ C. WHAT MOVES
      prediction interval under REML: -61.6828 to -46.2631
 
 R environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1
-Script: ssot/reml_corpus_refit.R<br><small class='muted'>&larr; results.by_outcome.primary.r_output.verbatim</small></p>
+Script: ssot/reml_corpus_refit.R</p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>results.by_outcome.primary.r_output.verbatim</code></li>
+</ol></div>
 <h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the risk-of-bias assessment &mdash; no field: <code>risk_of_bias</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the risk-of-bias assessment<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>risk_of_bias</code></li>
+</ol></div>
 <h3 id="paper-certainty-of-the-evidence">Certainty of the evidence</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> Certainty of the evidence, by outcome, with every rating step &mdash; no field: <code>grade.by_outcome</code></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the certainty assessment -- no GRADE record is held, so the certainty column elsewhere on this page is an em dash rather than a guess &mdash; no field: <code>grade</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> Certainty of the evidence, by outcome, with every rating step<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the certainty assessment -- no GRADE record is held, so the certainty column elsewhere on this page is an em dash rather than a guess<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>grade.by_outcome</code></li>
+<li><code>grade</code></li>
+</ol></div>
 <h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
-<p>Published syntheses were identified as follows. PubMed E-utilities; query, counts and a per-record decision in ssot/inclisiran-lipid-kidney-auto-full-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json. 61 records matched, 30 retrieved, 10 appraised. THE REMAINING 51 WERE NOT READ and that is stated in the screen file rather than left to be inferred from the number.<br><small class='muted'>&larr; published_comparison._how_identified</small></p>
-<p>This review was compared against 4 published synthesis(es); the denominator is stated because a comparison against an unstated number of reviews is not a comparison.<br><small class='muted'>&larr; published_comparison.reviews</small></p>
-<p>Where our result differs from theirs: NOT BY TRIAL SET, which is the unusual and useful thing about this comparison. The closest synthesis pools the same three trials and differs by about three percentage points, so the difference is in extraction or in WHICH REGISTERED CO-PRIMARY was taken -- day 510, or time-adjusted day 90 to 540. This review&#x27;s own selection between those two is consistent across all three trials and was never recorded, which is the error listed above. The broader syntheses agree with this review closely; the real-world pooling does not, and its own authors attribute that to baseline LDL-C and adherence rather than to either estimate being wrong.<br><small class='muted'>&larr; published_comparison.divergence_decomposed.why_they_differ</small></p>
-<div class='tscroll'><table><caption>Published syntheses compared with this review, with a denominator<br><small class='muted'>&larr; published_comparison.reviews</small></caption>
+<p>Published syntheses were identified as follows. PubMed E-utilities; query, counts and a per-record decision in ssot/inclisiran-lipid-kidney-auto-full-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json. 61 records matched, 30 retrieved, 10 appraised. THE REMAINING 51 WERE NOT READ and that is stated in the screen file rather than left to be inferred from the number.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>This review was compared against 4 published synthesis(es); the denominator is stated because a comparison against an unstated number of reviews is not a comparison.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>Where our result differs from theirs: NOT BY TRIAL SET, which is the unusual and useful thing about this comparison. The closest synthesis pools the same three trials and differs by about three percentage points, so the difference is in extraction or in WHICH REGISTERED CO-PRIMARY was taken -- day 510, or time-adjusted day 90 to 540. This review&#x27;s own selection between those two is consistent across all three trials and was never recorded, which is the error listed above. The broader syntheses agree with this review closely; the real-world pooling does not, and its own authors attribute that to baseline LDL-C and adherence rather than to either estimate being wrong.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<div class='tscroll'><table><caption>Published syntheses compared with this review, with a denominator<sup class='prov-ref' title='source 4 for this section'>4</sup></caption>
 <tr><th>Citation</th><th>PMID</th><th>Their k</th><th>Scope</th><th>How it differs from ours</th></tr>
 <tr><td>Khan SA, Naz A, Qamar Masood M, Shah R. Meta-Analysis of Inclisiran for the Treatment of Hypercholesterolemia. Am J Card</td><td>32892993</td><td>3</td><td>inclisiran against placebo in hypercholesterolaemia</td><td>By arithmetic and timing it pools THIS REVIEW&#x27;S OWN THREE TRIALS -- its n of 3,660 is exactly their summed arm counts, and it was published five months after th</td></tr>
 <tr><td>Imran TF, et al. PCSK9 inhibitors and small interfering RNA therapy for cardiovascular risk reduction: a systematic revi</td><td>38055686</td><td>4</td><td>inclisiran 284 mg, reported separately from the PCSK9 antibodies</td><td>Four inclisiran studies rather than three, across a broader population. Lands within one percentage point of this review.</td></tr>
 <tr><td>Alaiz AR, et al. Inclisiran: Efficacy in Real World -- Systematic Review and Meta-Analysis. J Clin Med 2025;14(12):4163.</td><td>40565909</td><td>7</td><td>real-world observational studies</td><td>A different DESIGN, not a different trial set: single-arm observational change against a randomised placebo-corrected difference. It cannot confirm or contradic</td></tr>
 <tr><td>Burnett H, et al. Comparative efficacy of non-statin lipid-lowering therapies in patients with hypercholesterolemia at i</td><td>35262430</td><td>23</td><td>network meta-analysis placing inclisiran against evolocumab, alirocumab, bempedo</td><td>A different QUESTION -- relative efficacy between active agents, not the size of the effect against placebo. Its own reported heterogeneity is &#x27;roughly equivale</td></tr>
 </table></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>published_comparison._how_identified</code></li>
+<li><code>published_comparison.reviews</code></li>
+<li><code>published_comparison.divergence_decomposed.why_they_differ</code></li>
+<li><code>published_comparison.reviews</code></li>
+</ol></div>
 <h3 id="paper-disagreements-between-sources">Disagreements between sources</h3>
-<p>not recorded on the page this object was extracted from<br><small class='muted'>&larr; reconciliation.why_this_step_exists</small></p>
-<p>not recorded on the page this object was extracted from<br><small class='muted'>&larr; reconciliation.clean_because</small></p>
+<p>not recorded on the page this object was extracted from<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>not recorded on the page this object was extracted from<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>reconciliation.why_this_step_exists</code></li>
+<li><code>reconciliation.clean_because</code></li>
+</ol></div>
 <h3 id="paper-discussion">Discussion</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a discussion written by the renderer would be an argument no field supports &mdash; no field: <code>discussion</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a discussion written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>discussion</code></li>
+</ol></div>
 <h3 id="paper-conclusions">Conclusions</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a conclusions written by the renderer would be an argument no field supports &mdash; no field: <code>conclusions</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a conclusions written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>conclusions</code></li>
+</ol></div>
 <h3 id="paper-limitations">Limitations</h3>
-<p>Known limitation of the screen: not recorded on the page this object was extracted from<br><small class='muted'>&larr; screening.known_limitation</small></p>
-<p>Eligible trials that do not contribute: not recorded on the page this object was extracted from<br><small class='muted'>&larr; eligible_but_not_contributing.note</small></p>
-<p>What is not claimed: not recorded on the page this object was extracted from<br><small class='muted'>&larr; verification_basis.what_is_not_claimed</small></p>
+<p>Known limitation of the screen: not recorded on the page this object was extracted from<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Eligible trials that do not contribute: not recorded on the page this object was extracted from<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>What is not claimed: not recorded on the page this object was extracted from<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>screening.known_limitation</code></li>
+<li><code>eligible_but_not_contributing.note</code></li>
+<li><code>verification_basis.what_is_not_claimed</code></li>
+</ol></div>
 <h3 id="paper-sections-not-written-and-why">Sections not written, and why</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the list of refused properties &mdash; no field: <code>build_stamp.refusing</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the list of refused properties<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>build_stamp.refusing</code></li>
+</ol></div>
 <h3 id="paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>funding</code></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a CONTENT gap. A submission requires it and this object does not carry it; it is not inferable from anything held here &mdash; no field: <code>funding</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> <sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a CONTENT gap. A submission requires it and this object does not carry it; it is not inferable from anything held here<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>funding</code></li>
+<li><code>funding</code></li>
+</ol></div>
 <h3 id="paper-references">References</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the reference list &mdash; no field: <code>sources</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the reference list<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>sources</code></li>
+</ol></div>
 <h3 id="paper-keywords">Keywords</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>keywords</code></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a CONTENT gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose &mdash; no field: <code>keywords</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> <sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a CONTENT gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>keywords</code></li>
+<li><code>keywords</code></li>
+</ol></div>
 <h3 id="paper-data-availability">Data availability</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the data availability statement &mdash; no field: <code>registration_identity, sources</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the data availability statement<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>registration_identity, sources</code></li>
+</ol></div>
 <h3 id="paper-software-availability">Software availability</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the software and environment statement &mdash; no field: <code>results.by_outcome.*.r_output._environment, config.confidence_level</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the software and environment statement<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>results.by_outcome.*.r_output._environment, config.confidence_level</code></li>
+</ol></div>
 <h3 id="paper-note-on-registration">Note on registration</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the registration note &mdash; no field: <code>protocol</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the registration note<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>protocol</code></li>
+</ol></div>
 <h3 id="paper-trial-characteristics">Trial characteristics</h3>
-<div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<br><small class='muted'>&larr; inputs.trials</small></caption>
+<div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<sup class='prov-ref' title='source 1 for this section'>1</sup></caption>
 <tr><th>Registration</th><th>Trial</th><th>Arms</th><th>Participants</th></tr>
 <tr><td>NCT03397121</td><td>ORION-9</td><td>Inclisiran (treatment, n=242) vs Placebo (control, n=240)  [+2 further fields recorded on the object]</td><td>not extracted</td></tr>
 <tr><td>NCT03399370</td><td>ORION-10</td><td>Inclisiran (treatment, n=781) vs Saline Solution (control, n=780)  [+2 further fields recorded on the object]</td><td>not extracted</td></tr>
 <tr><td>NCT03400800</td><td>ORION-11</td><td>Inclisiran (treatment, n=810) vs Saline Solution (control, n=807)  [+2 further fields recorded on the object]</td><td>not extracted</td></tr>
 </table></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>inputs.trials</code></li>
+</ol></div>
 <h3 id="paper-figure-legends">Figure legends</h3>
-<div class='tscroll'><table><caption>Figures, and what each one shows<br><small class='muted'>&larr; results.by_outcome</small></caption>
+<div class='tscroll'><table><caption>Figures, and what each one shows<sup class='prov-ref' title='source 1 for this section'>1</sup></caption>
 <tr><th>Outcome</th><th>Figure</th><th>What it shows</th></tr>
 <tr><td>Multiple trial-declared outcomes: Percent Change in LDL-C From Baseline To Day 510 | Percentage Change in LDL-C From Baseline to Day 510</td><td>Forest plot</td><td>mean difference -54 (-58.3 to -49.6) across 3 trials</td></tr>
 </table></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>results.by_outcome</code></li>
+</ol></div>
 <h3 id="paper-submission-conformance">Submission conformance</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the submission conformance statement &mdash; no field: <code>build_stamp</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the submission conformance statement<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>build_stamp</code></li>
+</ol></div>
 </div>  </section>
 <!--end-paper--> <section class="panel" id="pn-statistics">
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No statistical panel set was recoverable from the published page this object was extracted from.</div>
