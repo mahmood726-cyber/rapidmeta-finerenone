@@ -1239,7 +1239,57 @@ def project(obj, journal="generic", length="standard"):
     if length == "concise":
         for sec in secs:
             sec.paras = sec.paras[:2]
-    return secs
+    return _in_reading_order(secs)
+
+
+# THE SECTIONS WERE EMITTED IN THE ORDER THEY WERE CODED, AND THAT IS NOT THE ORDER OF A
+# PAPER. On the delivered SGLT2_HF_REVIEW.html the reader met, in this sequence:
+#
+#     ... Methods (5 sections), Results, Limitations, ABSTRACT, INTRODUCTION, Certainty ...
+#
+# Abstract ninth and Introduction tenth, AFTER the results and the limitations. Nothing was
+# missing and nothing was malformed; the manuscript simply could not be read as one, and
+# "reads as badly written" is the correct description of it. Every page in the corpus had
+# this order, because it is the order the builders appear in this file.
+#
+# The fix is a declared reading order applied at the end rather than a reshuffle of the
+# builders, so no section builder changes and a section that is added later and not listed
+# here keeps its position relative to the rest instead of vanishing.
+READING_ORDER = [
+    "title", "abstract", "introduction",
+    "methods_search", "methods_eligibility", "methods_flow", "methods_withholding",
+    "methods_synthesis",
+    "results", "statistical_output", "risk_of_bias", "certainty",
+    "published_comparison", "disagreements",
+    "discussion", "conclusions", "limitations",
+    "not_written", "funding", "references", "keywords",
+    "data_availability", "software_availability", "note_on_registration",
+    "trial_characteristics", "figure_legends", "submission_conformance",
+]
+
+
+def _in_reading_order(secs):
+    """Order the emitted sections the way a paper is read.
+
+    A key not in READING_ORDER keeps its original position by sorting on the index of the
+    last listed key before it -- so an unlisted section stays where its author put it
+    rather than being silently moved to the end, which would be a quiet content change
+    dressed as a formatting one.
+    """
+    pos = {k: i for i, k in enumerate(READING_ORDER)}
+    order, last = [], -1
+    for n, s in enumerate(secs):
+        key = getattr(s, "key", None)
+        if key in pos:
+            last = pos[key]
+            order.append((last, 0, n))
+        else:
+            order.append((last, 1, n))
+    ranked = [secs[n] for _, _, n in sorted(order)]
+    if len(ranked) != len(secs):
+        raise AssertionError("reading-order pass changed the section count from %d to %d"
+                             % (len(secs), len(ranked)))
+    return ranked
 
 
 def render(secs, show_fields=True):

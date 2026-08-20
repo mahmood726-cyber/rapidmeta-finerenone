@@ -1644,8 +1644,19 @@ def tabbed_body(canon, parts, page):
             state_note = ('  <div class="absent-state" role="note">'
                           '<strong>Partially held.</strong> %s</div>%s'
                           % (PARTIAL_STATE["report"], NL))
-        panels += ('  <section class="panel" id="pn-%s">%s%s%s%s%s'
-                   % (tid, NL, state_note, toc, "".join(pending) + body, carry_into))
+        # A BARE `#<tab>` ANCHOR, BECAUSE ONE WAS HANDED TO A READER AND DID NOT RESOLVE.
+        #
+        # Mahmood opened SGLT2_HF_REVIEW.html#paper on 2026-08-20. THERE WAS NO ELEMENT
+        # WITH id="paper" ANYWHERE ON THE PAGE -- the panel is `pn-paper`, its radio is
+        # `rt-paper`, and its sections are `paper-*`. The link landed him at the top of
+        # the page, and the first thing he saw of the manuscript was nothing.
+        #
+        # `#paper` is the anchor a person constructs from the tab's own name, so it is the
+        # one that has to work. Emitted as an empty span rather than by renaming the panel,
+        # because `pn-` prefixes are wired into the tab CSS and the scroll script and
+        # renaming them would trade a dead link for a dead tab.
+        panels += ('  <section class="panel" id="pn-%s"><span id="%s"></span>%s%s%s%s%s'
+                   % (tid, tid, NL, state_note, toc, "".join(pending) + body, carry_into))
         pending = []
         css += (" #rt-%s:checked ~ .panels > #pn-%s{height:auto;overflow:visible}%s"
                 ' #rt-%s:checked ~ .tabnav label[for="rt-%s"]{color:#111;'
