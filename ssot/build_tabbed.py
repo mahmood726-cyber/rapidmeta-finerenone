@@ -1056,13 +1056,25 @@ def build(canon):
         # for that reason -- it converts the silence back into something a reader meets.
         outcome = next((o for o in canon["outcomes"] if o["id"] == oid), None)
         if outcome is None:
-            parts.append(
-                "<div class='absent-state' role='note'><strong>Not rendered.</strong> "
-                "The results block <code>%s</code> is not declared in this object's "
-                "<code>outcomes</code>, so it has no registered name, measure or "
-                "comparator to be rendered under. IT IS NOT EMPTY -- it may carry a pooled "
-                "estimate, and on this object it does. Declaring the outcome is a CONTENT "
-                "change and is not made by the builder.</div>" % e_(oid))
+            # THE REFUSAL MUST BE THE SAME SHAPE AS EVERYTHING ELSE IN `parts`.
+            #
+            # The first version appended a bare STRING here, and projectors.tabbed_body does
+            # `d.get(k)` over every member of parts -- so the refusal killed the build a
+            # FOURTH time, at a fourth site, with AttributeError: 'str' object has no
+            # attribute 'get'. A refusal that breaks the contract of the collection it joins
+            # is not a refusal, it is a different crash wearing a polite sentence.
+            parts.append({
+                "name": "%s (not declared in outcomes)" % oid,
+                "trials": (
+                    "<div class='absent-state' role='note'><strong>Not rendered.</strong> "
+                    "The results block <code>%s</code> is not declared in this object's "
+                    "<code>outcomes</code>, so it has no registered name, measure or "
+                    "comparator to be rendered under. IT IS NOT EMPTY -- it may carry a "
+                    "pooled estimate, and on this object it does. Declaring the outcome is "
+                    "a CONTENT change and is not made by the builder.</div>" % e_(oid)),
+                "headline": "", "estimand": "", "hb": "", "sens": "", "dissent": "",
+                "subgroups": "", "note": "", "forest": "", "gosh": "", "baujat": "",
+            })
             continue
         d = G._outcome_section(canon, oid, p, e_)
         res = canon["results"]["by_outcome"][oid]
