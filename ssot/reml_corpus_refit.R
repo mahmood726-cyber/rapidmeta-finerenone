@@ -151,6 +151,54 @@ for (key in names(pools)) {
               ifelse(old_excl != new_excl, "   <<< THE VERDICT TURNS ON THE ESTIMATOR", "")))
   cat("\n")
 
+  # THE QUOTED MODEL OUTPUT IS THE WHOLE BLOCK, NOT JUST THE NEW FIT.
+  #
+  # The first version of this script stored only capture.output(print(new)) as the
+  # verbatim. The manuscript on each page QUOTES that field, and the fields it replaced
+  # held a full transcript -- the old fit, the reproduction check, the new fit and the
+  # comparison. Installing the short version shrank the apixaban-vte-prophylaxis
+  # manuscript by 7.88% and ssot/manuscript_guard.py REFUSED THE BUILD, correctly, and
+  # wrote nothing. The guard was right and the output was wrong.
+  #
+  # A reader given only the new fit cannot tell whether the old one was reproduced before
+  # it was replaced, which is the single most important thing about this change.
+  block <- c(
+    sprintf("%s :: %s   k = %d   measure = %s", p$topic, p$outcome, length(yi), p$measure),
+    strrep("=", 96),
+    sprintf("trials: %s", paste(slab, collapse = ", ")),
+    "",
+    sprintf("A. THE FIT THAT PRODUCED THE SERVED NUMBER -- method = %s, z interval", old_m),
+    capture.output(print(old)),
+    "",
+    "   CHECK AGAINST THE STORED VALUE -- the change is not earned until this passes:",
+    sprintf("     point  refit %-14.6f stored %-14.6f  %s", op, sp, ifelse(ok_point, "reproduced", "DIFFERS")),
+    sprintf("     ci_low refit %-14.6f stored %-14.6f  %s", olo, slo, ifelse(ok_lo, "reproduced", "DIFFERS")),
+    sprintf("     ci_hi  refit %-14.6f stored %-14.6f  %s", ohi, shi, ifelse(ok_hi, "reproduced", "DIFFERS")),
+    sprintf("     tau^2  refit %-14.6f stored %-14.6f  %s", old$tau2, stau, ifelse(ok_tau, "reproduced", "DIFFERS")),
+    sprintf("     Q      refit %-14.6f stored %-14.6f  %s", old$QE, sq, ifelse(ok_q, "reproduced", "DIFFERS")),
+    sprintf("     I^2    refit %-14.4f stored %-14.4f  %s", old$I2, si2, ifelse(ok_i2, "reproduced", "DIFFERS")),
+    sprintf("     => %s", verdict),
+    "",
+    "B. THE SAME DATA UNDER REML -- Cochrane Handbook 6.5 section 10.10.4.4, which records",
+    "   REML as RevMan's own current default, and DECISIONS-COCHRANE-2026-08-18.md section 1,",
+    "   whose decision line reads: \"Decision: REML, everywhere.\"",
+    capture.output(print(new)),
+    "",
+    "C. WHAT MOVES",
+    sprintf("     point    %-14.6f -> %-14.6f  (%+.4f%%)", sp, np, shift),
+    sprintf("     ci_low   %-14.6f -> %-14.6f", slo, nlo),
+    sprintf("     ci_high  %-14.6f -> %-14.6f", shi, nhi),
+    sprintf("     tau^2    %-14.6f -> %-14.6f", stau, new$tau2),
+    sprintf("     I^2      %-14.4f -> %-14.4f", si2, new$I2),
+    sprintf("     Q        %-14.6f -> %-14.6f  (Q is estimator-independent)", sq, new$QE),
+    sprintf("     excludes the null (%g):  %s -> %s%s", null_v, old_excl, new_excl,
+            ifelse(old_excl != new_excl, "   <<< THE VERDICT TURNS ON THE ESTIMATOR", "")),
+    if (!is.na(pi_lo)) sprintf("     prediction interval under REML: %.4f to %.4f", pi_lo, pi_hi) else
+      "     prediction interval: not computable from this fit",
+    "",
+    sprintf("R environment: %s; metafor %s", R.version.string, as.character(packageVersion("metafor"))),
+    sprintf("Script: ssot/reml_corpus_refit.R"))
+
   results[[key]] <- list(
     topic = p$topic, outcome = p$outcome, k = length(yi), measure = p$measure,
     declared_estimator = p$estimator, metafor_method_old = old_m,
@@ -164,7 +212,7 @@ for (key in names(pools)) {
                 pi_low = pi_lo, pi_high = pi_hi,
                 excludes_null_before = old_excl, excludes_null_after = new_excl,
                 pct_shift = shift),
-    r_verbatim = paste(capture.output(print(new)), collapse = "\n"),
+    r_verbatim = paste(block, collapse = "\n"),
     r_verbatim_old = paste(capture.output(print(old)), collapse = "\n"),
     environment = paste0(R.version.string, "; metafor ", as.character(packageVersion("metafor")))
   )

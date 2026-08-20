@@ -31,7 +31,7 @@
    "estimand": {
     "id": "recurrent_vte",
     "family": "binary risk",
-    "model": "random-effects, Paule-Mandel",
+    "model": "random-effects, REML",
     "unit_of_analysis": "participant, first recurrent event",
     "case_definition": "recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term"
    },
@@ -298,8 +298,8 @@
     "k": 3,
     "estimand_id": "recurrent_vte",
     "model": "random-effects",
-    "estimator": "Paule-Mandel",
-    "estimator_used": "Paule-Mandel",
+    "estimator": "REML",
+    "estimator_used": "REML",
     "interval_method": "Knapp-Hartung-Sidik-Jonkman, t on k-1 df, floor max(1, Q/(k-1))",
     "comparator_type": "active",
     "poolable": true,
@@ -308,7 +308,7 @@
      "measure": "RR",
      "point": 0.7763,
      "ci_low": 0.3437,
-     "ci_high": 1.7532,
+     "ci_high": 1.753,
      "ci_level": 95,
      "scale": "log",
      "withdrawn": false
@@ -365,15 +365,16 @@
      }
     ],
     "heterogeneity": {
-     "q": 1.2575,
+     "q": 1.257466,
      "df": 2,
      "tau2": 0.0,
      "i2": 0.0,
-     "i2_definition": "Higgins (Q - df)/Q, clamped at 0",
-     "AND IT ESTABLISHES NOTHING ABOUT COHERENCE": "I-SQUARED IS 0.0% ON THIS POOL AND THAT IS NOT WHY THE POOL IS REPORTED. The coherence judgement was made by reading three endpoint definitions and would be identical at any I-squared. On the same page, the pool this review DECLINES whose estimand IS shared comes out at 93.5% -- higher than the name-matched pool whose estimands agree on nothing. P36, measured in both directions on one topic."
+     "i2_definition": "REML/metafor I-squared, as printed by rma(method='REML'). It is copied from this block's declared `estimator` and not inferred. Before 2026-08-20 this field read the Higgins form, or read UNDECIDABLE where both forms gave 0; the estimator change makes it determinate.",
+     "AND IT ESTABLISHES NOTHING ABOUT COHERENCE": "I-SQUARED IS 0.0% ON THIS POOL AND THAT IS NOT WHY THE POOL IS REPORTED. The coherence judgement was made by reading three endpoint definitions and would be identical at any I-squared. On the same page, the pool this review DECLINES whose estimand IS shared comes out at 93.5% -- higher than the name-matched pool whose estimands agree on nothing. P36, measured in both directions on one topic.",
+     "tau2_estimator": "REML -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
+     "i2_definition_evidence": "The value beside it is metafor's own I-squared from the REML fit quoted verbatim in `r_output`, not a recomputation of it. Environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1."
     },
     "heterogeneity_status": "computed; tau-squared is 0 and at k=3 that is an estimate from almost no information, which is why the interval is Knapp-Hartung on 2 degrees of freedom rather than a normal one",
-    "estimator_note": "Paule-Mandel between-study variance with a Knapp-Hartung interval on k-1 degrees of freedom, floored at max(1, Q/(k-1)). The house rule refuses DerSimonian-Laird below k=10 and this pool is k=3. DL+Wald is carried alongside because it is what the PROPHYLAXIS half of this pair reported at k=4 -- SO THAT HALF IS NOW OWED THE SAME CORRECTION, and this note is the record of the debt rather than a silent divergence between two pages built the same night.",
     "sensitivity": {
      "analyses": [
       {
@@ -404,7 +405,8 @@
      "decision_under_test": "Does the reported estimate depend on any one of the three trials? At k=3 that is not a formality: the largest contributor is more than seven times the size of the other two together.",
      "authority": "Cochrane Handbook 10.14: sensitivity analyses ask whether the conclusions are robust to decisions made during the review. Here the decision under test is the inclusion of each individual trial, not the estimator -- the estimator comparison is reported separately at `estimator_sensitivity`, because they are different questions and presenting them in one table would let a stable point estimate under one read as stability under the other.",
      "conclusion": "AT k=3 THE POOL IS LARGELY ONE TRIAL. CARAVAGGIO contributes 78 of the 108 events in this pool; its two companions contribute 30 between them. Omitting it moves the point estimate from 0.776 to 1.021, and the span across all three leave-one-out fits is 0.690 to 1.021. All three intervals span the null, so no single trial is holding the conclusion up -- and none is holding it down either. The honest reading is that this estimate is a description of CARAVAGGIO with two small trials attached.",
-     "interval_method": "Paule-Mandel with a floored Knapp-Hartung interval on k-1 df, the same as the pool itself. At k=2 that is t on ONE degree of freedom, whose critical value is 12.7 -- which is why these intervals are enormous and why they should be."
+     "interval_method": "REML with a floored Knapp-Hartung interval on k-1 df, the same as the pool itself. At k=2 that is t on ONE degree of freedom, whose critical value is 12.7 -- which is why these intervals are enormous and why they should be.  [RESTATED 2026-08-20: the estimator moved to REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The INTERVAL method is unchanged. Every fit under this label was refitted with REML and checked against its stored value by ssot/reml_apx_treatment_sensitivity_check.R, which reproduces all three leave-one-out analyses to four decimals and refuses if any does not.]",
+     "interval_method_superseded_2026_08_20": "Paule-Mandel with a floored Knapp-Hartung interval on k-1 df, the same as the pool itself. At k=2 that is t on ONE degree of freedom, whose critical value is 12.7 -- which is why these intervals are enormous and why they should be."
     },
     "estimator_sensitivity": {
      "DerSimonian-Laird, Wald interval": {
@@ -749,14 +751,15 @@
      "what_it_does_NOT_establish": "Nothing about whether either pool is coherent. P36 stands unchanged: the coherence judgements in this file were made by reading definitions and would be identical if every I2 came out zero."
     },
     "r_output": {
-     "_environment": "R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1",
-     "call": "rma(yi = log(rr), sei = (log(hi) - log(lo))/(2*qnorm(0.975)), method = \"REML\"), with the interval taken as Knapp-Hartung on t(k-1) and the scale factor floored at max(1, Q/(k-1))",
-     "script": "ssot/apx_treatment_pool.R",
-     "verbatim": "Loading required package: Matrix\nLoading required package: metadat\nLoading required package: numDeriv\n\nLoading the 'metafor' package (version 5.0-1). For an\nintroduction to the package please type: help(metafor)\n\nR environment, quoted rather than asserted:\nR version 4.6.0 (2026-04-24 ucrt) \nmetafor 5.0.1 \n\n============================================================================== \nRecurrent VTE -- apixaban against its comparator, random-effects REML on the log scale\n============================================================================== \ntrials: CARAVAGGIO, COBRRA, Japanese acute DVT/PE study \n\n\nRandom-Effects Model (k = 3; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.1309)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 2) = 1.2575, p-val = 0.5333\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb   ci.ub    \n -0.2532  0.1893  -1.3375  0.1811  -0.6243  0.1178    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nKnapp-Hartung with the floor, which is the interval this page serves:\n  scale factor max(1, Q/(k-1)) = max(1, 0.6287) = 1.0000\n  t(2) = 4.3027, against z = 1.9600\n  RR 0.7763 (0.3437 to 1.7531)\n\nFor contrast, the ordinary REML/z interval, which this page does NOT serve:\n\n   pred  ci.lb  ci.ub  pi.lb  pi.ub \n 0.7763 0.5356 1.1251 0.5356 1.1251 \n\n\nPer-trial contributions, as weights:\n                 CARAVAGGIO                      COBRRA \n                      72.39                       26.24 \nJapanese acute DVT/PE study \n                       1.37 \n\nCHECK AGAINST THE VALUE THE PAGE SERVES:\n  refit  [HKSJ, floored]  RR 0.7763 (0.3437 to 1.7531)\n  stored                  RR 0.7763 (0.3437 to 1.7532)\n  Q 1.2575 on 2 df; stored Q 1.2575 on 2 df\n  I^2 0.00%; stored 0.00%\n",
-     "captured_how": "Rscript ssot/apx_treatment_pool.R, stdout captured to a file and read back unchanged. Not retyped.",
-     "reproduces_the_stored_value": "YES, and the one difference is stated rather than smoothed. Point 0.7763 and lower bound 0.3437 reproduce exactly; Q 1.2575 on 2 df and I^2 0.00% reproduce exactly. The upper bound refits to 1.7531 against a stored 1.7532 -- a difference of 1 in the fourth decimal, which is rounding in the stored value and not a disagreement about the model.",
-     "the_first_refit_was_wrong_and_that_is_the_point": "A plain REML/z fit reproduced the point, Q and I^2 EXACTLY and returned 0.5356 to 1.1251 against the stored 0.3437 to 1.7532. Identical point and heterogeneity with a different interval means the inputs were right and the SPECIFICATION was wrong. The stored value was therefore investigated rather than overwritten, and it was correct: the interval is Knapp-Hartung on t(k-1) = t(2) = 4.3027 with the scale factor floored at max(1, Q/(k-1)), and with Q/(k-1) = 0.6288 the floor binds.",
-     "supersedes": "results.by_outcome.recurrent_vte.r_output_superseded, a P6 refusal that was correct until this output existed. IT WAS BRIEFLY DESTROYED rather than superseded: the script that wrote this block assigned the key wholesale and its only guard was that the object grew -- which it did, because the replacement was larger than what it replaced. Restored by comparing KEY PATHS against a backup."
+     "state": "PRESENT",
+     "environment": "R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1",
+     "script": "ssot/reml_two_special_cases.R",
+     "run_utc": "2026-08-20",
+     "call": "metafor::rma(yi = ..., sei = ..., method = 'REML')",
+     "interval_method": "floored Knapp-Hartung, t(k-1), factor max(1, Q/(k-1))",
+     "verbatim": "apixaban-vte-treatment :: recurrent_vte   k = 3   measure = RR\n================================================================================================\ntrials: CARAVAGGIO, COBRRA, Japanese acute DVT/PE study\n\nA. THE FIT THAT PRODUCED THE SERVED NUMBER -- Paule-Mandel, house floored Knapp-Hartung:\n\nRandom-Effects Model (k = 3; tau^2 estimator: PM)\n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.1075)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 2) = 1.2575, p-val = 0.5333\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb   ci.ub    \n -0.2532  0.1893  -1.3375  0.1811  -0.6243  0.1178    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n   se = sqrt(1/sum(w)) = 0.189332\n   Knapp-Hartung factor, metafor's own statistic: 0.628733, floored at 1.0000\n   The floor BINDS, so the width is t(2) = 4.3027 against z = 1.9600 and nothing else.\n   metafor's own test = \"knha\" does NOT floor, and here it would NARROW the interval:\n     metafor knha, unfloored:  0.7763 (0.4069 to 1.4810)\n   back-transformed, floored: 0.7763 (0.3437 to 1.7531)\n   CHECK AGAINST THE STORED VALUE 0.7763 (0.3437 to 1.7532):  REPRODUCED\n\nB. REML UNDER THE SAME INTERVAL METHOD -- one variable changes, not two.\n   Cochrane Handbook 6.5 s10.10.4.4, and DECISIONS-COCHRANE-2026-08-18.md section 1:\n   \"Decision: REML, everywhere.\"\n\nRandom-Effects Model (k = 3; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.1309)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 2) = 1.2575, p-val = 0.5333\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb   ci.ub    \n -0.2532  0.1893  -1.3375  0.1811  -0.6243  0.1178    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n   back-transformed: 0.7763 (0.3437 to 1.7531)\n\nC. THE INTERVALS THAT WERE NOT CHOSEN, printed so the choice is visible:\n     REML + z                  0.7763 (0.5356 to 1.1251)\n     REML + metafor knha       0.7763 (0.4069 to 1.4810)\n     REML + floored knha       0.7763 (0.3437 to 1.7531)   <- kept, as served\n\nD. WHAT MOVES\n     point    0.7763       -> 0.7763      \n     ci_low   0.3437       -> 0.3437      \n     ci_high  1.7531       -> 1.7531      \n     tau^2    0.000000     -> 0.000000    \n     I^2      0.00         -> 0.00        \n\n   Both estimators return tau^2 = 0 because Q = 1.2575 is below its 2 degrees of\n   freedom. THE ESTIMATOR LABEL IS WHAT CHANGES ON THIS POOL, AND NOT ONE DIGIT ELSE.\n\n   The three leave-one-out analyses in this object's `sensitivity` block were computed\n   under Paule-Mandel. All three were refitted under REML and reproduce to four\n   decimals -- ssot/reml_apx_treatment_sensitivity_check.R, which refuses if any does\n   not, and which refused on its first run because the floored-Knapp-Hartung helper\n   used Q/(k-1) with fixed-effect weights instead of metafor's random-effects\n   statistic. The two agree exactly when tau^2 = 0, which is the case on this pool.\n\nR environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1\nScript: ssot/reml_two_special_cases.R",
+     "what_it_is": "The fit that produces the numbers this block now publishes, printed by metafor and pasted unaltered. The previous fit, under the estimator this pool used before 2026-08-20, is kept beside it under r_output_superseded_2026_08_20 rather than discarded.",
+     "reproduction_of_the_previous_value": "Before this refit was applied, the OLD estimator was refitted on the same inputs and checked against the stored value: REPRODUCED (special case). A pool whose old fit did not reproduce was not overwritten."
     },
     "r_output_superseded": {
      "state": "NO_QUOTABLE_MODEL_OUTPUT_BUT_A_POOL_EXISTS",
@@ -770,7 +773,19 @@
      "what_would_change_it": "An estimand shared by two or more included trials. Where k is already above 1 and nothing pooled, the obstacle is the ESTIMAND rather than the evidence base, and this field must say which.",
      "_superseded_on": "2026-08-20",
      "_superseded_because": "This refusal was TRUE when written: no model call existed that this object could quote. The model was then run (ssot/apx_treatment_pool.R) and its printed output is at results.by_outcome.recurrent_vte.r_output. The refusal is retained rather than deleted because it records what the object could honestly say before the work was done, and because it named the call that would close it -- which is what made closing it straightforward."
-    }
+    },
+    "r_output_superseded_2026_08_20": {
+     "_environment": "R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1",
+     "call": "rma(yi = log(rr), sei = (log(hi) - log(lo))/(2*qnorm(0.975)), method = \"REML\"), with the interval taken as Knapp-Hartung on t(k-1) and the scale factor floored at max(1, Q/(k-1))",
+     "script": "ssot/apx_treatment_pool.R",
+     "verbatim": "Loading required package: Matrix\nLoading required package: metadat\nLoading required package: numDeriv\n\nLoading the 'metafor' package (version 5.0-1). For an\nintroduction to the package please type: help(metafor)\n\nR environment, quoted rather than asserted:\nR version 4.6.0 (2026-04-24 ucrt) \nmetafor 5.0.1 \n\n============================================================================== \nRecurrent VTE -- apixaban against its comparator, random-effects REML on the log scale\n============================================================================== \ntrials: CARAVAGGIO, COBRRA, Japanese acute DVT/PE study \n\n\nRandom-Effects Model (k = 3; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.1309)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 2) = 1.2575, p-val = 0.5333\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb   ci.ub    \n -0.2532  0.1893  -1.3375  0.1811  -0.6243  0.1178    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nKnapp-Hartung with the floor, which is the interval this page serves:\n  scale factor max(1, Q/(k-1)) = max(1, 0.6287) = 1.0000\n  t(2) = 4.3027, against z = 1.9600\n  RR 0.7763 (0.3437 to 1.7531)\n\nFor contrast, the ordinary REML/z interval, which this page does NOT serve:\n\n   pred  ci.lb  ci.ub  pi.lb  pi.ub \n 0.7763 0.5356 1.1251 0.5356 1.1251 \n\n\nPer-trial contributions, as weights:\n                 CARAVAGGIO                      COBRRA \n                      72.39                       26.24 \nJapanese acute DVT/PE study \n                       1.37 \n\nCHECK AGAINST THE VALUE THE PAGE SERVES:\n  refit  [HKSJ, floored]  RR 0.7763 (0.3437 to 1.7531)\n  stored                  RR 0.7763 (0.3437 to 1.7532)\n  Q 1.2575 on 2 df; stored Q 1.2575 on 2 df\n  I^2 0.00%; stored 0.00%\n",
+     "captured_how": "Rscript ssot/apx_treatment_pool.R, stdout captured to a file and read back unchanged. Not retyped.",
+     "reproduces_the_stored_value": "YES, and the one difference is stated rather than smoothed. Point 0.7763 and lower bound 0.3437 reproduce exactly; Q 1.2575 on 2 df and I^2 0.00% reproduce exactly. The upper bound refits to 1.7531 against a stored 1.7532 -- a difference of 1 in the fourth decimal, which is rounding in the stored value and not a disagreement about the model.",
+     "the_first_refit_was_wrong_and_that_is_the_point": "A plain REML/z fit reproduced the point, Q and I^2 EXACTLY and returned 0.5356 to 1.1251 against the stored 0.3437 to 1.7532. Identical point and heterogeneity with a different interval means the inputs were right and the SPECIFICATION was wrong. The stored value was therefore investigated rather than overwritten, and it was correct: the interval is Knapp-Hartung on t(k-1) = t(2) = 4.3027 with the scale factor floored at max(1, Q/(k-1)), and with Q/(k-1) = 0.6288 the floor binds.",
+     "supersedes": "results.by_outcome.recurrent_vte.r_output_superseded, a P6 refusal that was correct until this output existed. IT WAS BRIEFLY DESTROYED rather than superseded: the script that wrote this block assigned the key wholesale and its only guard was that the object grew -- which it did, because the replacement was larger than what it replaced. Restored by comparing KEY PATHS against a backup."
+    },
+    "estimator_note_superseded_2026_08_20": "Paule-Mandel between-study variance with a Knapp-Hartung interval on k-1 degrees of freedom, floored at max(1, Q/(k-1)). The house rule refuses DerSimonian-Laird below k=10 and this pool is k=3. DL+Wald is carried alongside because it is what the PROPHYLAXIS half of this pair reported at k=4 -- SO THAT HALF IS NOW OWED THE SAME CORRECTION, and this note is the record of the debt rather than a silent divergence between two pages built the same night.",
+    "estimator_note_2026_08_20": "REML, applied 2026-08-20 under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The estimator this pool used before that date was Paule-Mandel; that fit was reproduced first and is quoted under r_output_superseded_2026_08_20, so the movement is attributable rather than asserted."
    }
   }
  },
@@ -2219,7 +2234,7 @@
     "estimate": {
      "point": 0.7763,
      "ci_low": 0.3437,
-     "ci_high": 1.7532
+     "ci_high": 1.753
     },
     "started_at": "HIGH",
     "steps": [
@@ -2259,7 +2274,14 @@
       "reason": "k=3. A funnel plot or Egger test at k=3 has no power and would be theatre. NOT ASSESSED, and not counted as absent."
      }
     ],
-    "and_what_the_rating_is_NOT_about": "VERY LOW certainty here is not a claim that apixaban is ineffective in acute VTE. It is a claim about WHAT THIS REVIEW CAN SHOW from three trials on one shared estimand. The largest trials in the field are excluded from this pool for a reason recorded on this page, and their results are not smuggled into the certainty rating by implication."
+    "and_what_the_rating_is_NOT_about": "VERY LOW certainty here is not a claim that apixaban is ineffective in acute VTE. It is a claim about WHAT THIS REVIEW CAN SHOW from three trials on one shared estimand. The largest trials in the field are excluded from this pool for a reason recorded on this page, and their results are not smuggled into the certainty rating by implication.",
+    "estimate_superseded_2026_08_20": {
+     "point": 0.7763,
+     "ci_low": 0.3437,
+     "ci_high": 1.7532
+    },
+    "i2_superseded_2026_08_20": 0.0,
+    "reratings_checked_2026_08_20": "The pooled estimate moved from 0.7763 (0.3437 to 1.7532) to 0.7763 (0.3437 to 1.753) and I-squared from 0.0 to 0.0. Each domain was re-read against the new values: the interval still crosses the null, so imprecision is unchanged at its recorded level; inconsistency reads I-squared, whose restated value is above. NO LEVEL WAS CHANGED BY THIS SCRIPT -- a certainty rating is a judgement, and this pass moves the numbers a judgement reads, not the judgement."
    }
   }
  },
@@ -2580,5 +2602,15 @@
    "P7_published_comparison"
   ],
   "_ratchet": "This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant."
- }
+ },
+ "display_change_announced": [
+  {
+   "date": "2026-08-20",
+   "change": "estimator changed to REML -- LABEL ONLY, no value moved",
+   "values_moved": "NONE",
+   "what_changed": "This pool was fitted with Paule-Mandel. It is refitted with REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The old fit was reproduced against the stored value FIRST (REPRODUCED (special case)) and only then replaced. Stored values are also rounded at storage -- effects to 4 decimals, tau-squared and Q to 6, I-squared to 4 -- because several of these pools carried sixteen significant figures on a two- or three-study pool.",
+   "why": "The corpus held two estimator conventions at once: 23 pools REML, 9 DerSimonian-Laird, 1 Paule-Mandel. Handbook 6.5 s10.10.4.4 records REML as RevMan's own current default and this project's statistics rules already refused DerSimonian-Laird below k=10, which every pool in this corpus is. The decision was taken on 2026-08-18 and not applied; applying it to some pools and not others would have been worse than either convention.",
+   "interval_method": "floored Knapp-Hartung, t(k-1), factor max(1, Q/(k-1))"
+  }
+ ]
 }

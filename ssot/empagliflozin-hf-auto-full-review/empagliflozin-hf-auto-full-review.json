@@ -33,7 +33,7 @@
  },
  "config": {
   "model": "random-effects",
-  "method": "DerSimonian-Laird inverse-variance on extracted effect estimates",
+  "method": "REML",
   "scale": "log"
  },
  "screening": {
@@ -412,8 +412,8 @@
     "estimand_id": "primary",
     "estimand_id_means": "not recorded on the page this object was extracted from",
     "model": "random-effects",
-    "estimator": "DerSimonian-Laird inverse-variance on extracted effect estimates",
-    "estimator_used": "DerSimonian-Laird inverse-variance on extracted effect estimates",
+    "estimator": "REML",
+    "estimator_used": "REML",
     "handbook": {
      "decision": "NOT RECORDED - no methods decision was recoverable from the page",
      "sections": [],
@@ -437,10 +437,11 @@
     "heterogeneity": {
      "i2": 0.0,
      "tau2": 0.0,
-     "q": 0.3689486716483126,
+     "q": 0.368949,
      "df": 1,
-     "tau2_estimator": "DerSimonian-Laird inverse-variance on extracted effect estimates -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
-     "i2_definition": "UNDECIDABLE from this object. I-squared is 0 and Q is below the degrees of freedom, where the Higgins form is negative-and-clamped and the REML/metafor form is exactly zero -- BOTH DEFINITIONS GIVE 0 and nothing here distinguishes them. Recorded as undecidable rather than guessed."
+     "tau2_estimator": "REML -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
+     "i2_definition": "REML/metafor I-squared, as printed by rma(method='REML'). It is copied from this block's declared `estimator` and not inferred. Before 2026-08-20 this field read the Higgins form, or read UNDECIDABLE where both forms gave 0; the estimator change makes it determinate.",
+     "i2_definition_evidence": "The value beside it is metafor's own I-squared from the REML fit quoted verbatim in `r_output`, not a recomputation of it. Environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1."
     },
     "heterogeneity_status": "not recorded on the page this object was extracted from",
     "grade": null,
@@ -479,9 +480,9 @@
     ],
     "pooled": {
      "measure": "OR",
-     "point": 0.7575645240018405,
-     "ci_low": 0.6824516156627388,
-     "ci_high": 0.8409446103645144,
+     "point": 0.7576,
+     "ci_low": 0.6825,
+     "ci_high": 0.8409,
      "ci_level": 95
     },
     "source_page_pooled": true,
@@ -496,16 +497,29 @@
      "excludes_null": false,
      "THE_POINT_ESTIMATE_IS_UNCHANGED": "The published point is 0.7576 and the house-rule point is 0.7576. THE NUMBER A READER REMEMBERS DOES NOT MOVE; what differs is the precision claim. That is why nothing downstream catches this -- every memorable quantity survives.",
      "published_interval": {
-      "estimator": "DerSimonian-Laird inverse-variance on extracted effect estimates",
-      "ci_low": 0.6824516156627388,
-      "ci_high": 0.8409446103645144,
-      "excludes_null": true
+      "estimator": "REML",
+      "ci_low": 0.6825,
+      "ci_high": 0.8409,
+      "excludes_null": true,
+      "restated_2026_08_20": "The published interval is now REML, so this block compares a REML point interval against a REML Hartung-Knapp one and the ESTIMATOR is no longer one of the things that differ between them. At k=2 the moment estimator and REML coincide exactly, so not one digit of this block's numbers moved -- only the label, which was wrong."
      },
      "variance_inflation_floor": "A FLOOR OF 1 IS APPLIED TO THE VARIANCE-INFLATION FACTOR so the adjustment can never NARROW an interval below the unadjusted one. That guard is the recognised modification for exactly this instability, and its existence is evidence the small-k behaviour is a KNOWN problem with KNOWN handling rather than a novel judgement.",
-     "no_rule_is_decided_here": "The house rule is REML with Hartung-Knapp below k=10, settled days ago. Whether it means ALWAYS or WITH A FLOOR AT k=3 is a decision about this corpus, not a computation, and it has been referred rather than taken. BOTH INTERVALS STAND ON THIS PAGE UNTIL IT IS MADE. Nothing is unpublished and no reader is left with only the narrower one.",
+     "no_rule_is_decided_here": "SUPERSEDED 2026-08-20. The rule WAS decided, in DECISIONS-COCHRANE-2026-08-18.md section 1, and applied on 2026-08-20: REML is the estimator corpus-wide, and Hartung-Knapp is a SENSITIVITY analysis at k<=3 rather than the primary interval (Handbook 6.5 s10.10.4.4-10.10.4.5). Both intervals still stand on this page and nothing is unpublished.",
      "what_this_means_for_this_pool": "THE PUBLISHED INTERVAL EXCLUDES 1 AND THE HOUSE-RULE INTERVAL CROSSES IT. A SIGNIFICANCE VERDICT TURNS ON THE INTERVAL METHOD ALONE. A reader shown only the published interval has been told something firmer than the evidence supports; a reader shown only the wider one loses that the contributing trials agree. BOTH ARE HERE.",
      "read_the_width_with_care": "AT k=2 HARTUNG-KNAPP USES t ON ONE DEGREE OF FREEDOM -- 12.7062 against the normal 1.9600 -- and the interval is enormously wider. That width is a property of the method at very few studies, not a measurement of this evidence. It is recorded so a reader can see it; it is NOT presented as the better interval."
-    }
+    },
+    "r_output": {
+     "state": "PRESENT",
+     "environment": "R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1",
+     "script": "ssot/reml_corpus_refit.R",
+     "run_utc": "2026-08-20",
+     "call": "metafor::rma(yi = ..., sei = ..., method = 'REML')",
+     "interval_method": "z",
+     "verbatim": "empagliflozin-hf-auto-full-review :: primary   k = 2   measure = OR\n================================================================================================\ntrials: NCT03057977, NCT03057951\n\nA. THE FIT THAT PRODUCED THE SERVED NUMBER -- method = DL, z interval\n\nRandom-Effects Model (k = 2; tau^2 estimator: DL)\n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0081)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.3689, p-val = 0.5436\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb    ci.ub      \n -0.2776  0.0533  -5.2116  <.0001  -0.3821  -0.1732  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n   CHECK AGAINST THE STORED VALUE -- the change is not earned until this passes:\n     point  refit 0.757565       stored 0.757565        reproduced\n     ci_low refit 0.682452       stored 0.682452        reproduced\n     ci_hi  refit 0.840945       stored 0.840945        reproduced\n     tau^2  refit 0.000000       stored 0.000000        reproduced\n     Q      refit 0.368949       stored 0.368949        reproduced\n     I^2    refit 0.0000         stored 0.0000          reproduced\n     => REPRODUCED\n\nB. THE SAME DATA UNDER REML -- Cochrane Handbook 6.5 section 10.10.4.4, which records\n   REML as RevMan's own current default, and DECISIONS-COCHRANE-2026-08-18.md section 1,\n   whose decision line reads: \"Decision: REML, everywhere.\"\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0081)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.3689, p-val = 0.5436\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb    ci.ub      \n -0.2776  0.0533  -5.2116  <.0001  -0.3821  -0.1732  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nC. WHAT MOVES\n     point    0.757565       -> 0.757565        (+0.0000%)\n     ci_low   0.682452       -> 0.682452      \n     ci_high  0.840945       -> 0.840945      \n     tau^2    0.000000       -> 0.000000      \n     I^2      0.0000         -> 0.0000        \n     Q        0.368949       -> 0.368949        (Q is estimator-independent)\n     excludes the null (1):  TRUE -> TRUE\n     prediction interval under REML: 0.6825 to 0.8409\n\nR environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1\nScript: ssot/reml_corpus_refit.R",
+     "what_it_is": "The fit that produces the numbers this block now publishes, printed by metafor and pasted unaltered. The previous fit, under the estimator this pool used before 2026-08-20, is kept beside it under r_output_superseded_2026_08_20 rather than discarded.",
+     "reproduction_of_the_previous_value": "Before this refit was applied, the OLD estimator was refitted on the same inputs and checked against the stored value: REPRODUCED. A pool whose old fit did not reproduce was not overwritten."
+    },
+    "estimator_note_2026_08_20": "REML, applied 2026-08-20 under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The estimator this pool used before that date was DerSimonian-Laird inverse-variance on extracted effect estimates; that fit was reproduced first and is quoted under r_output_superseded_2026_08_20, so the movement is attributable rather than asserted."
    }
   }
  },
@@ -528,6 +542,14 @@
    "values_moved": "NONE",
    "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
    "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  },
+  {
+   "date": "2026-08-20",
+   "change": "estimator changed to REML -- LABEL ONLY, no value moved",
+   "values_moved": "NONE",
+   "what_changed": "This pool was fitted with DerSimonian-Laird inverse-variance on extracted effect estimates. It is refitted with REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The old fit was reproduced against the stored value FIRST (REPRODUCED) and only then replaced. Stored values are also rounded at storage -- effects to 4 decimals, tau-squared and Q to 6, I-squared to 4 -- because several of these pools carried sixteen significant figures on a two- or three-study pool.",
+   "why": "The corpus held two estimator conventions at once: 23 pools REML, 9 DerSimonian-Laird, 1 Paule-Mandel. Handbook 6.5 s10.10.4.4 records REML as RevMan's own current default and this project's statistics rules already refused DerSimonian-Laird below k=10, which every pool in this corpus is. The decision was taken on 2026-08-18 and not applied; applying it to some pools and not others would have been worse than either convention.",
+   "interval_method": "z"
   }
  ],
  "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",

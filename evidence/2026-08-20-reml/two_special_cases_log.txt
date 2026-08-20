@@ -103,7 +103,8 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 
    se = sqrt(1/sum(w)) = 0.189332
-   Knapp-Hartung scale factor: Q/(k-1) = 1.2575 / 2 = 0.6287, floored at 1.0000
+   Knapp-Hartung factor, metafor's own statistic: 0.628733, floored at 1.0000
+   (the Q/(k-1) shortcut would give 0.628733 here; they agree only because tau^2 = 0)
    The floor BINDS, so the width is t(2) = 4.3027 against z = 1.9600 and nothing else.
    back-transformed: 0.7763 (0.3437 to 1.7531)
 
@@ -148,3 +149,5 @@ D. WHAT MOVES
 
    Both estimators return tau^2 = 0 because Q = 1.2575 is below its 2 degrees of
    freedom. THE ESTIMATOR LABEL IS WHAT CHANGES ON THIS POOL, AND NOT ONE DIGIT ELSE.
+
+wrote F:/rapidmeta-ssot-shell/evidence/2026-08-20-reml/refits_special.json 

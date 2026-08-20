@@ -672,7 +672,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <caption>Table 7. What was measured</caption>
 
     <tr><th>Comparator</th><td>another anticoagulant</td></tr>
-    <tr><th>Estimand</th><td>binary risk &mdash; random-effects, Paule-Mandel</td></tr>
+    <tr><th>Estimand</th><td>binary risk &mdash; random-effects, REML</td></tr>
     <tr><th>Unit of analysis</th><td>participant, first recurrent event</td></tr>
     <tr><th>Case definition</th><td>recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term</td></tr>
     <tr><th>Effect scale</th><td>combined on the log scale; ESTIMAND UNIFORMITY NOT ESTABLISHED -- the contributing trials have not been shown to measure the same quantity</td></tr>
@@ -681,12 +681,11 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h2 id="extract-pooled-result">Pooled result</h2>
   <p class='num'>RR 0.7763 (0.3437 to 1.753), 95% interval</p>
-  <p>Recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term. random-effects, estimator Paule-Mandel, k = 3.</p>
-  <p><small>&tau;&sup2; 0 &middot; I&sup2; 0% &middot; Q 1.258 on 2 df</small></p>
+  <p>Recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term. random-effects, estimator REML, k = 3.</p>
+  <p><small>&tau;&sup2; 0 &middot; I&sup2; 0% &middot; Q 1.257 on 2 df</small></p>
   <p><strong>Favours: neither -- the interval spans the null</strong></p>
   <p><small>computed; tau-squared is 0 and at k=3 that is an estimate from almost no information, which is why the interval is Knapp-Hartung on 2 degrees of freedom rather than a normal one</small></p>
   <p>Three trials randomise apixaban ITSELF against another anticoagulant for the acute event and post an arm-level count of recurrent symptomatic VTE with no death term. Their definitions were read and compared, not their names.</p>
-  <p><strong>About this estimator:</strong> <small>Paule-Mandel between-study variance with a Knapp-Hartung interval on k-1 degrees of freedom, floored at max(1, Q/(k-1)). The house rule refuses DerSimonian-Laird below k=10 and this pool is k=3. DL+Wald is carried alongside because it is what the PROPHYLAXIS half of this pair reported at k=4 -- SO THAT HALF IS NOW OWED THE SAME CORRECTION, and this note is the record of the debt rather than a silent divergence between two pages built the same night.</small></p>
 </div>
 
 <div class="card">
@@ -904,7 +903,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-19</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>4c3fde9b5</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>059f003ca</code>, built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
@@ -931,7 +930,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <h3 id="paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</h3>
 <p>Before deciding which outcomes could be combined, every trial was read at every registered rank -- primary, secondary and other -- asking: does each trial report a recurrent-VTE efficacy outcome at ANY registered rank -- primary, secondary or other -- before concluding which trials can be combined? YES AT EVERY RANK, AND THE ANSWER DOES NOT SETTLE POOLABILITY<br><small class='muted'>&larr; withholding_question.question, withholding_question.why_before_deciding</small></p>
 <h3 id="paper-methods-synthesis">Methods — synthesis</h3>
-<p>For recurrent_vte, a random-effects model was fitted with the Paule-Mandel estimator.<br><small class='muted'>&larr; results.by_outcome.recurrent_vte.model, results.by_outcome.recurrent_vte.estimator_used</small></p>
+<p>For recurrent_vte, a random-effects model was fitted with the REML estimator.<br><small class='muted'>&larr; results.by_outcome.recurrent_vte.model, results.by_outcome.recurrent_vte.estimator_used</small></p>
 <p>Intervals are 95% confidence intervals.<br><small class='muted'>&larr; config.confidence_level</small></p>
 <p>Risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials) (22 August 2019 version, as reproduced in the Cochrane Handbook), following Higgins JPT, Savovic J, Page MJ, Elbers RG, Sterne JAC. Chapter 8: Assessing risk of bias in a randomized trial. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1. A RESULT, not a study -- Handbook 8.2. Every judgement below names the outcome it is about, and for two of the three that outcome is a SECONDARY. 0 result-level assessments were made. A domain that cannot be judged from the registration and the posted results is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect.<br><small class='muted'>&larr; risk_of_bias.tool, risk_of_bias.by_outcome</small></p>
 <p>A ceiling applies to every risk-of-bias judgement in this review; it is stated with the assessment itself rather than summarised here.<br><small class='muted'>&larr; risk_of_bias.ceiling</small></p>
@@ -970,22 +969,41 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
 <div class='absent-state' role='note'><strong>Refused:</strong> the comparison with published syntheses -- no published synthesis is recorded for this topic, so no denominator can be given &mdash; no field: <code>published_comparison</code></div>
 <h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
-<p>[R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1] call: rma(yi = log(rr), sei = (log(hi) - log(lo))/(2*qnorm(0.975)), method = &quot;REML&quot;), with the interval taken as Knapp-Hartung on t(k-1) and the scale factor floored at max(1, Q/(k-1)) -- Loading required package: Matrix
-Loading required package: metadat
-Loading required package: numDeriv
+<p>call: metafor::rma(yi = ..., sei = ..., method = &#x27;REML&#x27;) -- apixaban-vte-treatment :: recurrent_vte   k = 3   measure = RR
+================================================================================================
+trials: CARAVAGGIO, COBRRA, Japanese acute DVT/PE study
 
-Loading the &#x27;metafor&#x27; package (version 5.0-1). For an
-introduction to the package please type: help(metafor)
+A. THE FIT THAT PRODUCED THE SERVED NUMBER -- Paule-Mandel, house floored Knapp-Hartung:
 
-R environment, quoted rather than asserted:
-R version 4.6.0 (2026-04-24 ucrt) 
-metafor 5.0.1 
+Random-Effects Model (k = 3; tau^2 estimator: PM)
 
-============================================================================== 
-Recurrent VTE -- apixaban against its comparator, random-effects REML on the log scale
-============================================================================== 
-trials: CARAVAGGIO, COBRRA, Japanese acute DVT/PE study 
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.1075)
+tau (square root of estimated tau^2 value):      0
+I^2 (total heterogeneity / total variability):   0.00%
+H^2 (total variability / sampling variability):  1.00
 
+Test for Heterogeneity:
+Q(df = 2) = 1.2575, p-val = 0.5333
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb   ci.ub    
+ -0.2532  0.1893  -1.3375  0.1811  -0.6243  0.1178    
+
+---
+Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
+
+   se = sqrt(1/sum(w)) = 0.189332
+   Knapp-Hartung factor, metafor&#x27;s own statistic: 0.628733, floored at 1.0000
+   The floor BINDS, so the width is t(2) = 4.3027 against z = 1.9600 and nothing else.
+   metafor&#x27;s own test = &quot;knha&quot; does NOT floor, and here it would NARROW the interval:
+     metafor knha, unfloored:  0.7763 (0.4069 to 1.4810)
+   back-transformed, floored: 0.7763 (0.3437 to 1.7531)
+   CHECK AGAINST THE STORED VALUE 0.7763 (0.3437 to 1.7532):  REPRODUCED
+
+B. REML UNDER THE SAME INTERVAL METHOD -- one variable changes, not two.
+   Cochrane Handbook 6.5 s10.10.4.4, and DECISIONS-COCHRANE-2026-08-18.md section 1:
+   &quot;Decision: REML, everywhere.&quot;
 
 Random-Effects Model (k = 3; tau^2 estimator: REML)
 
@@ -1005,30 +1023,32 @@ estimate      se     zval    pval    ci.lb   ci.ub
 ---
 Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
 
+   back-transformed: 0.7763 (0.3437 to 1.7531)
 
-Knapp-Hartung with the floor, which is the interval this page serves:
-  scale factor max(1, Q/(k-1)) = max(1, 0.6287) = 1.0000
-  t(2) = 4.3027, against z = 1.9600
-  RR 0.7763 (0.3437 to 1.7531)
+C. THE INTERVALS THAT WERE NOT CHOSEN, printed so the choice is visible:
+     REML + z                  0.7763 (0.5356 to 1.1251)
+     REML + metafor knha       0.7763 (0.4069 to 1.4810)
+     REML + floored knha       0.7763 (0.3437 to 1.7531)   &lt;- kept, as served
 
-For contrast, the ordinary REML/z interval, which this page does NOT serve:
+D. WHAT MOVES
+     point    0.7763       -&gt; 0.7763      
+     ci_low   0.3437       -&gt; 0.3437      
+     ci_high  1.7531       -&gt; 1.7531      
+     tau^2    0.000000     -&gt; 0.000000    
+     I^2      0.00         -&gt; 0.00        
 
-   pred  ci.lb  ci.ub  pi.lb  pi.ub 
- 0.7763 0.5356 1.1251 0.5356 1.1251 
+   Both estimators return tau^2 = 0 because Q = 1.2575 is below its 2 degrees of
+   freedom. THE ESTIMATOR LABEL IS WHAT CHANGES ON THIS POOL, AND NOT ONE DIGIT ELSE.
 
+   The three leave-one-out analyses in this object&#x27;s `sensitivity` block were computed
+   under Paule-Mandel. All three were refitted under REML and reproduce to four
+   decimals -- ssot/reml_apx_treatment_sensitivity_check.R, which refuses if any does
+   not, and which refused on its first run because the floored-Knapp-Hartung helper
+   used Q/(k-1) with fixed-effect weights instead of metafor&#x27;s random-effects
+   statistic. The two agree exactly when tau^2 = 0, which is the case on this pool.
 
-Per-trial contributions, as weights:
-                 CARAVAGGIO                      COBRRA 
-                      72.39                       26.24 
-Japanese acute DVT/PE study 
-                       1.37 
-
-CHECK AGAINST THE VALUE THE PAGE SERVES:
-  refit  [HKSJ, floored]  RR 0.7763 (0.3437 to 1.7531)
-  stored                  RR 0.7763 (0.3437 to 1.7532)
-  Q 1.2575 on 2 df; stored Q 1.2575 on 2 df
-  I^2 0.00%; stored 0.00%
-<br><small class='muted'>&larr; results.by_outcome.recurrent_vte.r_output.verbatim</small></p>
+R environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1
+Script: ssot/reml_two_special_cases.R<br><small class='muted'>&larr; results.by_outcome.recurrent_vte.r_output.verbatim</small></p>
 <h3 id="paper-discussion">Discussion</h3>
 <div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>discussion</code></div>
 <div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a discussion written by the renderer would be an argument no field supports &mdash; no field: <code>discussion</code></div>
@@ -1055,7 +1075,6 @@ CHECK AGAINST THE VALUE THE PAGE SERVES:
 <tr><td>NCT02829957</td><td>True</td><td>https://clinicaltrials.gov/study/NCT02829957</td></tr>
 </table></div>
 <h3 id="paper-software-availability">Software availability</h3>
-<p>Analyses were computed under R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1.<br><small class='muted'>&larr; results.by_outcome</small></p>
 <p>Intervals are reported at the 95% level.<br><small class='muted'>&larr; config.confidence_level</small></p>
 <h3 id="paper-note-on-registration">Note on registration</h3>
 <p>Protocol status. Prespecified: False. A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively. Writing one now and calling it prespecified would invalidate every other refusal on this page, because a reader who caught it would be right to disbelieve all of them.<br><small class='muted'>&larr; protocol</small></p>
@@ -1133,22 +1152,41 @@ CHECK AGAINST THE VALUE THE PAGE SERVES:
     <caption>Table 19. The withholding question, asked at every rank</caption>
 <tr><th>registration</th><th>rank</th><th>matching outcome</th></tr></table></div><h4>Every trial, with its reason</h4><div class='tscroll'><table>
     <caption>Table 20. Every trial, with its reason</caption>
-<tr><th>registration</th><th>verdict</th><th>limb</th><th>reason</th></tr></table></div><h3>Analysis output — recurrent_vte (quoted verbatim)</h3><p><small>R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1 &nbsp;|&nbsp; call: <code>rma(yi = log(rr), sei = (log(hi) - log(lo))/(2*qnorm(0.975)), method = &quot;REML&quot;), with the interval taken as Knapp-Hartung on t(k-1) and the scale factor floored at max(1, Q/(k-1))</code></small></p><pre style='overflow-x:auto'>Loading required package: Matrix
-Loading required package: metadat
-Loading required package: numDeriv
+<tr><th>registration</th><th>verdict</th><th>limb</th><th>reason</th></tr></table></div><h3>Analysis output — recurrent_vte (quoted verbatim)</h3><p><small>— &nbsp;|&nbsp; call: <code>metafor::rma(yi = ..., sei = ..., method = &#x27;REML&#x27;)</code></small></p><pre style='overflow-x:auto'>apixaban-vte-treatment :: recurrent_vte   k = 3   measure = RR
+================================================================================================
+trials: CARAVAGGIO, COBRRA, Japanese acute DVT/PE study
 
-Loading the &#x27;metafor&#x27; package (version 5.0-1). For an
-introduction to the package please type: help(metafor)
+A. THE FIT THAT PRODUCED THE SERVED NUMBER -- Paule-Mandel, house floored Knapp-Hartung:
 
-R environment, quoted rather than asserted:
-R version 4.6.0 (2026-04-24 ucrt) 
-metafor 5.0.1 
+Random-Effects Model (k = 3; tau^2 estimator: PM)
 
-============================================================================== 
-Recurrent VTE -- apixaban against its comparator, random-effects REML on the log scale
-============================================================================== 
-trials: CARAVAGGIO, COBRRA, Japanese acute DVT/PE study 
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.1075)
+tau (square root of estimated tau^2 value):      0
+I^2 (total heterogeneity / total variability):   0.00%
+H^2 (total variability / sampling variability):  1.00
 
+Test for Heterogeneity:
+Q(df = 2) = 1.2575, p-val = 0.5333
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb   ci.ub    
+ -0.2532  0.1893  -1.3375  0.1811  -0.6243  0.1178    
+
+---
+Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
+
+   se = sqrt(1/sum(w)) = 0.189332
+   Knapp-Hartung factor, metafor&#x27;s own statistic: 0.628733, floored at 1.0000
+   The floor BINDS, so the width is t(2) = 4.3027 against z = 1.9600 and nothing else.
+   metafor&#x27;s own test = &quot;knha&quot; does NOT floor, and here it would NARROW the interval:
+     metafor knha, unfloored:  0.7763 (0.4069 to 1.4810)
+   back-transformed, floored: 0.7763 (0.3437 to 1.7531)
+   CHECK AGAINST THE STORED VALUE 0.7763 (0.3437 to 1.7532):  REPRODUCED
+
+B. REML UNDER THE SAME INTERVAL METHOD -- one variable changes, not two.
+   Cochrane Handbook 6.5 s10.10.4.4, and DECISIONS-COCHRANE-2026-08-18.md section 1:
+   &quot;Decision: REML, everywhere.&quot;
 
 Random-Effects Model (k = 3; tau^2 estimator: REML)
 
@@ -1168,30 +1206,32 @@ estimate      se     zval    pval    ci.lb   ci.ub
 ---
 Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
 
+   back-transformed: 0.7763 (0.3437 to 1.7531)
 
-Knapp-Hartung with the floor, which is the interval this page serves:
-  scale factor max(1, Q/(k-1)) = max(1, 0.6287) = 1.0000
-  t(2) = 4.3027, against z = 1.9600
-  RR 0.7763 (0.3437 to 1.7531)
+C. THE INTERVALS THAT WERE NOT CHOSEN, printed so the choice is visible:
+     REML + z                  0.7763 (0.5356 to 1.1251)
+     REML + metafor knha       0.7763 (0.4069 to 1.4810)
+     REML + floored knha       0.7763 (0.3437 to 1.7531)   &lt;- kept, as served
 
-For contrast, the ordinary REML/z interval, which this page does NOT serve:
+D. WHAT MOVES
+     point    0.7763       -&gt; 0.7763      
+     ci_low   0.3437       -&gt; 0.3437      
+     ci_high  1.7531       -&gt; 1.7531      
+     tau^2    0.000000     -&gt; 0.000000    
+     I^2      0.00         -&gt; 0.00        
 
-   pred  ci.lb  ci.ub  pi.lb  pi.ub 
- 0.7763 0.5356 1.1251 0.5356 1.1251 
+   Both estimators return tau^2 = 0 because Q = 1.2575 is below its 2 degrees of
+   freedom. THE ESTIMATOR LABEL IS WHAT CHANGES ON THIS POOL, AND NOT ONE DIGIT ELSE.
 
+   The three leave-one-out analyses in this object&#x27;s `sensitivity` block were computed
+   under Paule-Mandel. All three were refitted under REML and reproduce to four
+   decimals -- ssot/reml_apx_treatment_sensitivity_check.R, which refuses if any does
+   not, and which refused on its first run because the floored-Knapp-Hartung helper
+   used Q/(k-1) with fixed-effect weights instead of metafor&#x27;s random-effects
+   statistic. The two agree exactly when tau^2 = 0, which is the case on this pool.
 
-Per-trial contributions, as weights:
-                 CARAVAGGIO                      COBRRA 
-                      72.39                       26.24 
-Japanese acute DVT/PE study 
-                       1.37 
-
-CHECK AGAINST THE VALUE THE PAGE SERVES:
-  refit  [HKSJ, floored]  RR 0.7763 (0.3437 to 1.7531)
-  stored                  RR 0.7763 (0.3437 to 1.7532)
-  Q 1.2575 on 2 df; stored Q 1.2575 on 2 df
-  I^2 0.00%; stored 0.00%
-</pre><p><small>YES, and the one difference is stated rather than smoothed. Point 0.7763 and lower bound 0.3437 reproduce exactly; Q 1.2575 on 2 df and I^2 0.00% reproduce exactly. The upper bound refits to 1.7531 against a stored 1.7532 -- a difference of 1 in the fourth decimal, which is rounding in the stored value and not a disagreement about the model.</small></p><h3>Published-meta comparison — PENDING_EXTERNAL_RESOLUTION</h3><p><strong>Denominator: —.</strong> Not established, and the obstacle is that no candidate synthesis has been identified for this estimand at all. The PubMed search at search.databases[2] reported 439 record(s) and retrieved 50; 389 were not retrieved and none of the 50 retrieved has been screened for whether it synthesises recurrent VTE on apixaban. There is therefore nothing yet to form a denominator over -- not a synthesis whose included set is unresolved, but no identified synthesis.</p><p><small><strong>Explicitly not done:</strong> CITATION-STRING MATCHING. It would produce a comparison-shaped answer tonight and it is not identity: two syntheses citing the same trial under different labels would read as different, and the same label on different trials as the same. That is the substitution class this project audits for.</small></p><p><small>Blocked on: lane 2 registration-id resolution</small></p><h3>Preconditions</h3><p><small>Authority: Cochrane Handbook for Systematic Reviews of Interventions 6.5, 2024, verified 2026-08-19. Publishable: True.</small></p><div class='tscroll'><table>
+R environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1
+Script: ssot/reml_two_special_cases.R</pre><h3>Published-meta comparison — PENDING_EXTERNAL_RESOLUTION</h3><p><strong>Denominator: —.</strong> Not established, and the obstacle is that no candidate synthesis has been identified for this estimand at all. The PubMed search at search.databases[2] reported 439 record(s) and retrieved 50; 389 were not retrieved and none of the 50 retrieved has been screened for whether it synthesises recurrent VTE on apixaban. There is therefore nothing yet to form a denominator over -- not a synthesis whose included set is unresolved, but no identified synthesis.</p><p><small><strong>Explicitly not done:</strong> CITATION-STRING MATCHING. It would produce a comparison-shaped answer tonight and it is not identity: two syntheses citing the same trial under different labels would read as different, and the same label on different trials as the same. That is the substitution class this project audits for.</small></p><p><small>Blocked on: lane 2 registration-id resolution</small></p><h3>Preconditions</h3><p><small>Authority: Cochrane Handbook for Systematic Reviews of Interventions 6.5, 2024, verified 2026-08-19. Publishable: True.</small></p><div class='tscroll'><table>
     <caption>Table 21. Preconditions</caption>
 <tr><th>precondition</th><th>verdict</th><th>reason</th><th>authority</th></tr><tr><td>population_stated</td><td><strong>PASS</strong></td><td><small>present: question carries 228 characters</small></td><td><small>MECIR C62 &#x27;Ensuring meta-analyses are meaningful&#x27; (Mandatory, READ 2026-08-19): &#x27;Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be s</small></td></tr><tr><td>arm_role_resolved</td><td><strong>NOT-ASSESSABLE</strong></td><td><small>cannot assess: inputs.trials has 1 trial(s) with no readable arms [&#x27;NCT02829957&#x27;] and 0 with a blank arm role []. Absent role data is not a wrong role.</small></td><td><small>MECIR C62 (Mandatory), &#x27;interventions&#x27; limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are &#x27;sufficiently similar&#x27; without knowing whi</small></td></tr><tr><td>comparators_identified</td><td><strong>PASS</strong></td><td><small>every outcome names a comparator type [&#x27;active&#x27;]; none declares &#x27;mixed&#x27;. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged.</small></td><td><small>MECIR C62 (Mandatory), &#x27;comparisons&#x27; limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency.</small></td></tr><tr><td>estimand_named</td><td><strong>PASS</strong></td><td><small>outcomes.estimand: all 1 outcome(s) name a quantity</small></td><td><small>MECIR C8 &#x27;Clarifying role of outcomes&#x27; (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), &#x27;outcomes&#x27; limb</small></td></tr><tr><td>criteria_stated</td><td><strong>PASS</strong></td><td><small>present: screening.eligibility carries 890 characters</small></td><td><small>MECIR R29 &#x27;Eligibility criteria for types of participants&#x27;, R30 &#x27;...types of interventions&#x27;, R31 &#x27;Role of outcomes&#x27; -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block</small></td></tr><tr><td>criteria_predefined</td><td><strong>FAIL</strong></td><td><small>screening.eligibility_provenance.predefined is false: the criteria were DERIVED post hoc from this object&#x27;s own question and recorded exclusions. That is auditable (R29/R30/R31) and is not pre-specification (C5/C7). This</small></td><td><small>MECIR C5 &#x27;Predefining unambiguous criteria for participants&#x27; AND C7 &#x27;...for interventions and comparators&#x27;, BOTH Mandatory (READ 2026-08-19): &#x27;Predefined, unambiguous eligibility criteria are a fundam</small></td></tr><tr><td>eligibility_met</td><td><strong>NOT-ASSESSABLE</strong></td><td><small>cannot assess: criteria are stated, but sources is an empty dict -- no full text was available this pass, and inclusion logic is conditional prose</small></td><td><small>MECIR C5/C7 (Mandatory) with C6 &#x27;Predefining a strategy for studies with a subset of eligible participants&#x27; (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report</small></td></tr><tr><td>contributes_a_randomised_contrast</td><td><strong>NOT-ASSESSABLE</strong></td><td><small>cannot assess: 1 of 4 trial(s) carry no readable arm roles [&#x27;NCT02829957&#x27;]</small></td><td><small>Handbook 6.5 s23.3.4 &#x27;How to include multiple groups from one study&#x27; (READ 2026-08-19) and s23.3.6 &#x27;Factorial trials&#x27;; MECIR C7 &#x27;Predefining unambiguous criteria for interventions and comparators&#x27; (Ma</small></td></tr></table></div><p><small>This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant.</small></p></div>
 <p><small>Every number on this page is projected from a single canonical object,

@@ -33,7 +33,7 @@
  },
  "config": {
   "model": "random-effects",
-  "method": "DerSimonian-Laird inverse-variance on extracted effect estimates",
+  "method": "REML",
   "scale": "natural"
  },
  "screening": {
@@ -366,8 +366,8 @@
     "estimand_id": "primary",
     "estimand_id_means": "not recorded on the page this object was extracted from",
     "model": "random-effects",
-    "estimator": "DerSimonian-Laird inverse-variance on extracted effect estimates",
-    "estimator_used": "DerSimonian-Laird inverse-variance on extracted effect estimates",
+    "estimator": "REML",
+    "estimator_used": "REML",
     "handbook": {
      "decision": "NOT RECORDED - no methods decision was recoverable from the page",
      "sections": [],
@@ -389,13 +389,13 @@
      ]
     },
     "heterogeneity": {
-     "i2": 64.19760076831763,
-     "tau2": 43.19214579692411,
-     "q": 2.793108901805321,
+     "i2": 64.2,
+     "tau2": 43.192146,
+     "q": 2.793109,
      "df": 1,
-     "tau2_estimator": "DerSimonian-Laird inverse-variance on extracted effect estimates -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
-     "i2_definition": "Higgins I-squared = (Q - df) / Q, clamped at 0. Cochrane Handbook 6.5 section 10.10.2.",
-     "i2_definition_evidence": "Decided by recomputing BOTH definitions from this object's own per-trial inputs: Higgins gives 64.1976 and REML/metafor gives 64.1976 against the stored 64.1976."
+     "tau2_estimator": "REML -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
+     "i2_definition": "REML/metafor I-squared, as printed by rma(method='REML'). It is copied from this block's declared `estimator` and not inferred. Before 2026-08-20 this field read the Higgins form, or read UNDECIDABLE where both forms gave 0; the estimator change makes it determinate.",
+     "i2_definition_evidence": "The value beside it is metafor's own I-squared from the REML fit quoted verbatim in `r_output`, not a recomputation of it. Environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1."
     },
     "heterogeneity_status": "not recorded on the page this object was extracted from",
     "grade": null,
@@ -434,15 +434,27 @@
     ],
     "pooled": {
      "measure": "MD",
-     "point": -25.84199606701668,
-     "ci_low": -36.844750076968076,
-     "ci_high": -14.839242057065283,
+     "point": -25.84,
+     "ci_low": -36.84,
+     "ci_high": -14.84,
      "ci_level": 95
     },
     "source_page_pooled": true,
     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
     "estimand_established": false,
-    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass."
+    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+    "r_output": {
+     "state": "PRESENT",
+     "environment": "R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1",
+     "script": "ssot/reml_corpus_refit.R",
+     "run_utc": "2026-08-20",
+     "call": "metafor::rma(yi = ..., sei = ..., method = 'REML')",
+     "interval_method": "z",
+     "verbatim": "icosapent-lipid-auto-full-review :: primary   k = 2   measure = MD\n================================================================================================\ntrials: NCT01047683, NCT01047501\n\nA. THE FIT THAT PRODUCED THE SERVED NUMBER -- method = DL, z interval\n\nRandom-Effects Model (k = 2; tau^2 estimator: DL)\n\ntau^2 (estimated amount of total heterogeneity): 43.1921 (SE = 95.1483)\ntau (square root of estimated tau^2 value):      6.5721\nI^2 (total heterogeneity / total variability):   64.20%\nH^2 (total variability / sampling variability):  2.79\n\nTest for Heterogeneity:\nQ(df = 1) = 2.7931, p-val = 0.0947\n\nModel Results:\n\nestimate      se     zval    pval     ci.lb     ci.ub      \n-25.8420  5.6138  -4.6033  <.0001  -36.8448  -14.8392  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n   CHECK AGAINST THE STORED VALUE -- the change is not earned until this passes:\n     point  refit -25.841996     stored -25.841996      reproduced\n     ci_low refit -36.844750     stored -36.844750      reproduced\n     ci_hi  refit -14.839242     stored -14.839242      reproduced\n     tau^2  refit 43.192146      stored 43.192146       reproduced\n     Q      refit 2.793109       stored 2.793109        reproduced\n     I^2    refit 64.1976        stored 64.1976         reproduced\n     => REPRODUCED\n\nB. THE SAME DATA UNDER REML -- Cochrane Handbook 6.5 section 10.10.4.4, which records\n   REML as RevMan's own current default, and DECISIONS-COCHRANE-2026-08-18.md section 1,\n   whose decision line reads: \"Decision: REML, everywhere.\"\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 43.1921 (SE = 95.1483)\ntau (square root of estimated tau^2 value):      6.5721\nI^2 (total heterogeneity / total variability):   64.20%\nH^2 (total variability / sampling variability):  2.79\n\nTest for Heterogeneity:\nQ(df = 1) = 2.7931, p-val = 0.0947\n\nModel Results:\n\nestimate      se     zval    pval     ci.lb     ci.ub      \n-25.8420  5.6138  -4.6033  <.0001  -36.8448  -14.8392  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nC. WHAT MOVES\n     point    -25.841996     -> -25.841996      (+0.0000%)\n     ci_low   -36.844750     -> -36.844750    \n     ci_high  -14.839242     -> -14.839242    \n     tau^2    43.192146      -> 43.192146     \n     I^2      64.1976        -> 64.1976       \n     Q        2.793109       -> 2.793109        (Q is estimator-independent)\n     excludes the null (0):  TRUE -> TRUE\n     prediction interval under REML: -42.7825 to -8.9015\n\nR environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1\nScript: ssot/reml_corpus_refit.R",
+     "what_it_is": "The fit that produces the numbers this block now publishes, printed by metafor and pasted unaltered. The previous fit, under the estimator this pool used before 2026-08-20, is kept beside it under r_output_superseded_2026_08_20 rather than discarded.",
+     "reproduction_of_the_previous_value": "Before this refit was applied, the OLD estimator was refitted on the same inputs and checked against the stored value: REPRODUCED. A pool whose old fit did not reproduce was not overwritten."
+    },
+    "estimator_note_2026_08_20": "REML, applied 2026-08-20 under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The estimator this pool used before that date was DerSimonian-Laird inverse-variance on extracted effect estimates; that fit was reproduced first and is quoted under r_output_superseded_2026_08_20, so the movement is attributable rather than asserted."
    }
   }
  },
@@ -465,6 +477,14 @@
    "values_moved": "NONE",
    "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
    "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  },
+  {
+   "date": "2026-08-20",
+   "change": "estimator changed to REML -- LABEL ONLY, no value moved",
+   "values_moved": "NONE",
+   "what_changed": "This pool was fitted with DerSimonian-Laird inverse-variance on extracted effect estimates. It is refitted with REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The old fit was reproduced against the stored value FIRST (REPRODUCED) and only then replaced. Stored values are also rounded at storage -- effects to 4 decimals, tau-squared and Q to 6, I-squared to 4 -- because several of these pools carried sixteen significant figures on a two- or three-study pool.",
+   "why": "The corpus held two estimator conventions at once: 23 pools REML, 9 DerSimonian-Laird, 1 Paule-Mandel. Handbook 6.5 s10.10.4.4 records REML as RevMan's own current default and this project's statistics rules already refused DerSimonian-Laird below k=10, which every pool in this corpus is. The decision was taken on 2026-08-18 and not applied; applying it to some pools and not others would have been worse than either convention.",
+   "interval_method": "z"
   }
  ],
  "question_restated_2026_08_19": {

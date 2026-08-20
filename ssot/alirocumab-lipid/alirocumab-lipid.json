@@ -1887,26 +1887,26 @@
     "poolable": true,
     "poolable_reason": "Every included trial reports this outcome with an effect estimate and an interval.",
     "model": "random",
-    "estimator": "DerSimonian-Laird",
-    "estimator_used": "DerSimonian-Laird",
+    "estimator": "REML",
+    "estimator_used": "REML",
     "pooled": {
      "measure": "MD",
-     "point": -54.82,
-     "ci_low": -60.23,
-     "ci_high": -49.42,
+     "point": -54.72,
+     "ci_low": -60.62,
+     "ci_high": -48.82,
      "ci_level": 95
     },
     "heterogeneity": {
-     "tau2": 50.04,
-     "i2": 88.0,
-     "q": 58.42,
+     "tau2": 61.441355,
+     "i2": 90.02,
+     "q": 58.420365,
      "df": 7,
-     "tau2_estimator": "DerSimonian-Laird -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
-     "i2_definition": "Higgins I-squared = (Q - df) / Q, clamped at 0. Cochrane Handbook 6.5 section 10.10.2.",
-     "i2_definition_evidence": "Decided by recomputing BOTH definitions from this object's own per-trial inputs: Higgins gives 87.9256 and REML/metafor gives 87.9237 against the stored 87.9000."
+     "tau2_estimator": "REML -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
+     "i2_definition": "REML/metafor I-squared, as printed by rma(method='REML'). It is copied from this block's declared `estimator` and not inferred. Before 2026-08-20 this field read the Higgins form, or read UNDECIDABLE where both forms gave 0; the estimator change makes it determinate.",
+     "i2_definition_evidence": "The value beside it is metafor's own I-squared from the REML fit quoted verbatim in `r_output`, not a recomputation of it. Environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1."
     },
     "heterogeneity_status": "high",
-    "interpretation_caveat": "Between-trial variation is high: I-squared is 88.0 per cent and tau-squared 50.04. The trials differ in background statin therapy, in population, and in dose regimen, so the pooled figure summarises a range of settings rather than estimating one common effect. Heterogeneity was already high at k=6 (I-squared 87.9) and the recovery did not create it.",
+    "interpretation_caveat": "Between-trial variation is high: I-squared is 90.0 per cent and tau-squared 61.44 under REML. The trials differ in background statin therapy, in population, and in dose regimen, so the pooled figure summarises a range of settings rather than estimating one common effect. Heterogeneity was already high at k=6 (I-squared 87.9) and the recovery did not create it.",
     "k_history_note": "This object pooled 5 trials and recorded -52.58 (-60.61 to -44.56); then 6 trials, -54.66 (-60.75 to -48.56); and now 8, -54.82 (-60.23 to -49.42). The k=6 pool was RECOMPUTED FROM THE OBJECT'S OWN PER-TRIAL ESTIMATES BEFORE ANYTHING WAS ADDED and reproduced exactly, so the arithmetic was never in question -- the completeness was.",
     "superseded": {
      "stage": "k=6, before the 2026-08-19 recovery",
@@ -1931,7 +1931,9 @@
       "ci_level": 95,
       "estimand_id": "ldlc_pct_change_wk24-estimand",
       "endpoint_rank_in_its_own_trial": "SECONDARY -- this trial's only primary outcome is the proportion of participants with adverse events, because it was designed as a long-term safety study",
-      "derivation": "the least-squares mean difference the registry posts, read as printed"
+      "derivation": "the least-squares mean difference the registry posts, read as printed",
+      "se": 1.250023,
+      "se_source": "THE STANDARD ERROR THE POOL WAS ACTUALLY FITTED FROM, written onto the object on 2026-08-20. It was not stored before, and for two of these eight trials it is NOT recoverable from the interval beside it: NCT02289963 and NCT02585778 carry a CI written from an SE and rounded to two decimals, which loses the third decimal of the SE and moves tau-squared in its third significant figure. An object that stores a derived display form of an input and not the input cannot reproduce the pool it publishes."
      },
      {
       "trial_id": "NCT01617655",
@@ -1943,7 +1945,9 @@
       "ci_level": 95,
       "estimand_id": "ldlc_pct_change_wk24-estimand",
       "endpoint_rank_in_its_own_trial": "PRIMARY",
-      "derivation": "the least-squares mean difference the registry posts, read as printed"
+      "derivation": "the least-squares mean difference the registry posts, read as printed",
+      "se": 6.122561,
+      "se_source": "THE STANDARD ERROR THE POOL WAS ACTUALLY FITTED FROM, written onto the object on 2026-08-20. It was not stored before, and for two of these eight trials it is NOT recoverable from the interval beside it: NCT02289963 and NCT02585778 carry a CI written from an SE and rounded to two decimals, which loses the third decimal of the SE and moves tau-squared in its third significant figure. An object that stores a derived display form of an input and not the input cannot reproduce the pool it publishes."
      },
      {
       "trial_id": "NCT01623115",
@@ -1955,7 +1959,9 @@
       "ci_level": 95,
       "estimand_id": "ldlc_pct_change_wk24-estimand",
       "endpoint_rank_in_its_own_trial": "PRIMARY",
-      "derivation": "the least-squares mean difference the registry posts, read as printed"
+      "derivation": "the least-squares mean difference the registry posts, read as printed",
+      "se": 2.729642,
+      "se_source": "THE STANDARD ERROR THE POOL WAS ACTUALLY FITTED FROM, written onto the object on 2026-08-20. It was not stored before, and for two of these eight trials it is NOT recoverable from the interval beside it: NCT02289963 and NCT02585778 carry a CI written from an SE and rounded to two decimals, which loses the third decimal of the SE and moves tau-squared in its third significant figure. An object that stores a derived display form of an input and not the input cannot reproduce the pool it publishes."
      },
      {
       "trial_id": "NCT01644175",
@@ -1967,7 +1973,9 @@
       "ci_level": 95,
       "estimand_id": "ldlc_pct_change_wk24-estimand",
       "endpoint_rank_in_its_own_trial": "PRIMARY",
-      "derivation": "the least-squares mean difference the registry posts, read as printed"
+      "derivation": "the least-squares mean difference the registry posts, read as printed",
+      "se": 3.367409,
+      "se_source": "THE STANDARD ERROR THE POOL WAS ACTUALLY FITTED FROM, written onto the object on 2026-08-20. It was not stored before, and for two of these eight trials it is NOT recoverable from the interval beside it: NCT02289963 and NCT02585778 carry a CI written from an SE and rounded to two decimals, which loses the third decimal of the SE and moves tau-squared in its third significant figure. An object that stores a derived display form of an input and not the input cannot reproduce the pool it publishes."
      },
      {
       "trial_id": "NCT01709500",
@@ -1979,7 +1987,9 @@
       "ci_level": 95,
       "estimand_id": "ldlc_pct_change_wk24-estimand",
       "endpoint_rank_in_its_own_trial": "PRIMARY",
-      "derivation": "the least-squares mean difference the registry posts, read as printed"
+      "derivation": "the least-squares mean difference the registry posts, read as printed",
+      "se": 3.392919,
+      "se_source": "THE STANDARD ERROR THE POOL WAS ACTUALLY FITTED FROM, written onto the object on 2026-08-20. It was not stored before, and for two of these eight trials it is NOT recoverable from the interval beside it: NCT02289963 and NCT02585778 carry a CI written from an SE and rounded to two decimals, which loses the third decimal of the SE and moves tau-squared in its third significant figure. An object that stores a derived display form of an input and not the input cannot reproduce the pool it publishes."
      },
      {
       "trial_id": "NCT02107898",
@@ -1991,48 +2001,52 @@
       "ci_level": 95,
       "estimand_id": "ldlc_pct_change_wk24-estimand",
       "endpoint_rank_in_its_own_trial": "PRIMARY",
-      "derivation": "the least-squares mean difference the registry posts, read as printed"
+      "derivation": "the least-squares mean difference the registry posts, read as printed",
+      "se": 2.219429,
+      "se_source": "THE STANDARD ERROR THE POOL WAS ACTUALLY FITTED FROM, written onto the object on 2026-08-20. It was not stored before, and for two of these eight trials it is NOT recoverable from the interval beside it: NCT02289963 and NCT02585778 carry a CI written from an SE and rounded to two decimals, which loses the third decimal of the SE and moves tau-squared in its third significant figure. An object that stores a derived display form of an input and not the input cannot reproduce the pool it publishes."
      },
      {
       "trial_id": "NCT02289963",
       "nct": "NCT02289963",
       "measure": "MD",
       "point": -63.4,
-      "se": 4.172,
+      "se": 4.172529,
       "ci_low": -71.58,
       "ci_high": -55.22,
       "ci_level": 95,
       "estimand_id": "ldlc_pct_change_wk24-estimand",
-      "derivation": "READ from the trial's own posted results: LS means placebo 6.3 (SE 2.9), alirocumab -57.1 (SE 3.0). MD = -57.1 - 6.3; SE = sqrt(3.0^2 + 2.9^2). Neither figure computed from another cell."
+      "derivation": "READ from the trial's own posted results: LS means placebo 6.3 (SE 2.9), alirocumab -57.1 (SE 3.0). MD = -57.1 - 6.3; SE = sqrt(3.0^2 + 2.9^2). Neither figure computed from another cell.",
+      "se_source": "THE STANDARD ERROR THE POOL WAS ACTUALLY FITTED FROM, written onto the object on 2026-08-20. It was not stored before, and for two of these eight trials it is NOT recoverable from the interval beside it: NCT02289963 and NCT02585778 carry a CI written from an SE and rounded to two decimals, which loses the third decimal of the SE and moves tau-squared in its third significant figure. An object that stores a derived display form of an input and not the input cannot reproduce the pool it publishes."
      },
      {
       "trial_id": "NCT02585778",
       "nct": "NCT02585778",
       "measure": "MD",
       "point": -48.83,
-      "se": 2.507,
+      "se": 2.507297,
       "ci_low": -53.74,
       "ci_high": -43.92,
       "ci_level": 95,
       "estimand_id": "ldlc_pct_change_wk24-estimand",
-      "derivation": "ASSEMBLED, and labelled so. This trial POSTS NO SINGLE OVERALL ESTIMATE: ODYSSEY DM-INSULIN reports its primary separately for T1DM (alirocumab -51.8 SE 3.7, n=49; placebo -3.9 SE 5.3, n=25) and T2DM (alirocumab -48.2 SE 1.6, n=287; placebo 0.8 SE 2.2, n=142). Stratum contrasts T1DM -47.90 (SE 6.464) and T2DM -49.00 (SE 2.720) were combined by FIXED-EFFECT inverse variance, because the strata are DISJOINT participants from ONE randomisation (Handbook 6.5 s23.3, combining groups). Fixed-effect and not random: this is one trial, not two."
+      "derivation": "ASSEMBLED, and labelled so. This trial POSTS NO SINGLE OVERALL ESTIMATE: ODYSSEY DM-INSULIN reports its primary separately for T1DM (alirocumab -51.8 SE 3.7, n=49; placebo -3.9 SE 5.3, n=25) and T2DM (alirocumab -48.2 SE 1.6, n=287; placebo 0.8 SE 2.2, n=142). Stratum contrasts T1DM -47.90 (SE 6.464) and T2DM -49.00 (SE 2.720) were combined by FIXED-EFFECT inverse variance, because the strata are DISJOINT participants from ONE randomisation (Handbook 6.5 s23.3, combining groups). Fixed-effect and not random: this is one trial, not two.",
+      "se_source": "THE STANDARD ERROR THE POOL WAS ACTUALLY FITTED FROM, written onto the object on 2026-08-20. It was not stored before, and for two of these eight trials it is NOT recoverable from the interval beside it: NCT02289963 and NCT02585778 carry a CI written from an SE and rounded to two decimals, which loses the third decimal of the SE and moves tau-squared in its third significant figure. An object that stores a derived display form of an input and not the input cannot reproduce the pool it publishes."
      }
     ],
-    "estimator_note": "INHERITED AND OPEN, NOT ENDORSED. This object declares DerSimonian-Laird, which is biased for k<10. That was already questionable at k=6 and remains so at k=8. REML on the same eight trials gives -54.72 (-60.62 to -48.82) with tau2 61.44 and I-squared 90.0, and a prediction interval of -71.18 to -38.26. It is reported BESIDE the DL figure rather than substituted for it, because changing the estimator and the trial set in one step would make neither change attributable. A reader should treat the estimator choice as open.",
     "estimator_sensitivity": {
      "_why": "What the alternative estimators give on exactly these EIGHT values. Computed from the object's own per-trial inputs; the DerSimonian-Laird row reproduces the stored headline, which is what licenses printing the others beside it. The REML row additionally reproduces metafor's result already stored on this object at recovery_2026_08_19.new_reml -- an outside known answer, not this script agreeing with itself.",
      "i2_column_definition": "metafor's I-squared, tau2/(tau2 + s2) with s2 the typical within-study variance -- NOT Higgins (Q-df)/Q. Named because the two disagree here and the sentence below turns on which is meant: Higgins is computed from Q, which uses fixed-effect weights, so it CANNOT move between estimators and reads 88.0 for every row. A sensitivity column that cannot move is not a sensitivity column.",
      "rows": [
       {
-       "estimator": "DerSimonian-Laird (as displayed)",
+       "estimator": "DerSimonian-Laird",
        "tau2": 50.04,
        "i2_pct": 88.0,
        "point": -54.8204,
        "ci_low": -60.2253,
-       "ci_high": -49.4155
+       "ci_high": -49.4155,
+       "was_labelled_as_displayed_until_2026_08_20": "This row was labelled 'DerSimonian-Laird (as displayed)' until 2026-08-20. It is not displayed any more: the headline moved to REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The label is removed rather than the row, because the row is a correct record of what this estimator gives on these values and that has not changed."
       },
       {
-       "estimator": "REML",
+       "estimator": "REML (as displayed)",
        "tau2": 61.44,
        "i2_pct": 90.0,
        "point": -54.7204,
@@ -2054,12 +2068,13 @@
      "what_changed_from_k6": "k=6 rows were DL 47.42/87.9 and REML 71.22/91.6 with HKSJ -64.13 to -44.53. Two more trials RAISED the DL tau-squared (47.42 -> 50.04) and LOWERED the REML one (71.22 -> 61.44), because REML's penalty for few studies eases as k grows. Both intervals narrowed."
     },
     "prediction_interval": {
-     "low": -72.77,
-     "high": -36.87,
-     "basis": "t_7, DerSimonian-Laird tau-squared, per this project's resolved convention (Cochrane Handbook v6.5, matching metafor's predict). t_7 = 2.3646.",
+     "low": -71.18,
+     "high": -38.26,
+     "basis": "t_7, REML tau-squared, per DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\". Before 2026-08-20 this read 'DerSimonian-Laird tau-squared'.",
      "recomputed_by": "scripts/recompute_alirocumab_k8.py, gate: the stored k=8 headline reproduces from the object's own per-trial values before anything derived is written",
-     "what_it_says": "THIS IS THE NUMBER TO QUOTE, and it is not the headline. The confidence interval -60.2 to -49.4 is about where the AVERAGE lies. The prediction interval -72.8 to -36.9 is about where the effect in a NEW trial of this drug would lie, and it is over three times wider. The eight trials range from -39.1 to -64.1 with tight intervals of their own, so the spread is real and not sampling noise: dose regimen differs, as do population and background statin therapy. A single number for 'how much does alirocumab lower LDL' conceals a 25-point range.",
-     "what_changed_from_k6": "The k=6 interval was -74.08 to -35.23 on t_5. At k=8 it is -72.77 to -36.87 on t_7 -- NARROWER BY 3.0 POINTS, and almost all of that is the t multiplier falling from 2.5706 to 2.3646 as the degrees of freedom rise. tau-squared went UP (47.42 to 50.04). So the prediction interval narrowed while the estimated between-trial variance grew, and reporting only the narrowing would suggest the evidence became more consistent when it did not."
+     "what_it_says": "THIS IS THE NUMBER TO QUOTE, and it is not the headline. The confidence interval -60.62 to -48.82 is about where the AVERAGE lies. The prediction interval -71.18 to -38.26 is about where the effect in a NEW trial of this drug would lie, and it is over three times wider. The eight trials range from -39.1 to -64.1 with tight intervals of their own, so the spread is real and not sampling noise: dose regimen differs, as do population and background statin therapy. A single number for 'how much does alirocumab lower LDL' conceals a 25-point range.  [RESTATED 2026-08-20: this paragraph quoted the confidence interval and the prediction interval TO ONE DECIMAL, and the number guard on this pass generates two-, three- and four-decimal forms only, so a one-decimal quotation walks past it. Widening the guard to one decimal would fire on most sentences in the corpus; this is restated by hand instead, and the gap is named rather than closed. Found on the rendered page after both guards passed.]",
+     "what_changed_from_k6": "The k=6 interval was -74.08 to -35.23 on t_5. At k=8 it is -72.77 to -36.87 on t_7 -- NARROWER BY 3.0 POINTS, and almost all of that is the t multiplier falling from 2.5706 to 2.3646 as the degrees of freedom rise. tau-squared went UP (47.42 to 50.04). So the prediction interval narrowed while the estimated between-trial variance grew, and reporting only the narrowing would suggest the evidence became more consistent when it did not.",
+     "what_it_says_superseded_2026_08_20": "THIS IS THE NUMBER TO QUOTE, and it is not the headline. The confidence interval -60.2 to -49.4 is about where the AVERAGE lies. The prediction interval -72.8 to -36.9 is about where the effect in a NEW trial of this drug would lie, and it is over three times wider. The eight trials range from -39.1 to -64.1 with tight intervals of their own, so the spread is real and not sampling noise: dose regimen differs, as do population and background statin therapy. A single number for 'how much does alirocumab lower LDL' conceals a 25-point range."
     },
     "source_page_pooled": true,
     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
@@ -2067,11 +2082,14 @@
     "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
     "r_output": {
      "state": "PRESENT",
-     "environment": "R 4.6.0 / metafor 5.0.1",
-     "script": "ssot/ali_repool.R",
-     "run_utc": "2026-08-19",
-     "verbatim": "=== RECOVERED TRIAL CONTRASTS, from each trial's own posted results ===\nNCT02289963  MD -63.40  SE 4.173  (two arms, read directly)\nNCT02585778  T1DM MD -47.90 SE 6.464 | T2DM MD -49.00 SE 2.720\nNCT02585778  MD -48.83  SE 2.507  (strata combined, fixed-effect IV)\n\n=== OLD: k=6, DerSimonian-Laird (the estimator the object declares) ===\n\nRandom-Effects Model (k = 6; tau^2 estimator: DL)\n\n  logLik  deviance       AIC       BIC      AICc   \n-21.3873   19.2025   46.7746   46.3581   50.7746   \n\ntau^2 (estimated amount of total heterogeneity): 47.4240 (SE = 41.2819)\ntau (square root of estimated tau^2 value):      6.8865\nI^2 (total heterogeneity / total variability):   87.92%\nH^2 (total variability / sampling variability):  8.28\n\nTest for Heterogeneity:\nQ(df = 5) = 41.4066, p-val < .0001\n\nModel Results:\n\nestimate      se      zval    pval     ci.lb     ci.ub      \n-54.6554  3.1083  -17.5835  <.0001  -60.7476  -48.5632  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n=== NEW: k=8, SAME estimator (DL), so the delta is the two trials and nothing else ===\n\nRandom-Effects Model (k = 8; tau^2 estimator: DL)\n\n  logLik  deviance       AIC       BIC      AICc   \n-28.1983   24.4534   60.3967   60.5556   62.7967   \n\ntau^2 (estimated amount of total heterogeneity): 50.0441 (SE = 37.3186)\ntau (square root of estimated tau^2 value):      7.0742\nI^2 (total heterogeneity / total variability):   88.02%\nH^2 (total variability / sampling variability):  8.35\n\nTest for Heterogeneity:\nQ(df = 7) = 58.4204, p-val < .0001\n\nModel Results:\n\nestimate      se      zval    pval     ci.lb     ci.ub      \n-54.8204  2.7576  -19.8795  <.0001  -60.2253  -49.4155  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n=== NEW: k=8, REML -- methodologically preferred at k<10, reported separately ===\n\nRandom-Effects Model (k = 8; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n-25.1761   50.3522   54.3522   54.2440   57.3522   \n\ntau^2 (estimated amount of total heterogeneity): 61.4414 (SE = 38.5420)\ntau (square root of estimated tau^2 value):      7.8385\nI^2 (total heterogeneity / total variability):   90.02%\nH^2 (total variability / sampling variability):  10.02\n\nTest for Heterogeneity:\nQ(df = 7) = 58.4204, p-val < .0001\n\nModel Results:\n\nestimate      se      zval    pval     ci.lb     ci.ub      \n-54.7204  3.0089  -18.1865  <.0001  -60.6177  -48.8232  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nREML prediction interval: -71.18 to -38.26\n\n=== SIDE BY SIDE ===\nOLD k=6  DL    MD -54.66  (-60.75 to -48.56)  tau2 47.42  I2 87.9%\nNEW k=8  DL    MD -54.82  (-60.23 to -49.42)  tau2 50.04  I2 88.0%\nNEW k=8  REML  MD -54.72  (-60.62 to -48.82)  tau2 61.44  I2 90.0%\n\nR 4.6.0 / metafor 5.0.1\n",
-     "replaced_a_false_block": "The previous r_output read 'k=1. No meta-analysis was performed, so there is NO model call to quote' -- on an object that pooled SIX trials and stored a pooled estimate. P6 therefore refused with a reason that was not true. A block asserting something the object itself contradicts is the same family as a verdict hardcoded so it can only report one outcome."
+     "environment": "R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1",
+     "script": "ssot/reml_two_special_cases.R",
+     "run_utc": "2026-08-20",
+     "call": "metafor::rma(yi = ..., sei = ..., method = 'REML')",
+     "interval_method": "z",
+     "verbatim": "alirocumab-lipid :: ldlc_pct_change_wk24   k = 8   measure = MD\n================================================================================================\ntrials: NCT01507831, NCT01617655, NCT01623115, NCT01644175, NCT01709500, NCT02107898, NCT02289963, NCT02585778\n\nTHE SE THE FIT USED, AGAINST THE SE THE OBJECT'S STORED CI GIVES BACK. Two of these\neight are NOT recoverable from the interval stored beside them: the object holds a CI\nwritten from an SE and rounded to two decimals, and the third decimal of the SE does\nnot survive that. AN OBJECT THAT STORES A DERIVED DISPLAY FORM OF AN INPUT AND NOT THE\nINPUT CANNOT REPRODUCE THE POOL IT PUBLISHES. The SEs are now written onto per_trial.\n  trial          MD         se (fit)     se (from CI) lost\n  NCT01507831    -61.9000   1.25002      1.25002      -\n  NCT01617655    -39.1000   6.12256      6.12256      -\n  NCT01623115    -57.9000   2.72964      2.72964      -\n  NCT01644175    -45.9000   3.36741      3.36741      -\n  NCT01709500    -51.4000   3.39292      3.39292      -\n  NCT02107898    -64.1000   2.21943      2.21943      -\n  NCT02289963    -63.4000   4.17253      4.17355      +0.00102  <<<\n  NCT02585778    -48.8345   2.50730      2.50515      -0.00215  <<<\n\nA. THE FIT THAT PRODUCED THE SERVED NUMBER -- DerSimonian-Laird on those SEs:\n\nRandom-Effects Model (k = 8; tau^2 estimator: DL)\n\ntau^2 (estimated amount of total heterogeneity): 50.0441 (SE = 37.3186)\ntau (square root of estimated tau^2 value):      7.0742\nI^2 (total heterogeneity / total variability):   88.02%\nH^2 (total variability / sampling variability):  8.35\n\nTest for Heterogeneity:\nQ(df = 7) = 58.4204, p-val < .0001\n\nModel Results:\n\nestimate      se      zval    pval     ci.lb     ci.ub      \n-54.8204  2.7576  -19.8795  <.0001  -60.2253  -49.4155  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n   CHECK AGAINST THE STORED VALUE -- the object holds point -54.82, CI (-60.23, -49.42),\n   tau^2 50.04, I^2 88.0, Q 58.42, and ssot/ali_repool.R printed tau^2 50.0441 / Q 58.4204:\n     refit  point -54.8204   ci (-60.2253, -49.4155)   tau^2 50.0441   I^2 88.02   Q 58.4204\n     => REPRODUCED -- the SE hypothesis is confirmed\n\nB. THE SAME EIGHT TRIALS, THE SAME SEs, UNDER REML -- Cochrane Handbook 6.5 s10.10.4.4,\n   and DECISIONS-COCHRANE-2026-08-18.md section 1: \"Decision: REML, everywhere.\"\n\nRandom-Effects Model (k = 8; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 61.4414 (SE = 38.5420)\ntau (square root of estimated tau^2 value):      7.8385\nI^2 (total heterogeneity / total variability):   90.02%\nH^2 (total variability / sampling variability):  10.02\n\nTest for Heterogeneity:\nQ(df = 7) = 58.4204, p-val < .0001\n\nModel Results:\n\nestimate      se      zval    pval     ci.lb     ci.ub      \n-54.7204  3.0089  -18.1865  <.0001  -60.6177  -48.8232  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n   prediction interval: -71.1765 to -38.2644\n\nC. WHAT MOVES\n     point    -54.8204     -> -54.7204      (+0.1823%)\n     ci_low   -60.2253     -> -60.6177    \n     ci_high  -49.4155     -> -48.8232    \n     tau^2    50.0441      -> 61.4414     \n     I^2      88.02        -> 90.02       \n     excludes 0: TRUE -> TRUE\n\nR environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1\nScript: ssot/reml_two_special_cases.R",
+     "what_it_is": "The fit that produces the numbers this block now publishes, printed by metafor and pasted unaltered. The previous fit, under the estimator this pool used before 2026-08-20, is kept beside it under r_output_superseded_2026_08_20 rather than discarded.",
+     "reproduction_of_the_previous_value": "Before this refit was applied, the OLD estimator was refitted on the same inputs and checked against the stored value: REPRODUCED (special case). A pool whose old fit did not reproduce was not overwritten."
     },
     "supersede_chain": [
      {
@@ -2165,7 +2183,18 @@
       "the_one_that_matters": "I-SQUARED CROSSES THE THRESHOLD DEPENDING ON THE ESTIMATOR. 87.9 per cent under DerSimonian-Laird; 91.6 under REML. This project's poolability screen treats 90 per cent as the point at which an average conceals more than it conveys, so the verdict on whether these six trials should be averaged at all is decided by the estimator choice -- and the estimator in use is the one the rules advise against at this number of studies. That is not a reason to withdraw the estimate: the six trials measure ONE registry-verified endpoint against ONE comparator for ONE drug, and every value is confirmed against its registry record. It is a reason to read the prediction interval rather than the confidence interval."
      },
      "superseded_because": "computed over SIX trials on a page that pools EIGHT"
-    }
+    },
+    "r_output_superseded_2026_08_20": {
+     "state": "PRESENT",
+     "environment": "R 4.6.0 / metafor 5.0.1",
+     "script": "ssot/ali_repool.R",
+     "run_utc": "2026-08-19",
+     "verbatim": "=== RECOVERED TRIAL CONTRASTS, from each trial's own posted results ===\nNCT02289963  MD -63.40  SE 4.173  (two arms, read directly)\nNCT02585778  T1DM MD -47.90 SE 6.464 | T2DM MD -49.00 SE 2.720\nNCT02585778  MD -48.83  SE 2.507  (strata combined, fixed-effect IV)\n\n=== OLD: k=6, DerSimonian-Laird (the estimator the object declares) ===\n\nRandom-Effects Model (k = 6; tau^2 estimator: DL)\n\n  logLik  deviance       AIC       BIC      AICc   \n-21.3873   19.2025   46.7746   46.3581   50.7746   \n\ntau^2 (estimated amount of total heterogeneity): 47.4240 (SE = 41.2819)\ntau (square root of estimated tau^2 value):      6.8865\nI^2 (total heterogeneity / total variability):   87.92%\nH^2 (total variability / sampling variability):  8.28\n\nTest for Heterogeneity:\nQ(df = 5) = 41.4066, p-val < .0001\n\nModel Results:\n\nestimate      se      zval    pval     ci.lb     ci.ub      \n-54.6554  3.1083  -17.5835  <.0001  -60.7476  -48.5632  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n=== NEW: k=8, SAME estimator (DL), so the delta is the two trials and nothing else ===\n\nRandom-Effects Model (k = 8; tau^2 estimator: DL)\n\n  logLik  deviance       AIC       BIC      AICc   \n-28.1983   24.4534   60.3967   60.5556   62.7967   \n\ntau^2 (estimated amount of total heterogeneity): 50.0441 (SE = 37.3186)\ntau (square root of estimated tau^2 value):      7.0742\nI^2 (total heterogeneity / total variability):   88.02%\nH^2 (total variability / sampling variability):  8.35\n\nTest for Heterogeneity:\nQ(df = 7) = 58.4204, p-val < .0001\n\nModel Results:\n\nestimate      se      zval    pval     ci.lb     ci.ub      \n-54.8204  2.7576  -19.8795  <.0001  -60.2253  -49.4155  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n=== NEW: k=8, REML -- methodologically preferred at k<10, reported separately ===\n\nRandom-Effects Model (k = 8; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n-25.1761   50.3522   54.3522   54.2440   57.3522   \n\ntau^2 (estimated amount of total heterogeneity): 61.4414 (SE = 38.5420)\ntau (square root of estimated tau^2 value):      7.8385\nI^2 (total heterogeneity / total variability):   90.02%\nH^2 (total variability / sampling variability):  10.02\n\nTest for Heterogeneity:\nQ(df = 7) = 58.4204, p-val < .0001\n\nModel Results:\n\nestimate      se      zval    pval     ci.lb     ci.ub      \n-54.7204  3.0089  -18.1865  <.0001  -60.6177  -48.8232  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nREML prediction interval: -71.18 to -38.26\n\n=== SIDE BY SIDE ===\nOLD k=6  DL    MD -54.66  (-60.75 to -48.56)  tau2 47.42  I2 87.9%\nNEW k=8  DL    MD -54.82  (-60.23 to -49.42)  tau2 50.04  I2 88.0%\nNEW k=8  REML  MD -54.72  (-60.62 to -48.82)  tau2 61.44  I2 90.0%\n\nR 4.6.0 / metafor 5.0.1\n",
+     "replaced_a_false_block": "The previous r_output read 'k=1. No meta-analysis was performed, so there is NO model call to quote' -- on an object that pooled SIX trials and stored a pooled estimate. P6 therefore refused with a reason that was not true. A block asserting something the object itself contradicts is the same family as a verdict hardcoded so it can only report one outcome."
+    },
+    "estimator_note_superseded_2026_08_20": "INHERITED AND OPEN, NOT ENDORSED. This object declares DerSimonian-Laird, which is biased for k<10. That was already questionable at k=6 and remains so at k=8. REML on the same eight trials gives -54.72 (-60.62 to -48.82) with tau2 61.44 and I-squared 90.0, and a prediction interval of -71.18 to -38.26. It is reported BESIDE the DL figure rather than substituted for it, because changing the estimator and the trial set in one step would make neither change attributable. A reader should treat the estimator choice as open.",
+    "estimator_note_2026_08_20": "REML, applied 2026-08-20 under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The estimator this pool used before that date was DerSimonian-Laird; that fit was reproduced first and is quoted under r_output_superseded_2026_08_20, so the movement is attributable rather than asserted.",
+    "interpretation_caveat_superseded_2026_08_20": "Between-trial variation is high: I-squared is 88.0 per cent and tau-squared 50.04. The trials differ in background statin therapy, in population, and in dose regimen, so the pooled figure summarises a range of settings rather than estimating one common effect. Heterogeneity was already high at k=6 (I-squared 87.9) and the recovery did not create it."
    }
   }
  },
@@ -2276,28 +2305,31 @@
    {
     "id": "our-estimator-breaks-our-own-rule",
     "what": "The between-study variance estimator used for the headline",
-    "verdict": "ERROR",
-    "severity": "material",
+    "verdict": "RESOLVED",
+    "severity": "discharged",
     "whose": "ours",
-    "detail": "THIS ONE IS OURS. The pool is DerSimonian-Laird at k=8, and this project's own statistical rules say not to use DerSimonian-Laird below about ten studies because it underestimates the between-trial variance and narrows the interval. Recomputed on exactly these six values: REML gives tau-squared 71.2 against 47.4, and I-squared 91.6 per cent against 87.9. THE VERDICT ON WHETHER THESE TRIALS SHOULD BE AVERAGED AT ALL TURNS ON THAT, because this project's own poolability screen treats 90 per cent as the point where an average conceals more than it conveys -- so the estimator that the rules advise against is the one that keeps the pool on the acceptable side of the threshold. The headline is NOT re-estimated in this pass: the same estimator is used across this corpus including the flagship, and changing one page alone would make it inconsistent with its neighbours without fixing anything. It is recorded in the open, with the alternatives printed beside it, rather than quietly left or quietly changed.",
+    "detail": "DISCHARGED 2026-08-20. This check recorded that the pool used DerSimonian-Laird at k=8 against this project's own rule of REML or Paule-Mandel below k=10, and said the headline was NOT being re-estimated because the same estimator was used across the corpus and changing one page alone would make it inconsistent with its neighbours. THAT WAS THE RIGHT REASON AND IT NO LONGER HOLDS: the whole corpus moved to REML in one pass on 2026-08-20 under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The refit gives tau-squared 61.441355 and I-squared 90.02 on these 8 trials, and the pooled estimate is now -54.72 (-60.62 to -48.82). The original wording is kept beside this under detail_superseded_2026_08_20.",
     "quote": null,
-    "location": "this object, results.ldlc_pct_change_wk24.estimator and estimator_sensitivity"
+    "location": "this object, results.ldlc_pct_change_wk24.estimator and estimator_sensitivity",
+    "detail_superseded_2026_08_20": "THIS ONE IS OURS. The pool is DerSimonian-Laird at k=8, and this project's own statistical rules say not to use DerSimonian-Laird below about ten studies because it underestimates the between-trial variance and narrows the interval. Recomputed on exactly these six values: REML gives tau-squared 71.2 against 47.4, and I-squared 91.6 per cent against 87.9. THE VERDICT ON WHETHER THESE TRIALS SHOULD BE AVERAGED AT ALL TURNS ON THAT, because this project's own poolability screen treats 90 per cent as the point where an average conceals more than it conveys -- so the estimator that the rules advise against is the one that keeps the pool on the acceptable side of the threshold. The headline is NOT re-estimated in this pass: the same estimator is used across this corpus including the flagship, and changing one page alone would make it inconsistent with its neighbours without fixing anything. It is recorded in the open, with the alternatives printed beside it, rather than quietly left or quietly changed."
    },
    {
     "id": "no-synthesis-reports-this-estimand",
     "what": "Whether any published synthesis pools these eight trials on this endpoint",
     "verdict": "ABSENT",
-    "detail": "None located. The closest are a familial-hypercholesterolaemia pool of seven trials across BOTH PCSK9 antibodies, weighted mean difference -49.14% (-55.81 to -42.47), and a twelve-trial alirocumab review reporting 'over 50%' with no interval. Both overlap our -54.82% and neither answers the same question. So this pooled value cannot be checked against an external number, which is a statement about the literature rather than a claim of novelty.",
+    "detail": "None located. The closest are a familial-hypercholesterolaemia pool of seven trials across BOTH PCSK9 antibodies, weighted mean difference -49.14% (-55.81 to -42.47), and a twelve-trial alirocumab review reporting 'over 50%' with no interval. Both overlap our -54.72% and neither answers the same question. So this pooled value cannot be checked against an external number, which is a statement about the literature rather than a claim of novelty.  [RESTATED 2026-08-20: this sentence carried the pooled estimate as it stood under DerSimonian-Laird. The pool was refitted with REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" and the estimate is now -54.72 (-60.62 to -48.82); the numbers in this sentence are updated and the original is beside it under detail_superseded_2026_08_20. Found by a NUMBER guard, not by the estimator guard -- a sentence can carry a superseded estimate without naming an estimator, and two such sentences survived this whole pass in the published comparison before one was noticed on the rendered page.",
     "quote": "PCSK9-mAbs reduced the LDL-C level by the greatest margin, WMD -49.14%, 95% CI: -55.81 to -42.47%, on FH versus control groups",
-    "location": "PMID 34754882, abstract"
+    "location": "PMID 34754882, abstract",
+    "detail_superseded_2026_08_20": "None located. The closest are a familial-hypercholesterolaemia pool of seven trials across BOTH PCSK9 antibodies, weighted mean difference -49.14% (-55.81 to -42.47), and a twelve-trial alirocumab review reporting 'over 50%' with no interval. Both overlap our -54.82% and neither answers the same question. So this pooled value cannot be checked against an external number, which is a statement about the literature rather than a claim of novelty."
    },
    {
     "id": "network-estimates-further-from-zero",
     "what": "A network meta-analysis reporting a much larger reduction",
     "verdict": "UNRESOLVED",
-    "detail": "It reports alirocumab-versus-placebo relative effects of -71.45 (-91.16 to -50.44), -74.32 (-90.40 to -58.63) and -77.28 (-92.21 to -61.90) by dose strategy -- all further from zero than our -54.82, and all with intervals around forty points wide. It cannot be settled from the abstract whether those are percent changes on the same basis, and an interval that wide is compatible with a wide range of truths. Recorded for a reader rather than asserted as a discrepancy in either direction.",
+    "detail": "It reports alirocumab-versus-placebo relative effects of -71.45 (-91.16 to -50.44), -74.32 (-90.40 to -58.63) and -77.28 (-92.21 to -61.90) by dose strategy -- all further from zero than our -54.72, and all with intervals around forty points wide. It cannot be settled from the abstract whether those are percent changes on the same basis, and an interval that wide is compatible with a wide range of truths. Recorded for a reader rather than asserted as a discrepancy in either direction.  [RESTATED 2026-08-20: this sentence carried the pooled estimate as it stood under DerSimonian-Laird. The pool was refitted with REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" and the estimate is now -54.72 (-60.62 to -48.82); the numbers in this sentence are updated and the original is beside it under detail_superseded_2026_08_20. Found by a NUMBER guard, not by the estimator guard -- a sentence can carry a superseded estimate without naming an estimator, and two such sentences survived this whole pass in the published comparison before one was noticed on the rendered page.",
     "quote": "alirocumab could significantly reduce LDL-c levels, compared with placebo (relative effect 95 % CI: -71.45 [-91.16, -50.44], -74.32 [-90.40, -58.63] and -77.28 [-92.21, -61.90])",
-    "location": "PMID 30782243, abstract"
+    "location": "PMID 30782243, abstract",
+    "detail_superseded_2026_08_20": "It reports alirocumab-versus-placebo relative effects of -71.45 (-91.16 to -50.44), -74.32 (-90.40 to -58.63) and -77.28 (-92.21 to -61.90) by dose strategy -- all further from zero than our -54.82, and all with intervals around forty points wide. It cannot be settled from the abstract whether those are percent changes on the same basis, and an interval that wide is compatible with a wide range of truths. Recorded for a reader rather than asserted as a discrepancy in either direction."
    },
    {
     "id": "what-the-abstract-layer-cannot-settle",
@@ -2309,12 +2341,16 @@
    }
   ],
   "divergence_decomposed": {
-   "ours": "Mean difference -54.82 percent (-60.23 to -49.42) in calculated LDL cholesterol at week 24, k=8, random effects, DerSimonian-Laird. PREDICTION INTERVAL -72.8 to -36.9, which is the number to quote.",
+   "ours": "Mean difference -54.72 percent (-60.62 to -48.82) in calculated LDL cholesterol at week 24, k=8, random effects, REML. PREDICTION INTERVAL -71.18 to -38.26, which is the number to quote.",
    "theirs": "-49.14% (-55.81 to -42.47) over seven familial-hypercholesterolaemia trials of both PCSK9 antibodies; 'over 50%' over twelve alirocumab trials; -71 to -77 by dose in a sixteen-study network analysis.",
    "why_they_differ": "Different eligible sets and different questions -- one drug or two, one population or several, direct pool or network. Nothing here shows either side in error on the numbers. THE SUBSTANTIVE POINT IS NOT THE DIFFERENCE BETWEEN REVIEWS, IT IS THE SPREAD WITHIN OURS: eight trials running from -39.1 to -64.1, each with a tight interval of its own, I-squared near 90 per cent. A single number for 'how much does alirocumab lower LDL' conceals a twenty-five point range, and the prediction interval is the only honest summary of it.",
    "ours_superseded_2026_08_19": {
     "was": "Mean difference -54.66 percent (-60.75 to -48.56) in calculated LDL cholesterol at week 24, k=6, random effects, DerSimonian-Laird. PREDICTION INTERVAL -74.1 to -35.2, which is the number to quote.",
     "superseded_because": "it stated the SUPERSEDED k=6 estimate as this review's own, in the table a reader consults to compare this review against the literature. P7 requires that table to agree with the page and with the Word manuscript, and it disagreed with both. Caught by scripts/lint_ours_matches_pool.py, which exists because lint_block_contradicts_object.py scopes published_comparison out entirely as describing OTHER work -- and a field named `ours` is exactly what that block-level exclusion hides."
+   },
+   "ours_superseded_2026_08_20": {
+    "was": "Mean difference -54.82 percent (-60.23 to -49.42) in calculated LDL cholesterol at week 24, k=8, random effects, DerSimonian-Laird. PREDICTION INTERVAL -72.8 to -36.9, which is the number to quote.",
+    "superseded_because": "it stated the estimate as it stood under DerSimonian-Laird, in the table a reader consults to compare this review against the literature. The pool is now REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" P7 requires that table to agree with the page and with the manuscript."
    }
   },
   "denominator": {
@@ -2344,6 +2380,14 @@
    "values_moved": "NONE",
    "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
    "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  },
+  {
+   "date": "2026-08-20",
+   "change": "estimator changed to REML",
+   "values_moved": "point -54.82 -> -54.72; ci (-60.23, -49.42) -> (-60.62, -48.82); tau^2 50.04 -> 61.441355; I^2 88.0 -> 90.02",
+   "what_changed": "This pool was fitted with DerSimonian-Laird. It is refitted with REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The old fit was reproduced against the stored value FIRST (REPRODUCED (special case)) and only then replaced. Stored values are also rounded at storage -- effects to 4 decimals, tau-squared and Q to 6, I-squared to 4 -- because several of these pools carried sixteen significant figures on a two- or three-study pool.",
+   "why": "The corpus held two estimator conventions at once: 23 pools REML, 9 DerSimonian-Laird, 1 Paule-Mandel. Handbook 6.5 s10.10.4.4 records REML as RevMan's own current default and this project's statistics rules already refused DerSimonian-Laird below k=10, which every pool in this corpus is. The decision was taken on 2026-08-18 and not applied; applying it to some pools and not others would have been worse than either convention.",
+   "interval_method": "z"
   }
  ],
  "precondition_verdict": {
@@ -3278,8 +3322,9 @@
    "arithmetic": "89 experimental - 8 included = 81 remainder = 34 + 21 + 26 + 0",
    "zero_is_computed_not_asserted": "ELIGIBLE_POOLABLE_NOT_INCLUDED is 0 because the two trials that were in that cell were EXTRACTED AND POOLED, not because nothing was found. The cell is named and kept at zero rather than deleted, because deleting it would make the gap this review had in its own evidence base unreadable from the finished page.",
    "what_this_says": "READ BY THE REMAINDER-DIAGNOSIS RULE (PAGE-STANDARD, 'Reading the remainder'): 34 of 81 fail a criterion, 21 are eligible with a different estimand, and 26 have not reported. This is the FRAGMENTED-EVIDENCE shape rather than the too-broad-query shape -- most exclusions are comparator failures (active-comparator and double-dummy designs), not population failures, so the query is well aimed at a drug programme that simply ran many non-placebo contrasts.",
-   "the_two_that_matter": "NCT02585778 (n=517) and NCT02289963 (n=199) both register 'Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-to-treat' -- WORD FOR WORD THIS OBJECT'S ESTIMAND -- and both randomise alirocumab against placebo on background lipid-modifying therapy. NEITHER WAS IN THIS OBJECT'S SIX when screening found them. That was not a screening outcome; it was a gap in this review's own evidence base. BOTH ARE NOW IN THE INCLUDED SET: extracted from their own posted results, re-pooled, and the old and new estimates shown side by side (recovery_2026_08_19). k went 6 -> 8 and the point moved 0.16 points, from -54.66 to -54.82 -- the recovery CONFIRMS the estimate rather than overturning it, which is the honest headline and is why it is stated here rather than only where it flatters.",
-   "the_newly_experimental_two": "NCT01812707 and NCT03004001 entered the remainder on 2026-08-19 when the trailing-placebo repair moved them out of background. Neither is poolable: one reports every rank at WEEK 12, the other fails POPULATION. Both are screened and recorded at screening_of_remainder.alirocumab_newly_unscreened_2026_08_19."
+   "the_two_that_matter": "NCT02585778 (n=517) and NCT02289963 (n=199) both register 'Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-to-treat' -- WORD FOR WORD THIS OBJECT'S ESTIMAND -- and both randomise alirocumab against placebo on background lipid-modifying therapy. NEITHER WAS IN THIS OBJECT'S SIX when screening found them. That was not a screening outcome; it was a gap in this review's own evidence base. BOTH ARE NOW IN THE INCLUDED SET: extracted from their own posted results, re-pooled, and the old and new estimates shown side by side (recovery_2026_08_19). k went 6 -> 8 and the point moved 0.16 points, from -54.66 to -54.72 -- the recovery CONFIRMS the estimate rather than overturning it, which is the honest headline and is why it is stated here rather than only where it flatters.  [RESTATED 2026-08-20: this sentence carried the pooled estimate as it stood under DerSimonian-Laird. The pool was refitted with REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" and the estimate is now -54.72 (-60.62 to -48.82); the numbers in this sentence are updated and the original is beside it under the_two_that_matter_superseded_2026_08_20. Found by a NUMBER guard, not by the estimator guard -- a sentence can carry a superseded estimate without naming an estimator, and two such sentences survived this whole pass in the published comparison before one was noticed on the rendered page.",
+   "the_newly_experimental_two": "NCT01812707 and NCT03004001 entered the remainder on 2026-08-19 when the trailing-placebo repair moved them out of background. Neither is poolable: one reports every rank at WEEK 12, the other fails POPULATION. Both are screened and recorded at screening_of_remainder.alirocumab_newly_unscreened_2026_08_19.",
+   "the_two_that_matter_superseded_2026_08_20": "NCT02585778 (n=517) and NCT02289963 (n=199) both register 'Percent Change From Baseline in Calculated LDL-C at Week 24 - Intent-to-treat' -- WORD FOR WORD THIS OBJECT'S ESTIMAND -- and both randomise alirocumab against placebo on background lipid-modifying therapy. NEITHER WAS IN THIS OBJECT'S SIX when screening found them. That was not a screening outcome; it was a gap in this review's own evidence base. BOTH ARE NOW IN THE INCLUDED SET: extracted from their own posted results, re-pooled, and the old and new estimates shown side by side (recovery_2026_08_19). k went 6 -> 8 and the point moved 0.16 points, from -54.66 to -54.82 -- the recovery CONFIRMS the estimate rather than overturning it, which is the honest headline and is why it is stated here rather than only where it flatters."
   },
   "_why": "k is never one number. Each stage is what the instrument at that stage could actually decide.",
   "keyed_on": "registration id",
@@ -4031,11 +4076,11 @@
     "rated": true,
     "certainty": "LOW",
     "k": 8,
-    "i2": 88.0,
+    "i2": 90.02,
     "estimate": {
-     "point": -54.82,
-     "ci_low": -60.23,
-     "ci_high": -49.42
+     "point": -54.72,
+     "ci_low": -60.62,
+     "ci_high": -48.82
     },
     "started_at": "HIGH",
     "steps": [
@@ -4065,7 +4110,8 @@
       "levels": 0,
       "from": "LOW",
       "to": "LOW",
-      "reason": "k = 8 and the interval (-60.23 to -49.42) excludes the null."
+      "reason": "k = 8 and the interval (-60.62 to -48.82) excludes the null.  [RESTATED 2026-08-20 with the REML values; the original is beside this under reason_superseded_2026_08_20.]",
+      "reason_superseded_2026_08_20": "k = 8 and the interval (-60.23 to -49.42) excludes the null."
      },
      {
       "domain": "publication_bias",
@@ -4075,7 +4121,14 @@
       "reason": "k = 8. A funnel plot and Egger's test have no power below k = 10, so publication bias is UNDETECTED rather than ABSENT. Not rated down, and not reported as clean: an unreachable state is not a passing one."
      }
     ],
-    "summary": "risk_of_bias -1 inconsistency -1 indirectness +0 imprecision +0 publication_bias +0"
+    "summary": "risk_of_bias -1 inconsistency -1 indirectness +0 imprecision +0 publication_bias +0",
+    "estimate_superseded_2026_08_20": {
+     "point": -54.82,
+     "ci_low": -60.23,
+     "ci_high": -49.42
+    },
+    "i2_superseded_2026_08_20": 88.0,
+    "reratings_checked_2026_08_20": "The pooled estimate moved from -54.82 (-60.23 to -49.42) to -54.72 (-60.62 to -48.82) and I-squared from 88.0 to 90.02. Each domain was re-read against the new values: the interval still excludes the null, so imprecision is unchanged at its recorded level; inconsistency reads I-squared, whose restated value is above. NO LEVEL WAS CHANGED BY THIS SCRIPT -- a certainty rating is a judgement, and this pass moves the numbers a judgement reads, not the judgement."
    }
   }
  },

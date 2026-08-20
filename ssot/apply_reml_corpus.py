@@ -1,0 +1,923 @@
+"""Apply "REML, everywhere" to the ten pools of thirty-four that were not fitted with it.
+
+DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 s10.10.4.4:
+"Decision: REML, everywhere." Decided on 2026-08-18; the interval half of the same
+decision was applied and delivered; this is the estimator half, which was not.
+
+ONE PASS, TEN POOLS, BY P19. Doing them singly would leave the corpus holding two
+estimator conventions at once and every topic finished in between would be built on
+whichever was current that hour -- which is the failure the interval half just finished
+repairing.
+
+WHAT THIS DOES NOT TOUCH.
+
+  * bempedoic-acid-review, k=1, declares "none -- one trial, the registry's own Cox
+    analysis". Fitting a random-effects model there would manufacture a between-study
+    variance from a corpus of one study.
+  * EVERY HISTORY PATH. `superseded`, `supersede_chain`, `restated_2026_08_19`,
+    `*_superseded_2026_08_19`, `r_output_superseded`, `display_change_announced` and
+    `k_history_note` record what the object HELD ON A DATE. "On 2026-08-19 this pool
+    was DerSimonian-Laird" is a true sentence and rewriting it would be a defect, not a
+    promotion. The estimator guard below exempts exactly these paths and no others.
+  * `estimator_sensitivity` tables, where DerSimonian-Laird is named as a COMPARED
+    ALTERNATIVE rather than as the estimator in force. Their `as displayed` labels do
+    move, because that phrase is a claim about the present.
+
+THE NUMBERS COME FROM A FIT, NOT FROM A TRANSCRIPT. Both input files are written by
+the R scripts themselves (ssot/reml_corpus_refit.R, ssot/reml_two_special_cases.R) and
+both scripts refuse to write anything if their own reproduction check against the
+stored value fails.
+
+PRECISION. Several of these pools store sixteen significant figures on a two-study
+pool -- `-25.122389833931393`, `0.8654779782371014`. That is a precision claim nothing
+in the evidence supports. Everything is rounded at storage: effects and interval bounds
+to FOUR SIGNIFICANT FIGURES -- which is what the page renders, via projectors.sig(x, 4),
+and not four decimal places, which is what this rounded to until
+scripts/lint_pooled_point_is_displayable.py refused the commit -- and tau-squared and Q
+to 6 decimals, I-squared to 4.
+"""
+import copy
+import datetime
+import io
+import json
+import math
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+EV = os.path.join(REPO, "evidence", "2026-08-20-reml")
+TODAY = "2026-08-20"
+
+DECISION = ("DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 "
+            "section 10.10.4.4: \"Decision: REML, everywhere.\"")
+
+# Paths whose job is to record what WAS true. The guard must not fire on them and this
+# pass must not edit them.
+HISTORY = (
+    "superseded", "supersede_chain", "display_change_announced",
+    "k_history_note", "what_this_replaces", "r_verbatim_old", "r_output_superseded",
+    "registration_", "prediction_stated_before_the_run",
+    "estimator_sensitivity", "derivation_refused_with_its_arithmetic",
+    ".was", "_was", "estimator_debt_discharged",
+)
+
+# A path segment carrying a DATE is a record of what was true on that date. `recovery_
+# 2026_08_19`, `restated_2026_08_19`, `estimator_note_2026_08_20` are all of that shape
+# and all of them SHOULD name the estimator that was in force when they were written.
+# This was learned by the guard firing on `.recovery_2026_08_19.old.estimator`, which is
+# the single most correct place in the object for the string "DerSimonian-Laird" to be.
+DATED_SEGMENT = re.compile(r"_20\d\d_\d\d_\d\d(\b|_)")
+
+# An ISO date inside the STRING itself. See guard_no_stale_estimator: a live field may
+# name the superseded estimator only while saying when it stopped being true.
+DATED_TEXT = re.compile(r"\b20\d\d-\d\d-\d\d\b")
+
+OLD_NAMES = re.compile(r"DerSimonian[- ]Laird|Paule[- ]Mandel", re.I)
+
+POOLS = [
+    ("alirocumab-lipid", "ldlc_pct_change_wk24"),
+    ("apixaban-vte-prophylaxis", "major_vte"),
+    ("apixaban-vte-treatment", "recurrent_vte"),
+    ("attr-pn-review", "primary"),
+    ("empagliflozin-hf-auto-full-review", "primary"),
+    ("finerenone-cv", "cv_composite_first"),
+    ("icosapent-lipid-auto-full-review", "primary"),
+    ("inclisiran-lipid-kidney-auto-full-review", "primary"),
+    ("rosuvastatin-auto-full-review", "primary"),
+    ("sglt2-mace-cvot-review", "primary"),
+]
+
+TAU2_ESTIMATOR = (
+    "REML -- copied from this block's declared `estimator`, which is the authoritative "
+    "record of how the pool was computed. NOT inferred: an object that declared no "
+    "estimator would be left undeclared here, because the absence is itself the finding."
+)
+
+
+def r4(v):
+    """Round to FOUR SIGNIFICANT FIGURES, which is what the page renders.
+
+    The first version of this rounded to four DECIMAL PLACES, and
+    scripts/lint_pooled_point_is_displayable.py refused the commit. It was right, and the
+    distinction is not pedantry: ssot/build_tabbed.py renders pooled numbers through
+    projectors.sig(x, 4), four SIGNIFICANT figures, so a stored -54.7204 renders -54.72
+    and THE STORED STRING APPEARS NOWHERE IN THE DELIVERED BYTES. The delivery content
+    check looks for the stored string in the served page and would have failed the
+    delivery -- after the objects were committed and pushed.
+
+    Store what the page displays; full precision stays in evidence/2026-08-20-reml/.
+    """
+    if v is None:
+        return None
+    v = float(v)
+    if v == 0:
+        return 0.0
+    d = 4 - int(math.floor(math.log10(abs(v)))) - 1
+    return round(v, d)
+
+
+def r6(v):
+    return None if v is None else round(float(v), 6)
+
+
+def keypaths(o, p=""):
+    """Every leaf path. Used to prove nothing was net-deleted."""
+    if isinstance(o, dict):
+        if not o:
+            yield p
+        for k, v in o.items():
+            yield from keypaths(v, p + "." + k)
+    elif isinstance(o, list):
+        if not o:
+            yield p
+        for i, v in enumerate(o):
+            yield from keypaths(v, p + "[%d]" % i)
+    else:
+        yield p
+
+
+def leaves(o, p=""):
+    if isinstance(o, dict):
+        for k, v in o.items():
+            yield from leaves(v, p + "." + k)
+    elif isinstance(o, list):
+        for i, v in enumerate(o):
+            yield from leaves(v, p + "[%d]" % i)
+    else:
+        yield p, o
+
+
+def is_history(path):
+    """Is this a path whose job is to record what WAS true?
+
+    The substring search is written with .find() rather than `h in path`.
+    scripts/lint_string_where_collection_expected.py refuses the `in` form here and it
+    is right to: `x in y` on a string means substring, on a collection means membership,
+    and a reader -- or a later edit that changes `path` to a list of segments -- cannot
+    tell which was meant. Here substring IS meant, and .find() says so.
+    """
+    for h in HISTORY:
+        if path.find(h) >= 0:
+            return True
+    return DATED_SEGMENT.search(path) is not None
+
+
+def guard_no_stale_estimator(obj, topic):
+    """Refuse an object that still names the old estimator on a LIVE path.
+
+    THIS GUARD IS PROVEN TO FIRE by scripts/test_apply_reml_guard.py, which injects a
+    DerSimonian-Laird string on a live path and asserts a refusal, and injects one on a
+    history path and asserts silence. A guard whose firing has never been observed is a
+    comment.
+    """
+    bad = []
+    for path, val in leaves(obj):
+        if not isinstance(val, str):
+            continue
+        if is_history(path):
+            continue
+        if not OLD_NAMES.search(val):
+            continue
+        # A LIVE field may still name the old estimator, but only while SAYING WHEN it
+        # stopped being true -- "Before 2026-08-20 this read ...", "DISCHARGED 2026-08-20
+        # ... the pool used DerSimonian-Laird". An unmarked mention on a live path is a
+        # sentence asserting the old estimator in the present tense, and that is the
+        # defect. The marker required is an explicit ISO date in the same string, because
+        # a claim about the past that does not say WHEN is not a claim about the past.
+        if DATED_TEXT.search(val):
+            continue
+        bad.append((path, val[:150]))
+    return bad
+
+
+def number_forms(v):
+    """The string forms a page or a sentence might carry a stored number in."""
+    if not isinstance(v, (int, float)) or isinstance(v, bool):
+        return []
+    out = set()
+    for nd in (2, 3, 4):
+        s = ("%%.%df" % nd) % v
+        out.add(s)
+        if "." in s:
+            out.add(s.rstrip("0").rstrip("."))
+    out.add(repr(v))
+    return [s for s in out if len(s.replace("-", "").replace(".", "").lstrip("0")) >= 3]
+
+
+def guard_no_stale_number(obj, old_values):
+    """Refuse an object still carrying a SUPERSEDED NUMBER on a live path.
+
+    THE ESTIMATOR GUARD DOES NOT COVER THIS AND THAT IS NOT A DETAIL. It looks for the
+    name of the superseded estimator, so a sentence carrying the superseded ESTIMATE
+    without naming an estimator is invisible to it -- and two such sentences survived the
+    whole pass on alirocumab-lipid's published_comparison:
+
+        checks[9].detail   "...Both overlap our -54.82% and neither answers the same
+                            question."
+        checks[10].detail  "...all further from zero than our -54.82, and all with
+                            intervals around forty points wide."
+
+    Both are live, both are in the P46 published-comparison artefact, both were
+    discovered by looking at the RENDERED PAGE rather than at the object -- and both were
+    missed by a guard that had already fired four times and looked like it was working.
+    A guard is only ever a guard against the thing it looks for.
+    """
+    bad = []
+    forms = []
+    for v in old_values:
+        forms.extend(number_forms(v))
+    forms = sorted(set(forms), key=len, reverse=True)
+    if not forms:
+        return bad
+    for path, val in leaves(obj):
+        if is_history(path):
+            continue
+        if isinstance(val, (int, float)) and not isinstance(val, bool):
+            if any(abs(val - v) < 1e-12 for v in old_values if isinstance(v, (int, float))):
+                bad.append((path, repr(val)))
+            continue
+        if not isinstance(val, str) or DATED_TEXT.search(val):
+            continue
+        for f in forms:
+            for m in re.finditer(re.escape(f), val):
+                # A digit either side means it is part of a longer number, not this one.
+                pre = val[m.start() - 1] if m.start() else " "
+                post = val[m.end()] if m.end() < len(val) else " "
+                if pre.isdigit() or post.isdigit() or post == ".":
+                    continue
+                bad.append((path, val[max(0, m.start() - 60):m.end() + 60]))
+                break
+            else:
+                continue
+            break
+    return bad
+
+
+def load_fits():
+    a = json.load(io.open(os.path.join(EV, "refits.json"), encoding="utf-8"))
+    b = json.load(io.open(os.path.join(EV, "refits_special.json"), encoding="utf-8"))
+    fits = {}
+    for key, v in a.items():
+        fits[key] = {"reml": v["reml"], "served": v["served"],
+                     "reproduction": v["reproduction"]["verdict"],
+                     "r_verbatim": v["r_verbatim"], "old_estimator": v["declared_estimator"],
+                     "interval_method": "z", "k": v["k"], "measure": v["measure"],
+                     "environment": v["environment"]}
+    # The two the corpus script could not settle are OVERWRITTEN by the special-case fits,
+    # which are the authoritative ones for those pools.
+    for key, v in b.items():
+        prev = fits.get(key, {})
+        fits[key] = {"reml": v["reml"], "served": prev.get("served"),
+                     "reproduction": "REPRODUCED (special case)",
+                     "r_verbatim": v["r_verbatim"],
+                     "old_estimator": prev.get("old_estimator"),
+                     "interval_method": v["interval_method"], "k": v["k"],
+                     "measure": v["measure"],
+                     "environment": prev.get("environment"),
+                     "per_trial_se": v.get("per_trial_se")}
+    if len(fits) != len(POOLS):
+        sys.exit("REFUSED: %d fits for %d pools." % (len(fits), len(POOLS)))
+    return fits
+
+
+def main():
+    fits = load_fits()
+    changed_files = []
+    endings = {}
+    report = []
+    dry = "--apply" not in sys.argv
+
+    for topic, oid in POOLS:
+        key = "%s::%s" % (topic, oid)
+        fit = fits[key]
+        fp = os.path.join(REPO, "ssot", topic, topic + ".json")
+        obj = json.load(io.open(fp, encoding="utf-8"))
+        before_paths = set(keypaths(obj))
+        blk = obj["results"]["by_outcome"][oid]
+        old_est = blk.get("estimator") or blk.get("estimator_used")
+        served = copy.deepcopy(blk["pooled"])
+        old_het = copy.deepcopy(blk.get("heterogeneity") or {})
+
+        nr = fit["reml"]
+        new_point, new_lo, new_hi = r4(nr["point"]), r4(nr["ci_low"]), r4(nr["ci_high"])
+        new_tau2, new_i2, new_q = r6(nr["tau2"]), r4(nr["i2"]), r6(nr["q"])
+
+        moved = (r4(served.get("point")) != new_point or
+                 r4(served.get("ci_low")) != new_lo or
+                 r4(served.get("ci_high")) != new_hi or
+                 r6(old_het.get("tau2")) != new_tau2)
+
+        # ---- 1. the estimate itself ------------------------------------------------
+        blk["pooled"]["point"] = new_point
+        blk["pooled"]["ci_low"] = new_lo
+        blk["pooled"]["ci_high"] = new_hi
+
+        # ---- 2. the estimator, on every field that declares it ---------------------
+        blk["estimator"] = "REML"
+        blk["estimator_used"] = "REML"
+
+        # ---- 3. the heterogeneity that the estimator determines --------------------
+        het = blk.setdefault("heterogeneity", {})
+        het["tau2"] = new_tau2
+        het["i2"] = new_i2
+        het["q"] = new_q
+        het["df"] = nr.get("df", blk.get("k", 1) - 1)
+        het["tau2_estimator"] = TAU2_ESTIMATOR
+        het["i2_definition"] = (
+            "REML/metafor I-squared, as printed by rma(method='REML'). It is copied from "
+            "this block's declared `estimator` and not inferred. Before %s this field read "
+            "the Higgins form, or read UNDECIDABLE where both forms gave 0; the estimator "
+            "change makes it determinate." % TODAY)
+        het["i2_definition_evidence"] = (
+            "The value beside it is metafor's own I-squared from the REML fit quoted "
+            "verbatim in `r_output`, not a recomputation of it. Environment: %s."
+            % (fit.get("environment") or "R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1"))
+
+        # ---- 4. the object-level declaration ---------------------------------------
+        cfg = obj.setdefault("config", {})
+        if cfg.get("method") is not None:
+            cfg["method"] = "REML"
+        for o in obj.get("outcomes") or []:
+            est = o.get("estimand") or {}
+            m = est.get("model")
+            if isinstance(m, str) and OLD_NAMES.search(m):
+                est["model"] = OLD_NAMES.sub("REML", m)
+
+        # ---- 5. the block that carried the house-rule interval ---------------------
+        hr = blk.get("house_rule_interval_2026_08_18")
+        if isinstance(hr, dict):
+            pi = hr.get("published_interval")
+            if isinstance(pi, dict):
+                pi["estimator"] = "REML"
+                pi["ci_low"] = new_lo
+                pi["ci_high"] = new_hi
+                pi["restated_%s" % TODAY.replace("-", "_")] = (
+                    "The published interval is now REML, so this block compares a REML "
+                    "point interval against a REML Hartung-Knapp one and the ESTIMATOR is "
+                    "no longer one of the things that differ between them. At k=2 the "
+                    "moment estimator and REML coincide exactly, so not one digit of this "
+                    "block's numbers moved -- only the label, which was wrong.")
+            hr["no_rule_is_decided_here"] = (
+                "SUPERSEDED %s. The rule WAS decided, in DECISIONS-COCHRANE-2026-08-18.md "
+                "section 1, and applied on %s: REML is the estimator corpus-wide, and "
+                "Hartung-Knapp is a SENSITIVITY analysis at k<=3 rather than the primary "
+                "interval (Handbook 6.5 s10.10.4.4-10.10.4.5). Both intervals still stand "
+                "on this page and nothing is unpublished." % (TODAY, TODAY))
+
+        # ---- 6. the prediction interval, where one exists --------------------------
+        if isinstance(blk.get("prediction_interval"), dict) and nr.get("pi_low") is not None:
+            pri = blk["prediction_interval"]
+            pri["low"] = r4(nr["pi_low"])
+            pri["high"] = r4(nr["pi_high"])
+            pri["basis"] = ("t_%d, REML tau-squared, per %s. Before %s this read "
+                            "'DerSimonian-Laird tau-squared'." % (nr.get("df", 0), DECISION, TODAY))
+
+        # ---- 7. the model output, quoted verbatim ----------------------------------
+        prev_r = blk.get("r_output")
+        if isinstance(prev_r, dict):
+            blk["r_output_superseded_%s" % TODAY.replace("-", "_")] = prev_r
+        blk["r_output"] = {
+            "state": "PRESENT",
+            "environment": fit.get("environment") or "R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1",
+            "script": ("ssot/reml_two_special_cases.R" if "per_trial_se" in fit or
+                       topic == "apixaban-vte-treatment" else "ssot/reml_corpus_refit.R"),
+            "run_utc": TODAY,
+            "call": "metafor::rma(yi = ..., sei = ..., method = 'REML')",
+            "interval_method": fit["interval_method"],
+            "verbatim": fit["r_verbatim"],
+            "what_it_is": ("The fit that produces the numbers this block now publishes, "
+                           "printed by metafor and pasted unaltered. The previous fit, under "
+                           "the estimator this pool used before %s, is kept beside it under "
+                           "r_output_superseded_%s rather than discarded."
+                           % (TODAY, TODAY.replace("-", "_"))),
+            "reproduction_of_the_previous_value": (
+                "Before this refit was applied, the OLD estimator was refitted on the same "
+                "inputs and checked against the stored value: %s. A pool whose old fit did "
+                "not reproduce was not overwritten." % fit["reproduction"]),
+        }
+
+        # ---- 8. the notes that carried the debt ------------------------------------
+        for f in ("estimator_note", "estimator_note_2026_08_18"):
+            if f in blk:
+                blk["%s_superseded_%s" % (f, TODAY.replace("-", "_"))] = blk.pop(f)
+        blk["estimator_note_%s" % TODAY.replace("-", "_")] = (
+            "REML, applied %s under %s The estimator this pool used before that date was "
+            "%s; that fit was reproduced first and is quoted under r_output_superseded_%s, "
+            "so the movement is attributable rather than asserted."
+            % (TODAY, DECISION, old_est, TODAY.replace("-", "_")))
+        debt = blk.pop("estimator_debt", None)
+        if debt is not None:
+            debt["state"] = "DISCHARGED %s" % TODAY
+            debt["how"] = ("Refitted with REML in ssot/reml_corpus_refit.R and promoted "
+                           "through the pooled estimate, the heterogeneity, the estimator "
+                           "declarations, the object config, the prediction interval where "
+                           "one exists and the quoted model output, in one pass, per P19.")
+            blk["estimator_debt_discharged_%s" % TODAY.replace("-", "_")] = debt
+
+        # ---- 9. prose that quotes the moved numbers --------------------------------
+        hs = blk.get("heterogeneity_status")
+        if isinstance(hs, str) and OLD_NAMES.search(hs):
+            blk["heterogeneity_status_superseded_%s" % TODAY.replace("-", "_")] = hs
+            blk["heterogeneity_status"] = (
+                "Q = %.4f on %d df, I-squared %.1f per cent, tau-squared %.2f under REML."
+                % (new_q, het["df"], new_i2, new_tau2))
+        for f in ("caveats", "stands_because"):
+            v = (blk.get("pooled") or {}).get(f)
+            if isinstance(v, str) and OLD_NAMES.search(v):
+                blk["pooled"]["%s_superseded_%s" % (f, TODAY.replace("-", "_"))] = v
+                blk["pooled"][f] = OLD_NAMES.sub("REML", v) + (
+                    "  [RESTATED %s: this pool is now fitted with REML under %s, so the "
+                    "caveat that its estimator was not this project's standard for its k "
+                    "no longer applies. The sentence is kept, restated, rather than deleted, "
+                    "because a reader who saw the old one should be able to see what became "
+                    "of it.]" % (TODAY, DECISION))
+        for f in ("interpretation_caveat",):
+            v = blk.get(f)
+            if isinstance(v, str) and ("tau-squared 50.04" in v or "I-squared is 88.0" in v):
+                blk["%s_superseded_%s" % (f, TODAY.replace("-", "_"))] = v
+                blk[f] = v.replace("I-squared is 88.0 per cent and tau-squared 50.04",
+                                   "I-squared is 90.0 per cent and tau-squared 61.44 under REML")
+
+        # ---- 8b. every remaining LIVE sentence that names the superseded estimator --
+        #
+        # Not a mopping-up step. Each of these is a sentence that PARKED THIS EXACT
+        # DECISION and is discharged by taking it:
+        #
+        #   inclisiran, sensitivity.between_study_variance_method_comparison.estimator_kept
+        #     "The published DerSimonian-Laird value is RETAINED as the headline... Whether
+        #      the corpus headline should move to REML everywhere is a display-change policy
+        #      question for the whole corpus, not a finding about this topic, and it is
+        #      parked as such."
+        #
+        # That was the right call when it was made and this pass is the answer to it. The
+        # same block also independently CONFIRMS this refit: its REML/Wald row reads
+        # -53.973 (-58.302, -49.644) with tau^2 10.5954, computed days ago by a different
+        # script, against a refit today of -53.9730 (-58.3020, -49.6440) tau^2 10.595364.
+        #
+        # Comparison TABLES are exempt: a row labelled "DL" in a table of six estimator
+        # variants is a correct label for a compared alternative, not a claim about which
+        # estimator is in force. The exemption is by path segment, so it cannot silently
+        # widen to cover prose.
+        TABLE_SEGMENTS = ("methods[", "rows[", "analyses[", ".per_trial[")
+
+        def restate_live_prose(root, root_path):
+            n = 0
+            stack = [(root, root_path)]
+            while stack:
+                node, npath = stack.pop()
+                if isinstance(node, list):
+                    for i, v in enumerate(node):
+                        stack.append((v, npath + "[%d]" % i))
+                    continue
+                if not isinstance(node, dict):
+                    continue
+                for f in list(node.keys()):
+                    v = node[f]
+                    fpath = npath + "." + f
+                    if isinstance(v, (dict, list)):
+                        stack.append((v, fpath))
+                        continue
+                    if not isinstance(v, str):
+                        continue
+                    if is_history(fpath) or any(t in fpath for t in TABLE_SEGMENTS):
+                        continue
+                    if not OLD_NAMES.search(v) or DATED_TEXT.search(v):
+                        continue
+                    node["%s_superseded_%s" % (f, TODAY.replace("-", "_"))] = v
+                    node[f] = OLD_NAMES.sub("REML", v) + (
+                        "  [RESTATED %s. This sentence was written while the pool was "
+                        "fitted with %s. It is now REML, under %s The estimate moved from "
+                        "%s (%s to %s) to %s (%s to %s) and tau-squared from %s to %s. The "
+                        "original wording is beside this under %s_superseded_%s -- a "
+                        "sentence that recorded a decision is restated, never deleted.]"
+                        % (TODAY, old_est, DECISION, served.get("point"),
+                           served.get("ci_low"), served.get("ci_high"), new_point, new_lo,
+                           new_hi, old_het.get("tau2"), new_tau2, f, TODAY.replace("-", "_")))
+                    n += 1
+            return n
+
+        # ---- 9a. the interval-method labels, which name the estimator too ----------
+        #
+        # `interval_method` and `sensitivity.interval_method` read "Paule-Mandel with a
+        # floored Knapp-Hartung interval". The estimator half of that moves; the interval
+        # half does NOT, because Hartung-Knapp at k<=3 is what the same decision record
+        # settles, and changing the estimator and the interval in one step would make the
+        # movement unattributable.
+        #
+        # The three stored leave-one-out fits in that sensitivity block were computed
+        # under Paule-Mandel. Relabelling them REML without refitting would be a claim,
+        # so ssot/reml_apx_treatment_sensitivity_check.R refits all three and REFUSES if
+        # any one fails to reproduce. It refused on the first attempt -- and the reason
+        # was that the floored-Knapp-Hartung helper was itself wrong.
+        for holder, label in ((blk, "interval_method"),
+                              (blk.get("sensitivity") if isinstance(blk.get("sensitivity"), dict) else None,
+                               "interval_method")):
+            if not isinstance(holder, dict):
+                continue
+            v = holder.get(label)
+            if isinstance(v, str) and OLD_NAMES.search(v):
+                holder["%s_superseded_%s" % (label, TODAY.replace("-", "_"))] = v
+                holder[label] = OLD_NAMES.sub("REML", v) + (
+                    "  [RESTATED %s: the estimator moved to REML under %s The INTERVAL "
+                    "method is unchanged. Every fit under this label was refitted with "
+                    "REML and checked against its stored value by "
+                    "ssot/reml_apx_treatment_sensitivity_check.R, which reproduces all "
+                    "three leave-one-out analyses to four decimals and refuses if any "
+                    "does not.]" % (TODAY, DECISION))
+
+        # ---- 9b. the PUBLISHED COMPARISON, which is a P46 artefact and goes stale --
+        #
+        # Found by the guard, not by planning. `published_comparison.divergence_
+        # decomposed.ours` carries this review's own estimate in the table a reader uses
+        # to compare it against the literature -- and it carried the pre-refit number and
+        # the pre-refit estimator. It has gone stale ONCE BEFORE, on 2026-08-19, when a
+        # k=6 estimate survived a move to k=8; scripts/lint_ours_matches_pool.py exists
+        # because of it. It would have gone stale again here, on a topic ALREADY COUNTED
+        # COMPLETE BY P46, which is the more useful half of the finding: a completed topic
+        # is not a frozen one, and every artefact P46 counts has to move when the pool does.
+        pc = obj.get("published_comparison")
+        if isinstance(pc, dict):
+            dd = pc.get("divergence_decomposed")
+            if isinstance(dd, dict) and isinstance(dd.get("ours"), str):
+                was = dd["ours"]
+                dd["ours_superseded_%s" % TODAY.replace("-", "_")] = {
+                    "was": was,
+                    "superseded_because": (
+                        "it stated the estimate as it stood under %s, in the table a reader "
+                        "consults to compare this review against the literature. The pool is "
+                        "now REML under %s P7 requires that table to agree with the page and "
+                        "with the manuscript." % (old_est, DECISION)),
+                }
+                new_pi = ""
+                if isinstance(blk.get("prediction_interval"), dict):
+                    new_pi = (" PREDICTION INTERVAL %s to %s, which is the number to quote."
+                              % (blk["prediction_interval"].get("low"),
+                                 blk["prediction_interval"].get("high")))
+                dd["ours"] = ("Mean difference %s percent (%s to %s) in calculated LDL "
+                              "cholesterol at week 24, k=%s, random effects, REML.%s"
+                              % (new_point, new_lo, new_hi, blk.get("k"), new_pi)
+                              ) if fit["measure"] == "MD" and topic == "alirocumab-lipid" else (
+                    OLD_NAMES.sub("REML", was))
+            # A topic-specific field on apixaban-vte-prophylaxis that DEFERRED the whole
+            # comparison because the estimate was "scheduled to be restated". This pass is
+            # that restatement, so the deferral is spent. It named PM/Knapp-Hartung as the
+            # correction; the decision record settles it differently and more narrowly --
+            # REML is the estimator, and Hartung-Knapp is a SENSITIVITY at k<=3 only
+            # (Handbook 6.5 s10.10.4.4-10.10.4.5). This pool is k=4, so its primary interval
+            # stays the z interval and only the estimator moves.
+            for f, v in list(pc.items()):
+                if isinstance(v, str) and OLD_NAMES.search(v) and not DATED_TEXT.search(v):
+                    pc["%s_superseded_%s" % (f, TODAY.replace("-", "_"))] = v
+                    pc[f] = (
+                        "DISCHARGED %s. This read: %r  The restatement it was waiting for "
+                        "happened, in one pass across all ten non-REML pools of the corpus. "
+                        "It named Paule-Mandel with Knapp-Hartung as the correction; %s "
+                        "settles it as REML, with Hartung-Knapp a SENSITIVITY analysis at "
+                        "k<=3 and not the primary interval, and this pool is k=%s. The "
+                        "estimate is now %s (%s to %s) against a served %s (%s to %s) -- the "
+                        "interval WIDENS, as the deferral predicted, but by less than the "
+                        "PM/Knapp-Hartung figure that note quoted. A comparison against "
+                        "published syntheses is no longer comparing a number scheduled to "
+                        "move." % (TODAY, v, DECISION, blk.get("k"), new_point, new_lo,
+                                   new_hi, served.get("point"), served.get("ci_low"),
+                                   served.get("ci_high")))
+            for chk in pc.get("checks") or []:
+                if not isinstance(chk, dict):
+                    continue
+                blob = json.dumps(chk, ensure_ascii=False)
+                if chk.get("whose") == "ours" and OLD_NAMES.search(blob):
+                    chk["detail_superseded_%s" % TODAY.replace("-", "_")] = chk.get("detail")
+                    chk["verdict"] = "RESOLVED"
+                    chk["severity"] = "discharged"
+                    chk["detail"] = (
+                        "DISCHARGED %s. This check recorded that the pool used %s at k=%s "
+                        "against this project's own rule of REML or Paule-Mandel below k=10, "
+                        "and said the headline was NOT being re-estimated because the same "
+                        "estimator was used across the corpus and changing one page alone "
+                        "would make it inconsistent with its neighbours. THAT WAS THE RIGHT "
+                        "REASON AND IT NO LONGER HOLDS: the whole corpus moved to REML in one "
+                        "pass on %s under %s The refit gives tau-squared %s and I-squared %s "
+                        "on these %s trials, and the pooled estimate is now %s (%s to %s). "
+                        "The original wording is kept beside this under detail_superseded_%s."
+                        % (TODAY, old_est, blk.get("k"), TODAY, DECISION, new_tau2, new_i2,
+                           blk.get("k"), new_point, new_lo, new_hi, TODAY.replace("-", "_")))
+
+        # ---- 9c. GRADE, whose imprecision domain READS THE INTERVAL -----------------
+        #
+        # Also found by the guard. The GRADE block does not live in the results block --
+        # it is at the object root, `grade.by_outcome.<oid>` -- which is why the first
+        # inventory of this unit reported `grade: null` on all ten pools and concluded
+        # there was no GRADE surface to promote. THERE WAS, ON THREE OF THEM. An absence
+        # reported by looking in one place is not an absence.
+        #
+        # The imprecision domain quotes the interval bound for bound and gives the
+        # DerSimonian-Laird bias as a REASON THE INTERVAL IS TOO NARROW. That reason is
+        # discharged by this refit and would otherwise have stood as a live argument
+        # about an estimator no longer in use. THE RATING LEVELS ARE NOT TOUCHED HERE:
+        # a certainty rating is a judgement, and it is re-checked and reported rather
+        # than recomputed. Where the widened interval would change a domain, this refuses.
+        g = obj.get("grade")
+        gb = (g or {}).get("by_outcome") if isinstance(g, dict) else None
+        if isinstance(gb, dict) and oid in gb:
+            go = gb[oid]
+            go["estimate_superseded_%s" % TODAY.replace("-", "_")] = copy.deepcopy(go.get("estimate"))
+            go["estimate"] = {"point": new_point, "ci_low": new_lo, "ci_high": new_hi}
+            if "i2" in go:
+                go["i2_superseded_%s" % TODAY.replace("-", "_")] = go["i2"]
+                go["i2"] = new_i2
+            null_v = 1.0 if fit["measure"] in ("HR", "RR", "OR") else 0.0
+            crossed_before = not ((served.get("ci_low") > null_v) or (served.get("ci_high") < null_v))
+            crossed_after = not ((new_lo > null_v) or (new_hi < null_v))
+            if crossed_before != crossed_after:
+                sys.exit("REFUSED on %s: the interval's relation to the null CHANGED "
+                         "(%s -> %s). A GRADE imprecision rating cannot be carried over a "
+                         "change of that kind by a script." % (topic, crossed_before, crossed_after))
+            go["reratings_checked_%s" % TODAY.replace("-", "_")] = (
+                "The pooled estimate moved from %s (%s to %s) to %s (%s to %s) and I-squared "
+                "from %s to %s. Each domain was re-read against the new values: the interval "
+                "still %s the null, so imprecision is unchanged at its recorded level; "
+                "inconsistency reads I-squared, whose restated value is above. NO LEVEL WAS "
+                "CHANGED BY THIS SCRIPT -- a certainty rating is a judgement, and this pass "
+                "moves the numbers a judgement reads, not the judgement."
+                % (served.get("point"), served.get("ci_low"), served.get("ci_high"),
+                   new_point, new_lo, new_hi, old_het.get("i2"), new_i2,
+                   "crosses" if crossed_after else "excludes"))
+            for step in go.get("steps") or []:
+                if not isinstance(step, dict):
+                    continue
+                rs = step.get("reason")
+                if not isinstance(rs, str):
+                    continue
+                touched = OLD_NAMES.search(rs) or (
+                    served.get("ci_low") is not None and str(served.get("ci_low")) in rs) or (
+                    old_het.get("i2") is not None and str(old_het.get("i2")) in rs)
+                if not touched:
+                    continue
+                step["reason_superseded_%s" % TODAY.replace("-", "_")] = rs
+                nr_txt = rs
+                for a, b in ((str(served.get("ci_low")), str(new_lo)),
+                             (str(served.get("ci_high")), str(new_hi)),
+                             (str(old_het.get("i2")), str(new_i2)),
+                             (str(served.get("point")), str(new_point))):
+                    if a and a != "None":
+                        nr_txt = nr_txt.replace(a, b)
+                if OLD_NAMES.search(nr_txt):
+                    nr_txt = OLD_NAMES.sub("REML", nr_txt) + (
+                        "  [RESTATED %s: the pool is now fitted with REML under %s The "
+                        "clause that read 'tau-squared estimated by DerSimonian-Laird which "
+                        "the house rule says is biased low at this k -- so the interval is "
+                        "if anything narrower than it should be' NAMED A REASON THAT IS NOW "
+                        "DISCHARGED, and the interval it described has in fact widened from "
+                        "(%s, %s) to (%s, %s). The original wording is beside this under "
+                        "reason_superseded_%s.]"
+                        % (TODAY, DECISION, served.get("ci_low"), served.get("ci_high"),
+                           new_lo, new_hi, TODAY.replace("-", "_")))
+                else:
+                    nr_txt = nr_txt + ("  [RESTATED %s with the REML values; the original is "
+                                       "beside this under reason_superseded_%s.]"
+                                       % (TODAY, TODAY.replace("-", "_")))
+                step["reason"] = nr_txt
+
+        # ---- 9d. the extraction provenance, which names the script and the estimator
+        ex = obj.get("extraction")
+        for cell in (ex or {}).get("cells") or []:
+            if not isinstance(cell, dict):
+                continue
+            for f in ("derived_by", "note", "value"):
+                v = cell.get(f)
+                if isinstance(v, str) and OLD_NAMES.search(v):
+                    cell["%s_superseded_%s" % (f, TODAY.replace("-", "_"))] = v
+                    cell[f] = OLD_NAMES.sub("REML", v) + (
+                        "  [RESTATED %s: refitted with REML by ssot/reml_corpus_refit.R "
+                        "under %s]" % (TODAY, DECISION))
+
+        # ---- 9e. "(as displayed)", and prose quoting the interval to ONE decimal ----
+        #
+        # Two more, and both were found on the RENDERED PAGE after both guards passed.
+        #
+        # (a) The estimator-comparison table is exempt from the estimator guard, correctly:
+        #     a row labelled "DerSimonian-Laird" in a table of alternatives is a correct
+        #     label. But its row label reads "DerSimonian-Laird (as displayed)", and THAT
+        #     parenthesis is a claim about the present, not a label for a compared
+        #     alternative. It rendered as a table cell reading
+        #     "DerSimonian-Laird (as displayed) ... -54.82 (-60.23 to -49.42)" beside a
+        #     headline of -54.72. The exemption was right and its scope was one word too wide.
+        #
+        # (b) `prediction_interval.what_it_says` quotes the interval to ONE decimal --
+        #     "-60.2 to -49.4", "-72.8 to -36.9". The number guard generates 2, 3 and 4
+        #     decimal forms, so a 1-decimal quotation walks straight past it. Widening the
+        #     guard to 1 decimal would fire on almost every sentence in the corpus; the
+        #     narrower fix is to restate the field, and to say plainly that the guard does
+        #     not cover this shape.
+        for row in ((blk.get("estimator_sensitivity") or {}).get("rows") or []):
+            if not isinstance(row, dict):
+                continue
+            lbl = row.get("estimator")
+            if isinstance(lbl, str) and "as displayed" in lbl:
+                row["estimator"] = lbl.replace(" (as displayed)", "")
+                row["was_labelled_as_displayed_until_%s" % TODAY.replace("-", "_")] = (
+                    "This row was labelled '%s' until %s. It is not displayed any more: the "
+                    "headline moved to REML under %s The label is removed rather than the "
+                    "row, because the row is a correct record of what this estimator gives "
+                    "on these values and that has not changed." % (lbl, TODAY, DECISION))
+        for row in ((blk.get("estimator_sensitivity") or {}).get("rows") or []):
+            if isinstance(row, dict) and row.get("estimator") == "REML":
+                row["estimator"] = "REML (as displayed)"
+                break
+        pri = blk.get("prediction_interval")
+        if isinstance(pri, dict) and isinstance(pri.get("what_it_says"), str):
+            w = pri["what_it_says"]
+            reps = [("-60.2 to -49.4", "%g to %g" % (new_lo, new_hi)),
+                    ("-72.8 to -36.9", "%g to %g" % (pri.get("low"), pri.get("high")))]
+            if any(a in w for a, _ in reps):
+                pri["what_it_says_superseded_%s" % TODAY.replace("-", "_")] = w
+                for a, b_ in reps:
+                    w = w.replace(a, b_)
+                pri["what_it_says"] = w + (
+                    "  [RESTATED %s: this paragraph quoted the confidence interval and the "
+                    "prediction interval TO ONE DECIMAL, and the number guard on this pass "
+                    "generates two-, three- and four-decimal forms only, so a one-decimal "
+                    "quotation walks past it. Widening the guard to one decimal would fire "
+                    "on most sentences in the corpus; this is restated by hand instead, and "
+                    "the gap is named rather than closed. Found on the rendered page after "
+                    "both guards passed.]" % TODAY)
+
+        # ---- 10. alirocumab: make the object refittable from itself ----------------
+        if fit.get("per_trial_se"):
+            ses = fit["per_trial_se"]
+            n_written = 0
+            for t in blk.get("per_trial") or []:
+                tid = t.get("trial_id") or t.get("nct")
+                if tid in ses:
+                    t["se"] = round(float(ses[tid]), 6)
+                    t["se_source"] = (
+                        "THE STANDARD ERROR THE POOL WAS ACTUALLY FITTED FROM, written onto "
+                        "the object on %s. It was not stored before, and for two of these "
+                        "eight trials it is NOT recoverable from the interval beside it: "
+                        "NCT02289963 and NCT02585778 carry a CI written from an SE and "
+                        "rounded to two decimals, which loses the third decimal of the SE "
+                        "and moves tau-squared in its third significant figure. An object "
+                        "that stores a derived display form of an input and not the input "
+                        "cannot reproduce the pool it publishes." % TODAY)
+                    n_written += 1
+            if n_written != len(ses):
+                sys.exit("REFUSED: wrote %d of %d SEs onto %s" % (n_written, len(ses), topic))
+            report.append("    wrote %d per-trial SEs onto %s" % (n_written, topic))
+
+        # ---- 11. announce it -------------------------------------------------------
+        dca = obj.setdefault("display_change_announced", [])
+        dca.append({
+            "date": TODAY,
+            "change": "estimator changed to REML" + ("" if moved else " -- LABEL ONLY, no value moved"),
+            "values_moved": ("point %s -> %s; ci (%s, %s) -> (%s, %s); tau^2 %s -> %s; I^2 %s -> %s"
+                             % (served.get("point"), new_point, served.get("ci_low"),
+                                served.get("ci_high"), new_lo, new_hi,
+                                old_het.get("tau2"), new_tau2, old_het.get("i2"), new_i2)
+                             ) if moved else "NONE",
+            "what_changed": (
+                "This pool was fitted with %s. It is refitted with REML under %s The old fit "
+                "was reproduced against the stored value FIRST (%s) and only then replaced. "
+                "Stored values are also rounded at storage -- effects to 4 decimals, "
+                "tau-squared and Q to 6, I-squared to 4 -- because several of these pools "
+                "carried sixteen significant figures on a two- or three-study pool."
+                % (old_est, DECISION, fit["reproduction"])),
+            "why": (
+                "The corpus held two estimator conventions at once: 23 pools REML, 9 "
+                "DerSimonian-Laird, 1 Paule-Mandel. Handbook 6.5 s10.10.4.4 records REML as "
+                "RevMan's own current default and this project's statistics rules already "
+                "refused DerSimonian-Laird below k=10, which every pool in this corpus is. "
+                "The decision was taken on 2026-08-18 and not applied; applying it to some "
+                "pools and not others would have been worse than either convention."),
+            "interval_method": fit["interval_method"],
+        })
+
+        # ---- 11b. the generic restatement, run LAST so the hand-written blocks above
+        # keep their own wording and only what they did not reach is touched.
+        n_restated = restate_live_prose(obj["results"]["by_outcome"][oid],
+                                        ".results.by_outcome." + oid)
+        if n_restated:
+            report.append("    restated %d further live sentence(s) on %s" % (n_restated, topic))
+
+        # ---- 12. the guards --------------------------------------------------------
+        # Restate any LIVE sentence still carrying a superseded pooled number. Runs only
+        # where the pool actually moved -- on a label-only pool the "old" value IS the
+        # current one and every mention of it is correct.
+        # ONLY the fields that actually changed. apixaban-vte-treatment's point and lower
+        # bound are identical before and after -- only the upper bound moved, in the
+        # fourth decimal -- so every mention of 0.7763 on it is CURRENT, and a guard keyed
+        # on "the value before the pass" reported four correct fields as stale. The
+        # superseded set is what MOVED, not what was there.
+        newvals = {}
+        for oldv, newv in ((served.get("point"), new_point), (served.get("ci_low"), new_lo),
+                           (served.get("ci_high"), new_hi)):
+            if oldv is not None and r4(oldv) != newv:
+                newvals[oldv] = newv
+        if newvals:
+            for path, _ in guard_no_stale_number(obj, list(newvals)):
+                parts = [p for p in path.lstrip(".").replace("[", ".[").split(".") if p]
+                node = obj
+                for p in parts[:-1]:
+                    node = node[int(p[1:-1])] if p.startswith("[") else node[p]
+                fld = parts[-1]
+                if fld.startswith("["):
+                    continue
+                v = node.get(fld) if isinstance(node, dict) else None
+                if not isinstance(v, str):
+                    continue
+                nv = v
+                for ov, nvl in newvals.items():
+                    for form in sorted(number_forms(ov), key=len, reverse=True):
+                        if form in nv:
+                            nv = nv.replace(form, ("%g" % nvl))
+                node["%s_superseded_%s" % (fld, TODAY.replace("-", "_"))] = v
+                node[fld] = nv + (
+                    "  [RESTATED %s: this sentence carried the pooled estimate as it stood "
+                    "under %s. The pool was refitted with REML under %s and the estimate is "
+                    "now %s (%s to %s); the numbers in this sentence are updated and the "
+                    "original is beside it under %s_superseded_%s. Found by a NUMBER guard, "
+                    "not by the estimator guard -- a sentence can carry a superseded "
+                    "estimate without naming an estimator, and two such sentences survived "
+                    "this whole pass in the published comparison before one was noticed on "
+                    "the rendered page." % (TODAY, old_est, DECISION, new_point, new_lo,
+                                            new_hi, fld, TODAY.replace("-", "_")))
+
+        stale = guard_no_stale_estimator(obj, topic)
+        if stale:
+            print("REFUSED on %s -- the old estimator survives on %d LIVE path(s):" % (topic, len(stale)))
+            for path, val in stale:
+                print("    %s\n        %s" % (path, val))
+            sys.exit(1)
+
+        if newvals:
+            left = guard_no_stale_number(obj, list(newvals))
+            if left:
+                print("REFUSED on %s -- a superseded NUMBER survives on %d live path(s):"
+                      % (topic, len(left)))
+                for path, ctx in left[:12]:
+                    print("    %s\n        %s" % (path, ctx))
+                sys.exit(1)
+
+        after_paths = set(keypaths(obj))
+        lost = before_paths - after_paths
+        # A move is not a loss. Every path this pass renames is renamed to a name that
+        # CONTAINS the old one, so a lost path with a superseding successor is accounted.
+        unaccounted = []
+        for p in sorted(lost):
+            base = p.rsplit(".", 1)
+            stem = base[-1]
+            if any(stem in q or p.replace(".estimator_debt.", ".estimator_debt_discharged_%s." % TODAY.replace("-", "_")) == q
+                   for q in after_paths):
+                continue
+            unaccounted.append(p)
+        if unaccounted:
+            print("REFUSED on %s -- %d key path(s) net-deleted with no successor:" % (topic, len(unaccounted)))
+            for p in unaccounted[:20]:
+                print("   ", p)
+            sys.exit(1)
+
+        report.append("%-42s %-11s %s" % (
+            topic,
+            "MOVED" if moved else "label only",
+            "%s (%s, %s) -> %s (%s, %s)  tau2 %s -> %s" % (
+                served.get("point"), served.get("ci_low"), served.get("ci_high"),
+                new_point, new_lo, new_hi, old_het.get("tau2"), new_tau2)))
+
+        if not dry:
+            # newline="\n" IS NOT OPTIONAL AND IS NOT STYLE. Without it Python's text
+            # layer translates every "\n" to "\r\n" on Windows, the corpus objects are
+            # stored with LF, and the first run of this pass produced a 9,151-line diff
+            # for a change touching about two hundred lines -- every line of five objects
+            # marked as modified because its terminator moved. A diff nobody can read is
+            # a review nobody can do. Same family as the heredoc rule: the TRANSPORT
+            # altered the bytes, and the content was never in question.
+            # ...AND THE FIX HAS TO BE READ OFF THE FILE, NOT ASSUMED. Pinning "\n" for
+            # everything shrank nine diffs to about sixty lines each and blew the tenth
+            # up to 8,228: alirocumab-lipid is stored with CRLF and the other nine with
+            # LF. A corpus-wide constant was wrong in exactly the way a corpus-wide
+            # constant is always wrong -- it was right about the majority.
+            with io.open(fp, "rb") as fh:
+                raw = fh.read()
+            nl = "\r\n" if b"\r\n" in raw.split(b"\n", 3)[0] + b"\n" else "\n"
+            with io.open(fp, "w", encoding="utf-8", newline=nl) as fh:
+                json.dump(obj, fh, indent=1, ensure_ascii=False)
+                fh.write("\n")
+            changed_files.append(fp)
+            endings[fp] = "CRLF" if nl == "\r\n" else "LF"
+
+    print()
+    print("%s -- ten pools, one pass" % ("APPLIED" if not dry else "DRY RUN (pass --apply to write)"))
+    print("=" * 100)
+    for line in report:
+        print(line)
+    print()
+    print("files written: %d  (line endings preserved per file: %s)"
+          % (len(changed_files),
+             ", ".join("%s=%s" % (os.path.basename(k), v) for k, v in sorted(endings.items()))
+             or "n/a"))
+    if not dry and len(changed_files) != len(POOLS):
+        sys.exit("REFUSED: %d files for %d pools." % (len(changed_files), len(POOLS)))
+
+
+if __name__ == "__main__":
+    main()

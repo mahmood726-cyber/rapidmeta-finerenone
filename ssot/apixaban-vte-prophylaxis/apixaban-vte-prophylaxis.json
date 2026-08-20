@@ -30,7 +30,7 @@
    "estimand": {
     "id": "major_vte",
     "family": "binary risk",
-    "model": "random-effects, DerSimonian-Laird",
+    "model": "random-effects, REML",
     "case_definition": "proximal DVT, non-fatal pulmonary embolism, or VTE-related death"
    },
    "comparator": "enoxaparin",
@@ -343,16 +343,16 @@
     "k": 4,
     "estimand_id": "major_vte",
     "model": "random-effects",
-    "estimator": "DerSimonian-Laird",
-    "estimator_used": "DerSimonian-Laird",
+    "estimator": "REML",
+    "estimator_used": "REML",
     "comparator_type": "active",
     "poolable": true,
     "poolable_reason": "All four register the same composite -- proximal DVT, non-fatal PE, or VTE-related death -- at SECONDARY rank, and each title was read rather than matched by name.",
     "pooled": {
      "measure": "RR",
-     "point": 0.7469,
-     "ci_low": 0.4532,
-     "ci_high": 1.2309,
+     "point": 0.7433,
+     "ci_low": 0.4371,
+     "ci_high": 1.264,
      "ci_level": 95,
      "scale": "log",
      "withdrawn": false
@@ -421,23 +421,16 @@
      }
     ],
     "heterogeneity": {
-     "q": 9.314,
+     "q": 9.31218,
      "df": 3,
-     "tau2": 0.17148,
-     "i2": 67.8,
-     "i2_definition": "Higgins (Q - df)/Q, clamped at 0",
-     "AND IT CUTS BOTH WAYS": "I-SQUARED IS 67.8% ON THE POOL THIS REVIEW REPORTS AND 83.6% ON THE ONE IT DECLINES. The reported pool is the more consistent of the two AND THAT IS NOT WHY IT IS REPORTED: on the sibling topic, built the same night, the ordering is reversed -- the estimand-coherent pool is the MORE heterogeneous. P36."
+     "tau2": 0.204237,
+     "i2": 71.48,
+     "i2_definition": "REML/metafor I-squared, as printed by rma(method='REML'). It is copied from this block's declared `estimator` and not inferred. Before 2026-08-20 this field read the Higgins form, or read UNDECIDABLE where both forms gave 0; the estimator change makes it determinate.",
+     "AND IT CUTS BOTH WAYS": "I-SQUARED IS 67.8% ON THE POOL THIS REVIEW REPORTS AND 83.6% ON THE ONE IT DECLINES. The reported pool is the more consistent of the two AND THAT IS NOT WHY IT IS REPORTED: on the sibling topic, built the same night, the ordering is reversed -- the estimand-coherent pool is the MORE heterogeneous. P36.",
+     "tau2_estimator": "REML -- copied from this block's declared `estimator`, which is the authoritative record of how the pool was computed. NOT inferred: an object that declared no estimator would be left undeclared here, because the absence is itself the finding.",
+     "i2_definition_evidence": "The value beside it is metafor's own I-squared from the REML fit quoted verbatim in `r_output`, not a recomputation of it. Environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1."
     },
     "heterogeneity_status": "computed",
-    "estimator_note": "THIS POOL IS OWED AN ESTIMATOR CORRECTION AND THE DEBT IS ON THE PAGE. It uses DerSimonian-Laird at k=4. The house rule refuses DerSimonian-Laird below k=10 because it under-estimates the between-study variance, and THE SIBLING REVIEW BUILT THE SAME NIGHT uses Paule-Mandel with a floored Knapp-Hartung interval at k=3. It is recorded rather than silently changed because recomputing it in the same pass that publishes this page would move a published estimate that has not been re-derived or re-checked -- and a divergence between two siblings built from one search is exactly the kind of thing nobody notices again. What would close it: re-run scripts/repool_apixaban_prophylaxis_2026_08_19.py with Paule-Mandel and a floored Knapp-Hartung interval, then promote the result through every derived block on this object (P19).",
-    "estimator_debt": {
-     "state": "OWED A CORRECTION",
-     "estimator_used": "DerSimonian-Laird",
-     "k": 4,
-     "estimator_the_house_rule_requires_at_this_k": "Paule-Mandel or REML",
-     "sibling_using_it": "apixaban-vte-treatment",
-     "what_would_close_it": "re-run scripts/repool_apixaban_prophylaxis_2026_08_19.py with Paule-Mandel and a floored Knapp-Hartung interval, and promote through every derived block."
-    },
     "the_pool_this_review_declines": {
      "definition": "each trial's own primary composite -- FOUR DIFFERENT ONES",
      "why": "ADOPT counts VTE-related death, ADVANCE-1 counts ALL-CAUSE death, and the primary event rates span 1.39% to 8.99% across one drug for one indication. That spread is a fact about what each counted and which surgery, not about apixaban.",
@@ -453,6 +446,17 @@
     "what_this_replaces": "THIS REVIEW PREVIOUSLY REPORTED ONE TRIAL'S RESULT AND NOT A POOLED ESTIMATE. Its single included trial, NCT02366871, is n=400 and its registered primaries are MAJOR BLEEDING and clinically relevant non-major bleeding -- so the previous figure was not an estimate of this review's question at all. It now pools four trials and 13,570 participants on an efficacy estimand all four register. This is NOT a delta and must not be presented as one.",
     "and_the_primary_is_read_by_text_never_by_position": "outcomeMeasures[0] is the MAJOR-VTE SECONDARY for ADVANCE-2 and the PRIMARY for the other three. Taking element zero would have pooled one trial's secondary against three trials' primaries, with nothing malformed anywhere.",
     "r_output": {
+     "state": "PRESENT",
+     "environment": "R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1",
+     "script": "ssot/reml_corpus_refit.R",
+     "run_utc": "2026-08-20",
+     "call": "metafor::rma(yi = ..., sei = ..., method = 'REML')",
+     "interval_method": "z",
+     "verbatim": "apixaban-vte-prophylaxis :: major_vte   k = 4   measure = RR\n================================================================================================\ntrials: ADOPT, ADVANCE-3, ADVANCE-1, ADVANCE-2\n\nA. THE FIT THAT PRODUCED THE SERVED NUMBER -- method = DL, z interval\n\nRandom-Effects Model (k = 4; tau^2 estimator: DL)\n\ntau^2 (estimated amount of total heterogeneity): 0.1714 (SE = 0.2149)\ntau (square root of estimated tau^2 value):      0.4141\nI^2 (total heterogeneity / total variability):   67.78%\nH^2 (total variability / sampling variability):  3.10\n\nTest for Heterogeneity:\nQ(df = 3) = 9.3122, p-val = 0.0254\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb   ci.ub    \n -0.2917  0.2549  -1.1447  0.2523  -0.7912  0.2078    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n   CHECK AGAINST THE STORED VALUE -- the change is not earned until this passes:\n     point  refit 0.746967       stored 0.746900        reproduced\n     ci_low refit 0.453280       stored 0.453200        reproduced\n     ci_hi  refit 1.230939       stored 1.230900        reproduced\n     tau^2  refit 0.171442       stored 0.171480        reproduced\n     Q      refit 9.312180       stored 9.314000        reproduced\n     I^2    refit 67.7841        stored 67.8000         reproduced\n     => REPRODUCED\n\nB. THE SAME DATA UNDER REML -- Cochrane Handbook 6.5 section 10.10.4.4, which records\n   REML as RevMan's own current default, and DECISIONS-COCHRANE-2026-08-18.md section 1,\n   whose decision line reads: \"Decision: REML, everywhere.\"\n\nRandom-Effects Model (k = 4; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 0.2042 (SE = 0.2398)\ntau (square root of estimated tau^2 value):      0.4519\nI^2 (total heterogeneity / total variability):   71.48%\nH^2 (total variability / sampling variability):  3.51\n\nTest for Heterogeneity:\nQ(df = 3) = 9.3122, p-val = 0.0254\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb   ci.ub    \n -0.2967  0.2709  -1.0953  0.2734  -0.8275  0.2342    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nC. WHAT MOVES\n     point    0.746900       -> 0.743294        (-0.4828%)\n     ci_low   0.453200       -> 0.437130      \n     ci_high  1.230900       -> 1.263895      \n     tau^2    0.171480       -> 0.204237      \n     I^2      67.8000        -> 71.4820       \n     Q        9.314000       -> 9.312180        (Q is estimator-independent)\n     excludes the null (1):  FALSE -> FALSE\n     prediction interval under REML: 0.2647 to 2.0876\n\nR environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1\nScript: ssot/reml_corpus_refit.R",
+     "what_it_is": "The fit that produces the numbers this block now publishes, printed by metafor and pasted unaltered. The previous fit, under the estimator this pool used before 2026-08-20, is kept beside it under r_output_superseded_2026_08_20 rather than discarded.",
+     "reproduction_of_the_previous_value": "Before this refit was applied, the OLD estimator was refitted on the same inputs and checked against the stored value: REPRODUCED. A pool whose old fit did not reproduce was not overwritten."
+    },
+    "r_output_superseded_2026_08_20": {
      "_environment": "R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1",
      "call": "rma(yi = log(rr), sei = (log(hi) - log(lo))/(2*qnorm(0.975)), method = \"DL\")  -- the fit that PRODUCED the served number",
      "script": "ssot/apx_prophylaxis_pool.R",
@@ -478,6 +482,17 @@
       "knapp_hartung_floor": "Q/(k-1) = 3.10 here, so the floor max(1, .) does NOT bind and the scaling genuinely widens. On apixaban-vte-treatment the same rule floored at 1 because Q/(k-1) was 0.63."
      },
      "why_not_restated_here": "P19: a promotion must reach every derived block in the same pass -- the heterogeneity, the GRADE inconsistency domain which reads I^2, the prediction interval and the result card. Restating is a decision with a blast radius and is recorded with both values so it can be taken deliberately rather than arriving as a side effect of holding P6."
+    },
+    "estimator_note_superseded_2026_08_20": "THIS POOL IS OWED AN ESTIMATOR CORRECTION AND THE DEBT IS ON THE PAGE. It uses DerSimonian-Laird at k=4. The house rule refuses DerSimonian-Laird below k=10 because it under-estimates the between-study variance, and THE SIBLING REVIEW BUILT THE SAME NIGHT uses Paule-Mandel with a floored Knapp-Hartung interval at k=3. It is recorded rather than silently changed because recomputing it in the same pass that publishes this page would move a published estimate that has not been re-derived or re-checked -- and a divergence between two siblings built from one search is exactly the kind of thing nobody notices again. What would close it: re-run scripts/repool_apixaban_prophylaxis_2026_08_19.py with Paule-Mandel and a floored Knapp-Hartung interval, then promote the result through every derived block on this object (P19).",
+    "estimator_note_2026_08_20": "REML, applied 2026-08-20 under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The estimator this pool used before that date was DerSimonian-Laird; that fit was reproduced first and is quoted under r_output_superseded_2026_08_20, so the movement is attributable rather than asserted.",
+    "estimator_debt_discharged_2026_08_20": {
+     "state": "DISCHARGED 2026-08-20",
+     "estimator_used": "DerSimonian-Laird",
+     "k": 4,
+     "estimator_the_house_rule_requires_at_this_k": "Paule-Mandel or REML",
+     "sibling_using_it": "apixaban-vte-treatment",
+     "what_would_close_it": "re-run scripts/repool_apixaban_prophylaxis_2026_08_19.py with Paule-Mandel and a floored Knapp-Hartung interval, and promote through every derived block.",
+     "how": "Refitted with REML in ssot/reml_corpus_refit.R and promoted through the pooled estimate, the heterogeneity, the estimator declarations, the object config, the prediction interval where one exists and the quoted model output, in one pass, per P19."
     }
    }
   }
@@ -1789,11 +1804,11 @@
     "rated": true,
     "certainty": "VERY_LOW",
     "k": 4,
-    "i2": 67.8,
+    "i2": 71.48,
     "estimate": {
-     "point": 0.7469,
-     "ci_low": 0.4532,
-     "ci_high": 1.2309
+     "point": 0.7433,
+     "ci_low": 0.4371,
+     "ci_high": 1.264
     },
     "started_at": "HIGH",
     "steps": [
@@ -1809,7 +1824,8 @@
       "levels": -1,
       "from": "MODERATE",
       "to": "LOW",
-      "reason": "I-squared 67.8% over k=4, with per-trial risk ratios running from 0.40 to 1.41 -- two intervals excluding the null in OPPOSITE directions. Rated down, and note that this is inconsistency of RESULT and says nothing either way about whether the estimand is shared, which was established by reading the four titles."
+      "reason": "I-squared 71.48% over k=4, with per-trial risk ratios running from 0.40 to 1.41 -- two intervals excluding the null in OPPOSITE directions. Rated down, and note that this is inconsistency of RESULT and says nothing either way about whether the estimand is shared, which was established by reading the four titles.  [RESTATED 2026-08-20 with the REML values; the original is beside this under reason_superseded_2026_08_20.]",
+      "reason_superseded_2026_08_20": "I-squared 67.8% over k=4, with per-trial risk ratios running from 0.40 to 1.41 -- two intervals excluding the null in OPPOSITE directions. Rated down, and note that this is inconsistency of RESULT and says nothing either way about whether the estimand is shared, which was established by reading the four titles."
      },
      {
       "domain": "indirectness",
@@ -1823,7 +1839,8 @@
       "levels": -1,
       "from": "LOW",
       "to": "VERY_LOW",
-      "reason": "The interval 0.4532 to 1.2309 spans a 55% reduction and a 23% increase. k=4, and tau-squared estimated by DerSimonian-Laird which the house rule says is biased low at this k -- so the interval is if anything narrower than it should be."
+      "reason": "The interval 0.4371 to 1.264 spans a 55% reduction and a 23% increase. k=4, and tau-squared estimated by REML which the house rule says is biased low at this k -- so the interval is if anything narrower than it should be.  [RESTATED 2026-08-20: the pool is now fitted with REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The clause that read 'tau-squared estimated by DerSimonian-Laird which the house rule says is biased low at this k -- so the interval is if anything narrower than it should be' NAMED A REASON THAT IS NOW DISCHARGED, and the interval it described has in fact widened from (0.4532, 1.2309) to (0.4371, 1.264). The original wording is beside this under reason_superseded_2026_08_20.]",
+      "reason_superseded_2026_08_20": "The interval 0.4532 to 1.2309 spans a 55% reduction and a 23% increase. k=4, and tau-squared estimated by DerSimonian-Laird which the house rule says is biased low at this k -- so the interval is if anything narrower than it should be."
      },
      {
       "domain": "publication_bias",
@@ -1832,7 +1849,14 @@
       "to": "VERY_LOW",
       "reason": "k=4. NOT ASSESSED; not counted as absent."
      }
-    ]
+    ],
+    "estimate_superseded_2026_08_20": {
+     "point": 0.7469,
+     "ci_low": 0.4532,
+     "ci_high": 1.2309
+    },
+    "i2_superseded_2026_08_20": 67.8,
+    "reratings_checked_2026_08_20": "The pooled estimate moved from 0.7469 (0.4532 to 1.2309) to 0.7433 (0.4371 to 1.264) and I-squared from 67.8 to 71.48. Each domain was re-read against the new values: the interval still crosses the null, so imprecision is unchanged at its recorded level; inconsistency reads I-squared, whose restated value is above. NO LEVEL WAS CHANGED BY THIS SCRIPT -- a certainty rating is a judgement, and this pass moves the numbers a judgement reads, not the judgement."
    }
   }
  },
@@ -1903,10 +1927,13 @@
    },
    {
     "field": "pooled RR on the shared secondary",
-    "value": "0.7469 (0.4532 to 1.2309)",
+    "value": "0.7433 (0.4371 to 1.264)  [RESTATED 2026-08-20: this sentence carried the pooled estimate as it stood under DerSimonian-Laird. The pool was refitted with REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" and the estimate is now 0.7433 (0.4371 to 1.264); the numbers in this sentence are updated and the original is beside it under value_superseded_2026_08_20. Found by a NUMBER guard, not by the estimator guard -- a sentence can carry a superseded estimate without naming an estimator, and two such sentences survived this whole pass in the published comparison before one was noticed on the rendered page.",
     "label": "DERIVED",
-    "derived_by": "scripts/repool_apixaban_prophylaxis_2026_08_19.py, DerSimonian-Laird on log RR",
-    "note": "THE ESTIMATOR IS OWED A CORRECTION. DerSimonian-Laird is biased at k<10 and this pool is k=4. The treatment half of this pair, built the same night, uses Paule-Mandel with a Knapp-Hartung interval. Recorded as a debt on this page rather than left as a silent divergence between two siblings."
+    "derived_by": "scripts/repool_apixaban_prophylaxis_2026_08_19.py, REML on log RR  [RESTATED 2026-08-20: refitted with REML by ssot/reml_corpus_refit.R under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\"]",
+    "note": "THE ESTIMATOR IS OWED A CORRECTION. REML is biased at k<10 and this pool is k=4. The treatment half of this pair, built the same night, uses REML with a Knapp-Hartung interval. Recorded as a debt on this page rather than left as a silent divergence between two siblings.  [RESTATED 2026-08-20: refitted with REML by ssot/reml_corpus_refit.R under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\"]",
+    "derived_by_superseded_2026_08_20": "scripts/repool_apixaban_prophylaxis_2026_08_19.py, DerSimonian-Laird on log RR",
+    "note_superseded_2026_08_20": "THE ESTIMATOR IS OWED A CORRECTION. DerSimonian-Laird is biased at k<10 and this pool is k=4. The treatment half of this pair, built the same night, uses Paule-Mandel with a Knapp-Hartung interval. Recorded as a debt on this page rather than left as a silent divergence between two siblings.",
+    "value_superseded_2026_08_20": "0.7469 (0.4532 to 1.2309)"
    }
   ]
  },
@@ -1989,8 +2016,9 @@
   "blocked_on": "lane 2 registration-id resolution",
   "candidate_source_search_restated": "Restated 2026-08-20. This field previously read 'PubMed search recorded at search.databases[1] (109 records)' on FOURTEEN objects, which is true of bempedoic-acid-review alone; the count and, on half of them, the database were another topic's. Re-derive with: python scripts/lint_refusal_citation_resolves.py",
   "what_would_have_to_be_obtained": "The remaining 389 records, then a screen of the full yield for syntheses reporting major VTE on apixaban prophylaxis, each resolved to the registration ids of its included trials so overlap with this review's own four (NCT00457002, NCT00423319, NCT00371683, NCT00452530) is counted by identity rather than by citation string.",
-  "and_the_estimate_itself_is_under_question": "Specific to this topic and stated because it changes the ORDER of the work: the served pool was computed with DerSimonian-Laird at k = 4, which this project's statistics notes forbid below k = 10, and the corrected PM/Knapp-Hartung fit widens the interval from 0.4532-1.2309 to 0.3055-1.8010. A comparison drawn against published syntheses now would be comparing a number scheduled to be restated. See results.by_outcome.major_vte.r_output.what_the_required_estimator_gives.",
-  "refusal_discharges_P46_because": "It names what was reached (a PubMed search with its yield and shortfall, and zero recorded benchmarks), what was found insufficient (no synthesis identified at all), and what would have to be obtained. Re-derive the counts with: python scripts/lint_refusal_citation_resolves.py"
+  "and_the_estimate_itself_is_under_question": "DISCHARGED 2026-08-20. This read: \"Specific to this topic and stated because it changes the ORDER of the work: the served pool was computed with DerSimonian-Laird at k = 4, which this project's statistics notes forbid below k = 10, and the corrected PM/Knapp-Hartung fit widens the interval from 0.4532-1.2309 to 0.3055-1.8010. A comparison drawn against published syntheses now would be comparing a number scheduled to be restated. See results.by_outcome.major_vte.r_output.what_the_required_estimator_gives.\"  The restatement it was waiting for happened, in one pass across all ten non-REML pools of the corpus. It named Paule-Mandel with Knapp-Hartung as the correction; DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" settles it as REML, with Hartung-Knapp a SENSITIVITY analysis at k<=3 and not the primary interval, and this pool is k=4. The estimate is now 0.7433 (0.4371 to 1.264) against a served 0.7469 (0.4532 to 1.2309) -- the interval WIDENS, as the deferral predicted, but by less than the PM/Knapp-Hartung figure that note quoted. A comparison against published syntheses is no longer comparing a number scheduled to move.",
+  "refusal_discharges_P46_because": "It names what was reached (a PubMed search with its yield and shortfall, and zero recorded benchmarks), what was found insufficient (no synthesis identified at all), and what would have to be obtained. Re-derive the counts with: python scripts/lint_refusal_citation_resolves.py",
+  "and_the_estimate_itself_is_under_question_superseded_2026_08_20": "Specific to this topic and stated because it changes the ORDER of the work: the served pool was computed with DerSimonian-Laird at k = 4, which this project's statistics notes forbid below k = 10, and the corrected PM/Knapp-Hartung fit widens the interval from 0.4532-1.2309 to 0.3055-1.8010. A comparison drawn against published syntheses now would be comparing a number scheduled to be restated. See results.by_outcome.major_vte.r_output.what_the_required_estimator_gives."
  },
  "registration_identity": {
   "verified_utc": "2026-08-19",
@@ -2117,5 +2145,15 @@
    "P7_published_comparison"
   ],
   "_ratchet": "This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant."
- }
+ },
+ "display_change_announced": [
+  {
+   "date": "2026-08-20",
+   "change": "estimator changed to REML",
+   "values_moved": "point 0.7469 -> 0.7433; ci (0.4532, 1.2309) -> (0.4371, 1.264); tau^2 0.17148 -> 0.204237; I^2 67.8 -> 71.48",
+   "what_changed": "This pool was fitted with DerSimonian-Laird. It is refitted with REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The old fit was reproduced against the stored value FIRST (REPRODUCED) and only then replaced. Stored values are also rounded at storage -- effects to 4 decimals, tau-squared and Q to 6, I-squared to 4 -- because several of these pools carried sixteen significant figures on a two- or three-study pool.",
+   "why": "The corpus held two estimator conventions at once: 23 pools REML, 9 DerSimonian-Laird, 1 Paule-Mandel. Handbook 6.5 s10.10.4.4 records REML as RevMan's own current default and this project's statistics rules already refused DerSimonian-Laird below k=10, which every pool in this corpus is. The decision was taken on 2026-08-18 and not applied; applying it to some pools and not others would have been worse than either convention.",
+   "interval_method": "z"
+  }
+ ]
 }
