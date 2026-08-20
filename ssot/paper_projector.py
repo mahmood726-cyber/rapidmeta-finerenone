@@ -230,6 +230,107 @@ def outcome_text(obj, oid):
     return None
 
 
+
+# WORDED ROW LABELS FOR THE SCREENING CASCADE. `k3_experimental` is a key; "Named the
+# intervention rather than a comparator or background therapy" is what it means. A key
+# absent from this map renders with underscores replaced -- degraded, not dropped, because
+# a stage silently missing from the table would understate the screening.
+_CASCADE_LABELS = {
+    "k0_surfaced": "Records surfaced by the executed searches",
+    "k1_deduplicated": "After removing duplicate registrations",
+    "k2_role_located": "Records where the topic drug's role in the trial could be located",
+    "k3_experimental": "Records where the topic drug is the randomised intervention",
+    "k4_comparator": "Records where the topic drug is the comparator instead",
+    "k5_background": "Records where the topic drug is background therapy in both arms",
+    "kNA_not_assessable": "Records where the role could not be decided either way",
+    "k_included_in_object": "Trials included in this review",
+    "k_unscreened_remainder": "Surfaced records not yet screened",
+    "k3_corrected_from": "Earlier value of the intervention count, before correction",
+}
+
+
+
+_GRADE_DOMAINS = {
+    "risk_of_bias": "risk of bias",
+    "publication_bias": "publication bias",
+    "inconsistency": "inconsistency",
+    "indirectness": "indirectness",
+    "imprecision": "imprecision",
+    "large_effect": "large effect",
+    "dose_response": "dose-response",
+    "confounding": "residual confounding",
+}
+
+
+def _grade_step_words(step):
+    """One GRADE rating step as a sentence rather than as a dict repr.
+
+    THIS WAS `str(x)` AND IT PUT `{'domain': 'risk_of_bias', 'levels': -1, 'from': 'HIGH',
+    'to': 'MODERATE', 'reason': '...'}` ON A DELIVERED PAGE. Every value below is the same
+    value; only the rendering changed. A step that is not a dict is returned as its own
+    string rather than dropped -- an unrecognised shape must still reach the reader.
+    """
+    if not isinstance(step, dict):
+        return str(step)
+    dom = _GRADE_DOMAINS.get(step.get("domain"), str(step.get("domain") or "")
+                             .replace("_", " "))
+    lv = step.get("levels")
+    frm, to = step.get("from"), step.get("to")
+    bits = [dom] if dom else []
+    if frm and to and frm != to:
+        bits.append("%s to %s" % (frm, to))
+    elif lv == 0 or lv == "0":
+        bits.append("not rated down")
+    if lv not in (None, 0, "0"):
+        try:
+            bits.append("down %d level(s)" % abs(int(lv)))
+        except (TypeError, ValueError):
+            bits.append("levels %s" % lv)
+    txt = ": ".join([bits[0], ", ".join(bits[1:])]) if len(bits) > 1 else "".join(bits)
+    reason = str(step.get("reason") or "").strip()
+    return ("%s -- %s" % (txt, reason)) if reason else txt
+
+
+_ROB_DOMAINS = {
+    "D1": "randomisation process",
+    "D2": "deviations from intended intervention",
+    "D3": "missing outcome data",
+    "D4": "measurement of the outcome",
+    "D5": "selection of the reported result",
+    "overall": "overall",
+}
+
+def _outcome_words(obj, oid):
+    """The outcome's registered name, falling back to the key made readable.
+
+    NEVER SILENTLY EMPTY. A missing name degrades to the key with underscores replaced,
+    which is worse prose and is still true; returning "" would delete the subject of the
+    sentence.
+    """
+    for o in (obj.get("outcomes") or []):
+        if isinstance(o, dict) and o.get("id") == oid:
+            nm = (o.get("name") or "").strip()
+            if nm:
+                return nm[0].lower() + nm[1:] if nm[0].isupper() else nm
+    return oid.replace("_", " ")
+
+
+def _i2_words(i2):
+    """A plain-English band for I-squared. Handbook 10.10.2 gives overlapping ranges and
+    warns against a mechanical reading, so the words are DELIBERATELY loose and the number
+    is always printed beside them. This describes; it does not grade."""
+    try:
+        v = float(i2)
+    except (TypeError, ValueError):
+        return "of unstated"
+    if v < 30:
+        return "closely"
+    if v < 60:
+        return "moderately"
+    if v < 75:
+        return "loosely"
+    return "poorly"
+
 def disp(x, sig=3):
     """A number at DISPLAY precision, for prose only.
 
@@ -503,10 +604,19 @@ def project(obj, journal="generic", length="standard"):
     s = Section("methods_flow", "Methods — study flow and k at every stage")
     kc = get(obj, "k_cascade") or {}
     if kc:
-        parts = [("%s %s" % (k.replace("_", " "), v)) for k, v in kc.items()
-                 if isinstance(v, int)]
-        s.paras.append(("k is reported at every stage rather than as a single number: %s."
-                        % "; ".join(parts), ["k_cascade"]))
+        # A TABLE, NOT A SENTENCE. This was `key.replace("_", " ")` joined with semicolons,
+        # which produced "k0 surfaced 56; k2 role located 56; k3 experimental 49; k4
+        # comparator 1; k5 background 6; kNA not assessable 0" -- a table flattened into
+        # prose, and the single worst section of the SGLT2 page a reader called computer
+        # code. EVERY COUNT BELOW IS THE SAME NUMBER; only the rendering changed. A key
+        # with no worded label keeps its raw form rather than being silently dropped.
+        rows = [[_CASCADE_LABELS.get(k, k.replace("_", " ")), str(v)]
+                for k, v in kc.items() if isinstance(v, int)]
+        s.tables.append((
+            "Records at every stage of screening. k is reported at each stage rather than "
+            "as a single number, because each stage is what the instrument at that stage "
+            "could actually decide.",
+            ["Stage", "Records"], rows, ["k_cascade"]))
     else:
         s.refusals.append(("the k cascade", ["k_cascade"]))
     if get(obj, "prisma_flow"):
@@ -561,8 +671,11 @@ def project(obj, journal="generic", length="standard"):
     for oid, blk in (get(obj, "results.by_outcome") or {}).items():
         model, est = blk.get("model"), blk.get("estimator_used") or blk.get("estimator")
         if model and est:
+            # THE OUTCOME'S NAME, NOT ITS KEY. This read "For cvdeath_or_whf_first, a random
+            # model was fitted" -- a database key as the subject of an English sentence. The
+            # key is still reachable: it is in this paragraph's source list.
             s.paras.append(("For %s, a %s model was fitted with the %s estimator."
-                            % (oid, model, est),
+                            % (_outcome_words(obj, oid), model, est),
                             ["results.by_outcome.%s.model" % oid,
                              "results.by_outcome.%s.estimator_used" % oid]))
         else:
@@ -757,12 +870,25 @@ def project(obj, journal="generic", length="standard"):
         # HETEROGENEITY, WITH THE CAVEAT THE OBJECT ALREADY RECORDS.
         if het.get("i2") is not None:
             hf = ["results.by_outcome.%s.heterogeneity.i2" % oid]
-            ht = "Between-trial heterogeneity was I-squared %s%%" % disp(het["i2"])
-            for extra, label in (("tau2", "tau-squared"), ("q", "Q"), ("df", "degrees of "
-                                                                      "freedom")):
+            # GLOSSED, NOT DROPPED. Every number here is the number that was there.
+            # "I-squared 0%, tau-squared 0, Q 0.384, degrees of freedom 2" is four
+            # statistics and no sentence; a reader who does not already know what they are
+            # cannot use them, and a reader who does loses nothing by being told.
+            _i2 = disp(het["i2"])
+            ht = ("The trials' results were %s consistent with one another: I-squared, the "
+                  "share of the variation between them that is more than chance alone "
+                  "would produce, was %s%%" % (_i2_words(het["i2"]), _i2))
+            _tail = []
+            for extra, label in (
+                    ("tau2", "the estimated variance of the true effects between trials "
+                             "(tau-squared) was"),
+                    ("q", "the heterogeneity test statistic Q was"),
+                    ("df", "on degrees of freedom")):
                 if het.get(extra) is not None:
-                    ht += ", %s %s" % (label, disp(het[extra]))
+                    _tail.append("%s %s" % (label, disp(het[extra])))
                     hf.append("results.by_outcome.%s.heterogeneity.%s" % (oid, extra))
+            if _tail:
+                ht += "; " + ", ".join(_tail)
             ht += "."
             # SAY THE CAVEAT ONCE. Every outcome on iv-iron-hf carries the SAME
             # `heterogeneity_status` text, so the first prose pass printed an identical
@@ -923,9 +1049,13 @@ def project(obj, journal="generic", length="standard"):
     for oid, blk in sorted((g.get("by_outcome") or {}).items()):
         if not isinstance(blk, dict):
             continue
-        rows.append([oid, str(blk.get("certainty") or "not rated"), str(blk.get("k", "?")),
-                     str(blk.get("started_at") or ""),
-                     "; ".join(str(x) for x in (blk.get("steps") or [])) or "no downgrade recorded"])
+        # THE OUTCOME'S NAME AND WORDED STEPS. This row used to begin with the estimand
+        # key and end with a Python dict repr. The key is still reachable -- it is in this
+        # section's source list, as `grade.by_outcome.<oid>`.
+        rows.append([_outcome_words(obj, oid), str(blk.get("certainty") or "not rated"),
+                     str(blk.get("k", "?")), str(blk.get("started_at") or ""),
+                     "; ".join(_grade_step_words(x) for x in (blk.get("steps") or []))
+                     or "no downgrade recorded"])
         fields.append("grade.by_outcome.%s" % oid)
     s.add_table(obj, "Certainty of the evidence, by outcome, with every rating step",
                 ["Outcome", "Certainty", "k", "Started at", "Rating steps"], rows,
@@ -1008,9 +1138,14 @@ def project(obj, journal="generic", length="standard"):
                                    and dv.get("judgement") in ("HIGH", "SOME_CONCERNS", "LOW")]
                         for dn, dv in driving:
                             why += ("  %s: %s -- %s"
-                                    % (dn.replace("_", " "), dv.get("judgement"),
+                                    % (_ROB_DOMAINS.get(dn, dn.replace("_", " ")),
+                                       dv.get("judgement"),
                                        dv.get("reason") or ""))
-                    rows.append(["%s -- %s (%s)" % (oid, label, rid),
+                    # The outcome's NAME, not its key. Handbook 8.2 requires the
+                    # result to be named; it does not require it to be named in the
+                    # object's storage vocabulary.
+                    rows.append(["%s -- %s (%s)"
+                                 % (_outcome_words(obj, oid), label, rid),
                                  str(judgement.get("overall") or judgement.get("rating")
                                      or "not judged"), why])
         else:

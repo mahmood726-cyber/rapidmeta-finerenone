@@ -620,30 +620,64 @@ def _projected_paper_html(canon):
     if not any(s.state == ppj.WRITTEN for s in secs):
         return ""
     out = ["<div class='card'>", "<h2>Paper</h2>",
-           "<p class='muted'>Every paragraph below is PROJECTED from a field of this "
-           "object, and names it. <strong>A section with no field behind it is not "
-           "written</strong> &mdash; it is refused, by name, so a reader can tell an absent "
-           "procedure from an unmentioned one.</p>"]
+           "<p class='muted'>Every statement below is projected from a field of this "
+           "object. The superscripts are sources: each section ends with the fields its "
+           "statements came from, in order. <strong>A section with no field behind it is "
+           "not written</strong> &mdash; it is refused, by name, so a reader can tell an "
+           "absent procedure from an unmentioned one.</p>"]
     for s in secs:
         out.append("<h3>%s</h3>" % e(s.heading))
+        # THE PROVENANCE COLUMN. Every paragraph, table and refusal in this section used to
+        # carry its field path INSIDE the flow -- "<p>text<br><small>&larr;
+        # results.by_outcome.x.heterogeneity.i2</small></p>" -- 1,233 times across the
+        # corpus and the largest single source of field names in a reader's eye. The
+        # transparency property is not weakened: each statement now carries a superscript
+        # and the section ENDS WITH A VISIBLE NUMBERED LIST of its sources.
+        #
+        # DELIBERATELY NOT A HOVER. A hover is invisible to anyone who does not know to
+        # hover, and provenance a reader cannot see exists is the same defect as a
+        # withdrawal declared only in a meta tag -- which is the reading this project just
+        # repaired in regression_check.py. A reader must be able to SEE that the sources
+        # are there before deciding whether to read them.
+        sources = []
+
+        def _mark(fields):
+            """Register this statement's fields; return the superscript to print."""
+            sources.append(", ".join(fields))
+            return ("<sup class='prov-ref' title='source %d for this section'>%d</sup>"
+                    % (len(sources), len(sources)))
+
         for text, fields in s.paras:
-            out.append("<p>%s<br><small class='muted'>&larr; %s</small></p>"
-                       % (e(text), e(", ".join(fields))))
+            # A MARKER AFTER A VERBATIM BLOCK IS A NUMBER IN THE OUTPUT. The R model results
+            # end "0.7636 0.7062 0.8258 0.7062 0.8258" and a trailing superscript 2 renders
+            # as a SIXTH COLUMN a reader could take for data. Preformatted text -- anything
+            # carrying a newline -- gets its marker in FRONT, where it cannot be read as
+            # part of the block. Caught by the before/after invariance check, which
+            # compares the verbatim sections as exact strings and refused this build.
+            mark = _mark(fields)
+            if chr(10) in text:
+                out.append("<p>%s%s</p>" % (mark, e(text)))
+            else:
+                out.append("<p>%s%s</p>" % (e(text), mark))
         # A PROJECTED TABLE. Every cell is escaped -- the cells are object values, and an
         # object value containing markup must render as text and never as markup. The
         # caption carries the same field trace a paragraph does, because a table asserts
         # as much as a sentence and is read with more trust.
         for caption, headers, rows, fields in getattr(s, "tables", []):
-            out.append("<table><caption>%s<br><small class='muted'>&larr; %s</small>"
-                       "</caption>" % (e(caption), e(", ".join(fields))))
+            out.append("<table><caption>%s%s</caption>" % (e(caption), _mark(fields)))
             out.append("<tr>%s</tr>" % "".join("<th>%s</th>" % e(h) for h in headers))
             for row in rows:
                 out.append("<tr>%s</tr>" % "".join("<td>%s</td>" % e(c) for c in row))
             out.append("</table>")
         for what, missing in s.refusals:
-            out.append("<div class='absent-state' role='note'><strong>Refused:</strong> %s "
-                       "&mdash; no field: <code>%s</code></div>"
-                       % (e(what), e(", ".join(missing))))
+            out.append("<div class='absent-state' role='note'><strong>Refused:</strong> "
+                       "%s%s</div>" % (e(what), _mark(missing)))
+        if sources:
+            out.append("<div class='prov-block'><p class='prov-title'>Where the statements "
+                       "in this section come from, in order</p><ol class='prov-list'>")
+            for src in sources:
+                out.append("<li><code>%s</code></li>" % e(src))
+            out.append("</ol></div>")
     out.append("</div>")
     return NL.join(out)
 
@@ -1077,6 +1111,25 @@ def build(canon):
     reader on a dark desktop got dark without ever asking for it. Dark is now
     strictly opt-in through the toggle, and nothing about the machine changes
     what the page opens as. */
+ /* THE PROVENANCE COLUMN. Field paths used to sit inside the sentence flow, one per
+    paragraph, 1,233 times across the corpus; a reader met "results.by_outcome.x.
+    heterogeneity.i2" between one sentence and the next and read the page as machine
+    output. The paths are NOT removed -- transparency is the property, and a reader who
+    wants to know where a number came from must still get there in one action. They now sit
+    at the end of their section, VISIBLY, keyed by superscript.
+
+    NOT A HOVER. A hover is invisible to anyone who does not know to hover, and provenance
+    a reader cannot see exists is the same defect as a withdrawal declared only in a meta
+    tag. The block announces itself; reading it is optional, knowing it is there is not. */
+ .prov-ref{font-size:.68em;line-height:0;vertical-align:super;color:var(--accent);
+       font-family:var(--sans,system-ui,sans-serif);padding-left:.15em}
+ .prov-block{margin:.6rem 0 1.4rem;padding:.5rem .8rem;border-left:2px solid var(--line);
+       background:var(--soft)}
+ .prov-title{margin:0 0 .3rem;font-size:.78rem;letter-spacing:.02em;color:var(--muted);
+       font-family:var(--sans,system-ui,sans-serif);text-transform:uppercase}
+ .prov-list{margin:0;padding-left:1.4rem}
+ .prov-list li{font-size:.78rem;line-height:1.45;color:var(--muted)}
+ .prov-list code{font-size:.95em;word-break:break-word}
  body:has(#dm:checked){--bg:#0f1115;--fg:#e8e8ec;--line:#33363d;--muted:#a8adb8;
        --warnb:#d99b3c;--warnbg:#241d10;--accent:#7aa2ff;
        --paper:#15181e;--paperfg:#e8e8ec;--thbg:#1c2029;--soft:#1a1e26}

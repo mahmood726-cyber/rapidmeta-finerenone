@@ -73,20 +73,52 @@ SENT = re.compile(r"(?<=[.!?])\s+(?=[A-Z←])|\n+")
 
 
 def panel_text(raw):
-    """(sections, arrows) from the delivered bytes. sections = [(heading, text)]."""
-    i = raw.find('id="paper"')
+    """(sections, provenance entries) from the delivered bytes. sections = [(heading, text)].
+
+    THE BOUNDARY IS THE <h2>, AND THE FIRST VERSION OF THIS FUNCTION GOT IT WRONG. It
+    started at `id="paper"` and ended at the next element carrying an `id` it recognised --
+    which on this page does not exist, so it ran to the end of the file and swept in the
+    Extract and Analysis panels. It reported 41 sections where the Paper panel has 27, and
+    the sections it added -- `Preconditions`, `Page standard 1.12.0`, `Analysis output --
+    <estimand> (quoted verbatim)` -- are exactly the machine-vocabulary-heavy ones, so the
+    error inflated the very number the instrument exists to report. Found by reading the
+    section list after a change that should have moved it and did not.
+    """
+    i = raw.find('id="pn-paper"')
+    if i < 0:
+        i = raw.find('id="paper"')
     if i < 0:
         return None, 0
-    start = raw.rfind("<", 0, i)
-    rest = raw[start:]
-    nxt = None
-    for m in re.finditer(r'id="(?:pn-)?(?:analysis|extract|dm|data|home|dash|method)"',
-                         rest[10:]):
-        nxt = 10 + m.start()
-        break
-    panel = rest[:nxt] if nxt else rest
+    h2 = raw.find("<h2", i)
+    if h2 < 0:
+        return None, 0
+    # END AT THE NEXT PANEL, not the next <h2>. The Paper card carries exactly one <h2>
+    # and the Extract and Analysis panels that follow use <h3> throughout, so "to the next
+    # <h2>" ran to the end of the file and swept both of them in.
+    end = raw.find('class="panel"', h2)
+    panel = raw[h2:end if end > 0 else len(raw)]
 
     arrows = panel.count("&larr;") + panel.count("←")
+    # THE PROVENANCE COLUMN IS NOT PROSE, for exactly the reason the arrow was not: it is
+    # the field paths, deliberately outside the sentence flow, counted on their own line.
+    # Counting it as prose would score the fix as a failure BECAUSE it moved the paths
+    # somewhere visible, which is the one thing the fix was for.
+    prov = len(re.findall(r"(?is)<li>\s*<code>", panel))
+    # TABLES ARE NOT PROSE, AND COUNTING THEM HERE MIS-SPECIFIED THE METRIC.
+    # After the register change, ten of the twenty-five remaining "machine sentences" were
+    # NCT strings in the registration-identity and trial-characteristics tables -- that is,
+    # identifiers doing exactly what this project's own rule says they should do: live in a
+    # table rather than in a sentence. A metric that scores the design working as a defect
+    # is wrong, and it is wrong in the direction of a worse-looking number, which is not a
+    # safer kind of wrong.
+    #
+    # Machine vocabulary inside a table CELL is not unmeasured: it is the subject of
+    # scripts/lint_container_repr_on_a_page.py, which is a stronger check for it -- a
+    # Python dict repr in a cell is not one machine sentence among twenty-five, it is a
+    # different order of defect and gets counted as one.
+    cells = len(re.findall(r"(?is)<t[dh][ >]", panel))
+    panel = re.sub(r"(?is)<table.*?</table>", " ", panel)
+    panel = re.sub(r"(?is)<div class=.prov-block.>.*?</ol>\s*</div>", " ", panel)
 
     t = re.sub(r"(?is)<script.*?</script>", " ", panel)
     t = re.sub(r"(?is)<style.*?</style>", " ", t)
@@ -108,7 +140,7 @@ def panel_text(raw):
             if line.strip():
                 buf.append(line.strip())
     sections.append((head, "\n".join(buf)))
-    return sections, arrows
+    return sections, arrows + prov
 
 
 def score(text):
@@ -182,15 +214,34 @@ def main():
         m = measure(probe)
         raw = io.open(probe, encoding="utf-8", errors="replace").read()
         secs, _a = panel_text(raw)
+        # Is any "quoted verbatim" section reaching the count? It must not: that is R
+        # console output P46 requires, and a check that scored it would be measuring the
+        # standard rather than a defect. Stated as the plain question rather than the
+        # double negative the first version used.
+        secs, _a = panel_text(raw)
+        verbatim_sections = [h for h, _t in (secs or []) if "quoted verbatim" in h.lower()]
         verbatim_counted = any(
-            "statistical output" in h.lower() for h, _t in secs
-            if any(b in h.lower() for b in BY_DESIGN)) is False
+            not any(b in h.lower() for b in BY_DESIGN) for h in verbatim_sections)
         require_controls(
             "lint_paper_reads_as_prose",
             positive=("SGLT2_HF_REVIEW's Paper panel, which a reader called computer code",
                       m is not None and m["machine"] > 0, True),
-            negative=("the verbatim-R section, machine vocabulary BY DESIGN",
-                      verbatim_counted, True))
+            negative=("the %d verbatim-R section(s), machine vocabulary BY DESIGN"
+                      % len(verbatim_sections), verbatim_counted, True))
+        # SECOND NEGATIVE CONTROL, declared for the same reason as the first. A trial
+        # characteristics row -- "NCT03036124 DAPA-HF dapagliflozin 10 mg once daily
+        # (treatment, n=2373) vs placebo (control, n=2371)" -- is an identifier in a table,
+        # which is where this project's own rule puts identifiers. It must NOT be counted.
+        _row = ("<table><tr><td>NCT03036124</td><td>DAPA-HF</td></tr></table>"
+                "<p>An ordinary sentence with no machine vocabulary at all.</p>")
+        _secs2, _p2 = panel_text('<span id="paper"></span><h2>Paper</h2><h3>T</h3>'
+                                 + _row + '<div class="panel">')
+        _n2, _b2, _w2 = score(chr(10).join(t for _h, t in (_secs2 or [])))
+        require_controls(
+            "lint_paper_reads_as_prose/tables",
+            positive=("a paragraph of plain prose is still read as a sentence", _n2 > 0,
+                      True),
+            negative=("a trial-characteristics table row carrying an NCT", _b2 > 0, True))
 
     print("")
     rows = []
