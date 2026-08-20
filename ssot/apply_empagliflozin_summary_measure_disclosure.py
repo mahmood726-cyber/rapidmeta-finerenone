@@ -1,0 +1,136 @@
+"""Put the summary-measure limitation where a reader meets it before the estimate.
+
+THE REASON THIS IS NOT A NOTE. The previous pass established that both EMPEROR trials
+register the SAME primary endpoint, and wrote `estimand_established: True`. That sentence
+-- "the endpoint is shared" -- is exactly what will make a reader trust the pool. It is
+true, and on its own it is misleading, because the pool does not combine the trials'
+endpoint. It combines ODDS RATIOS computed from cumulative arm counts over trials that ran
+for different lengths of time, on an endpoint both trials registered as TIME TO FIRST
+EVENT.
+
+An odds ratio over unequal follow-up is not a hazard ratio and does not become one by
+being pooled: it depends on how long each trial ran, so the weights mean something other
+than what a reader will assume, and the two trials' own published hazard ratios exist and
+are the right inputs.
+
+WHETHER TO RECOMPUTE IS REFERRED. THE DISCLOSURE IS NOT. Recomputing is a published-number
+change owing P19 to the heterogeneity, the estimator, the GRADE domains and the result
+card in one pass. Deciding that is Mahmood's. But a limitation that lives only in a field
+nobody renders is a limitation nobody has, and this object is one artefact away from being
+called complete.
+
+WHERE IT GOES AND WHY THOSE FIELDS. `pooled.caveats` and `interpretation_caveat` are read
+by ssot/paper_projector.py and rendered beside the estimate. `heterogeneity_status` is
+rendered in the same paragraph as I-squared. The disclosure is written to all three rather
+than one, because a reader who reaches the estimate by any of the three routes must meet
+it, and because a single field is a single point of failure for exactly the kind of
+projector blindspot that hid 36 risk-of-bias assessments this morning.
+
+VERIFIED BY BUILDING, NOT BY WRITING. The applier writes; the check is a scratch build of
+the page and a grep of the bytes for the sentence. A field written and not rendered is the
+defect this exists to prevent, so asserting the write is not the test.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TOPIC = "empagliflozin-hf-auto-full-review"
+TODAY = "2026-08-20"
+STAMP = TODAY.replace("-", "_")
+OBJ = os.path.join(REPO, "ssot", TOPIC, TOPIC + ".json")
+
+DISCLOSURE = (
+    "HOW THIS POOL COMBINES THE TWO TRIALS IS A WEAKER CLAIM THAN WHAT THEY MEASURED. "
+    "Both trials register the SAME primary endpoint, verified word for word -- the "
+    "registered strings differ only by the word 'the'. But both register it as TIME TO "
+    "FIRST EVENT, and this pool combines ODDS RATIOS computed from cumulative arm counts, "
+    "over trials that did not run for the same length of time. AN ODDS RATIO OVER UNEQUAL "
+    "FOLLOW-UP IS NOT A HAZARD RATIO AND DOES NOT BECOME ONE BY BEING POOLED: it depends "
+    "on how long each trial ran, so the weights do not mean what a reader would assume "
+    "they mean. Both trials published a hazard ratio and those are the right inputs. The "
+    "direction and rough magnitude here are not in doubt -- both trials favour "
+    "empagliflozin and both intervals exclude no effect -- but the pooled number should be "
+    "read as an approximation to the quantity the trials estimated, not as that quantity. "
+    "Recorded %s. Whether this pool is recomputed from the published hazard ratios is a "
+    "decision that has been referred and not taken; the limitation is stated either way, "
+    "because a reader must not be able to reach the estimate without meeting it." % TODAY)
+
+
+def main():
+    dry = "--apply" not in sys.argv
+    obj = json.load(io.open(OBJ, encoding="utf-8"))
+    blk = obj["results"]["by_outcome"]["primary"]
+    if blk.get("estimand_established") is not True:
+        sys.exit("REFUSED: this disclosure exists because the estimand was established. "
+                 "It is not, so the premise of the disclosure does not hold.")
+    written = []
+
+    prev = (blk.get("pooled") or {}).get("caveats")
+    if prev and DISCLOSURE[:60] in str(prev):
+        sys.exit("REFUSED: the disclosure is already present; this would duplicate it.")
+    if prev:
+        blk["pooled"]["caveats_superseded_%s" % STAMP] = prev
+    blk["pooled"]["caveats"] = DISCLOSURE + (
+        ("  PREVIOUSLY RECORDED HERE, AND STILL TRUE: %s" % prev) if prev else "")
+    written.append("results.by_outcome.primary.pooled.caveats")
+
+    prev_ic = blk.get("interpretation_caveat")
+    if prev_ic:
+        blk["interpretation_caveat_superseded_%s" % STAMP] = prev_ic
+    blk["interpretation_caveat"] = DISCLOSURE
+    written.append("results.by_outcome.primary.interpretation_caveat")
+
+    hs = blk.get("heterogeneity_status")
+    if isinstance(hs, str) and "not recorded on the page" in hs:
+        blk["heterogeneity_status_superseded_%s" % STAMP] = hs
+        het = blk.get("heterogeneity") or {}
+        blk["heterogeneity_status"] = (
+            "Q = %s on %s df, I-squared %s per cent, tau-squared %s under REML: the two "
+            "trials agree closely. AND AGREEMENT BETWEEN THEM IS NOT THE MAIN "
+            "UNCERTAINTY HERE -- see the caveat on the estimate, which concerns the "
+            "SUMMARY MEASURE rather than the spread. Two trials agreeing on an odds ratio "
+            "computed over unequal follow-up agree about a quantity that is not the one "
+            "either of them estimated."
+            % (het.get("q"), het.get("df"), het.get("i2"), het.get("tau2")))
+        written.append("results.by_outcome.primary.heterogeneity_status")
+
+    obj.setdefault("display_change_announced", []).append({
+        "date": TODAY,
+        "change": "the summary-measure limitation written where a reader meets it",
+        "values_moved": "NONE",
+        "what_changed": ("The limitation recorded yesterday in a field named "
+                         "A_SEPARATE_FINDING_NOT_RESOLVED_HERE is now on %d rendered "
+                         "field(s): %s." % (len(written), ", ".join(written))),
+        "why": (
+            "'The endpoint is shared' is true and, alone, misleading -- it is the sentence "
+            "that will make a reader trust the pool. The pool combines odds ratios over "
+            "unequal follow-up on a time-to-first-event endpoint. A LIMITATION THAT LIVES "
+            "ONLY IN A FIELD NOBODY RENDERS IS A LIMITATION NOBODY HAS, and this object is "
+            "one artefact away from being called complete."),
+        "written_to_more_than_one_field_because": (
+            "A single field is a single point of failure for exactly the projector "
+            "blindspot that hid 36 risk-of-bias assessments across ten topics on the same "
+            "day. A reader reaching the estimate by any route must meet this."),
+    })
+
+    print("disclosure written to %d field(s):" % len(written))
+    for w in written:
+        print("   ", w)
+    if dry:
+        print("DRY RUN -- pass --apply to write")
+        return
+    with io.open(OBJ, "rb") as fh:
+        raw = fh.read()
+    nl = "\r\n" if b"\r\n" in raw.split(b"\n", 3)[0] + b"\n" else "\n"
+    with io.open(OBJ, "w", encoding="utf-8", newline=nl) as fh:
+        json.dump(obj, fh, indent=1, ensure_ascii=False)
+        fh.write("\n")
+    print("wrote %s" % OBJ)
+    print("NOT YET VERIFIED: build the page and grep the bytes. A field written and not "
+          "rendered is the defect this exists to prevent.")
+
+
+if __name__ == "__main__":
+    main()

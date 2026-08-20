@@ -100,13 +100,17 @@
    "type": "primary",
    "estimand": {
     "id": "primary",
-    "family": "not recorded on the page this object was extracted from",
-    "model": "random-effects"
+    "family": "time_to_first",
+    "model": "random-effects",
+    "family_superseded_2026_08_20": "not recorded on the page this object was extracted from",
+    "family_basis_2026_08_20": "READ from both registrations, which this object holds: EMPEROR-Reduced registers 'Time to the First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF)' and EMPEROR-Preserved registers the same string without the word 'the'. THE ESTIMAND FAMILY IS TIME TO FIRST EVENT. The SUMMARY MEASURE this pool uses is an odds ratio computed from cumulative arm counts, which is NOT the same thing and is disclosed beside the estimate. Recording the family honestly is what makes that mismatch visible; leaving it as 'not recorded' hid it."
    },
-   "comparator": "not recorded on the page this object was extracted from",
+   "comparator": "placebo",
    "comparator_type": "not recorded on the page this object was extracted from",
    "direction_of_benefit": "not recorded on the page this object was extracted from",
-   "null_value": 1
+   "null_value": 1,
+   "comparator_superseded_2026_08_20": "not recorded on the page this object was extracted from",
+   "comparator_basis_2026_08_20": "READ from arms[] on both trials, which label the control arm 'placebo'. Both trials randomised against a matching placebo on top of background therapy."
   }
  ],
  "inputs": {
@@ -464,7 +468,7 @@
      "i2_definition": "REML/metafor I-squared, as printed by rma(method='REML'). It is copied from this block's declared `estimator` and not inferred. Before 2026-08-20 this field read the Higgins form, or read UNDECIDABLE where both forms gave 0; the estimator change makes it determinate.",
      "i2_definition_evidence": "The value beside it is metafor's own I-squared from the REML fit quoted verbatim in `r_output`, not a recomputation of it. Environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1."
     },
-    "heterogeneity_status": "not recorded on the page this object was extracted from",
+    "heterogeneity_status": "Q = 0.368949 on 1 df, I-squared 0.0 per cent, tau-squared 0.0 under REML: the two trials agree closely. THAT AGREEMENT IS NOT THE MAIN UNCERTAINTY HERE. Both trials registered this endpoint as TIME TO FIRST EVENT and this pool combines ODDS RATIOS computed from cumulative arm counts, over trials that ran for different lengths of time. AN ODDS RATIO OVER UNEQUAL FOLLOW-UP IS NOT A HAZARD RATIO and does not become one by being pooled: it depends on how long each trial ran, so the weights do not mean what a reader would assume. Both trials published a hazard ratio and those are the right inputs. Direction and rough magnitude are not in doubt -- both favour empagliflozin, both intervals exclude no effect -- but READ THE POOLED NUMBER AS AN APPROXIMATION TO THE QUANTITY THE TRIALS ESTIMATED, NOT AS THAT QUANTITY. Two trials agreeing about an odds ratio over unequal follow-up agree about something neither of them set out to measure.",
     "grade": null,
     "cross_engine": null,
     "sensitivity": null,
@@ -504,7 +508,8 @@
      "point": 0.7576,
      "ci_low": 0.6825,
      "ci_high": 0.8409,
-     "ci_level": 95
+     "ci_level": 95,
+     "caveats": "HOW THIS POOL COMBINES THE TWO TRIALS IS A WEAKER CLAIM THAN WHAT THEY MEASURED. Both trials register the SAME primary endpoint, verified word for word -- the registered strings differ only by the word 'the'. But both register it as TIME TO FIRST EVENT, and this pool combines ODDS RATIOS computed from cumulative arm counts, over trials that did not run for the same length of time. AN ODDS RATIO OVER UNEQUAL FOLLOW-UP IS NOT A HAZARD RATIO AND DOES NOT BECOME ONE BY BEING POOLED: it depends on how long each trial ran, so the weights do not mean what a reader would assume they mean. Both trials published a hazard ratio and those are the right inputs. The direction and rough magnitude here are not in doubt -- both trials favour empagliflozin and both intervals exclude no effect -- but the pooled number should be read as an approximation to the quantity the trials estimated, not as that quantity. Recorded 2026-08-20. Whether this pool is recomputed from the published hazard ratios is a decision that has been referred and not taken; the limitation is stated either way, because a reader must not be able to reach the estimate without meeting it."
     },
     "source_page_pooled": true,
     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
@@ -516,7 +521,7 @@
      "ci_low": 0.385,
      "ci_high": 1.4907,
      "excludes_null": false,
-     "THE_POINT_ESTIMATE_IS_UNCHANGED": "The published point is 0.7576 and the house-rule point is 0.7576. THE NUMBER A READER REMEMBERS DOES NOT MOVE; what differs is the precision claim. That is why nothing downstream catches this -- every memorable quantity survives.",
+     "THE_POINT_ESTIMATE_IS_UNCHANGED": "The published point is 0.7576 and the house-rule point is 0.7576. THE NUMBER A READER REMEMBERS DOES NOT MOVE; what differs is the precision claim. That is why nothing downstream catches this -- every memorable quantity survives. AND BOTH INTERVALS IN THIS TABLE BRACKET AN ODDS RATIO COMPUTED OVER UNEQUAL FOLLOW-UP. Both trials registered this endpoint as time to first event; this pool combines odds ratios from cumulative arm counts over trials of different duration, and AN ODDS RATIO OVER UNEQUAL FOLLOW-UP IS NOT A HAZARD RATIO and does not become one by being pooled. Which of these two interval methods is preferred is a smaller question than which quantity is being bracketed.",
      "published_interval": {
       "estimator": "REML",
       "ci_low": 0.6825,
@@ -527,7 +532,8 @@
      "variance_inflation_floor": "A FLOOR OF 1 IS APPLIED TO THE VARIANCE-INFLATION FACTOR so the adjustment can never NARROW an interval below the unadjusted one. That guard is the recognised modification for exactly this instability, and its existence is evidence the small-k behaviour is a KNOWN problem with KNOWN handling rather than a novel judgement.",
      "no_rule_is_decided_here": "SUPERSEDED 2026-08-20. The rule WAS decided, in DECISIONS-COCHRANE-2026-08-18.md section 1, and applied on 2026-08-20: REML is the estimator corpus-wide, and Hartung-Knapp is a SENSITIVITY analysis at k<=3 rather than the primary interval (Handbook 6.5 s10.10.4.4-10.10.4.5). Both intervals still stand on this page and nothing is unpublished.",
      "what_this_means_for_this_pool": "THE PUBLISHED INTERVAL EXCLUDES 1 AND THE HOUSE-RULE INTERVAL CROSSES IT. A SIGNIFICANCE VERDICT TURNS ON THE INTERVAL METHOD ALONE. A reader shown only the published interval has been told something firmer than the evidence supports; a reader shown only the wider one loses that the contributing trials agree. BOTH ARE HERE.",
-     "read_the_width_with_care": "AT k=2 HARTUNG-KNAPP USES t ON ONE DEGREE OF FREEDOM -- 12.7062 against the normal 1.9600 -- and the interval is enormously wider. That width is a property of the method at very few studies, not a measurement of this evidence. It is recorded so a reader can see it; it is NOT presented as the better interval."
+     "read_the_width_with_care": "AT k=2 HARTUNG-KNAPP USES t ON ONE DEGREE OF FREEDOM -- 12.7062 against the normal 1.9600 -- and the interval is enormously wider. That width is a property of the method at very few studies, not a measurement of this evidence. It is recorded so a reader can see it; it is NOT presented as the better interval.",
+     "a_note_written_here_does_not_reach_a_reader_2026_08_20": "This field is NOT rendered. ssot/build_app_v2.py builds the pooling-method table from `published_interval`, `estimator`, the interval bounds, `THE_POINT_ESTIMATE_IS_UNCHANGED` and `variance_inflation_floor`, and from nothing else in this block. A disclosure was appended here on 2026-08-20 and the rebuild came out byte-identical, which is how it was found. It was moved to THE_POINT_ESTIMATE_IS_UNCHANGED. Recorded so the next person does not write here either."
     },
     "r_output": {
      "state": "PRESENT",
@@ -547,7 +553,9 @@
      "detail": "Both trials registered time to first event. This object stores odds ratios derived from cumulative arm counts, and the two trials did not run for the same length of time. AN ODDS RATIO OVER UNEQUAL FOLLOW-UP IS NOT A HAZARD RATIO AND DOES NOT BECOME ONE BY BEING POOLED: it depends on how long each trial ran, so the weights mean something different from what a reader will assume. The two trials' own published hazard ratios exist and would be the right inputs.",
      "why_it_is_recorded_and_not_fixed": "Recomputing this pool from hazard ratios is a published-number change and would have to reach the heterogeneity, the estimator, the GRADE domains and the result card in one pass, per P19. Establishing the estimand and repairing the provenance labels is this pass. The two findings are independent: the endpoint IS shared, which is what this pass establishes, and the SUMMARY MEASURE may still be the wrong one, which is what this note records.",
      "what_would_settle_it": "The published hazard ratios for both trials with their confidence intervals, and a decision about whether this review pools the effect measure the trials reported or the one its extractor could compute."
-    }
+    },
+    "interpretation_caveat": "HOW THIS POOL COMBINES THE TWO TRIALS IS A WEAKER CLAIM THAN WHAT THEY MEASURED. Both trials register the SAME primary endpoint, verified word for word -- the registered strings differ only by the word 'the'. But both register it as TIME TO FIRST EVENT, and this pool combines ODDS RATIOS computed from cumulative arm counts, over trials that did not run for the same length of time. AN ODDS RATIO OVER UNEQUAL FOLLOW-UP IS NOT A HAZARD RATIO AND DOES NOT BECOME ONE BY BEING POOLED: it depends on how long each trial ran, so the weights do not mean what a reader would assume they mean. Both trials published a hazard ratio and those are the right inputs. The direction and rough magnitude here are not in doubt -- both trials favour empagliflozin and both intervals exclude no effect -- but the pooled number should be read as an approximation to the quantity the trials estimated, not as that quantity. Recorded 2026-08-20. Whether this pool is recomputed from the published hazard ratios is a decision that has been referred and not taken; the limitation is stated either way, because a reader must not be able to reach the estimate without meeting it.",
+    "heterogeneity_status_superseded_2026_08_20": "Q = 0.368949 on 1 df, I-squared 0.0 per cent, tau-squared 0.0 under REML: the two trials agree closely. AND AGREEMENT BETWEEN THEM IS NOT THE MAIN UNCERTAINTY HERE -- see the caveat on the estimate, which concerns the SUMMARY MEASURE rather than the spread. Two trials agreeing on an odds ratio computed over unequal follow-up agree about a quantity that is not the one either of them estimated."
    }
   }
  },
@@ -586,6 +594,22 @@
    "what_changed": "The `question` claimed the two trials' registered primaries differ; they differ by one word. `estimand_established` moved False to True with a checked reason in place of the never-checked placeholder. Both `registration_primary_counts` blocks had their arm labels inverted and are repaired, with the previous content kept.",
    "why": "A pool cannot be compared against the literature, or defended, while the object says its own trials measured different things and its provenance blocks say the drug is harmful. Neither was true.",
    "what_is_recorded_and_not_fixed": "The pool combines odds ratios on a time-to-first-event endpoint over trials of unequal duration. The endpoint is shared; the summary measure may be the wrong one. Recorded at results.by_outcome.primary.A_SEPARATE_FINDING_NOT_RESOLVED_HERE_2026_08_20."
+  },
+  {
+   "date": "2026-08-20",
+   "change": "the summary-measure limitation written where a reader meets it",
+   "values_moved": "NONE",
+   "what_changed": "The limitation recorded yesterday in a field named A_SEPARATE_FINDING_NOT_RESOLVED_HERE is now on 3 rendered field(s): results.by_outcome.primary.pooled.caveats, results.by_outcome.primary.interpretation_caveat, results.by_outcome.primary.heterogeneity_status.",
+   "why": "'The endpoint is shared' is true and, alone, misleading -- it is the sentence that will make a reader trust the pool. The pool combines odds ratios over unequal follow-up on a time-to-first-event endpoint. A LIMITATION THAT LIVES ONLY IN A FIELD NOBODY RENDERS IS A LIMITATION NOBODY HAS, and this object is one artefact away from being called complete.",
+   "written_to_more_than_one_field_because": "A single field is a single point of failure for exactly the projector blindspot that hid 36 risk-of-bias assessments across ten topics on the same day. A reader reaching the estimate by any route must meet this."
+  },
+  {
+   "date": "2026-08-20",
+   "change": "the card above the estimate no longer contradicts the object",
+   "values_moved": "NONE",
+   "what_changed": "outcomes[0].estimand.family, outcomes[0].comparator, results.by_outcome.primary.heterogeneity_status. The 'What was measured' card is built from `outcomes[].estimand.family` and `outcomes[].comparator`, not from `pool_uniformity`, and both still held the extraction placeholder -- so a reader met 'the estimand is not recorded' and then the estimate.",
+   "why": "Two fields answer one question and the previous pass corrected the one the reader does not see. This is the same shape as the 36 risk-of-bias assessments counted by P46 and rendered by nothing, at a different address: THE RENDERER AND THE RECORD READ DIFFERENT KEYS, AND THE RENDERER IS WHAT THE READER GETS.",
+   "how_it_was_found": "By building the page to a scratch path and grepping the bytes, after the object was already correct. Asserting the write is not the test."
   }
  ],
  "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",

@@ -75,21 +75,52 @@ def main():
             if verdict in ("CONSISTENT",):
                 continue
             # Does the published effect depend on the mislabelled block, or on arms[]?
-            reaches = "unknown"
+            #
+            # THE FIRST VERSION OF THIS TEST MANUFACTURED FOUR FALSE ALARMS AND THAT IS
+            # THE INSTRUCTIVE PART. It computed an ODDS RATIO from arms[] and compared it
+            # to the stored effect -- on COLCOT, COMPASS and both EMPEROR rows in
+            # sglt2-hf, where the stored effect is a HAZARD RATIO READ FROM THE
+            # PUBLICATION. An HR and an OR are different quantities and cannot be expected
+            # to match, so the comparison could not have passed and its failure said
+            # nothing whatever about those objects. It reported "the published number may
+            # depend on the mislabelled block" for four rows whose published number is
+            # read from a paper and depends on nothing in that block.
+            #
+            # A TEST THAT CANNOT PASS IS NOT A TEST, and this one biased toward
+            # MANUFACTURING a contradiction rather than hiding one -- the rarer and more
+            # expensive direction, because someone acts on it.
+            #
+            # The test now runs ONLY where the object declares the effect to be an odds
+            # ratio, and reports NOT_APPLICABLE with the declared measure named everywhere
+            # else. An effect declaring no measure at all is reported as such, because
+            # that is a finding rather than a reason to guess.
+            reaches = "no effect stored"
             for oid, bo in (t.get("by_outcome") or {}).items():
                 eff = (bo or {}).get("effect") or {}
                 if eff.get("point") is None:
                     continue
+                measure = eff.get("measure")
+                if measure is None:
+                    reaches = ("NOT_APPLICABLE -- the effect declares NO measure, so "
+                               "nothing can be recomputed against it; that is its own "
+                               "small defect")
+                    break
+                if measure != "OR":
+                    reaches = ("NOT_APPLICABLE -- stored effect is a %s (%s), not an odds "
+                               "ratio computed from these counts"
+                               % (measure, eff.get("derived_from") or "provenance unstated"))
+                    break
                 te, ce = tr[0].get("events"), ct[0].get("events")
                 if te is None or ce is None:
-                    continue
+                    reaches = "NOT_APPLICABLE -- arms[] carries no event counts"
+                    break
                 try:
                     o = (te / (at - te)) / (ce / (ac - ce))
                 except ZeroDivisionError:
-                    continue
+                    break
                 reaches = ("effect reproduces from arms[], so the PUBLISHED NUMBER IS "
                            "UNAFFECTED" if abs(o - float(eff["point"])) < 1e-4
-                           else "effect does NOT reproduce from arms[] -- investigate")
+                           else "OR does NOT reproduce from arms[] -- investigate")
                 break
             rows.append((name, t.get("name") or t.get("nct"), verdict,
                          "%g/%g vs arms %g/%g" % (tn, cn, at, ac), reaches))
