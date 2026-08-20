@@ -12,6 +12,25 @@
     reader on a dark desktop got dark without ever asking for it. Dark is now
     strictly opt-in through the toggle, and nothing about the machine changes
     what the page opens as. */
+ /* THE PROVENANCE COLUMN. Field paths used to sit inside the sentence flow, one per
+    paragraph, 1,233 times across the corpus; a reader met "results.by_outcome.x.
+    heterogeneity.i2" between one sentence and the next and read the page as machine
+    output. The paths are NOT removed -- transparency is the property, and a reader who
+    wants to know where a number came from must still get there in one action. They now sit
+    at the end of their section, VISIBLY, keyed by superscript.
+
+    NOT A HOVER. A hover is invisible to anyone who does not know to hover, and provenance
+    a reader cannot see exists is the same defect as a withdrawal declared only in a meta
+    tag. The block announces itself; reading it is optional, knowing it is there is not. */
+ .prov-ref{font-size:.68em;line-height:0;vertical-align:super;color:var(--accent);
+       font-family:var(--sans,system-ui,sans-serif);padding-left:.15em}
+ .prov-block{margin:.6rem 0 1.4rem;padding:.5rem .8rem;border-left:2px solid var(--line);
+       background:var(--soft)}
+ .prov-title{margin:0 0 .3rem;font-size:.78rem;letter-spacing:.02em;color:var(--muted);
+       font-family:var(--sans,system-ui,sans-serif);text-transform:uppercase}
+ .prov-list{margin:0;padding-left:1.4rem}
+ .prov-list li{font-size:.78rem;line-height:1.45;color:var(--muted)}
+ .prov-list code{font-size:.95em;word-break:break-word}
  body:has(#dm:checked){--bg:#0f1115;--fg:#e8e8ec;--line:#33363d;--muted:#a8adb8;
        --warnb:#d99b3c;--warnbg:#241d10;--accent:#7aa2ff;
        --paper:#15181e;--paperfg:#e8e8ec;--thbg:#1c2029;--soft:#1a1e26}
@@ -219,7 +238,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
  <label for="rt-statistics">Statistics</label>
 </nav>
 <div class="panels">
-  <section class="panel" id="pn-protocol">
+  <section class="panel" id="pn-protocol"><span id="protocol"></span>
   <p class='toc'><strong>In this section:</strong> <a href="#protocol-registration-and-administrative-informa">Registration and administrative information (PROSPERO field set)</a></p>
 <div class='card'>
   <h3 id="protocol-registration-and-administrative-informa">Registration and administrative information (PROSPERO field set)</h3>
@@ -247,7 +266,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   </table></div>
 </div>
   </section>
-<!--end-protocol-->  <section class="panel" id="pn-search">
+<!--end-protocol-->  <section class="panel" id="pn-search"><span id="search"></span>
   <p class='toc'><strong>In this section:</strong> <a href="#search-clinicaltrials-gov-api-v2-chosen-query">ClinicalTrials.gov API v2 -- CHOSEN QUERY</a> &middot; <a href="#search-clinicaltrials-gov-api-v2-the-historical-">ClinicalTrials.gov API v2 -- THE HISTORICAL QUERY, RECORDED BECAUSE IT MISSES</a> &middot; <a href="#search-clinicaltrials-gov-api-v2-wider-intervent">ClinicalTrials.gov API v2 -- WIDER INTERVENTION TERMS, RECORDED AND NOT CHOSEN</a></p>
 <div class='card'>
   <h3 id="search-clinicaltrials-gov-api-v2-chosen-query">ClinicalTrials.gov API v2 -- CHOSEN QUERY</h3>
@@ -280,7 +299,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <!--end-search--> <section class="panel" id="pn-screen">
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No screening log is recorded for this review. The included set was reconciled against published syntheses rather than screened from a search, so no records-identified, excluded-with-reason or dual-screening counts exist.</div>
  </section>
-<!--end-screen-->  <section class="panel" id="pn-extract">
+<!--end-screen-->  <section class="panel" id="pn-extract"><span id="extract"></span>
   <p class='toc'><strong>In this section:</strong> <a href="#extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</a> &middot; <a href="#extract-sources">Sources</a> &middot; <a href="#extract-each-trial-s-own-registered-primary-comp">Each trial&#x27;s own registered primary composite</a> &middot; <a href="#extract-each-trial-s-own-registered-primary-comp-2">Each trial&#x27;s own registered primary composite</a> &middot; <a href="#extract-what-was-measured">What was measured</a> &middot; <a href="#extract-pooled-result">Pooled result</a> &middot; <a href="#extract-contributing-trials">Contributing trials</a> &middot; <a href="#extract-endpoint-definitions-read-from-the-regis">Endpoint definitions, read from the registry</a></p>
 <div class='card'>
   <h2 id="extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</h2>
@@ -354,7 +373,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
 </section>
   </section>
-<!--end-extract-->  <section class="panel" id="pn-analysis">
+<!--end-extract-->  <section class="panel" id="pn-analysis"><span id="analysis"></span>
   <p class='toc'><strong>In this section:</strong> <a href="#analysis-each-trial-s-own-registered-primary-com">Each trial&#x27;s own registered primary composite</a> &middot; <a href="#analysis-forest-plot">Forest plot</a> &middot; <a href="#analysis-risk-of-bias">Risk of bias</a> &middot; <a href="#analysis-gosh">GOSH</a> &middot; <a href="#analysis-trial-sequential-analysis">Trial-sequential analysis</a> &middot; <a href="#analysis-meta-regression">Meta-regression</a></p>
 <h2 id="analysis-each-trial-s-own-registered-primary-com">Each trial&#x27;s own registered primary composite</h2>
 <div class='card fwcard'>
@@ -524,117 +543,229 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2-converted-from-extractor</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-19</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>059f003ca</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>aa850700e</code>, built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
  </section>
-<!--end-report-->  <section class="panel" id="pn-paper">
-  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-sections-not-written-and-why">Sections not written, and why</a> &middot; <a href="#paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-keywords">Keywords</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a></p>
+<!--end-report-->  <section class="panel" id="pn-paper"><span id="paper"></span>
+  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-sections-not-written-and-why">Sections not written, and why</a> &middot; <a href="#paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-keywords">Keywords</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a></p>
 <div class='card'>
 <h2 id="paper-paper">Paper</h2>
-<p class='muted'>Every paragraph below is PROJECTED from a field of this object, and names it. <strong>A section with no field behind it is not written</strong> &mdash; it is refused, by name, so a reader can tell an absent procedure from an unmentioned one.</p>
+<p class='muted'>Every statement below is projected from a field of this object. The superscripts are sources: each section ends with the fields its statements came from, in order. <strong>A section with no field behind it is not written</strong> &mdash; it is refused, by name, so a reader can tell an absent procedure from an unmentioned one.</p>
 <h3 id="paper-title-and-review-question">Title and review question</h3>
-<p>Catheter ablation of atrial fibrillation against medical rate- or rhythm-control therapy<br><small class='muted'>&larr; title</small></p>
-<p>In adults with atrial fibrillation, what is the effect of catheter ablation compared with medical rate- or rhythm-control therapy on death, stroke and hospitalisation?<br><small class='muted'>&larr; question</small></p>
-<h3 id="paper-methods-search">Methods — search</h3>
-<p>Searches were executed in ClinicalTrials.gov API v2 -- CHOSEN QUERY on 2026-08-19 with the query, verbatim: query.cond=&quot;atrial fibrillation&quot;; query.intr=&quot;catheter ablation OR pulmonary vein isolation OR cryoballoon ablation&quot;; filter.advanced=AREA[StudyType]INTERVENTIONAL; pageSize=1000; countTotal=true. It returned 931 record(s).<br><small class='muted'>&larr; search.databases[0]</small></p>
-<p>Searches were executed in ClinicalTrials.gov API v2 -- THE HISTORICAL QUERY, RECORDED BECAUSE IT MISSES on 2026-08-19 with the query, verbatim: query.cond=&quot;atrial fibrillation&quot;; query.intr=&quot;catheter ablation OR pulmonary vein isolation OR cryoballoon ablation&quot;; filter.advanced=AREA[StudyType]INTERVENTIONAL AND AREA[Phase](PHASE3 OR PHASE4). It returned 143 record(s).<br><small class='muted'>&larr; search.databases[1]</small></p>
-<p>Searches were executed in ClinicalTrials.gov API v2 -- WIDER INTERVENTION TERMS, RECORDED AND NOT CHOSEN on 2026-08-19 with the query, verbatim: query.cond=&quot;atrial fibrillation&quot;; query.intr=&quot;catheter ablation OR pulmonary vein isolation OR cryoballoon ablation OR left atrial ablation OR radiofrequency ablation OR rhythm control&quot;; filter.advanced=AREA[StudyType]INTERVENTIONAL. It returned 1112 record(s).<br><small class='muted'>&larr; search.databases[2]</small></p>
-<h3 id="paper-methods-eligibility-criteria">Methods — eligibility criteria</h3>
-<p>Each criterion above is recorded with the source it was derived from in `screening.eligibility_provenance`; none is asserted here without one.<br><small class='muted'>&larr; screening.eligibility_provenance</small></p>
-<div class='absent-state' role='note'><strong>Refused:</strong> the eligibility criteria &mdash; no field: <code>screening.eligibility</code></div>
-<h3 id="paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</h3>
-<p>k is reported at every stage rather than as a single number: k0 surfaced 931; k2 role located 886; k3 experimental 421; k4 comparator 203; k5 background 262; kNA not assessable 45; k included in object 3; k unscreened remainder 0; candidate pool k3 plus k4 624.<br><small class='muted'>&larr; k_cascade</small></p>
-<p>The PRISMA 2020 flow counts are recorded in `prisma_flow` and reconcile with the executed searches above.<br><small class='muted'>&larr; prisma_flow</small></p>
-<p>The unscreened remainder is 0.<br><small class='muted'>&larr; k_cascade.k_unscreened_remainder</small></p>
-<h3 id="paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</h3>
-<p>Every registered rank -- primary, secondary and other -- was read for 3 of 3 contributing trials before any decision about which outcomes could be combined; each records the time it was read.<br><small class='muted'>&larr; inputs.trials[].all_ranks_read_utc</small></p>
-<h3 id="paper-methods-synthesis">Methods — synthesis</h3>
-<p>For primary, a random-effects model was fitted with the DerSimonian-Laird estimator.<br><small class='muted'>&larr; results.by_outcome.primary.model, results.by_outcome.primary.estimator_used</small></p>
-<p>Risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials) (22 August 2019 version, as reproduced in the Cochrane Handbook), following Higgins JPT, Savovic J, Page MJ, Elbers RG, Sterne JAC. Chapter 8: Assessing risk of bias in a randomized trial. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1. A RESULT, not a study -- Handbook 8.2: &#x27;risk of bias is assessed for a specific result&#x27;. Every judgement below names its outcome. 3 result-level assessments were made. A domain that cannot be judged from the registration and the published report is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect.<br><small class='muted'>&larr; risk_of_bias.tool, risk_of_bias.by_outcome</small></p>
-<p>A ceiling applies to every risk-of-bias judgement in this review; it is stated with the assessment itself rather than summarised here.<br><small class='muted'>&larr; risk_of_bias.ceiling</small></p>
-<p>Certainty of evidence was rated with GRADE, following Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1, Chapter 14: Completing &#x27;Summary of findings&#x27; tables and grading the certainty of the evidence. HIGH for a body of randomised evidence, then rated down with reasons. 0 pooled outcome(s) were rated. No domain is rated UP. Rating up for large effect or dose-response applies to observational evidence that has not already been rated down, and neither condition holds here. 1 outcome(s) were NOT rated because their pool is declined or withdrawn: there is no effect estimate to rate the certainty of, and rating one would be certainty about a number this review refused to publish.<br><small class='muted'>&larr; grade.approach, grade.by_outcome</small></p>
-<div class='absent-state' role='note'><strong>Refused:</strong> the claim that records were screened in duplicate -- and this topic OWES one rather than merely lacking one: No second independent screen was run for this topic. This is recorded as OWED rather than described: the remedy is to RUN one, and writing a duplicate-screening sentence without one would be the defect this whole exercise exists to prevent. &mdash; no field: <code>screening.duplicate_screening.performed</code></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the claim that the review methods were prespecified before data collection. THIS REFUSAL IS PERMANENT AND IS NOT A GAP TO BE FILLED. A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively. Writing one now and calling it prespecified would invalidate every other refusal on these pages, because a reader who caught it would be right to disbelieve all of them. Eligibility criteria were derived POST HOC from the trials and the methodological authority, and the derivation is recorded element by element in `screening.eligibility_provenance` with the source of each. MECIR R107 permits post-hoc eligibility criteria PROVIDED THEY ARE DECLARED AS SUCH. They are declared, here and on the page, and the page says &#x27;derived, post hoc&#x27; in its heading. &mdash; no field: <code>protocol.prespecified = false (declared, not missing)</code></div>
-<h3 id="paper-results">Results</h3>
-<p>Each trial&#x27;s own registered primary composite. These 3 trials are NOT pooled, and the reason is stated rather than the outcome being quietly omitted: THE THREE TRIALS REGISTER THREE DIFFERENT PRIMARY COMPOSITES AND THE REGISTRY STATES ALL THREE. CASTLE-AF counts all-cause mortality or worsening heart failure requiring unplanned HOSPITALISATION. CABANA counts total mortality, DISABLING STROKE, SERIOUS BLEEDING or CARDIAC ARREST. RAFT-AF counts all-cause mortality and heart-failure events, where an event includes an OUTPATIENT INTRAVENOUS DIURETIC VISIT. No two of the three count the same events: one adds stroke and bleeding, one adds outpatient heart-failure care, one counts neither. An average over them is an average over three questions.<br><small class='muted'>&larr; outcomes[id=primary].name, results.by_outcome.primary.poolable_reason</small></p>
-<h3 id="paper-limitations">Limitations</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the limitations section &mdash; no field: <code>screening.known_limitation</code></div>
+<p>Catheter ablation of atrial fibrillation against medical rate- or rhythm-control therapy<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>In adults with atrial fibrillation, what is the effect of catheter ablation compared with medical rate- or rhythm-control therapy on death, stroke and hospitalisation?<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>title</code></li>
+<li><code>question</code></li>
+</ol></div>
 <h3 id="paper-abstract">Abstract</h3>
-<p>Question. In adults with atrial fibrillation, what is the effect of catheter ablation compared with medical rate- or rhythm-control therapy on death, stroke and hospitalisation?<br><small class='muted'>&larr; question</small></p>
-<div class='absent-state' role='note'><strong>Refused:</strong> the findings sentence of the abstract -- this review pools nothing, and the reason is given in Results rather than an estimate being manufactured here &mdash; no field: <code>results.by_outcome.*.pooled.point</code></div>
+<p>Question. In adults with atrial fibrillation, what is the effect of catheter ablation compared with medical rate- or rhythm-control therapy on death, stroke and hospitalisation?<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the findings sentence of the abstract -- this review pools nothing, and the reason is given in Results rather than an estimate being manufactured here<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>question</code></li>
+<li><code>results.by_outcome.*.pooled.point</code></li>
+</ol></div>
 <h3 id="paper-introduction">Introduction</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> Background.  &mdash; no field: <code>protocol.rationale</code></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the Introduction -- no background or rationale is recorded on this object. This is a CONTENT gap, not a rendering one: no change to this projector produces it, and it is written by adding `protocol.rationale` to the object &mdash; no field: <code>protocol.rationale</code></div>
-<h3 id="paper-certainty-of-the-evidence">Certainty of the evidence</h3>
-<p>Certainty was rated with GRADE. HIGH for a body of randomised evidence, then rated down with reasons.<br><small class='muted'>&larr; grade.approach</small></p>
-<p>No domain is rated UP. Rating up for large effect or dose-response applies to observational evidence that has not already been rated down, and neither condition holds here.<br><small class='muted'>&larr; grade.not_rated_up</small></p>
-<div class='tscroll'><table><caption>Certainty of the evidence, by outcome, with every rating step<br><small class='muted'>&larr; grade.by_outcome.primary</small></caption>
-<tr><th>Outcome</th><th>Certainty</th><th>k</th><th>Started at</th><th>Rating steps</th></tr>
-<tr><td>primary</td><td>not rated</td><td>?</td><td></td><td>no downgrade recorded</td></tr>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Introduction -- no background or rationale is recorded on this object. This is a CONTENT gap, not a rendering one: no change to this projector produces it, and it is written by adding `protocol.rationale` to the object<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>protocol.rationale</code></li>
+</ol></div>
+<h3 id="paper-methods-search">Methods — search</h3>
+<p>Searches were executed in ClinicalTrials.gov API v2 -- CHOSEN QUERY on 2026-08-19 with the query, verbatim: query.cond=&quot;atrial fibrillation&quot;; query.intr=&quot;catheter ablation OR pulmonary vein isolation OR cryoballoon ablation&quot;; filter.advanced=AREA[StudyType]INTERVENTIONAL; pageSize=1000; countTotal=true. It returned 931 record(s).<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Searches were executed in ClinicalTrials.gov API v2 -- THE HISTORICAL QUERY, RECORDED BECAUSE IT MISSES on 2026-08-19 with the query, verbatim: query.cond=&quot;atrial fibrillation&quot;; query.intr=&quot;catheter ablation OR pulmonary vein isolation OR cryoballoon ablation&quot;; filter.advanced=AREA[StudyType]INTERVENTIONAL AND AREA[Phase](PHASE3 OR PHASE4). It returned 143 record(s).<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>Searches were executed in ClinicalTrials.gov API v2 -- WIDER INTERVENTION TERMS, RECORDED AND NOT CHOSEN on 2026-08-19 with the query, verbatim: query.cond=&quot;atrial fibrillation&quot;; query.intr=&quot;catheter ablation OR pulmonary vein isolation OR cryoballoon ablation OR left atrial ablation OR radiofrequency ablation OR rhythm control&quot;; filter.advanced=AREA[StudyType]INTERVENTIONAL. It returned 1112 record(s).<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>search.databases[0]</code></li>
+<li><code>search.databases[1]</code></li>
+<li><code>search.databases[2]</code></li>
+</ol></div>
+<h3 id="paper-methods-eligibility-criteria">Methods — eligibility criteria</h3>
+<p>Each criterion above is recorded with the source it was derived from in `screening.eligibility_provenance`; none is asserted here without one.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the eligibility criteria<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>screening.eligibility_provenance</code></li>
+<li><code>screening.eligibility</code></li>
+</ol></div>
+<h3 id="paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</h3>
+<p>The PRISMA 2020 flow counts are recorded in `prisma_flow` and reconcile with the executed searches above.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>The unscreened remainder is 0.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<div class='tscroll'><table><caption>Records at every stage of screening. k is reported at each stage rather than as a single number, because each stage is what the instrument at that stage could actually decide.<sup class='prov-ref' title='source 3 for this section'>3</sup></caption>
+<tr><th>Stage</th><th>Records</th></tr>
+<tr><td>Records surfaced by the executed searches</td><td>931</td></tr>
+<tr><td>Records where the topic drug&#x27;s role in the trial could be located</td><td>886</td></tr>
+<tr><td>Records where the topic drug is the randomised intervention</td><td>421</td></tr>
+<tr><td>Records where the topic drug is the comparator instead</td><td>203</td></tr>
+<tr><td>Records where the topic drug is background therapy in both arms</td><td>262</td></tr>
+<tr><td>Records where the role could not be decided either way</td><td>45</td></tr>
+<tr><td>Trials included in this review</td><td>3</td></tr>
+<tr><td>Surfaced records not yet screened</td><td>0</td></tr>
+<tr><td>candidate pool k3 plus k4</td><td>624</td></tr>
 </table></div>
-<h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
-<p>Risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials). The unit of assessment is A RESULT, not a study -- Handbook 8.2: &#x27;risk of bias is assessed for a specific result&#x27;. Every judgement below names its outcome.<br><small class='muted'>&larr; risk_of_bias.tool</small></p>
-<p>NO RESULT IN THIS REVIEW CAN REACH LOW RISK OF BIAS ON THE EVIDENCE WE CAN REACH, AND THAT IS A FACT ABOUT OUR ACCESS RATHER THAN ABOUT THE TRIALS. The two domains that would distinguish LOW from SOME CONCERNS need documents this review does not hold: D1 needs allocation concealment and baseline data, which are in neither the registration nor the published abstract; D5 needs the trial&#x27;s statistical analysis plan, which is not held for any trial. SOME CONCERNS IS THEREFORE THE CEILING, NOT A FINDING. A trial rated SOME CONCERNS here may well be at low risk of bias -- we cannot show it, and we do not imply the opposite. Retrieving each trial&#x27;s full published report and its statistical analysis plan or protocol. Until then the rating is bounded by what we read, and the bound is reported rather than the reader inferring it.<br><small class='muted'>&larr; risk_of_bias.ceiling.statement</small></p>
-<p>A domain that cannot be judged from the registration and the published report is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect.<br><small class='muted'>&larr; risk_of_bias.default_rule</small></p>
-<div class='tscroll'><table><caption>Risk-of-bias judgement for every included result<br><small class='muted'>&larr; risk_of_bias.by_outcome</small></caption>
-<tr><th>Result</th><th>Judgement</th><th>Reason</th></tr>
-<tr><td>primary -- CASTLE-AF (NCT00643188)</td><td>NO_INFORMATION</td><td>  D1 randomisation: SOME_CONCERNS --   D3 missing outcome data: LOW --   D4 measurement: SOME_CONCERNS -- </td></tr>
-<tr><td>primary -- CABANA (NCT00911508)</td><td>NO_INFORMATION</td><td>  D1 randomisation: SOME_CONCERNS --   D3 missing outcome data: LOW --   D4 measurement: SOME_CONCERNS -- </td></tr>
-<tr><td>primary -- RAFT-AF (NCT01420393)</td><td>NO_INFORMATION</td><td>  D1 randomisation: SOME_CONCERNS --   D3 missing outcome data: LOW --   D4 measurement: SOME_CONCERNS -- </td></tr>
-</table></div>
-<h3 id="paper-disagreements-between-sources">Disagreements between sources</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the reconciliation against other sources &mdash; no field: <code>reconciliation</code></div>
-<h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the comparison with published syntheses -- no published synthesis is recorded for this topic, so no denominator can be given &mdash; no field: <code>published_comparison</code></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>prisma_flow</code></li>
+<li><code>k_cascade.k_unscreened_remainder</code></li>
+<li><code>k_cascade</code></li>
+</ol></div>
+<h3 id="paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</h3>
+<p>Every registered rank -- primary, secondary and other -- was read for 3 of 3 contributing trials before any decision about which outcomes could be combined; each records the time it was read.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>inputs.trials[].all_ranks_read_utc</code></li>
+</ol></div>
+<h3 id="paper-methods-synthesis">Methods — synthesis</h3>
+<p>For each trial&#x27;s own registered primary composite, a random-effects model was fitted with the DerSimonian-Laird estimator.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials) (22 August 2019 version, as reproduced in the Cochrane Handbook), following Higgins JPT, Savovic J, Page MJ, Elbers RG, Sterne JAC. Chapter 8: Assessing risk of bias in a randomized trial. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1. A RESULT, not a study -- Handbook 8.2: &#x27;risk of bias is assessed for a specific result&#x27;. Every judgement below names its outcome. 3 result-level assessments were made. A domain that cannot be judged from the registration and the published report is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>A ceiling applies to every risk-of-bias judgement in this review; it is stated with the assessment itself rather than summarised here.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<p>Certainty of evidence was rated with GRADE, following Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1, Chapter 14: Completing &#x27;Summary of findings&#x27; tables and grading the certainty of the evidence. HIGH for a body of randomised evidence, then rated down with reasons. 0 pooled outcome(s) were rated. No domain is rated UP. Rating up for large effect or dose-response applies to observational evidence that has not already been rated down, and neither condition holds here. 1 outcome(s) were NOT rated because their pool is declined or withdrawn: there is no effect estimate to rate the certainty of, and rating one would be certainty about a number this review refused to publish.<sup class='prov-ref' title='source 4 for this section'>4</sup></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that records were screened in duplicate -- and this topic OWES one rather than merely lacking one: No second independent screen was run for this topic. This is recorded as OWED rather than described: the remedy is to RUN one, and writing a duplicate-screening sentence without one would be the defect this whole exercise exists to prevent.<sup class='prov-ref' title='source 5 for this section'>5</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that the review methods were prespecified before data collection. THIS REFUSAL IS PERMANENT AND IS NOT A GAP TO BE FILLED. A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively. Writing one now and calling it prespecified would invalidate every other refusal on these pages, because a reader who caught it would be right to disbelieve all of them. Eligibility criteria were derived POST HOC from the trials and the methodological authority, and the derivation is recorded element by element in `screening.eligibility_provenance` with the source of each. MECIR R107 permits post-hoc eligibility criteria PROVIDED THEY ARE DECLARED AS SUCH. They are declared, here and on the page, and the page says &#x27;derived, post hoc&#x27; in its heading.<sup class='prov-ref' title='source 6 for this section'>6</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>results.by_outcome.primary.model, results.by_outcome.primary.estimator_used</code></li>
+<li><code>risk_of_bias.tool, risk_of_bias.by_outcome</code></li>
+<li><code>risk_of_bias.ceiling</code></li>
+<li><code>grade.approach, grade.by_outcome</code></li>
+<li><code>screening.duplicate_screening.performed</code></li>
+<li><code>protocol.prespecified = false (declared, not missing)</code></li>
+</ol></div>
+<h3 id="paper-results">Results</h3>
+<p>Each trial&#x27;s own registered primary composite. These 3 trials are NOT pooled, and the reason is stated rather than the outcome being quietly omitted: THE THREE TRIALS REGISTER THREE DIFFERENT PRIMARY COMPOSITES AND THE REGISTRY STATES ALL THREE. CASTLE-AF counts all-cause mortality or worsening heart failure requiring unplanned HOSPITALISATION. CABANA counts total mortality, DISABLING STROKE, SERIOUS BLEEDING or CARDIAC ARREST. RAFT-AF counts all-cause mortality and heart-failure events, where an event includes an OUTPATIENT INTRAVENOUS DIURETIC VISIT. No two of the three count the same events: one adds stroke and bleeding, one adds outpatient heart-failure care, one counts neither. An average over them is an average over three questions.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>outcomes[id=primary].name, results.by_outcome.primary.poolable_reason</code></li>
+</ol></div>
 <h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the verbatim model output -- no analysis output is stored on this object, so nothing can be quoted and nothing is paraphrased in its place &mdash; no field: <code>results.by_outcome.*.r_output.verbatim</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the verbatim model output -- no analysis output is stored on this object, so nothing can be quoted and nothing is paraphrased in its place<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>results.by_outcome.*.r_output.verbatim</code></li>
+</ol></div>
+<h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
+<p>Risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials). The unit of assessment is A RESULT, not a study -- Handbook 8.2: &#x27;risk of bias is assessed for a specific result&#x27;. Every judgement below names its outcome.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>NO RESULT IN THIS REVIEW CAN REACH LOW RISK OF BIAS ON THE EVIDENCE WE CAN REACH, AND THAT IS A FACT ABOUT OUR ACCESS RATHER THAN ABOUT THE TRIALS. The two domains that would distinguish LOW from SOME CONCERNS need documents this review does not hold: D1 needs allocation concealment and baseline data, which are in neither the registration nor the published abstract; D5 needs the trial&#x27;s statistical analysis plan, which is not held for any trial. SOME CONCERNS IS THEREFORE THE CEILING, NOT A FINDING. A trial rated SOME CONCERNS here may well be at low risk of bias -- we cannot show it, and we do not imply the opposite. Retrieving each trial&#x27;s full published report and its statistical analysis plan or protocol. Until then the rating is bounded by what we read, and the bound is reported rather than the reader inferring it.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>A domain that cannot be judged from the registration and the published report is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<div class='tscroll'><table><caption>Risk-of-bias judgement for every included result<sup class='prov-ref' title='source 4 for this section'>4</sup></caption>
+<tr><th>Result</th><th>Judgement</th><th>Reason</th></tr>
+<tr><td>each trial&#x27;s own registered primary composite -- CASTLE-AF (NCT00643188)</td><td>NO_INFORMATION</td><td>  D1 randomisation: SOME_CONCERNS --   D3 missing outcome data: LOW --   D4 measurement: SOME_CONCERNS -- </td></tr>
+<tr><td>each trial&#x27;s own registered primary composite -- CABANA (NCT00911508)</td><td>NO_INFORMATION</td><td>  D1 randomisation: SOME_CONCERNS --   D3 missing outcome data: LOW --   D4 measurement: SOME_CONCERNS -- </td></tr>
+<tr><td>each trial&#x27;s own registered primary composite -- RAFT-AF (NCT01420393)</td><td>NO_INFORMATION</td><td>  D1 randomisation: SOME_CONCERNS --   D3 missing outcome data: LOW --   D4 measurement: SOME_CONCERNS -- </td></tr>
+</table></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>risk_of_bias.tool</code></li>
+<li><code>risk_of_bias.ceiling.statement</code></li>
+<li><code>risk_of_bias.default_rule</code></li>
+<li><code>risk_of_bias.by_outcome</code></li>
+</ol></div>
+<h3 id="paper-certainty-of-the-evidence">Certainty of the evidence</h3>
+<p>Certainty was rated with GRADE. HIGH for a body of randomised evidence, then rated down with reasons.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>No domain is rated UP. Rating up for large effect or dose-response applies to observational evidence that has not already been rated down, and neither condition holds here.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<div class='tscroll'><table><caption>Certainty of the evidence, by outcome, with every rating step<sup class='prov-ref' title='source 3 for this section'>3</sup></caption>
+<tr><th>Outcome</th><th>Certainty</th><th>k</th><th>Started at</th><th>Rating steps</th></tr>
+<tr><td>each trial&#x27;s own registered primary composite</td><td>not rated</td><td>?</td><td></td><td>no downgrade recorded</td></tr>
+</table></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>grade.approach</code></li>
+<li><code>grade.not_rated_up</code></li>
+<li><code>grade.by_outcome.primary</code></li>
+</ol></div>
+<h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the comparison with published syntheses -- no published synthesis is recorded for this topic, so no denominator can be given<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>published_comparison</code></li>
+</ol></div>
+<h3 id="paper-disagreements-between-sources">Disagreements between sources</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the reconciliation against other sources<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>reconciliation</code></li>
+</ol></div>
 <h3 id="paper-discussion">Discussion</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>discussion</code></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a discussion written by the renderer would be an argument no field supports &mdash; no field: <code>discussion</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a discussion written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>discussion</code></li>
+</ol></div>
 <h3 id="paper-conclusions">Conclusions</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>conclusions</code></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a conclusions written by the renderer would be an argument no field supports &mdash; no field: <code>conclusions</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a conclusions written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>conclusions</code></li>
+</ol></div>
+<h3 id="paper-limitations">Limitations</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the limitations section<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>screening.known_limitation</code></li>
+</ol></div>
 <h3 id="paper-sections-not-written-and-why">Sections not written, and why</h3>
-<p>This review refuses 3 of the page standard&#x27;s properties, by name: P18_restatement_is_reproducible, P6_analysis_output, P7_published_comparison. A refused property is a completed outcome with a stated reason, not an omission.<br><small class='muted'>&larr; build_stamp.refusing</small></p>
+<p>This review refuses 3 of the page standard&#x27;s properties, by name: P18_restatement_is_reproducible, P6_analysis_output, P7_published_comparison. A refused property is a completed outcome with a stated reason, not an omission.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>build_stamp.refusing</code></li>
+</ol></div>
 <h3 id="paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>funding</code></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a CONTENT gap. A submission requires it and this object does not carry it; it is not inferable from anything held here &mdash; no field: <code>funding</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> <sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a CONTENT gap. A submission requires it and this object does not carry it; it is not inferable from anything held here<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>funding</code></li>
+<li><code>funding</code></li>
+</ol></div>
 <h3 id="paper-references">References</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the reference list &mdash; no field: <code>sources</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the reference list<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>sources</code></li>
+</ol></div>
 <h3 id="paper-keywords">Keywords</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>keywords</code></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a CONTENT gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose &mdash; no field: <code>keywords</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> <sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a CONTENT gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>keywords</code></li>
+<li><code>keywords</code></li>
+</ol></div>
 <h3 id="paper-data-availability">Data availability</h3>
-<p>Every trial in this review is keyed to a registration identifier, verified by live fetch of the raw ClinicalTrials.gov v2 record and comparison of the returned nctId against the id stored on this object on 2026-08-19.<br><small class='muted'>&larr; registration_identity.method</small></p>
-<div class='tscroll'><table><caption>Registration identifiers, and whether each was verified<br><small class='muted'>&larr; registration_identity.trials</small></caption>
+<p>Every trial in this review is keyed to a registration identifier, verified by live fetch of the raw ClinicalTrials.gov v2 record and comparison of the returned nctId against the id stored on this object on 2026-08-19.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<div class='tscroll'><table><caption>Registration identifiers, and whether each was verified<sup class='prov-ref' title='source 2 for this section'>2</sup></caption>
 <tr><th>Registration</th><th>Verified</th><th>Link</th></tr>
 <tr><td>NCT00643188</td><td>True</td><td>https://clinicaltrials.gov/study/NCT00643188</td></tr>
 <tr><td>NCT00911508</td><td>True</td><td>https://clinicaltrials.gov/study/NCT00911508</td></tr>
 <tr><td>NCT01420393</td><td>True</td><td>https://clinicaltrials.gov/study/NCT01420393</td></tr>
 </table></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>registration_identity.method</code></li>
+<li><code>registration_identity.trials</code></li>
+</ol></div>
 <h3 id="paper-software-availability">Software availability</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the software and environment statement &mdash; no field: <code>results.by_outcome.*.r_output._environment, config.confidence_level</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the software and environment statement<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>results.by_outcome.*.r_output._environment, config.confidence_level</code></li>
+</ol></div>
 <h3 id="paper-note-on-registration">Note on registration</h3>
-<p>Protocol status. Prespecified: False. A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively. Writing one now and calling it prespecified would invalidate every other refusal on these pages, because a reader who caught it would be right to disbelieve all of them.<br><small class='muted'>&larr; protocol</small></p>
-<p>Eligibility criteria were derived POST HOC from the trials and the methodological authority, and the derivation is recorded element by element in `screening.eligibility_provenance` with the source of each.<br><small class='muted'>&larr; protocol.what_was_actually_done</small></p>
-<p>Authority: MECIR R107 permits post-hoc eligibility criteria PROVIDED THEY ARE DECLARED AS SUCH. They are declared, here and on the page, and the page says &#x27;derived, post hoc&#x27; in its heading.<br><small class='muted'>&larr; protocol.authority_permitting_it</small></p>
+<p>Protocol status. Prespecified: False. A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively. Writing one now and calling it prespecified would invalidate every other refusal on these pages, because a reader who caught it would be right to disbelieve all of them.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Eligibility criteria were derived POST HOC from the trials and the methodological authority, and the derivation is recorded element by element in `screening.eligibility_provenance` with the source of each.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>Authority: MECIR R107 permits post-hoc eligibility criteria PROVIDED THEY ARE DECLARED AS SUCH. They are declared, here and on the page, and the page says &#x27;derived, post hoc&#x27; in its heading.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>protocol</code></li>
+<li><code>protocol.what_was_actually_done</code></li>
+<li><code>protocol.authority_permitting_it</code></li>
+</ol></div>
 <h3 id="paper-trial-characteristics">Trial characteristics</h3>
-<div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<br><small class='muted'>&larr; inputs.trials</small></caption>
+<div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<sup class='prov-ref' title='source 1 for this section'>1</sup></caption>
 <tr><th>Registration</th><th>Trial</th><th>Arms</th><th>Participants</th></tr>
 <tr><td>NCT00643188</td><td>CASTLE-AF</td><td>Catheter ablation (treatment, n=179) vs Medical therapy (rate or rhythm control) (control, n=184)  [+2 further fields recorded on the object]</td><td>not extracted</td></tr>
 <tr><td>NCT00911508</td><td>CABANA</td><td>Left Atrial Ablation (treatment, n=1108) vs Rate or Rhythm Control Therapy (control, n=1096)  [+2 further fields recorded on the object]</td><td>not extracted</td></tr>
 <tr><td>NCT01420393</td><td>RAFT-AF</td><td>Ablation-based rhythm control (treatment, n=214) vs Rate control (control, n=197)  [+2 further fields recorded on the object]</td><td>not extracted</td></tr>
 </table></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>inputs.trials</code></li>
+</ol></div>
 <h3 id="paper-figure-legends">Figure legends</h3>
-<div class='tscroll'><table><caption>Figures, and what each one shows<br><small class='muted'>&larr; results.by_outcome</small></caption>
+<div class='tscroll'><table><caption>Figures, and what each one shows<sup class='prov-ref' title='source 1 for this section'>1</sup></caption>
 <tr><th>Outcome</th><th>Figure</th><th>What it shows</th></tr>
 <tr><td>Each trial&#x27;s own registered primary composite</td><td>Forest plot</td><td>not pooled; the reason is given in Results</td></tr>
 </table></div>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>results.by_outcome</code></li>
+</ol></div>
 <h3 id="paper-submission-conformance">Submission conformance</h3>
-<p>This review was built to page standard 1.10.0-2026-08-19 (PAGE-STANDARD.md), by ssot/build_to_standard.py on 2026-08-19. A page built below the current standard is knowably below it rather than silently stale.<br><small class='muted'>&larr; build_stamp.page_standard_version</small></p>
-<p>Properties held: 11, by name -- P19_promotion_reaches_derived_blocks, P1_executed_search, P20_cascade_reconciles, P21_ambiguous_question_split, P22_sharing_recorded, P23_recall_measured, P2_k_cascade, P3_inclusion_criteria, P4_preconditions, P5_extraction_table, P8_registration_identity.<br><small class='muted'>&larr; build_stamp.held</small></p>
+<p>This review was built to page standard 1.10.0-2026-08-19 (PAGE-STANDARD.md), by ssot/build_to_standard.py on 2026-08-19. A page built below the current standard is knowably below it rather than silently stale.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Properties held: 11, by name -- P19_promotion_reaches_derived_blocks, P1_executed_search, P20_cascade_reconciles, P21_ambiguous_question_split, P22_sharing_recorded, P23_recall_measured, P2_k_cascade, P3_inclusion_criteria, P4_preconditions, P5_extraction_table, P8_registration_identity.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>build_stamp.page_standard_version</code></li>
+<li><code>build_stamp.held</code></li>
+</ol></div>
 </div>  </section>
 <!--end-paper--> <section class="panel" id="pn-statistics">
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No statistical panel set is held in this object.</div>
@@ -679,7 +810,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <caption>Table 12. Page standard 1.10.0-2026-08-19</caption>
 <tr><th>property</th><th>state</th><th>reason</th></tr><tr class='ok'><td>P1_executed_search</td><td><strong>HELD</strong></td><td>3 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 0-trial unscreened remainder is stated as a number rather than omitted.</td></tr><tr class='ok'><td>P2_k_cascade</td><td><strong>HELD</strong></td><td>k at every stage: surfaced 931, located 886, experimental 421, comparator 203, included 3, unscreened remainder 0.</td></tr><tr class='ok'><td>P3_inclusion_criteria</td><td><strong>HELD</strong></td><td>Criteria provenance block present with predefined=False on its face (state &#x27;DERIVED_POST_HOC&#x27;).</td></tr><tr class='ok'><td>P4_preconditions</td><td><strong>HELD</strong></td><td>All 8 recorded with verdict and cited authority: 1 FAIL, 2 NOT-ASSESSABLE. criteria_predefined is FAIL -- post hoc criteria, which R107 permits and C5/C7 does not satisfy.</td></tr><tr class='ok'><td>P5_extraction_table</td><td><strong>HELD</strong></td><td>4 cells: 3 READ with source path and verbatim text, 1 DERIVED with the method named.</td></tr><tr class='warn'><td>P6_analysis_output</td><td><strong>REFUSING</strong></td><td>No quotable model output exists: k=3 and nothing was pooled. The absence is recorded as a finding with its cause and its trigger.</td></tr><tr class='warn'><td>P7_published_comparison</td><td><strong>REFUSING</strong></td><td>No denominator yet. Blocked on external registration-id resolution; citation-string matching explicitly refused rather than substituted.</td></tr><tr class='ok'><td>P8_registration_identity</td><td><strong>HELD</strong></td><td>3 of 3 trial(s) verified live against the registry.</td></tr><tr class='warn'><td>P18_restatement_is_reproducible</td><td><strong>REFUSING</strong></td><td>No restatement block on this cascade, so there is nothing to re-derive. This is NOT_ASSESSABLE dressed as a refusal rather than a pass: a topic that has never been restated has not demonstrated that a restatement of it would be checkable.</td></tr><tr class='ok'><td>P19_promotion_reaches_derived_blocks</td><td><strong>HELD</strong></td><td>inputs.trials, k_cascade.k_included_in_object and prisma_flow.included all say 3; no first-person field in published_comparison declares a k the pooled outcome(s) do not.</td></tr><tr class='ok'><td>P20_cascade_reconciles</td><td><strong>HELD</strong></td><td>k2_role_located=886 == k3+k4+k5, and k0_surfaced=931 == k3+k4+k5+kNA. Both checked, and every failing limb would be reported rather than the first.</td></tr><tr class='ok'><td>P21_ambiguous_question_split</td><td><strong>HELD</strong></td><td>Split from &#x27;ablation-af-review&#x27; into this review and 2 sibling(s) [&#x27;ablation-af-heart-failure&#x27;, &#x27;early-rhythm-control-af&#x27;], with the decision recorded at &#x27;DECIDED-ablation-af-review-2026-08-19.md&#x27;. Nothing was dropped to resolve the ambiguity.</td></tr><tr class='ok'><td>P22_sharing_recorded</td><td><strong>HELD</strong></td><td>3 shared trial(s), each recorded with the topics holding it and why: NCT00643188 in [&#x27;ablation-af-heart-failure&#x27;, &#x27;ablation-af-review&#x27;]; NCT00911508 in [&#x27;ablation-af-review&#x27;]; NCT01420393 in [&#x27;ablation-af-heart-failure&#x27;, &#x27;ablation-af-review&#x27;]. The object also states that summing per-topic k double-counts.</td></tr><tr class='ok'><td>P23_recall_measured</td><td><strong>HELD</strong></td><td>All 3 recorded quer(ies) state their recall against this review&#x27;s own included set: [&#x27;3/3&#x27;, &#x27;1/3&#x27;, &#x27;3/3&#x27;].</td></tr></table></div><h3>k at every stage</h3><div class='tscroll'><table>
     <caption>Table 13. k at every stage</caption>
-<tr><th>stage</th><th>k</th></tr><tr><td>k0_surfaced</td><td>931</td></tr><tr><td>k2_role_located</td><td>886</td></tr><tr><td>k3_experimental</td><td>421</td></tr><tr><td>k4_comparator</td><td>203</td></tr><tr><td>k5_background</td><td>262</td></tr><tr><td>kNA_not_assessable</td><td>45</td></tr><tr><td>k_included_in_object</td><td>3</td></tr><tr><td>k_unscreened_remainder</td><td>0</td></tr><tr><td>candidate_pool_k3_plus_k4</td><td>624</td></tr><tr><td>reproduced_by</td><td>scripts/search_ablation_split_2026_08_19.py (search, recall measured against this review&#x27;s own included set), scripts/cascade_ablation_split_2026_08_19.py (classification), scripts/screen_ablation_medical_remainder_2026_08_19.py (mechanical screen) and scripts/consolidate_ablation_medical_screen_2026_08_19.py (the total, which refuses if the parts do not sum). Named as COMMANDS, not as files that once held numbers -- P18.</td></tr><tr><td>remainder_dispositions</td><td>{&#x27;EXCLUDED&#x27;: 541, &#x27;ELIGIBLE_NOT_POOLABLE&#x27;: 12, &#x27;ELIGIBLE_NO_RESULTS_YET&#x27;: 68, &#x27;ELIGIBLE_POOLABLE_NOT_INCLUDED&#x27;: 0, &#x27;arithmetic&#x27;: &#x27;624 candidates - 3 included = 621 remainder = 541 + 12 + 68 + 0&#x27;, &#x27;what_this_says&#x27;: &quot;THE SAME FOURTH SHAPE AS THE SIBLING REVIEW, AND MUCH LARGER. The dominant exclusion limbs are COMPARATOR and INTERVENTION, because &#x27;catheter ablation in atrial fibrillation&#x27; is a vast DEVICE-AND-TECHNIQUE literature -- ablation against ablation -- together with trials of things done AROUND an ablation every arm receives: sedation, imaging, cooling, cerebral protection, transseptal technique, haemostasis, monitoring, nurse-led follow-up. What distinguishes this review is its COMPARATOR, and a comparator is a screening criterion rather than a search term. That is a fact about the FIELD&#x27;s vocabulary, not about the aim of the query.&quot;, &#x27;how_130_of_them_were_decided&#x27;: &#x27;The mechanical screen could not settle 130 and said so rather than defaulting them to EXCLUDED. Those went to TWO INDEPENDENT MODEL FAMILIES, blind, asked to CLASSIFY rather than to confirm: Codex (openai) and agy (google). Claude wrote the screener and was therefore the instrument under test, not a vote. Full record at evidence/2026-08-19-batch1/ablation_adjudication.json, ablation_reask.json and ablation_control_types.json.&#x27;, &#x27;forty_four_carry_an_unreliable_reason&#x27;: &#x27;44 of the 130 were agreed as EXCLUSIONS under a question later shown DEFECTIVE and were not re-asked. Under that question an adjunct design yields the RIGHT disposition for the WRONG reason. THE VERDICT SURVIVES AND THE ATTRIBUTED LIMB DOES NOT, and they are labelled `reason_inherited_from_defective_question` in the evidence. P28 was applied to the 16 that could ADMIT a trial -- asymmetric effort for asymmetric consequence, stated so the choice can be checked.&#x27;, &#x27;zero_is_computed_not_asserted&#x27;: &#x27;ELIGIBLE_POOLABLE_NOT_INCLUDED is 0 because every eligible trial in this remainder either reports no all-cause-mortality composite at ANY registered rank or has posted no results at all. Checked per trial.&#x27;, &#x27;what_would_change_this_answer&#x27;: &quot;68 eligible trials have not reported. Four are SHAM-CONTROLLED ablation trials (NCT04272762, NCT05717725, NCT06096246, NCT07403760) -- the cleanest available form of this review&#x27;s question -- and they are the ones to watch.&quot;}</td></tr><tr><td>keyed_on</td><td>registration id</td></tr></table></div><h3>Inclusion criteria — derived, post hoc</h3><p><strong>predefined: False &nbsp;|&nbsp; post_hoc: True</strong> — derived —</p><p><small>—</small></p><div class='tscroll'><table>
+<tr><th>stage</th><th>k</th></tr><tr><td>k0_surfaced</td><td>931</td></tr><tr><td>k2_role_located</td><td>886</td></tr><tr><td>k3_experimental</td><td>421</td></tr><tr><td>k4_comparator</td><td>203</td></tr><tr><td>k5_background</td><td>262</td></tr><tr><td>kNA_not_assessable</td><td>45</td></tr><tr><td>k_included_in_object</td><td>3</td></tr><tr><td>k_unscreened_remainder</td><td>0</td></tr><tr><td>candidate_pool_k3_plus_k4</td><td>624</td></tr><tr><td>reproduced_by</td><td>scripts/search_ablation_split_2026_08_19.py (search, recall measured against this review&#x27;s own included set), scripts/cascade_ablation_split_2026_08_19.py (classification), scripts/screen_ablation_medical_remainder_2026_08_19.py (mechanical screen) and scripts/consolidate_ablation_medical_screen_2026_08_19.py (the total, which refuses if the parts do not sum). Named as COMMANDS, not as files that once held numbers -- P18.</td></tr><tr><td>remainder_dispositions</td><td>EXCLUDED 541, ELIGIBLE NOT POOLABLE 12, ELIGIBLE NO RESULTS YET 68, ELIGIBLE POOLABLE NOT INCLUDED 0, arithmetic 624 candidates - 3 included = 621 remainder = 541 + 12 + 68 + 0, what this says THE SAME FOURTH SHAPE AS THE SIBLING REVIEW, AND MUCH LARGER. The dominant exclusion limbs are COMPARATOR and INTERVENTION, because &#x27;catheter ablation in atrial fibrillation&#x27; is a vast DEVICE-AND-TECHNIQUE literature -- ablation against ablation -- together with trials of things done AROUND an ablation every arm receives: sedation, imaging, cooling, cerebral protection, transseptal technique, haemostasis, monitoring, nurse-led follow-up. What distinguishes this review is its COMPARATOR, and a comparator is a screening criterion rather than a search term. That is a fact about the FIELD&#x27;s vocabulary, not about the aim of the query., how 130 of them were decided The mechanical screen could not settle 130 and said so rather than defaulting them to EXCLUDED. Those went to TWO INDEPENDENT MODEL FAMILIES, blind, asked to CLASSIFY rather than to confirm: Codex (openai) and agy (google). Claude wrote the screener and was therefore the instrument under test, not a vote. Full record at evidence/2026-08-19-batch1/ablation_adjudication.json, ablation_reask.json and ablation_control_types.json., forty four carry an unreliable reason 44 of the 130 were agreed as EXCLUSIONS under a question later shown DEFECTIVE and were not re-asked. Under that question an adjunct design yields the RIGHT disposition for the WRONG reason. THE VERDICT SURVIVES AND THE ATTRIBUTED LIMB DOES NOT, and they are labelled `reason_inherited_from_defective_question` in the evidence. P28 was applied to the 16 that could ADMIT a trial -- asymmetric effort for asymmetric consequence, stated so the choice can be checked., zero is computed not asserted ELIGIBLE_POOLABLE_NOT_INCLUDED is 0 because every eligible trial in this remainder either reports no all-cause-mortality composite at ANY registered rank or has posted no results at all. Checked per trial., what would change this answer 68 eligible trials have not reported. Four are SHAM-CONTROLLED ablation trials (NCT04272762, NCT05717725, NCT06096246, NCT07403760) -- the cleanest available form of this review&#x27;s question -- and they are the ones to watch.</td></tr><tr><td>keyed_on</td><td>registration id</td></tr></table></div><h3>Inclusion criteria — derived, post hoc</h3><p><strong>predefined: False &nbsp;|&nbsp; post_hoc: True</strong> — derived —</p><p><small>—</small></p><div class='tscroll'><table>
     <caption>Table 14. Inclusion criteria — derived, post hoc</caption>
 <tr><th>limb</th><th>value</th><th>derived from</th></tr><tr><td>—</td><td>—</td><td><code>—</code></td></tr><tr><td>—</td><td>—</td><td><code>—</code></td></tr><tr><td>—</td><td>—</td><td><code>—</code></td></tr><tr><td>—</td><td>—</td><td><code>—</code></td></tr></table></div><h3>Screening of the remainder — — screened, — included, — excluded, — not-assessable</h3><p>—</p><p><strong>k after screening: —.</strong> —</p><div class='tscroll'><table>
     <caption>Table 15. Screening of the remainder — — screened, — included, — excluded, — not-assessable</caption>

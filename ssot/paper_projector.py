@@ -288,7 +288,27 @@ def _grade_step_words(step):
             bits.append("levels %s" % lv)
     txt = ": ".join([bits[0], ", ".join(bits[1:])]) if len(bits) > 1 else "".join(bits)
     reason = str(step.get("reason") or "").strip()
-    return ("%s -- %s" % (txt, reason)) if reason else txt
+    if reason:
+        txt = "%s -- %s" % (txt, reason)
+    # EVERY OTHER KEY IS PRINTED TOO, AND THIS IS THE HALF THE FIRST VERSION GOT WRONG.
+    # It handled domain, levels, from, to and reason, and SILENTLY DROPPED everything else.
+    # On alirocumab-lipid one step carries `reason_superseded_2026_08_20`: "k = 8 and the
+    # interval (-60.23 to -49.42) excludes the null." -- a sentence holding the pooled
+    # interval, which vanished from the delivered page. A FORMATTER THAT KNOWS FIVE KEYS AND
+    # DISCARDS THE REST IS NOT A FORMATTER, IT IS A FILTER, and the difference is invisible
+    # until the sixth key exists.
+    #
+    # Caught by prove_register_change_moved_no_content, on the one page in the corpus where
+    # such a key is present. The estimate invariant that looked pedantic is what found it.
+    KNOWN = ("domain", "levels", "from", "to", "reason")
+    extra = []
+    for k, v in step.items():
+        if k in KNOWN or v in (None, ""):
+            continue
+        extra.append("%s: %s" % (str(k).replace("_", " "), v))
+    if extra:
+        txt = "%s (%s)" % (txt, "; ".join(extra))
+    return txt
 
 
 _ROB_DOMAINS = {

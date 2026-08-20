@@ -43,6 +43,52 @@ import lint_paper_reads_as_prose as L
 import prove_register_change_moved_no_content as PROVE
 
 
+LOCK = os.path.join(REPO, "outputs", ".paper_register_rollout.lock")
+RUN_ID = "%d@%s" % (os.getpid(), time.strftime("%H%M%S"))
+
+
+def acquire_lock():
+    """One rollout at a time. A ledger two processes can write is not a ledger.
+
+    THIS COST TWO CORRECTLY-BUILT PAGES. Two rollouts ran concurrently against the same
+    ledger with different `before` baselines. ABLATION_AF_HEART_FAILURE and
+    ABLATION_AF_MEDICAL_THERAPY were built, verified and recorded as done by one process,
+    then rebuilt by the other against a stale baseline of 0 field paths, judged a
+    regression, and ROLLED BACK TO THEIR OLD BYTES. Their good builds were recovered only
+    by re-checking the files on disk rather than trusting the ledger.
+
+    IT IS THE STALE-BASELINE CLASS AGAIN: a comparison against a snapshot that is no longer
+    what it describes. Concurrency makes it silent, because the ledger simply holds
+    whichever row was written last and nothing says the two disagreed.
+
+    O_EXCL on a lock file, holding the pid -- not a flag in the ledger, which is the thing
+    being contended for.
+    """
+    os.makedirs(os.path.dirname(LOCK), exist_ok=True)
+    try:
+        fd = os.open(LOCK, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+    except OSError:
+        try:
+            held = io.open(LOCK, encoding="utf-8").read().strip()
+        except Exception:
+            held = "unreadable"
+        sys.exit("REFUSED: a rollout is already running (%s). Two processes writing this "
+                 "ledger is how ABLATION_AF_HEART_FAILURE and ABLATION_AF_MEDICAL_THERAPY "
+                 "were rolled back after building correctly. If that run is dead, delete "
+                 "%s." % (held, os.path.relpath(LOCK, REPO)))
+    os.write(fd, RUN_ID.encode("utf-8"))
+    os.close(fd)
+
+
+def release_lock():
+    if os.path.exists(LOCK):
+        try:
+            if io.open(LOCK, encoding="utf-8").read().strip() == RUN_ID:
+                os.remove(LOCK)
+        except Exception:
+            pass
+
+
 def page_to_object():
     """Delivered page -> object, from ssot/PAGE_MAP.json.
 
@@ -129,6 +175,7 @@ def candidates():
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     size = int(args[0]) if args else 8
+    acquire_lock()
     led = load_ledger()
     mapped = page_to_object()
 
@@ -166,7 +213,7 @@ def main():
         topic = object_for(name, mapped)
         if not topic:
             led["unresolved"].append(name)
-            led["failed"][name] = "object could not be resolved -- NOT built against a guess"
+            led["failed"][name] = "[%s] object could not be resolved -- NOT built against a guess" % RUN_ID
             print("  %-52s UNRESOLVED -- skipped, not guessed" % name)
             save_ledger(led)
             continue
@@ -215,14 +262,14 @@ def main():
 
         if ok:
             os.remove(backup)
-            led["done"][name] = {"machine": m["machine"], "was": before_m["machine"],
+            led["done"][name] = {"run": RUN_ID, "machine": m["machine"], "was": before_m["machine"],
                                  "sentences": m["sentences"],
                                  "flow_paths": fp, "flow_was": before_m["flow_paths"]}
             print("  %-52s OK  machine %d->%d  paths %d->%d"
                   % (name, before_m["machine"], m["machine"], before_m["flow_paths"], fp))
         else:
             shutil.move(backup, page)
-            led["failed"][name] = "; ".join(why)
+            led["failed"][name] = "[%s] %s" % (RUN_ID, "; ".join(why))
             print("  %-52s REFUSED -- old bytes restored" % name)
             for w in why:
                 print("        %s" % w)
@@ -243,4 +290,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    finally:
+        release_lock()
