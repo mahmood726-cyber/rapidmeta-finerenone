@@ -3482,6 +3482,72 @@ check in this project asserts that a function's return shape matches what its na
 and none is proposed here — the honest remedy is the docstring and the keyword.*
 
 
+## Class 72 — A REFUSAL NAMES WHAT COULD NOT BE DONE, NOT WHY, AND THE READER BLAMES THE INPUT
+
+**The largest measurement error of the run: "the projector reproduces ~11% of ARNI" was
+quoted for a week. Measured, it is 26.2%.**
+
+ARNI's projected Discussion and Conclusions carried this refusal:
+
+> *"the Discussion — this is a CONTENT gap. **The object records no interpretive text**, and
+> none is generated here."*
+
+The object held **seven authored paragraphs and a 534-character conclusion.** They refused
+because their text carried `[[k]]`-style substitution tokens the projector could not
+resolve — a limit of the renderer, stated as a fact about the object.
+
+### The general form
+
+> **A refusal names the thing that could not be done. It does not, unless written to, name
+> the REASON — and a reader, including us, will attribute a blank section to the input.**
+
+    "no discussion is recorded on this object"        <- a fact about the input
+    "this discussion cannot be rendered by this tool" <- a limit of the renderer
+
+**They produce the same blank section and they are opposite findings.** One says *go and
+write it*; the other says *go and fix the renderer*. We read the first for a week and drew a
+conclusion about the corpus from an artefact of our own code.
+
+**This is the withdrawal-notice class arriving from the producing side.** There, an
+instrument read our honest disclosure as the defect it disclosed. Here, we read our own
+honest refusal as a fact about the input. Both are correct output, misread — once by an
+instrument, once by us. The consuming-side fix was to teach the reader; **the producing-side
+fix is to make the output unmisreadable**, because you cannot patch every future reader.
+
+### The sweep, and what it does and does not catch
+
+`scripts/audit_refusal_names_object_or_renderer.py` reads every refusal literal in the
+projector and classifies its attribution. Bounded, and run:
+
+| | count |
+|---|---|
+| names a fact about the **object** | 9 |
+| names a limit of the **renderer** | 0 |
+| names **both** | 2 |
+| **UNMARKED** — says something is absent without saying which side is at fault | **29 of 40** |
+
+**29 of 40 are read as OBJECT by default and say nothing to earn that reading.**
+
+**And the sweep would not have caught the founding case.** That refusal did name the object,
+explicitly and *wrongly*. Detecting a FALSE attribution needs evaluation against the object;
+reading the string can only find an ABSENT one. The founding case is pinned as a
+known-answer control so the instrument cannot quietly stop measuring the incident it was
+written for — it classifies as BOTH, which is exactly why string-reading was insufficient.
+
+WARN, not BLOCK: whether an UNMARKED refusal is wrong depends on the object it fires
+against, which a file reader cannot know.
+
+### The mapper measured its own assumption
+
+The F1000 mapping reported ARNI's Introduction as an unread address. It was rendering at
+**1,617 characters and had been for hours.** The mapper keyed on ONE candidate address
+(`protocol.rationale`) and ignored the fallback the projector actually uses, so it reported
+a working fix as missing. **A known-answer instance from the corpus would have caught it
+immediately** — ARNI's introduction was on the page while the mapper called the address
+unread. An instrument that checks one address for a consumer that checks two is measuring
+its own assumption, not the consumer.
+
+
 ## OPEN — carried, not fixed
 
 ### O1. A check that reads a different working tree than the one being built
