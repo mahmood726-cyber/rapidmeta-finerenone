@@ -188,6 +188,58 @@ method sentence is a claim nothing checks.** Those are the sentences not to inhe
 rule for any future substitution is: **resolve a token only from a named field path on the
 object, refuse the whole paragraph by name if any token has none, and never a default.**
 
+### A criterion DECLINED, with the measurement that tempted it
+
+**P47's real property is: a section is a QUESTION WITH AN ANSWER, not a field with a value.**
+The nearest checkable proxy is heading grammar, and it discriminates today:
+
+| page | headings | question-shaped |
+|---|---:|---:|
+| `DABIGATRAN_VTE_TREATMENT` | 7 | **57%** |
+| `SGLT2_HF` | 94 | 7% |
+| `ARNI_HF` | 136 | 7% |
+| `ACS_ANTIPLATELET` | 46 | **2%** |
+
+**It was not adopted, and the reason is the whole argument: it would not pass the ACS page
+today, but it would pass it tomorrow for free.** It tests heading GRAMMAR, not whether the
+question is answered. `SGLT2_HF`'s question-shaped headings are *"What was measured"* and
+*"What this object claims to contain"* — field labels wearing a question mark. **A criterion
+that can be satisfied by renaming is a criterion that will be satisfied by renaming**, and
+we would then hold a green P47 over the same pages.
+
+**Recorded here so nobody rediscovers the proxy in a month and ships it.** The real property
+could not be stated in a form a lint can check, and saying so is preferred to shipping the
+approximation: *a criterion that degrades into "has some prose" is worse than none.*
+
+> **KEPT AS A REPORTED DIAGNOSTIC, AND WATCH THE DIVERGENCE.** If question-shaped headings
+> rise across the corpus while the reader-facing refusals do NOT fall, that is the gaming
+> happening, and it is visible only in the two numbers moving apart. Same reason `net
+> delete: 0` beside a list of lost pairs is what stopped a bad revert: **two measurements
+> disagreeing is a better detector than either alone.**
+
+### A worked example of P47, and it was not produced by a generator
+
+`DABIGATRAN_VTE_TREATMENT_REVIEW.html` — **803 visible words**, eight headings:
+
+> Why this review publishes no pooled estimate · The 5 trial(s) in this reading · **Was a
+> poolable estimand missed below the primary?** · Comparator-restricted subsets · **What
+> this review does not establish** · How the trials were found · The other three reviews
+> from this split
+
+**It is closer to what P47 asks for than most of the generated corpus**, and it is short
+*because it correctly refuses*. Every heading is a question a reader has, answered or
+declined by name. Nothing is padded to length.
+
+**The asymmetry is worth stating plainly: our best-scoring pages on the old measure are
+among the worst on the new one, and this page inverts both.** `ACS_ANTIPLATELET` has 3,147
+words and 78 headings and says nothing (class 50). This has 803 words and eight headings and
+says what it does not know.
+
+**Take the section shape from here rather than inventing one** — the same argument as taking
+ARNI's field names rather than a renderer-invented schema. A shape invented by the tool makes
+content a function of what the tool asked for; this shape was written by someone answering a
+reader.
+
 ### Baselines must carry the instrument they were measured against
 
 **Third instance this week.** A baseline is measured against an INSTRUMENT, not the world;

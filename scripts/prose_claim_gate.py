@@ -97,55 +97,134 @@ SKIP = (".screening", ".sources", ".rob2", ".citations", ".claims_corrected",
         ".methodological_authority", "decision_corrected", "quote")
 
 
+# ANY `by_outcome.<oid>.` segment, not only the one under `results`.
+#
+# The first version matched `^results.by_outcome.<oid>.` alone and therefore could not
+# attribute a string living at `inputs.trials[0].by_outcome.hfh_cvd_recurrent.
+# trial_level_significance` -- which names its outcome perfectly well. It reported that
+# claim as unattributable on iv-iron-hf and returned INVALID.
+#
+# THAT IS THE SAME DEFECT THIS FIX EXISTS TO REMOVE, COMMITTED INSIDE THE FIX: looking in
+# ONE place and reporting what is not there as absent. The claim was attributable, to an
+# outcome whose interval EXCLUDES the null, so the correct verdict was PASS.
+OUTCOME_PATH = re.compile(r"(?:^|\.)by_outcome\.([^.\[]+)\.")
+
+
+def _pooled_outcomes(d):
+    """Every outcome publishing an interval, keyed by id. Never 'the first one'."""
+    out = {}
+    for oid, blk in ((d.get("results") or {}).get("by_outcome") or {}).items():
+        p = (blk or {}).get("pooled") or {}
+        if p.get("ci_low") is not None and p.get("ci_high") is not None:
+            out[oid] = p
+    return out
+
+
 def check(d):
+    """Direction claims are matched to THE OUTCOME THEY ARE ABOUT, or refused.
+
+    THIS GATE PREVIOUSLY TOOK THE FIRST OUTCOME'S INTERVAL AND JUDGED EVERY SENTENCE ON
+    THE OBJECT AGAINST IT:
+
+        for res in (...).values():
+            pooled = res.get("pooled") or {}
+            break
+
+    `sglt2-hf` publishes THREE pooled outcomes. A benefit claim about the three-component
+    composite was tested against whichever interval dict ordering put first, and passing
+    that is a coincidence rather than a check. EVERY PASS THIS GATE EVER ISSUED ON A
+    MULTI-OUTCOME OBJECT IS UNEARNED, and its history over that population is UNMEASURED
+    rather than clean.
+
+    Same family as reading `outcomeMeasures[0]` as the primary: the object declares which
+    outcome a sentence is about, in the sentence's own path, and a consumer that cannot
+    attribute must REFUSE rather than pick one.
+
+    AND IT DOES NOT FALL BACK TO "the only one" WITHOUT VERIFYING THERE IS ONLY ONE. Where
+    exactly one outcome publishes an interval, an unattributable claim is judged against it
+    and the witness SAYS that the singleness was checked. Where several do, the claim is
+    INVALID -- not passed, not failed.
+    """
     out = []
-    pooled = None
-    for res in ((d.get("results") or {}).get("by_outcome") or {}).values():
-        pooled = res.get("pooled") or {}
-        break
-    if not pooled or pooled.get("ci_low") is None:
+    pooled_by_oid = _pooled_outcomes(d)
+    if not pooled_by_oid:
         return [Verdict("pooled interval available", INVALID,
                         detail="no pooled interval, so a direction claim cannot "
                                "be judged either way")]
-    lo, hi = pooled["ci_low"], pooled["ci_high"]
-    crosses = lo <= 1.0 <= hi
 
     strings = [(p, t) for p, t in walk(d)
                if not any(s in p for s in SKIP)]
-    # DIRECTION
-    hits = []
+
+    # Attribute every direction hit to an outcome, by the PATH it was found at.
+    attributed = {}          # oid -> [(path, matched text)]
+    unattributed = []
     for p, t in strings:
         for pat in DIRECTION:
             m = re.search(pat, t, re.I)
-            if m:
-                hits.append((p, m.group(0)))
-    if crosses:
-        if hits:
+            if not m:
+                continue
+            mo = OUTCOME_PATH.search(p)
+            oid = mo.group(1) if mo else None
+            if oid in pooled_by_oid:
+                attributed.setdefault(oid, []).append((p, m.group(0)))
+            else:
+                unattributed.append((p, m.group(0)))
+            break
+
+    # A claim that names no outcome is judged only where there is exactly one to name.
+    if unattributed:
+        if len(pooled_by_oid) == 1:
+            only = list(pooled_by_oid)[0]
+            attributed.setdefault(only, []).extend(unattributed)
+            unattributed = []
+            singleton_note = ("attributed to %r because this object publishes exactly one "
+                              "pooled interval, which was CHECKED and not assumed" % only)
+        else:
+            singleton_note = None
             out.append(Verdict(
-                "no unhedged benefit claim against a null-containing interval",
-                FAIL,
-                detail="pooled %.3f (%.3f to %.3f) INCLUDES 1, but %d claim(s) "
-                       "assert benefit: %s"
-                       % (pooled["point"], lo, hi, len(hits),
+                "direction claims are attributable to an outcome", INVALID,
+                detail="%d benefit claim(s) name no outcome, and this object publishes %d "
+                       "pooled intervals (%s). A claim that cannot be attributed is NOT "
+                       "judged against whichever interval comes first: %s"
+                       % (len(unattributed), len(pooled_by_oid),
+                          ", ".join(sorted(pooled_by_oid)),
                           "; ".join("%s: %r" % (a.split(".")[-1], b)
-                                    for a, b in hits[:4]))))
+                                    for a, b in unattributed[:4]))))
+    else:
+        singleton_note = None
+
+    # Now judge each outcome against ITS OWN interval.
+    for oid in sorted(pooled_by_oid):
+        p = pooled_by_oid[oid]
+        lo, hi = p["ci_low"], p["ci_high"]
+        crosses = lo <= 1.0 <= hi
+        hits = attributed.get(oid, [])
+        label = "direction claims for %s" % oid
+        if crosses and hits:
+            out.append(Verdict(
+                label, FAIL,
+                detail="pooled %.3f (%.3f to %.3f) INCLUDES 1, but %d claim(s) assert "
+                       "benefit: %s%s"
+                       % (p.get("point", float("nan")), lo, hi, len(hits),
+                          "; ".join("%s: %r" % (a.split(".")[-1], b) for a, b in hits[:4]),
+                          "  [%s]" % singleton_note if singleton_note else "")))
+        elif crosses:
+            out.append(Verdict(
+                label, PASS,
+                witness="pooled %.3f (%.3f to %.3f) includes 1; scanned %d review-voice "
+                        "strings against %d benefit patterns and none attributed to this "
+                        "outcome matched"
+                        % (p.get("point", float("nan")), lo, hi, len(strings),
+                           len(DIRECTION)),
+                failure_would_be="a sentence asserting benefit for THIS outcome while its "
+                                 "own interval contains no effect"))
         else:
             out.append(Verdict(
-                "no unhedged benefit claim against a null-containing interval",
-                PASS,
-                witness="pooled %.3f (%.3f to %.3f) includes 1; scanned %d "
-                        "review-voice strings against %d benefit patterns, none "
-                        "matched" % (pooled["point"], lo, hi, len(strings),
-                                     len(DIRECTION)),
-                failure_would_be="a sentence asserting the drug reduced the "
-                                 "hazard while the interval contains no effect"))
-    else:
-        out.append(Verdict("direction claims (interval excludes the null)", PASS,
-                           witness="pooled %.3f (%.3f to %.3f) excludes 1, so a "
-                                   "benefit claim is supported; %d present"
-                                   % (pooled["point"], lo, hi, len(hits)),
-                           failure_would_be="n/a while the interval excludes "
-                                            "the null"))
+                label, PASS,
+                witness="pooled %.3f (%.3f to %.3f) excludes 1, so a benefit claim about "
+                        "this outcome is supported; %d present"
+                        % (p.get("point", float("nan")), lo, hi, len(hits)),
+                failure_would_be="n/a while this outcome's interval excludes the null"))
     # EXISTENCE
     for pat, probe, where in EXISTENCE:
         said = [(p, t) for p, t in strings if re.search(pat, t, re.I)]
@@ -169,6 +248,52 @@ def check(d):
                                failure_would_be="the object containing what the "
                                                 "sentence says it does not"))
     return out
+
+
+def _corpus_cases():
+    """Failing inputs BUILT FROM REAL OBJECTS, not from fixtures.
+
+    WHY THIS EXISTS, and it is about this gate's own result rather than the corpus.
+
+    After the attribution rewrite this gate returned 28 judged, 28 PASS, 0 FAIL, 0 INVALID
+    across the corpus. THAT IS THE LEAST TRUSTWORTHY RESULT IT COULD HAVE PRODUCED: a gate
+    that was broken and now passes everything is indistinguishable, FROM ITS OWN OUTPUT,
+    from a gate broken in a new direction. It is hours old, has been rewritten twice, and
+    its first finding after the rewrite was a FALSE INVALID.
+
+    A clean bill from a young instrument is a claim about the instrument. So the same
+    treatment the method-claim detector got: take real objects and construct inputs that
+    MUST fail, from the corpus rather than from a fixture, and confirm both verdicts.
+
+    Skipped -- never silently passed -- if the objects are unavailable.
+    """
+    ssot = os.path.join(os.path.dirname(HERE), "ssot")
+    cases = []
+
+    # FAIL: a real object, a real null-crossing interval, and a real DIRECTION phrase
+    # placed at THAT outcome's own path. iv-iron-hf's `acm` is 0.978 (0.752 to 1.271).
+    fp = os.path.join(ssot, "iv-iron-hf", "iv-iron-hf.json")
+    if os.path.exists(fp):
+        d = json.load(io.open(fp, encoding="utf-8"))
+        blk = ((d.get("results") or {}).get("by_outcome") or {}).get("acm")
+        p = (blk or {}).get("pooled") or {}
+        if blk is not None and p.get("ci_low", 9) <= 1.0 <= p.get("ci_high", 0):
+            blk["injected_for_selftest"] = ("Iron repletion reduced the risk of death "
+                                            "from any cause in this population.")
+            cases.append(("CORPUS: benefit claim at an outcome whose OWN interval "
+                          "crosses the null (iv-iron-hf.acm)", d, FAIL))
+
+    # INVALID: a real multi-outcome object, and a claim at a path naming NO outcome.
+    fp = os.path.join(ssot, "sglt2-hf", "sglt2-hf.json")
+    if os.path.exists(fp):
+        d = json.load(io.open(fp, encoding="utf-8"))
+        if len(_pooled_outcomes(d)) > 1:
+            d["injected_for_selftest"] = ("The treatment significantly reduced events "
+                                          "across the programme.")
+            cases.append(("CORPUS: unattributable claim against %d intervals must be "
+                          "INVALID, not judged against the first (sglt2-hf)"
+                          % len(_pooled_outcomes(d)), d, INVALID))
+    return cases
 
 
 def selftest():
@@ -207,6 +332,8 @@ def selftest():
     d7["manuscript"] = {"d": "sacubitril/valsartan reduced the hazard"}
     cases.append(("NEGATIVE: benefit claim when the interval excludes the null",
                   d7, PASS))
+    corpus = _corpus_cases()
+    cases.extend(corpus)
     ok = True
     print("=== the prose-claim gate ===")
     for name, dd, want in cases:

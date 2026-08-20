@@ -743,6 +743,170 @@ reported only the lost pairs — the more natural design — the revert would ha
 would have caught this at step one — an audit that refuses to report on files with uncommitted
 modifications until it says so. Recorded as not written.
 
+### 51. AN UNEXPECTEDLY LARGE NUMBER FROM A NEW MEASUREMENT IS WHERE CHECKING IS MOST URGENT
+
+**And it was treated as a finding instead — in the measuring AND in the relaying.**
+
+The reading-order rollout reported **416,310 words across 42 skipped pages**, against a
+projected corpus averaging ~5,000 words a page. That is a startling number, and it was
+relayed onward twice as evidence for a hypothesis: *the best prose in the project may sit
+outside the objects, in pages no generator produced.*
+
+**The premise did not exist.** The rollout measured with `re.sub(r"<[^>]+>", " ", t)`, which
+strips TAGS but keeps the CONTENTS of `<script>` and `<style>`. The true visible volume is
+**66,407 words** — the figure was 6.3× JavaScript. `EVOLOCUMAB_ASCVD_AUTO_2` measured 29,568
+that way and has **3,055 visible words**. The legacy pages are SHORTER than the projected
+ones, not longer, and the hypothesis had nothing under it.
+
+It cost an hour of two people's attention, and it was interesting **in exactly the way the
+thirteen artefacts were interesting.** Same shape as the stale 10.9%: *a stale or wrong
+number does its damage by being repeated, not by sitting in a file.*
+
+> **A new measurement's most surprising output is a claim about the measurement.** Check it
+> before it is relayed — the relaying is where the cost is incurred, and the person relaying
+> it inherits the error whether or not they made it.
+
+### 50. A PAGE-SCALE COMPLIANCE APPARATUS ASSERTING RIGOUR NO RESULT REQUIRED
+
+`ACS_ANTIPLATELET_REVIEW.html`: **78 numbered headings** — *"1. Registration & Administrative
+Information [PRISMA #24, AMSTAR #2]"*, *"11. AMSTAR 2 Critical Domains Compliance"* — a table
+of generic **criteria for downgrading**, and **zero effect-estimate-shaped strings on the
+entire page.** Its object publishes **no pooled estimate at all**.
+
+**This is the `paper-studio.js` failure at page scale.** There, a FORMATTING control
+manufactured a Methods section no field supported. Here an entire PRISMA/AMSTAR apparatus is
+asserted around a review that pools nothing — every heading a claim about procedure, none of
+them tied to a result, because there is no result.
+
+**It is worse than an empty page, because it reads as thorough.** A reader meeting 78
+compliance headings concludes the opposite of the truth.
+
+> **And it is the strongest argument yet for weighting P47 by SECTION rather than by PAGE.**
+> On totals this page looks substantial: 3,147 words, 78 headings. Both numbers say
+> "complete". Every one of the four reader-facing sections is empty of findings because
+> there are none.
+
+### 49. THE SKIP CRITERION SELECTED LIVE PAGES OUT OF A CORPUS-WIDE FIX
+
+The reading-order rollout skipped any page with zero `paper-*` sections, reasoning that such
+a page "was not built by this generator, so rebuilding it is a replacement rather than a
+re-ordering". **Sound for a genuinely old page. Not sound for a CURRENT page that simply has
+no paper tab** — and the criterion could not tell them apart.
+
+Measured by `scripts/audit_skipped_but_current.py` over all 42 skipped pages, discriminating
+on markers this generator emits rather than on the absence of one feature of it:
+
+| | pages |
+|---|---:|
+| **current generator, no paper tab — WRONGLY EXCLUDED** | **3** |
+| old PRISMA/AMSTAR template — correctly skipped | 15 |
+| neither marker — **UNCLASSIFIED, which is not "old"** | 24 |
+
+**And two of the three do not serve a pooled point their own object holds:**
+
+    BOCOCIZUMAB_LIPID_AUTO_FULL_REVIEW.html   object holds -55.24, page shows it nowhere
+    CANGRELOR_PCI_REVIEW.html                 object holds 0.9646, page shows it nowhere
+
+**Found by accident**, while sampling the skipped set for an unrelated question. A guard
+written to prevent content loss instead excluded live pages from a fix — and hid, inside the
+excluded set, the most direct form of delivery diverging from the object there is.
+
+> **A skip criterion is a claim about the population it excludes.** State it as a property
+> the excluded pages HAVE, not as the absence of a property they lack — absence has many
+> causes and only one of them is the one meant.
+
+### 48. THE INSTRUMENTS ARE NOW A LARGER SOURCE OF DEFECTS THAN THE DATA IS
+
+**This is the most important structural fact of 2026-08-20 and it outranks every individual
+finding on this page.** Recorded here rather than left in a session, because it should shape
+the plan rather than be rediscovered.
+
+In one night the CORPUS produced a handful of real findings — the co-primary class, the
+swapped arm labels, `rosuvastatin`'s absent estimand, `empagliflozin`'s inverted question.
+
+**The TOOLING produced more, and here they are counted:**
+
+| # | instrument | what it did |
+|---:|---|---|
+| 1 | `lint_registration_counts_arm_order.py` | compared an odds ratio against four stored **hazard** ratios and reported them as unaccountable. A test that could not pass |
+| 2 | `lint_method_claim_has_a_field.py` | **5 of 8** path declarations wrong; called the flagship a liar twice |
+| 3 | ↳ its wildcard | returned a **container where a leaf was named** — see class 47 |
+| 4 | `audit_path_resolvers.py` | `^(\s*)def` under `re.M` ate the newlines; reported **zero resolvers across 782 files** — see class 47 |
+| 5 | `apply_reml_corpus.py` | wrote the disclosure to `read_the_width_with_care`, a field **no renderer reads**, one minute after writing "asserting the write is not the test" |
+| 6 | `apply_reml_corpus.py` | rounded to 4 **decimals** where the page renders 4 **significant figures**; the stored string would have appeared nowhere in the delivered bytes |
+| 7 | `apply_reml_corpus.py` | LF→CRLF on write: a **9,151-line diff** for a ~250-line change |
+| 8 | the rollout driver | `capture_output=True, text=True` — a locale-codec decode hazard, caught by a gate |
+| 9 | the P47 near-miss sweep | flagged **26**, of which **25** were false positives |
+
+**Nine against a handful.** And the gates that caught most of them were built to guard the
+corpus: `lint_subprocess_decode`, `lint_pooled_point_is_displayable`, `standard_version_
+agreement_gate`, `lint_primary_by_position`, `manuscript_guard`, `generator_stamp_gate`.
+**Every one of them refused the toolmaker rather than the data.**
+
+**THE OPERATIONAL FORM, and it would have caught five of tonight's nine on their first run:**
+
+> **A new instrument is assumed defective until it has refused something real, and its
+> first finding is a claim about the instrument until checked against a known answer.**
+
+Applied to tonight: the OR-versus-HR lint's first finding was four "unaccountable" hazard
+ratios — a claim about the lint. The method-claim detector's first finding was that the
+flagship asserts two methods it cannot back — a claim about five wrong path declarations.
+The resolver sweep's first finding was zero resolvers in 782 files — a claim about a regex.
+The near-miss sweep's first finding was 26 render defects, of which 25 were its own false
+positives. **In every case the instrument was the thing that was wrong, and in every case
+checking the first finding against a known answer is what settled it.**
+
+The corpus is now better defended than the things defending it.
+
+### 47. A RESOLVER THAT RETURNS A CONTAINER WHERE A LEAF WAS NAMED
+
+**Distinct from a wrong address, and worse.** A path pointing at nothing fails loudly the
+first time a value is printed. This one resolves to something REAL, on every object.
+
+`lint_method_claim_has_a_field.py::get` supported a `*` wildcard and, at the wildcard,
+**returned the matching child instead of continuing down the remaining segments**. So
+`results.by_outcome.*.cross_engine` resolved to the **outcome block** —
+`{k, estimand_id, comparator_type, poolable, …}` — and never applied `.cross_engine`. The
+caller's test was `v is None or v == [] or v == {} or v == ""`. **A non-empty dict is
+truthy. The claim passed, and would have passed on every object in the corpus.**
+
+**That is a check with no constructible failing input — reached by a traversal bug rather
+than by design.** It is the one property this project has a rule about, arrived at sideways,
+where nobody was looking for it.
+
+> **A resolver must distinguish "this path TERMINATED EARLY" from "this path RESOLVED".**
+> Any resolver returning an intermediate node where a leaf was named has **silently widened
+> every claim that uses it**, and a truth test on the result cannot tell the difference.
+
+**Reading booleans hid it; printing values found it.** Second time in a week a defect
+survived until somebody looked at the PAYLOAD rather than the JUDGEMENT.
+
+#### And the sweep written to find this reported zero across 782 files
+
+**The sharpest single instance of the night, and it is about the three-state rule, not about
+a regex.** `audit_path_resolvers.py` used `^(\s*)def` under `re.M`; `\s*` consumed the
+preceding **newlines** into the indent capture, every extracted body came back as two empty
+lines, and the sweep found **0 resolvers in 782 files** — a matcher that matched everything
+and yielded nothing, inside the file written to find matchers that resolve to the wrong
+thing.
+
+**It survived only because it returned `NOT_ASSESSABLE` instead of a clean bill.** A zero
+from a two-state instrument is indistinguishable from a clean corpus, and it would have been
+filed as *"no resolvers have this shape"* — a reassuring result, permanently wrong.
+
+**Therefore the sweep now reports three states — CONFIRMED DEFECT, CONFIRMED CORRECT,
+UNREAD — with UNREAD as the loud default.** Measured 2026-08-20: **20 resolvers, 16 with the
+shape, 1 confirmed defect, 3 confirmed correct, 12 unread.** *Sixteen resolvers shaped like
+the bug is not sixteen bugs*, and that distinction does not survive a retelling if it lives
+only in prose. The unread count is a **reading list, not a finding**, and the file says so in
+its own output so it cannot be quoted otherwise.
+
+The one confirmed defect is `prose_claim_gate.py::check`, and it is a **different**
+narrowing: it takes the FIRST outcome's pooled interval and judges direction claims found
+anywhere on the object against it. On `sglt2-hf`, which has three pooled outcomes, a claim
+about one outcome is tested against another's interval. **A gate that narrows silently
+certifies rather than catches.**
+
 ### 46. A FIELD'S OWN PROSE NAMING ITS OWN DEFENCE, WHERE THE DEFENCE DOES NOT EXIST
 
 **Distinct from an undefended claim.** An undefended claim has no check behind it and nobody
