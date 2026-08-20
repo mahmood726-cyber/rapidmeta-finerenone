@@ -143,6 +143,7 @@
  #rt-report:checked ~ .tabnav label[for="rt-report"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  #rt-paper:checked ~ .panels > #pn-paper{height:auto;overflow:visible}
  #rt-paper:checked ~ .tabnav label[for="rt-paper"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-paper:focus-visible ~ .tabnav label[for="rt-paper"]{outline:3px solid var(--accent);outline-offset:2px}
  #rt-statistics:checked ~ .panels > #pn-statistics{height:auto;overflow:visible}
  #rt-statistics:checked ~ .tabnav label[for="rt-statistics"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  @media print{.panel{height:auto;overflow:visible}.tabnav{display:none}}
@@ -191,6 +192,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p>Computed from this object's own state &mdash; a structural condition is unmet. This is not a fixed disclaimer: the conditions below are each testable, and a build in which they are met renders READY.</p>
   <ul>
     <li><strong>No registration evidence</strong> &mdash; This object records no protocol registration.</li>
+    <li><strong>57 record(s) with eligibility undetermined</strong> <small>(no attestation can discharge this)</small> &mdash; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : INCLUDED; : EXCLUDED; : ELIGIBLE_NOT_POOLABLE; : INCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : ELIGIBLE_NOT_POOLABLE; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED; : EXCLUDED</li>
   </ul>
 </div>
 
@@ -213,7 +215,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <label for="rt-extract">4. Extraction</label>
   <label for="rt-analysis">5. Analysis Suite</label>
  <label for="rt-report">6. Scientific Output</label>
- <label for="rt-paper">7. Paper Studio</label>
+  <label for="rt-paper">7. Paper Studio</label>
  <label for="rt-statistics">Statistics</label>
 </nav>
 <div class="panels">
@@ -227,6 +229,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Review title</th><td>Azilsartan medoxomil plus chlorthalidone against olmesartan medoxomil plus hydrochlorothiazide on change in clinic systolic blood pressure: the two trials that share both arms</td></tr>
     <tr><th scope='col'>Review question (PICO)</th><td>Azilsartan medoxomil plus chlorthalidone against olmesartan medoxomil plus hydrochlorothiazide on change in clinic systolic blood pressure: the two trials that share both arms on mmHg change from baseline in trough, sitting, clinic systolic blood pressure?</td></tr>
     <tr><th scope='col'>Background / rationale</th><td><em>Not recorded &mdash; this object holds no background field, and an introduction generated without one would be argument that no source in this review supports</em></td></tr>
+    <tr><th scope='col'>Eligibility criteria</th><td>POPULATION: adults with essential or primary hypertension, read from the coded conditions field. WHERE THAT FIELD NAMES A STUDY OBJECTIVE RATHER THAN A DISEASE -- NCT01309828 declares `conditions: [&#x27;Safety&#x27;]` -- it is NOT_ASSESSABLE for this limb and the verdict falls back to the registered TITLE, saying on its face which it rests on. INTERVENTION: azilsartan medoxomil TOGETHER WITH chlorthalidone in the same arm; azilsartan monotherapy is a different intervention and azilsartan with amlodipine is another. COMPARATOR: olmesartan medoxomil TOGETHER WITH hydrochlorothiazide. ESTIMAND, which governs POOLABILITY and not eligibility: change from baseline in clinic systolic blood pressure, detected structurally at every rank. Criteria are DERIVED POST HOC and say so. THEY ARE NARROW BECAUSE THE QUESTION IS -- one fixed-dose combination against one other -- and narrowness is a defect only when derived backwards from the trials already present, which is why the screen ran over the whole programme rather than a shortlist.</td></tr>
     <tr><th scope='col'>Information sources</th><td>0 source layers, listed on the <a href="#extract">Extraction tab</a></td></tr>
     <tr><th scope='col'>Search strategy</th><td>The executed strings, datetimes, filters and hit counts are on the <a href="#search">Search tab</a></td></tr>
     <tr><th scope='col'>Study selection process</th><td>Two independent screeners of different model families, title/abstract then full text, with named human adjudication</td></tr>
@@ -246,18 +249,264 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
   </section>
 <!--end-protocol--> <section class="panel" id="pn-search">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No search record is held in this object. The included set was reconciled against published syntheses rather than produced by a database search, so no query, date or yield can be shown. Treat the included set as a convenience sample, not a systematic one.</div>
+<div class="absent-state" role="note"><strong>Partially held.</strong> The executed query is held on this object and is shown below. Its YIELD is not: the record does not carry the identifiers this query returned, so the number of records and their disposition cannot be shown and the table below is empty for that reason.</div>
+<div class='card'>
+  <h3>ClinicalTrials.gov API v2</h3>
+  <p><small>Query as executed:</small></p>
+  <pre>intervention=&quot;azilsartan&quot;; study_type=INTERVENTIONAL; NO phase filter; page_size=100; count_total=true</pre>
+  <div class='tscroll'><table>
+    <caption>Table 2. ClinicalTrials.gov API v2</caption>
+
+  </table></div>
+</div>
+<div class='card'>
+  <h3>PubMed (NCBI E-utilities esearch)</h3>
+  <p><small>Query as executed:</small></p>
+  <pre>NOT EXECUTED FOR THIS TOPIC</pre>
+  <div class='tscroll'><table>
+    <caption>Table 3. PubMed (NCBI E-utilities esearch)</caption>
+
+  </table></div>
+</div>
  </section>
 <!--end-search--> <section class="panel" id="pn-screen">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No screening log is recorded for this review. The included set was reconciled against published syntheses rather than screened from a search, so no records-identified, excluded-with-reason or dual-screening counts exist.</div>
+<div class="absent-state" role="note"><strong>Partially held.</strong> The per-record screening log IS held and is shown below: 57 records, none of which carries a stated reason. Not carried on this object: the records-identified and excluded-with-reason COUNTS that would reconcile these records to a PRISMA total, a reason for any individual exclusion and any dual-screening or adjudication record. Carrying them in the object's `screening` block would complete this tab.</div>
+<div class='card rec'>
+  <h3> <small>NCT00362115</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT00376181</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT00591253</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT00591266</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT00591578</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT00591773</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT00695955</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT00696241</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT00696384</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT00696436</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT00759551</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT00760214</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT00762736</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT00818883</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT00846365</small></h3>
+  <p><strong>This review's decision: INCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT00847626</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT00996281</small></h3>
+  <p><strong>This review's decision: ELIGIBLE_NOT_POOLABLE.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT01033071</small></h3>
+  <p><strong>This review's decision: INCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT01078376</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT01124656</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT01289132</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT01309828</small></h3>
+  <p><strong>This review's decision: ELIGIBLE_NOT_POOLABLE.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT01456169</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT01496430</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT01609959</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT01715584</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT01762501</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT01774591</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT01985152</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT02072330</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT02079805</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT02203916</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT02235519</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT02235909</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT02277691</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT02401464</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT02400775</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT02407210</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT02451150</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT02480764</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT02517866</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT02541669</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT02609490</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT02786082</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT02791438</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT03042299</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT03434977</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT03652792</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT04606563</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT04668157</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT05002244</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT05753696</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT05841654</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT06618079</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT06990204</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT07547878</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
+<div class='card rec'>
+  <h3> <small>NCT07683585</small></h3>
+  <p><strong>This review's decision: EXCLUDED.</strong></p>
+</div>
  </section>
 <!--end-screen-->  <section class="panel" id="pn-extract">
-  <p class='toc'><strong>In this section:</strong> <a href="#extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</a> &middot; <a href="#extract-sources">Sources</a> &middot; <a href="#extract-mmhg-change-from-baseline-in-trough-sitt">mmHg change from baseline in trough, sitting, clinic systolic blood pressure</a> &middot; <a href="#extract-mmhg-change-from-baseline-in-trough-sitt-2">mmHg change from baseline in trough, sitting, clinic systolic blood pressure</a> &middot; <a href="#extract-pooled-result">Pooled result</a> &middot; <a href="#extract-contributing-trials">Contributing trials</a> &middot; <a href="#extract-endpoint-definitions-read-from-the-regis">Endpoint definitions, read from the registry</a> &middot; <a href="#extract-named-on-this-review-contributing-nothin">Named on this review, contributing nothing to its pool</a></p>
+  <p class='toc'><strong>In this section:</strong> <a href="#extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</a> &middot; <a href="#extract-sources">Sources</a> &middot; <a href="#extract-mmhg-change-from-baseline-in-trough-sitt">mmHg change from baseline in trough, sitting, clinic systolic blood pressure</a> &middot; <a href="#extract-mmhg-change-from-baseline-in-trough-sitt-2">mmHg change from baseline in trough, sitting, clinic systolic blood pressure</a> &middot; <a href="#extract-pooled-result">Pooled result</a> &middot; <a href="#extract-nothing-moved-and-that-is-the-result">NOTHING MOVED, AND THAT IS THE RESULT</a> &middot; <a href="#extract-contributing-trials">Contributing trials</a> &middot; <a href="#extract-endpoint-definitions-read-from-the-regis">Endpoint definitions, read from the registry</a> &middot; <a href="#extract-named-on-this-review-contributing-nothin">Named on this review, contributing nothing to its pool</a></p>
 <div class='card'>
   <h2 id="extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</h2>
   <p>One row per extracted value. Every row carries the value, the verbatim sentence it was read from, a resolvable link to the source, and whether the number was read or derived. Where any of those is absent the row says so rather than omitting the value.</p>
   <div class='tscroll'><table>
-    <caption>Table 2. Extracted values, and where each came from</caption>
+    <caption>Table 4. Extracted values, and where each came from</caption>
 
     <tr><th>Trial / outcome</th><th>Value as extracted</th><th>Verbatim source sentence</th><th>Source links</th><th>Read or derived</th></tr>
     <tr><td>NCT00846365<br><small>sbp_change_wk8</small></td><td><strong>MD -6.1</strong> (95% CI -8.4 to -3.8)</td><td><em>no source sentence recorded &mdash; this value cannot be checked against a quoted line here</em></td><td><a href='https://clinicaltrials.gov/study/NCT00846365' rel='noopener'>NCT00846365</a></td><td><em>not stated whether read or derived</em></td></tr>
@@ -267,7 +516,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h2 id="extract-sources">Sources</h2>
   <div class='tscroll'><table>
-    <caption>Table 3. Sources</caption>
+    <caption>Table 5. Sources</caption>
 
     <tr><th>Layer</th><th>Source</th><th>How it was obtained</th></tr>
   </table></div>
@@ -280,12 +529,16 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p class='num'>MD -5.691 (-7.3 to -4.083), 95% interval</p>
   <p>mmHg change from baseline in trough, sitting, clinic systolic blood pressure. random-effects, estimator REML (restricted maximum likelihood), k = 2.</p>
   <p><small>&tau;&sup2; 0 &middot; I&sup2; 0% &middot; Q 0.2375 on 1 df</small></p>
+  <p>TWO TRIALS RANDOMISE THE SAME FIXED-DOSE COMBINATION AGAINST THE SAME COMPARATOR AND REGISTER THE SAME CONTINUOUS ENDPOINT. Nothing had to be harmonised: this review&#x27;s question was already a question, its estimand was already shared, and its arms already matched. WHAT IT LACKED WAS ANY EVIDENCE THAT THESE WERE THE ONLY TWO, and the executed search of 2026-08-19 supplies it -- 57 registrations screened, 53 excluded, and only FOUR carrying both arms of the contrast at all. The other two are long-term open-label SAFETY studies that register no blood-pressure change outcome at any rank, so they are ELIGIBLE AND NOT POOLABLE rather than absent.</p>
+  <div class='card warn'><h3 id="extract-nothing-moved-and-that-is-the-result">NOTHING MOVED, AND THAT IS THE RESULT.</h3><div class='tscroll'><table>
+    <caption>Table 6. NOTHING MOVED, AND THAT IS THE RESULT.</caption>
+<tr><th></th><th>k</th><th>n</th><th>estimate</th><th>I&sup2;</th></tr><tr><td>before the check</td><td class='num'>2</td><td class='num'>2156</td><td class='num'>-5.691 (-7.3 to -4.083)</td><td class='num'>0%</td></tr><tr><td>after</td><td class='num'>2</td><td class='num'>2156</td><td class='num'>-5.691 (-7.3 to -4.083)</td><td class='num'>0%</td></tr></table></div><p>No trial joined and none left. The pooled estimate is unchanged to every digit.</p><p><strong>BEFORE THE SEARCH, THIS REVIEW&#x27;S TWO TRIALS WERE THE TWO SOMEBODY PUT ON A PAGE. They are now the two that the whole 57-record azilsartan programme supports, and the difference between those two states is invisible from the outside -- a correct included set and an unexamined one look identical. The check is what distinguishes them, and it is worth the same when it confirms.</strong></p><p><small>Second instance in one day, by a different route. bococizumab&#x27;s evidence base was checked and gained a trial; this one was checked and gained none; apixaban&#x27;s withholding question moved one poolable set UP and another DOWN. A procedure whose answers were always convenient would be indistinguishable from no procedure.</small></p></div>
 </div>
 
 <div class="card">
   <h3 id="extract-contributing-trials">Contributing trials</h3>
   <div class='tscroll'><table>
-    <caption>Table 4. Contributing trials</caption>
+    <caption>Table 7. Contributing trials</caption>
 
     <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
         <th>MD (95% CI), or events</th>
@@ -302,7 +555,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   saying what was COUNTED, and only the second one licenses a pool. Read from the registry on 2026-08-18. Follow the
   registration link to disagree with any row.</small></p>
   <div class='tscroll'><table>
-    <caption>Table 5. Endpoint definitions, read from the registry</caption>
+    <caption>Table 8. Endpoint definitions, read from the registry</caption>
 
     <tr><th>Trial</th><th>Rank in its own trial</th>
         <th>Registered outcome measure</th>
@@ -315,7 +568,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <h3 id="extract-named-on-this-review-contributing-nothin">Named on this review, contributing nothing to its pool</h3>
   <p><small>No reason is recorded.</small></p>
   <div class='tscroll'><table>
-    <caption>Table 6. Named on this review, contributing nothing to its pool</caption>
+    <caption>Table 9. Named on this review, contributing nothing to its pool</caption>
 
     <tr><th>Trial</th><th>Why it contributes nothing</th>
         <th>What the registry holds</th></tr>
@@ -459,11 +712,11 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
   </section>
 <!--end-analysis--> <section class="panel" id="pn-report">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No GRADE assessment or reconciliation record is held in this object, so the certainty of this evidence has not been rated.</div>
+<div class="absent-state" role="note"><strong>Partially held.</strong> Part of the reporting record is held and is shown below. No GRADE certainty rating is carried, so the certainty column is left as an em dash rather than guessed.</div>
 <div class='card'>
   <h3>Summary of findings</h3>
   <div class='tscroll'><table>
-    <caption>Table 7. Summary of findings</caption>
+    <caption>Table 10. Summary of findings</caption>
 
     <tr><th>Outcome</th><th>k</th><th>Pooled effect</th><th>Certainty</th></tr>
     <tr><td>mmHg change from baseline in trough, sitting, clinic systolic blood pressure</td><td class='num'>2</td><td class='num'>MD -5.69 (-7.3 to -4.08)</td><td>&mdash;</td></tr>
@@ -472,24 +725,111 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h3>Reproducibility artifact</h3>
   <div class='tscroll'><table>
-    <caption>Table 8. Reproducibility artifact</caption>
+    <caption>Table 11. Reproducibility artifact</caption>
 
-    <tr><th scope='col'>Canonical object</th><td><code></code></td></tr>
-    <tr><th scope='col'>Registered at</th><td><code></code> </td></tr>
+    <tr><th scope='col'>Canonical object</th><td><code>—</code></td></tr>
+    <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-18</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>c10efc912</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>4c3fde9b5</code>, built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
  </section>
-<!--end-report--> <section class="panel" id="pn-paper">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No manuscript has been generated for this review.</div>
+<!--end-report-->  <section class="panel" id="pn-paper">
+  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-sections-not-written-and-why">Sections not written, and why</a> &middot; <a href="#paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-keywords">Keywords</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a></p>
 <div class='card'>
-  <h2>Paper Studio</h2>
-  <div class='absent-state' role='note'><strong>Not held in this object.</strong> No manuscript has been generated for azilsartan-chlorthalidone-vs-olmesartan-hctz. A manuscript belongs to one review, so none from another review is shown here &mdash; this tab is empty of content rather than filled with someone else&rsquo;s.</div>
-</div>
- </section>
+<h2 id="paper-paper">Paper</h2>
+<p class='muted'>Every paragraph below is PROJECTED from a field of this object, and names it. <strong>A section with no field behind it is not written</strong> &mdash; it is refused, by name, so a reader can tell an absent procedure from an unmentioned one.</p>
+<h3 id="paper-title-and-review-question">Title and review question</h3>
+<p>Azilsartan medoxomil plus chlorthalidone against olmesartan medoxomil plus hydrochlorothiazide on change in clinic systolic blood pressure: the two trials that share both arms<br><small class='muted'>&larr; title</small></p>
+<p>Azilsartan medoxomil plus chlorthalidone against olmesartan medoxomil plus hydrochlorothiazide on change in clinic systolic blood pressure: the two trials that share both arms on mmHg change from baseline in trough, sitting, clinic systolic blood pressure?<br><small class='muted'>&larr; question</small></p>
+<h3 id="paper-methods-search">Methods — search</h3>
+<p>Searches were executed in ClinicalTrials.gov API v2 on 2026-08-19 with the query, verbatim: intervention=&quot;azilsartan&quot;; study_type=INTERVENTIONAL; NO phase filter; page_size=100; count_total=true. It returned 57 record(s).<br><small class='muted'>&larr; search.databases[0]</small></p>
+<p>Searches were executed in PubMed (NCBI E-utilities esearch) on 2026-08-19 with the query, verbatim: NOT EXECUTED FOR THIS TOPIC. It returned None record(s).<br><small class='muted'>&larr; search.databases[1]</small></p>
+<h3 id="paper-methods-eligibility-criteria">Methods — eligibility criteria</h3>
+<p>POPULATION: adults with essential or primary hypertension, read from the coded conditions field. WHERE THAT FIELD NAMES A STUDY OBJECTIVE RATHER THAN A DISEASE -- NCT01309828 declares `conditions: [&#x27;Safety&#x27;]` -- it is NOT_ASSESSABLE for this limb and the verdict falls back to the registered TITLE, saying on its face which it rests on. INTERVENTION: azilsartan medoxomil TOGETHER WITH chlorthalidone in the same arm; azilsartan monotherapy is a different intervention and azilsartan with amlodipine is another. COMPARATOR: olmesartan medoxomil TOGETHER WITH hydrochlorothiazide. ESTIMAND, which governs POOLABILITY and not eligibility: change from baseline in clinic systolic blood pressure, detected structurally at every rank. Criteria are DERIVED POST HOC and say so. THEY ARE NARROW BECAUSE THE QUESTION IS -- one fixed-dose combination against one other -- and narrowness is a defect only when derived backwards from the trials already present, which is why the screen ran over the whole programme rather than a shortlist.<br><small class='muted'>&larr; screening.eligibility</small></p>
+<p>Each criterion above is recorded with the source it was derived from in `screening.eligibility_provenance`; none is asserted here without one.<br><small class='muted'>&larr; screening.eligibility_provenance</small></p>
+<h3 id="paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</h3>
+<p>k is reported at every stage rather than as a single number: k0 surfaced 57; k2 role located 57; k3 experimental 45; k4 comparator 4; k5 background 8; kNA not assessable 0; k screened 57; k excluded 53; k eligible 4; k eligible not poolable 2; k included in object 2; k pooled 2; k unscreened remainder 0.<br><small class='muted'>&larr; k_cascade</small></p>
+<p>The PRISMA 2020 flow counts are recorded in `prisma_flow` and reconcile with the executed searches above.<br><small class='muted'>&larr; prisma_flow</small></p>
+<p>The unscreened remainder is 0.<br><small class='muted'>&larr; k_cascade.k_unscreened_remainder</small></p>
+<h3 id="paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</h3>
+<p>Before deciding which outcomes could be combined, every trial was read at every registered rank -- primary, secondary and other -- asking: does each trial that shares BOTH arms register a blood-pressure CHANGE outcome at ANY rank -- primary, secondary or other -- before concluding which trials can be combined? Asked at EVERY registered rank and detected STRUCTURALLY -- a blood-pressure term plus a change term -- rather than by the two incumbents&#x27; registered phrase, which would have found the two that already agree and nothing else. YES FOR THE TWO INCLUDED TRIALS AND NO FOR THE OTHER TWO. Four registrations in the whole azilsartan programme carry both arms of this contrast. Two register a blood-pressure change outcome and are pooled; two register none at any rank and are ELIGIBLE, NOT POOLABLE. Both of those are long-term open-label SAFETY studies -- n=837 and n=153 -- and their absence from the pool is an estimand fact, not a population one.<br><small class='muted'>&larr; withholding_question.question, withholding_question.why_before_deciding</small></p>
+<h3 id="paper-methods-synthesis">Methods — synthesis</h3>
+<p>For sbp_change_wk8, a random-effects model was fitted with the REML (restricted maximum likelihood) estimator.<br><small class='muted'>&larr; results.by_outcome.sbp_change_wk8.model, results.by_outcome.sbp_change_wk8.estimator_used</small></p>
+<p>Risk of bias was assessed with RoB 2 (), following .  0 result-level assessments were made. <br><small class='muted'>&larr; risk_of_bias.tool, risk_of_bias.by_outcome</small></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that records were screened in duplicate -- and this topic OWES one rather than merely lacking one:  &mdash; no field: <code>screening.duplicate_screening.performed</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that certainty of evidence was graded &mdash; no field: <code>grade.approach</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that the review methods were prespecified before data collection. THIS REFUSAL IS PERMANENT AND IS NOT A GAP TO BE FILLED. A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively. Eligibility criteria were derived POST HOC on 2026-08-19, when this review&#x27;s search was executed for the first time. MECIR R107, provided they are declared as such. &mdash; no field: <code>protocol.prespecified = false (declared, not missing)</code></div>
+<h3 id="paper-results">Results</h3>
+<p>The pooled mean difference for mmHg change from baseline in trough, sitting, clinic systolic blood pressure was -5.69 (-7.3 to -4.08) across 2 trials, against olmesartan medoxomil plus hydrochlorothiazide.<br><small class='muted'>&larr; outcomes[id=sbp_change_wk8].name, results.by_outcome.sbp_change_wk8.pooled, outcomes[id=sbp_change_wk8].comparator</small></p>
+<p>Between-trial heterogeneity was I-squared 0%, tau-squared 0, Q 0.237, degrees of freedom 1.<br><small class='muted'>&larr; results.by_outcome.sbp_change_wk8.heterogeneity.i2, results.by_outcome.sbp_change_wk8.heterogeneity.tau2, results.by_outcome.sbp_change_wk8.heterogeneity.q, results.by_outcome.sbp_change_wk8.heterogeneity.df</small></p>
+<p>The grounds for pooling are recorded as: TWO TRIALS RANDOMISE THE SAME FIXED-DOSE COMBINATION AGAINST THE SAME COMPARATOR AND REGISTER THE SAME CONTINUOUS ENDPOINT. Nothing had to be harmonised: this review&#x27;s question was already a question, its estimand was already shared, and its arms already matched. WHAT IT LACKED WAS ANY EVIDENCE THAT THESE WERE THE ONLY TWO, and the executed search of 2026-08-19 supplies it -- 57 registrations screened, 53 excluded, and only FOUR carrying both arms of the contrast at all. The other two are long-term open-label SAFETY studies that register no blood-pressure change outcome at any rank, so they are ELIGIBLE AND NOT POOLABLE rather than absent. Where a later pool on this page rests on the same grounds, they are not restated.<br><small class='muted'>&larr; results.by_outcome.sbp_change_wk8.poolable_reason</small></p>
+<p>What this does not establish: NOT that the trials are free of bias -- no RoB-2 assessment is recorded on this object. NOT that the pooled value transfers outside the populations these trials enrolled. NOT that the registry&#x27;s posted analysis is itself correct: it is READ, and reading it faithfully is a different claim from endorsing it.<br><small class='muted'>&larr; results.by_outcome.sbp_change_wk8.what_this_does_not_establish</small></p>
+<h3 id="paper-limitations">Limitations</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the limitations section &mdash; no field: <code>screening.known_limitation</code></div>
+<h3 id="paper-abstract">Abstract</h3>
+<p>Question. Azilsartan medoxomil plus chlorthalidone against olmesartan medoxomil plus hydrochlorothiazide on change in clinic systolic blood pressure: the two trials that share both arms on mmHg change from baseline in trough, sitting, clinic systolic blood pressure?<br><small class='muted'>&larr; question</small></p>
+<p>Findings. mmHg change from baseline in trough, sitting, clinic systolic blood pressure: mean difference -5.69 (-7.3 to -4.08) across 2 trials.<br><small class='muted'>&larr; results.by_outcome</small></p>
+<h3 id="paper-introduction">Introduction</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> Background.  &mdash; no field: <code>protocol.rationale</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Introduction -- no background or rationale is recorded on this object. This is a CONTENT gap, not a rendering one: no change to this projector produces it, and it is written by adding `protocol.rationale` to the object &mdash; no field: <code>protocol.rationale</code></div>
+<h3 id="paper-certainty-of-the-evidence">Certainty of the evidence</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> Certainty of the evidence, by outcome, with every rating step &mdash; no field: <code>grade.by_outcome</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the certainty assessment -- no GRADE record is held, so the certainty column elsewhere on this page is an em dash rather than a guess &mdash; no field: <code>grade</code></div>
+<h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
+<p>Risk of bias was assessed with RoB 2. The unit of assessment is a result<br><small class='muted'>&larr; risk_of_bias.tool</small></p>
+<h3 id="paper-disagreements-between-sources">Disagreements between sources</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the reconciliation against other sources &mdash; no field: <code>reconciliation</code></div>
+<h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the comparison with published syntheses -- no published synthesis is recorded for this topic, so no denominator can be given &mdash; no field: <code>published_comparison</code></div>
+<h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the verbatim model output -- no analysis output is stored on this object, so nothing can be quoted and nothing is paraphrased in its place &mdash; no field: <code>results.by_outcome.*.r_output.verbatim</code></div>
+<h3 id="paper-discussion">Discussion</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>discussion</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a discussion written by the renderer would be an argument no field supports &mdash; no field: <code>discussion</code></div>
+<h3 id="paper-conclusions">Conclusions</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>conclusions</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a conclusions written by the renderer would be an argument no field supports &mdash; no field: <code>conclusions</code></div>
+<h3 id="paper-sections-not-written-and-why">Sections not written, and why</h3>
+<p>This review refuses 4 of the page standard&#x27;s properties, by name: P18_restatement_is_reproducible, P21_ambiguous_question_split, P6_analysis_output, P7_published_comparison. A refused property is a completed outcome with a stated reason, not an omission.<br><small class='muted'>&larr; build_stamp.refusing</small></p>
+<h3 id="paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>funding</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a CONTENT gap. A submission requires it and this object does not carry it; it is not inferable from anything held here &mdash; no field: <code>funding</code></div>
+<h3 id="paper-references">References</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the reference list &mdash; no field: <code>sources</code></div>
+<h3 id="paper-keywords">Keywords</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>keywords</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a CONTENT gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose &mdash; no field: <code>keywords</code></div>
+<h3 id="paper-data-availability">Data availability</h3>
+<p>Every trial in this review is keyed to a registration identifier, verified by live fetch of the raw ClinicalTrials.gov v2 record and comparison of the returned nctId against the id stored on this object on 2026-08-19.<br><small class='muted'>&larr; registration_identity.method</small></p>
+<div class='tscroll'><table><caption>Registration identifiers, and whether each was verified<br><small class='muted'>&larr; registration_identity.trials</small></caption>
+<tr><th>Registration</th><th>Verified</th><th>Link</th></tr>
+<tr><td>NCT00846365</td><td>True</td><td>https://clinicaltrials.gov/study/NCT00846365</td></tr>
+<tr><td>NCT01033071</td><td>True</td><td>https://clinicaltrials.gov/study/NCT01033071</td></tr>
+</table></div>
+<h3 id="paper-software-availability">Software availability</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the software and environment statement &mdash; no field: <code>results.by_outcome.*.r_output._environment, config.confidence_level</code></div>
+<h3 id="paper-note-on-registration">Note on registration</h3>
+<p>Protocol status. Prespecified: False. A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively.<br><small class='muted'>&larr; protocol</small></p>
+<p>Eligibility criteria were derived POST HOC on 2026-08-19, when this review&#x27;s search was executed for the first time.<br><small class='muted'>&larr; protocol.what_was_actually_done</small></p>
+<p>Authority: MECIR R107, provided they are declared as such.<br><small class='muted'>&larr; protocol.authority_permitting_it</small></p>
+<h3 id="paper-trial-characteristics">Trial characteristics</h3>
+<div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<br><small class='muted'>&larr; inputs.trials</small></caption>
+<tr><th>Registration</th><th>Trial</th><th>Arms</th><th>Participants</th></tr>
+<tr><td>NCT00846365</td><td></td><td></td><td>not extracted</td></tr>
+<tr><td>NCT01033071</td><td></td><td></td><td>not extracted</td></tr>
+</table></div>
+<h3 id="paper-figure-legends">Figure legends</h3>
+<div class='tscroll'><table><caption>Figures, and what each one shows<br><small class='muted'>&larr; results.by_outcome</small></caption>
+<tr><th>Outcome</th><th>Figure</th><th>What it shows</th></tr>
+<tr><td>mmHg change from baseline in trough, sitting, clinic systolic blood pressure</td><td>Forest plot</td><td>mean difference -5.69 (-7.3 to -4.08) across 2 trials</td></tr>
+</table></div>
+<h3 id="paper-submission-conformance">Submission conformance</h3>
+<p>This review was built to page standard 1.14.0-2026-08-19 (PAGE-STANDARD.md), by ssot/build_to_standard.py on 2026-08-19. A page built below the current standard is knowably below it rather than silently stale.<br><small class='muted'>&larr; build_stamp.page_standard_version</small></p>
+<p>Properties held: 10, by name -- P19_promotion_reaches_derived_blocks, P1_executed_search, P20_cascade_reconciles, P22_sharing_recorded, P23_recall_measured, P2_k_cascade, P3_inclusion_criteria, P4_preconditions, P5_extraction_table, P8_registration_identity.<br><small class='muted'>&larr; build_stamp.held</small></p>
+</div>  </section>
 <!--end-paper--> <section class="panel" id="pn-statistics">
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No statistical panel set is held in this object.</div>
  </section>
@@ -529,7 +869,23 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   }
 })();
 </script>
-
+<div class='card'><h2>Page standard 1.14.0-2026-08-19</h2><p>Built 2026-08-19 by <code>ssot/build_to_standard.py</code> against <code>PAGE-STANDARD.md</code>. <strong>10 held, 4 refusing.</strong> A refusal is a complete outcome; nothing is generated to fill a slot.</p><div class='tscroll'><table>
+    <caption>Table 12. Page standard 1.14.0-2026-08-19</caption>
+<tr><th>property</th><th>state</th><th>reason</th></tr><tr class='ok'><td>P1_executed_search</td><td><strong>HELD</strong></td><td>2 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 0-trial unscreened remainder is stated as a number rather than omitted.</td></tr><tr class='ok'><td>P2_k_cascade</td><td><strong>HELD</strong></td><td>k at every stage: surfaced 57, located 57, experimental 45, comparator 4, included 2, unscreened remainder 0.</td></tr><tr class='ok'><td>P3_inclusion_criteria</td><td><strong>HELD</strong></td><td>Criteria provenance block present with predefined=False on its face (state &#x27;DERIVED_POST_HOC&#x27;).</td></tr><tr class='ok'><td>P4_preconditions</td><td><strong>HELD</strong></td><td>All 8 recorded with verdict and cited authority: 1 FAIL, 3 NOT-ASSESSABLE. criteria_predefined is FAIL -- post hoc criteria, which R107 permits and C5/C7 does not satisfy.</td></tr><tr class='ok'><td>P5_extraction_table</td><td><strong>HELD</strong></td><td>8 cells: 6 READ with source path and verbatim text, 2 DERIVED with the method named.</td></tr><tr class='warn'><td>P6_analysis_output</td><td><strong>REFUSING</strong></td><td>No quotable model output exists: k=2 and the pool on this page was computed outside R, so there is a synthesis and no quotation. The absence is recorded as a finding with its cause and what would close it.</td></tr><tr class='warn'><td>P7_published_comparison</td><td><strong>REFUSING</strong></td><td>No denominator yet. Blocked on external registration-id resolution; citation-string matching explicitly refused rather than substituted.</td></tr><tr class='ok'><td>P8_registration_identity</td><td><strong>HELD</strong></td><td>2 of 2 trial(s) verified live against the registry.</td></tr><tr class='warn'><td>P18_restatement_is_reproducible</td><td><strong>REFUSING</strong></td><td>No restatement block on this cascade, so there is nothing to re-derive. This is NOT_ASSESSABLE dressed as a refusal rather than a pass: a topic that has never been restated has not demonstrated that a restatement of it would be checkable.</td></tr><tr class='ok'><td>P19_promotion_reaches_derived_blocks</td><td><strong>HELD</strong></td><td>inputs.trials, k_cascade.k_included_in_object and prisma_flow.included all say 2; no first-person field in published_comparison declares a k the pooled outcome(s) do not.</td></tr><tr class='ok'><td>P20_cascade_reconciles</td><td><strong>HELD</strong></td><td>k2_role_located=57 == k3+k4+k5, and k0_surfaced=57 == k3+k4+k5+kNA. Both checked, and every failing limb would be reported rather than the first.</td></tr><tr class='warn'><td>P21_ambiguous_question_split</td><td><strong>REFUSING</strong></td><td>This object records no split provenance. That is CORRECT for a topic whose question was never ambiguous and it is NOT a pass: this builder cannot tell the two apart, so the property is refused with the reason rather than held on an absence. What would settle it: a `split_provenance` block, or an explicit statement that the question admits one reading.</td></tr><tr class='ok'><td>P22_sharing_recorded</td><td><strong>HELD</strong></td><td>2 shared trial(s), each recorded with the topics holding it and why: NCT00846365 in [&#x27;olmesartan-htn&#x27;]; NCT01033071 in [&#x27;olmesartan-htn&#x27;]. The object also states that summing per-topic k double-counts.</td></tr><tr class='ok'><td>P23_recall_measured</td><td><strong>HELD</strong></td><td>All 2 recorded quer(ies) state their recall against this review&#x27;s own included set: [&#x27;2/2&#x27;, &#x27;NOT MEASURED&#x27;].</td></tr></table></div><h3>k at every stage</h3><div class='tscroll'><table>
+    <caption>Table 13. k at every stage</caption>
+<tr><th>stage</th><th>k</th></tr><tr><td>k0_surfaced</td><td>57</td></tr><tr><td>k2_role_located</td><td>57</td></tr><tr><td>k3_experimental</td><td>45</td></tr><tr><td>k4_comparator</td><td>4</td></tr><tr><td>k5_background</td><td>8</td></tr><tr><td>kNA_not_assessable</td><td>0</td></tr><tr><td>k_screened</td><td>57</td></tr><tr><td>k_excluded</td><td>53</td></tr><tr><td>k_eligible</td><td>4</td></tr><tr><td>k_eligible_not_poolable</td><td>2</td></tr><tr><td>k_included_in_object</td><td>2</td></tr><tr><td>k_pooled</td><td>2</td></tr><tr><td>k_unscreened_remainder</td><td>0</td></tr><tr><td>reproduced_by</td><td>scripts/screen_azilsartan_2026_08_19.py.</td></tr><tr><td>why_53_of_57_ARE_EXCLUDED_AND_THAT_IS_NOT_A_CRITICISM_OF_THE_QUERY</td><td>The query is the whole azilsartan programme and the review is ONE fixed-dose combination against ONE other. ALL 53 EXCLUSIONS FAIL ON COMPARATOR -- only four registrations in the entire programme carry an olmesartan-plus-hydrochlorothiazide arm, and the other fifty-three randomise azilsartan against valsartan, olmesartan alone, ramipril, candesartan, amlodipine, or placebo. All are perfectly good contrasts and none is this one. THE QUERY WAS DELIBERATELY BUILT FROM THE DRUG AND NOT FROM THE CONTRAST: a query built from the contrast could only have returned trials already naming all three agents, which is the set this review already held, and a search that can only confirm the included set is not a search.</td></tr><tr><td>and_the_included_set_DID_NOT_CHANGE</td><td>k stays 2. THE THIRD DIRECTION AGAIN, on a second topic and by a different route: bococizumab&#x27;s evidence base was checked and gained one trial; this one was checked and gained none. Before either search, neither review could tell a correct included set from an unexamined one.</td></tr><tr><td>keyed_on</td><td>registration id</td></tr></table></div><h3>Inclusion criteria — derived, post hoc</h3><p><strong>predefined: False &nbsp;|&nbsp; post_hoc: True</strong> — derived —</p><p><small>—</small></p><div class='tscroll'><table>
+    <caption>Table 14. Inclusion criteria — derived, post hoc</caption>
+<tr><th>limb</th><th>value</th><th>derived from</th></tr><tr><td>—</td><td>—</td><td><code>—</code></td></tr><tr><td>—</td><td>—</td><td><code>—</code></td></tr><tr><td>—</td><td>—</td><td><code>—</code></td></tr><tr><td>—</td><td>—</td><td><code>—</code></td></tr></table></div><h3>The withholding question, asked at every rank</h3><p><em>does each trial that shares BOTH arms register a blood-pressure CHANGE outcome at ANY rank -- primary, secondary or other -- before concluding which trials can be combined?</em></p><p><strong>YES FOR THE TWO INCLUDED TRIALS AND NO FOR THE OTHER TWO. Four registrations in the whole azilsartan programme carry both arms of this contrast. Two register a blood-pressure change outcome and are pooled; two register none at any rank and are ELIGIBLE, NOT POOLABLE. Both of those are long-term open-label SAFETY studies -- n=837 and n=153 -- and their absence from the pool is an estimand fact, not a population one.</strong></p><p><small>Asked at EVERY registered rank and detected STRUCTURALLY -- a blood-pressure term plus a change term -- rather than by the two incumbents&#x27; registered phrase, which would have found the two that already agree and nothing else.</small></p><div class='tscroll'><table>
+    <caption>Table 15. The withholding question, asked at every rank</caption>
+<tr><th>registration</th><th>trial</th><th>two-component</th><th>three-component</th></tr><tr><td><code>NCT00846365</code></td><td>Efficacy and Safety of Azilsartan Medoxomil Plus Chlorthalid</td><td><small>16 rank(s) read</small></td><td><small>[PRIMARY] Change From Baseline to Week 8 in Trough, Sitting, Clinic Systolic Blood Pressure.; [SECONDARY] Change From Baseline to Week 4 in Trough, Sitting, Clinic Systolic Blood Pressure.; [SECONDARY] Change From Baseline in Trough, Sitting, Clinic Diastolic Blood Pressure; [SECONDARY] Change From Baseline in Trough Mean Systolic Blood Pressure Measured by Ambulatory Blood P; [SECONDARY] Change From Baseline in Trough Mean Diastolic Blood Pressure Measured by Ambulatory Blood ; [SECONDARY] Change From Baseline in 24-hour Mean Systolic Blood Pressure as Measured by Ambulatory Blo; [SECONDARY] Change From Baseline in 24-hour Mean Diastolic Blood Pressure Measured by Ambulatory Blood; [SECONDARY] Change From Baseline in Daytime Mean (6am to 10pm) Systolic Blood Pressure Measured by Amb; [SECONDARY] Change From Baseline in Daytime Mean (6am to 10pm) Diastolic Blood Pressure Measured by Am; [SECONDARY] Change From Baseline in Nighttime Mean (12am to 6am) Systolic Blood Pressure Measured by A; [SECONDARY] Change From Baseline in Nighttime Mean (12am to 6am) Diastolic Blood Pressure Measured by ; [SECONDARY] Change From Baseline in 12-hr Mean Systolic Blood Pressure Measured by Ambulatory Blood Pr; [SECONDARY] Change From Baseline in 12-hr Mean Diastolic Blood Pressure Measured by Ambulatory Blood P</small></td></tr><tr><td><code>NCT00996281</code></td><td>Safety and Tolerability of Azilsartan Medoxomil Plus Chlorth</td><td><small>2 rank(s) read</small></td><td><small>NO blood-pressure change outcome at any rank</small></td></tr><tr><td><code>NCT01033071</code></td><td>Efficacy and Safety of Azilsartan Medoxomil and Chlorthalido</td><td><small>18 rank(s) read</small></td><td><small>[PRIMARY] Change From Baseline in Trough, Sitting, Clinic Systolic Blood Pressure.; [SECONDARY] Change From Baseline in Trough, Sitting, Clinic Systolic Blood Pressure.; [SECONDARY] Change From Baseline in Trough, Sitting, Clinic Diastolic Blood Pressure.; [SECONDARY] Change From Baseline in Mean Trough Systolic Blood Pressure by Ambulatory Blood Pressure M; [SECONDARY] Change From Baseline in Mean Trough Diastolic Blood Pressure by Ambulatory Blood Pressure ; [SECONDARY] Change From Baseline in 24-hour Mean Systolic Blood Pressure by Ambulatory Blood Pressure ; [SECONDARY] Change From Baseline in 24-hour Mean Diastolic Blood Pressure by Ambulatory Blood Pressure; [SECONDARY] Change From Baseline in Mean Daytime (6 AM to 10 PM) Systolic Blood Pressure by Ambulatory; [SECONDARY] Change From Baseline in Mean Daytime (6 AM to 10 PM) Diastolic Blood Pressure by Ambulator; [SECONDARY] Change From Baseline in Mean Nighttime (12 AM to 6 AM) Systolic Blood Pressure by Ambulato; [SECONDARY] Change From Baseline in Mean Nighttime (12 AM to 6 AM) Diastolic Blood Pressure by Ambulat; [SECONDARY] Change From Baseline in the Mean Systolic Blood Pressure at 0 to 12 Hours After Dosing by ; [SECONDARY] Change From Baseline in the Mean Diastolic Blood Pressure at 0 to 12 Hours After Dosing by; [SECONDARY] Change From Baseline in the Mean Systolic Blood Pressure During Each Hour of the 24-hour A; [SECONDARY] Change From Baseline in the Mean Diastolic Blood Pressure During Each Hour of the 24-hour </small></td></tr><tr><td><code>NCT01309828</code></td><td>Long-Term Safety of Azilsartan Medoxomil and Chlorthalidone </td><td><small>4 rank(s) read</small></td><td><small>NO blood-pressure change outcome at any rank</small></td></tr></table></div><h3>Screening of the remainder — — screened, — included, — excluded, — not-assessable</h3><p>—</p><p><strong>k after screening: —.</strong> —</p><div class='tscroll'><table>
+    <caption>Table 16. Screening of the remainder — — screened, — included, — excluded, — not-assessable</caption>
+<tr><th>failing limb</th><th>n</th><th>registrations</th></tr></table></div><h4>The withholding question, asked at every rank</h4><p><em>—</em></p><p><small>—</small></p><div class='tscroll'><table>
+    <caption>Table 17. The withholding question, asked at every rank</caption>
+<tr><th>registration</th><th>rank</th><th>matching outcome</th></tr></table></div><h4>Every trial, with its reason</h4><div class='tscroll'><table>
+    <caption>Table 18. Every trial, with its reason</caption>
+<tr><th>registration</th><th>verdict</th><th>limb</th><th>reason</th></tr></table></div><h3>Analysis output — NO_QUOTABLE_MODEL_OUTPUT_BUT_A_POOL_EXISTS</h3><p>k=2 AND A POOL WAS COMPUTED -- it is on this page -- but NOT by a model call this object can quote. There is no R session, no printed output and no package version, so P6 refuses on the QUOTATION and not on the synthesis. The arithmetic is reproducible from the script named on the outcome; a quotable metafor call is what is missing and what would hold P6.</p><p><strong>What stands instead:</strong> —<br><small>Provenance: —</small><br><code>—</code></p><p><small>Heterogeneity: Undefined: no between-study variance was estimated because no model was run.<br>What would change it: An estimand shared by two or more included trials. Where k is already above 1 and nothing pooled, the obstacle is the ESTIMAND rather than the evidence base, and this field must say which.</small></p><h3>Published-meta comparison — PENDING_EXTERNAL_RESOLUTION</h3><p><strong>Denominator: —.</strong> Not yet established. Establishing it requires resolving published syntheses&#x27; included-sets to REGISTRATION IDs. A second lane has validated that pipeline (stated-k table identification plus two-hop citation-&gt;PMID-&gt;registration) and is running it now.</p><p><small><strong>Explicitly not done:</strong> CITATION-STRING MATCHING. It would produce a comparison-shaped answer tonight and it is not identity: two syntheses citing the same trial under different labels would read as different, and the same label on different trials as the same. That is the substitution class this project audits for.</small></p><p><small>Blocked on: lane 2 registration-id resolution</small></p><h3>Preconditions</h3><p><small>Authority: Cochrane Handbook for Systematic Reviews of Interventions 6.5, 2024, verified 2026-08-19. Publishable: True.</small></p><div class='tscroll'><table>
+    <caption>Table 19. Preconditions</caption>
+<tr><th>precondition</th><th>verdict</th><th>reason</th><th>authority</th></tr><tr><td>population_stated</td><td><strong>PASS</strong></td><td><small>present: question carries 256 characters</small></td><td><small>MECIR C62 &#x27;Ensuring meta-analyses are meaningful&#x27; (Mandatory, READ 2026-08-19): &#x27;Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be s</small></td></tr><tr><td>arm_role_resolved</td><td><strong>NOT-ASSESSABLE</strong></td><td><small>cannot assess: inputs.trials has 2 trial(s) with no readable arms [&#x27;NCT00846365&#x27;, &#x27;NCT01033071&#x27;] and 0 with a blank arm role []. Absent role data is not a wrong role.</small></td><td><small>MECIR C62 (Mandatory), &#x27;interventions&#x27; limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are &#x27;sufficiently similar&#x27; without knowing whi</small></td></tr><tr><td>comparators_identified</td><td><strong>PASS</strong></td><td><small>every outcome names a comparator type [&#x27;active&#x27;]; none declares &#x27;mixed&#x27;. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged.</small></td><td><small>MECIR C62 (Mandatory), &#x27;comparisons&#x27; limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency.</small></td></tr><tr><td>estimand_named</td><td><strong>PASS</strong></td><td><small>outcomes.estimand: all 1 outcome(s) name a quantity</small></td><td><small>MECIR C8 &#x27;Clarifying role of outcomes&#x27; (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), &#x27;outcomes&#x27; limb</small></td></tr><tr><td>criteria_stated</td><td><strong>PASS</strong></td><td><small>present: screening.eligibility carries 1028 characters</small></td><td><small>MECIR R29 &#x27;Eligibility criteria for types of participants&#x27;, R30 &#x27;...types of interventions&#x27;, R31 &#x27;Role of outcomes&#x27; -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block</small></td></tr><tr><td>criteria_predefined</td><td><strong>FAIL</strong></td><td><small>screening.eligibility_provenance.predefined is false: the criteria were DERIVED post hoc from this object&#x27;s own question and recorded exclusions. That is auditable (R29/R30/R31) and is not pre-specification (C5/C7). This</small></td><td><small>MECIR C5 &#x27;Predefining unambiguous criteria for participants&#x27; AND C7 &#x27;...for interventions and comparators&#x27;, BOTH Mandatory (READ 2026-08-19): &#x27;Predefined, unambiguous eligibility criteria are a fundam</small></td></tr><tr><td>eligibility_met</td><td><strong>NOT-ASSESSABLE</strong></td><td><small>cannot assess: criteria are stated, but sources is an empty dict -- no full text was available this pass, and inclusion logic is conditional prose</small></td><td><small>MECIR C5/C7 (Mandatory) with C6 &#x27;Predefining a strategy for studies with a subset of eligible participants&#x27; (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report</small></td></tr><tr><td>contributes_a_randomised_contrast</td><td><strong>NOT-ASSESSABLE</strong></td><td><small>cannot assess: 2 of 2 trial(s) carry no readable arm roles [&#x27;NCT00846365&#x27;, &#x27;NCT01033071&#x27;]</small></td><td><small>Handbook 6.5 s23.3.4 &#x27;How to include multiple groups from one study&#x27; (READ 2026-08-19) and s23.3.6 &#x27;Factorial trials&#x27;; MECIR C7 &#x27;Predefining unambiguous criteria for interventions and comparators&#x27; (Ma</small></td></tr></table></div><p><small>This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant.</small></p></div>
 <p><small>Every number on this page is projected from a single canonical object,
 and each measured cell names the source analysis it was read from. That is what is
 machine-checked. It does not establish that the underlying sources are right, only

@@ -143,6 +143,7 @@
  #rt-report:checked ~ .tabnav label[for="rt-report"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  #rt-paper:checked ~ .panels > #pn-paper{height:auto;overflow:visible}
  #rt-paper:checked ~ .tabnav label[for="rt-paper"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-paper:focus-visible ~ .tabnav label[for="rt-paper"]{outline:3px solid var(--accent);outline-offset:2px}
  #rt-statistics:checked ~ .panels > #pn-statistics{height:auto;overflow:visible}
  #rt-statistics:checked ~ .tabnav label[for="rt-statistics"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  @media print{.panel{height:auto;overflow:visible}.tabnav{display:none}}
@@ -213,7 +214,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <label for="rt-extract">4. Extraction</label>
   <label for="rt-analysis">5. Analysis Suite</label>
  <label for="rt-report">6. Scientific Output</label>
- <label for="rt-paper">7. Paper Studio</label>
+  <label for="rt-paper">7. Paper Studio</label>
  <label for="rt-statistics">Statistics</label>
 </nav>
 <div class="panels">
@@ -323,12 +324,13 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <div class='tscroll'><table>
     <caption>Table 6. Endpoint definitions, read from the registry</caption>
 
-    <tr><th>Trial</th><th>Registered primary outcome measure</th>
+    <tr><th>Trial</th><th>Rank in its own trial</th>
+        <th>Registered outcome measure</th>
         <th>Description, verbatim</th><th>Analysis set / window</th></tr>
-    <tr><td><strong>COMPASS</strong><br><small><a href="https://clinicaltrials.gov/study/NCT01776424" rel="noopener">NCT01776424</a></small></td><td>The First Occurrence of the Composite Primary Efficacy Outcome, Myocardial Infarction (MI), Stroke, or Cardiovascular (CV) Death</td><td>Count of participants and time from randomization to the first occurrence of the composite primary efficacy outcome, MI, stroke, or CV death were evaluated. Hazard ratios were calculated and reported as statistical analysis.</td><td>Count of participants, time to first occurrence, hazard ratio reported.</td></tr>
-    <tr><td><strong>VOYAGER PAD</strong><br><small><a href="https://clinicaltrials.gov/study/NCT02504216" rel="noopener">NCT02504216</a></small></td><td>Primary Efficacy Outcome: Number of Participants With Composite of Myocardial Infarction (MI), Ischemic Stroke, Cardiovascular Death, Acute Limb Ischemia (ALI) and Major Amputation Due to a Vascular Etiology</td><td>Only the first occurrence of the outcome event under analysis within the data scope from a participant is considered.</td><td>Number of participants, first occurrence only.</td></tr>
-    <tr><td><strong>COMMANDER HF</strong><br><small><a href="https://clinicaltrials.gov/study/NCT01877915" rel="noopener">NCT01877915</a></small></td><td>Event Rate of All-Cause Mortality, Myocardial Infarction (MI), or Stroke</td><td>Event Rate of all-cause mortality (ACM), MI, or stroke were assessed. Event rate estimated based on the time to the first occurrence of the event were reported in the study. Event Rate / (100 patient \[pt\]-year \[yr\]) = 100\*n/(total risk exposure), where n is the number of events.</td><td>An EVENT RATE per 100 patient-years, not a count of participants: &#x27;Event Rate / (100 pt-yr) = 100*n/(total risk exposure)&#x27;.</td></tr>
-    <tr><td><strong>ATLAS ACS 2</strong><br><small><a href="https://clinicaltrials.gov/study/NCT00809965" rel="noopener">NCT00809965</a></small></td><td>The Percentage of Patients With the Composite Endpoint of Cardiovascular Death, Myocardial Infarction, or Stroke</td><td>The percentage of patients with the first occurrence of the composite of death, myocardial infarction, or stroke. The statistical analysis was based on the time from randomization to the first occurrence of the event while on treatment.</td><td>A PERCENTAGE of patients, analysed from randomisation to first occurrence WHILE ON TREATMENT.</td></tr>
+    <tr><td><strong>COMPASS</strong><br><small><a href="https://clinicaltrials.gov/study/NCT01776424" rel="noopener">NCT01776424</a></small></td><td>PRIMARY -- the EFFICACY primary. Each of these registrations also declares a bleeding SAFETY primary, which this review does not use, on any trial, so that omission is uniform.</td><td>The First Occurrence of the Composite Primary Efficacy Outcome, Myocardial Infarction (MI), Stroke, or Cardiovascular (CV) Death</td><td>Count of participants and time from randomization to the first occurrence of the composite primary efficacy outcome, MI, stroke, or CV death were evaluated. Hazard ratios were calculated and reported as statistical analysis.</td><td>Count of participants, time to first occurrence, hazard ratio reported.</td></tr>
+    <tr><td><strong>VOYAGER PAD</strong><br><small><a href="https://clinicaltrials.gov/study/NCT02504216" rel="noopener">NCT02504216</a></small></td><td>PRIMARY -- the EFFICACY primary. Each of these registrations also declares a bleeding SAFETY primary, which this review does not use, on any trial, so that omission is uniform.</td><td>Primary Efficacy Outcome: Number of Participants With Composite of Myocardial Infarction (MI), Ischemic Stroke, Cardiovascular Death, Acute Limb Ischemia (ALI) and Major Amputation Due to a Vascular Etiology</td><td>Only the first occurrence of the outcome event under analysis within the data scope from a participant is considered.</td><td>Number of participants, first occurrence only.</td></tr>
+    <tr><td><strong>COMMANDER HF</strong><br><small><a href="https://clinicaltrials.gov/study/NCT01877915" rel="noopener">NCT01877915</a></small></td><td>PRIMARY -- the EFFICACY primary. Each of these registrations also declares a bleeding SAFETY primary, which this review does not use, on any trial, so that omission is uniform.</td><td>Event Rate of All-Cause Mortality, Myocardial Infarction (MI), or Stroke</td><td>Event Rate of all-cause mortality (ACM), MI, or stroke were assessed. Event rate estimated based on the time to the first occurrence of the event were reported in the study. Event Rate / (100 patient \[pt\]-year \[yr\]) = 100\*n/(total risk exposure), where n is the number of events.</td><td>An EVENT RATE per 100 patient-years, not a count of participants: &#x27;Event Rate / (100 pt-yr) = 100*n/(total risk exposure)&#x27;.</td></tr>
+    <tr><td><strong>ATLAS ACS 2</strong><br><small><a href="https://clinicaltrials.gov/study/NCT00809965" rel="noopener">NCT00809965</a></small></td><td>PRIMARY -- the EFFICACY primary. Each of these registrations also declares a bleeding SAFETY primary, which this review does not use, on any trial, so that omission is uniform.</td><td>The Percentage of Patients With the Composite Endpoint of Cardiovascular Death, Myocardial Infarction, or Stroke</td><td>The percentage of patients with the first occurrence of the composite of death, myocardial infarction, or stroke. The statistical analysis was based on the time from randomization to the first occurrence of the event while on treatment.</td><td>A PERCENTAGE of patients, analysed from randomisation to first occurrence WHILE ON TREATMENT.</td></tr>
   </table></div>
 </div>
 <div class='card'>
@@ -528,7 +530,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
   </section>
 <!--end-analysis--> <section class="panel" id="pn-report">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No GRADE assessment or reconciliation record is held in this object, so the certainty of this evidence has not been rated.</div>
+<div class="absent-state" role="note"><strong>Partially held.</strong> Part of the reporting record is held and is shown below. No GRADE certainty rating is carried, so the certainty column is left as an em dash rather than guessed.</div>
 <div class='card'>
   <h3>Summary of findings</h3>
   <div class='tscroll'><table>
@@ -543,22 +545,101 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <div class='tscroll'><table>
     <caption>Table 8. Reproducibility artifact</caption>
 
-    <tr><th scope='col'>Canonical object</th><td><code></code></td></tr>
-    <tr><th scope='col'>Registered at</th><td><code></code> </td></tr>
+    <tr><th scope='col'>Canonical object</th><td><code>—</code></td></tr>
+    <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2-authored-from-source</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-18T00:00Z</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>d1339a8cb</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>4c3fde9b5</code>, built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
  </section>
-<!--end-report--> <section class="panel" id="pn-paper">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No manuscript has been generated for this review.</div>
+<!--end-report-->  <section class="panel" id="pn-paper">
+  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-sections-not-written-and-why">Sections not written, and why</a> &middot; <a href="#paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-keywords">Keywords</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a></p>
 <div class='card'>
-  <h2>Paper Studio</h2>
-  <div class='absent-state' role='note'><strong>Not held in this object.</strong> No manuscript has been generated for rivaroxaban-vasc-review. A manuscript belongs to one review, so none from another review is shown here &mdash; this tab is empty of content rather than filled with someone else&rsquo;s.</div>
-</div>
- </section>
+<h2 id="paper-paper">Paper</h2>
+<p class='muted'>Every paragraph below is PROJECTED from a field of this object, and names it. <strong>A section with no field behind it is not written</strong> &mdash; it is refused, by name, so a reader can tell an absent procedure from an unmentioned one.</p>
+<h3 id="paper-title-and-review-question">Title and review question</h3>
+<p>Low-dose rivaroxaban with aspirin in vascular disease<br><small class='muted'>&larr; title</small></p>
+<p>Does adding low-dose rivaroxaban to antiplatelet therapy reduce major vascular events? Four trials ask versions of this and their registered primary endpoints are not the same endpoint.<br><small class='muted'>&larr; question</small></p>
+<h3 id="paper-methods-search">Methods — search</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the entire search description &mdash; no field: <code>search.databases</code></div>
+<h3 id="paper-methods-eligibility-criteria">Methods — eligibility criteria</h3>
+<p>not recorded on the page this object was built from<br><small class='muted'>&larr; screening.eligibility</small></p>
+<h3 id="paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the k cascade &mdash; no field: <code>k_cascade</code></div>
+<h3 id="paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</h3>
+<p>Every registered rank -- primary, secondary and other -- was read for 4 of 4 contributing trials before any decision about which outcomes could be combined; each records the time it was read.<br><small class='muted'>&larr; inputs.trials[].all_ranks_read_utc</small></p>
+<h3 id="paper-methods-synthesis">Methods — synthesis</h3>
+<p>For primary, a random-effects model was fitted with the none estimator.<br><small class='muted'>&larr; results.by_outcome.primary.model, results.by_outcome.primary.estimator_used</small></p>
+<p>Methodological decisions follow not recorded on the page this object was built from, version not recorded on the page this object was built from, and the sections relied on are listed in the object rather than cited generically.<br><small class='muted'>&larr; methodological_authority.reference</small></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that records were screened in duplicate by two independent reviewers &mdash; no field: <code>screening.duplicate_screening</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that risk of bias was assessed with a named tool &mdash; no field: <code>risk_of_bias.tool</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that certainty of evidence was graded &mdash; no field: <code>grade.approach</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that the review methods were prespecified before data collection &mdash; no field: <code>protocol.prespecified</code></div>
+<h3 id="paper-results">Results</h3>
+<p>Major vascular events, as each trial defines them. These 4 trials are NOT pooled, and the reason is stated rather than the outcome being quietly omitted: THE FOUR TRIALS DO NOT SHARE ONE ENDPOINT, AND TWO OF THEM DIFFER FROM THE OTHERS IN WAYS THE REGISTRY STATES EXPLICITLY. VOYAGER PAD&#x27;S PRIMARY CARRIES TWO WHOLE COMPONENTS THAT APPEAR IN NO OTHER TRIAL HERE. Verbatim: &#x27;Composite of Myocardial Infarction (MI), Ischemic Stroke, Cardiovascular Death, ACUTE LIMB ISCHEMIA (ALI) AND MAJOR AMPUTATION DUE TO A VASCULAR ETIOLOGY&#x27; -- five components. COMPASS&#x27;s is &#x27;Myocardial Infarction (MI), Stroke, or Cardiovascular (CV) Death&#x27; and ATLAS ACS 2&#x27;s is &#x27;Cardiovascular Death, Myocardial Infarction, or Stroke&#x27;: three each, with no limb outcome at all. Acute limb ischaemia and major amputation are not rare in a post-revascularisation peripheral-artery population; they are much of what that trial was counting. AND COMMANDER HF COUNTS A DIFFERENT DEATH. Its registered primary is &#x27;Event Rate of ALL-CAUSE MORTALITY, Myocardial Infarction (MI), or Stroke&#x27;. COMPASS and ATLAS count CARDIOVASCULAR death. All-cause mortality in a decompensated-heart-failure population includes a great many deaths an antithrombotic cannot prevent, and pooling it with a cardiovascular-death composite averages two different questions. COMMANDER HF ALSO REGISTERS A RATE RATHER THAN A COUNT: &#x27;Event Rate / (100 pt-yr) = 100*n/(total risk exposure)&#x27;. That is why this page holds no event counts for it, and none for ATLAS ACS 2, whose primary is registered as a PERCENTAGE of patients analysed WHILE ON TREATMENT. SEPARATELY: THE POPULATIONS ARE NOT ONE POPULATION -- stable coronary or peripheral artery disease; peripheral artery disease immediately after lower-extremity revascularisation; heart failure with coronary disease after decompensation; and recent acute coronary syndrome. That alone would not withdraw an estimate, and it is recorded because it is the reason the endpoints differ.<br><small class='muted'>&larr; outcomes[id=primary].name, results.by_outcome.primary.poolable_reason</small></p>
+<h3 id="paper-limitations">Limitations</h3>
+<p>Known limitation of the screen: not recorded on the page this object was built from<br><small class='muted'>&larr; screening.known_limitation</small></p>
+<p>Eligible trials that do not contribute: All four included registrations contribute a value to this review; none was dropped.<br><small class='muted'>&larr; eligible_but_not_contributing.note</small></p>
+<p>What is not claimed: that the per-trial hazard ratios were checked against the trials&#x27; own results records; they are the page&#x27;s embedded values<br><small class='muted'>&larr; verification_basis.what_is_not_claimed</small></p>
+<p>1 claim(s) previously made about this review were corrected and the corrections are retained on the object rather than overwritten.<br><small class='muted'>&larr; claims_corrected</small></p>
+<h3 id="paper-abstract">Abstract</h3>
+<p>Question. Does adding low-dose rivaroxaban to antiplatelet therapy reduce major vascular events? Four trials ask versions of this and their registered primary endpoints are not the same endpoint.<br><small class='muted'>&larr; question</small></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the findings sentence of the abstract -- this review pools nothing, and the reason is given in Results rather than an estimate being manufactured here &mdash; no field: <code>results.by_outcome.*.pooled.point</code></div>
+<h3 id="paper-introduction">Introduction</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> Background.  &mdash; no field: <code>protocol.rationale</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Introduction -- no background or rationale is recorded on this object. This is a CONTENT gap, not a rendering one: no change to this projector produces it, and it is written by adding `protocol.rationale` to the object &mdash; no field: <code>protocol.rationale</code></div>
+<h3 id="paper-certainty-of-the-evidence">Certainty of the evidence</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> Certainty of the evidence, by outcome, with every rating step &mdash; no field: <code>grade.by_outcome</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the certainty assessment -- no GRADE record is held, so the certainty column elsewhere on this page is an em dash rather than a guess &mdash; no field: <code>grade</code></div>
+<h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the risk-of-bias assessment &mdash; no field: <code>risk_of_bias</code></div>
+<h3 id="paper-disagreements-between-sources">Disagreements between sources</h3>
+<p>not recorded on the page this object was built from<br><small class='muted'>&larr; reconciliation.why_this_step_exists</small></p>
+<p>not recorded on the page this object was built from<br><small class='muted'>&larr; reconciliation.clean_because</small></p>
+<h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the comparison with published syntheses -- no published synthesis is recorded for this topic, so no denominator can be given &mdash; no field: <code>published_comparison</code></div>
+<h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the verbatim model output -- no analysis output is stored on this object, so nothing can be quoted and nothing is paraphrased in its place &mdash; no field: <code>results.by_outcome.*.r_output.verbatim</code></div>
+<h3 id="paper-discussion">Discussion</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>discussion</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a discussion written by the renderer would be an argument no field supports &mdash; no field: <code>discussion</code></div>
+<h3 id="paper-conclusions">Conclusions</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>conclusions</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a conclusions written by the renderer would be an argument no field supports &mdash; no field: <code>conclusions</code></div>
+<h3 id="paper-sections-not-written-and-why">Sections not written, and why</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the list of refused properties &mdash; no field: <code>build_stamp.refusing</code></div>
+<h3 id="paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>funding</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a CONTENT gap. A submission requires it and this object does not carry it; it is not inferable from anything held here &mdash; no field: <code>funding</code></div>
+<h3 id="paper-references">References</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the reference list &mdash; no field: <code>sources</code></div>
+<h3 id="paper-keywords">Keywords</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>keywords</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a CONTENT gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose &mdash; no field: <code>keywords</code></div>
+<h3 id="paper-data-availability">Data availability</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the data availability statement &mdash; no field: <code>registration_identity, sources</code></div>
+<h3 id="paper-software-availability">Software availability</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the software and environment statement &mdash; no field: <code>results.by_outcome.*.r_output._environment, config.confidence_level</code></div>
+<h3 id="paper-note-on-registration">Note on registration</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the registration note &mdash; no field: <code>protocol</code></div>
+<h3 id="paper-trial-characteristics">Trial characteristics</h3>
+<div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<br><small class='muted'>&larr; inputs.trials</small></caption>
+<tr><th>Registration</th><th>Trial</th><th>Arms</th><th>Participants</th></tr>
+<tr><td>NCT00809965</td><td>ATLAS ACS 2</td><td>[{&#x27;label&#x27;: &#x27;Rivaroxaban 2.5 mg bid&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: None, &#x27;participants&#x27;: 5174}, {&#x27;label&#x27;: &#x27;Placebo&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: None, &#x27;participants&#x27;: 5176}]</td><td>not extracted</td></tr>
+<tr><td>NCT01776424</td><td>COMPASS</td><td>[{&#x27;label&#x27;: &#x27;Rivaroxaban 2.5mg + Aspirin 100mg&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: 379, &#x27;participants&#x27;: 9152}, {&#x27;label&#x27;: &#x27;Rivaroxaban Placebo + Aspirin 100mg&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: 496, &#x27;participants&#x27;: 9126}]</td><td>not extracted</td></tr>
+<tr><td>NCT01877915</td><td>COMMANDER HF</td><td>[{&#x27;label&#x27;: &#x27;Rivaroxaban 2.5 mg&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: None, &#x27;participants&#x27;: 2507}, {&#x27;label&#x27;: &#x27;Placebo&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: None, &#x27;participants&#x27;: 2515}]</td><td>not extracted</td></tr>
+<tr><td>NCT02504216</td><td>VOYAGER PAD</td><td>[{&#x27;label&#x27;: &#x27;Rivaroxaban&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: 508, &#x27;participants&#x27;: 3286}, {&#x27;label&#x27;: &#x27;Placebo&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: 584, &#x27;participants&#x27;: 3278}]</td><td>not extracted</td></tr>
+</table></div>
+<h3 id="paper-figure-legends">Figure legends</h3>
+<div class='tscroll'><table><caption>Figures, and what each one shows<br><small class='muted'>&larr; results.by_outcome</small></caption>
+<tr><th>Outcome</th><th>Figure</th><th>What it shows</th></tr>
+<tr><td>Major vascular events, as each trial defines them</td><td>Forest plot</td><td>not pooled; the reason is given in Results</td></tr>
+</table></div>
+<h3 id="paper-submission-conformance">Submission conformance</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the submission conformance statement &mdash; no field: <code>build_stamp</code></div>
+</div>  </section>
 <!--end-paper--> <section class="panel" id="pn-statistics">
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No statistical panel set is held in this object.</div>
  </section>
@@ -598,7 +679,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   }
 })();
 </script>
-
+<div class='card warn'><h2>Page standard</h2><p><strong>UNSTAMPED — unknown-version.</strong> This page carries no <code>build_stamp</code>, so the standard it was built to cannot be established. That is a statement about the record, not a claim that the page is below standard.</p></div>
 <p><small>Every number on this page is projected from a single canonical object,
 and each measured cell names the source analysis it was read from. That is what is
 machine-checked. It does not establish that the underlying sources are right, only

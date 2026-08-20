@@ -143,6 +143,7 @@
  #rt-report:checked ~ .tabnav label[for="rt-report"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  #rt-paper:checked ~ .panels > #pn-paper{height:auto;overflow:visible}
  #rt-paper:checked ~ .tabnav label[for="rt-paper"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-paper:focus-visible ~ .tabnav label[for="rt-paper"]{outline:3px solid var(--accent);outline-offset:2px}
  #rt-statistics:checked ~ .panels > #pn-statistics{height:auto;overflow:visible}
  #rt-statistics:checked ~ .tabnav label[for="rt-statistics"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  @media print{.panel{height:auto;overflow:visible}.tabnav{display:none}}
@@ -213,7 +214,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <label for="rt-extract">4. Extraction</label>
   <label for="rt-analysis">5. Analysis Suite</label>
  <label for="rt-report">6. Scientific Output</label>
- <label for="rt-paper">7. Paper Studio</label>
+  <label for="rt-paper">7. Paper Studio</label>
  <label for="rt-statistics">Statistics</label>
 </nav>
 <div class="panels">
@@ -257,7 +258,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No screening log is recorded for this review. The included set was reconciled against published syntheses rather than screened from a search, so no records-identified, excluded-with-reason or dual-screening counts exist.</div>
  </section>
 <!--end-screen-->  <section class="panel" id="pn-extract">
-  <p class='toc'><strong>In this section:</strong> <a href="#extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</a> &middot; <a href="#extract-sources">Sources</a> &middot; <a href="#extract-first-occurrence-of-the-composite-of-car">First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure</a> &middot; <a href="#extract-first-occurrence-of-the-composite-of-car-2">First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure</a> &middot; <a href="#extract-what-was-measured">What was measured</a> &middot; <a href="#extract-pooled-result">Pooled result</a> &middot; <a href="#extract-what-this-pool-holds-constant">What this pool holds constant</a> &middot; <a href="#extract-contributing-trials">Contributing trials</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision">The methods rule governing this decision</a></p>
+  <p class='toc'><strong>In this section:</strong> <a href="#extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</a> &middot; <a href="#extract-sources">Sources</a> &middot; <a href="#extract-first-occurrence-of-the-composite-of-car">First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure</a> &middot; <a href="#extract-first-occurrence-of-the-composite-of-car-2">First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure</a> &middot; <a href="#extract-what-was-measured">What was measured</a> &middot; <a href="#extract-pooled-result">Pooled result</a> &middot; <a href="#extract-what-this-pool-holds-constant">What this pool holds constant</a> &middot; <a href="#extract-contributing-trials">Contributing trials</a> &middot; <a href="#extract-endpoint-definitions-read-from-the-regis">Endpoint definitions, read from the registry</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision">The methods rule governing this decision</a></p>
 <div class='card'>
   <h2 id="extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</h2>
   <p>One row per extracted value. Every row carries the value, the verbatim sentence it was read from, a resolvable link to the source, and whether the number was read or derived. Where any of those is absent the row says so rather than omitting the value.</p>
@@ -289,7 +290,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 
     <tr><th>Comparator</th><td>placebo</td></tr>
     <tr><th>Estimand</th><td>time_to_first &mdash; proportional hazards</td></tr>
-    <tr><th>Effect scale</th><td>pooled on the log scale</td></tr>
+    <tr><th>Effect scale</th><td>combined on the log scale; ESTIMAND UNIFORMITY NOT ESTABLISHED -- the contributing trials have not been shown to measure the same quantity</td></tr>
   </table></div>
 </div>
 <div class='card'>
@@ -299,6 +300,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>&tau;&sup2; 0 &middot; I&sup2; 0% &middot; Q 0.01432 on 1 df</small></p>
   <p><strong>Favours: the intervention (lower is better)</strong></p>
   <p><small>Q = 0.0143 on 1 df: the two trials agree closely, which is what the same endpoint in one programme should look like.</small></p>
+  <p>Both trials report the SAME composite with the same four components in the same order, in CKD with type 2 diabetes, against placebo. Q = 0.0143 on 1 df.</p>
   <h3 id="extract-what-this-pool-holds-constant">What this pool holds constant</h3>
   <div class='tscroll'><table>
     <caption>Table 5. What this pool holds constant</caption>
@@ -321,6 +323,22 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><td>FIGARO-DKD<br><small>NCT02545049</small></td><td class='num'>3686 / 3666<br><small><em>All randomised participants, as posted by the registry.</em></small></td><td class='num'>0.87 (0.76 to 0.98)<br><small>on the log scale: -0.1393 (standard error 0.06486)</small></td><td><small><a href='https://clinicaltrials.gov/study/NCT02545049'></a>: <br><q>The First Occurrence of the Composite Endpoint of Cardiovascular Death, Non Fatal Myocardial Infarction, Non Fatal Stroke, or Hospitalization for Heart Failure.</q></small></td></tr>
   </table></div>
   <p><small>Verified word for word against BOTH registry entries. FIDELIO writes &#x27;Non-fatal&#x27; and FIGARO &#x27;Non Fatal&#x27;, and FIGARO&#x27;s title carries a trailing full stop; the four components, their order and the first-occurrence construction are identical.</small></p>
+</div>
+<div class="card">
+  <h3 id="extract-endpoint-definitions-read-from-the-regis">Endpoint definitions, read from the registry</h3>
+  <p><small>What each trial COUNTED, in its own registry record's words, before
+  anything here was pooled. A sentence saying what HAPPENED is not a sentence
+  saying what was COUNTED, and only the second one licenses a pool. Follow the
+  registration link to disagree with any row.</small></p>
+  <div class='tscroll'><table>
+    <caption>Table 7. Endpoint definitions, read from the registry</caption>
+
+    <tr><th>Trial</th><th>Rank in its own trial</th>
+        <th>Registered outcome measure</th>
+        <th>Description, verbatim</th><th>Analysis set / window</th></tr>
+    <tr><td><strong>FIDELIO-DKD</strong><br><small>NCT02540993</small></td><td colspan='4'><em>No endpoint definition is recorded for this trial. Its effect was pooled without one.</em></td></tr>
+    <tr><td><strong>FIGARO-DKD</strong><br><small>NCT02545049</small></td><td colspan='4'><em>No endpoint definition is recorded for this trial. Its effect was pooled without one.</em></td></tr>
+  </table></div>
 </div>
 <div class='card'>
   <h3 id="extract-the-methods-rule-governing-this-decision">The methods rule governing this decision</h3>
@@ -556,11 +574,11 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
   </section>
 <!--end-analysis--> <section class="panel" id="pn-report">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No GRADE assessment or reconciliation record is held in this object, so the certainty of this evidence has not been rated.</div>
+<div class="absent-state" role="note"><strong>Partially held.</strong> Part of the reporting record is held and is shown below. No GRADE certainty rating is carried, so the certainty column is left as an em dash rather than guessed.</div>
 <div class='card'>
   <h3>Summary of findings</h3>
   <div class='tscroll'><table>
-    <caption>Table 7. Summary of findings</caption>
+    <caption>Table 8. Summary of findings</caption>
 
     <tr><th>Outcome</th><th>k</th><th>Pooled effect</th><th>Certainty</th></tr>
     <tr><td>First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure</td><td class='num'>2</td><td class='num'>HR 0.865 (0.788 to 0.951)</td><td>&mdash;</td></tr>
@@ -569,24 +587,106 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h3>Reproducibility artifact</h3>
   <div class='tscroll'><table>
-    <caption>Table 8. Reproducibility artifact</caption>
+    <caption>Table 9. Reproducibility artifact</caption>
 
-    <tr><th scope='col'>Canonical object</th><td><code></code></td></tr>
-    <tr><th scope='col'>Registered at</th><td><code></code> </td></tr>
+    <tr><th scope='col'>Canonical object</th><td><code>—</code></td></tr>
+    <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2-rebuilt-from-source</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-17T16:40Z</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>264bd3836</code> (uncommitted generator changes -- NOT REPRODUCIBLE from this stamp alone)</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>4c3fde9b5</code>, built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
  </section>
-<!--end-report--> <section class="panel" id="pn-paper">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No manuscript has been generated for this review.</div>
+<!--end-report-->  <section class="panel" id="pn-paper">
+  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-sections-not-written-and-why">Sections not written, and why</a> &middot; <a href="#paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-keywords">Keywords</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a></p>
 <div class='card'>
-  <h2>Paper Studio</h2>
-  <div class='absent-state' role='note'><strong>Not held in this object.</strong> No manuscript has been generated for finerenone-cv. A manuscript belongs to one review, so none from another review is shown here &mdash; this tab is empty of content rather than filled with someone else&rsquo;s.</div>
-</div>
- </section>
+<h2 id="paper-paper">Paper</h2>
+<p class='muted'>Every paragraph below is PROJECTED from a field of this object, and names it. <strong>A section with no field behind it is not written</strong> &mdash; it is refused, by name, so a reader can tell an absent procedure from an unmentioned one.</p>
+<h3 id="paper-title-and-review-question">Title and review question</h3>
+<p>Finerenone against placebo in chronic kidney disease with type 2 diabetes: the cardiovascular composite, pooled from the two pivotal trials<br><small class='muted'>&larr; title</small></p>
+<p>In adults with chronic kidney disease and type 2 diabetes, does finerenone reduce the first occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure, against placebo?<br><small class='muted'>&larr; question</small></p>
+<h3 id="paper-methods-search">Methods — search</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the entire search description &mdash; no field: <code>search.databases</code></div>
+<h3 id="paper-methods-eligibility-criteria">Methods — eligibility criteria</h3>
+<p>not recorded on the page this object was extracted from<br><small class='muted'>&larr; screening.eligibility</small></p>
+<h3 id="paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the k cascade &mdash; no field: <code>k_cascade</code></div>
+<h3 id="paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the statement that outcomes were sought below the primary &mdash; no field: <code>withholding_question, inputs.trials[].all_ranks_read_utc</code></div>
+<h3 id="paper-methods-synthesis">Methods — synthesis</h3>
+<p>For cv_composite_first, a random model was fitted with the DerSimonian-Laird estimator.<br><small class='muted'>&larr; results.by_outcome.cv_composite_first.model, results.by_outcome.cv_composite_first.estimator_used</small></p>
+<p>Methodological decisions follow not recorded on the page this object was extracted from, version not recorded on the page this object was extracted from, and the sections relied on are listed in the object rather than cited generically.<br><small class='muted'>&larr; methodological_authority.reference</small></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that records were screened in duplicate by two independent reviewers &mdash; no field: <code>screening.duplicate_screening</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that risk of bias was assessed with a named tool &mdash; no field: <code>risk_of_bias.tool</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that certainty of evidence was graded &mdash; no field: <code>grade.approach</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that the review methods were prespecified before data collection &mdash; no field: <code>protocol.prespecified</code></div>
+<h3 id="paper-results">Results</h3>
+<p>The pooled hazard ratio for first occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure was 0.865 (0.788 to 0.951) across 2 trials, against placebo.<br><small class='muted'>&larr; outcomes[id=cv_composite_first].name, results.by_outcome.cv_composite_first.pooled, outcomes[id=cv_composite_first].comparator</small></p>
+<p>Between-trial heterogeneity was I-squared 0%, tau-squared 0, Q 0.0143, degrees of freedom 1. Q = 0.0143 on 1 df: the two trials agree closely, which is what the same endpoint in one programme should look like.<br><small class='muted'>&larr; results.by_outcome.cv_composite_first.heterogeneity.i2, results.by_outcome.cv_composite_first.heterogeneity.tau2, results.by_outcome.cv_composite_first.heterogeneity.q, results.by_outcome.cv_composite_first.heterogeneity.df, results.by_outcome.cv_composite_first.heterogeneity_status</small></p>
+<p>The grounds for pooling are recorded as: Both trials report the SAME composite with the same four components in the same order, in CKD with type 2 diabetes, against placebo. Q = 0.0143 on 1 df. Where a later pool on this page rests on the same grounds, they are not restated.<br><small class='muted'>&larr; results.by_outcome.cv_composite_first.poolable_reason</small></p>
+<h3 id="paper-limitations">Limitations</h3>
+<p>Known limitation of the screen: not recorded on the page this object was extracted from<br><small class='muted'>&larr; screening.known_limitation</small></p>
+<p>Eligible trials that do not contribute: not recorded on the page this object was extracted from<br><small class='muted'>&larr; eligible_but_not_contributing.note</small></p>
+<p>What is not claimed: not recorded on the page this object was extracted from<br><small class='muted'>&larr; verification_basis.what_is_not_claimed</small></p>
+<h3 id="paper-abstract">Abstract</h3>
+<p>Question. In adults with chronic kidney disease and type 2 diabetes, does finerenone reduce the first occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure, against placebo?<br><small class='muted'>&larr; question</small></p>
+<p>Findings. First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure: hazard ratio 0.865 (0.788 to 0.951) across 2 trials.<br><small class='muted'>&larr; results.by_outcome</small></p>
+<h3 id="paper-introduction">Introduction</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> Background.  &mdash; no field: <code>protocol.rationale</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Introduction -- no background or rationale is recorded on this object. This is a CONTENT gap, not a rendering one: no change to this projector produces it, and it is written by adding `protocol.rationale` to the object &mdash; no field: <code>protocol.rationale</code></div>
+<h3 id="paper-certainty-of-the-evidence">Certainty of the evidence</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> Certainty of the evidence, by outcome, with every rating step &mdash; no field: <code>grade.by_outcome</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the certainty assessment -- no GRADE record is held, so the certainty column elsewhere on this page is an em dash rather than a guess &mdash; no field: <code>grade</code></div>
+<h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the risk-of-bias assessment &mdash; no field: <code>risk_of_bias</code></div>
+<h3 id="paper-disagreements-between-sources">Disagreements between sources</h3>
+<p>not recorded on the page this object was extracted from<br><small class='muted'>&larr; reconciliation.why_this_step_exists</small></p>
+<p>not recorded on the page this object was extracted from<br><small class='muted'>&larr; reconciliation.clean_because</small></p>
+<h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the comparison with published syntheses -- no published synthesis is recorded for this topic, so no denominator can be given &mdash; no field: <code>published_comparison</code></div>
+<h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the verbatim model output -- no analysis output is stored on this object, so nothing can be quoted and nothing is paraphrased in its place &mdash; no field: <code>results.by_outcome.*.r_output.verbatim</code></div>
+<h3 id="paper-discussion">Discussion</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>discussion</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a discussion written by the renderer would be an argument no field supports &mdash; no field: <code>discussion</code></div>
+<h3 id="paper-conclusions">Conclusions</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>conclusions</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a conclusions written by the renderer would be an argument no field supports &mdash; no field: <code>conclusions</code></div>
+<h3 id="paper-sections-not-written-and-why">Sections not written, and why</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the list of refused properties &mdash; no field: <code>build_stamp.refusing</code></div>
+<h3 id="paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>funding</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a CONTENT gap. A submission requires it and this object does not carry it; it is not inferable from anything held here &mdash; no field: <code>funding</code></div>
+<h3 id="paper-references">References</h3>
+<div class='tscroll'><table><caption>Sources this review reads, with the layer each was read at<br><small class='muted'>&larr; sources</small></caption>
+<tr><th>Id</th><th>Layer</th><th>Source</th><th>Location</th></tr>
+<tr><td>REG_FIDELIO</td><td>registry</td><td>ClinicalTrials.gov NCT02540993 (FIDELIO-DKD)</td><td>https://clinicaltrials.gov/study/NCT02540993</td></tr>
+<tr><td>REG_FIGARO</td><td>registry</td><td>ClinicalTrials.gov NCT02545049 (FIGARO-DKD)</td><td>https://clinicaltrials.gov/study/NCT02545049</td></tr>
+</table></div>
+<h3 id="paper-keywords">Keywords</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>keywords</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a CONTENT gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose &mdash; no field: <code>keywords</code></div>
+<h3 id="paper-data-availability">Data availability</h3>
+<p>The underlying records are the 2 source(s) listed under References; each names the layer it was read at, so a reader can tell a registry record from a published report.<br><small class='muted'>&larr; sources</small></p>
+<h3 id="paper-software-availability">Software availability</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the software and environment statement &mdash; no field: <code>results.by_outcome.*.r_output._environment, config.confidence_level</code></div>
+<h3 id="paper-note-on-registration">Note on registration</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the registration note &mdash; no field: <code>protocol</code></div>
+<h3 id="paper-trial-characteristics">Trial characteristics</h3>
+<div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<br><small class='muted'>&larr; inputs.trials</small></caption>
+<tr><th>Registration</th><th>Trial</th><th>Arms</th><th>Participants</th></tr>
+<tr><td>NCT02540993</td><td>FIDELIO-DKD</td><td>[{&#x27;label&#x27;: &#x27;Finerenone&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: 367, &#x27;participants&#x27;: 2833}, {&#x27;label&#x27;: &#x27;Placebo&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: 420, &#x27;participants&#x27;: 2841}]</td><td>not extracted</td></tr>
+<tr><td>NCT02545049</td><td>FIGARO-DKD</td><td>[{&#x27;label&#x27;: &#x27;Finerenone&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: 458, &#x27;participants&#x27;: 3686}, {&#x27;label&#x27;: &#x27;Placebo&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: 519, &#x27;participants&#x27;: 3666}]</td><td>not extracted</td></tr>
+</table></div>
+<h3 id="paper-figure-legends">Figure legends</h3>
+<div class='tscroll'><table><caption>Figures, and what each one shows<br><small class='muted'>&larr; results.by_outcome</small></caption>
+<tr><th>Outcome</th><th>Figure</th><th>What it shows</th></tr>
+<tr><td>First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure</td><td>Forest plot</td><td>hazard ratio 0.865 (0.788 to 0.951) across 2 trials</td></tr>
+</table></div>
+<h3 id="paper-submission-conformance">Submission conformance</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the submission conformance statement &mdash; no field: <code>build_stamp</code></div>
+</div>  </section>
 <!--end-paper--> <section class="panel" id="pn-statistics">
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No statistical panel set is held in this object.</div>
  </section>
@@ -626,7 +726,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   }
 })();
 </script>
-
+<div class='card warn'><h2>Page standard</h2><p><strong>UNSTAMPED — unknown-version.</strong> This page carries no <code>build_stamp</code>, so the standard it was built to cannot be established. That is a statement about the record, not a claim that the page is below standard.</p></div>
 <p><small>Every number on this page is projected from a single canonical object,
 and each measured cell names the source analysis it was read from. That is what is
 machine-checked. It does not establish that the underlying sources are right, only

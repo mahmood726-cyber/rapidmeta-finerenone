@@ -143,6 +143,7 @@
  #rt-report:checked ~ .tabnav label[for="rt-report"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  #rt-paper:checked ~ .panels > #pn-paper{height:auto;overflow:visible}
  #rt-paper:checked ~ .tabnav label[for="rt-paper"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-paper:focus-visible ~ .tabnav label[for="rt-paper"]{outline:3px solid var(--accent);outline-offset:2px}
  #rt-statistics:checked ~ .panels > #pn-statistics{height:auto;overflow:visible}
  #rt-statistics:checked ~ .tabnav label[for="rt-statistics"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  @media print{.panel{height:auto;overflow:visible}.tabnav{display:none}}
@@ -213,7 +214,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <label for="rt-extract">4. Extraction</label>
   <label for="rt-analysis">5. Analysis Suite</label>
  <label for="rt-report">6. Scientific Output</label>
- <label for="rt-paper">7. Paper Studio</label>
+  <label for="rt-paper">7. Paper Studio</label>
  <label for="rt-statistics">Statistics</label>
 </nav>
 <div class="panels">
@@ -322,12 +323,13 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <div class='tscroll'><table>
     <caption>Table 6. Endpoint definitions, read from the registry</caption>
 
-    <tr><th>Trial</th><th>Registered primary outcome measure</th>
+    <tr><th>Trial</th><th>Rank in its own trial</th>
+        <th>Registered outcome measure</th>
         <th>Description, verbatim</th><th>Analysis set / window</th></tr>
-    <tr><td><strong>HOKUSAI VTE-Cancer</strong><br><small><a href="https://clinicaltrials.gov/study/NCT02073682" rel="noopener">NCT02073682</a></small></td><td>Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) or Major Bleeding Event</td><td>THE REGISTRY RECORD CARRIES NO DESCRIPTION FOR THIS OUTCOME. The measure line above is the whole of what is registered. Nothing further was registered -- which is a different fact from nothing further having been read, and the distinction is the reader&#x27;s to use.</td><td>12 months. The registry record carries NO description for this outcome, only the measure and the time frame.</td></tr>
-    <tr><td><strong>SELECT-D</strong><br><small><a href="https://clinicaltrials.gov/study/NCT02583191" rel="noopener">NCT02583191</a></small></td><td>Patient-reported treatment satisfaction (convenience) with Rivaroxaban in the treatment of acute VTE in cancer patients in comparison with the standard treatment with low molecular weight heparin</td><td>THE REGISTRY RECORD CARRIES NO DESCRIPTION FOR THIS OUTCOME. The measure line above is the whole of what is registered. Nothing further was registered -- which is a different fact from nothing further having been read, and the distinction is the reader&#x27;s to use.</td><td>From randomization to 4 WEEKS after treatment start -- and the effect stored on this row is a SIX MONTH recurrent-VTE hazard ratio.</td></tr>
-    <tr><td colspan='4' class='absent-state' role='note'><strong>Identity conflict on this row.</strong> IDENTITY CONFLICT -- THE DATA AND THE REGISTRATION BELONG TO DIFFERENT TRIALS, AND THE REGISTRATION IS THE WRONG HALF. NCT02583191 is CONKO-011 / AIO-SUP-0115, sponsored by AIO-Studien-gGmbH in Germany, enrolment 246, whose REGISTERED PRIMARY OUTCOME is &#x27;Patient-reported treatment satisfaction (convenience) with Rivaroxaban in the treatment of acute VTE in cancer patients in comparison with the standard treatment with low molecular weight heparin&#x27;, measured from randomization to 4 weeks. IT IS NOT SELECT-D. SELECT-D is the UK trial of Young et al., and it is registered as ISRCTN86712308, not on ClinicalTrials.gov. EVERYTHING ELSE ON THIS ROW IS SELECT-D AND IS INTERNALLY COHERENT: the page&#x27;s own record carries pmid 29746227, &#x27;J Clin Oncol 2018; 36(20):2017-2023&#x27;, and the verbatim sentence &#x27;VTE recurrence at 6 months: 8 (7.9%) rivaroxaban vs 18 (17.6%) dalteparin (HR 0.43; 95% CI, 0.19 to 0.99)&#x27; -- and 8/101 = 7.9% and 18/102 = 17.6%, so the counts agree with the percentages they are quoted beside. THE TRIAL DATA IS RIGHT AND THE KEY IS WRONG. That is the MIRROR IMAGE of the defect this property exists for: PARACHUTE-HF was read as ANSWER-HF because a LABEL was accepted as identity, and the fix was to key on the registration. Here the label is correct and the REGISTRATION is not -- so keying on the registration, done mechanically, sends a reader to a German satisfaction study and makes every automated read of &#x27;this trial&#x27;s registered primary endpoint&#x27; return the wrong endpoint. Only reading BOTH catches it. NOT REPAIRED HERE. Re-keying to ISRCTN86712308 would put a non-ClinicalTrials.gov registration into an object where every other trial is an NCT, and the registry-read tooling speaks only ClinicalTrials.gov. That is a schema decision. PARKED.</td></tr>
-    <tr><td><strong>CARAVAGGIO</strong><br><small><a href="https://clinicaltrials.gov/study/NCT03045406" rel="noopener">NCT03045406</a></small></td><td>Recurrent Venous Thromboembolism</td><td>Primary efficacy outcome: objectively confirmed recurrent VTE occurring during the study period, that means the composite of:
+    <tr><td><strong>HOKUSAI VTE-Cancer</strong><br><small><a href="https://clinicaltrials.gov/study/NCT02073682" rel="noopener">NCT02073682</a></small></td><td>PRIMARY -- this registration&#x27;s own primary outcome measure</td><td>Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) or Major Bleeding Event</td><td>THE REGISTRY RECORD CARRIES NO DESCRIPTION FOR THIS OUTCOME. The measure line above is the whole of what is registered. Nothing further was registered -- which is a different fact from nothing further having been read, and the distinction is the reader&#x27;s to use.</td><td>12 months. The registry record carries NO description for this outcome, only the measure and the time frame.</td></tr>
+    <tr><td><strong>SELECT-D</strong><br><small><a href="https://clinicaltrials.gov/study/NCT02583191" rel="noopener">NCT02583191</a></small></td><td>PRIMARY -- this registration&#x27;s own primary outcome measure</td><td>Patient-reported treatment satisfaction (convenience) with Rivaroxaban in the treatment of acute VTE in cancer patients in comparison with the standard treatment with low molecular weight heparin</td><td>THE REGISTRY RECORD CARRIES NO DESCRIPTION FOR THIS OUTCOME. The measure line above is the whole of what is registered. Nothing further was registered -- which is a different fact from nothing further having been read, and the distinction is the reader&#x27;s to use.</td><td>From randomization to 4 WEEKS after treatment start -- and the effect stored on this row is a SIX MONTH recurrent-VTE hazard ratio.</td></tr>
+    <tr><td colspan='5' class='absent-state' role='note'><strong>Identity conflict on this row.</strong> IDENTITY CONFLICT -- THE DATA AND THE REGISTRATION BELONG TO DIFFERENT TRIALS, AND THE REGISTRATION IS THE WRONG HALF. NCT02583191 is CONKO-011 / AIO-SUP-0115, sponsored by AIO-Studien-gGmbH in Germany, enrolment 246, whose REGISTERED PRIMARY OUTCOME is &#x27;Patient-reported treatment satisfaction (convenience) with Rivaroxaban in the treatment of acute VTE in cancer patients in comparison with the standard treatment with low molecular weight heparin&#x27;, measured from randomization to 4 weeks. IT IS NOT SELECT-D. SELECT-D is the UK trial of Young et al., and it is registered as ISRCTN86712308, not on ClinicalTrials.gov. EVERYTHING ELSE ON THIS ROW IS SELECT-D AND IS INTERNALLY COHERENT: the page&#x27;s own record carries pmid 29746227, &#x27;J Clin Oncol 2018; 36(20):2017-2023&#x27;, and the verbatim sentence &#x27;VTE recurrence at 6 months: 8 (7.9%) rivaroxaban vs 18 (17.6%) dalteparin (HR 0.43; 95% CI, 0.19 to 0.99)&#x27; -- and 8/101 = 7.9% and 18/102 = 17.6%, so the counts agree with the percentages they are quoted beside. THE TRIAL DATA IS RIGHT AND THE KEY IS WRONG. That is the MIRROR IMAGE of the defect this property exists for: PARACHUTE-HF was read as ANSWER-HF because a LABEL was accepted as identity, and the fix was to key on the registration. Here the label is correct and the REGISTRATION is not -- so keying on the registration, done mechanically, sends a reader to a German satisfaction study and makes every automated read of &#x27;this trial&#x27;s registered primary endpoint&#x27; return the wrong endpoint. Only reading BOTH catches it. NOT REPAIRED HERE. Re-keying to ISRCTN86712308 would put a non-ClinicalTrials.gov registration into an object where every other trial is an NCT, and the registry-read tooling speaks only ClinicalTrials.gov. That is a schema decision. PARKED.</td></tr>
+    <tr><td><strong>CARAVAGGIO</strong><br><small><a href="https://clinicaltrials.gov/study/NCT03045406" rel="noopener">NCT03045406</a></small></td><td>PRIMARY -- this registration&#x27;s own primary outcome measure</td><td>Recurrent Venous Thromboembolism</td><td>Primary efficacy outcome: objectively confirmed recurrent VTE occurring during the study period, that means the composite of:
 
 · proximal DVT of the lower limbs (symptomatic or unsuspected), DVT of the upper limb (symptomatic), PE (symptomatic or unsuspected)</td><td>6 months.</td></tr>
   </table></div>
@@ -468,7 +470,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
   </section>
 <!--end-analysis--> <section class="panel" id="pn-report">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No certainty rating or reconciliation record was recoverable from the published page this object was extracted from, so the certainty of this evidence has not been rated.</div>
+<div class="absent-state" role="note"><strong>Partially held.</strong> Part of the reporting record is held and is shown below. No GRADE certainty rating is carried, so the certainty column is left as an em dash rather than guessed.</div>
 <div class='card'>
   <h3>Summary of findings</h3>
   <div class='tscroll'><table>
@@ -483,22 +485,100 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <div class='tscroll'><table>
     <caption>Table 9. Reproducibility artifact</caption>
 
-    <tr><th scope='col'>Canonical object</th><td><code></code></td></tr>
-    <tr><th scope='col'>Registered at</th><td><code></code> </td></tr>
+    <tr><th scope='col'>Canonical object</th><td><code>—</code></td></tr>
+    <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2-converted-from-extractor</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-17T12:06Z</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>acf809f48</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>4c3fde9b5</code>, built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
  </section>
-<!--end-report--> <section class="panel" id="pn-paper">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No manuscript has been generated for this review.</div>
+<!--end-report-->  <section class="panel" id="pn-paper">
+  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-sections-not-written-and-why">Sections not written, and why</a> &middot; <a href="#paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-keywords">Keywords</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a></p>
 <div class='card'>
-  <h2>Paper Studio</h2>
-  <div class='absent-state' role='note'><strong>Not held in this object.</strong> No manuscript has been generated for doac-cancer-vte-review. A manuscript belongs to one review, so none from another review is shown here &mdash; this tab is empty of content rather than filled with someone else&rsquo;s.</div>
-</div>
- </section>
+<h2 id="paper-paper">Paper</h2>
+<p class='muted'>Every paragraph below is PROJECTED from a field of this object, and names it. <strong>A section with no field behind it is not written</strong> &mdash; it is refused, by name, so a reader can tell an absent procedure from an unmentioned one.</p>
+<h3 id="paper-title-and-review-question">Title and review question</h3>
+<p>Multiple trial-declared outcomes: Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) or Major Bleeding Event | 6 Month Bleeding Rate | Recurrent Venous Thromboembolism<br><small class='muted'>&larr; title</small></p>
+<p>This object records its review question and its title as the SAME string, so no question distinct from the title is stated here. A question copied from a title has not been asked.<br><small class='muted'>&larr; question</small></p>
+<h3 id="paper-methods-search">Methods — search</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the entire search description &mdash; no field: <code>search.databases</code></div>
+<h3 id="paper-methods-eligibility-criteria">Methods — eligibility criteria</h3>
+<p>not recorded on the page this object was extracted from<br><small class='muted'>&larr; screening.eligibility</small></p>
+<h3 id="paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the k cascade &mdash; no field: <code>k_cascade</code></div>
+<h3 id="paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</h3>
+<p>Every registered rank -- primary, secondary and other -- was read for 3 of 3 contributing trials before any decision about which outcomes could be combined; each records the time it was read.<br><small class='muted'>&larr; inputs.trials[].all_ranks_read_utc</small></p>
+<h3 id="paper-methods-synthesis">Methods — synthesis</h3>
+<p>For primary, a random-effects model was fitted with the DerSimonian-Laird inverse-variance on extracted effect estimates estimator.<br><small class='muted'>&larr; results.by_outcome.primary.model, results.by_outcome.primary.estimator_used</small></p>
+<p>Methodological decisions follow not recorded on the page this object was extracted from, version not recorded on the page this object was extracted from, and the sections relied on are listed in the object rather than cited generically.<br><small class='muted'>&larr; methodological_authority.reference</small></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that records were screened in duplicate by two independent reviewers &mdash; no field: <code>screening.duplicate_screening</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that risk of bias was assessed with a named tool &mdash; no field: <code>risk_of_bias.tool</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that certainty of evidence was graded &mdash; no field: <code>grade.approach</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that the review methods were prespecified before data collection &mdash; no field: <code>protocol.prespecified</code></div>
+<h3 id="paper-results">Results</h3>
+<p>Multiple trial-declared outcomes: Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) or Major Bleeding Event | 6 Month Bleeding Rate | Recurrent Venous Thromboembolism. These 3 trials are NOT pooled, and the reason is stated rather than the outcome being quietly omitted: THE THREE POOLED TRIALS DO NOT SHARE ONE ENDPOINT, AND ONE WHOLE COMPONENT IS PRESENT IN ONE AND ABSENT FROM THE OTHER TWO. Hokusai VTE-Cancer&#x27;s registered primary, verbatim, is &#x27;Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) OR MAJOR BLEEDING EVENT&#x27; at 12 months. CARAVAGGIO&#x27;s is &#x27;Recurrent Venous Thromboembolism&#x27; at 6 months, which its registry description defines as proximal DVT of the lower limbs, DVT of the upper limb, and PE -- NO BLEEDING COMPONENT. The row carrying SELECT-D&#x27;s data is a recurrent-VTE effect at 6 months. So one trial&#x27;s endpoint counts a HARM and the other two do not. THIS IS NOT A NEUTRAL MISMATCH AND ITS DIRECTION IS KNOWN. Edoxaban caused more major bleeding than dalteparin, so including bleeding moves Hokusai from a recurrent-VTE hazard ratio of 0.71 to a composite of 0.97 -- the registry&#x27;s own Cox analysis gives 0.97 (0.696 to 1.359). Pooling it with two efficacy-only endpoints mixes a harm signal into an efficacy estimate AND DRAGS THE POOL TOWARD THE NULL. SEPARATELY AND SUFFICIENT ON ITS OWN: ONE OF THE THREE TRIALS IS MISIDENTIFIED BY REGISTRATION. NCT02583191 is CONKO-011 (AIO-Studien-gGmbH, Germany, enrolment 246), whose registered primary is patient-reported treatment satisfaction measured to 4 weeks. The data on that row is SELECT-D&#x27;s. See identity_conflict on the trial. SEPARATELY AGAIN: THE PUBLISHED NUMBER IS NOT RECONSTRUCTABLE FROM ANYTHING THIS PAGE OR THIS OBJECT HOLDS. The index card served &#x27;Published: HR 0.55 (0.30-1.00), k=4&#x27;. This object&#x27;s pooled value is OR 0.7290 (0.4914 to 1.0817) at k=3. The page&#x27;s own benchmark block holds 0.63 and 0.71 and no 0.55. Ten candidate pools of the page&#x27;s own four published hazard ratios -- DerSimonian-Laird, REML and fixed-effect, each with Wald and Hartung-Knapp intervals, plus every three-trial subset -- give 0.60, 0.58, 0.64, 0.49, 0.54 and 0.75, and NONE gives 0.55 (0.30 to 1.00). The string &#x27;0.55&#x27; occurs on the page only inside CSS declarations and a chart legend position.<br><small class='muted'>&larr; outcomes[id=primary].name, results.by_outcome.primary.poolable_reason</small></p>
+<h3 id="paper-limitations">Limitations</h3>
+<p>Known limitation of the screen: not recorded on the page this object was extracted from<br><small class='muted'>&larr; screening.known_limitation</small></p>
+<p>Eligible trials that do not contribute: ADAM VTE (NCT02585713) IS COUNTED IN THE INDEX CARD&#x27;S k=4 AND CONTRIBUTES NOTHING TO THE POOL, AND NOTHING ON THE PAGE SAYS SO. Its registered primary outcome is a RATE, not a count -- &#x27;The rate (percentage) of patients experiencing major bleeding at 6 months&#x27; -- and the registry reports it as 0 per cent of 145 against 2.1 per cent of 142. There are no event counts to have. This review derives every per-trial effect from 2x2 counts, so the trial drops out in silence and k falls from 4 to 3 with no surface saying so. THIS IS THE SECOND TOPIC IN A ROW WITH THIS EXACT SHAPE: on DOAC_AF it was ROCKET AF. A count-derived pool silently excludes any trial whose registered primary is a rate, and the published k does not know it. SEPARATELY: the page carries publishedHR 0.26 (0.09-0.80) for this trial, which is a RECURRENT-VTE effect. Its registered primary is MAJOR BLEEDING. The number and the endpoint on this row are not the same endpoint.<br><small class='muted'>&larr; eligible_but_not_contributing.note</small></p>
+<p>What is not claimed: not recorded on the page this object was extracted from<br><small class='muted'>&larr; verification_basis.what_is_not_claimed</small></p>
+<p>1 claim(s) previously made about this review were corrected and the corrections are retained on the object rather than overwritten.<br><small class='muted'>&larr; claims_corrected</small></p>
+<h3 id="paper-abstract">Abstract</h3>
+<p>Question. Multiple trial-declared outcomes: Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) or Major Bleeding Event | 6 Month Bleeding Rate | Recurrent Venous Thromboembolism<br><small class='muted'>&larr; question</small></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the findings sentence of the abstract -- this review pools nothing, and the reason is given in Results rather than an estimate being manufactured here &mdash; no field: <code>results.by_outcome.*.pooled.point</code></div>
+<h3 id="paper-introduction">Introduction</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> Background.  &mdash; no field: <code>protocol.rationale</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Introduction -- no background or rationale is recorded on this object. This is a CONTENT gap, not a rendering one: no change to this projector produces it, and it is written by adding `protocol.rationale` to the object &mdash; no field: <code>protocol.rationale</code></div>
+<h3 id="paper-certainty-of-the-evidence">Certainty of the evidence</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> Certainty of the evidence, by outcome, with every rating step &mdash; no field: <code>grade.by_outcome</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the certainty assessment -- no GRADE record is held, so the certainty column elsewhere on this page is an em dash rather than a guess &mdash; no field: <code>grade</code></div>
+<h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the risk-of-bias assessment &mdash; no field: <code>risk_of_bias</code></div>
+<h3 id="paper-disagreements-between-sources">Disagreements between sources</h3>
+<p>not recorded on the page this object was extracted from<br><small class='muted'>&larr; reconciliation.why_this_step_exists</small></p>
+<p>not recorded on the page this object was extracted from<br><small class='muted'>&larr; reconciliation.clean_because</small></p>
+<h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the comparison with published syntheses -- no published synthesis is recorded for this topic, so no denominator can be given &mdash; no field: <code>published_comparison</code></div>
+<h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the verbatim model output -- no analysis output is stored on this object, so nothing can be quoted and nothing is paraphrased in its place &mdash; no field: <code>results.by_outcome.*.r_output.verbatim</code></div>
+<h3 id="paper-discussion">Discussion</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>discussion</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a discussion written by the renderer would be an argument no field supports &mdash; no field: <code>discussion</code></div>
+<h3 id="paper-conclusions">Conclusions</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>conclusions</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a conclusions written by the renderer would be an argument no field supports &mdash; no field: <code>conclusions</code></div>
+<h3 id="paper-sections-not-written-and-why">Sections not written, and why</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the list of refused properties &mdash; no field: <code>build_stamp.refusing</code></div>
+<h3 id="paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>funding</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a CONTENT gap. A submission requires it and this object does not carry it; it is not inferable from anything held here &mdash; no field: <code>funding</code></div>
+<h3 id="paper-references">References</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the reference list &mdash; no field: <code>sources</code></div>
+<h3 id="paper-keywords">Keywords</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>keywords</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a CONTENT gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose &mdash; no field: <code>keywords</code></div>
+<h3 id="paper-data-availability">Data availability</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the data availability statement &mdash; no field: <code>registration_identity, sources</code></div>
+<h3 id="paper-software-availability">Software availability</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the software and environment statement &mdash; no field: <code>results.by_outcome.*.r_output._environment, config.confidence_level</code></div>
+<h3 id="paper-note-on-registration">Note on registration</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the registration note &mdash; no field: <code>protocol</code></div>
+<h3 id="paper-trial-characteristics">Trial characteristics</h3>
+<div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<br><small class='muted'>&larr; inputs.trials</small></caption>
+<tr><th>Registration</th><th>Trial</th><th>Arms</th><th>Participants</th></tr>
+<tr><td>NCT02073682</td><td>HOKUSAI VTE-Cancer</td><td>[{&#x27;label&#x27;: &#x27;Edoxaban group&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: 67.0, &#x27;participants&#x27;: 522.0}, {&#x27;label&#x27;: &#x27;Dalteparin group&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: 71.0, &#x27;participants&#x27;: 524.0}]</td><td>not extracted</td></tr>
+<tr><td>NCT02583191</td><td>SELECT-D</td><td>[{&#x27;label&#x27;: &#x27;Rivaroxaban&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: 8.0, &#x27;participants&#x27;: 101.0}, {&#x27;label&#x27;: &#x27;low-molecular heparine&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: 18.0, &#x27;participants&#x27;: 102.0}]</td><td>not extracted</td></tr>
+<tr><td>NCT03045406</td><td>CARAVAGGIO</td><td>[{&#x27;label&#x27;: &#x27;Apixaban&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: 32.0, &#x27;participants&#x27;: 576.0}, {&#x27;label&#x27;: &#x27;Dalteparin&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: 46.0, &#x27;participants&#x27;: 579.0}]</td><td>not extracted</td></tr>
+</table></div>
+<h3 id="paper-figure-legends">Figure legends</h3>
+<div class='tscroll'><table><caption>Figures, and what each one shows<br><small class='muted'>&larr; results.by_outcome</small></caption>
+<tr><th>Outcome</th><th>Figure</th><th>What it shows</th></tr>
+<tr><td>Multiple trial-declared outcomes: Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) or Major Bleeding Event | 6 Month Bleeding Rate | Recurrent Venous Thromboembolism</td><td>Forest plot</td><td>not pooled; the reason is given in Results</td></tr>
+</table></div>
+<h3 id="paper-submission-conformance">Submission conformance</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the submission conformance statement &mdash; no field: <code>build_stamp</code></div>
+</div>  </section>
 <!--end-paper--> <section class="panel" id="pn-statistics">
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No statistical panel set was recoverable from the published page this object was extracted from.</div>
  </section>
@@ -538,7 +618,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   }
 })();
 </script>
-
+<div class='card warn'><h2>Page standard</h2><p><strong>UNSTAMPED — unknown-version.</strong> This page carries no <code>build_stamp</code>, so the standard it was built to cannot be established. That is a statement about the record, not a claim that the page is below standard.</p></div>
 <p><small>Every number on this page is projected from a single canonical object,
 and each measured cell names the source analysis it was read from. That is what is
 machine-checked. It does not establish that the underlying sources are right, only

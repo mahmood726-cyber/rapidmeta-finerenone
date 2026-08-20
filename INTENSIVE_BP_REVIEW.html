@@ -143,6 +143,7 @@
  #rt-report:checked ~ .tabnav label[for="rt-report"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  #rt-paper:checked ~ .panels > #pn-paper{height:auto;overflow:visible}
  #rt-paper:checked ~ .tabnav label[for="rt-paper"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-paper:focus-visible ~ .tabnav label[for="rt-paper"]{outline:3px solid var(--accent);outline-offset:2px}
  #rt-statistics:checked ~ .panels > #pn-statistics{height:auto;overflow:visible}
  #rt-statistics:checked ~ .tabnav label[for="rt-statistics"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  @media print{.panel{height:auto;overflow:visible}.tabnav{display:none}}
@@ -213,7 +214,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <label for="rt-extract">4. Extraction</label>
   <label for="rt-analysis">5. Analysis Suite</label>
  <label for="rt-report">6. Scientific Output</label>
- <label for="rt-paper">7. Paper Studio</label>
+  <label for="rt-paper">7. Paper Studio</label>
  <label for="rt-statistics">Statistics</label>
 </nav>
 <div class="panels">
@@ -327,14 +328,15 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <div class='tscroll'><table>
     <caption>Table 6. Endpoint definitions, read from the registry</caption>
 
-    <tr><th>Trial</th><th>Registered primary outcome measure</th>
+    <tr><th>Trial</th><th>Rank in its own trial</th>
+        <th>Registered outcome measure</th>
         <th>Description, verbatim</th><th>Analysis set / window</th></tr>
-    <tr><td><strong>SPRINT</strong><br><small><a href="https://clinicaltrials.gov/study/NCT01206062" rel="noopener">NCT01206062</a></small></td><td>Number of Participants With First Occurrence of a Myocardial Infarction (MI), Acute Coronary Syndrome (ACS), Stroke, Heart Failure (HF), or CVD Death</td><td>no description registered</td><td>6 years</td></tr>
-    <tr><td><strong>ACCORD (blood-pressure trial)</strong><br><small><a href="https://clinicaltrials.gov/study/NCT00000620" rel="noopener">NCT00000620</a></small></td><td>First Occurrence of Major Cardiovascular Event (MCE) in the Blood Pressure Trial.</td><td>Time to first occurrence of nonfatal myocardial infarction, nonfatal stroke, or cardiovascular death. Primary outcome for Blood Pressure Trial.</td><td>4.7 years</td></tr>
-    <tr><td><strong>STEP</strong><br><small><a href="https://clinicaltrials.gov/study/NCT03015311" rel="noopener">NCT03015311</a></small></td><td>Primary composite outcome</td><td>A composite end-point comprised of acute coronary syndrome (myocardial infarction and hospitalization for unstable angina), first occurrence of symptomatic stroke ( ischemic or hemorrhagic stroke), hospitalization for decompensated heart failure, coronary revascularization (percutaneous coronary intervention \[PCI\], coronary artery bypass grafting \[CABG\]), atrial fibrillation, and death from cardiovascular causes.</td><td>4 years</td></tr>
-    <tr><td><strong>ESPRIT</strong><br><small><a href="https://clinicaltrials.gov/study/NCT04030234" rel="noopener">NCT04030234</a></small></td><td>Number of participants with composite of major CVD events</td><td>Composite outcome of myocardial infarction, coronary or non-coronary revascularization, chronic or acute decompensated heart failure hospitalization or emergency department visit, stroke, or death from cardiovascular disease</td><td>4 years</td></tr>
-    <tr><td><strong>BPROAD</strong><br><small><a href="https://clinicaltrials.gov/study/NCT03808311" rel="noopener">NCT03808311</a></small></td><td>Major cardiovascular events</td><td>Time to the first occurrence of any of the following: non-fatal stroke, non-fatal myocardial infarction, hospitalized or treated heart failure, or cardiovascular deaths</td><td>5 years</td></tr>
-    <tr><td><strong>SPS3</strong><br><small><a href="https://clinicaltrials.gov/study/NCT00059306" rel="noopener">NCT00059306</a></small></td><td>Evidence of clinically defined ischemic stroke (focal neurological deficits persisting for more than 24 hours) confirmed by non-investigational CT or MRI</td><td>no description registered</td><td>Mean follow up of 4 years</td></tr>
+    <tr><td><strong>SPRINT</strong><br><small><a href="https://clinicaltrials.gov/study/NCT01206062" rel="noopener">NCT01206062</a></small></td><td>PRIMARY -- this registration&#x27;s first primary outcome</td><td>Number of Participants With First Occurrence of a Myocardial Infarction (MI), Acute Coronary Syndrome (ACS), Stroke, Heart Failure (HF), or CVD Death</td><td>no description registered</td><td>6 years</td></tr>
+    <tr><td><strong>ACCORD (blood-pressure trial)</strong><br><small><a href="https://clinicaltrials.gov/study/NCT00000620" rel="noopener">NCT00000620</a></small></td><td>PRIMARY -- the BLOOD-PRESSURE trial&#x27;s primary, index 1 of three on this registration</td><td>First Occurrence of Major Cardiovascular Event (MCE) in the Blood Pressure Trial.</td><td>Time to first occurrence of nonfatal myocardial infarction, nonfatal stroke, or cardiovascular death. Primary outcome for Blood Pressure Trial.</td><td>4.7 years</td></tr>
+    <tr><td><strong>STEP</strong><br><small><a href="https://clinicaltrials.gov/study/NCT03015311" rel="noopener">NCT03015311</a></small></td><td>PRIMARY -- this registration&#x27;s first primary outcome</td><td>Primary composite outcome</td><td>A composite end-point comprised of acute coronary syndrome (myocardial infarction and hospitalization for unstable angina), first occurrence of symptomatic stroke ( ischemic or hemorrhagic stroke), hospitalization for decompensated heart failure, coronary revascularization (percutaneous coronary intervention \[PCI\], coronary artery bypass grafting \[CABG\]), atrial fibrillation, and death from cardiovascular causes.</td><td>4 years</td></tr>
+    <tr><td><strong>ESPRIT</strong><br><small><a href="https://clinicaltrials.gov/study/NCT04030234" rel="noopener">NCT04030234</a></small></td><td>PRIMARY -- this registration&#x27;s first primary outcome</td><td>Number of participants with composite of major CVD events</td><td>Composite outcome of myocardial infarction, coronary or non-coronary revascularization, chronic or acute decompensated heart failure hospitalization or emergency department visit, stroke, or death from cardiovascular disease</td><td>4 years</td></tr>
+    <tr><td><strong>BPROAD</strong><br><small><a href="https://clinicaltrials.gov/study/NCT03808311" rel="noopener">NCT03808311</a></small></td><td>PRIMARY -- this registration&#x27;s first primary outcome</td><td>Major cardiovascular events</td><td>Time to the first occurrence of any of the following: non-fatal stroke, non-fatal myocardial infarction, hospitalized or treated heart failure, or cardiovascular deaths</td><td>5 years</td></tr>
+    <tr><td><strong>SPS3</strong><br><small><a href="https://clinicaltrials.gov/study/NCT00059306" rel="noopener">NCT00059306</a></small></td><td>PRIMARY -- this registration&#x27;s first primary outcome</td><td>Evidence of clinically defined ischemic stroke (focal neurological deficits persisting for more than 24 hours) confirmed by non-investigational CT or MRI</td><td>no description registered</td><td>Mean follow up of 4 years</td></tr>
   </table></div>
 </div>
 <div class="card">
@@ -513,7 +515,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
   </section>
 <!--end-analysis--> <section class="panel" id="pn-report">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No GRADE assessment or reconciliation record is held in this object, so the certainty of this evidence has not been rated.</div>
+<div class="absent-state" role="note"><strong>Partially held.</strong> Part of the reporting record is held and is shown below. No GRADE certainty rating is carried, so the certainty column is left as an em dash rather than guessed.</div>
 <div class='card'>
   <h3>Summary of findings</h3>
   <div class='tscroll'><table>
@@ -528,22 +530,103 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <div class='tscroll'><table>
     <caption>Table 9. Reproducibility artifact</caption>
 
-    <tr><th scope='col'>Canonical object</th><td><code></code></td></tr>
-    <tr><th scope='col'>Registered at</th><td><code></code> </td></tr>
+    <tr><th scope='col'>Canonical object</th><td><code>—</code></td></tr>
+    <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2-authored-from-source</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-18T00:00Z</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>d1339a8cb</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>4c3fde9b5</code>, built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
  </section>
-<!--end-report--> <section class="panel" id="pn-paper">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No manuscript has been generated for this review.</div>
+<!--end-report-->  <section class="panel" id="pn-paper">
+  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-sections-not-written-and-why">Sections not written, and why</a> &middot; <a href="#paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-keywords">Keywords</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a></p>
 <div class='card'>
-  <h2>Paper Studio</h2>
-  <div class='absent-state' role='note'><strong>Not held in this object.</strong> No manuscript has been generated for intensive-bp-review. A manuscript belongs to one review, so none from another review is shown here &mdash; this tab is empty of content rather than filled with someone else&rsquo;s.</div>
-</div>
- </section>
+<h2 id="paper-paper">Paper</h2>
+<p class='muted'>Every paragraph below is PROJECTED from a field of this object, and names it. <strong>A section with no field behind it is not written</strong> &mdash; it is refused, by name, so a reader can tell an absent procedure from an unmentioned one.</p>
+<h3 id="paper-title-and-review-question">Title and review question</h3>
+<p>Intensive versus standard blood-pressure targets<br><small class='muted'>&larr; title</small></p>
+<p>Do intensive systolic blood-pressure targets reduce major cardiovascular events? Six landmark trials ask this and register six different composites to answer it.<br><small class='muted'>&larr; question</small></p>
+<h3 id="paper-methods-search">Methods — search</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the entire search description &mdash; no field: <code>search.databases</code></div>
+<h3 id="paper-methods-eligibility-criteria">Methods — eligibility criteria</h3>
+<p>not recorded on the page this object was built from<br><small class='muted'>&larr; screening.eligibility</small></p>
+<h3 id="paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the k cascade &mdash; no field: <code>k_cascade</code></div>
+<h3 id="paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</h3>
+<p>Every registered rank -- primary, secondary and other -- was read for 6 of 6 contributing trials before any decision about which outcomes could be combined; each records the time it was read.<br><small class='muted'>&larr; inputs.trials[].all_ranks_read_utc</small></p>
+<h3 id="paper-methods-synthesis">Methods — synthesis</h3>
+<p>For primary, a random-effects model was fitted with the none estimator.<br><small class='muted'>&larr; results.by_outcome.primary.model, results.by_outcome.primary.estimator_used</small></p>
+<p>Methodological decisions follow not recorded on the page this object was built from, version not recorded on the page this object was built from, and the sections relied on are listed in the object rather than cited generically.<br><small class='muted'>&larr; methodological_authority.reference</small></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that records were screened in duplicate by two independent reviewers &mdash; no field: <code>screening.duplicate_screening</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that risk of bias was assessed with a named tool &mdash; no field: <code>risk_of_bias.tool</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that certainty of evidence was graded &mdash; no field: <code>grade.approach</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that the review methods were prespecified before data collection &mdash; no field: <code>protocol.prespecified</code></div>
+<h3 id="paper-results">Results</h3>
+<p>Major cardiovascular events, as each of six trials separately defines them. These 1 trials are NOT pooled, and the reason is stated rather than the outcome being quietly omitted: SIX TRIALS, SIX DIFFERENT REGISTERED COMPOSITES. This is the widest endpoint divergence found in this programme, and every difference is stated in the trials&#x27; own registry records: SPRINT counts myocardial infarction, ACUTE CORONARY SYNDROME, stroke, HEART FAILURE and cardiovascular death -- five. ACCORD&#x27;s blood-pressure trial counts NONFATAL myocardial infarction, NONFATAL stroke and cardiovascular death -- three, with no heart failure and no acute coronary syndrome. BPROAD counts four. ESPRIT counts five INCLUDING CORONARY OR NON-CORONARY REVASCULARISATION. STEP counts SIX, and one of them is ATRIAL FIBRILLATION, which appears in no other trial on this page. AND SPS3 IS NOT A COMPOSITE TRIAL AT ALL. Its registration declares TWO separate primary outcomes, each a single event type -- &#x27;clinically defined ischemic stroke&#x27; and &#x27;hemorrhagic stroke&#x27;. It counts stroke recurrence and nothing else. A stroke-only endpoint cannot be averaged into a five- or six-component cardiovascular composite. SEPARATELY: THE PAGE CANNOT AGREE WITH ITSELF ABOUT HOW MANY TRIALS THIS IS. Its include list names SIX registrations. Its embedded data carries ONE -- SPRINT. The index card published k=5. Three different counts, and no surface reconciles them. SEPARATELY AGAIN: THE PUBLISHED NUMBER CANNOT COME FROM THIS PAGE. HR 0.79 (0.71 to 0.87) is a five-trial pool, and the page holds an effect for exactly one trial. It also matches neither published benchmark this page carries.<br><small class='muted'>&larr; outcomes[id=primary].name, results.by_outcome.primary.poolable_reason</small></p>
+<h3 id="paper-limitations">Limitations</h3>
+<p>Known limitation of the screen: not recorded on the page this object was built from<br><small class='muted'>&larr; screening.known_limitation</small></p>
+<p>Eligible trials that do not contribute: FIVE OF THE SIX REGISTRATIONS THIS PAGE INCLUDES CARRY NO EFFECT ON IT AT ALL. Only SPRINT has an embedded value. The index card nevertheless published k=5. Each of the five is listed below with its own registered primary outcome, quoted from its registry record, so a reader can see both that they are missing and what they would have contributed.<br><small class='muted'>&larr; eligible_but_not_contributing.note</small></p>
+<p>What is not claimed: that any per-trial value was checked against a results record<br><small class='muted'>&larr; verification_basis.what_is_not_claimed</small></p>
+<p>1 claim(s) previously made about this review were corrected and the corrections are retained on the object rather than overwritten.<br><small class='muted'>&larr; claims_corrected</small></p>
+<h3 id="paper-abstract">Abstract</h3>
+<p>Question. Do intensive systolic blood-pressure targets reduce major cardiovascular events? Six landmark trials ask this and register six different composites to answer it.<br><small class='muted'>&larr; question</small></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the findings sentence of the abstract -- this review pools nothing, and the reason is given in Results rather than an estimate being manufactured here &mdash; no field: <code>results.by_outcome.*.pooled.point</code></div>
+<h3 id="paper-introduction">Introduction</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> Background.  &mdash; no field: <code>protocol.rationale</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Introduction -- no background or rationale is recorded on this object. This is a CONTENT gap, not a rendering one: no change to this projector produces it, and it is written by adding `protocol.rationale` to the object &mdash; no field: <code>protocol.rationale</code></div>
+<h3 id="paper-certainty-of-the-evidence">Certainty of the evidence</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> Certainty of the evidence, by outcome, with every rating step &mdash; no field: <code>grade.by_outcome</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the certainty assessment -- no GRADE record is held, so the certainty column elsewhere on this page is an em dash rather than a guess &mdash; no field: <code>grade</code></div>
+<h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the risk-of-bias assessment &mdash; no field: <code>risk_of_bias</code></div>
+<h3 id="paper-disagreements-between-sources">Disagreements between sources</h3>
+<p>not recorded on the page this object was built from<br><small class='muted'>&larr; reconciliation.why_this_step_exists</small></p>
+<p>not recorded on the page this object was built from<br><small class='muted'>&larr; reconciliation.clean_because</small></p>
+<h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the comparison with published syntheses -- no published synthesis is recorded for this topic, so no denominator can be given &mdash; no field: <code>published_comparison</code></div>
+<h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the verbatim model output -- no analysis output is stored on this object, so nothing can be quoted and nothing is paraphrased in its place &mdash; no field: <code>results.by_outcome.*.r_output.verbatim</code></div>
+<h3 id="paper-discussion">Discussion</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>discussion</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a discussion written by the renderer would be an argument no field supports &mdash; no field: <code>discussion</code></div>
+<h3 id="paper-conclusions">Conclusions</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>conclusions</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a conclusions written by the renderer would be an argument no field supports &mdash; no field: <code>conclusions</code></div>
+<h3 id="paper-sections-not-written-and-why">Sections not written, and why</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the list of refused properties &mdash; no field: <code>build_stamp.refusing</code></div>
+<h3 id="paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>funding</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a CONTENT gap. A submission requires it and this object does not carry it; it is not inferable from anything held here &mdash; no field: <code>funding</code></div>
+<h3 id="paper-references">References</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the reference list &mdash; no field: <code>sources</code></div>
+<h3 id="paper-keywords">Keywords</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>keywords</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a CONTENT gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose &mdash; no field: <code>keywords</code></div>
+<h3 id="paper-data-availability">Data availability</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the data availability statement &mdash; no field: <code>registration_identity, sources</code></div>
+<h3 id="paper-software-availability">Software availability</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the software and environment statement &mdash; no field: <code>results.by_outcome.*.r_output._environment, config.confidence_level</code></div>
+<h3 id="paper-note-on-registration">Note on registration</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the registration note &mdash; no field: <code>protocol</code></div>
+<h3 id="paper-trial-characteristics">Trial characteristics</h3>
+<div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<br><small class='muted'>&larr; inputs.trials</small></caption>
+<tr><th>Registration</th><th>Trial</th><th>Arms</th><th>Participants</th></tr>
+<tr><td>NCT00000620</td><td>ACCORD (blood-pressure trial)</td><td>[{&#x27;label&#x27;: &#x27;Glycemia Trial: intensive control&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: None, &#x27;participants&#x27;: None}, {&#x27;label&#x27;: &#x27;Lipid Trial: placebo&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: None, &#x27;participants&#x27;: None}]</td><td>not extracted</td></tr>
+<tr><td>NCT00059306</td><td>SPS3</td><td>[{&#x27;label&#x27;: &#x27;Antiplatelet&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: None, &#x27;participants&#x27;: None}, {&#x27;label&#x27;: &#x27;Blood pressure&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: None, &#x27;participants&#x27;: None}]</td><td>not extracted</td></tr>
+<tr><td>NCT01206062</td><td>SPRINT</td><td>[{&#x27;label&#x27;: &#x27;Intensive Control of SBP&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: 243, &#x27;participants&#x27;: 4678}, {&#x27;label&#x27;: &#x27;Standard Control of SBP&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: 319, &#x27;participants&#x27;: 4683}]</td><td>not extracted</td></tr>
+<tr><td>NCT03015311</td><td>STEP</td><td>[{&#x27;label&#x27;: &#x27;Intensive BP control&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: None, &#x27;participants&#x27;: None}, {&#x27;label&#x27;: &#x27;Standard BP control&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: None, &#x27;participants&#x27;: None}]</td><td>not extracted</td></tr>
+<tr><td>NCT03808311</td><td>BPROAD</td><td>[{&#x27;label&#x27;: &#x27;Intensive BP treatment arm&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: None, &#x27;participants&#x27;: None}, {&#x27;label&#x27;: &#x27;Standard BP treatment arm&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: None, &#x27;participants&#x27;: None}]</td><td>not extracted</td></tr>
+<tr><td>NCT04030234</td><td>ESPRIT</td><td>[{&#x27;label&#x27;: &#x27;Intensive treatment group&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: None, &#x27;participants&#x27;: None}, {&#x27;label&#x27;: &#x27;Standard treatment group&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: None, &#x27;participants&#x27;: None}]</td><td>not extracted</td></tr>
+</table></div>
+<h3 id="paper-figure-legends">Figure legends</h3>
+<div class='tscroll'><table><caption>Figures, and what each one shows<br><small class='muted'>&larr; results.by_outcome</small></caption>
+<tr><th>Outcome</th><th>Figure</th><th>What it shows</th></tr>
+<tr><td>Major cardiovascular events, as each of six trials separately defines them</td><td>Forest plot</td><td>not pooled; the reason is given in Results</td></tr>
+</table></div>
+<h3 id="paper-submission-conformance">Submission conformance</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the submission conformance statement &mdash; no field: <code>build_stamp</code></div>
+</div>  </section>
 <!--end-paper--> <section class="panel" id="pn-statistics">
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No statistical panel set is held in this object.</div>
  </section>
@@ -583,7 +666,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   }
 })();
 </script>
-
+<div class='card warn'><h2>Page standard</h2><p><strong>UNSTAMPED — unknown-version.</strong> This page carries no <code>build_stamp</code>, so the standard it was built to cannot be established. That is a statement about the record, not a claim that the page is below standard.</p></div>
 <p><small>Every number on this page is projected from a single canonical object,
 and each measured cell names the source analysis it was read from. That is what is
 machine-checked. It does not establish that the underlying sources are right, only

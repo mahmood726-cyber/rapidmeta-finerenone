@@ -143,6 +143,7 @@
  #rt-report:checked ~ .tabnav label[for="rt-report"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  #rt-paper:checked ~ .panels > #pn-paper{height:auto;overflow:visible}
  #rt-paper:checked ~ .tabnav label[for="rt-paper"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-paper:focus-visible ~ .tabnav label[for="rt-paper"]{outline:3px solid var(--accent);outline-offset:2px}
  #rt-statistics:checked ~ .panels > #pn-statistics{height:auto;overflow:visible}
  #rt-statistics:checked ~ .tabnav label[for="rt-statistics"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  @media print{.panel{height:auto;overflow:visible}.tabnav{display:none}}
@@ -213,7 +214,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <label for="rt-extract">4. Extraction</label>
   <label for="rt-analysis">5. Analysis Suite</label>
  <label for="rt-report">6. Scientific Output</label>
- <label for="rt-paper">7. Paper Studio</label>
+  <label for="rt-paper">7. Paper Studio</label>
  <label for="rt-statistics">Statistics</label>
 </nav>
 <div class="panels">
@@ -323,14 +324,15 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <div class='tscroll'><table>
     <caption>Table 6. Endpoint definitions, read from the registry</caption>
 
-    <tr><th>Trial</th><th>Registered primary outcome measure</th>
+    <tr><th>Trial</th><th>Rank in its own trial</th>
+        <th>Registered outcome measure</th>
         <th>Description, verbatim</th><th>Analysis set / window</th></tr>
-    <tr><td><strong>ARISTOTLE</strong><br><small><a href="https://clinicaltrials.gov/study/NCT00412984" rel="noopener">NCT00412984</a></small></td><td>Number of Participants With First Event of Ischemic/Unspecified Stroke, Hemorrhagic Stroke, or Systemic Embolism (SE) During the Intended Treatment Period</td><td>All suspected efficacy events were adjudicated by the Central Events Committee (CEC). Diagnosis of stroke=the nontraumatic focal neurological deficit lasting at least 24 hours, and includes ischemic stroke, hemorrhagic stroke, ischemic stroke with hemorrhagic conversion, stroke of uncertain type, and retinal ischemic event (embolism, infarction). Diagnosis of SE=clinical history consistent with an acute loss of blood flow to a peripheral artery (or arteries), supported by evidence of embolism from surgical specimens, autopsy, angiography, vascular imaging, or other objective testing.</td><td>Intended Treatment Period: randomisation to a pre-set efficacy cut-off date fixed before unblinding.</td></tr>
-    <tr><td><strong>AVERROES</strong><br><small><a href="https://clinicaltrials.gov/study/NCT00496769" rel="noopener">NCT00496769</a></small></td><td>Event Rate of Stroke/Systemic Embolism During the Intended-treatment Period</td><td>Event rate=percent of participants with an event divided by the total participants in the arm. Intended-treatment period=date of randomization to the efficacy cutoff date, which was to be the date on which at least 226 unrefuted original primary efficacy events occurred (date revised to May 28, 2010 following cessation of study for superior efficacy.)</td><td>Intended-treatment period. The registered quantity is a RATE, so a count-derived odds ratio is not the registered estimand even before the efficacy/safety mismatch is considered.</td></tr>
-    <tr><td><strong>PACIFIC-AF</strong><br><small><a href="https://clinicaltrials.gov/study/NCT04218266" rel="noopener">NCT04218266</a></small></td><td>Number of Participants With Composite of International Society on Thrombosis and Hemostasis (ISTH) Major Bleeding or Clinically Relevant Non-major (CRNM) Bleeding</td><td>ISTH Major Bleeding criteria: 1. Fatal bleeding, and/or 2. Symptomatic bleeding in a critical area or organ (intracranial, intraocular, intraspinal, pericardial, retroperitoneal, intraarticular, or intramuscular with compartment syndrome), and/or 3. Clinically overt bleeding associated with a recent decrease in the hemoglobin level of ≥ 2 g/dL (20 g/L; 1.24 mmol/L) compared to the most recent hemoglobin value available before the event, and/or 4. Clinically overt bleeding leading to transfusion of 2 or more units of packed red blood cells or whole blood.
+    <tr><td><strong>ARISTOTLE</strong><br><small><a href="https://clinicaltrials.gov/study/NCT00412984" rel="noopener">NCT00412984</a></small></td><td>PRIMARY -- primaryOutcomes[0] on this registration</td><td>Number of Participants With First Event of Ischemic/Unspecified Stroke, Hemorrhagic Stroke, or Systemic Embolism (SE) During the Intended Treatment Period</td><td>All suspected efficacy events were adjudicated by the Central Events Committee (CEC). Diagnosis of stroke=the nontraumatic focal neurological deficit lasting at least 24 hours, and includes ischemic stroke, hemorrhagic stroke, ischemic stroke with hemorrhagic conversion, stroke of uncertain type, and retinal ischemic event (embolism, infarction). Diagnosis of SE=clinical history consistent with an acute loss of blood flow to a peripheral artery (or arteries), supported by evidence of embolism from surgical specimens, autopsy, angiography, vascular imaging, or other objective testing.</td><td>Intended Treatment Period: randomisation to a pre-set efficacy cut-off date fixed before unblinding.</td></tr>
+    <tr><td><strong>AVERROES</strong><br><small><a href="https://clinicaltrials.gov/study/NCT00496769" rel="noopener">NCT00496769</a></small></td><td>PRIMARY -- primaryOutcomes[0] on this registration</td><td>Event Rate of Stroke/Systemic Embolism During the Intended-treatment Period</td><td>Event rate=percent of participants with an event divided by the total participants in the arm. Intended-treatment period=date of randomization to the efficacy cutoff date, which was to be the date on which at least 226 unrefuted original primary efficacy events occurred (date revised to May 28, 2010 following cessation of study for superior efficacy.)</td><td>Intended-treatment period. The registered quantity is a RATE, so a count-derived odds ratio is not the registered estimand even before the efficacy/safety mismatch is considered.</td></tr>
+    <tr><td><strong>PACIFIC-AF</strong><br><small><a href="https://clinicaltrials.gov/study/NCT04218266" rel="noopener">NCT04218266</a></small></td><td>PRIMARY -- primaryOutcomes[0] on this registration</td><td>Number of Participants With Composite of International Society on Thrombosis and Hemostasis (ISTH) Major Bleeding or Clinically Relevant Non-major (CRNM) Bleeding</td><td>ISTH Major Bleeding criteria: 1. Fatal bleeding, and/or 2. Symptomatic bleeding in a critical area or organ (intracranial, intraocular, intraspinal, pericardial, retroperitoneal, intraarticular, or intramuscular with compartment syndrome), and/or 3. Clinically overt bleeding associated with a recent decrease in the hemoglobin level of ≥ 2 g/dL (20 g/L; 1.24 mmol/L) compared to the most recent hemoglobin value available before the event, and/or 4. Clinically overt bleeding leading to transfusion of 2 or more units of packed red blood cells or whole blood.
 
 ISTH Clinically Relevant Non-Major Bleeding is considered any sign or symptom of hemorrhage that does not fit the criteria for the ISTH definition of major bleeding, but does meet at least one of the following criteria 1. requiring medical intervention by a healthcare professional. 2. leading to hospitalization or increased level of care. 3. prompting a face to face (i.e. not just a telephone or electronic communication) evaluation.</td><td>A small phase-2 trial: 249 against 254 participants.</td></tr>
-    <tr><td><strong>RENAL-AF</strong><br><small><a href="https://clinicaltrials.gov/study/NCT02942407" rel="noopener">NCT02942407</a></small></td><td>Number of Participants Experiencing ISTH (International Society on Thrombosis and Haemostasis) Major or Clinically Relevant Non-major Bleeding</td><td>Assess the safety of apixaban versus warfarin regarding ISTH major bleeding or clinically relevant non-major bleeding events in patients with NVAF (nonvalvular atrial fibrillation) and ESRD (end-stage renal disease) on hemodialysis.
+    <tr><td><strong>RENAL-AF</strong><br><small><a href="https://clinicaltrials.gov/study/NCT02942407" rel="noopener">NCT02942407</a></small></td><td>PRIMARY -- primaryOutcomes[0] on this registration</td><td>Number of Participants Experiencing ISTH (International Society on Thrombosis and Haemostasis) Major or Clinically Relevant Non-major Bleeding</td><td>Assess the safety of apixaban versus warfarin regarding ISTH major bleeding or clinically relevant non-major bleeding events in patients with NVAF (nonvalvular atrial fibrillation) and ESRD (end-stage renal disease) on hemodialysis.
 
 Major bleeding event is defined as:Acute clinically overt bleeding (including access site related bleeding) accompanied by 1 or more of the following: Decrease in Hgb of 2g/dL or more with overt bleeding; Transfusion of 2 or more units of packed RBCs in the setting of an overt bleeding event; Bleeding within a critical site. Hemorrhagic stroke (primary or infarction with hemorrhagic conversion) were classified as major bleeds.
 
@@ -414,7 +416,7 @@ Non-major bleeding event is defined as: Acute or sub-acute clinically overt blee
 </div>
   </section>
 <!--end-analysis--> <section class="panel" id="pn-report">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No GRADE assessment or reconciliation record is held in this object, so the certainty of this evidence has not been rated.</div>
+<div class="absent-state" role="note"><strong>Partially held.</strong> Part of the reporting record is held and is shown below. No GRADE certainty rating is carried, so the certainty column is left as an em dash rather than guessed.</div>
 <div class='card'>
   <h3>Summary of findings</h3>
   <div class='tscroll'><table>
@@ -429,22 +431,100 @@ Non-major bleeding event is defined as: Acute or sub-acute clinically overt blee
   <div class='tscroll'><table>
     <caption>Table 8. Reproducibility artifact</caption>
 
-    <tr><th scope='col'>Canonical object</th><td><code></code></td></tr>
-    <tr><th scope='col'>Registered at</th><td><code></code> </td></tr>
+    <tr><th scope='col'>Canonical object</th><td><code>—</code></td></tr>
+    <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2-authored-from-source</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-18T00:00Z</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>d1339a8cb</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>4c3fde9b5</code>, built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
  </section>
-<!--end-report--> <section class="panel" id="pn-paper">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No manuscript has been generated for this review.</div>
+<!--end-report-->  <section class="panel" id="pn-paper">
+  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-sections-not-written-and-why">Sections not written, and why</a> &middot; <a href="#paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-keywords">Keywords</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a></p>
 <div class='card'>
-  <h2>Paper Studio</h2>
-  <div class='absent-state' role='note'><strong>Not held in this object.</strong> No manuscript has been generated for apixaban-af-review. A manuscript belongs to one review, so none from another review is shown here &mdash; this tab is empty of content rather than filled with someone else&rsquo;s.</div>
-</div>
- </section>
+<h2 id="paper-paper">Paper</h2>
+<p class='muted'>Every paragraph below is PROJECTED from a field of this object, and names it. <strong>A section with no field behind it is not written</strong> &mdash; it is refused, by name, so a reader can tell an absent procedure from an unmentioned one.</p>
+<h3 id="paper-title-and-review-question">Title and review question</h3>
+<p>Apixaban in atrial fibrillation<br><small class='muted'>&larr; title</small></p>
+<p>Does apixaban reduce stroke and systemic embolism in atrial fibrillation? The four trials on this page do not answer one question: two register an efficacy endpoint and two register bleeding.<br><small class='muted'>&larr; question</small></p>
+<h3 id="paper-methods-search">Methods — search</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the entire search description &mdash; no field: <code>search.databases</code></div>
+<h3 id="paper-methods-eligibility-criteria">Methods — eligibility criteria</h3>
+<p>not recorded on the page this object was built from<br><small class='muted'>&larr; screening.eligibility</small></p>
+<h3 id="paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the k cascade &mdash; no field: <code>k_cascade</code></div>
+<h3 id="paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</h3>
+<p>Every registered rank -- primary, secondary and other -- was read for 4 of 4 contributing trials before any decision about which outcomes could be combined; each records the time it was read.<br><small class='muted'>&larr; inputs.trials[].all_ranks_read_utc</small></p>
+<h3 id="paper-methods-synthesis">Methods — synthesis</h3>
+<p>For primary, a random-effects model was fitted with the none estimator.<br><small class='muted'>&larr; results.by_outcome.primary.model, results.by_outcome.primary.estimator_used</small></p>
+<p>Methodological decisions follow not recorded on the page this object was built from, version not recorded on the page this object was built from, and the sections relied on are listed in the object rather than cited generically.<br><small class='muted'>&larr; methodological_authority.reference</small></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that records were screened in duplicate by two independent reviewers &mdash; no field: <code>screening.duplicate_screening</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that risk of bias was assessed with a named tool &mdash; no field: <code>risk_of_bias.tool</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that certainty of evidence was graded &mdash; no field: <code>grade.approach</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that the review methods were prespecified before data collection &mdash; no field: <code>protocol.prespecified</code></div>
+<h3 id="paper-results">Results</h3>
+<p>Stroke or systemic embolism in two trials, and major or clinically relevant non-major BLEEDING in the other two. These 4 trials are NOT pooled, and the reason is stated rather than the outcome being quietly omitted: TWO OF THESE FOUR TRIALS REGISTER AN EFFICACY ENDPOINT AND TWO REGISTER BLEEDING, AND THE TWO POINT IN OPPOSITE DIRECTIONS. Verbatim from the registry: ARISTOTLE&#x27;s primary is &#x27;Number of Participants With First Event of Ischemic/Unspecified Stroke, Hemorrhagic Stroke, or Systemic Embolism (SE) During the Intended Treatment Period&#x27;; AVERROES&#x27;s is &#x27;Event Rate of Stroke/Systemic Embolism During the Intended-treatment Period&#x27;. PACIFIC-AF&#x27;s is &#x27;Number of Participants With Composite of International Society on Thrombosis and Hemostasis (ISTH) Major Bleeding or Clinically Relevant Non-major (CRNM) Bleeding&#x27;; RENAL-AF&#x27;s is &#x27;Number of Participants Experiencing ISTH Major or Clinically Relevant Non-major Bleeding&#x27;. A stroke prevented and a bleed caused are not the same event, and for an anticoagulant they move in OPPOSITE directions -- so averaging them does not produce a weaker estimate of either, it produces a number that estimates neither and whose direction depends on the mix of trials. SEPARATELY: AVERROES registers an event RATE rather than a count of participants, so a count-derived odds ratio is not its registered estimand even before the efficacy-safety mismatch is reached. SEPARATELY AGAIN: the two bleeding trials are small -- PACIFIC-AF 249 against 254, RENAL-AF 82 against 72 -- beside ARISTOTLE&#x27;s 9,120 against 9,081, so the pooled direction was always going to be set by the efficacy trials while the estimand was contaminated by the safety ones.<br><small class='muted'>&larr; outcomes[id=primary].name, results.by_outcome.primary.poolable_reason</small></p>
+<h3 id="paper-limitations">Limitations</h3>
+<p>Known limitation of the screen: not recorded on the page this object was built from<br><small class='muted'>&larr; screening.known_limitation</small></p>
+<p>Eligible trials that do not contribute: All included registrations carry a row in this object.<br><small class='muted'>&larr; eligible_but_not_contributing.note</small></p>
+<p>What is not claimed: that any per-trial count was checked against a results record<br><small class='muted'>&larr; verification_basis.what_is_not_claimed</small></p>
+<h3 id="paper-abstract">Abstract</h3>
+<p>Question. Does apixaban reduce stroke and systemic embolism in atrial fibrillation? The four trials on this page do not answer one question: two register an efficacy endpoint and two register bleeding.<br><small class='muted'>&larr; question</small></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the findings sentence of the abstract -- this review pools nothing, and the reason is given in Results rather than an estimate being manufactured here &mdash; no field: <code>results.by_outcome.*.pooled.point</code></div>
+<h3 id="paper-introduction">Introduction</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> Background.  &mdash; no field: <code>protocol.rationale</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Introduction -- no background or rationale is recorded on this object. This is a CONTENT gap, not a rendering one: no change to this projector produces it, and it is written by adding `protocol.rationale` to the object &mdash; no field: <code>protocol.rationale</code></div>
+<h3 id="paper-certainty-of-the-evidence">Certainty of the evidence</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> Certainty of the evidence, by outcome, with every rating step &mdash; no field: <code>grade.by_outcome</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the certainty assessment -- no GRADE record is held, so the certainty column elsewhere on this page is an em dash rather than a guess &mdash; no field: <code>grade</code></div>
+<h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the risk-of-bias assessment &mdash; no field: <code>risk_of_bias</code></div>
+<h3 id="paper-disagreements-between-sources">Disagreements between sources</h3>
+<p>not recorded on the page this object was built from<br><small class='muted'>&larr; reconciliation.why_this_step_exists</small></p>
+<p>not recorded on the page this object was built from<br><small class='muted'>&larr; reconciliation.clean_because</small></p>
+<h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the comparison with published syntheses -- no published synthesis is recorded for this topic, so no denominator can be given &mdash; no field: <code>published_comparison</code></div>
+<h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the verbatim model output -- no analysis output is stored on this object, so nothing can be quoted and nothing is paraphrased in its place &mdash; no field: <code>results.by_outcome.*.r_output.verbatim</code></div>
+<h3 id="paper-discussion">Discussion</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>discussion</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a discussion written by the renderer would be an argument no field supports &mdash; no field: <code>discussion</code></div>
+<h3 id="paper-conclusions">Conclusions</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>conclusions</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a conclusions written by the renderer would be an argument no field supports &mdash; no field: <code>conclusions</code></div>
+<h3 id="paper-sections-not-written-and-why">Sections not written, and why</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the list of refused properties &mdash; no field: <code>build_stamp.refusing</code></div>
+<h3 id="paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>funding</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a CONTENT gap. A submission requires it and this object does not carry it; it is not inferable from anything held here &mdash; no field: <code>funding</code></div>
+<h3 id="paper-references">References</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the reference list &mdash; no field: <code>sources</code></div>
+<h3 id="paper-keywords">Keywords</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>keywords</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a CONTENT gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose &mdash; no field: <code>keywords</code></div>
+<h3 id="paper-data-availability">Data availability</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the data availability statement &mdash; no field: <code>registration_identity, sources</code></div>
+<h3 id="paper-software-availability">Software availability</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the software and environment statement &mdash; no field: <code>results.by_outcome.*.r_output._environment, config.confidence_level</code></div>
+<h3 id="paper-note-on-registration">Note on registration</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the registration note &mdash; no field: <code>protocol</code></div>
+<h3 id="paper-trial-characteristics">Trial characteristics</h3>
+<div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<br><small class='muted'>&larr; inputs.trials</small></caption>
+<tr><th>Registration</th><th>Trial</th><th>Arms</th><th>Participants</th></tr>
+<tr><td>NCT00412984</td><td>ARISTOTLE</td><td>[{&#x27;label&#x27;: &#x27;1&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: 212, &#x27;participants&#x27;: 9120}, {&#x27;label&#x27;: &#x27;2&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: 265, &#x27;participants&#x27;: 9081}]</td><td>not extracted</td></tr>
+<tr><td>NCT00496769</td><td>AVERROES</td><td>[{&#x27;label&#x27;: &#x27;Apixaban&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: 51, &#x27;participants&#x27;: 2808}, {&#x27;label&#x27;: &#x27;Acetylasalicylic acid&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: 113, &#x27;participants&#x27;: 2791}]</td><td>not extracted</td></tr>
+<tr><td>NCT02942407</td><td>RENAL-AF</td><td>[{&#x27;label&#x27;: &#x27;apixaban&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: 21, &#x27;participants&#x27;: 82}, {&#x27;label&#x27;: &#x27;warfarin&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: 13, &#x27;participants&#x27;: 72}]</td><td>not extracted</td></tr>
+<tr><td>NCT04218266</td><td>PACIFIC-AF</td><td>[{&#x27;label&#x27;: &#x27;BAY2433334 50mg+Apixaban matching placebo&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: 3, &#x27;participants&#x27;: 249}, {&#x27;label&#x27;: &#x27;BAY2433334 matching placebo+Apixaban&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: 1, &#x27;participants&#x27;: 254}]</td><td>not extracted</td></tr>
+</table></div>
+<h3 id="paper-figure-legends">Figure legends</h3>
+<div class='tscroll'><table><caption>Figures, and what each one shows<br><small class='muted'>&larr; results.by_outcome</small></caption>
+<tr><th>Outcome</th><th>Figure</th><th>What it shows</th></tr>
+<tr><td>Stroke or systemic embolism in two trials, and major or clinically relevant non-major BLEEDING in the other two</td><td>Forest plot</td><td>not pooled; the reason is given in Results</td></tr>
+</table></div>
+<h3 id="paper-submission-conformance">Submission conformance</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the submission conformance statement &mdash; no field: <code>build_stamp</code></div>
+</div>  </section>
 <!--end-paper--> <section class="panel" id="pn-statistics">
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No statistical panel set is held in this object.</div>
  </section>
@@ -484,7 +564,7 @@ Non-major bleeding event is defined as: Acute or sub-acute clinically overt blee
   }
 })();
 </script>
-
+<div class='card warn'><h2>Page standard</h2><p><strong>UNSTAMPED — unknown-version.</strong> This page carries no <code>build_stamp</code>, so the standard it was built to cannot be established. That is a statement about the record, not a claim that the page is below standard.</p></div>
 <p><small>Every number on this page is projected from a single canonical object,
 and each measured cell names the source analysis it was read from. That is what is
 machine-checked. It does not establish that the underlying sources are right, only

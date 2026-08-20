@@ -143,6 +143,7 @@
  #rt-report:checked ~ .tabnav label[for="rt-report"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  #rt-paper:checked ~ .panels > #pn-paper{height:auto;overflow:visible}
  #rt-paper:checked ~ .tabnav label[for="rt-paper"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-paper:focus-visible ~ .tabnav label[for="rt-paper"]{outline:3px solid var(--accent);outline-offset:2px}
  #rt-statistics:checked ~ .panels > #pn-statistics{height:auto;overflow:visible}
  #rt-statistics:checked ~ .tabnav label[for="rt-statistics"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  @media print{.panel{height:auto;overflow:visible}.tabnav{display:none}}
@@ -213,7 +214,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <label for="rt-extract">4. Extraction</label>
   <label for="rt-analysis">5. Analysis Suite</label>
  <label for="rt-report">6. Scientific Output</label>
- <label for="rt-paper">7. Paper Studio</label>
+  <label for="rt-paper">7. Paper Studio</label>
  <label for="rt-statistics">Statistics</label>
 </nav>
 <div class="panels">
@@ -320,10 +321,11 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <div class='tscroll'><table>
     <caption>Table 6. Endpoint definitions, read from the registry</caption>
 
-    <tr><th>Trial</th><th>Registered primary outcome measure</th>
+    <tr><th>Trial</th><th>Rank in its own trial</th>
+        <th>Registered outcome measure</th>
         <th>Description, verbatim</th><th>Analysis set / window</th></tr>
-    <tr><td><strong>STEP-HFpEF DM</strong><br><small><a href="https://clinicaltrials.gov/study/NCT04916470" rel="noopener">NCT04916470</a></small></td><td>Change in KCCQ (Kansas City Cardiomyopathy Questionnaire) clinical summary score</td><td>Score on a scale of 0 to 100 where the score 100 means the least burden for the participant.</td><td>Both registered primaries are continuous change scores.</td></tr>
-    <tr><td><strong>SUMMIT</strong><br><small><a href="https://clinicaltrials.gov/study/NCT04847557" rel="noopener">NCT04847557</a></small></td><td>Change From Baseline in the Kansas City Cardiomyopathy Questionnaire (KCCQ) Clinical Summary Score (CSS)</td><td>The KCCQ is a 23-item, participant self-administered questionnaire that assesses impacts of heart failure &quot;over the past 2 weeks&quot; on the following 7 domains:
+    <tr><td><strong>STEP-HFpEF DM</strong><br><small><a href="https://clinicaltrials.gov/study/NCT04916470" rel="noopener">NCT04916470</a></small></td><td>PRIMARY -- primaryOutcomes[0] on this registration</td><td>Change in KCCQ (Kansas City Cardiomyopathy Questionnaire) clinical summary score</td><td>Score on a scale of 0 to 100 where the score 100 means the least burden for the participant.</td><td>Both registered primaries are continuous change scores.</td></tr>
+    <tr><td><strong>SUMMIT</strong><br><small><a href="https://clinicaltrials.gov/study/NCT04847557" rel="noopener">NCT04847557</a></small></td><td>PRIMARY -- primaryOutcomes[0] on this registration</td><td>Change From Baseline in the Kansas City Cardiomyopathy Questionnaire (KCCQ) Clinical Summary Score (CSS)</td><td>The KCCQ is a 23-item, participant self-administered questionnaire that assesses impacts of heart failure &quot;over the past 2 weeks&quot; on the following 7 domains:
 
 * Physical Limitation (6)
 * Symptom Stability (1)
@@ -378,6 +380,7 @@ Least Square (LS) mean was determined using ANCOVA model with Baseline + HF Deco
   <p><small>&tau;&sup2; not stated &middot; I&sup2; 0% &middot; Q 0.1375 on 1 df</small></p>
   <p><strong>Favours: the intervention (lower is better)</strong></p>
   <p><small>Q = 0.1375 on 1 df, I-squared 0 per cent. At k=2 that means the two trials agree, not that the finding generalises.</small></p>
+  <p>THIS IS A REPLACEMENT, NOT A CORRECTION. The withdrawn estimate on this page was an ODDS RATIO over event counts, and two of the three included trials register ONLY CONTINUOUS co-primaries. But ALL THREE register the SAME continuous outcome -- change in the KCCQ clinical summary score -- so a symptom-benefit analysis needs no estimand judgement at all. IT IS POOLED AT k=2, NOT k=3, AND THAT IS THE HONEST NUMBER. STEP-HFpEF DM&#x27;s ClinicalTrials.gov record carries NO RESULTS SECTION, so this project has no registry-sourced value for it. Its published KCCQ difference exists in the literature and is NOT USED HERE, because every value on this page is read from a registry results record and importing one from elsewhere would break that guarantee for the sake of a third data point. THE TWO VALUES ARE THE REGISTRY&#x27;S OWN: STEP-HFpEF 7.8 (4.8 to 10.9) over 243 against 237, and SUMMIT 6.9 (3.3 to 10.6) over 301 against 313. POOLED: MD 7.43 (5.09 to 9.77) points on the KCCQ clinical summary score, k=2, 1,094 participants. Q = 0.14 on 1 degree of freedom, I-squared 0 per cent -- the two trials agree almost exactly.</p>
   <div class='absent-state' role='note'><strong>Why this pool stands.</strong> THIS IS A REPLACEMENT, NOT A CORRECTION. The withdrawn estimate on this page was an ODDS RATIO over event counts, and two of the three included trials register ONLY CONTINUOUS co-primaries. But ALL THREE register the SAME continuous outcome -- change in the KCCQ clinical summary score -- so a symptom-benefit analysis needs no estimand judgement at all. IT IS POOLED AT k=2, NOT k=3, AND THAT IS THE HONEST NUMBER. STEP-HFpEF DM&#x27;s ClinicalTrials.gov record carries NO RESULTS SECTION, so this project has no registry-sourced value for it. Its published KCCQ difference exists in the literature and is NOT USED HERE, because every value on this page is read from a registry results record and importing one from elsewhere would break that guarantee for the sake of a third data point. THE TWO VALUES ARE THE REGISTRY&#x27;S OWN: STEP-HFpEF 7.8 (4.8 to 10.9) over 243 against 237, and SUMMIT 6.9 (3.3 to 10.6) over 301 against 313. POOLED: MD 7.43 (5.09 to 9.77) points on the KCCQ clinical summary score, k=2, 1,094 participants. Q = 0.14 on 1 degree of freedom, I-squared 0 per cent -- the two trials agree almost exactly.</div>
   <p><small>WHAT A READER SHOULD KNOW. (1) k=2 AND THE INTERVAL SHOWN IS THE WALD ONE. At two studies a Hartung-Knapp interval uses a t-distribution on ONE degree of freedom and gives 1.80 to 13.06 -- far wider, and arguably the honest interval at this k. It still excludes no effect. Both are recorded. (2) HETEROGENEITY IS ZERO HERE, which at k=2 means the two trials agree, not that the finding is general. (3) THE THIRD TRIAL IS MISSING FOR A PROVENANCE REASON, NOT A CLINICAL ONE. STEP-HFpEF DM would very likely move this estimate very little; it is left out because its registry record has no results, and that is a rule about where numbers may come from rather than a judgement about the trial. (4) SUMMIT&#x27;S REGISTRY RECORD LABELS ITS CONTRAST &#x27;Median Difference (Net)&#x27; while its arm values are least-squares means whose difference is 6.83. The label and the quantity disagree IN THE REGISTRY. The reported value is used and the discrepancy is stated rather than resolved. (5) A SEVEN-POINT KCCQ DIFFERENCE IS A SYMPTOM BENEFIT, NOT AN EVENT REDUCTION. Five points is the usual threshold for a clinically meaningful within-patient change. Nothing here estimates an effect on death or hospitalisation -- SUMMIT registers a heart-failure event co-primary and this analysis does not use it.</small></p>
   <h3 id="extract-what-this-pool-holds-constant">What this pool holds constant</h3>
@@ -411,9 +414,10 @@ Least Square (LS) mean was determined using ANCOVA model with Baseline + HF Deco
   <div class='tscroll'><table>
     <caption>Table 11. Endpoint definitions, read from the registry</caption>
 
-    <tr><th>Trial</th><th>Registered primary outcome measure</th>
+    <tr><th>Trial</th><th>Rank in its own trial</th>
+        <th>Registered outcome measure</th>
         <th>Description, verbatim</th><th>Analysis set / window</th></tr>
-    <tr><td><strong>SUMMIT</strong><br><small><a href="https://clinicaltrials.gov/study/NCT04847557" rel="noopener">NCT04847557</a></small></td><td>Change in Kansas City Cardiomyopathy Questionnaire Clinical Summary Score (KCCQ-CSS)</td><td>The registry reports this as the between-arm difference in change from baseline in the KCCQ clinical summary score.</td><td>As registered by each trial. STEP-HFpEF reports an &#x27;Estimated Treatment Difference&#x27;; SUMMIT&#x27;s registry record labels its contrast &#x27;Median Difference (Net)&#x27; while its arm values are least-squares means (19.51 against 12.68, a difference of 6.83) -- the label and the quantity do not match in that record, and the value used here is the one the registry reports.</td></tr>
+    <tr><td><strong>SUMMIT</strong><br><small><a href="https://clinicaltrials.gov/study/NCT04847557" rel="noopener">NCT04847557</a></small></td><td>PRIMARY</td><td>Change in Kansas City Cardiomyopathy Questionnaire Clinical Summary Score (KCCQ-CSS)</td><td>The registry reports this as the between-arm difference in change from baseline in the KCCQ clinical summary score.</td><td>As registered by each trial. STEP-HFpEF reports an &#x27;Estimated Treatment Difference&#x27;; SUMMIT&#x27;s registry record labels its contrast &#x27;Median Difference (Net)&#x27; while its arm values are least-squares means (19.51 against 12.68, a difference of 6.83) -- the label and the quantity do not match in that record, and the value used here is the one the registry reports.</td></tr>
   </table></div>
 </div>
 <div class="card">
@@ -631,7 +635,7 @@ Least Square (LS) mean was determined using ANCOVA model with Baseline + HF Deco
 </div>
   </section>
 <!--end-analysis--> <section class="panel" id="pn-report">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No GRADE assessment or reconciliation record is held in this object, so the certainty of this evidence has not been rated.</div>
+<div class="absent-state" role="note"><strong>Partially held.</strong> Part of the reporting record is held and is shown below. No GRADE certainty rating is carried, so the certainty column is left as an em dash rather than guessed.</div>
 <div class='card'>
   <h3>Summary of findings</h3>
   <div class='tscroll'><table>
@@ -647,22 +651,104 @@ Least Square (LS) mean was determined using ANCOVA model with Baseline + HF Deco
   <div class='tscroll'><table>
     <caption>Table 14. Reproducibility artifact</caption>
 
-    <tr><th scope='col'>Canonical object</th><td><code></code></td></tr>
-    <tr><th scope='col'>Registered at</th><td><code></code> </td></tr>
+    <tr><th scope='col'>Canonical object</th><td><code>—</code></td></tr>
+    <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2-authored-from-source</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-18T00:00Z</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>d1339a8cb</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>4c3fde9b5</code>, built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
  </section>
-<!--end-report--> <section class="panel" id="pn-paper">
-<div class="absent-state" role="note"><strong>Not held in this object.</strong> No manuscript has been generated for this review.</div>
+<!--end-report-->  <section class="panel" id="pn-paper">
+  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-sections-not-written-and-why">Sections not written, and why</a> &middot; <a href="#paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-keywords">Keywords</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a></p>
 <div class='card'>
-  <h2>Paper Studio</h2>
-  <div class='absent-state' role='note'><strong>Not held in this object.</strong> No manuscript has been generated for incretin-hfpef-review. A manuscript belongs to one review, so none from another review is shown here &mdash; this tab is empty of content rather than filled with someone else&rsquo;s.</div>
-</div>
- </section>
+<h2 id="paper-paper">Paper</h2>
+<p class='muted'>Every paragraph below is PROJECTED from a field of this object, and names it. <strong>A section with no field behind it is not written</strong> &mdash; it is refused, by name, so a reader can tell an absent procedure from an unmentioned one.</p>
+<h3 id="paper-title-and-review-question">Title and review question</h3>
+<p>Incretin therapies in heart failure with preserved ejection fraction<br><small class='muted'>&larr; title</small></p>
+<p>This page published a pooled odds ratio and had NO CARD on the index at all. Two of its three trials register only continuous primaries.<br><small class='muted'>&larr; question</small></p>
+<h3 id="paper-methods-search">Methods — search</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the entire search description &mdash; no field: <code>search.databases</code></div>
+<h3 id="paper-methods-eligibility-criteria">Methods — eligibility criteria</h3>
+<p>not recorded on the page this object was built from<br><small class='muted'>&larr; screening.eligibility</small></p>
+<h3 id="paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the k cascade &mdash; no field: <code>k_cascade</code></div>
+<h3 id="paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</h3>
+<p>Every registered rank -- primary, secondary and other -- was read for 2 of 2 contributing trials before any decision about which outcomes could be combined; each records the time it was read.<br><small class='muted'>&larr; inputs.trials[].all_ranks_read_utc</small></p>
+<h3 id="paper-methods-synthesis">Methods — synthesis</h3>
+<p>For primary, a random-effects model was fitted with the none estimator.<br><small class='muted'>&larr; results.by_outcome.primary.model, results.by_outcome.primary.estimator_used</small></p>
+<p>For kccq_css_change, a random-effects model was fitted with the REML random-effects, inverse-variance (tau-squared estimated as zero) estimator.<br><small class='muted'>&larr; results.by_outcome.kccq_css_change.model, results.by_outcome.kccq_css_change.estimator_used</small></p>
+<p>Methodological decisions follow not recorded on the page this object was built from, version not recorded on the page this object was built from, and the sections relied on are listed in the object rather than cited generically.<br><small class='muted'>&larr; methodological_authority.reference</small></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that records were screened in duplicate by two independent reviewers &mdash; no field: <code>screening.duplicate_screening</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that risk of bias was assessed with a named tool &mdash; no field: <code>risk_of_bias.tool</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that certainty of evidence was graded &mdash; no field: <code>grade.approach</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the claim that the review methods were prespecified before data collection &mdash; no field: <code>protocol.prespecified</code></div>
+<h3 id="paper-results">Results</h3>
+<p>The pooled mean difference for change in KCCQ clinical summary score was 7.43 (5.09 to 9.77) across 1 trials, against placebo.<br><small class='muted'>&larr; outcomes[id=kccq_css_change].name, results.by_outcome.kccq_css_change.pooled, outcomes[id=kccq_css_change].comparator</small></p>
+<p>Between-trial heterogeneity was I-squared 0%, Q 0.138, degrees of freedom 1. Q = 0.1375 on 1 df, I-squared 0 per cent. At k=2 that means the two trials agree, not that the finding generalises.<br><small class='muted'>&larr; results.by_outcome.kccq_css_change.heterogeneity.i2, results.by_outcome.kccq_css_change.heterogeneity.q, results.by_outcome.kccq_css_change.heterogeneity.df, results.by_outcome.kccq_css_change.heterogeneity_status</small></p>
+<p>The grounds for pooling are recorded as: THIS IS A REPLACEMENT, NOT A CORRECTION. The withdrawn estimate on this page was an ODDS RATIO over event counts, and two of the three included trials register ONLY CONTINUOUS co-primaries. But ALL THREE register the SAME continuous outcome -- change in the KCCQ clinical summary score -- so a symptom-benefit analysis needs no estimand judgement at all. IT IS POOLED AT k=2, NOT k=3, AND THAT IS THE HONEST NUMBER. STEP-HFpEF DM&#x27;s ClinicalTrials.gov record carries NO RESULTS SECTION, so this project has no registry-sourced value for it. Its published KCCQ difference exists in the literature and is NOT USED HERE, because every value on this page is read from a registry results record and importing one from elsewhere would break that guarantee for the sake of a third data point. THE TWO VALUES ARE THE REGISTRY&#x27;S OWN: STEP-HFpEF 7.8 (4.8 to 10.9) over 243 against 237, and SUMMIT 6.9 (3.3 to 10.6) over 301 against 313. POOLED: MD 7.43 (5.09 to 9.77) points on the KCCQ clinical summary score, k=2, 1,094 participants. Q = 0.14 on 1 degree of freedom, I-squared 0 per cent -- the two trials agree almost exactly. Where a later pool on this page rests on the same grounds, they are not restated.<br><small class='muted'>&larr; results.by_outcome.kccq_css_change.poolable_reason</small></p>
+<p>Registered as CONTINUOUS in two trials -- and pooled here as an event count. These 2 trials are NOT pooled, and the reason is stated rather than the outcome being quietly omitted: TWO OF THE THREE TRIALS ON THIS PAGE REGISTER ONLY CONTINUOUS PRIMARY OUTCOMES, AND THIS PAGE POOLED EVENT COUNTS. Verbatim: STEP-HFpEF and STEP-HFpEF DM each register two co-primaries, &#x27;Change in Kansas City Cardiomyopathy Questionnaire Clinical Summary Score&#x27; and &#x27;Change in Body Weight&#x27;. Both are CONTINUOUS CHANGE SCORES. Neither is an event count and neither can produce a 2x2 table. The counts stored for STEP-HFpEF DM, 7 of 310 against 18 of 306, CORRESPOND TO NO REGISTERED PRIMARY OUTCOME OF THAT TRIAL. SUMMIT is different and is the only row here with a defensible source: it registers a continuous KCCQ primary AND &#x27;First Occurrence of the Composite Endpoint of Heart Failure (HF) Outcomes&#x27;, and its stored 29 of 364 against 52 of 367 do correspond to that event co-primary. So the pool joins one trial&#x27;s registered event composite to another trial&#x27;s unregistered counts. SEPARATELY: THE OUTCOME NAME AND THE MEASURE DESCRIBE DIFFERENT QUANTITIES. The outcome is named &#x27;Change in Kansas City Cardiomyopathy Questionnaire Clinical Summary Score&#x27; and the stored measure is an ODDS RATIO. A change score has no odds. SEPARATELY AGAIN, AND IT IS WHY THIS TOPIC WAS INVISIBLE: THIS PAGE&#x27;S CARD WAS INVISIBLE TO OUR OWN TOOLING. The card existed and published &#x27;HR 0.41 (0.22 to 0.79), k=3&#x27; -- a measure, a value and a trial count that all differ from the object&#x27;s OR 0.4846 (0.3178 to 0.7389) at k=2. It was reported as having NO CARD because two scripts matched card links with the pattern [A-Z0-9_]+\.html, which cannot match the lowercase &#x27;p&#x27; in HFpEF. A page invisible to the tool that counts pages is worse than an uncounted one: it is counted as a different thing, and this card escaped card-alignment checking entirely for as long as those tools have run.<br><small class='muted'>&larr; outcomes[id=primary].name, results.by_outcome.primary.poolable_reason</small></p>
+<h3 id="paper-limitations">Limitations</h3>
+<p>Known limitation of the screen: not recorded on the page this object was built from<br><small class='muted'>&larr; screening.known_limitation</small></p>
+<p>Eligible trials that do not contribute: STEP-HFpEF DM IS EXCLUDED FROM THE REPLACEMENT FOR A PROVENANCE REASON, NOT A CLINICAL ONE. Its ClinicalTrials.gov record carries NO RESULTS SECTION, so no registry-sourced KCCQ difference exists for it. Its published value exists in the literature and is deliberately NOT imported: every number on this page is read from a registry results record, and breaking that for one extra data point would cost the guarantee that makes the rest checkable.<br><small class='muted'>&larr; eligible_but_not_contributing.note</small></p>
+<p>What is not claimed: that any per-trial count was checked against a results record<br><small class='muted'>&larr; verification_basis.what_is_not_claimed</small></p>
+<p>1 claim(s) previously made about this review were corrected and the corrections are retained on the object rather than overwritten.<br><small class='muted'>&larr; claims_corrected</small></p>
+<h3 id="paper-abstract">Abstract</h3>
+<p>Question. This page published a pooled odds ratio and had NO CARD on the index at all. Two of its three trials register only continuous primaries.<br><small class='muted'>&larr; question</small></p>
+<p>Findings. Change in KCCQ clinical summary score: mean difference 7.43 (5.09 to 9.77) across 1 trials.<br><small class='muted'>&larr; results.by_outcome</small></p>
+<h3 id="paper-introduction">Introduction</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> Background.  &mdash; no field: <code>protocol.rationale</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Introduction -- no background or rationale is recorded on this object. This is a CONTENT gap, not a rendering one: no change to this projector produces it, and it is written by adding `protocol.rationale` to the object &mdash; no field: <code>protocol.rationale</code></div>
+<h3 id="paper-certainty-of-the-evidence">Certainty of the evidence</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> Certainty of the evidence, by outcome, with every rating step &mdash; no field: <code>grade.by_outcome</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the certainty assessment -- no GRADE record is held, so the certainty column elsewhere on this page is an em dash rather than a guess &mdash; no field: <code>grade</code></div>
+<h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the risk-of-bias assessment &mdash; no field: <code>risk_of_bias</code></div>
+<h3 id="paper-disagreements-between-sources">Disagreements between sources</h3>
+<p>not recorded on the page this object was built from<br><small class='muted'>&larr; reconciliation.why_this_step_exists</small></p>
+<p>not recorded on the page this object was built from<br><small class='muted'>&larr; reconciliation.clean_because</small></p>
+<h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the comparison with published syntheses -- no published synthesis is recorded for this topic, so no denominator can be given &mdash; no field: <code>published_comparison</code></div>
+<h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the verbatim model output -- no analysis output is stored on this object, so nothing can be quoted and nothing is paraphrased in its place &mdash; no field: <code>results.by_outcome.*.r_output.verbatim</code></div>
+<h3 id="paper-discussion">Discussion</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>discussion</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a discussion written by the renderer would be an argument no field supports &mdash; no field: <code>discussion</code></div>
+<h3 id="paper-conclusions">Conclusions</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>conclusions</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a conclusions written by the renderer would be an argument no field supports &mdash; no field: <code>conclusions</code></div>
+<h3 id="paper-sections-not-written-and-why">Sections not written, and why</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the list of refused properties &mdash; no field: <code>build_stamp.refusing</code></div>
+<h3 id="paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>funding</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a CONTENT gap. A submission requires it and this object does not carry it; it is not inferable from anything held here &mdash; no field: <code>funding</code></div>
+<h3 id="paper-references">References</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the reference list &mdash; no field: <code>sources</code></div>
+<h3 id="paper-keywords">Keywords</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong>  &mdash; no field: <code>keywords</code></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a CONTENT gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose &mdash; no field: <code>keywords</code></div>
+<h3 id="paper-data-availability">Data availability</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the data availability statement &mdash; no field: <code>registration_identity, sources</code></div>
+<h3 id="paper-software-availability">Software availability</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the software and environment statement &mdash; no field: <code>results.by_outcome.*.r_output._environment, config.confidence_level</code></div>
+<h3 id="paper-note-on-registration">Note on registration</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the registration note &mdash; no field: <code>protocol</code></div>
+<h3 id="paper-trial-characteristics">Trial characteristics</h3>
+<div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<br><small class='muted'>&larr; inputs.trials</small></caption>
+<tr><th>Registration</th><th>Trial</th><th>Arms</th><th>Participants</th></tr>
+<tr><td>NCT04847557</td><td>SUMMIT</td><td>[{&#x27;label&#x27;: &#x27;Tirzepatide&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: 29, &#x27;participants&#x27;: 364}, {&#x27;label&#x27;: &#x27;Placebo&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: 52, &#x27;participants&#x27;: 367}]</td><td>not extracted</td></tr>
+<tr><td>NCT04916470</td><td>STEP-HFpEF DM</td><td>[{&#x27;label&#x27;: &#x27;Semaglutide 2.4 mg once weekly (OW)&#x27;, &#x27;role&#x27;: &#x27;treatment&#x27;, &#x27;events&#x27;: 7, &#x27;participants&#x27;: 310}, {&#x27;label&#x27;: &#x27;Semaglutide placebo OW&#x27;, &#x27;role&#x27;: &#x27;control&#x27;, &#x27;events&#x27;: 18, &#x27;participants&#x27;: 306}]</td><td>not extracted</td></tr>
+</table></div>
+<h3 id="paper-figure-legends">Figure legends</h3>
+<div class='tscroll'><table><caption>Figures, and what each one shows<br><small class='muted'>&larr; results.by_outcome</small></caption>
+<tr><th>Outcome</th><th>Figure</th><th>What it shows</th></tr>
+<tr><td>Change in KCCQ clinical summary score</td><td>Forest plot</td><td>mean difference 7.43 (5.09 to 9.77) across 1 trials</td></tr>
+<tr><td>Registered as CONTINUOUS in two trials -- and pooled here as an event count</td><td>Forest plot</td><td>not pooled; the reason is given in Results</td></tr>
+</table></div>
+<h3 id="paper-submission-conformance">Submission conformance</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the submission conformance statement &mdash; no field: <code>build_stamp</code></div>
+</div>  </section>
 <!--end-paper--> <section class="panel" id="pn-statistics">
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No statistical panel set is held in this object.</div>
  </section>
@@ -702,7 +788,7 @@ Least Square (LS) mean was determined using ANCOVA model with Baseline + HF Deco
   }
 })();
 </script>
-
+<div class='card warn'><h2>Page standard</h2><p><strong>UNSTAMPED — unknown-version.</strong> This page carries no <code>build_stamp</code>, so the standard it was built to cannot be established. That is a statement about the record, not a claim that the page is below standard.</p></div>
 <p><small>Every number on this page is projected from a single canonical object,
 and each measured cell names the source analysis it was read from. That is what is
 machine-checked. It does not establish that the underlying sources are right, only
