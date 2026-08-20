@@ -3771,6 +3771,87 @@ share the sweep's assumption. Three forms, all now in use:
 output, and this run produced six of the former.
 
 
+## Class 78 — THE ANALYSIS POPULATION IS PART OF THE ESTIMAND, AND A POOL CAN CROSS IT
+
+**The composite-endpoint law rotated.** There the *components* of the outcome differed
+between trials; here the *denominator population* does. **Both are invisible to heterogeneity
+for the same reason:** a population shift moves every trial's estimate in the same direction,
+so it inflates neither Q nor I².
+
+In infection trials the population is named **inside the registered primary-outcome text**.
+`CE` (clinically evaluable) excludes protocol violators and indeterminate responses; `ME`
+also excludes patients without a qualifying pathogen. **Both are selected subsets of ITT and
+systematically yield higher cure rates.**
+
+### Swept corpus-wide, and it is not larger than the two — but the reason matters
+
+| | |
+|---|---|
+| trial rows asked about | **403** |
+| registrations read | **402** (1 not returned, named: `ceftolozane-infection` / `NCT01445665`) |
+| pooled outcomes carrying a point | **34** |
+| **cross an analysis-population boundary** | **2 of 34** |
+| name exactly one population | 2 of 34 |
+| **name NONE — population unstated in the registered text** | **30 of 34** |
+
+The two: **`ceftaroline`** (`CE` pooled with `MITTE`, k=3) and **`tigecycline-ciai`** (`CE`
+with `ME` and `mITT`, k=3).
+
+> **30 of 34 is the number that matters, and it is not a clean bill — it is unexamined.**
+> Where the registered text names no population, the estimand is not established either, and
+> this sweep cannot distinguish "consistent" from "unknown". It reports the three states
+> rather than folding the third into the first.
+
+### And a trial with NO registered primary outcome is a different defect
+
+Not a mismatch — **unverifiable**. There is nothing to check the extracted result against, so
+the estimand cannot be established for that row at any level.
+
+**3 distinct registrations, 4 topic-rows:** `NCT00034645` and `NCT00044486`
+(`posaconazole-fungal`), and **`NCT00081744`**, which appears in both `tigecycline-ciai` and
+`tigecycline-infection` and contributes to a published pooled estimate in each.
+
+
+## Class 79 — WE PREDICTED FROM A NAME INSTEAD OF FROM THE ARTEFACT. THIRD TIME TONIGHT.
+
+I named `malaria-vaccines` in advance as a likely class-76 instance **because its title
+implies it pools RTS,S with R21.** It does not. Its question reads *"for each of the two
+malaria vaccines separately"* and its pools are keyed `r21_*` and `rtss_*` — **the object
+already holds the vaccines apart, correctly.**
+
+**The prediction was made from the label, not from the object.**
+
+That is the same mechanism as:
+
+- the **mapper** that keyed on one candidate address instead of the accessor the projector uses;
+- the **topic-identity** defect, where two objects for one subject were treated as two subjects;
+- the **citation-string** defect, where a reference was matched on rendered text rather than identity;
+- and, from the other side, **one trial counted several times** across published syntheses because names differed.
+
+> **We audit published work for matching on names instead of identities. Three times tonight
+> one of us did the same thing.** The mechanism does not care which side of the audit it is
+> on, and a project that has built five instruments against it in others has now produced
+> three instances of it in a single run.
+
+### The running prediction score, recorded WITH class 76
+
+Twelve comparison limbs, four predicted to yield a class-76 instance, **five tested:**
+
+| topic | predicted | outcome |
+|---|---|---|
+| `finerenone-cv` | not an instance | **right** — reproduced an IPD analysis exactly |
+| `cangrelor-pci` | not an instance, likely agrees | **half** — not an instance, but it disagreed materially |
+| `incretin-hfpef` | an instance | **wrong** — they pooled the same mix, more broadly |
+| `rotavirus-vaccine-africa` | an instance | **right** |
+| `malaria-vaccines` | an instance | **wrong**, and predicted from the name |
+
+**2 right, 1 half, 2 wrong of 5.**
+
+> **A class whose predictions run at chance is a description, not a mechanism.** Stating that
+> is what makes the two confirmed instances worth anything — and what stops class 76 being
+> quoted as though four cases established a law.
+
+
 ## OPEN — carried, not fixed
 
 ### O0. `cangrelor-pci-review` — a withdrawal note that overstates its own defect

@@ -1,0 +1,183 @@
+"""Do pools combine results whose registrations name DIFFERENT analysis populations?
+
+THE COMPOSITE-ENDPOINT LAW, ROTATED. There the COMPONENTS of the outcome differed between
+trials; here the DENOMINATOR POPULATION does. Both assemble an estimate across quantities
+that are not the same quantity, and BOTH ARE INVISIBLE TO HETEROGENEITY FOR THE SAME REASON:
+a population shift moves every trial's estimate in the same direction, so it inflates neither
+Q nor I-squared.
+
+In antibiotic and infection trials the analysis population is named IN THE REGISTERED PRIMARY
+OUTCOME TEXT and it is not decoration:
+
+    CE    clinically evaluable -- excludes protocol violators and indeterminate responses
+    ME    microbiologically evaluable -- also excludes patients with no qualifying pathogen
+    mITT / MITTE / m-mITT / ITT   modified or full intent-to-treat
+
+CE and ME are SELECTED SUBSETS of ITT and systematically yield HIGHER cure rates. A ratio
+computed in one is not an estimate of the same quantity as one computed in another.
+
+FOUND ON ceftaroline (two MITTE pooled with one CE) AND tigecycline-ciai (ME/m-mITT pooled
+with CE). This asks how far it goes.
+
+AND SEPARATELY: A TRIAL WITH NO REGISTERED PRIMARY OUTCOME AT ALL IS A DIFFERENT DEFECT.
+There is nothing to check its extracted result against, so the estimand cannot be
+established for that row AT ANY LEVEL -- not merely mismatched, unverifiable.
+`NCT00081744` is in that state and contributes to a published pool.
+
+CLASS 77 FLOOR. This sweep carries a crude-count floor: it must account for every trial on
+every object, and it exits PROOF FAILED if the registrations it read fall below the number
+of trials it was asked about. A sweep that quietly reads half the corpus reports a clean
+half.
+"""
+import glob
+import io
+import json
+import os
+import re
+import sys
+from collections import Counter
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls          # noqa: E402
+
+CACHE = os.path.join(REPO, "outputs", "nct_primaries.json")
+
+# Population tokens as they appear in registered primary-outcome text. Ordered so the more
+# specific match first -- "modified intent-to-treat" must not be read as "intent-to-treat".
+POPS = [
+    ("CE", re.compile(r"\bclinically evaluable\b|\bCE population\b|\(CE\)", re.I)),
+    ("ME", re.compile(r"\bmicrobiologically evaluable\b|\bME population\b|\(ME\)", re.I)),
+    ("m-mITT", re.compile(r"microbiologically modified intent|micro-?mITT|\bm-?mITT\b", re.I)),
+    ("MITTE", re.compile(r"modified intent-?to-?treat efficacy|\bMITTE\b", re.I)),
+    ("mITT", re.compile(r"modified intent-?to-?treat|\bmITT\b", re.I)),
+    ("ITT", re.compile(r"\bintent(?:ion)?-?to-?treat\b|\bITT\b", re.I)),
+    ("PP", re.compile(r"\bper-?protocol\b|\bPP population\b", re.I)),
+]
+
+
+def populations(texts):
+    found = []
+    for t in texts:
+        for name, rx in POPS:
+            if rx.search(t or ""):
+                found.append(name)
+                break
+    return found
+
+
+def main():
+    gate = "--gate" in sys.argv
+    require_controls(
+        "audit_analysis_population_estimand",
+        positive=("a CE-population primary is recognised",
+                  populations(["Clinical Cure Rate at TOC in CE Population"]) == ["CE"],
+                  True),
+        negative=("a text naming no population yields one",
+                  bool(populations(["Overall survival at 12 months"])), True))
+
+    if not os.path.exists(CACHE):
+        print("NOT_ASSESSABLE: no registered-primary cache at %s. A population sweep with "
+              "no registrations is a sweep of nothing." % os.path.relpath(CACHE, REPO))
+        return 2
+    prim = json.load(io.open(CACHE, encoding="utf-8"))
+
+    asked = 0
+    unidentified = []
+    unread = []
+    no_primary = []
+    rows = []
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        topic = os.path.basename(os.path.dirname(p))
+        if os.path.basename(p) != topic + ".json":
+            continue
+        try:
+            obj = json.load(io.open(p, encoding="utf-8"))
+        except ValueError:
+            continue
+        trials = (obj.get("inputs") or {}).get("trials") or []
+        tmap = {}
+        for t in trials:
+            n = t.get("nct")
+            # THE POSITIVE PROPERTY IS `THIS TRIAL ROW CARRIES A REGISTRATION ID`, and rows
+            # without one are COUNTED AND NAMED rather than skipped. On a sweep whose whole
+            # subject is whether an estimand can be established from the registration, a
+            # row with NO registration is the strongest possible instance of the thing being
+            # measured -- and silently dropping it would remove exactly those rows from the
+            # denominator. Identity before numbers, applied to the sweep itself.
+            if not n:
+                unidentified.append((topic, t.get("id") or t.get("name") or "<unnamed>"))
+                continue
+            asked += 1
+            rec = prim.get(n)
+            if not rec or rec.get("not_returned"):
+                unread.append((topic, n))
+                continue
+            if rec.get("n_primaries", 0) == 0:
+                no_primary.append((topic, n))
+            tmap[n] = populations(rec.get("primaries") or [])
+
+        for oid, blk in ((obj.get("results") or {}).get("by_outcome") or {}).items():
+            if not isinstance(blk, dict):
+                continue
+            if (blk.get("pooled") or {}).get("point") is None:
+                continue
+            contributors = [r.get("nct") or r.get("trial_id")
+                            for r in (blk.get("per_trial") or [])]
+            pops = []
+            for n in contributors:
+                pops.extend(tmap.get(n) or [])
+            distinct = sorted(set(pops))
+            rows.append({"topic": topic, "outcome": oid, "k": blk.get("k"),
+                         "pops": distinct, "n_contrib": len(contributors),
+                         "n_with_pop": len(pops)})
+
+    # CLASS 77 FLOOR: the registrations read must cover the trials asked about.
+    read = asked - len(unread)
+    if asked and read * 2 < asked:
+        sys.exit("PROOF FAILED: asked about %d trial rows and read registrations for only "
+                 "%d. A sweep that reads half the corpus reports a clean half." % (asked, read))
+
+    mixed = [r for r in rows if len(r["pops"]) > 1]
+    single = [r for r in rows if len(r["pops"]) == 1]
+    none = [r for r in rows if not r["pops"]]
+
+    print("")
+    print("TRIAL ROWS ASKED ABOUT                  %d" % asked)
+    print("   registrations read                   %d of %d" % (read, asked))
+    print("   NOT returned by the registry, NAMED  %d" % len(unread))
+    for t, n in unread:
+        print("      %s / %s" % (t, n))
+    print("   trial rows carrying NO registration id, NAMED  %d" % len(unidentified))
+    for tp, nm in unidentified[:12]:
+        print("      %-38s %s" % (tp[:38], nm[:40]))
+    print("")
+    print("TRIALS WITH NO REGISTERED PRIMARY OUTCOME AT ALL: %d of %d"
+          % (len(no_primary), read))
+    for t, n in no_primary[:20]:
+        print("      %-38s %s" % (t[:38], n))
+    if len(no_primary) > 20:
+        print("      ... and %d more" % (len(no_primary) - 20))
+    print("")
+    print("POOLED OUTCOMES EXAMINED                %d" % len(rows))
+    print("   name MORE THAN ONE analysis population  %d of %d" % (len(mixed), len(rows)))
+    print("   name exactly one                        %d of %d" % (len(single), len(rows)))
+    print("   name NONE -- population unstated in the registered text  %d of %d"
+          % (len(none), len(rows)))
+    print("")
+    print("POOLS CROSSING AN ANALYSIS-POPULATION BOUNDARY:")
+    for r in sorted(mixed, key=lambda x: x["topic"]):
+        print("   %-40s %-26s k=%-3s %s"
+              % (r["topic"][:40], r["outcome"][:26], r["k"], ", ".join(r["pops"])))
+    print("")
+    print("Population tokens seen across all pooled contributors:")
+    for k, v in Counter(p for r in rows for p in r["pops"]).most_common():
+        print("   %-8s %d" % (k, v))
+    print("")
+    print("REPORTS. A pool naming NONE is not clean -- it is unexamined: the registered text")
+    print("simply does not say which population, so the estimand is not established either.")
+    return 1 if (gate and mixed) else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
