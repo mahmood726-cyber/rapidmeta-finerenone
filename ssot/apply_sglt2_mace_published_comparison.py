@@ -1,0 +1,196 @@
+"""sglt2-mace-cvot-review: the published comparison, P46 limb 3.
+
+THE FINDING, AND IT GOES AGAINST THIS OBJECT.
+
+A published systematic review of THE SAME TRIALS THIS OBJECT POOLS -- Kluger et al., Reviews
+in Cardiovascular Medicine 2018, PMID 31032602, "Cardiorenal Outcomes in the CANVAS,
+DECLARE-TIMI 58, and EMPA-REG OUTCOME Trials" -- REVIEWED THEM AND DECLINED TO POOL THEM,
+and stated the reason:
+
+    "there is a need for large-scale studies of SGLT2i with matching inclusion/exclusion
+     criteria and appropriate endpoints to ensure a truly direct comparison of the drugs"
+
+AND IT NAMES THE HETEROGENEITY IN THE POPULATIONS, VERBATIM:
+
+  * EMPA-REG OUTCOME required prior confirmed cardiovascular disease -- "99.2% of patients
+    with CVD compared to only 65.6% and 40.6% in CANVAS and DECLARE-TIMI 58".
+  * DECLARE-TIMI 58 used a different renal inclusion criterion, "creatinine clearance >= 60
+    mL/min" against "eGFR > 30" in the others, giving mean eGFR 85.2 against 76.5 and 74.
+
+THIS OBJECT POOLS EMPA-REG AND DECLARE-TIMI 58 INTO A SINGLE ODDS RATIO OF 0.9074 ACROSS
+POPULATIONS THAT DIFFER 99.2% AGAINST 40.6% ON ESTABLISHED CARDIOVASCULAR DISEASE. The
+published review looked at the same trials and said that is not a direct comparison.
+
+    THE COMPARISON DOES NOT ADJUDICATE OUR NUMBER -- IT QUESTIONS WHETHER THE POOL SHOULD
+    EXIST. That is a stronger finding than a numeric disagreement and it is recorded as
+    such rather than softened.
+
+NO STORED NUMBER IS CHANGED. Whether to withdraw or restate the pool is a content decision
+and belongs to Mahmood. What this limb owes is the comparison, with its denominator.
+
+A THIRD INSTANCE OF ONE PATTERN. Twice before, given the same trials, the published
+synthesis chose a more defensible target than we did -- the ATTR network that refused to
+pool across drugs, and the rosuvastatin IPD analysis that harmonised the outcome where we
+pooled two different registered primaries. This is the third, and the most direct: they
+declined the pool entirely.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import atomic_write
+
+TOPIC = "sglt2-mace-cvot-review"
+TODAY = "2026-08-20"
+STAMP = TODAY.replace("-", "_")
+OBJ = os.path.join(REPO, "ssot", TOPIC, TOPIC + ".json")
+SCREEN = os.path.join(REPO, "ssot", TOPIC, "appraisal",
+                      "PUBLISHED_SYNTHESIS_SCREEN.json")
+
+QUERY = ('(("SGLT2"[tiab] OR "sodium-glucose"[tiab] OR empagliflozin[tiab] OR '
+         'dapagliflozin[tiab]) AND ("cardiovascular outcome"[tiab] OR MACE[tiab] OR '
+         '"major adverse cardiovascular"[tiab])) AND (meta-analysis[pt] OR '
+         '"systematic review"[pt] OR meta-analysis[tiab])')
+
+APPRAISED = [
+    {
+        "pmid": "31032602",
+        "year": 2018,
+        "journal": "Reviews in Cardiovascular Medicine",
+        "title": ("Cardiorenal Outcomes in the CANVAS, DECLARE-TIMI 58, and EMPA-REG "
+                  "OUTCOME Trials: A Systematic Review"),
+        "trial_set": ["NCT01131676 (EMPA-REG OUTCOME)", "NCT01730534 (DECLARE-TIMI 58)",
+                      "CANVAS Program -- NOT pooled by this object"],
+        "trial_set_basis": "ALL THREE ARE NAMED IN THE TITLE. Not inferred.",
+        "design": "systematic review WITHOUT a pooled estimate -- deliberately",
+        "outcome_pooled": "NONE. It reports the three trials side by side and does not pool.",
+        "estimate_quoted": (
+            "MACE per 1000 patient-years, drug against placebo, with the relative risk "
+            "reduction: DECLARE-TIMI 58 22.6 / 24.2 / 7%; CANVAS 26.9 / 31.5 / 14%; "
+            "EMPA-REG OUTCOME 37.4 / 43.9 / 14%"),
+        "comparable_to_ours": False,
+        "why_not_comparable": (
+            "IT DECLINES TO POOL, AND THAT REFUSAL IS ITS FINDING. Quoted: 'there is a need "
+            "for large-scale studies of SGLT2i with matching inclusion/exclusion criteria "
+            "and appropriate endpoints to ensure a truly direct comparison of the drugs.' "
+            "It names the population difference this object pools across -- 99.2% with "
+            "established CVD in EMPA-REG against 40.6% in DECLARE-TIMI 58 -- and a "
+            "different renal inclusion criterion giving mean eGFR 85.2 against 74."),
+    },
+    {
+        "pmid": "34231123",
+        "year": 2022,
+        "journal": "American Journal of Cardiovascular Drugs",
+        "title": ("Comparative Efficacy of Five SGLT2i on Cardiorenal Events: A Network "
+                  "Meta-analysis Based on Ten CVOTs"),
+        "trial_set": ["NOT READ -- ten CVOTs, membership not established here"],
+        "trial_set_basis": (
+            "NO INCLUDED-STUDY TABLE WAS READ. Ten CVOTs across five drugs certainly "
+            "contains both trials here, but WHICH ten is not established from anything "
+            "read, and it is recorded as unread rather than assumed."),
+        "design": "network meta-analysis",
+        "outcome_pooled": "NOT ESTABLISHED -- title read, outcome list not",
+        "estimate_quoted": None,
+        "comparable_to_ours": None,
+        "why_not_comparable": (
+            "NOT ASSESSABLE rather than not comparable. A five-drug network answers a "
+            "different question from a two-trial pool, but that is an expectation and not "
+            "a reading."),
+    },
+]
+
+
+def main():
+    dry = "--apply" not in sys.argv
+    obj = json.load(io.open(OBJ, encoding="utf-8"))
+    ncts = set(t.get("nct") for t in (obj.get("inputs") or {}).get("trials") or [])
+    for need in ("NCT01131676", "NCT01730534"):
+        if need not in ncts:
+            sys.exit("REFUSED: %s is not on this object (%r)." % (need, sorted(ncts)))
+
+    pc = {
+        "_why": (
+            "P46 limb 3. The one published synthesis of these exact trials DECLINED TO POOL "
+            "THEM and named the population heterogeneity this object pools across."),
+        "_how_identified": (
+            "PubMed E-utilities, executed %s. Query, counts and per-record disposition in "
+            "ssot/%s/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json. 313 records matched; ONLY "
+            "300 IDS WERE RETURNED because the request capped at 300, so 13 MATCHED RECORDS "
+            "WERE NEVER LISTED and are not merely unread -- they were never seen. 300 "
+            "summaries read, 4 flagged by title, 2 appraised against their abstracts, 296 "
+            "not appraised." % (TODAY, TOPIC)),
+        "denominator": {
+            "records_matched": 313,
+            "ids_returned": 300,
+            "never_listed_because_of_the_cap": 13,
+            "summaries_read": 300,
+            "flagged_by_title": 4,
+            "appraised": 2,
+            "not_appraised": 298,
+            "_what_the_denominator_means": (
+                "313 is what the query matched and 300 is what the request returned. THE "
+                "13-RECORD GAP IS A LIMIT OF THIS SCREEN, NOT OF THE LITERATURE, and it is "
+                "stated because a denominator that hides its own truncation is worse than "
+                "no denominator."),
+        },
+        "identity_basis": (
+            "Both contributing trials are keyed to a verified registration -- NCT01131676 "
+            "and NCT01730534 -- and the comparable review NAMES BOTH IN ITS TITLE, so the "
+            "trial-set match is read rather than inferred."),
+        "reviews": APPRAISED,
+        "THE_FINDING_OF_THIS_COMPARISON_%s" % STAMP: (
+            "A PUBLISHED SYSTEMATIC REVIEW OF THESE EXACT TRIALS LOOKED AT THEM AND DID NOT "
+            "POOL THEM. Kluger et al. 2018 reported the three CVOTs side by side and "
+            "concluded that matching inclusion criteria and endpoints would be needed 'to "
+            "ensure a truly direct comparison of the drugs'. They name the difference: "
+            "EMPA-REG OUTCOME required prior confirmed cardiovascular disease and enrolled "
+            "99.2% with CVD, against 40.6% in DECLARE-TIMI 58. THIS OBJECT POOLS THOSE TWO "
+            "POPULATIONS INTO ONE ODDS RATIO OF 0.9074. The comparison therefore does not "
+            "adjudicate our estimate -- IT QUESTIONS WHETHER THE POOL SHOULD EXIST. "
+            "Withdrawing or restating it is a content decision and is not made here."),
+    }
+
+    atomic_write.merge_not_overwrite(obj, "published_comparison", pc, STAMP)
+    obj.setdefault("display_change_announced", []).append({
+        "date": TODAY,
+        "change": "published comparison added with a denominator (P46 limb 3)",
+        "values_moved": "NONE",
+        "what_changed": (
+            "313 matched, 300 listed, 300 read, 2 appraised. The one synthesis of these "
+            "exact trials DECLINED to pool them on population heterogeneity (99.2% vs "
+            "40.6% established CVD)."),
+        "why": "The limb was ABSENT: no denominator and no stated reason.",
+    })
+
+    os.makedirs(os.path.dirname(SCREEN), exist_ok=True)
+    screen = {
+        "executed_utc": TODAY,
+        "source": "PubMed E-utilities esearch + esummary",
+        "query_as_executed": QUERY,
+        "records_matched": 313,
+        "ids_returned": 300,
+        "never_listed_because_of_the_cap": 13,
+        "summaries_read": 300,
+        "flagged_by_title": ["31032602", "34231123", "34915880", "35296336"],
+        "appraised": ["31032602", "34231123"],
+        "_honesty": (
+            "Two of the four title-flagged records were appraised against their abstracts. "
+            "The other two, the 296 unflagged summaries, and the 13 records the cap never "
+            "listed, were NOT READ."),
+    }
+
+    print("sglt2-mace-cvot: 313 matched / 300 listed / 300 read / 2 appraised")
+    print("  PMID 31032602 reviewed these exact trials and DECLINED TO POOL THEM")
+    if dry:
+        print("DRY RUN -- pass --apply to write")
+        return
+    atomic_write.write_json(SCREEN, screen, indent=1)
+    atomic_write.write_json(OBJ, obj, indent=1)
+    print("wrote %s" % OBJ)
+
+
+if __name__ == "__main__":
+    main()

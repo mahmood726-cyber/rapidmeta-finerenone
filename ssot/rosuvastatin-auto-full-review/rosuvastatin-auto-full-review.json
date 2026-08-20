@@ -457,6 +457,13 @@
    "values_moved": "NONE -- the pooled estimate is unchanged and is not withdrawn here",
    "what_changed": "HOPE-3's registered primary outcomes were FETCHED from ClinicalTrials.gov and written onto the object. It registers two co-primaries and neither matches JUPITER's five-component composite. `estimand_established` was already False but carried the never-checked placeholder as its reason; it now carries a checked one.",
    "why": "This object published a pooled estimate over an outcome whose definition it did not hold for one of its two trials. A pool cannot be compared against the literature, or defended, while nobody can say what it estimates."
+  },
+  {
+   "date": "2026-08-20",
+   "change": "published comparison added with a denominator (P46 limb 3)",
+   "values_moved": "NONE",
+   "what_changed": "114 records matched, 114 read, 8 appraised, 106 not appraised. One synthesis pools the same two trials (PMID 33705531, IPD, VTE, HR 0.53) and pools a different outcome from this object.",
+   "why": "The limb was ABSENT: no denominator and no stated reason."
   }
  ],
  "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",
@@ -490,5 +497,52 @@
    "read_utc": "2026-08-19"
   },
   "what_this_is_not": "NOT a P21 decision. The registrations resolve to one question; where they had not, this topic would have been left for a split rather than restated."
+ },
+ "published_comparison": {
+  "_why": "P46 limb 3. Exactly one published synthesis pools the same two trials, and it pools a DIFFERENT OUTCOME -- deliberately, by harmonising on one endpoint common to both. That is a finding about this object's own estimand, not a number to reconcile against.",
+  "_how_identified": "PubMed E-utilities, executed 2026-08-20. Query, counts and the per-record disposition are in ssot/rosuvastatin-auto-full-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json. 114 records matched, 114 summaries read, 8 appraised, 106 NOT APPRAISED. No included-study table was read for either appraised record: for PMID 33705531 the trial set is NAMED IN THE TITLE, and for PMID 30716508 the trial set is recorded as NOT READ.",
+  "denominator": {
+   "records_matched": 114,
+   "summaries_read": 114,
+   "appraised": 8,
+   "not_appraised": 106,
+   "syntheses_pooling_this_exact_trial_set": 1,
+   "_what_the_denominator_means": "114 is what the query returned, not what exists. A different query returns a different denominator, which is why the query is stored beside the count. 106 records were screened out on title alone and were NOT READ."
+  },
+  "identity_basis": "Both contributing trials are keyed to a verified ClinicalTrials.gov registration -- NCT00239681 (JUPITER) and NCT00468923 (HOPE-3) -- and the one comparable synthesis NAMES BOTH IN ITS TITLE, so the trial-set match is read rather than inferred from participant arithmetic.",
+  "reviews": [
+   {
+    "pmid": "33705531",
+    "year": 2022,
+    "journal": "Cardiovascular Research",
+    "title": "Rosuvastatin for the prevention of venous thromboembolism: a pooled analysis of the HOPE-3 and JUPITER randomized controlled trials",
+    "trial_set": [
+     "NCT00239681 (JUPITER)",
+     "NCT00468923 (HOPE-3)"
+    ],
+    "trial_set_basis": "NAMED IN THE TITLE AND THE ABSTRACT. This is not inferred from participant totals: both trials are named, and the abstract states 30,507 participants over a mean 3.62 years.",
+    "design": "INDIVIDUAL PARTICIPANT DATA meta-analysis -- a stronger design than ours",
+    "outcome_pooled": "venous thromboembolism -- deep vein thrombosis or pulmonary embolism -- ONE OUTCOME HARMONISED ACROSS BOTH TRIALS",
+    "estimate_quoted": "hazard ratio 0.53, 95% CI 0.37 to 0.75, on 139 VTE events",
+    "comparable_to_ours": false,
+    "why_not_comparable": "IT POOLS A DIFFERENT QUANTITY. This object pools each trial's OWN REGISTERED PRIMARY, and those primaries differ between JUPITER and HOPE-3 -- this object's question says so in its own words. Joseph et al. pool a single outcome defined identically in both trials. 0.656 and 0.53 are estimates of TWO DIFFERENT THINGS and the gap between them is not a discrepancy."
+   },
+   {
+    "pmid": "30716508",
+    "year": 2019,
+    "journal": "American Heart Journal",
+    "title": "Comparative effectiveness and safety of statins as a class and of specific statins for primary prevention of cardiovascular disease: a systematic review, meta-analysis, and network meta-analysis of randomized trials with 94,283 participants",
+    "trial_set": [
+     "NOT READ"
+    ],
+    "trial_set_basis": "NO INCLUDED-STUDY TABLE WAS READ. At 94,283 participants it is far larger than the two trials here and certainly contains them among many others, but WHICH trials it contains is not established from anything read, and it is recorded as unread rather than assumed.",
+    "design": "systematic review, pairwise and network meta-analysis",
+    "outcome_pooled": "NOT ESTABLISHED -- the abstract was read, the outcome list was not",
+    "estimate_quoted": null,
+    "comparable_to_ours": null,
+    "why_not_comparable": "NOT ASSESSABLE rather than not comparable. A class-level network meta-analysis of 94,283 participants answers a different question from a two-trial drug-versus-placebo pool, but that is an expectation and not a reading."
+   }
+  ],
+  "THE_FINDING_OF_THIS_COMPARISON_2026_08_20": "THE ONLY PUBLISHED SYNTHESIS OF THESE TWO TRIALS AVOIDED THE ESTIMAND PROBLEM THIS POOL HAS. Joseph et al. pooled individual participant data on ONE outcome defined identically in both trials. This object pools EACH TRIAL'S OWN REGISTERED PRIMARY, and those differ -- which this object's question already states. The comparison therefore does not adjudicate our number; it shows that the literature, given the same two trials, chose a different and more defensible target. WHETHER TO RE-POOL ON A HARMONISED OUTCOME IS A CONTENT DECISION AND IS NOT MADE HERE."
  }
 }

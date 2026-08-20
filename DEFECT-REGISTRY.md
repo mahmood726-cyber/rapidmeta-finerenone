@@ -3690,6 +3690,40 @@ safe reading under either.
 method touches 18 limbs rather than 15.
 
 
+## Class 76 — GIVEN THE SAME TRIALS, THE PUBLISHED SYNTHESIS CHOSE THE BETTER TARGET
+
+**Four instances. This is the counterweight to the house thesis and it belongs at the same
+weight as our findings against published work.**
+
+This project's audits have found real errors in published syntheses — wrong trial sets,
+uncorrected multiplicity, estimates that do not reproduce. That record stands. **So does
+this one, and it runs the other way: four times now, given the same or overlapping trials,
+published work chose a more defensible target than this corpus did.** Our estimate was not
+wrong so much as **answering a worse question.**
+
+| our object | the published work | what they did that we did not |
+|---|---|---|
+| `attr-pn-review` pools mNIS+7 across **three different drugs** → −25.11 | Samjoo 2020, PMID 32011182 | Assessed the network's **feasibility first** and declined it: *"An NMA of ATTR-PN treatments was not feasible, given the observed cross-trial heterogeneity"* — naming that *"neuropathy outcomes were not evaluated consistently between trials."* |
+| `rosuvastatin-auto-full-review` pools **each trial's own differing primary** → OR 0.656 | Joseph 2022, PMID 33705531 | Pooled the **same two trials** on **one harmonised outcome**, with individual participant data. |
+| `sglt2-mace-cvot-review` pools EMPA-REG + DECLARE → OR 0.907 | Kluger 2018, PMID 31032602 | Reviewed the **same trials** and **did not pool them**: *"a truly direct comparison"* would need matching criteria. **99.2% vs 40.6%** established CVD. |
+| the earlier ATTR network | — | Refused to pool across drugs. |
+
+**The common shape: they asked whether the pool should exist before computing one; we
+computed one and asked afterwards.** In three of the four the published authors did the
+feasibility assessment *as the study* and published the refusal as the result.
+
+> **A synthesis that declines to pool, and says why, is a finding. We have been treating our
+> own refusals that way for weeks and did not extend the same reading to theirs.**
+
+**Symmetric standards, stated:** our audits found their errors; our comparisons found this.
+Both are in the record, both measured, neither summarised away. **An asymmetry in which
+direction we look is the one bias no instrument here can detect**, because every instrument
+was written by the side doing the looking.
+
+*None of the four changed a stored estimate. Whether to withdraw or restate a pool is a
+content decision.*
+
+
 ## OPEN — carried, not fixed
 
 ### O1. A check that reads a different working tree than the one being built
