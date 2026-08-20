@@ -1,0 +1,682 @@
+Loading required package: Matrix
+Loading required package: metadat
+Loading required package: numDeriv
+
+Loading the 'metafor' package (version 5.0-1). For an
+introduction to the package please type: help(metafor)
+
+R environment, quoted rather than asserted:
+  R version 4.6.0 (2026-04-24 ucrt) 
+  metafor 5.0.1 
+  jsonlite 2.0.0 
+
+pools read from F:/claude-temp/claude/F--rapidmeta-ssot-shell/1b81ef60-0aa7-48a6-b23e-0c385cde4482/scratchpad/inputs.json : 10 
+
+================================================================================================ 
+alirocumab-lipid :: ldlc_pct_change_wk24   k = 8   measure = MD
+================================================================================================ 
+trials: NCT01507831, NCT01617655, NCT01623115, NCT01644175, NCT01709500, NCT02107898, NCT02289963, NCT02585778 
+
+A. THE FIT THAT PRODUCED THE SERVED NUMBER -- method = DL, z interval
+
+Random-Effects Model (k = 8; tau^2 estimator: DL)
+
+tau^2 (estimated amount of total heterogeneity): 50.0683 (SE = 37.3345)
+tau (square root of estimated tau^2 value):      7.0759
+I^2 (total heterogeneity / total variability):   88.03%
+H^2 (total variability / sampling variability):  8.35
+
+Test for Heterogeneity:
+Q(df = 7) = 58.4577, p-val < .0001
+
+Model Results:
+
+estimate      se      zval    pval     ci.lb     ci.ub      
+-54.8193  2.7582  -19.8752  <.0001  -60.2252  -49.4133  *** 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+   CHECK AGAINST THE STORED VALUE -- the change is not earned until this passes:
+     point  refit -54.819259     stored -54.820000      reproduced
+     ci_low refit -60.225188     stored -60.230000      reproduced
+     ci_hi  refit -49.413330     stored -49.420000      reproduced
+     tau^2  refit 50.068273      stored 50.040000       DIFFERS
+     Q      refit 58.457675      stored 58.420000       DIFFERS
+     I^2    refit 88.0255        stored 88.0000         reproduced
+     => NOT REPRODUCED
+
+B. THE SAME DATA UNDER REML -- Handbook 10.10.4.4, 'Decision: REML, everywhere'
+
+Random-Effects Model (k = 8; tau^2 estimator: REML)
+
+tau^2 (estimated amount of total heterogeneity): 61.4512 (SE = 38.5470)
+tau (square root of estimated tau^2 value):      7.8391
+I^2 (total heterogeneity / total variability):   90.02%
+H^2 (total variability / sampling variability):  10.02
+
+Test for Heterogeneity:
+Q(df = 7) = 58.4577, p-val < .0001
+
+Model Results:
+
+estimate      se      zval    pval     ci.lb     ci.ub      
+-54.7195  3.0091  -18.1850  <.0001  -60.6172  -48.8219  *** 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+C. WHAT MOVES
+     point    -54.820000     -> -54.719526      (+0.1833%)
+     ci_low   -60.230000     -> -60.617157    
+     ci_high  -49.420000     -> -48.821894    
+     tau^2    50.040000      -> 61.451183     
+     I^2      88.0000        -> 90.0223       
+     Q        58.420000      -> 58.457675       (Q is estimator-independent)
+     excludes the null (0):  TRUE -> TRUE
+
+================================================================================================ 
+apixaban-vte-prophylaxis :: major_vte   k = 4   measure = RR
+================================================================================================ 
+trials: ADOPT, ADVANCE-3, ADVANCE-1, ADVANCE-2 
+
+A. THE FIT THAT PRODUCED THE SERVED NUMBER -- method = DL, z interval
+
+Random-Effects Model (k = 4; tau^2 estimator: DL)
+
+tau^2 (estimated amount of total heterogeneity): 0.1714 (SE = 0.2149)
+tau (square root of estimated tau^2 value):      0.4141
+I^2 (total heterogeneity / total variability):   67.78%
+H^2 (total variability / sampling variability):  3.10
+
+Test for Heterogeneity:
+Q(df = 3) = 9.3122, p-val = 0.0254
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb   ci.ub    
+ -0.2917  0.2549  -1.1447  0.2523  -0.7912  0.2078    
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+   CHECK AGAINST THE STORED VALUE -- the change is not earned until this passes:
+     point  refit 0.746967       stored 0.746900        reproduced
+     ci_low refit 0.453280       stored 0.453200        reproduced
+     ci_hi  refit 1.230939       stored 1.230900        reproduced
+     tau^2  refit 0.171442       stored 0.171480        reproduced
+     Q      refit 9.312180       stored 9.314000        reproduced
+     I^2    refit 67.7841        stored 67.8000         reproduced
+     => REPRODUCED
+
+B. THE SAME DATA UNDER REML -- Handbook 10.10.4.4, 'Decision: REML, everywhere'
+
+Random-Effects Model (k = 4; tau^2 estimator: REML)
+
+tau^2 (estimated amount of total heterogeneity): 0.2042 (SE = 0.2398)
+tau (square root of estimated tau^2 value):      0.4519
+I^2 (total heterogeneity / total variability):   71.48%
+H^2 (total variability / sampling variability):  3.51
+
+Test for Heterogeneity:
+Q(df = 3) = 9.3122, p-val = 0.0254
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb   ci.ub    
+ -0.2967  0.2709  -1.0953  0.2734  -0.8275  0.2342    
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+C. WHAT MOVES
+     point    0.746900       -> 0.743294        (-0.4828%)
+     ci_low   0.453200       -> 0.437130      
+     ci_high  1.230900       -> 1.263895      
+     tau^2    0.171480       -> 0.204237      
+     I^2      67.8000        -> 71.4820       
+     Q        9.314000       -> 9.312180        (Q is estimator-independent)
+     excludes the null (1):  FALSE -> FALSE
+
+================================================================================================ 
+apixaban-vte-treatment :: recurrent_vte   k = 3   measure = RR
+================================================================================================ 
+trials: CARAVAGGIO, COBRRA, Japanese acute DVT/PE study 
+
+A. THE FIT THAT PRODUCED THE SERVED NUMBER -- method = PM, z interval
+
+Random-Effects Model (k = 3; tau^2 estimator: PM)
+
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.1075)
+tau (square root of estimated tau^2 value):      0
+I^2 (total heterogeneity / total variability):   0.00%
+H^2 (total variability / sampling variability):  1.00
+
+Test for Heterogeneity:
+Q(df = 2) = 1.2575, p-val = 0.5333
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb   ci.ub    
+ -0.2532  0.1893  -1.3375  0.1811  -0.6243  0.1178    
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+   CHECK AGAINST THE STORED VALUE -- the change is not earned until this passes:
+     point  refit 0.776287       stored 0.776300        reproduced
+     ci_low refit 0.535627       stored 0.343700        DIFFERS
+     ci_hi  refit 1.125075       stored 1.753200        DIFFERS
+     tau^2  refit 0.000000       stored 0.000000        reproduced
+     Q      refit 1.257466       stored 1.257500        reproduced
+     I^2    refit 0.0000         stored 0.0000          reproduced
+     => FIT REPRODUCED, INTERVAL METHOD DIFFERS
+
+B. THE SAME DATA UNDER REML -- Handbook 10.10.4.4, 'Decision: REML, everywhere'
+
+Random-Effects Model (k = 3; tau^2 estimator: REML)
+
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.1309)
+tau (square root of estimated tau^2 value):      0
+I^2 (total heterogeneity / total variability):   0.00%
+H^2 (total variability / sampling variability):  1.00
+
+Test for Heterogeneity:
+Q(df = 2) = 1.2575, p-val = 0.5333
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb   ci.ub    
+ -0.2532  0.1893  -1.3375  0.1811  -0.6243  0.1178    
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+C. WHAT MOVES
+     point    0.776300       -> 0.776287        (-0.0017%)
+     ci_low   0.343700       -> 0.535627      
+     ci_high  1.753200       -> 1.125075      
+     tau^2    0.000000       -> 0.000000      
+     I^2      0.0000         -> 0.0000        
+     Q        1.257500       -> 1.257466        (Q is estimator-independent)
+     excludes the null (1):  FALSE -> FALSE
+
+================================================================================================ 
+attr-pn-review :: primary   k = 3   measure = MD
+================================================================================================ 
+trials: NCT01960348, NCT03759379, NCT04136184 
+
+A. THE FIT THAT PRODUCED THE SERVED NUMBER -- method = DL, z interval
+
+Random-Effects Model (k = 3; tau^2 estimator: DL)
+
+tau^2 (estimated amount of total heterogeneity): 72.1258 (SE = 81.9612)
+tau (square root of estimated tau^2 value):      8.4927
+I^2 (total heterogeneity / total variability):   89.09%
+H^2 (total variability / sampling variability):  9.17
+
+Test for Heterogeneity:
+Q(df = 2) = 18.3311, p-val = 0.0001
+
+Model Results:
+
+estimate      se     zval    pval     ci.lb     ci.ub      
+-25.1224  5.2019  -4.8294  <.0001  -35.3180  -14.9268  *** 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+   CHECK AGAINST THE STORED VALUE -- the change is not earned until this passes:
+     point  refit -25.122390     stored -25.122390      reproduced
+     ci_low refit -35.317967     stored -35.317967      reproduced
+     ci_hi  refit -14.926813     stored -14.926813      reproduced
+     tau^2  refit 72.125764      stored 72.125764       reproduced
+     Q      refit 18.331130      stored 18.331130       reproduced
+     I^2    refit 89.0896        stored 89.0896         reproduced
+     => REPRODUCED
+
+B. THE SAME DATA UNDER REML -- Handbook 10.10.4.4, 'Decision: REML, everywhere'
+
+Random-Effects Model (k = 3; tau^2 estimator: REML)
+
+tau^2 (estimated amount of total heterogeneity): 65.4032 (SE = 74.4699)
+tau (square root of estimated tau^2 value):      8.0872
+I^2 (total heterogeneity / total variability):   88.10%
+H^2 (total variability / sampling variability):  8.40
+
+Test for Heterogeneity:
+Q(df = 2) = 18.3311, p-val = 0.0001
+
+Model Results:
+
+estimate      se     zval    pval     ci.lb     ci.ub      
+-25.1105  4.9817  -5.0406  <.0001  -34.8744  -15.3466  *** 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+C. WHAT MOVES
+     point    -25.122390     -> -25.110507      (+0.0473%)
+     ci_low   -35.317967     -> -34.874425    
+     ci_high  -14.926813     -> -15.346590    
+     tau^2    72.125764      -> 65.403249     
+     I^2      89.0896        -> 88.1016       
+     Q        18.331130      -> 18.331130       (Q is estimator-independent)
+     excludes the null (0):  TRUE -> TRUE
+
+================================================================================================ 
+empagliflozin-hf-auto-full-review :: primary   k = 2   measure = OR
+================================================================================================ 
+trials: NCT03057977, NCT03057951 
+
+A. THE FIT THAT PRODUCED THE SERVED NUMBER -- method = DL, z interval
+
+Random-Effects Model (k = 2; tau^2 estimator: DL)
+
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0081)
+tau (square root of estimated tau^2 value):      0
+I^2 (total heterogeneity / total variability):   0.00%
+H^2 (total variability / sampling variability):  1.00
+
+Test for Heterogeneity:
+Q(df = 1) = 0.3689, p-val = 0.5436
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb    ci.ub      
+ -0.2776  0.0533  -5.2116  <.0001  -0.3821  -0.1732  *** 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+   CHECK AGAINST THE STORED VALUE -- the change is not earned until this passes:
+     point  refit 0.757565       stored 0.757565        reproduced
+     ci_low refit 0.682452       stored 0.682452        reproduced
+     ci_hi  refit 0.840945       stored 0.840945        reproduced
+     tau^2  refit 0.000000       stored 0.000000        reproduced
+     Q      refit 0.368949       stored 0.368949        reproduced
+     I^2    refit 0.0000         stored 0.0000          reproduced
+     => REPRODUCED
+
+B. THE SAME DATA UNDER REML -- Handbook 10.10.4.4, 'Decision: REML, everywhere'
+
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0081)
+tau (square root of estimated tau^2 value):      0
+I^2 (total heterogeneity / total variability):   0.00%
+H^2 (total variability / sampling variability):  1.00
+
+Test for Heterogeneity:
+Q(df = 1) = 0.3689, p-val = 0.5436
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb    ci.ub      
+ -0.2776  0.0533  -5.2116  <.0001  -0.3821  -0.1732  *** 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+C. WHAT MOVES
+     point    0.757565       -> 0.757565        (+0.0000%)
+     ci_low   0.682452       -> 0.682452      
+     ci_high  0.840945       -> 0.840945      
+     tau^2    0.000000       -> 0.000000      
+     I^2      0.0000         -> 0.0000        
+     Q        0.368949       -> 0.368949        (Q is estimator-independent)
+     excludes the null (1):  TRUE -> TRUE
+
+================================================================================================ 
+finerenone-cv :: cv_composite_first   k = 2   measure = HR
+================================================================================================ 
+trials: NCT02540993, NCT02545049 
+
+A. THE FIT THAT PRODUCED THE SERVED NUMBER -- method = DL, z interval
+
+Random-Effects Model (k = 2; tau^2 estimator: DL)
+
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0066)
+tau (square root of estimated tau^2 value):      0
+I^2 (total heterogeneity / total variability):   0.00%
+H^2 (total variability / sampling variability):  1.00
+
+Test for Heterogeneity:
+Q(df = 1) = 0.0143, p-val = 0.9047
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb    ci.ub     
+ -0.1445  0.0481  -3.0058  0.0026  -0.2387  -0.0503  ** 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+   CHECK AGAINST THE STORED VALUE -- the change is not earned until this passes:
+     point  refit 0.865478       stored 0.865478        reproduced
+     ci_low refit 0.787667       stored 0.787667        reproduced
+     ci_hi  refit 0.950976       stored 0.950976        reproduced
+     tau^2  refit 0.000000       stored 0.000000        reproduced
+     Q      refit 0.014323       stored 0.014323        reproduced
+     I^2    refit 0.0000         stored 0.0000          reproduced
+     => REPRODUCED
+
+B. THE SAME DATA UNDER REML -- Handbook 10.10.4.4, 'Decision: REML, everywhere'
+
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0066)
+tau (square root of estimated tau^2 value):      0
+I^2 (total heterogeneity / total variability):   0.00%
+H^2 (total variability / sampling variability):  1.00
+
+Test for Heterogeneity:
+Q(df = 1) = 0.0143, p-val = 0.9047
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb    ci.ub     
+ -0.1445  0.0481  -3.0058  0.0026  -0.2387  -0.0503  ** 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+C. WHAT MOVES
+     point    0.865478       -> 0.865478        (+0.0000%)
+     ci_low   0.787667       -> 0.787667      
+     ci_high  0.950976       -> 0.950976      
+     tau^2    0.000000       -> 0.000000      
+     I^2      0.0000         -> 0.0000        
+     Q        0.014323       -> 0.014323        (Q is estimator-independent)
+     excludes the null (1):  TRUE -> TRUE
+
+================================================================================================ 
+icosapent-lipid-auto-full-review :: primary   k = 2   measure = MD
+================================================================================================ 
+trials: NCT01047683, NCT01047501 
+
+A. THE FIT THAT PRODUCED THE SERVED NUMBER -- method = DL, z interval
+
+Random-Effects Model (k = 2; tau^2 estimator: DL)
+
+tau^2 (estimated amount of total heterogeneity): 43.1921 (SE = 95.1483)
+tau (square root of estimated tau^2 value):      6.5721
+I^2 (total heterogeneity / total variability):   64.20%
+H^2 (total variability / sampling variability):  2.79
+
+Test for Heterogeneity:
+Q(df = 1) = 2.7931, p-val = 0.0947
+
+Model Results:
+
+estimate      se     zval    pval     ci.lb     ci.ub      
+-25.8420  5.6138  -4.6033  <.0001  -36.8448  -14.8392  *** 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+   CHECK AGAINST THE STORED VALUE -- the change is not earned until this passes:
+     point  refit -25.841996     stored -25.841996      reproduced
+     ci_low refit -36.844750     stored -36.844750      reproduced
+     ci_hi  refit -14.839242     stored -14.839242      reproduced
+     tau^2  refit 43.192146      stored 43.192146       reproduced
+     Q      refit 2.793109       stored 2.793109        reproduced
+     I^2    refit 64.1976        stored 64.1976         reproduced
+     => REPRODUCED
+
+B. THE SAME DATA UNDER REML -- Handbook 10.10.4.4, 'Decision: REML, everywhere'
+
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+tau^2 (estimated amount of total heterogeneity): 43.1921 (SE = 95.1483)
+tau (square root of estimated tau^2 value):      6.5721
+I^2 (total heterogeneity / total variability):   64.20%
+H^2 (total variability / sampling variability):  2.79
+
+Test for Heterogeneity:
+Q(df = 1) = 2.7931, p-val = 0.0947
+
+Model Results:
+
+estimate      se     zval    pval     ci.lb     ci.ub      
+-25.8420  5.6138  -4.6033  <.0001  -36.8448  -14.8392  *** 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+C. WHAT MOVES
+     point    -25.841996     -> -25.841996      (+0.0000%)
+     ci_low   -36.844750     -> -36.844750    
+     ci_high  -14.839242     -> -14.839242    
+     tau^2    43.192146      -> 43.192146     
+     I^2      64.1976        -> 64.1976       
+     Q        2.793109       -> 2.793109        (Q is estimator-independent)
+     excludes the null (0):  TRUE -> TRUE
+
+================================================================================================ 
+inclisiran-lipid-kidney-auto-full-review :: primary   k = 3   measure = MD
+================================================================================================ 
+trials: NCT03397121, NCT03399370, NCT03400800 
+
+A. THE FIT THAT PRODUCED THE SERVED NUMBER -- method = DL, z interval
+
+Random-Effects Model (k = 3; tau^2 estimator: DL)
+
+tau^2 (estimated amount of total heterogeneity): 9.5247 (SE = 13.7681)
+tau (square root of estimated tau^2 value):      3.0862
+I^2 (total heterogeneity / total variability):   72.00%
+H^2 (total variability / sampling variability):  3.57
+
+Test for Heterogeneity:
+Q(df = 2) = 7.1426, p-val = 0.0281
+
+Model Results:
+
+estimate      se      zval    pval     ci.lb     ci.ub      
+-54.0014  2.1244  -25.4198  <.0001  -58.1652  -49.8377  *** 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+   CHECK AGAINST THE STORED VALUE -- the change is not earned until this passes:
+     point  refit -54.001445     stored -54.001445      reproduced
+     ci_low refit -58.165167     stored -58.165167      reproduced
+     ci_hi  refit -49.837723     stored -49.837723      reproduced
+     tau^2  refit 9.524723       stored 9.524723        reproduced
+     Q      refit 7.142559       stored 7.142559        reproduced
+     I^2    refit 71.9988        stored 71.9988         reproduced
+     => REPRODUCED
+
+B. THE SAME DATA UNDER REML -- Handbook 10.10.4.4, 'Decision: REML, everywhere'
+
+Random-Effects Model (k = 3; tau^2 estimator: REML)
+
+tau^2 (estimated amount of total heterogeneity): 10.5954 (SE = 14.6979)
+tau (square root of estimated tau^2 value):      3.2551
+I^2 (total heterogeneity / total variability):   74.10%
+H^2 (total variability / sampling variability):  3.86
+
+Test for Heterogeneity:
+Q(df = 2) = 7.1426, p-val = 0.0281
+
+Model Results:
+
+estimate      se      zval    pval     ci.lb     ci.ub      
+-53.9730  2.2087  -24.4365  <.0001  -58.3020  -49.6440  *** 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+C. WHAT MOVES
+     point    -54.001445     -> -53.972975      (+0.0527%)
+     ci_low   -58.165167     -> -58.301952    
+     ci_high  -49.837723     -> -49.643999    
+     tau^2    9.524723       -> 10.595364     
+     I^2      71.9988        -> 74.0953       
+     Q        7.142559       -> 7.142559        (Q is estimator-independent)
+     excludes the null (0):  TRUE -> TRUE
+
+================================================================================================ 
+rosuvastatin-auto-full-review :: primary   k = 2   measure = OR
+================================================================================================ 
+trials: NCT00239681, NCT00468923 
+
+A. THE FIT THAT PRODUCED THE SERVED NUMBER -- method = DL, z interval
+
+Random-Effects Model (k = 2; tau^2 estimator: DL)
+
+tau^2 (estimated amount of total heterogeneity): 0.0387 (SE = 0.0682)
+tau (square root of estimated tau^2 value):      0.1966
+I^2 (total heterogeneity / total variability):   80.17%
+H^2 (total variability / sampling variability):  5.04
+
+Test for Heterogeneity:
+Q(df = 1) = 5.0420, p-val = 0.0247
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb    ci.ub     
+ -0.4214  0.1552  -2.7155  0.0066  -0.7256  -0.1173  ** 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+   CHECK AGAINST THE STORED VALUE -- the change is not earned until this passes:
+     point  refit 0.656115       stored 0.656115        reproduced
+     ci_low refit 0.484043       stored 0.484043        reproduced
+     ci_hi  refit 0.889359       stored 0.889359        reproduced
+     tau^2  refit 0.038661       stored 0.038661        reproduced
+     Q      refit 5.042035       stored 5.042035        reproduced
+     I^2    refit 80.1667        stored 80.1667         reproduced
+     => REPRODUCED
+
+B. THE SAME DATA UNDER REML -- Handbook 10.10.4.4, 'Decision: REML, everywhere'
+
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+tau^2 (estimated amount of total heterogeneity): 0.0387 (SE = 0.0682)
+tau (square root of estimated tau^2 value):      0.1966
+I^2 (total heterogeneity / total variability):   80.17%
+H^2 (total variability / sampling variability):  5.04
+
+Test for Heterogeneity:
+Q(df = 1) = 5.0420, p-val = 0.0247
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb    ci.ub     
+ -0.4214  0.1552  -2.7155  0.0066  -0.7256  -0.1173  ** 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+C. WHAT MOVES
+     point    0.656115       -> 0.656115        (-0.0000%)
+     ci_low   0.484043       -> 0.484043      
+     ci_high  0.889359       -> 0.889359      
+     tau^2    0.038661       -> 0.038661      
+     I^2      80.1667        -> 80.1667       
+     Q        5.042035       -> 5.042035        (Q is estimator-independent)
+     excludes the null (1):  TRUE -> TRUE
+
+================================================================================================ 
+sglt2-mace-cvot-review :: primary   k = 2   measure = OR
+================================================================================================ 
+trials: NCT01131676, NCT01730534 
+
+A. THE FIT THAT PRODUCED THE SERVED NUMBER -- method = DL, z interval
+
+Random-Effects Model (k = 2; tau^2 estimator: DL)
+
+tau^2 (estimated amount of total heterogeneity): 0.0001 (SE = 0.0066)
+tau (square root of estimated tau^2 value):      0.0103
+I^2 (total heterogeneity / total variability):   2.27%
+H^2 (total variability / sampling variability):  1.02
+
+Test for Heterogeneity:
+Q(df = 1) = 1.0232, p-val = 0.3118
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb    ci.ub    
+ -0.0972  0.0449  -2.1661  0.0303  -0.1851  -0.0092  * 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+   CHECK AGAINST THE STORED VALUE -- the change is not earned until this passes:
+     point  refit 0.907411       stored 0.907411        reproduced
+     ci_low refit 0.831042       stored 0.831042        reproduced
+     ci_hi  refit 0.990798       stored 0.990798        reproduced
+     tau^2  refit 0.000106       stored 0.000106        reproduced
+     Q      refit 1.023231       stored 1.023231        reproduced
+     I^2    refit 2.2704         stored 2.2704          reproduced
+     => REPRODUCED
+
+B. THE SAME DATA UNDER REML -- Handbook 10.10.4.4, 'Decision: REML, everywhere'
+
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+tau^2 (estimated amount of total heterogeneity): 0.0001 (SE = 0.0066)
+tau (square root of estimated tau^2 value):      0.0103
+I^2 (total heterogeneity / total variability):   2.27%
+H^2 (total variability / sampling variability):  1.02
+
+Test for Heterogeneity:
+Q(df = 1) = 1.0232, p-val = 0.3118
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb    ci.ub    
+ -0.0972  0.0449  -2.1661  0.0303  -0.1851  -0.0092  * 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+C. WHAT MOVES
+     point    0.907411       -> 0.907411        (+0.0000%)
+     ci_low   0.831042       -> 0.831042      
+     ci_high  0.990798       -> 0.990798      
+     tau^2    0.000106       -> 0.000106      
+     I^2      2.2704         -> 2.2704        
+     Q        1.023231       -> 1.023231        (Q is estimator-independent)
+     excludes the null (1):  TRUE -> TRUE
+
+================================================================================================ 
+SUMMARY -- printed beside the detail above, because the disagreement between them
+is the safety. If this table and the per-pool blocks disagree, believe neither.
+================================================================================================ 
+topic                                      reproduction             point        -> REML      verdict flip
+alirocumab-lipid                           NOT REPRODUCED           -54.82000    -54.71953    no
+apixaban-vte-prophylaxis                   REPRODUCED               0.74690      0.74329      no
+apixaban-vte-treatment                     FIT REPRODUCED, INTERVAL METHOD DIFFERS 0.77630      0.77629      no
+attr-pn-review                             REPRODUCED               -25.12239    -25.11051    no
+empagliflozin-hf-auto-full-review          REPRODUCED               0.75756      0.75756      no
+finerenone-cv                              REPRODUCED               0.86548      0.86548      no
+icosapent-lipid-auto-full-review           REPRODUCED               -25.84200    -25.84200    no
+inclisiran-lipid-kidney-auto-full-review   REPRODUCED               -54.00145    -53.97298    no
+rosuvastatin-auto-full-review              REPRODUCED               0.65612      0.65612      no
+sglt2-mace-cvot-review                     REPRODUCED               0.90741      0.90741      no
+
+pools whose OLD fit reproduced (point+tau^2+Q+I^2): 9 of 10
+wrote F:/claude-temp/claude/F--rapidmeta-ssot-shell/1b81ef60-0aa7-48a6-b23e-0c385cde4482/scratchpad/refits.json 
