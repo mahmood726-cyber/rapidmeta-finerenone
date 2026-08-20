@@ -4,7 +4,7 @@
  "source_links_enforced": null,
  "source_links_enforced_means": "not recorded on the page this object was extracted from",
  "title": "Multiple trial-declared outcomes: Time to the First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF) | Time to First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF)",
- "question": "In adults with heart failure, does Empagliflozin compared with placebo affect the outcome each trial registered as its primary, which differ across the 2 trials here?",
+ "question": "In adults with heart failure, does empagliflozin compared with placebo reduce the first occurrence of adjudicated cardiovascular death or adjudicated hospitalisation for heart failure -- the outcome BOTH trials register as their primary?",
  "built": "2026-08-17T12:06Z",
  "_prose_rule": "not recorded on the page this object was extracted from",
  "_sourcing_rule": "not recorded on the page this object was extracted from",
@@ -166,11 +166,13 @@
     "registration_contrasts_read_utc": "2026-08-18",
     "registration_primary_counts": {
      "title": "Time to the First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF)",
-     "treatment_events": 21.0,
-     "control_events": 15.77,
-     "treatment_n": 1867.0,
-     "control_n": 1863.0,
-     "note": "arm order as the registry lists it; a swapped pair would show as a mismatch rather than a silent pass"
+     "treatment_events": 15.77,
+     "control_events": 21.0,
+     "treatment_n": 1863.0,
+     "control_n": 1867.0,
+     "note": "ARM LABELS REPAIRED 2026-08-20. They were assigned BY REGISTRY POSITION and this registry lists the placebo arm first, so `treatment_n` held the control arm's n and `treatment_events` held the placebo value -- read as labelled the block said empagliflozin was WORSE than placebo while the effect beside it said the opposite. The previous content is at registration_primary_counts_superseded_2026_08_20. The stored odds ratio reproduces from arms[] to six decimals, so THE PUBLISHED NUMBER WAS NEVER AFFECTED; what was wrong is the block a reader would use to check it.",
+     "what_these_values_are": "RATES PER 100 PATIENT-YEARS, not event counts, despite the field names ending in `_events`. The trial reports its primary as an event rate. The arm-level COUNTS are on arms[].events and are what the stored effect is computed from. The field names are left as they are because renaming them across the corpus is a separate change; the content is named here so nobody reads a rate as a count.",
+     "the_note_this_replaces_claimed_a_guarantee_nothing_provided": "It read 'arm order as the registry lists it; a swapped pair would show as a mismatch rather than a silent pass'. It would not and it did not. Nothing in this repository compared this block against arms[] until scripts/lint_registration_counts_arm_order.py was written on 2026-08-20, which found 23 inconsistent rows across 75. A SENTENCE DESCRIBING A CHECK THAT NO COMMAND PERFORMS IS NOT A CHECK."
     },
     "registration_other_outcome_counts": [
      {
@@ -255,7 +257,15 @@
      }
     ],
     "registration_counts_read_utc": "2026-08-18",
-    "provenance": "REGISTRY -- ClinicalTrials.gov, NCT03057977, read 2026-08-18. Arm-level counts were COMPARED AGAINST the posted outcome measure 'Time to the First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated ' and reconciled by denominator -- the registry posts this outcome as a RATE where this object holds a COUNT, and every denominator matches. Derived from a comparison that was run, not asserted."
+    "provenance": "REGISTRY -- ClinicalTrials.gov, NCT03057977, read 2026-08-18. Arm-level counts were COMPARED AGAINST the posted outcome measure 'Time to the First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated ' and reconciled by denominator -- the registry posts this outcome as a RATE where this object holds a COUNT, and every denominator matches. Derived from a comparison that was run, not asserted.",
+    "registration_primary_counts_superseded_2026_08_20": {
+     "title": "Time to the First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF)",
+     "treatment_events": 21.0,
+     "control_events": 15.77,
+     "treatment_n": 1867.0,
+     "control_n": 1863.0,
+     "note": "arm order as the registry lists it; a swapped pair would show as a mismatch rather than a silent pass"
+    }
    },
    {
     "id": "NCT03057951",
@@ -312,11 +322,13 @@
     "registration_contrasts_read_utc": "2026-08-18",
     "registration_primary_counts": {
      "title": "Time to First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF)",
-     "treatment_events": 8.67,
-     "control_events": 6.86,
-     "treatment_n": 2991.0,
-     "control_n": 2997.0,
-     "note": "arm order as the registry lists it; a swapped pair would show as a mismatch rather than a silent pass"
+     "treatment_events": 6.86,
+     "control_events": 8.67,
+     "treatment_n": 2997.0,
+     "control_n": 2991.0,
+     "note": "ARM LABELS REPAIRED 2026-08-20. They were assigned BY REGISTRY POSITION and this registry lists the placebo arm first, so `treatment_n` held the control arm's n and `treatment_events` held the placebo value -- read as labelled the block said empagliflozin was WORSE than placebo while the effect beside it said the opposite. The previous content is at registration_primary_counts_superseded_2026_08_20. The stored odds ratio reproduces from arms[] to six decimals, so THE PUBLISHED NUMBER WAS NEVER AFFECTED; what was wrong is the block a reader would use to check it.",
+     "what_these_values_are": "RATES PER 100 PATIENT-YEARS, not event counts, despite the field names ending in `_events`. The trial reports its primary as an event rate. The arm-level COUNTS are on arms[].events and are what the stored effect is computed from. The field names are left as they are because renaming them across the corpus is a separate change; the content is named here so nobody reads a rate as a count.",
+     "the_note_this_replaces_claimed_a_guarantee_nothing_provided": "It read 'arm order as the registry lists it; a swapped pair would show as a mismatch rather than a silent pass'. It would not and it did not. Nothing in this repository compared this block against arms[] until scripts/lint_registration_counts_arm_order.py was written on 2026-08-20, which found 23 inconsistent rows across 75. A SENTENCE DESCRIBING A CHECK THAT NO COMMAND PERFORMS IS NOT A CHECK."
     },
     "registration_other_outcome_counts": [
      {
@@ -401,7 +413,15 @@
      }
     ],
     "registration_counts_read_utc": "2026-08-18",
-    "provenance": "REGISTRY -- ClinicalTrials.gov, NCT03057951, read 2026-08-18. Arm-level counts were COMPARED AGAINST the posted outcome measure 'Time to First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hosp' and reconciled by denominator -- the registry posts this outcome as a RATE where this object holds a COUNT, and every denominator matches. Derived from a comparison that was run, not asserted."
+    "provenance": "REGISTRY -- ClinicalTrials.gov, NCT03057951, read 2026-08-18. Arm-level counts were COMPARED AGAINST the posted outcome measure 'Time to First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hosp' and reconciled by denominator -- the registry posts this outcome as a RATE where this object holds a COUNT, and every denominator matches. Derived from a comparison that was run, not asserted.",
+    "registration_primary_counts_superseded_2026_08_20": {
+     "title": "Time to First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF)",
+     "treatment_events": 8.67,
+     "control_events": 6.86,
+     "treatment_n": 2991.0,
+     "control_n": 2997.0,
+     "note": "arm order as the registry lists it; a swapped pair would show as a mismatch rather than a silent pass"
+    }
    }
   ]
  },
@@ -426,13 +446,14 @@
     "estimand_homogeneous_across_cohorts": null,
     "pool_uniformity": {
      "effect_measure": [
-      "NOT ESTABLISHED",
-      "not recorded on the page this object was extracted from"
+      "ESTABLISHED",
+      "both stored as odds ratios computed from arm-level counts on arms[], reproduced to six decimals"
      ],
      "estimand": [
-      "NOT ESTABLISHED",
-      "not recorded on the page this object was extracted from"
-     ]
+      "ESTABLISHED",
+      "CHECKED ON 2026-08-20 AND ESTABLISHED. Both trials register the SAME primary outcome and the registered strings differ by one word: EMPEROR-Reduced writes 'Time to the First Event of...' and EMPEROR-Preserved 'Time to First Event of...'. Same components, same adjudication, same order, same construct. This is the orthographic difference that has manufactured false disagreements in this repository before -- 'Percent' against 'Percentage' on the ORION trials -- and it is not a disagreement here either."
+     ],
+     "superseded_2026_08_20": "Both limbs previously read NOT ESTABLISHED with the reason 'not recorded on the page this object was extracted from' -- the NEVER-CHECKED state written as though it were a negative finding. It has been checked."
     },
     "heterogeneity": {
      "i2": 0.0,
@@ -487,7 +508,7 @@
     },
     "source_page_pooled": true,
     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
-    "estimand_established": false,
+    "estimand_established": true,
     "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
     "house_rule_interval_2026_08_18": {
      "estimator": "REML with Hartung-Knapp, t on k-1 = 1 degree(s) of freedom (t = 12.7062)",
@@ -519,7 +540,14 @@
      "what_it_is": "The fit that produces the numbers this block now publishes, printed by metafor and pasted unaltered. The previous fit, under the estimator this pool used before 2026-08-20, is kept beside it under r_output_superseded_2026_08_20 rather than discarded.",
      "reproduction_of_the_previous_value": "Before this refit was applied, the OLD estimator was refitted on the same inputs and checked against the stored value: REPRODUCED. A pool whose old fit did not reproduce was not overwritten."
     },
-    "estimator_note_2026_08_20": "REML, applied 2026-08-20 under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The estimator this pool used before that date was DerSimonian-Laird inverse-variance on extracted effect estimates; that fit was reproduced first and is quoted under r_output_superseded_2026_08_20, so the movement is attributable rather than asserted."
+    "estimator_note_2026_08_20": "REML, applied 2026-08-20 under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The estimator this pool used before that date was DerSimonian-Laird inverse-variance on extracted effect estimates; that fit was reproduced first and is quoted under r_output_superseded_2026_08_20, so the movement is attributable rather than asserted.",
+    "estimand_established_reason_2026_08_20": "CHECKED ON 2026-08-20 AND ESTABLISHED. Both trials register the SAME primary outcome and the registered strings differ by one word: EMPEROR-Reduced writes 'Time to the First Event of...' and EMPEROR-Preserved 'Time to First Event of...'. Same components, same adjudication, same order, same construct. This is the orthographic difference that has manufactured false disagreements in this repository before -- 'Percent' against 'Percentage' on the ORION trials -- and it is not a disagreement here either.",
+    "A_SEPARATE_FINDING_NOT_RESOLVED_HERE_2026_08_20": {
+     "what": "The pool combines ODDS RATIOS on a TIME-TO-FIRST-EVENT endpoint, over trials of different duration.",
+     "detail": "Both trials registered time to first event. This object stores odds ratios derived from cumulative arm counts, and the two trials did not run for the same length of time. AN ODDS RATIO OVER UNEQUAL FOLLOW-UP IS NOT A HAZARD RATIO AND DOES NOT BECOME ONE BY BEING POOLED: it depends on how long each trial ran, so the weights mean something different from what a reader will assume. The two trials' own published hazard ratios exist and would be the right inputs.",
+     "why_it_is_recorded_and_not_fixed": "Recomputing this pool from hazard ratios is a published-number change and would have to reach the heterogeneity, the estimator, the GRADE domains and the result card in one pass, per P19. Establishing the estimand and repairing the provenance labels is this pass. The two findings are independent: the endpoint IS shared, which is what this pass establishes, and the SUMMARY MEASURE may still be the wrong one, which is what this note records.",
+     "what_would_settle_it": "The published hazard ratios for both trials with their confidence intervals, and a decision about whether this review pools the effect measure the trials reported or the one its extractor could compute."
+    }
    }
   }
  },
@@ -550,6 +578,14 @@
    "what_changed": "This pool was fitted with DerSimonian-Laird inverse-variance on extracted effect estimates. It is refitted with REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The old fit was reproduced against the stored value FIRST (REPRODUCED) and only then replaced. Stored values are also rounded at storage -- effects to 4 decimals, tau-squared and Q to 6, I-squared to 4 -- because several of these pools carried sixteen significant figures on a two- or three-study pool.",
    "why": "The corpus held two estimator conventions at once: 23 pools REML, 9 DerSimonian-Laird, 1 Paule-Mandel. Handbook 6.5 s10.10.4.4 records REML as RevMan's own current default and this project's statistics rules already refused DerSimonian-Laird below k=10, which every pool in this corpus is. The decision was taken on 2026-08-18 and not applied; applying it to some pools and not others would have been worse than either convention.",
    "interval_method": "z"
+  },
+  {
+   "date": "2026-08-20",
+   "change": "estimand established; a false question sentence replaced; two provenance blocks repaired",
+   "values_moved": "NONE -- no published estimate changes",
+   "what_changed": "The `question` claimed the two trials' registered primaries differ; they differ by one word. `estimand_established` moved False to True with a checked reason in place of the never-checked placeholder. Both `registration_primary_counts` blocks had their arm labels inverted and are repaired, with the previous content kept.",
+   "why": "A pool cannot be compared against the literature, or defended, while the object says its own trials measured different things and its provenance blocks say the drug is harmful. Neither was true.",
+   "what_is_recorded_and_not_fixed": "The pool combines odds ratios on a time-to-first-event endpoint over trials of unequal duration. The endpoint is shared; the summary measure may be the wrong one. Recorded at results.by_outcome.primary.A_SEPARATE_FINDING_NOT_RESOLVED_HERE_2026_08_20."
   }
  ],
  "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",
@@ -580,5 +616,12 @@
    "read_utc": "2026-08-19"
   },
   "what_this_is_not": "NOT a P21 decision. The registrations resolve to one question; where they had not, this topic would have been left for a split rather than restated."
+ },
+ "question_superseded_2026_08_20": "In adults with heart failure, does Empagliflozin compared with placebo affect the outcome each trial registered as its primary, which differ across the 2 trials here?",
+ "question_change_record_2026_08_20": {
+  "previous_question": "In adults with heart failure, does Empagliflozin compared with placebo affect the outcome each trial registered as its primary, which differ across the 2 trials here?",
+  "why_it_was_wrong": "It asserted that the two trials' registered primaries DIFFER. They differ by the word 'the'. The sentence was generated rather than read, and it made this pool look incoherent when it is sound.",
+  "why_this_direction_matters": "Every other defect found in this corpus this week made a page look BETTER than it was. This one made it look worse, and would have led someone to withdraw a good estimate. It survived precisely because of its direction: nobody audits a page for being too hard on itself.",
+  "stated_before_any_number": true
  }
 }
