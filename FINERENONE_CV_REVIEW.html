@@ -258,7 +258,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No screening log is recorded for this review. The included set was reconciled against published syntheses rather than screened from a search, so no records-identified, excluded-with-reason or dual-screening counts exist.</div>
  </section>
 <!--end-screen-->  <section class="panel" id="pn-extract">
-  <p class='toc'><strong>In this section:</strong> <a href="#extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</a> &middot; <a href="#extract-sources">Sources</a> &middot; <a href="#extract-first-occurrence-of-the-composite-of-car">First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure</a> &middot; <a href="#extract-first-occurrence-of-the-composite-of-car-2">First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure</a> &middot; <a href="#extract-what-was-measured">What was measured</a> &middot; <a href="#extract-pooled-result">Pooled result</a> &middot; <a href="#extract-what-this-pool-holds-constant">What this pool holds constant</a> &middot; <a href="#extract-contributing-trials">Contributing trials</a> &middot; <a href="#extract-endpoint-definitions-read-from-the-regis">Endpoint definitions, read from the registry</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision">The methods rule governing this decision</a></p>
+  <p class='toc'><strong>In this section:</strong> <a href="#extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</a> &middot; <a href="#extract-sources">Sources</a> &middot; <a href="#extract-first-occurrence-of-the-composite-of-car">First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure</a> &middot; <a href="#extract-first-occurrence-of-the-composite-of-car-2">First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure</a> &middot; <a href="#extract-what-was-measured">What was measured</a> &middot; <a href="#extract-pooled-result">Pooled result</a> &middot; <a href="#extract-what-this-pool-holds-constant">What this pool holds constant</a> &middot; <a href="#extract-contributing-trials">Contributing trials</a> &middot; <a href="#extract-endpoint-definitions-read-from-the-regis">Endpoint definitions, read from the registry</a> &middot; <a href="#extract-the-methods-rule-governing-this-decision">The methods rule governing this decision</a> &middot; <a href="#extract-does-the-answer-depend-on-the-pooling-me">Does the answer depend on the pooling method?</a></p>
 <div class='card'>
   <h2 id="extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</h2>
   <p>One row per extracted value. Every row carries the value, the verbatim sentence it was read from, a resolvable link to the source, and whether the number was read or derived. Where any of those is absent the row says so rather than omitting the value.</p>
@@ -345,6 +345,19 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><strong>Decision:</strong> POOL: one common outcome, same four components, same population frame</p>
   <p><strong>Cochrane Handbook sections:</strong> 10.3, 10.10.1</p>
   <p>Cochrane Handbook 6.5</p>
+</div>
+<div class='card'>
+  <h3 id="extract-does-the-answer-depend-on-the-pooling-me">Does the answer depend on the pooling method?</h3>
+  <p>With two or three studies the Cochrane Handbook (10.10.4.4&ndash;10.10.4.5) asks for a sensitivity analysis comparing interval methods rather than a choice between them. Both are given here; the published interval is the first row.</p>
+  <div class='tscroll'><table>
+    <caption>Table 8. Does the answer depend on the pooling method?</caption>
+
+    <tr><th>Interval</th><th>Method</th><th>Summary (95% CI)</th></tr>
+    <tr><td>as published</td><td>DerSimonian-Laird</td><td class='num'>0.8655 (0.7877 to 0.951)</td></tr>
+    <tr><td>sensitivity (Handbook 10.10.4.5)</td><td>REML with Hartung-Knapp, t on k-1 = 1 degree(s) of freedom (t = 12.7062)</td><td class='num'>0.8655 (0.4699 to 1.594)</td></tr>
+  </table></div>
+  <p><small>The published point is 0.8655 and the house-rule point is 0.8655. THE NUMBER A READER REMEMBERS DOES NOT MOVE; what differs is the precision claim. That is why nothing downstream catches this -- every memorable quantity survives.</small></p>
+  <p><small>A FLOOR OF 1 IS APPLIED TO THE VARIANCE-INFLATION FACTOR so the adjustment can never NARROW an interval below the unadjusted one. That guard is the recognised modification for exactly this instability, and its existence is evidence the small-k behaviour is a KNOWN problem with KNOWN handling rather than a novel judgement.</small></p>
 </div>
 </section>
   </section>
@@ -578,7 +591,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h3>Summary of findings</h3>
   <div class='tscroll'><table>
-    <caption>Table 8. Summary of findings</caption>
+    <caption>Table 9. Summary of findings</caption>
 
     <tr><th>Outcome</th><th>k</th><th>Pooled effect</th><th>Certainty</th></tr>
     <tr><td>First occurrence of the composite of cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure</td><td class='num'>2</td><td class='num'>HR 0.865 (0.788 to 0.951)</td><td>&mdash;</td></tr>
@@ -587,13 +600,13 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h3>Reproducibility artifact</h3>
   <div class='tscroll'><table>
-    <caption>Table 9. Reproducibility artifact</caption>
+    <caption>Table 10. Reproducibility artifact</caption>
 
     <tr><th scope='col'>Canonical object</th><td><code>—</code></td></tr>
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2-rebuilt-from-source</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-17T16:40Z</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>4c3fde9b5</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>059f003ca</code>, built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>

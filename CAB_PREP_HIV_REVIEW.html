@@ -135,6 +135,7 @@
  #rt-screen:checked ~ .tabnav label[for="rt-screen"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  #rt-extract:checked ~ .panels > #pn-extract{height:auto;overflow:visible}
  #rt-extract:checked ~ .tabnav label[for="rt-extract"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
+ #rt-extract:focus-visible ~ .tabnav label[for="rt-extract"]{outline:3px solid var(--accent);outline-offset:2px}
  #rt-analysis:checked ~ .panels > #pn-analysis{height:auto;overflow:visible}
  #rt-analysis:checked ~ .tabnav label[for="rt-analysis"]{color:#111;background:#fff;border-color:#d4d4d8;box-shadow:0 2px 0 0 #fff}
  #rt-analysis:focus-visible ~ .tabnav label[for="rt-analysis"]{outline:3px solid var(--accent);outline-offset:2px}
@@ -210,7 +211,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <label for="rt-protocol">1. Protocol</label>
  <label for="rt-search">2. Search</label>
  <label for="rt-screen">3. Screening</label>
- <label for="rt-extract">4. Extraction</label>
+  <label for="rt-extract">4. Extraction</label>
   <label for="rt-analysis">5. Analysis Suite</label>
  <label for="rt-report">6. Scientific Output</label>
   <label for="rt-paper">7. Paper Studio</label>
@@ -251,28 +252,28 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <!--end-search--> <section class="panel" id="pn-screen">
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No screening log is recorded for this review. The included set was reconciled against published syntheses rather than screened from a search, so no records-identified, excluded-with-reason or dual-screening counts exist.</div>
  </section>
-<!--end-screen--> <section class="panel" id="pn-extract">
-<div class="absent-state" role="note"><strong>Partially held.</strong> Part of the extraction record is held and is shown below. The per-arm source cells that would let every number be traced are not carried on this object.</div>
+<!--end-screen-->  <section class="panel" id="pn-extract">
+  <p class='toc'><strong>In this section:</strong> <a href="#extract-sources">Sources</a> &middot; <a href="#extract-documented-incident-hiv-infection">documented incident HIV infection</a> &middot; <a href="#extract-documented-incident-hiv-infection-2">documented incident HIV infection</a> &middot; <a href="#extract-pooled-result">Pooled result</a> &middot; <a href="#extract-contributing-trials">Contributing trials</a> &middot; <a href="#extract-does-the-answer-depend-on-the-pooling-me">Does the answer depend on the pooling method?</a></p>
 <div class='card'>
-  <h2>Sources</h2>
+  <h2 id="extract-sources">Sources</h2>
   <div class='tscroll'><table>
     <caption>Table 2. Sources</caption>
 
     <tr><th>Layer</th><th>Source</th><th>How it was obtained</th></tr>
   </table></div>
 </div>
-<h2>documented incident HIV infection</h2>
+<h2 id="extract-documented-incident-hiv-infection">documented incident HIV infection</h2>
 <section>
-<h2>documented incident HIV infection</h2>
+<h2 id="extract-documented-incident-hiv-infection-2">documented incident HIV infection</h2>
 <div class='card'>
-  <h2>Pooled result</h2>
+  <h2 id="extract-pooled-result">Pooled result</h2>
   <p class='num'>RR 0.2081 (0.0715 to 0.6057), 95% interval</p>
   <p>documented incident HIV infection. random-effects, estimator REML, k = 2.</p>
   <p><small>&tau;&sup2; 0.4176 &middot; I&sup2; 68.8% &middot; Q 3.208 on 1 df</small></p>
 </div>
 
 <div class="card">
-  <h3>Contributing trials</h3>
+  <h3 id="extract-contributing-trials">Contributing trials</h3>
   <div class='tscroll'><table>
     <caption>Table 3. Contributing trials</caption>
 
@@ -282,8 +283,21 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   </table></div>
   <p><small>Registered endpoint definitions were read from every contributing registration on 2026-08-18; this text is the object&#x27;s own record of them.</small></p>
 </div>
+<div class='card'>
+  <h3 id="extract-does-the-answer-depend-on-the-pooling-me">Does the answer depend on the pooling method?</h3>
+  <p>With two or three studies the Cochrane Handbook (10.10.4.4&ndash;10.10.4.5) asks for a sensitivity analysis comparing interval methods rather than a choice between them. Both are given here; the published interval is the first row.</p>
+  <div class='tscroll'><table>
+    <caption>Table 4. Does the answer depend on the pooling method?</caption>
+
+    <tr><th>Interval</th><th>Method</th><th>Summary (95% CI)</th></tr>
+    <tr><td>as published</td><td>REML</td><td class='num'>0.2081 (0.0715 to 0.6057)</td></tr>
+    <tr><td>sensitivity (Handbook 10.10.4.5)</td><td>REML with Hartung-Knapp, t on k-1 = 1 degree(s) of freedom (t = 12.7062)</td><td class='num'>0.2081 (0.0002 to 212.2504)</td></tr>
+  </table></div>
+  <p><small>The published point is 0.2081 and the house-rule point is 0.2081. THE NUMBER A READER REMEMBERS DOES NOT MOVE; what differs is the precision claim. That is why nothing downstream catches this -- every memorable quantity survives.</small></p>
+  <p><small>A FLOOR OF 1 IS APPLIED TO THE VARIANCE-INFLATION FACTOR so the adjustment can never NARROW an interval below the unadjusted one. That guard is the recognised modification for exactly this instability, and its existence is evidence the small-k behaviour is a KNOWN problem with KNOWN handling rather than a novel judgement.</small></p>
+</div>
 </section>
- </section>
+  </section>
 <!--end-extract-->  <section class="panel" id="pn-analysis">
   <p class='toc'><strong>In this section:</strong> <a href="#analysis-documented-incident-hiv-infection">documented incident HIV infection</a> &middot; <a href="#analysis-forest-plot">Forest plot</a> &middot; <a href="#analysis-visual-abstract">Visual abstract</a> &middot; <a href="#analysis-risk-of-bias">Risk of bias</a> &middot; <a href="#analysis-gosh">GOSH</a> &middot; <a href="#analysis-trial-sequential-analysis">Trial-sequential analysis</a> &middot; <a href="#analysis-meta-regression">Meta-regression</a></p>
 <h2 id="analysis-documented-incident-hiv-infection">documented incident HIV infection</h2>
@@ -419,7 +433,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h3>Summary of findings</h3>
   <div class='tscroll'><table>
-    <caption>Table 4. Summary of findings</caption>
+    <caption>Table 5. Summary of findings</caption>
 
     <tr><th>Outcome</th><th>k</th><th>Pooled effect</th><th>Certainty</th></tr>
     <tr><td>documented incident HIV infection</td><td class='num'>2</td><td class='num'>RR 0.208 (0.0715 to 0.606)</td><td>&mdash;</td></tr>
@@ -428,13 +442,13 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h3>Reproducibility artifact</h3>
   <div class='tscroll'><table>
-    <caption>Table 5. Reproducibility artifact</caption>
+    <caption>Table 6. Reproducibility artifact</caption>
 
     <tr><th scope='col'>Canonical object</th><td><code>—</code></td></tr>
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-18</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>4c3fde9b5</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>059f003ca</code>, built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
