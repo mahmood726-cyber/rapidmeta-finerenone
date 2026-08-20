@@ -158,6 +158,33 @@ def _manuscript_prose(obj, key):
     return out
 
 
+def _v_str(v):
+    """Word a stored declaration. NEVER `str()` a container into a manuscript.
+
+    A dict rendered as "{'funder': 'None'}" in a Grant information section is the raw-repr
+    defect (class 62's neighbour) landing in the one part of the paper an editor reads for
+    compliance. Strings pass through; lists become paragraphs; dicts become `Key. value`
+    lines with underscore keys worded and `_`-prefixed bookkeeping keys skipped.
+    """
+    if isinstance(v, str):
+        return v.strip()
+    if isinstance(v, (int, float)):
+        return str(v)
+    if isinstance(v, list):
+        parts = [_v_str(x) for x in v]
+        return "\n\n".join(p for p in parts if p)
+    if isinstance(v, dict):
+        parts = []
+        for k, val in v.items():
+            if str(k).startswith("_"):
+                continue
+            t = _v_str(val)
+            if t:
+                parts.append("%s. %s" % (str(k).replace("_", " ").capitalize(), t))
+        return "\n\n".join(parts)
+    return ""
+
+
 def _resolve_tokens(obj, text):
     """Substitute `[[name]]` from the object's own quantities. Never invents one."""
     try:
@@ -1473,6 +1500,88 @@ def project(obj, journal="generic", length="standard"):
                            "it; it is not inferable from anything held here", ["funding"]))
     secs.append(s)
 
+    # ---- F1000RESEARCH MANDATORY DECLARATIONS ------------------------------------------
+    #
+    # Four statements the venue REQUIRES of every article. Three of them are declarations
+    # ABOUT THE AUTHOR, not about the evidence: no object can hold them and no renderer may
+    # invent them. "No competing interests were disclosed" is the journal's own wording for
+    # the nil case, but writing it on Mahmood's behalf would be declaring something about
+    # him that he has not said. They refuse by name until he answers.
+    #
+    # The fourth is different in kind and is DERIVED -- see below.
+    for key, heading, field, what in (
+            ("competing_interests", "Competing interests",
+             "manuscript.competing_interests",
+             "the competing-interests declaration. F1000Research requires this section on "
+             "every article, and requires explicit text where there is nothing to declare. "
+             "IT IS A STATEMENT ABOUT THE AUTHOR AND NOT ABOUT THE EVIDENCE: no field of "
+             "this object implies it and none is invented here"),
+            ("grant_information", "Grant information", "manuscript.funding_statement",
+             "the grant information. The venue requires each funder's name, the grant "
+             "number where applicable, and the person the grant was assigned to. None of "
+             "that is derivable from a synthesis"),
+            ("author_contributions", "Author contributions",
+             "manuscript.author_contributions",
+             "the author-contributions statement. Who did what is a fact about people, and "
+             "this object records none")):
+        s = Section(key, heading)
+        v = get(obj, field)
+        if not (v is not None and s.add(obj, _v_str(v), [field])):
+            s.refusals.append((what, [field]))
+        secs.append(s)
+
+    # ---- REPORTING GUIDELINE COMPLIANCE ------------------------------------------------
+    #
+    # DERIVED, BECAUSE IT IS A FACT ABOUT THE REVIEW -- and derived ONLY where the review
+    # can support it. F1000Research requires compliance with a consensus reporting
+    # guideline; for a completed systematic review that is PRISMA 2020.
+    #
+    # ASSERTING PRISMA 2020 COMPLIANCE ON A TOPIC WITH NO SCREENING RECORD WOULD BE A FALSE
+    # CLAIM IN A COMPLIANCE STATEMENT, which is worse than no statement: it is the exact
+    # shape of the `verified: true beside a null id` defect. 93 of 155 objects carry no
+    # screening block, and on those this refuses and says which item is missing.
+    #
+    # PRISMA-P IS NOT SUBSTITUTED. It governs PROTOCOLS, and these are completed reviews.
+    s = Section("reporting_guidelines", "Reporting guidelines")
+    _scr = get(obj, "screening")
+    _stated = get(obj, "manuscript.reporting_guidelines")
+    if _stated is not None:
+        s.add(obj, _v_str(_stated), ["manuscript.reporting_guidelines"])
+    elif isinstance(_scr, dict) and _scr:
+        s.add(obj, "This review reports against PRISMA 2020. A screening record is held on "
+                   "this object and the flow it supports is shown in the Methods. THE "
+                   "COMPLETED PRISMA CHECKLIST AND FLOW DIAGRAM ARE NOT HELD HERE: the "
+                   "venue requires them deposited in an approved repository with a DOI "
+                   "cited in the Data Availability Statement, and minting that DOI is an "
+                   "author action rather than a build step.", ["screening"])
+    else:
+        s.refusals.append((
+            "the reporting-guideline compliance statement. PRISMA 2020 is the guideline "
+            "for a completed systematic review, and THIS OBJECT CARRIES NO SCREENING "
+            "RECORD, so a claim of compliance would be asserted rather than shown. It is "
+            "refused rather than written, because a false statement in a compliance "
+            "section is worse than an absent one", ["screening"]))
+    secs.append(s)
+
+    # ---- REGISTRATION (PROSPERO) -------------------------------------------------------
+    #
+    # REGISTRATION IS AN ACT WITH A DATE. A review that was not registered prospectively
+    # cannot claim it, and the ABSENCE of a field is not knowledge that no registration
+    # exists -- so this states the distinction rather than resolving it either way.
+    s = Section("prospero", "Registration")
+    _pro = get(obj, "protocol.prospero")
+    if _pro is not None:
+        s.add(obj, "Registered prospectively: %s." % _v_str(_pro), ["protocol.prospero"])
+    else:
+        s.refusals.append((
+            "the registration statement. No PROSPERO registration is recorded on this "
+            "object. THAT IS NOT THE SAME AS KNOWING THE REVIEW WAS NOT REGISTERED, and "
+            "neither claim is made here. Prospective registration cannot be added after "
+            "the fact, so if none exists the honest statement is that the review was not "
+            "prospectively registered -- which is a statement only the author can make",
+            ["protocol.prospero"]))
+    secs.append(s)
+
     # ---- REFERENCES --------------------------------------------------------------------
     s = Section("references", "References")
     src = get(obj, "sources")
@@ -1789,6 +1898,8 @@ READING_ORDER = [
     "discussion", "conclusions", "limitations",
     "not_written", "funding", "references", "keywords",
     "data_availability", "software_availability", "note_on_registration",
+    "competing_interests", "grant_information", "author_contributions",
+    "reporting_guidelines", "prospero",
     "trial_characteristics", "figure_legends", "figures", "submission_conformance",
 ]
 

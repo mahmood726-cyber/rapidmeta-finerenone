@@ -1,0 +1,135 @@
+"""Write F1000Research's mandatory author declarations onto every topic object.
+
+THE VENUE REQUIRES THESE ON EVERY ARTICLE. Competing interests (with explicit text where
+there is nothing to declare), grant information (funder, grant number, grantee) and author
+contributions are not optional sections, and an article without them does not pass
+submission checks.
+
+THEY ARE DECLARATIONS ABOUT MAHMOOD, NOT ABOUT THE EVIDENCE, AND THIS FILE INVENTS NONE.
+Every value comes from `ANSWERS` below, which is filled from what he actually says. Until
+an answer is given its entry stays None, the applier REFUSES to write that field, and the
+projector refuses the section by name. "No competing interests were disclosed" is the
+journal's own wording for the nil case and it is still a claim about a person: writing it
+unprompted would be declaring something on his behalf.
+
+RUN WITH --apply ONLY AFTER THE ANSWERS ARE IN. A dry run reports which are still missing.
+
+WHAT THIS FILE DELIBERATELY DOES NOT WRITE:
+
+  * The reporting-guideline compliance statement. It is a fact about the review, is DERIVED
+    by the projector from the screening record, and is REFUSED on the 93 of 155 objects
+    that hold none -- because asserting PRISMA 2020 compliance where no screening record
+    exists is a false statement in a compliance section.
+  * PROSPERO registration. Registration is an act with a date and cannot be added after the
+    fact. If a review was not prospectively registered, the honest statement is that it was
+    not, and only the author can make it.
+  * Any DOI. Minting one is an author action; a plausible-looking DOI in a Data Availability
+    Statement points a reader at somebody else's data.
+"""
+import glob
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import atomic_write
+
+TODAY = "2026-08-20"
+STAMP = TODAY.replace("-", "_")
+
+# ---------------------------------------------------------------------------------------
+# FILL FROM MAHMOOD'S ANSWERS. Leave None until answered -- None means REFUSE, not blank.
+# ---------------------------------------------------------------------------------------
+ANSWERS = {
+    # Q1. Competing interests. The journal wants explicit text even when there are none;
+    #     its nil wording is "No competing interests were disclosed." Any editorial-board
+    #     membership of the target venue must be declared here, and the house rule from
+    #     rules/lessons.md is that board membership needs the three-part disclosure.
+    "competing_interests": None,
+
+    # Q2. Grant information. Per funder: name, grant number where applicable, and the
+    #     person the grant was assigned to. The journal's nil wording is that the author
+    #     declares no grant was involved.
+    "funding_statement": None,
+
+    # Q3. Author contributions. Who did what, by name. CRediT terms are the usual currency.
+    "author_contributions": None,
+
+    # Q4. Acknowledgements. Non-author contributors, and how they contributed. Optional at
+    #     the venue, but if AI assistance is to be acknowledged this is where it goes.
+    "acknowledgements": None,
+}
+
+ASKED = {
+    "competing_interests": "Q1 competing interests",
+    "funding_statement": "Q2 grant information",
+    "author_contributions": "Q3 author contributions",
+    "acknowledgements": "Q4 acknowledgements (optional at this venue)",
+}
+
+
+def topics():
+    out = []
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        t = os.path.basename(os.path.dirname(p))
+        if os.path.basename(p) == t + ".json":
+            out.append((t, p))
+    return out
+
+
+def main():
+    apply = "--apply" in sys.argv
+    given = dict((k, v) for k, v in ANSWERS.items() if v)
+    missing = [ASKED[k] for k in ANSWERS if not ANSWERS[k]]
+
+    print("")
+    print("ANSWERS HELD  %d of %d" % (len(given), len(ANSWERS)))
+    for k in ANSWERS:
+        print("   %-24s %s" % (k, "ANSWERED" if ANSWERS[k] else "NOT ANSWERED -- refuses"))
+    if missing:
+        print("")
+        print("STILL UNANSWERED, AND NOT INVENTED: %s" % "; ".join(missing))
+    if not given:
+        print("")
+        print("NOTHING TO WRITE. Every declaration is a statement about the author and none")
+        print("has been given. This is the correct state before the questions are answered,")
+        print("not a failure.")
+        return 0
+
+    # THE POSITIVE PROPERTY IS `THIS OBJECT'S DECLARATIONS CHANGED`, and objects whose
+    # declarations are ALREADY CURRENT are COUNTED rather than skipped. A silent `continue`
+    # here would print `WROTE 12 object(s)` with an unstated denominator, which is open item
+    # O2 -- a scoped pass that does not state its scope -- and this project has already
+    # reproduced that once tonight in a brand-new instrument.
+    n = already = 0
+    for topic, path in topics():
+        obj = json.load(io.open(path, encoding="utf-8"))
+        ms = obj.setdefault("manuscript", {})
+        wrote = []
+        for key, val in given.items():
+            prior = ms.get(key)
+            if prior is not None and prior != val:
+                ms.setdefault("superseded_declarations_%s" % STAMP, {})[key] = prior
+            if prior != val:
+                ms[key] = val
+                wrote.append(key)
+        if wrote:
+            n += 1
+            if apply:
+                atomic_write.write_json(path, obj, indent=1)
+        else:
+            already += 1
+    print("")
+    print("objects read                       %d" % (n + already))
+    print("%-34s %d" % ("WROTE" if apply else "WOULD WRITE", n))
+    print("already carrying these values      %d" % already)
+    print("declaration(s) applied: %s" % ", ".join(sorted(given)))
+    if not apply:
+        print("DRY RUN -- pass --apply to write")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
