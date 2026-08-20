@@ -232,7 +232,13 @@
       ]
      }
     ],
-    "registration_counts_read_utc": "2026-08-18"
+    "registration_counts_read_utc": "2026-08-18",
+    "arm_roles_contradicted_by_this_object_2026_08_20": {
+     "class": "A",
+     "detector": "scripts/lint_arm_roles_contradict_the_object.py",
+     "finding": "MARINE's TREATMENT arm is labelled 'Placebo' and its CONTROL arm 'AMR101 (ethyl icosapentate) - 4 g/day'. The roles are inverted in the ARMS TABLE. THE ESTIMATE IS NOT AFFECTED: these arms carry no counts, and the per-trial value is the published mean difference -33.1 (-45.65 to -20.55), stored with the sign the publication reports. THIS TOPIC IS AT 4/4 ON P46 AND THE DEFECT IS REPORTED RATHER THAN QUIETLY REPAIRED, because a reader opening the arms table is told the treatment was placebo.",
+     "NOT_CORRECTED": "The roles are NOT swapped. A swap changes what this object says the trial did, and where arms carry counts it inverts anything recomputed from them. Establishing a contrast is done from the registration, not from what the drug names make obvious -- which is exactly what attr-pn-review's NEURO-TTRansform row turned out to disprove."
+    }
    },
    {
     "id": "NCT01047501",
@@ -355,7 +361,13 @@
       ]
      }
     ],
-    "registration_counts_read_utc": "2026-08-18"
+    "registration_counts_read_utc": "2026-08-18",
+    "arm_roles_contradicted_by_this_object_2026_08_20": {
+     "class": "A",
+     "detector": "scripts/lint_arm_roles_contradict_the_object.py",
+     "finding": "ANCHOR's TREATMENT arm is labelled 'Placebo' and its CONTROL arm 'AMR101 (ethyl icosapentate) - 4 g/day'. Same defect as MARINE, same absence of counts, same unaffected published mean difference -21.5 (-26.75 to -16.25).",
+     "NOT_CORRECTED": "The roles are NOT swapped. A swap changes what this object says the trial did, and where arms carry counts it inverts anything recomputed from them. Establishing a contrast is done from the registration, not from what the drug names make obvious -- which is exactly what attr-pn-review's NEURO-TTRansform row turned out to disprove."
+    }
    }
   ]
  },
@@ -380,13 +392,18 @@
     "estimand_homogeneous_across_cohorts": null,
     "pool_uniformity": {
      "effect_measure": [
-      "NOT ESTABLISHED",
-      "not recorded on the page this object was extracted from"
+      "ESTABLISHED",
+      "both are mean differences in percent change in triglycerides against placebo, read from each registry record"
      ],
      "estimand": [
-      "NOT ESTABLISHED",
-      "not recorded on the page this object was extracted from"
-     ]
+      "ESTABLISHED",
+      "CHECKED ON 2026-08-20 AND ESTABLISHED. Both registrations post the SAME primary outcome title, BYTE-IDENTICAL: 'Difference Between AMR101 (Ethyl Icosapentate) and Placebo Treatment Groups in Triglyceride Lowering Effect'. What that does NOT establish is a shared population -- MARINE enrolled severe hypertriglyceridaemia and ANCHOR statin-treated patients in a lower band, which is what I-squared of 64.2% on two trials is measuring. The pool estimates the effect ACROSS two settings and the object says so."
+     ],
+     "population": [
+      "NOT UNIFORM, AND STATED",
+      "MARINE severe hypertriglyceridaemia; ANCHOR statin-treated, lower triglyceride band. Same quantity, different patients."
+     ],
+     "superseded_2026_08_20": "Both limbs previously read NOT ESTABLISHED with the reason 'not recorded on the page this object was extracted from' -- the NEVER-CHECKED state written as though it were a negative finding, the same inversion found on rosuvastatin and empagliflozin the same day."
     },
     "heterogeneity": {
      "i2": 64.2,
@@ -441,7 +458,7 @@
     },
     "source_page_pooled": true,
     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
-    "estimand_established": false,
+    "estimand_established": true,
     "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
     "r_output": {
      "state": "PRESENT",
@@ -454,7 +471,9 @@
      "what_it_is": "The fit that produces the numbers this block now publishes, printed by metafor and pasted unaltered. The previous fit, under the estimator this pool used before 2026-08-20, is kept beside it under r_output_superseded_2026_08_20 rather than discarded.",
      "reproduction_of_the_previous_value": "Before this refit was applied, the OLD estimator was refitted on the same inputs and checked against the stored value: REPRODUCED. A pool whose old fit did not reproduce was not overwritten."
     },
-    "estimator_note_2026_08_20": "REML, applied 2026-08-20 under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The estimator this pool used before that date was DerSimonian-Laird inverse-variance on extracted effect estimates; that fit was reproduced first and is quoted under r_output_superseded_2026_08_20, so the movement is attributable rather than asserted."
+    "estimator_note_2026_08_20": "REML, applied 2026-08-20 under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The estimator this pool used before that date was DerSimonian-Laird inverse-variance on extracted effect estimates; that fit was reproduced first and is quoted under r_output_superseded_2026_08_20, so the movement is attributable rather than asserted.",
+    "estimand_established_reason_2026_08_20": "CHECKED ON 2026-08-20 AND ESTABLISHED. Both registrations post the SAME primary outcome title, BYTE-IDENTICAL: 'Difference Between AMR101 (Ethyl Icosapentate) and Placebo Treatment Groups in Triglyceride Lowering Effect'. What that does NOT establish is a shared population -- MARINE enrolled severe hypertriglyceridaemia and ANCHOR statin-treated patients in a lower band, which is what I-squared of 64.2% on two trials is measuring. The pool estimates the effect ACROSS two settings and the object says so.",
+    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
    }
   }
  },
@@ -485,6 +504,14 @@
    "what_changed": "This pool was fitted with DerSimonian-Laird inverse-variance on extracted effect estimates. It is refitted with REML under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The old fit was reproduced against the stored value FIRST (REPRODUCED) and only then replaced. Stored values are also rounded at storage -- effects to 4 decimals, tau-squared and Q to 6, I-squared to 4 -- because several of these pools carried sixteen significant figures on a two- or three-study pool.",
    "why": "The corpus held two estimator conventions at once: 23 pools REML, 9 DerSimonian-Laird, 1 Paule-Mandel. Handbook 6.5 s10.10.4.4 records REML as RevMan's own current default and this project's statistics rules already refused DerSimonian-Laird below k=10, which every pool in this corpus is. The decision was taken on 2026-08-18 and not applied; applying it to some pools and not others would have been worse than either convention.",
    "interval_method": "z"
+  },
+  {
+   "date": "2026-08-20",
+   "change": "estimand established; published comparison added with its denominator",
+   "values_moved": "NONE",
+   "what_changed": "`estimand_established` False -> True on byte-identical registered titles, with the population difference stated separately. P46 limb 3 was ABSENT and now holds 2 identified syntheses and 7 checks.",
+   "why": "A pooled estimate published with no comparison cannot be checked by a reader against anything, and an estimand recorded as NOT ESTABLISHED because nobody looked is not a negative finding.",
+   "what_it_found": "That NO identified synthesis pools MARINE with ANCHOR on this endpoint -- every one is class-wide omega-3 across species and dose. This review's estimate is UNREPLICATED. The Cochrane ~15%% is not a disagreement: their own dose-dependence finding predicts the direction of the gap, and nothing available predicts its size."
   }
  ],
  "question_restated_2026_08_19": {
@@ -513,5 +540,49 @@
    "read_utc": "2026-08-19"
   },
   "what_this_is_not": "NOT a P21 decision. The registrations resolve to one question; where they had not, this topic would have been left for a split rather than restated."
+ },
+ "published_comparison": {
+  "_why": "Two trials, one drug, one registered endpoint word for word -- and no AMR101-specific synthesis of them in the identified literature.",
+  "_how_identified": "PubMed E-utilities; query, counts and a per-record decision in ssot/icosapent-lipid-auto-full-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json. 35 matched, 20 retrieved, 4 appraised, 31 NOT READ. NO INCLUDED-STUDY TABLE WAS READ: trial sets are INFERRED from abstract text and stated scope.",
+  "identity_basis": "MARINE keyed to NCT01047683 and ANCHOR to NCT01047501, each carrying the registry's own posted primary-outcome title, BEFORE any count was compared.",
+  "reviews": [
+   {
+    "id": "PM_COCHRANE_OMEGA3_2020",
+    "pmid": "32114706",
+    "citation": "Abdelhamid AS, et al. Omega-3 fatty acids for the primary and secondary prevention of cardiovascular disease. Cochrane Database Syst Rev 2020;3:CD003177. doi 10.1002/14651858.CD003177.pub5",
+    "their_k": 86,
+    "their_n": 162796,
+    "scope": "all long-chain omega-3 and alpha-linolenic acid, every dose, supplements and diet",
+    "trial_set_read": false,
+    "how_it_differs_from_ours": "Class-wide across species, dose and delivery. Its ~15%% is an average over a dose range whose top end is where this review's trials sit."
+   },
+   {
+    "id": "PM_DOSE_RESPONSE_2023",
+    "pmid": "37264945",
+    "citation": "Wang T, et al. Association Between Omega-3 Fatty Acid Intake and Dyslipidemia: A Continuous Dose-Response Meta-Analysis. J Am Heart Assoc 2023;12(11):e029512. doi 10.1161/JAHA.123.029512",
+    "their_k": 90,
+    "their_n": 72598,
+    "scope": "dose-response shape rather than a single pooled effect",
+    "trial_set_read": false,
+    "how_it_differs_from_ours": "Reports a SHAPE, not an estimate of this quantity. Consistency with a shape is weaker than agreement between two estimates."
+   }
+  ],
+  "divergence_decomposed": {
+   "ours": "Mean difference -25.84% (-36.84 to -14.84) in triglyceride lowering against placebo, 4 g/day AMR101, k=2, random effects, REML, I-squared 64.2%.",
+   "theirs": "~15%% class-wide across 86 RCTs at every dose; and a near-linear dose-response over 90 RCTs, strongest above 2 g/day in hyperlipidaemia.",
+   "why_they_differ": "BY DOSE, SPECIES AND POPULATION -- not by disagreement. The published figures average across omega-3 species and the whole dose range; this review is purified EPA at the top of that range in the population where the effect is largest. THEIR OWN DOSE-DEPENDENCE PREDICTS THE DIRECTION OF THE GAP, and nothing available predicts its size. NO IDENTIFIED SYNTHESIS POOLS THESE TWO TRIALS, so none of them is an independent check on this estimate."
+  },
+  "denominator": {
+   "rows_checked": 7,
+   "confirmed": 4,
+   "errors": 0,
+   "errors_in_the_literature": 0,
+   "errors_in_this_review": 0,
+   "absent": 2,
+   "unresolved": 1,
+   "statement": "7 checks were applied and 4 came back clean, 0 found an error, 2 found something absent and 1 could not be settled at the layer available. The denominator is stated because a list of only the failures is not a finding, it is a selection.",
+   "symmetry": "Confirmations are listed in the same table, in the same detail, as the absences. NO ERROR WAS FOUND ON EITHER SIDE HERE, and that is reported as plainly as an error would be: two of the six rows are ABSENCES rather than clean passes -- no synthesis pools this pair, and identical titles do not make identical populations.",
+   "what_this_denominator_does_not_cover": "The 31 records retrieved and not read, and the included-study table of every one of the four appraised. No published trial set here was read."
+  }
  }
 }

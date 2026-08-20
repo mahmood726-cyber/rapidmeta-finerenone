@@ -743,6 +743,36 @@ reported only the lost pairs — the more natural design — the revert would ha
 would have caught this at step one — an audit that refuses to report on files with uncommitted
 modifications until it says so. Recorded as not written.
 
+### 53. WHEN ONE FIGURE IS DEFENSIBLE UNDER TWO DEFINITIONS THAT DISAGREE, REPORT BOTH
+
+**Neither counter was wrong. Reporting one number was.**
+
+`p46_queue.py` scores a **discharged refusal as complete**, and that is correct: a held-only
+counter reports a correctly-refusing topic as incomplete forever, and someone eventually
+"fixes" it by writing into a slot that should stay empty. So the counter's definition is
+sound.
+
+And under it, **5 of 9 complete topics close on a refusal P46's own refinement was written
+to exclude** — *"no risk-of-bias assessment was recoverable from the page"* is an obstacle
+in OUR QUEUE wearing a refusal's clothes. Also true. **The count was not wrong; it was
+one-dimensional.**
+
+Same shape, twice more the same night:
+
+| one figure | the two definitions | what the single number hid |
+|---|---|---|
+| "9 of 28 complete" | held-only vs held-or-discharged | 5 of 9 discharge on provenance |
+| "27 sections, 5,111 words" | section count vs substance | SGLT2 and ARNI read as siblings while one is empty where a reader looks |
+| "question-shaped headings 57% vs 2%" | grammar vs answeredness | a criterion satisfiable by renaming |
+
+> **A single defensible figure is not the same as a sufficient one.** Where two honest
+> definitions of the same quantity disagree, the disagreement IS the finding — report both
+> and let the gap carry the information. Choosing one and defending it is how softness
+> becomes invisible while every individual claim stays true.
+
+**Operationally:** P46 is now always reported as *"N of 28, of which M close on a
+provenance-shaped refusal"*, beside P47. `scripts/audit_p46_closure_quality.py` computes M.
+
 ### 52. A CHECK REPORTING ZERO HAS TWO READINGS AND ONLY ONE OF THEM IS REASSURING
 
 **Three instances in one night, and every time the two-state instrument returned the
@@ -2602,6 +2632,126 @@ same night specifically to close its family. The count above will be wrong again
 *Verified 2026-08-19. Every command in this file was run; every count is an observed output.*
 
 ---
+
+## Class 54 — A FLAG THAT CERTIFIES ONE HALF OF A QUESTION, READ AS CERTIFYING BOTH
+
+`estimand_established` is TRUE on `attr-pn-review` and it is CORRECT. All three contributing
+trials measure change from baseline in mNIS+7 — same instrument, same construct, timepoint
+difference stated on the object. The estimand *is* established.
+
+The pool is still meaningless:
+
+| trial | intervention | comparator | kind of contrast |
+|---|---|---|---|
+| APOLLO (NCT01960348) | patisiran | sterile normal saline | its own randomised placebo |
+| HELIOS-A (NCT03759379) | vutrisiran | **patisiran** | randomised, active |
+| NEURO-TTRansform (NCT04136184) | eplontersen | inotersen *as the object records it* | **the stored effect is against the placebo cohort of NEURO-TTR, NCT01737398 — a different trial** |
+
+**Patisiran is the intervention in row one and the comparator in row two, inside one pooled
+number.** Two of the three stored values are non-randomised external-control comparisons
+recorded as randomised arm contrasts. **I² is 88.1%** — the exact signal a reader is trained
+to distrust — and it was live on the delivered page.
+
+**The flag was doing half the job its name implies, and nothing else was doing the other
+half.** Not this registry, not `regression_check.py`, not `prose_claim_gate.py`, not any of
+the fifty-plus instruments written to date. `estimand_established` was the field that
+*sounded* as though it had already asked.
+
+**Established from the registration, not inferred.** NCT04136184's brief title names
+eplontersen as the agent under study; its detailed description says participants in the
+**inotersen reference arm** crossed over to eplontersen at Week 37; and its primary outcome
+description says, verbatim, that efficacy *"was to be assessed by comparing participants
+enrolled in the eplontersen arm only with the external placebo group"* and that *"there was
+no statistical comparison planned between the inotersen arm and the eplontersen-treated/
+external placebo group arms."* The object has the roles the other way round. **They are not
+corrected** — a role swap changes what the object says a trial did, and the stored value is
+not that contrast anyway.
+
+**Named as P48 in `PAGE-STANDARD.md` v1.21.0.** The flag is not renamed: it is true, and a
+rename moves a reader between meanings without telling them. Instead
+`estimand_established_does_not_cover_the_contrast_2026_08_20` now sits beside it on **156
+outcome blocks across 125 objects**.
+
+### The sweep, and why its first draft was wrong
+
+`scripts/audit_mixed_contrast_pools.py`. Across **32 pooled numbers in 26 topics** — every
+block with k≥2 publishing a point that is not withdrawn — **2 mix kinds of comparison**:
+`attr-pn-review/primary` and `rosuvastatin-auto-full-review/primary`. Both were already
+**referred rather than closed** before the sweep ran, so it unmakes none of the ten. **Nine
+are NOT_ASSESSABLE**, which means not looked at, not clean.
+
+**The first draft scoped to `inputs.trials` and flagged seven topics. Two of the seven were
+false accusations.** `malaria-vaccines` and `cryptococcal-meningitis` both CONTAIN mixed
+contrasts and NEITHER POOLS ACROSS THEM — malaria stratifies into nine outcome blocks, every
+cryptococcal block is k=1. **"The topic contains" is not "one number contains."** The check
+now carries a **NEGATIVE control** beside its positive one and prints no count if either
+side fails: `malaria-vaccines/r21_seasonal_first_12m` must come back UNFLAGGED.
+
+**A third false accusation was in the classifier itself.** `doac-af-review` read as mixed
+because ENGAGE AF's control label — `"Warfarin/Placebo Edoxaban"` — carries a placebo token.
+Proximity cannot resolve that; warfarin and *placebo* are nine characters apart. Splitting
+the label on `+ / and plus &` and treating the drug in the placebo-bearing segment as the
+dummy reads it correctly, and `doac-af-review` is uniformly warfarin-controlled.
+
+**Two declaration contradictions were reported and both are the instrument's error.**
+`malaria-vaccines` declares `comparator_type: "inactive"` on two blocks whose comparator is
+a rabies vaccine. The classifier calls a named vaccine ACTIVE; **the object's author is
+right**, because a rabies vaccine has no antimalarial activity and is inert *for this
+outcome*. **Inert is a property of the comparator against the endpoint, not of the
+substance**, and a label-reading classifier cannot see endpoints. Recorded as overreach,
+not as findings.
+
+## Class 55 — ARM ROLES CONTRADICTED BY THE OBJECT'S OWN OTHER FIELDS
+
+Reading one registration per trial does not scale to a corpus. `attr-pn` needed one; the
+question is what an object can answer **about itself**, with no outside source.
+`scripts/lint_arm_roles_contradict_the_object.py` asks exactly that, and every finding below
+is two fields of the same object disagreeing.
+
+**166 trials have both roles readable. 241 are UNREAD — no arms, or one role only — and
+nothing below was asked of them.** 10 contradictions:
+
+**A — a TREATMENT arm whose label is a placebo (4).** A placebo is not an intervention.
+
+- `evolocumab-dyslipidemia-review` / FOURIER: treatment `"Placebo"`, control `"Evolocumab"`.
+  **These arms carry counts** — 429/13780 on the row called treatment, 378/13784 on the row
+  called control — so anything recomputed from them inverts with the roles.
+- `evolocumab-mixed-dyslipidemia-auto-full-review` / HUA TUO: treatment `"Placebo Q2W"`,
+  control `"Evolocumab 420 mg QM"`. Its sibling BERSON records atorvastatin as treatment and
+  `"Evolocumab QM + Atorvastatin"` as control — **the topic's own index drug is in the
+  comparator on both of its rows.**
+- `icosapent-lipid-auto-full-review` / MARINE and ANCHOR: treatment `"Placebo"`, control
+  `"AMR101 (ethyl icosapentate) - 4 g/day"`. **THIS TOPIC IS AT 4/4 ON P46, CLOSED TONIGHT.**
+  The estimate is unaffected — those arms carry no counts and the per-trial values are the
+  published mean differences −33.1 and −21.5 with the sign the publications report — but a
+  reader who opens the arms table is told the treatment was placebo.
+
+**B — the trial NAME names a comparator the control arm does not carry (3).**
+
+- `hepatitis-b-taf-tdf-review`, both rows: name `"(TAF vs TDF, …)"`, control
+  `"Open-label TAF"`. **TDF appears nowhere.** A comparison the object describes as TAF
+  against TDF is recorded as TAF against TAF.
+- `rosuvastatin-auto-full-review` / HOPE-3: name `"HOPE-3 (rosuvastatin 10 mg vs placebo)"`,
+  control `"Candesartan/HCT"` — the **antihypertensive** factor of a 2×2 trial. A second,
+  independent defect on a topic already referred for pooling an estimand HOPE-3 lacks.
+
+**C — both arms name the same drug and neither is a placebo (3).** The two hepatitis-B rows,
+plus `netarsudil-ocular-hypertension-auto-full-review` / ROCKET-2: `"AR-13324 … 0.02% & pla"`
+against `"AR-13324 … 0.02% BID"` — a dose-or-schedule contrast beside two
+netarsudil-against-timolol rows, and **the treatment label is truncated mid-word at `& pla`**.
+
+**C's first draft accused three `intensive-bp-review` rows** on the shared token `"BP"` —
+`"Intensive BP control"` against `"Standard BP control"` is a strategy contrast, correctly
+labelled. C now routes through the same drug recogniser as the mixed-contrast sweep, so a
+shared token must be a DRUG. **A fourth false positive, `cryptococcal-meningitis`' COAT row,
+gives both arms antiretroviral therapy and says so in its own label — a declared strategy
+contrast is not a mislabelling**, and a control label matching the CARE vocabulary now
+suppresses C.
+
+**Nothing is corrected.** A role swap changes what the object says a trial did, and where
+arms carry counts it inverts anything recomputed from them. `attr-pn` is the standing
+warning: there the roles looked obvious from the drug names, and the registration turned out
+to say something sharper still.
 
 ## OPEN — carried, not fixed
 

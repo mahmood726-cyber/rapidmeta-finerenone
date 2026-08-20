@@ -1,6 +1,6 @@
 # The page standard, versioned
 
-**`PAGE_STANDARD_VERSION = "1.20.0-2026-08-20"`**
+**`PAGE_STANDARD_VERSION = "1.21.0-2026-08-20"`**
 
 > **This line was `1.6.0` while the version log below already ran to `1.12.0` and
 > `ssot/build_to_standard.py` stamped `1.13.0`.** The marker whose entire purpose is to make
@@ -78,6 +78,7 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P40 | **A rule you have APPLIED is not a rule you have PUBLISHED** | the complement of the registry's opening line. The criterion separating `apixaban-vte-treatment` from `apixaban-vte-prophylaxis` — *prior event means treatment* — decided which review sixteen trials belong to and existed only inside an adjudication file. A criterion that decides inclusion must appear on the page of **every review it decides**, or the reader cannot check it and the next lane cannot apply it. **And it was not applied everywhere either:** it reached the sixteen adjudicated trials and not the nine admitted by the mechanical screen on the coded field the criteria themselves say does not settle the question |
 | P47 | **A manuscript whose READER-FACING sections are refusals is not complete, whatever its totals say** | P46 counts artefacts an object HOLDS. It says nothing about whether the manuscript those artefacts project can be read as a paper, and **a topic can satisfy all four P46 criteria and still render Abstract, Introduction, Discussion and Conclusions as stubs or refusals.** Measured 2026-08-20 on `SGLT2_HF_REVIEW.html` against ARNI: **27 paper sections against 29, and 5,111 words against 11,182** — the section count essentially equal and the substance 2.2× apart, which is exactly why `ssot/manuscript_guard.py` cannot see it: that guard knows delivered LENGTH and SECTION COUNT and both said the two pages were siblings. **The distribution is the finding, not the total.** The four sections a reader opens first came to **219 words and eight refusals** — Abstract 83, Introduction 50, Discussion 43, Conclusions 43 — while *Certainty of the evidence* ran to 651 and *Methods — synthesis* to 550. **Heaviest where a reader is least likely to start and thinnest where they are.** And the refusals were CORRECT: the object holds no discussion and no conclusions, so the projector refused them by name, as this standard requires. That is the finding rather than the excuse. **ARNI is organised around FINDINGS and this is organised around the OBJECT'S FIELD STRUCTURE** — ARNI's discussion is seven named findings, and its *"Where our result differs from theirs"* runs to 1,559 words against this page's comparison section at 29 words and a refusal. That is the difference between a paper and a rendered record. **WEIGHTED BY SECTION, NOT BY PAGE**, because a page total cannot express it: 5,111 words is not a small manuscript and the total was never the problem. Tested by `scripts/lint_reader_facing_sections.py`, which **reports and ratchets rather than blocking** — measured 2026-08-20, **141 of 141 projectable topics fail it, including all eight then at 4/4 on P46** |
 | P46 | **A topic is complete only if its OBJECT holds the substance** | a risk-of-bias assessment PER RESULT, a GRADE rating PER POOLED OUTCOME, a published comparison CARRYING A DENOMINATOR, and the model output QUOTED VERBATIM -- or a stated reason for each absence. **Refusing by name is honest for a PAGE and is not sufficient for a TOPIC that claims to be finished.** Measured 2026-08-20: a perfect renderer over today's objects reproduces 10.9% of ARNI's manuscript, and RoB/GRADE/comparison/verbatim output exist on 19%/14%/12%/12% of the 43 cardiology topics |
+| P48 | **A pooled estimate must establish its CONTRAST, not only its estimand** | `estimand_established` certifies that every contributing trial measures the SAME QUANTITY. It certifies nothing about what that quantity was measured AGAINST, and it has been read as though it did. On `attr-pn-review` the flag is TRUE and CORRECT -- all three trials measure change from baseline in mNIS+7, same instrument, same construct, timepoint difference stated -- while the pool combines **patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the external placebo cohort of a DIFFERENT TRIAL (NEURO-TTR, NCT01737398)**. Two of three stored values are non-randomised external-control comparisons recorded as randomised arm contrasts, and **patisiran is the intervention in one row and the comparator in another inside one number.** I² was 88.1% and live on the delivered page. **A topic can hold an established estimand, a visible I², four P46 artefacts and a comparator set that makes the pool meaningless.** So: for every pooled number the object records, per contributing trial, what the intervention was measured against and whether that comparison was randomised and concurrent; where the contributing contrasts are not of one kind, the object says so and the pool is REFERRED. `estimand_established` is not renamed -- the flag is true and a rename moves a reader between meanings without telling them -- but `estimand_established_means` gains a sentence saying what it does not cover. Swept by `scripts/audit_mixed_contrast_pools.py`, whose scope is the POOLED NUMBER and not the topic: **2 of 32 pooled numbers across 26 topics mix kinds of comparison, 9 are NOT_ASSESSABLE.** An earlier draft scoped to `inputs.trials` flagged seven topics and was wrong about two of them -- `malaria-vaccines` and `cryptococcal-meningitis` CONTAIN mixed contrasts and NEITHER POOLS ACROSS THEM -- so the check now carries a **negative control** beside its positive one and prints no count if either side fails |
 
 ## Reading the remainder — the same number, opposite diagnoses
 
@@ -132,6 +133,65 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.21.0-2026-08-20
+
+**P48 — `estimand_established` certifies the MEASUREMENT. It does not certify the CONTRAST,
+and it has been read as though it did.**
+
+`attr-pn-review` carries `estimand_established: true` and that flag is CORRECT. All three
+contributing trials measure change from baseline in mNIS+7 — the same instrument, the same
+construct, the timepoint difference stated on the object. The estimand *is* established.
+
+The pool is still meaningless, and here is what the flag never looked at:
+
+| trial | intervention | comparator | what kind of contrast |
+|---|---|---|---|
+| APOLLO (NCT01960348) | patisiran | sterile normal saline | its own randomised placebo |
+| HELIOS-A (NCT03759379) | vutrisiran | **patisiran** | randomised, active |
+| NEURO-TTRansform (NCT04136184) | eplontersen | inotersen *on the object* | **the stored effect is against NEURO-TTR's external placebo, NCT01737398 — a different trial** |
+
+**Patisiran is the intervention in row one and the comparator in row two, inside one pooled
+number.** Two of the three stored values are non-randomised external-control comparisons
+recorded as randomised arm contrasts. I² is 88.1% — precisely the signal a reader is taught
+to distrust — and it was live on the delivered page.
+
+**A topic can hold an established estimand, a visible I², four P46 artefacts and a
+comparator set that makes the pool meaningless.** Nothing in this standard, in
+`regression_check.py`, or in any of the fifty-plus instruments written to date looked at the
+comparator. `estimand_established` was the field that *sounded* as though it had.
+
+**P48. A pooled estimate must establish its CONTRAST as well as its estimand.** For every
+pooled number the object must record, per contributing trial, what the intervention was
+measured *against* and whether that comparison was randomised and concurrent. Where the
+contributing contrasts are not of one kind, the object says so and the pool is referred.
+
+`estimand_established` is not renamed — a rename moves a reader between meanings without
+telling them, and the flag is true. `estimand_established_means` gains a sentence saying
+what it does not cover, on every object that carries it.
+
+**The gap generalises, and the sweep that measured it is
+`scripts/audit_mixed_contrast_pools.py`.** Across **32 pooled numbers in 26 topics** — every
+block with k≥2 publishing a point that is not withdrawn — **2 mix kinds of comparison**:
+`attr-pn-review/primary` and `rosuvastatin-auto-full-review/primary`, both already referred
+rather than closed. **Nine are NOT_ASSESSABLE**, which means not looked at, not clean.
+
+**The scope of that check is the pooled number, not the topic, and that distinction is the
+whole finding.** An earlier draft ran over `inputs.trials` and flagged seven topics.
+`malaria-vaccines` and `cryptococcal-meningitis` were two of them, and both were wrong:
+malaria stratifies into nine outcome blocks and never pools across its contrast kinds, and
+every cryptococcal block is k=1. **"The topic contains" is not "one number contains."** The
+check now carries a NEGATIVE control alongside its positive one — `malaria-vaccines/
+r21_seasonal_first_12m` must come back unflagged — and prints no count if either side
+fails.
+
+**Two declaration contradictions were reported and both are the instrument's error, not the
+object's.** `malaria-vaccines` declares `comparator_type: "inactive"` on two blocks whose
+comparator is a rabies vaccine. The classifier calls a named vaccine ACTIVE; the object's
+author is right, because a rabies vaccine has no antimalarial activity and is inert *for
+this outcome*. **Inert is a property of the comparator against the endpoint, not of the
+substance.** The classifier cannot see endpoints and so cannot make that judgement; both
+rows are recorded here as instrument overreach rather than as findings.
 
 ### 1.20.0-2026-08-20
 

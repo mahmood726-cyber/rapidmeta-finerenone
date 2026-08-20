@@ -267,7 +267,13 @@
       ]
      }
     ],
-    "registration_counts_read_utc": "2026-08-18"
+    "registration_counts_read_utc": "2026-08-18",
+    "arm_roles_contradicted_by_this_object_2026_08_20": {
+     "class": "C",
+     "detector": "scripts/lint_arm_roles_contradict_the_object.py",
+     "finding": "ROCKET-2's arms are 'AR-13324 Ophthalmic Solution 0.02% & pla' against 'AR-13324 Ophthalmic Solution 0.02% BID'. BOTH ARMS ARE NETARSUDIL, so this row is a dose or schedule contrast sitting beside two netarsudil-against-timolol rows. The treatment label is also TRUNCATED MID-WORD at '& pla', which is a second defect on the same field. The pool is already withdrawn.",
+     "NOT_CORRECTED": "The roles are NOT swapped. A swap changes what this object says the trial did, and where arms carry counts it inverts anything recomputed from them. Establishing a contrast is done from the registration, not from what the drug names make obvious -- which is exactly what attr-pn-review's NEURO-TTRansform row turned out to disprove."
+    }
    },
    {
     "id": "NCT02558374",
@@ -463,7 +469,8 @@
      ],
      "why_this_is_not_being_done_tonight": "EVERY ONE OF THOSE THREE IS A METHODOLOGICAL CHOICE THAT CHANGES THE ESTIMAND, and none is recoverable from the registry by rule. THE fcm-hf ARM INVERSION WAS BUILT UNDER TIME PRESSURE HOURS AGO AND WAS WRONG -- it read position as role, produced a pool with the sign reversed and heterogeneity at zero, and was caught only by an outside reviewer. A second rushed rebuild on a topic that has just been withdrawn for a measure defect is the same mistake with a different field. THE WITHDRAWAL IS CORRECT AND STANDS UNTIL THE THREE CHOICES ARE MADE DELIBERATELY.",
      "what_a_reader_has_now": "A stated withdrawal with its reason, which is more than the hazard ratio gave them."
-    }
+    },
+    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
    }
   }
  },

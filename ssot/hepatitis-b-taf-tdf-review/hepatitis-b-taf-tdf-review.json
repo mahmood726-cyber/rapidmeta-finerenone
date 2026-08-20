@@ -244,7 +244,13 @@
      "Percentage of Participants With Treatment-emergent Proteinuria by Urinalysis (Dipstick) Through Week 48"
     ],
     "all_ranks_read_utc": "2026-08-19",
-    "ranks_read": 3
+    "ranks_read": 3,
+    "arm_roles_contradicted_by_this_object_2026_08_20": {
+     "class": "B and C",
+     "detector": "scripts/lint_arm_roles_contradict_the_object.py",
+     "finding": "The row's own NAME is 'GS-US-320-0108 (TAF vs TDF, HBeAg-negative)' and its arms are 'TAF 25 mg' against 'Open-label TAF'. TDF APPEARS NOWHERE. A comparison the object describes as TAF against TDF is recorded as TAF against TAF. The pool is already withdrawn; this is why it must stay withdrawn.",
+     "NOT_CORRECTED": "The roles are NOT swapped. A swap changes what this object says the trial did, and where arms carry counts it inverts anything recomputed from them. Establishing a contrast is done from the registration, not from what the drug names make obvious -- which is exactly what attr-pn-review's NEURO-TTRansform row turned out to disprove."
+    }
    },
    {
     "id": "NCT01940471",
@@ -388,7 +394,13 @@
      "Percentage of Participants With Treatment-emergent Proteinuria by Urinalysis (Dipstick) Through Week 48"
     ],
     "all_ranks_read_utc": "2026-08-19",
-    "ranks_read": 3
+    "ranks_read": 3,
+    "arm_roles_contradicted_by_this_object_2026_08_20": {
+     "class": "B and C",
+     "detector": "scripts/lint_arm_roles_contradict_the_object.py",
+     "finding": "The row's own NAME is 'GS-US-320-0110 (TAF vs TDF, HBeAg-positive)' and its arms are 'TAF 25 mg' against 'Open-label TAF'. Same defect as its sibling.",
+     "NOT_CORRECTED": "The roles are NOT swapped. A swap changes what this object says the trial did, and where arms carry counts it inverts anything recomputed from them. Establishing a contrast is done from the registration, not from what the drug names make obvious -- which is exactly what attr-pn-review's NEURO-TTRansform row turned out to disprove."
+    }
    }
   ]
  },
@@ -543,7 +555,8 @@
      ],
      "and_it_changes_nothing_here": "The refusal is NOT about which endpoint was chosen. It is that the COMPARATOR ARM IS ABSENT from this object: every one of these shared endpoints would be computed TAF against TAF. A shared endpoint cannot rescue a contrast that does not exist.",
      "state": "CANDIDATES_FOUND"
-    }
+    },
+    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
    }
   }
  },

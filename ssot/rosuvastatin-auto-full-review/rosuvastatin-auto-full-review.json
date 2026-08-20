@@ -285,6 +285,12 @@
      "registry_has_results": false,
      "why_this_was_fetched": "This object published a pooled estimate over HOPE-3 and JUPITER while holding NO registered primary outcome for HOPE-3. The definition was absent, not merely different, and it had to be fetched before anything else could be said about the pool.",
      "and_the_registry_posts_no_results": "`has_results` is false on this registration, so the stored HOPE-3 effect -- OR 0.7622 (0.6405 to 0.9070) -- cannot have come from the registry results section. The object records it as extractor recovery from the published page and cannot say WHICH of the two co-primaries it is a recovery of."
+    },
+    "arm_roles_contradicted_by_this_object_2026_08_20": {
+     "class": "B",
+     "detector": "scripts/lint_arm_roles_contradict_the_object.py",
+     "finding": "The row's own NAME is 'HOPE-3 (rosuvastatin 10 mg vs placebo)' and its control arm is 'Candesartan/HCT'. HOPE-3 was 2x2 factorial and the arm recorded here is the ANTIHYPERTENSIVE factor, not the lipid one. This topic was already REFERRED on a separate finding -- it pools an estimand HOPE-3 does not hold -- and this is a second, independent defect on the same row.",
+     "NOT_CORRECTED": "The roles are NOT swapped. A swap changes what this object says the trial did, and where arms carry counts it inverts anything recomputed from them. Establishing a contrast is done from the registration, not from what the drug names make obvious -- which is exactly what attr-pn-review's NEURO-TTRansform row turned out to disprove."
     }
    }
   ]
@@ -412,7 +418,8 @@
      "why_it_is_referred_rather_than_withdrawn_here": "Withdrawing a published estimate is a published-number decision and this pass was scoped to establish the estimand, not to take that decision. The finding is complete and stated; the decision is Mahmood's.",
      "what_a_reader_currently_sees": "NOTHING. ROSUVASTATIN_AUTO_FULL_REVIEW.html is a legacy build that never rendered this pooled estimate -- established two ways on 2026-08-20, by building the object to a scratch path and comparing shape, and by probing the delivered bytes for the served number. So no reader currently depends on it, which sets the urgency without changing the correctness.",
      "what_would_make_a_pool_defensible": "Restricting to a shared estimand. HOPE-3's FIRST co-primary -- cardiovascular death, non-fatal myocardial infarction, non-fatal stroke -- is a three-point MACE, and a JUPITER value for the same three components would have to be recovered from its publication rather than from its registered five-component primary. That is a real piece of work and it is not a re-labelling."
-    }
+    },
+    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
    }
   }
  },

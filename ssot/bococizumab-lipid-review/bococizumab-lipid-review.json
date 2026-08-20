@@ -1271,7 +1271,7 @@
      "ldl_pct_change_at_ranks": [
       {
        "rank": "PRIMARY",
-       "measure": "\u2022 Percent change from baseline in fasting LDL-C"
+       "measure": "• Percent change from baseline in fasting LDL-C"
       }
      ],
      "arm_role": "experimental",
@@ -3031,7 +3031,8 @@
     "source_page_pooled": false,
     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
     "estimand_established": null,
-    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass."
+    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
    },
    "ldlc_pct_change_wk12": {
     "k": 6,
@@ -3372,7 +3373,8 @@
      "heterogeneity_reason": "Undefined: no between-study variance was estimated because no model was run.",
      "package_version": null,
      "what_would_change_it": "An estimand shared by two or more included trials. Where k is already above 1 and nothing pooled, the obstacle is the ESTIMAND rather than the evidence base, and this field must say which."
-    }
+    },
+    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
    }
   },
   "headline_outcome": "ldlc_pct_change_wk12",
@@ -3726,7 +3728,7 @@
    "NCT02947334": {
     "name": "Efficacy And Safety Of Bococizumab For Lipid Lowering In Asi",
     "two_component": "1 rank(s) read",
-    "three_component": "[PRIMARY] \u2022 Percent change from baseline in fasting LDL-C"
+    "three_component": "[PRIMARY] • Percent change from baseline in fasting LDL-C"
    }
   },
   "why_before_deciding": "Asked at EVERY registered rank before concluding which trials can be combined, and detected STRUCTURALLY -- an LDL term plus a change term -- rather than by the registered phrase. Matching the five incumbents' wording would have found the five that already agree and nothing else, which is the method that made eight apixaban trials look poolable when three were.",

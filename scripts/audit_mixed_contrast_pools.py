@@ -1,0 +1,374 @@
+"""Does one POOLED NUMBER combine contrasts that are not the same kind of comparison?
+
+WHY THIS EXISTS. `attr-pn-review` pools three rows: patisiran against its own saline
+placebo, vutrisiran against patisiran, and eplontersen against inotersen. Patisiran is the
+intervention in one row and the comparator in another, inside one pooled number. Nothing in
+this repository noticed. `estimand_established` is TRUE on that object and correctly so --
+it certifies that every trial measures the SAME QUANTITY (mNIS+7 change from baseline) and
+says NOTHING about what that quantity is measured AGAINST. That gap is the reason this file
+exists.
+
+THE SCOPE IS THE POOLED OUTCOME, NOT THE TOPIC. An earlier draft of this check ran over
+`inputs.trials` and flagged `malaria-vaccines` and `cryptococcal-meningitis`, both of which
+CONTAIN mixed contrasts and NEITHER of which pools across them -- malaria stratifies into
+`r21_seasonal_first_12m`, `rtss_recurrent_children_final` and seven others, and every
+cryptococcal outcome is k=1. "The topic contains" is not "one number contains", and the
+difference is the whole accusation. Membership comes from each block's own `per_trial`
+list; a block with no `per_trial` is NOT_ASSESSABLE rather than assumed to hold everything.
+
+WHAT IT CLASSIFIES. Every `role: control` arm label of every contributing trial:
+
+    INERT        placebo, saline, sham, vehicle, alum-only, matching placebo
+    CARE         usual care, standard of care, rate/rhythm control, deferred therapy
+    ACTIVE       a named pharmacological comparator
+    SAME_AGENT   both arms name the same drug and the control carries no placebo -- a dose,
+                 schedule or duration contrast, or a mislabelling
+    UNCLASSIFIED the label does not say ("2", "A4", "003", "Control", "Device Group")
+
+DOUBLE-DUMMY IS RESOLVED BY SEGMENT, NOT BY PROXIMITY. "Warfarin/Placebo Edoxaban" is
+warfarin with a dummy edoxaban. Proximity cannot decide it -- warfarin and placebo are nine
+characters apart in that label -- so the label is split on +, /, and, plus, & and the drug
+in the segment carrying the placebo token is the dummy. Without this, ENGAGE AF reads as
+placebo-controlled and `doac-af-review` is falsely accused of mixing; with it, that topic
+reads correctly as uniformly warfarin-controlled.
+
+THE ASYMMETRY IS DELIBERATE. MIXED is provable from a subset: one readable INERT/CARE
+control and one readable ACTIVE control in the same pooled number is a mixture whatever the
+unread rows say. HOMOGENEOUS IS NOT PROVABLE FROM A SUBSET -- one unreadable row and the
+verdict is NOT_ASSESSABLE. 241 of the corpus's contributing trials carry no arms at all; a
+check that called those pools clean would be the class-52 defect, a zero meaning "not
+looked at" reported as "nothing there".
+
+DECLARATION CROSS-CHECK. 68 outcome blocks across 50 topics already carry a
+`comparator_type` field -- "placebo", "active", "mixed", "usual care", "inactive". Where a
+block declares one and its own arm labels say another, that is reported: a declaration
+contradicted by the object's own data is stronger evidence than either alone.
+
+TWO-SIDED SELF-TEST BEFORE ANY COUNT.
+
+  POSITIVE  attr-pn-review/primary must come back MIXED with the patisiran reciprocal. Its
+            answer is established from NCT04136184's registration, not from inference.
+  NEGATIVE  malaria-vaccines/r21_seasonal_first_12m must come back NOT mixed. Both its
+            trials are R21 against a control vaccine; the topic's OTHER contrasts are not
+            in this number. This side exists because the earlier draft got it wrong, and a
+            detector that can only say yes is not a detector.
+
+If either side fails the corpus count is not printed.
+"""
+import io
+import json
+import os
+import re
+import sys
+import glob
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+POSITIVE_CONTROL = ("attr-pn-review", "primary")
+NEGATIVE_CONTROL = ("malaria-vaccines", "r21_seasonal_first_12m")
+
+INERT = re.compile(
+    r"placebo|saline|sham|vehicle|alum-only|0\.9\s*%\s*nacl|dummy|matching\s+infusion",
+    re.I)
+
+CARE = re.compile(
+    r"usual\s+care|standard\s+(?:of\s+)?care|standard\s+control|standard\s+treatment|"
+    r"standard\s+bp|standard\s+sbp|rate\s+control|rhythm\s+control|rate\s+or\s+rhythm|"
+    r"medical\s+therapy|no\s+(?:treatment|placebo)|observation|deferred|"
+    r"conventional|seasonal\s+chemoprevention\s+alone|control\s+strategy",
+    re.I)
+
+ACTIVE_SUFFIX = re.compile(
+    r"\b\w{3,}(?:mab|parin|grel(?:or|ol)?|xaban|statin|pril|sartan|vir|micin|mycin|"
+    r"cillin|penem|floxacin|conazole|cycline|olol|siran|ersen|tide|dipine|prazole|"
+    r"gliflozin|gliptin|glutide)\b", re.I)
+ACTIVE_NAMED = re.compile(
+    r"\bwarfarin|aspirin|acetylasalicylic|acetylsalicylic|heparin|lmwh|"
+    r"vitamin-?k\s+antagonist|imipenem|cilastatin|artemether|lumefantrine|"
+    r"amphotericin|flucytosine|fluconazole|timolol|prevnar|pcv13|rabies\s+vaccine|"
+    r"comparator\s+vaccine|active\s+control|\bactive\s+--|\btaf\b|f/tdf|amr101|"
+    r"icosapentate|antiretroviral\s+therapy|another\s+direct\s+oral\s+anticoagulant|"
+    r"candesartan|hct\b|synergy\s+stent|ar-13324|bay\d", re.I)
+
+SEGMENT = re.compile(r"[+/,;&]|\band\b|\bplus\b", re.I)
+
+# What a declared comparator_type is compatible with.
+DECLARED = {
+    "placebo": set(["INERT"]),
+    "inactive": set(["INERT"]),
+    "active": set(["ACTIVE", "SAME_AGENT"]),
+    "active comparator": set(["ACTIVE", "SAME_AGENT"]),
+    "active target": set(["ACTIVE", "SAME_AGENT"]),
+    "usual care": set(["CARE"]),
+}
+
+
+def active_tokens(label):
+    out = set()
+    for m in ACTIVE_SUFFIX.finditer(label or ""):
+        out.add(m.group(0).lower())
+    for m in ACTIVE_NAMED.finditer(label or ""):
+        out.add(m.group(0).lower().strip())
+    return out
+
+
+def real_tokens(label):
+    """(real drugs, dummies, a placebo token appeared). Segment-split, see the docstring."""
+    real, dummy = set(), set()
+    for seg in SEGMENT.split(label or ""):
+        toks = active_tokens(seg)
+        if INERT.search(seg):
+            dummy |= toks
+        else:
+            real |= toks
+    return real, dummy, bool(INERT.search(label or ""))
+
+
+def classify(control_label, treatment_labels):
+    lab = (control_label or "").strip()
+    if not lab:
+        return "UNCLASSIFIED", "the control arm carries no label"
+    creal, cdummy, cplacebo = real_tokens(lab)
+    treal = set()
+    for t in treatment_labels:
+        treal |= real_tokens(t)[0]
+    novel = sorted(creal - treal)
+    shared = sorted(creal & treal)
+    note = (" (%s is a dummy here, not the comparator)" % ", ".join(sorted(cdummy))
+            if cdummy else "")
+    if novel:
+        return "ACTIVE", "names %s, absent from the treatment arm%s" % (", ".join(novel), note)
+    if cplacebo:
+        why = "inert comparator" + note
+        if shared:
+            why += "; %s is in BOTH arms, so it is background therapy" % ", ".join(shared)
+        return "INERT", why
+    if CARE.search(lab):
+        return "CARE", "a control strategy rather than an inert substance"
+    if shared:
+        return "SAME_AGENT", (
+            "BOTH ARMS NAME %s AND THE CONTROL CARRIES NO PLACEBO -- a dose, schedule or "
+            "duration contrast, or the arms are mislabelled. Treatment arm: %s"
+            % (", ".join(shared).upper(), " / ".join(treatment_labels) or "unlabelled"))
+    return "UNCLASSIFIED", "the label does not say what the comparator is"
+
+
+def pooled_blocks(obj):
+    """Outcome blocks that publish a pooled number over more than one trial."""
+    out = []
+    for name, blk in ((obj.get("results") or {}).get("by_outcome") or {}).items():
+        if not isinstance(blk, dict):
+            continue
+        pooled = blk.get("pooled")
+        if not isinstance(pooled, dict):
+            continue
+        if pooled.get("point") is None or pooled.get("withdrawn"):
+            continue
+        try:
+            k = int(blk.get("k") or 0)
+        except (TypeError, ValueError):
+            k = 0
+        if k < 2:
+            continue
+        out.append((name, blk))
+    return out
+
+
+def audit_block(blk, trials_by_nct):
+    per = blk.get("per_trial")
+    if not isinstance(per, list) or not per:
+        return {"verdict": "NOT_ASSESSABLE", "rows": [], "missing": [], "reciprocal": [],
+                "comparators": [],
+                "why": "the block does not say which trials it pools"}
+
+    rows, missing = [], []
+    treat_by_nct = {}
+    for row in per:
+        nct = row.get("nct") or row.get("trial_id")
+        t = trials_by_nct.get(nct)
+        arms = (t or {}).get("arms") or []
+        if not arms:
+            missing.append(str(nct))
+            continue
+        treats = [str(a.get("label") or "") for a in arms if a.get("role") == "treatment"]
+        treat_by_nct[nct] = treats
+        ctrls = [a for a in arms if a.get("role") == "control"]
+        if not ctrls:
+            missing.append(str(nct))
+            continue
+        for a in ctrls:
+            b, why = classify(a.get("label"), treats)
+            rows.append({"nct": nct, "label": a.get("label"), "bucket": b, "why": why})
+
+    buckets = set(r["bucket"] for r in rows)
+    nonactive = buckets & set(["INERT", "CARE"])
+    activeish = buckets & set(["ACTIVE", "SAME_AGENT"])
+    if activeish and nonactive:
+        verdict = "MIXED"
+    elif set(["ACTIVE", "SAME_AGENT"]) <= buckets:
+        verdict = "MIXED"
+    elif missing or "UNCLASSIFIED" in buckets or not rows:
+        verdict = "NOT_ASSESSABLE"
+    elif buckets == set(["ACTIVE"]):
+        verdict = "ALL_ACTIVE"
+    elif buckets == set(["SAME_AGENT"]):
+        verdict = "ALL_SAME_AGENT"
+    elif buckets == set(["INERT"]):
+        verdict = "ALL_INERT"
+    elif buckets == set(["CARE"]):
+        verdict = "ALL_CARE"
+    else:
+        verdict = "MIXED_INERT_AND_CARE"
+
+    treat_tokens = {}
+    for nct, labs in treat_by_nct.items():
+        for lab in labs:
+            for tok in real_tokens(lab)[0]:
+                treat_tokens.setdefault(tok, set()).add(nct)
+    reciprocal = []
+    for r in rows:
+        for tok in real_tokens(r["label"])[0]:
+            others = sorted(treat_tokens.get(tok, set()) - set([r["nct"]]))
+            if others:
+                reciprocal.append((tok, r["nct"], ", ".join(others)))
+
+    comparators = sorted(set(", ".join(sorted(real_tokens(r["label"])[0]))
+                             for r in rows if r["bucket"] == "ACTIVE"))
+    return {"verdict": verdict, "rows": rows, "missing": missing, "why": "",
+            "reciprocal": sorted(set(reciprocal)),
+            "comparators": [c for c in comparators if c]}
+
+
+def collect():
+    results = {}
+    for path in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        topic = os.path.basename(os.path.dirname(path))
+        if os.path.basename(path) != topic + ".json":
+            continue
+        try:
+            obj = json.load(io.open(path, encoding="utf-8"))
+        except Exception:
+            continue
+        trials = (obj.get("inputs") or {}).get("trials")
+        if not isinstance(trials, list):
+            continue
+        by_nct = {}
+        for t in trials:
+            for key in (t.get("nct"), t.get("id"), t.get("trial_id"), t.get("name")):
+                if key:
+                    by_nct.setdefault(key, t)
+        for name, blk in pooled_blocks(obj):
+            res = audit_block(blk, by_nct)
+            res["declared"] = blk.get("comparator_type")
+            results[(topic, name)] = res
+    return results
+
+
+def show(key, res):
+    print("  %s / %s   -> %s" % (key[0], key[1], res["verdict"]))
+    for r in res["rows"]:
+        print("      %-13s %-14s %s" % (r["bucket"], r["nct"], r["label"]))
+        print("                    %s" % r["why"])
+    if res["missing"]:
+        print("      %d contributing trial(s) with no readable control arm: %s"
+              % (len(res["missing"]), ", ".join(res["missing"])))
+    if res.get("why"):
+        print("      %s" % res["why"])
+    for tok, nct, others in res.get("reciprocal", []):
+        print("      RECIPROCAL: %r is the control in %s and the treatment in %s"
+              % (tok, nct, others))
+
+
+def main():
+    results = collect()
+
+    print("SELF-TEST, BOTH DIRECTIONS")
+    pos = results.get(POSITIVE_CONTROL)
+    neg = results.get(NEGATIVE_CONTROL)
+    print("")
+    print("POSITIVE -- %s/%s, established from NCT04136184's registration:"
+          % POSITIVE_CONTROL)
+    if pos is None:
+        sys.exit("REFUSED: the positive control was not read. No count.")
+    show(POSITIVE_CONTROL, pos)
+    print("")
+    print("NEGATIVE -- %s/%s: two R21 trials against a control vaccine."
+          % NEGATIVE_CONTROL)
+    print("            The topic's other contrasts are not in this number and it must NOT")
+    print("            be flagged.")
+    if neg is None:
+        sys.exit("REFUSED: the negative control was not read. No count.")
+    show(NEGATIVE_CONTROL, neg)
+
+    if pos["verdict"] != "MIXED":
+        sys.exit("\nREFUSED: the positive control is not flagged. NO COUNT PRINTED.")
+    if not pos["reciprocal"]:
+        sys.exit("\nREFUSED: the positive control's reciprocal drug is not found. NO COUNT.")
+    if neg["verdict"] == "MIXED":
+        sys.exit("\nREFUSED: THE NEGATIVE CONTROL IS FALSELY FLAGGED. A check that flags a "
+                 "pool for contrasts that are not in it accuses in the wrong direction, "
+                 "which is the failure mode this run exists to avoid. NO COUNT PRINTED.")
+    print("")
+    print("    BOTH SIDES PASSED. Count follows.")
+    print("")
+
+    order = ["MIXED", "MIXED_INERT_AND_CARE", "ALL_SAME_AGENT", "ALL_ACTIVE", "ALL_INERT",
+             "ALL_CARE", "NOT_ASSESSABLE"]
+    tally = dict((k, []) for k in order)
+    for key, res in sorted(results.items()):
+        tally[res["verdict"]].append(key)
+
+    print("ACROSS %d POOLED NUMBERS (k>=2, point published, not withdrawn) in %d topics"
+          % (len(results), len(set(k[0] for k in results))))
+    for k in order:
+        print("    %-22s %3d" % (k, len(tally[k])))
+
+    print("")
+    print("MIXED -- one pooled number combining kinds of comparison (%d):"
+          % len(tally["MIXED"]))
+    for key in tally["MIXED"]:
+        print("")
+        show(key, results[key])
+        if results[key].get("declared"):
+            print("      DECLARED comparator_type: %r" % results[key]["declared"])
+
+    print("")
+    print("DECLARATION CONTRADICTED BY THE OBJECT'S OWN ARM LABELS:")
+    hits = 0
+    for key, res in sorted(results.items()):
+        d = str(res.get("declared") or "").strip().lower()
+        allowed = DECLARED.get(d)
+        if not allowed:
+            continue
+        seen = set(r["bucket"] for r in res["rows"]) - set(["UNCLASSIFIED"])
+        if seen and not (seen <= allowed):
+            hits += 1
+            print("    %s / %s declares %r, arms say %s"
+                  % (key[0], key[1], res["declared"], ", ".join(sorted(seen))))
+    if not hits:
+        print("    none among the blocks whose declaration is one of the checkable values")
+
+    recip = [(k, r) for k, r in sorted(results.items()) if r.get("reciprocal")]
+    print("")
+    print("RECIPROCAL DRUG -- an agent on both sides of one pooled number (%d):" % len(recip))
+    for key, res in recip:
+        for tok, nct, others in res["reciprocal"]:
+            print("    %s / %s: %r control in %s, treatment in %s"
+                  % (key[0], key[1], tok, nct, others))
+
+    multi = [(k, r["comparators"]) for k, r in sorted(results.items())
+             if len(r.get("comparators") or []) > 1]
+    print("")
+    print("DISTINCT ACTIVE COMPARATORS IN ONE POOLED NUMBER (%d) -- a second axis; a pool"
+          % len(multi))
+    print("can be uniformly active-controlled and still not be one contrast:")
+    for key, comps in multi:
+        print("    %s / %s: %s" % (key[0], key[1], " vs ".join(comps)))
+
+    print("")
+    print("NOT_ASSESSABLE MEANS NOT LOOKED AT, NOT CLEAN: %d pooled numbers."
+          % len(tally["NOT_ASSESSABLE"]))
+
+
+if __name__ == "__main__":
+    main()
