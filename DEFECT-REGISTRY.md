@@ -743,6 +743,62 @@ reported only the lost pairs — the more natural design — the revert would ha
 would have caught this at step one — an audit that refuses to report on files with uncommitted
 modifications until it says so. Recorded as not written.
 
+### 46. A FIELD'S OWN PROSE NAMING ITS OWN DEFENCE, WHERE THE DEFENCE DOES NOT EXIST
+
+**Distinct from an undefended claim.** An undefended claim has no check behind it and nobody
+said otherwise. **This one names the check**, in the object a reader trusts — and a reader who
+meets it stops looking, which is exactly what it was written to let them do.
+
+The founding instance. Every `registration_primary_counts` block in the corpus carried:
+
+> *"arm order as the registry lists it; a swapped pair would show as a mismatch rather than a
+> silent pass"*
+
+It would not, and it did not. **Nothing in this repository ever compared that block against
+`arms[]`** until `scripts/lint_registration_counts_arm_order.py` was written on 2026-08-20. It
+found **23 inconsistent rows across 75 trials in 155 objects** — on both EMPEROR trials the
+labels were inverted, so the block read as labelled said **empagliflozin was WORSE than
+placebo** while the effect two fields away said the opposite and was right.
+
+**The direction matters and is the rarer one.** A reader who performed the check the sentence
+promised would have concluded the ESTIMATE was wrong. This biases toward *manufacturing* a
+contradiction rather than hiding one — the third such instance in two days, after the arm-role
+precondition (2026-08-19) and the empagliflozin `question` field, and the fourth was the sibling
+lint above, which manufactured four false alarms by comparing an odds ratio against a stored
+hazard ratio.
+
+**Measured by `scripts/lint_self_describing_safety_claim.py`**, which greps for the shape —
+*"would show as"*, *"would be caught"*, *"cannot happen because"*, *"makes it impossible"*.
+Across 155 objects: **120 field values, 7 distinct claims** once a sentence repeated across rows
+is counted once. Five are the founding sentence (one live, four archived); one is untested
+(`reconciliation.what_the_benchmarks_show`, 2 objects); one is a phrase-match false positive,
+reported as one. **The file reports and never passes** — it cannot know whether a command backs
+a given sentence, and says so instead of printing a verdict it has not earned.
+
+> **A sentence describing a check that no command performs is not a check.** It is the
+> field-level form of *"anything whose only defence is a paragraph counts as undefended"*.
+
+### 45. A BATCH OPERATION NEEDS A PREDICATE THAT IS FALSE WHEN IT DID NOT RUN
+
+**Every other check on a batch asks whether the output is RIGHT. This one asks whether the run
+HAPPENED**, and it is the one that has repeatedly been missing.
+
+Class 44 lists instruments that failed by reporting success on zero items. A batch rebuild is
+that trap by construction: **in a build directory, "unchanged" and "never built" are identical
+bytes**, so a rollout that reports "146 pages OK" cannot distinguish *I rebuilt this and it came
+out the same* from *I skipped this*. A guard-refused build writes no file at all and looks
+exactly like a no-op.
+
+The corpus reading-order rollout of 2026-08-20 states four predictions. Three check correctness
+— section count unchanged, word count within 1%, `id=paper` present. **The fourth checks
+occurrence: NOT ONE PAGE MAY COME OUT BYTE-IDENTICAL**, because the anchor is now emitted on
+every tab panel, so every page must change. A byte-identical page there is proof it was not
+rebuilt, and the run refuses on it.
+
+**The general form, and it is cheap:** before a batch runs, name a property that the operation
+NECESSARILY changes, and assert it changed on every item. If no such property exists, the batch
+has no way to tell you it ran — and neither do you.
+
 ### 44. AN INSTRUMENT THAT CANNOT TELL "NOTHING TO DO" FROM "DID NOTHING" REPORTS THE SECOND AS THE FIRST
 
 **Three instances in one stretch of one session, all of them mine, all of them reporting

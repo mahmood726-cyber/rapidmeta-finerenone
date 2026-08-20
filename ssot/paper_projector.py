@@ -52,6 +52,7 @@ was done. There is no `|| "RoB 2"` anywhere in this file.
 """
 import io
 import json
+import re
 import os
 import sys
 
@@ -67,6 +68,79 @@ def get(obj, path):
         else:
             return None
     return None if (cur is None or cur == "" or cur == [] or cur == {}) else cur
+
+
+def _manuscript_prose(obj, key):
+    """Authored manuscript prose, from `manuscript.<key>`, flattened to one string.
+
+    THE PROJECTOR WAS LOOKING IN THE WRONG PLACE ON THE ONE OBJECT THAT HAS THE CONTENT.
+    It read top-level `discussion`, `conclusions` and `protocol.rationale`. arni-hfref --
+    the flagship, the object every other topic is measured against -- holds all of them
+    under `manuscript.{abstract,introduction,discussion,limitations,conclusions}`, and all
+    three top-level fields are None on it. Measured 2026-08-20: 29,272 chars sat under
+    that block, unread.
+
+    THIS IS WHY IT MATTERS BEYOND ONE OBJECT. "The projector reproduces ~11% of ARNI" was
+    quoted as evidence that OBJECTS lack substance. Part of it was evidence that the
+    PROJECTOR was reading the wrong key, and the two have very different consequences.
+
+    AND ARNI'S FIELD NAMES ARE NOW THE SCHEMA THE OTHER 140 WRITE INTO -- deliberately,
+    rather than inventing one here. A shape invented by the renderer makes every future
+    object's content a function of what the renderer happened to ask for, which is the
+    `paper-studio.js` failure where a FORMATTING control manufactured a Methods section
+    that no field supported. THE OBJECT DECLARES WHAT IT HOLDS AND THE PROJECTOR READS IT,
+    never the reverse. ARNI is the only object in 141 with authored manuscript prose, so
+    it is the only available declaration of that shape, and it was written by a person
+    rather than derived from this file.
+
+    Shapes seen on ARNI: a plain string (`conclusions`), a list of paragraphs
+    (`introduction`, `discussion`, `limitations`), and a dict of labelled parts
+    (`abstract`). All three are flattened; anything else returns None rather than a
+    stringified container, because "{'a': 1}" rendered into a manuscript is worse than a
+    refusal.
+    """
+    m = (obj or {}).get("manuscript")
+    if not isinstance(m, dict):
+        return None
+    v = m.get(key)
+    parts = []
+    if isinstance(v, str):
+        parts = [v.strip()]
+    elif isinstance(v, list):
+        # Paragraphs are strings on `limitations` and DICTS with `text` and an optional
+        # `heading` on `introduction` and `discussion`. Both shapes are real on ARNI.
+        for x in v:
+            if isinstance(x, str) and x.strip():
+                parts.append(x.strip())
+            elif isinstance(x, dict) and isinstance(x.get("text"), str) and x["text"].strip():
+                h = x.get("heading")
+                parts.append(("%s. %s" % (h, x["text"].strip())) if h else x["text"].strip())
+    elif isinstance(v, dict):
+        for k2, v2 in v.items():
+            if isinstance(v2, str) and v2.strip() and not k2.startswith("_"):
+                parts.append("%s. %s" % (k2.replace("_", " ").capitalize(), v2.strip()))
+    out = "\n\n".join(p for p in parts if p)
+    if not out:
+        return None
+    # THE MANUSCRIPT BLOCK IS A DOCMODEL, NOT PROSE, AND THIS IS THE REAL BOUNDARY.
+    #
+    # Its paragraphs carry substitution tokens -- [[k]], [[pooled]], [[i2]], [[certainty]]
+    # -- that ARNI's own docmodel renderer fills and this projector cannot. The first
+    # version of this function returned them raw and put SEVENTEEN unresolved [[token]]
+    # strings into the projection, which is a shipped-placeholder defect: the page would
+    # have read "rests on [[k]] trials". Caught by grepping the projection before anything
+    # was delivered, which is the only reason it is a paragraph here and not an incident.
+    #
+    # So a paragraph carrying an unresolved token is NOT returned. The section refuses,
+    # and it refuses for the true reason -- the text exists and cannot be rendered here --
+    # rather than for the false one it gave before, that no text exists.
+    if TOKEN_RE.search(out):
+        return None
+    return out
+
+
+# `[[name]]` substitution tokens, as ARNI's authored docmodel uses them.
+TOKEN_RE = re.compile(r"\[\[[a-z0-9_]+\]\]", re.I)
 
 
 class Section(object):
@@ -750,6 +824,9 @@ def project(obj, journal="generic", length="standard"):
 
     # ---- LIMITATIONS ------------------------------------------------------------------
     s = Section("limitations", "Limitations")
+    _auth_lim = _manuscript_prose(obj, "limitations")
+    if _auth_lim:
+        s.add(obj, _auth_lim, ["manuscript.limitations"])
     for field, lead in (("screening.known_limitation", "Known limitation of the screen"),
                         ("eligible_but_not_contributing.note",
                          "Eligible trials that do not contribute"),
@@ -784,6 +861,12 @@ def project(obj, journal="generic", length="standard"):
 
     # ---- ABSTRACT ----------------------------------------------------------------------
     s = Section("abstract", "Abstract")
+    # An AUTHORED abstract, where the object holds one, in preference to the composed
+    # sentences below -- and the composed ones still follow, because they name the fields
+    # they came from and an authored paragraph does not.
+    _auth_abs = _manuscript_prose(obj, "abstract")
+    if _auth_abs:
+        s.add(obj, _auth_abs, ["manuscript.abstract"])
     s.add(obj, "Question. %s" % (get(obj, "question") or ""), ["question"])
     casc = get(obj, "k_cascade") or {}
     if casc.get("k_included") is not None:
@@ -811,8 +894,16 @@ def project(obj, journal="generic", length="standard"):
 
     # ---- INTRODUCTION (content gap, refused by name) -----------------------------------
     s = Section("introduction", "Introduction")
-    if not s.add(obj, "Background. %s" % (get(obj, "protocol.rationale") or ""),
-                 ["protocol.rationale"]):
+    # CITE THE FIELD THE TEXT ACTUALLY CAME FROM, not both candidates. `Section.add`
+    # requires EVERY cited field to resolve, which is right -- a paragraph naming a field
+    # that holds nothing is the provenance equivalent of a dead link -- so the source is
+    # chosen first and cited alone.
+    _intro_src = ("protocol.rationale" if get(obj, "protocol.rationale")
+                  else ("manuscript.introduction" if _manuscript_prose(obj, "introduction")
+                        else None))
+    _intro = (get(obj, "protocol.rationale") if _intro_src == "protocol.rationale"
+              else _manuscript_prose(obj, "introduction"))
+    if not (_intro_src and s.add(obj, "Background. %s" % _intro, [_intro_src])):
         s.refusals.append(("the Introduction -- no background or rationale is recorded on "
                            "this object. This is a CONTENT gap, not a rendering one: no "
                            "change to this projector produces it, and it is written by "
@@ -1027,7 +1118,10 @@ def project(obj, journal="generic", length="standard"):
     for key, heading, field in (("discussion", "Discussion", "discussion"),
                                 ("conclusions", "Conclusions", "conclusions")):
         s = Section(key, heading)
-        if not s.add(obj, str(get(obj, field) or ""), [field]):
+        _src = (field if get(obj, field)
+                else ("manuscript.%s" % field if _manuscript_prose(obj, field) else None))
+        _txt = (get(obj, field) if _src == field else _manuscript_prose(obj, field))
+        if not (_src and s.add(obj, str(_txt), [_src])):
             s.refusals.append(("the %s -- this is a CONTENT gap. The object records no "
                                "interpretive text, and none is generated here: a %s "
                                "written by the renderer would be an argument no field "

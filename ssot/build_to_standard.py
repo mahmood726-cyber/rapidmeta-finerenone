@@ -37,7 +37,7 @@ from bos_topic_data import (BOSA_CASCADE, BOSA_EXTRACTION, BOSA_PRISMA, BOSA_SEA
                             BOSD_CASCADE, BOSD_EXTRACTION, BOSD_PRISMA, BOSD_SEARCH)
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-PAGE_STANDARD_VERSION = "1.18.0-2026-08-20"
+PAGE_STANDARD_VERSION = "1.20.0-2026-08-20"
 
 HELD = "HELD"
 REFUSING = "REFUSING"

@@ -1,6 +1,6 @@
 # The page standard, versioned
 
-**`PAGE_STANDARD_VERSION = "1.18.0-2026-08-20"`**
+**`PAGE_STANDARD_VERSION = "1.20.0-2026-08-20"`**
 
 > **This line was `1.6.0` while the version log below already ran to `1.12.0` and
 > `ssot/build_to_standard.py` stamped `1.13.0`.** The marker whose entire purpose is to make
@@ -76,6 +76,7 @@ STATED REASON ON THE PAGE**. A refusal is a complete outcome. A blank is not.
 | P41 | **A search must not be built from its own answer** | a query assembled from the terms the included set already shares can only return that set, so it CANNOT DISCOVER and its recall of 100% is a tautology. `azilsartan-chlorthalidone-vs-olmesartan-hctz` asks about one fixed-dose combination against one other; a query naming azilsartan AND chlorthalidone AND olmesartan would have returned exactly the two trials already on the page. **The query is built from the DRUG and the CONTRAST is applied at SCREENING, where every limb is auditable and every exclusion names what it randomised instead.** 53 of 57 exclusions on that topic fail the comparator limb, which is a fact about a narrow question asked of a whole programme — not a criticism of the query, and only visible because the query was wider than the answer |
 | P42 | **A coded field can be CORRECT and still not answer the question asked of it** | distinct from P11, which governs code-versus-text where both speak. Here the code speaks truly about something else. `conditions: ["Safety"]` names a study OBJECTIVE where the disease belongs; `conditions: ["Pulmonary Hypertension"]` names the SYNDROME on a trial titled *"in Sickle Cell Disease (SCD) Patients"*, where the review needs the WHO GROUP. Neither field is absent and neither is wrong. **A limb reading such a field must fall back to the declared text and RECORD WHICH READING THE VERDICT RESTS ON** — and the fallback must still exclude, or it is not a limb: a bioequivalence record whose title says *"in Chinese Healthy Volunteers"* stays out |
 | P40 | **A rule you have APPLIED is not a rule you have PUBLISHED** | the complement of the registry's opening line. The criterion separating `apixaban-vte-treatment` from `apixaban-vte-prophylaxis` — *prior event means treatment* — decided which review sixteen trials belong to and existed only inside an adjudication file. A criterion that decides inclusion must appear on the page of **every review it decides**, or the reader cannot check it and the next lane cannot apply it. **And it was not applied everywhere either:** it reached the sixteen adjudicated trials and not the nine admitted by the mechanical screen on the coded field the criteria themselves say does not settle the question |
+| P47 | **A manuscript whose READER-FACING sections are refusals is not complete, whatever its totals say** | P46 counts artefacts an object HOLDS. It says nothing about whether the manuscript those artefacts project can be read as a paper, and **a topic can satisfy all four P46 criteria and still render Abstract, Introduction, Discussion and Conclusions as stubs or refusals.** Measured 2026-08-20 on `SGLT2_HF_REVIEW.html` against ARNI: **27 paper sections against 29, and 5,111 words against 11,182** — the section count essentially equal and the substance 2.2× apart, which is exactly why `ssot/manuscript_guard.py` cannot see it: that guard knows delivered LENGTH and SECTION COUNT and both said the two pages were siblings. **The distribution is the finding, not the total.** The four sections a reader opens first came to **219 words and eight refusals** — Abstract 83, Introduction 50, Discussion 43, Conclusions 43 — while *Certainty of the evidence* ran to 651 and *Methods — synthesis* to 550. **Heaviest where a reader is least likely to start and thinnest where they are.** And the refusals were CORRECT: the object holds no discussion and no conclusions, so the projector refused them by name, as this standard requires. That is the finding rather than the excuse. **ARNI is organised around FINDINGS and this is organised around the OBJECT'S FIELD STRUCTURE** — ARNI's discussion is seven named findings, and its *"Where our result differs from theirs"* runs to 1,559 words against this page's comparison section at 29 words and a refusal. That is the difference between a paper and a rendered record. **WEIGHTED BY SECTION, NOT BY PAGE**, because a page total cannot express it: 5,111 words is not a small manuscript and the total was never the problem. Tested by `scripts/lint_reader_facing_sections.py`, which **reports and ratchets rather than blocking** — measured 2026-08-20, **141 of 141 projectable topics fail it, including all eight then at 4/4 on P46** |
 | P46 | **A topic is complete only if its OBJECT holds the substance** | a risk-of-bias assessment PER RESULT, a GRADE rating PER POOLED OUTCOME, a published comparison CARRYING A DENOMINATOR, and the model output QUOTED VERBATIM -- or a stated reason for each absence. **Refusing by name is honest for a PAGE and is not sufficient for a TOPIC that claims to be finished.** Measured 2026-08-20: a perfect renderer over today's objects reproduces 10.9% of ARNI's manuscript, and RoB/GRADE/comparison/verbatim output exist on 19%/14%/12%/12% of the 43 cardiology topics |
 
 ## Reading the remainder — the same number, opposite diagnoses
@@ -131,6 +132,98 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.20.0-2026-08-20
+
+**The 10.9% was stale, and what replaced it changes the plan.**
+
+**`10.9%` — the figure this standard used as its headline evidence that objects lack
+substance — was measured against a projector that has since changed, and nobody re-measured
+it.** Re-derived 2026-08-20 against `ssot/paper_projector.py` at commit `366583b03`:
+
+| | chars | % of ARNI's authored 100,825 |
+|---|---:|---:|
+| the figure in this file, undated | 10,989 | 10.9% |
+| **actual, re-measured** | **15,575** | **15.4%** |
+| after correcting a key-path defect (below) | 16,791 | **16.7%** |
+
+**THE CORRECTION THAT MATTERS IS NOT THE NUMBER.** `arni-hfref` is the only object in 141
+holding authored manuscript prose, and it holds it under
+`manuscript.{abstract,introduction,discussion,limitations,conclusions}` while the projector
+read top-level `discussion`, `conclusions` and `protocol.rationale` — **all `None` on that
+object**. So "a perfect renderer reproduces 10.9% of ARNI" was partly measuring *the
+projector looking in the wrong place*, and was quoted as evidence about OBJECTS.
+
+Correcting it moved the number **1.3 points**, and that is the finding: **the gap is real,
+and the wrong-key explanation is now eliminated rather than assumed away.**
+
+> **AND THE FRAMING WAS BACKWARDS.** Measured the same day, the projector produces
+> **26,389 chars from `sglt2-hf`'s object and 22,869 from `sotagliflozin-hf`'s, against
+> 16,791 from ARNI's.** `sglt2-hf` OUT-PROJECTS THE FLAGSHIP BY 57%.
+>
+> **What makes ARNI read like a paper is AUTHORSHIP, not data.** Its page ships an authored
+> docmodel; its object is not the richest in the corpus. The remaining topics do not need
+> richer objects nearly as much as this file has been saying — **they need written
+> manuscript prose**, and that is a different shape of work from extraction. **This changes
+> the plan for the remaining topics and is recorded here so it outlives the session it was
+> found in.**
+
+**Why the rest of ARNI's block is unreachable, and it is not a renderer gap either.** Those
+29,272 chars are a **docmodel with substitution tokens** — `[[k]]`, `[[pooled]]`, `[[i2]]`.
+The first attempt to read them emitted **17 unresolved `[[token]]` strings into the
+projection**; a page would have read *"rests on `[[k]]` trials"*. Caught by grepping the
+projection before delivery. The projector now refuses a paragraph carrying an unresolved
+token — **and refuses for the true reason, that the text exists and cannot be rendered
+here, rather than the false one it gave before, that no text exists.**
+
+**A safe substitution was scoped and measured rather than built.** Of **47 distinct tokens,
+8 resolve from a named field path**. Of 27 tokened paragraphs, **9 have every token
+resolvable — 4,096 chars, 4.1% of the authored manuscript**; the other 18 must refuse.
+`scripts/audit_arni_manuscript_assertions.py`.
+
+**And 8 un-tokened paragraphs ASSERT A METHOD** — *"Two assessors worked independently,
+drawn from different model families"*, *"Certainty was rated with GRADE"*, *"The protocol
+was registered before the first query"*. **A token IS a claim the object holds; an untokened
+method sentence is a claim nothing checks.** Those are the sentences not to inherit, and the
+rule for any future substitution is: **resolve a token only from a named field path on the
+object, refuse the whole paragraph by name if any token has none, and never a default.**
+
+### Baselines must carry the instrument they were measured against
+
+**Third instance this week.** A baseline is measured against an INSTRUMENT, not the world;
+the instrument changes and the baseline stays, and it is then quoted as a fact.
+
+Swept 2026-08-20: **28 percentages appear in this file and 18 carry no provenance on their
+line** — no date, no script, no commit. **Treat those 18 as unverified rather than as
+facts.** They are counted, not re-measured; re-deriving them is its own unit. Every
+percentage added from here names the script or commit that produced it, as the table above
+does.
+
+### 1.19.0-2026-08-20
+
+Adds **P47**, and it exists because **P46 turned out not to be sufficient** — which is
+better found now than at topic 134.
+
+Mahmood opened `SGLT2_HF_REVIEW.html#paper`, a topic at 3 of 4 on P46, and called it
+incomplete. Three separate things presented as that one complaint and each had a different
+fix:
+
+| what he met | layer | fixed |
+|---|---|---|
+| the `#paper` anchor did not exist anywhere on the page | render | yes — every tab panel now emits a bare `id="<tab>"` |
+| Abstract ninth and Introduction tenth, **after** Results and Limitations, on every page in the corpus | render | yes — `paper_projector.READING_ORDER`, applied as a sort so no builder moves |
+| **Abstract, Introduction, Discussion and Conclusions were 219 words and eight refusals** | CONTENT | no — this is P47, and the object holds nothing to project |
+
+**The third is the one that made it read as incomplete, and P46 could not see it.** P46
+counts four artefacts an object holds. All four can be held while the manuscript renders
+nothing in the sections a reader actually opens. Measured the day P47 was written:
+**141 of 141 projectable topics fail P47, including all eight then complete on P46.**
+
+**The totals concealed it and that is the mechanism to remember.** 27 sections against
+ARNI's 29 and 5,111 words against its 11,182: by section count these pages are siblings, by
+word count one is half the other, and neither number says *the reader-facing half is empty*.
+`manuscript_guard.py` is measured against a page's own previous length and cannot say a page
+is thin — only that it has not shrunk. **P47 is weighted by section for that reason.**
 
 ### 1.18.0-2026-08-20
 Adds **P46**, and it is a CONTENT clause rather than a rendering one. Every property before
