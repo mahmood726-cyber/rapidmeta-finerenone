@@ -158,6 +158,97 @@ def _manuscript_prose(obj, key):
     return out
 
 
+def _and_list(items):
+    """`a`, `a and b`, `a, b and c`. Never a Python list repr in a sentence."""
+    xs = [str(i).strip() for i in items if str(i).strip()]
+    if not xs:
+        return ""
+    if len(xs) == 1:
+        return xs[0]
+    return "%s and %s" % (", ".join(xs[:-1]), xs[-1])
+
+
+def _sentence_join(parts):
+    """Join composed clauses into one readable sentence, without a trailing double stop."""
+    xs = [p.strip().rstrip(".") for p in parts if p and p.strip()]
+    if not xs:
+        return ""
+    if len(xs) == 1:
+        return xs[0]
+    return "%s; and %s" % ("; ".join(xs[:-1]), xs[-1])
+
+
+def _first_by_outcome(obj, leaf_path):
+    """The first non-None value at `results.by_outcome.<any>.<leaf_path>`.
+
+    THE ABSTRACT SUMMARISES; IT DOES NOT SELECT SILENTLY. Where a review has several
+    outcomes this reports the first in key order, which is the same one the Findings clause
+    already leads with. It is a summary sentence, and the per-outcome detail is in Results
+    and in the certainty table -- both of which enumerate every outcome.
+    """
+    for _oid, blk in sorted((get(obj, "results.by_outcome") or {}).items()):
+        cur = blk
+        for part in leaf_path:
+            cur = cur.get(part) if isinstance(cur, dict) else None
+        if cur is not None:
+            return cur
+    return None
+
+
+def _authored(obj, field):
+    """Authored text from `field`, tokens RESOLVED, or None if any token survives.
+
+    THE TOKEN GUARD MUST COVER EVERY PATH THAT REACHES A READER, NOT JUST ONE. The abstract
+    read `manuscript.abstract.Conclusions` directly and bypassed `_manuscript_prose`, so
+    ARNI's conclusion reached the projection as "Across [[k]] randomised trials" -- the
+    exact shipped-placeholder defect the guard in `_manuscript_prose` exists to stop, out
+    through a second door. Caught by reading the output, not by a check.
+    """
+    v = get(obj, field)
+    if v is None:
+        return None
+    text = _v_str(v)
+    if not text:
+        return None
+    if TOKEN_RE.search(text):
+        text = _resolve_tokens(obj, text)
+    if TOKEN_RE.search(text):
+        return None
+    return text
+
+
+def _num(v, places=1):
+    """A stored number, rounded for prose. `I-squared 32.8939087126%` is a machine talking."""
+    try:
+        f = float(v)
+    except (TypeError, ValueError):
+        return _v_str(v)
+    return ("%.*f" % (places, f)).rstrip("0").rstrip(".") or "0"
+
+
+def _source_names(dbs):
+    """Human names of the searched sources. NEVER a dict repr.
+
+    `search.databases` is a LIST OF DICTS on this corpus and the key is `database`, not
+    `name`. The first cut fell through to `str(d)` and put a whole Python dict -- query
+    string, tool name and all -- into the Methods sentence of the abstract. A container repr
+    in the one paragraph an editor reads first.
+    """
+    out = []
+    items = dbs.values() if isinstance(dbs, dict) else (dbs or [])
+    for d in items:
+        if isinstance(d, str):
+            nm = d
+        elif isinstance(d, dict):
+            nm = d.get("database") or d.get("name") or d.get("source") or ""
+        else:
+            nm = ""
+        nm = str(nm).split("--")[0].strip()
+        if nm and nm not in out:
+            out.append(nm)
+    return out
+
+
 def _v_str(v):
     """Word a stored declaration. NEVER `str()` a container into a manuscript.
 
@@ -1225,14 +1316,152 @@ def project(obj, journal="generic", length="standard"):
             _pooled.append("%s: %s %s across %s trials"
                            % (_nm, measure_words(p.get("measure")), ci_prose(p),
                               blk.get("k", "an unstated number of")))
-    if _pooled:
-        s.add(obj, "Findings. %s." % "; ".join(_pooled),
-              ["results.by_outcome"])
+    # ---- THE STRUCTURED ABSTRACT F1000RESEARCH REQUIRES --------------------------------
+    #
+    # Background / Methods / Results / Conclusions. TWO OF THE FOUR ARE FACTS AND TWO ARE
+    # ARGUMENT, and the split is the whole design:
+    #
+    #   METHODS and RESULTS are composed from stored quantities -- what was searched, what
+    #   was eligible, how it was pooled, what came out, how heterogeneous, how certain.
+    #   Composing a sentence from facts the object holds is a rendering transform.
+    #
+    #   BACKGROUND and CONCLUSIONS ARE ARGUMENT. They say why the question matters and what
+    #   the reader should now believe, and NO ARRANGEMENT OF STORED QUANTITIES YIELDS
+    #   EITHER. They are emitted ONLY from an authored field and refused otherwise. There is
+    #   deliberately no composition branch for them -- not a disabled one, none -- because a
+    #   renderer that can compose an argument will eventually be asked to.
+    #
+    # Measured before this was written: 131 of 155 objects can produce a Methods paragraph,
+    # 43 of 155 a Results paragraph, and 1 of 155 a Background -- ARNI, whose object carries
+    # a person's authored abstract. That 1 is authored, never generated.
+
+    # -- BACKGROUND: authored only -------------------------------------------------------
+    _bg, _bgtxt = None, None
+    for _f in ("manuscript.abstract.Background", "protocol.rationale"):
+        _bgtxt = _authored(obj, _f)
+        if _bgtxt:
+            _bg = _f
+            break
+    # NOT TWICE. When the object carries a whole authored abstract, that paragraph already
+    # opens with its own Background and adding this one repeats it verbatim -- which is what
+    # the first cut did on ARNI.
+    if _bg and not _auth_abs:
+        s.add(obj, "Background. %s" % _bgtxt, [_bg])
+    elif _bg and _auth_abs:
+        pass
     else:
-        s.refusals.append(("the findings sentence of the abstract -- this review pools "
-                           "nothing, and the reason is given in Results rather than an "
-                           "estimate being manufactured here",
-                           ["results.by_outcome.*.pooled.point"]))
+        s.refusals.append((
+            "the Background sentence of the abstract. Background is ARGUMENT -- why this "
+            "question matters -- and no arrangement of the quantities this object holds "
+            "yields it. It is emitted only from an authored field and there is no "
+            "composition path for it here",
+            ["manuscript.abstract.Background"]))
+
+    # -- METHODS: composed from facts ----------------------------------------------------
+    _mparts, _mfields = [], []
+    _dbs = get(obj, "search.databases")
+    if isinstance(_dbs, (list, dict)) and _dbs:
+        _names = _source_names(_dbs)
+        if _names:
+            _mparts.append("%s were searched" % _and_list(_names))
+            _mfields.append("search.databases")
+    _elig = get(obj, "screening.eligibility")
+    if _elig is not None:
+        _mparts.append("eligibility was %s" % _v_str(_elig)[:300].rstrip(". "))
+        _mfields.append("screening.eligibility")
+    _model = _first_by_outcome(obj, ("model",))
+    _est = _first_by_outcome(obj, ("estimator_used",))
+    if _model or _est:
+        _mparts.append("estimates were pooled under %s%s"
+                       % (_v_str(_model) if _model else "the recorded model",
+                          " with the %s estimator" % _v_str(_est) if _est else ""))
+        _mfields.append("results.by_outcome")
+    _tool = get(obj, "risk_of_bias.tool")
+    if _tool is not None:
+        _mparts.append("risk of bias was assessed with %s" % _v_str(_tool))
+        _mfields.append("risk_of_bias.tool")
+    _gr = get(obj, "grade.approach")
+    if _gr is not None:
+        _mparts.append("certainty was rated with %s" % _v_str(_gr))
+        _mfields.append("grade.approach")
+    if _mparts:
+        s.add(obj, "Methods. %s." % _sentence_join(_mparts), _mfields)
+    else:
+        # CITE ONLY WHAT IS ACTUALLY ABSENT. The first cut cited `results.by_outcome` as a
+        # stand-in for "the pooling model", but that container is PRESENT on these objects
+        # and the figure legends use it -- so one manuscript said a field was missing in the
+        # abstract and used it two sections later, on 10 topics. The pooling model lives at
+        # `results.by_outcome.<oid>.model`, and that is the path to name.
+        _absent = [f for f in ("search.databases", "screening.eligibility",
+                               "risk_of_bias.tool", "grade.approach")
+                   if get(obj, f) is None]
+        _absent += ["results.by_outcome.%s.model" % oid
+                    for oid in sorted((get(obj, "results.by_outcome") or {}))
+                    if _first_by_outcome(obj, ("model",)) is None]
+        s.refusals.append((
+            "the Methods sentence of the abstract. None of the method facts this would be "
+            "composed from -- databases searched, eligibility, pooling model, "
+            "risk-of-bias tool, certainty approach -- is recorded on this object",
+            _absent or ["search.databases"]))
+
+    # -- RESULTS: composed from facts ----------------------------------------------------
+    _rparts, _rfields = [], []
+    if casc.get("k_included") is not None:
+        _rparts.append("%s trial(s) contributed to at least one synthesis"
+                       % casc.get("k_included"))
+        _rfields.append("k_cascade.k_included")
+    if _pooled:
+        _rparts.append("; ".join(_pooled))
+        _rfields.append("results.by_outcome")
+    _i2 = _first_by_outcome(obj, ("heterogeneity", "i2"))
+    if _i2 is not None:
+        _rparts.append("heterogeneity was %s (I-squared %s%%)"
+                       % (_i2_words(_i2), _num(_i2)))
+        _rfields.append("results.by_outcome")
+    _cert = _first_by_outcome(obj, ("grade", "certainty"))
+    if _cert is not None:
+        _rparts.append("certainty of the evidence was %s"
+                       % str(_v_str(_cert)).replace("_", " ").lower())
+        _rfields.append("results.by_outcome")
+    if _rparts:
+        s.add(obj, "Results. %s." % _sentence_join(_rparts), sorted(set(_rfields)))
+    else:
+        # CITE THE LEAVES THAT ARE ACTUALLY ABSENT, NOT A WILDCARD OVER A PARENT THAT IS
+        # PRESENT. `results.by_outcome.*.pooled.point` reads to the whole-document check as
+        # `results.by_outcome`, which the figure legends USE -- so the manuscript said the
+        # same field was absent in one section and used it in another, on 10 topics.
+        #
+        # THE CHECK WAS RIGHT AND I MADE IT FIRE. The refusal predates this change, but the
+        # abstract was REFUSED as a whole on those topics, so its citations were never
+        # compared against the rest of the document. Composing a Methods paragraph turned
+        # the section WRITTEN and exposed it. A defect that becomes visible when a section
+        # starts working was always there.
+        _missing = ["results.by_outcome.%s.pooled.point" % oid
+                    for oid in sorted((get(obj, "results.by_outcome") or {}))]
+        s.refusals.append((
+            "the Results sentence of the abstract -- no outcome on this object carries a "
+            "pooled point estimate, so there is nothing to report and none is manufactured "
+            "here. The reason each pool is declined is given in Results",
+            _missing or ["results.by_outcome"]))
+
+    # -- CONCLUSIONS: authored only ------------------------------------------------------
+    _cc, _cctxt = None, None
+    for _f in ("manuscript.abstract.Conclusions", "conclusions", "manuscript.conclusions"):
+        _cctxt = _authored(obj, _f)
+        if _cctxt:
+            _cc = _f
+            break
+    if _cc and _auth_abs:
+        pass
+    elif _cc and _cctxt and s.add(obj, "Conclusions. %s" % _cctxt, [_cc]):
+        pass
+    else:
+        s.refusals.append((
+            "the Conclusions sentence of the abstract. A conclusion is ARGUMENT -- what a "
+            "reader should now believe -- and it is emitted only from an authored field. "
+            "Composing one from the estimate would be this renderer telling the reader "
+            "what to conclude, which no field supports",
+            ["manuscript.abstract.Conclusions"]))
     secs.append(s)
 
     # ---- INTRODUCTION (content gap, refused by name) -----------------------------------

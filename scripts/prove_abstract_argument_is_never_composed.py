@@ -1,0 +1,172 @@
+"""Two of the four abstract sections are facts; two are argument. Does the split hold?
+
+F1000Research requires a structured abstract: Background / Methods / Results / Conclusions.
+
+    METHODS and RESULTS are COMPOSED from stored quantities -- what was searched, how it
+    was pooled, what came out, how heterogeneous, how certain. Composing a sentence from
+    facts an object holds is a rendering transform.
+
+    BACKGROUND and CONCLUSIONS ARE ARGUMENT. They say why the question matters and what a
+    reader should now believe, and NO ARRANGEMENT OF STORED QUANTITIES YIELDS EITHER.
+
+THIS ASSERTS THE SECOND HALF, WHICH IS THE ONE THAT CAN GO WRONG QUIETLY. A Background or
+Conclusions paragraph may exist ONLY where the object carries an authored field for it.
+Anywhere else it is a renderer telling the reader what to conclude.
+
+The check is not "is the sentence argumentative" -- that is unjudgeable from a string. It is
+PROVENANCE: every Background/Conclusions paragraph must cite an authored field, and the
+count of objects producing one must equal the count of objects HOLDING one.
+
+ALSO CHECKED, because both defects were live in the first cut of this feature and were
+caught by reading output rather than by any gate:
+  * no paragraph carries a `[[token]]` -- ARNI's authored conclusion reached the projection
+    as "Across [[k]] randomised trials" through a path that bypassed the token guard;
+  * no paragraph carries a Python container repr -- `search.databases` is a list of dicts
+    keyed `database`, and the first cut put a whole dict into the Methods sentence.
+"""
+import glob
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+from instrument_controls import require_controls          # noqa: E402
+import paper_projector as ppj                             # noqa: E402
+
+TOKEN = re.compile(r"\[\[[a-z0-9_]+\]\]", re.I)
+CONTAINER = re.compile(r"\{'|': '|\[\{|dict_keys\(")
+# `manuscript.abstract` IS an authored field -- a person's whole structured abstract,
+# whose Background paragraph the projector emits as-is. The first cut of this allowlist
+# omitted it and reported ARNI as composing argument from nothing, which is a FALSE
+# POSITIVE of exactly the kind that discredits a check: it accused the one object whose
+# prose is human-written of being machine-generated.
+AUTHORED_BG = ("manuscript.abstract.Background", "protocol.rationale",
+               "manuscript.abstract")
+AUTHORED_CC = ("manuscript.abstract.Conclusions", "conclusions",
+               "manuscript.conclusions", "manuscript.abstract")
+
+
+def abstract_of(obj):
+    for s in ppj.project(obj):
+        if getattr(s, "key", None) == "abstract":
+            return s
+    return None
+
+
+def main():
+    gate = "--gate" in sys.argv
+
+    # CONTROLS. An object with pooled facts and no authored argument must yield Methods
+    # and/or Results and MUST NOT yield Background or Conclusions.
+    facts_only = {
+        "question": "A stored question",
+        "search": {"databases": [{"database": "PubMed"}]},
+        "risk_of_bias": {"tool": "RoB 2"},
+        "grade": {"approach": "GRADE"},
+        "outcomes": [{"id": "primary", "name": "An outcome"}],
+        "results": {"by_outcome": {"primary": {
+            "k": 2, "model": "random-effects", "estimator_used": "REML",
+            "pooled": {"point": 0.8, "ci_low": 0.7, "ci_high": 0.9, "measure": "HR"}}}},
+    }
+    a = abstract_of(facts_only)
+    leads = [t.split(".")[0] for t, _f in (a.paras if a else [])]
+    require_controls(
+        "prove_abstract_argument_is_never_composed",
+        positive=("an object of pure facts yields a Methods or Results paragraph",
+                  ("Methods" in leads) or ("Results" in leads), True),
+        negative=("that same object yields a Background or Conclusions paragraph",
+                  ("Background" in leads) or ("Conclusions" in leads), True))
+
+    objs = 0
+    holds_bg = holds_cc = 0
+    made_bg = made_cc = made_m = made_r = 0
+    unsourced, tokened, containered, unparsed, no_abstract = [], [], [], [], []
+
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        topic = os.path.basename(os.path.dirname(p))
+        if os.path.basename(p) != topic + ".json":
+            continue
+        try:
+            obj = json.load(io.open(p, encoding="utf-8"))
+        except ValueError:
+            unparsed.append(topic)
+            continue
+        objs += 1
+        if any(ppj.get(obj, f) is not None for f in AUTHORED_BG):
+            holds_bg += 1
+        if any(ppj.get(obj, f) is not None for f in AUTHORED_CC):
+            holds_cc += 1
+        a = abstract_of(obj)
+        # THE POSITIVE PROPERTY IS `THE PROJECTION CONTAINS AN ABSTRACT SECTION`, and an
+        # object whose projection has none is COUNTED AND NAMED rather than skipped. A
+        # silent `continue` here would drop it out of the denominator, so `131 of 155` would
+        # be `131 of however many happened to reach the loop body` -- open item O2, which
+        # this project has now reproduced twice in new instruments in one night.
+        if a is None:
+            no_abstract.append(topic)
+            continue
+        for text, fields in a.paras:
+            lead = text.split(".")[0]
+            if lead == "Methods":
+                made_m += 1
+            elif lead == "Results":
+                made_r += 1
+            elif lead == "Background":
+                made_bg += 1
+                if not any(f in AUTHORED_BG for f in fields):
+                    unsourced.append((topic, "Background", fields))
+            elif lead == "Conclusions":
+                made_cc += 1
+                if not any(f in AUTHORED_CC for f in fields):
+                    unsourced.append((topic, "Conclusions", fields))
+            if TOKEN.search(text):
+                tokened.append((topic, lead))
+            if CONTAINER.search(text):
+                containered.append((topic, lead))
+
+    print("")
+    print("OBJECTS PROJECTED: %d" % objs)
+    if unparsed:
+        print("objects that do not parse, NAMED not dropped: %d -- %s"
+              % (len(unparsed), ", ".join(unparsed)))
+    if no_abstract:
+        print("projections with NO abstract section, NAMED not dropped: %d of %d -- %s"
+              % (len(no_abstract), objs, ", ".join(no_abstract)))
+    else:
+        print("every projection carries an abstract section: %d of %d" % (objs, objs))
+    print("")
+    print("  Methods paragraph produced      %d of %d" % (made_m, objs))
+    print("  Results paragraph produced      %d of %d" % (made_r, objs))
+    print("  Background paragraph produced   %d of %d   (objects HOLDING one: %d of %d)"
+          % (made_bg, objs, holds_bg, objs))
+    print("  Conclusions paragraph produced  %d of %d   (objects HOLDING one: %d of %d)"
+          % (made_cc, objs, holds_cc, objs))
+    print("")
+    print("ARGUMENT IS NEVER COMPOSED -- every Background/Conclusions cites an authored field")
+    print("  paragraphs of argument with no authored source: %d of %d"
+          % (len(unsourced), made_bg + made_cc))
+    for t, w, f in unsourced:
+        print("      %s %s <- %s" % (t, w, f))
+    print("")
+    print("  paragraphs carrying an unresolved [[token]]:    %d of %d"
+          % (len(tokened), made_m + made_r + made_bg + made_cc))
+    for t, w in tokened:
+        print("      %s %s" % (t, w))
+    print("  paragraphs carrying a container repr:           %d of %d"
+          % (len(containered), made_m + made_r + made_bg + made_cc))
+    for t, w in containered:
+        print("      %s %s" % (t, w))
+
+    failed = bool(unsourced) or bool(tokened) or bool(containered)
+    if failed:
+        print("")
+        print("FAILED. Argument was composed, or a token or a container reached a reader.")
+    return 1 if (gate and failed) else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
