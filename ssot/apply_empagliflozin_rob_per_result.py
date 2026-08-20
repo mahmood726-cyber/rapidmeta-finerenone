@@ -38,7 +38,7 @@ the assessment:
   them: each domain says which it is.
 
 RoB 2, and the ceiling rule this project already applies: a domain that cannot be judged
-from the sources read is NO_INFORMATION, never LOW. Low-by-default asserts a fact;
+from the sources READ is NO_INFORMATION, never LOW. Low-by-default asserts a fact;
 high-by-default invents a defect.
 """
 import io
@@ -191,7 +191,7 @@ def main():
             "overall_reason": a["overall_reason"],
         }
 
-    obj["risk_of_bias"] = {
+    _rob = {
         "tool": ("RoB 2 (Cochrane risk-of-bias tool for randomized trials), 22 August 2019 "
                  "version as reproduced in the Cochrane Handbook"),
         "assessed_utc": TODAY,
@@ -210,10 +210,7 @@ def main():
             "the PMID-to-PMCID conversion returns no PMC record for 32865377. Allocation "
             "concealment mechanism, analysis population and deviation handling could not "
             "be read, and D2 is NO_INFORMATION for that reason."),
-        "ceiling": (
-            "A domain that cannot be judged from the sources READ is NO_INFORMATION, never "
-            "LOW. Low-by-default asserts a fact; high-by-default invents a defect. Overall "
-            "is capped at SOME_CONCERNS wherever a domain is NO_INFORMATION."),
+        "ceiling": {"statement": "A domain that cannot be judged from the sources READ is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect. Overall is capped at SOME_CONCERNS wherever a domain is NO_INFORMATION.", "shape_note": "A DICT, NOT A STRING. paper_projector does ceil.get('statement'), so a bare string here raises AttributeError and the ENTIRE MANUSCRIPT VANISHES -- 17,012 chars and 27 sections down to a 318-char projector-failed banner."},
         "WHAT_WOULD_RAISE_THIS_TO_LOW": (
             "Reading the two methods sections. D2 is the only domain scored on absence, "
             "and the absence is OUR ACCESS rather than the trialists' reporting -- so this "
@@ -227,6 +224,8 @@ def main():
             "this object was extracted from' -- a sentence about where somebody looked. "
             "Four of five domains are now judged on sources read and named."),
     }
+    atomic_write.merge_not_overwrite(obj, "risk_of_bias", _rob,
+                                     TODAY.replace("-", "_"))
 
     obj.setdefault("display_change_announced", []).append({
         "date": TODAY,

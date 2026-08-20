@@ -117,6 +117,20 @@ def bag(pattern, text):
 
 
 def main():
+    # TWO MODES, DECLARED BY THE CALLER, BECAUSE ONE PREDICATE DOES NOT FIT BOTH.
+    #
+    # A REGISTER change must show field paths falling -- that is what it is for, and a run
+    # where they do not fall did nothing. A CONTENT change adds assessments, ratings or
+    # findings; its paths need not fall and its verbatim-section count may rise from zero
+    # because the object gained a model output it did not have.
+    #
+    # Applying the register predicate to a content change produced two refusals with
+    # nothing wrong behind them: "the number of verbatim sections changed" on a page that
+    # GAINED its first R output, and "the paths did not fall (1 -> 1)" on a page whose
+    # rebuild carried a risk-of-bias assessment rather than a reformatting. THE MODE IS
+    # DECLARED RATHER THAN INFERRED, so a register change can never quietly be waved
+    # through as content.
+    content_mode = "--content-change" in sys.argv
     if len(sys.argv) < 3:
         sys.exit("usage: prove_register_change_moved_no_content.py BEFORE.html AFTER.html "
                  "[object.json]")
@@ -141,7 +155,20 @@ def main():
     print("           present after and not before: %d distinct (allowed -- the gloss and "
           "the cascade table print the same values in more places)" % len(gained_n))
 
-    lost_ids = bag(NCT, before) - bag(NCT, after)
+    # REGISTRATION IDS ARE COUNTED IN RENDERED TEXT, NOT IN THE SCRIPT BUNDLE.
+    #
+    # The first version counted NCT strings across the RAW HTML and reported five ids
+    # "lost" from EMPAGLIFLOZIN_HF_AUTO_FULL_REVIEW. All five were inside embedded
+    # JavaScript -- a KNOWN_TRIAL_ALIASES constant mapping NCT01035255, NCT01920711,
+    # NCT02924727 and NCT03988634 to paradigm-hf, paragon-hf, paradise-mi and paraglide-hf,
+    # and a NCT05901831 predicate about FINEARTS-HF. THOSE ARE ARNI'S TRIALS, IN
+    # EMPAGLIFLOZIN'S PAGE, CARRIED BY A SHARED SCRIPT BUNDLE. They changed because the
+    # bundle changed between builds, and NO READER EVER SAW THEM.
+    #
+    # A check that counts identifiers a reader cannot see reports a content loss when a
+    # script is minified differently. The invariant is about what the page SHOWS.
+    _strip_js = lambda h: re.sub(r"(?is)<script.*?</script>", " ", h)
+    lost_ids = bag(NCT, _strip_js(before)) - bag(NCT, _strip_js(after))
     print("")
     print("REGISTRATION IDS lost from the whole page: %d" % len(lost_ids))
     for v, n in sorted(lost_ids.items()):
@@ -169,13 +196,18 @@ def main():
     vb, va = verbatim_blocks(before), verbatim_blocks(after)
     print("")
     print("VERBATIM-R SECTIONS  before %d, after %d" % (len(vb), len(va)))
-    changed = [h for h in vb if vb[h] != va.get(h)]
+    changed = [h for h in vb if h in va and vb[h] != va[h]]
     for h in changed:
         print("    CHANGED  %s" % h[:80])
     if changed:
         failures.append("%d verbatim section(s) changed" % len(changed))
     if len(vb) != len(va):
-        failures.append("the number of verbatim sections changed")
+        if content_mode and len(va) > len(vb):
+            print("      GAINED %d verbatim section(s): the object now carries model output "
+                  "it did not" % (len(va) - len(vb)))
+        else:
+            failures.append("the number of verbatim sections changed (%d -> %d)"
+                            % (len(vb), len(va)))
 
     fb, fa = flow_paths(before), flow_paths(after)
     print("")
@@ -199,6 +231,14 @@ def main():
               "banner" % before_sentences)
         print("      and had no manuscript. NOT ASKED FOR A FALL: there was nothing to fall "
               "from.")
+    elif content_mode:
+        print("      CONTENT MODE: paths are not required to fall. This run added "
+              "assessments or findings,")
+        print("      not a change of register, and the register predicate does not apply "
+              "to it.")
+        if fa > fb:
+            failures.append("field paths in the sentence flow ROSE (%d -> %d) -- content "
+                            "may be added but the register must not regress" % (fb, fa))
     elif fa >= fb:
         failures.append("field paths in the sentence flow did not fall (%d -> %d) -- the "
                         "pass did nothing" % (fb, fa))

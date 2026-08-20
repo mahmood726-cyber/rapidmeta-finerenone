@@ -75,3 +75,46 @@ def write_json(path, obj, indent=1, newline=None, trailing_newline=True):
     if trailing_newline:
         text += "\n"
     return write_text(path, text, newline=newline)
+
+
+def merge_not_overwrite(obj, key, new, stamp):
+    """Merge `new` into obj[key], keeping anything the new value does not carry.
+
+    `obj["risk_of_bias"] = {...}` DELETES whatever was there. On
+    bococizumab-lipid-review that removed five leaf values -- the prior tool, state, why,
+    consequence_carried_into_grade and what_would_close_it, which were the record of what
+    the topic said BEFORE it was assessed. A net deletion from an SSOT object breaks one of
+    the five genuinely enforced standing rules, and it was broken by the author who had
+    spent the night writing about it.
+
+    THE GUARD HELD AND THE WRITER DID NOT. What caught it was a leaf-by-leaf comparison
+    against HEAD, not this applier and not the pre-commit hook -- which would have caught it
+    one step later, at commit time.
+
+    Measured across the four appliers written that night: the wholesale pattern was in ALL
+    FOUR and caused a real loss in ONE. The other three were spared by luck -- two replaced
+    an empty field and one re-authored identical content. WHOLESALE REPLACEMENT IS THE
+    NATURAL WAY TO WRITE AN APPLIER AND IT WILL BE WRITTEN AGAIN, so the merge is a
+    function rather than a habit.
+
+    Any key the prior value held and the new one does not is preserved under
+    `superseded_state_<stamp>`, so a reader comparing the two learns something a single
+    current value cannot tell them.
+    """
+    prior = obj.get(key)
+    obj[key] = new
+    if not isinstance(prior, dict) or not prior:
+        return 0
+    kept = dict((k, v) for k, v in prior.items() if k not in new)
+    if not kept:
+        return 0
+    new["superseded_state_%s" % stamp] = {
+        "_why_this_is_kept": (
+            "The prior value of `%s` held %d key(s) this assessment does not carry. "
+            "Replacing a subtree wholesale DELETES them, and a net deletion from an SSOT "
+            "object breaks a standing rule whether or not what replaced it is better. The "
+            "prior state is the record of what this topic said before it was assessed."
+            % (key, len(kept))),
+        "prior": kept,
+    }
+    return len(kept)

@@ -321,6 +321,13 @@ _ROB_DOMAINS = {
 }
 
 REFERRED_PREFIX = "THE_POOL_IS_REFERRED_"
+# A SECOND PREFIX FOR FINDINGS THAT ARE NOT A REFERRAL AND NOT A BIAS DOMAIN.
+# icosapent's registered primary is a MEDIAN percent change while the pool is a MEAN
+# difference, and both its trials registered THREE arms where the object records two.
+# Neither is a risk-of-bias domain and neither withdraws the pool -- but a reader who meets
+# -25.84 should meet them, and the standing test for anything found tonight is: does it
+# reach a reader, or does it exist for us.
+FINDING_PREFIX = "POOL_FINDINGS_"
 
 
 def pool_referral(blk):
@@ -363,6 +370,31 @@ def pool_referral(blk):
         if not_withdrawn:
             bits.append(not_withdrawn)
         return " ".join(bits), ["results.by_outcome.<this outcome>.%s" % key]
+    return None, []
+
+
+def pool_findings(blk):
+    """Findings recorded on a pooled outcome that are neither a referral nor a bias domain.
+
+    Same prefix-matching discipline as pool_referral, and the same reason for existing: a
+    finding that lives only on the object is a finding that exists for us and not for the
+    reader. Returns (text, field paths) or (None, []).
+    """
+    for key in sorted(blk):
+        if not key.startswith(FINDING_PREFIX):
+            continue
+        f = blk.get(key)
+        if not isinstance(f, dict):
+            continue
+        bits = []
+        for k in sorted(f):
+            v = str(f[k] or "").strip()
+            if v:
+                bits.append(v)
+        if not bits:
+            continue
+        return ("NOTED ON THIS POOL. " + " ".join(bits),
+                ["results.by_outcome.<this outcome>.%s" % key])
     return None, []
 
 
@@ -942,6 +974,10 @@ def project(obj, journal="generic", length="standard"):
         if _ref_txt:
             s.paras.append((_ref_txt,
                             [p.replace("<this outcome>", oid) for p in _ref_f]))
+        _fnd_txt, _fnd_f = pool_findings(blk)
+        if _fnd_txt:
+            s.paras.append((_fnd_txt,
+                            [p.replace("<this outcome>", oid) for p in _fnd_f]))
 
         # HETEROGENEITY, WITH THE CAVEAT THE OBJECT ALREADY RECORDS.
         if het.get("i2") is not None:

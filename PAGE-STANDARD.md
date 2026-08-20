@@ -1,6 +1,6 @@
 # The page standard, versioned
 
-**`PAGE_STANDARD_VERSION = "1.23.0-2026-08-20"`**
+**`PAGE_STANDARD_VERSION = "1.24.0-2026-08-20"`**
 
 > **This line was `1.6.0` while the version log below already ran to `1.12.0` and
 > `ssot/build_to_standard.py` stamped `1.13.0`.** The marker whose entire purpose is to make
@@ -133,6 +133,51 @@ Nothing is generated to fill a slot. A tab with nothing to render keeps refusing
 ---
 
 ## Version log
+
+### 1.24.0-2026-08-20
+
+**P51 — EVERY CHECK IN THIS PROJECT TESTS THE POINT. NOTHING TESTS SPREAD OR PRECISION.**
+
+Stated as a gap, the way P47's failing case is stated, because anyone quoting an I-squared
+or an interval from this corpus should know it before they do.
+
+| what is checked | by what |
+|---|---|
+| the pooled **point** renders | `regression_check.py` |
+| the **point** is stored at a displayable precision | `lint_pooled_point_is_displayable.py` |
+| no **number** is lost across a rebuild | `prove_register_change_moved_no_content.py` |
+| **I-squared, tau-squared, Q, the interval** | *nothing* |
+
+**A dispersion or precision claim that diverges leaves the point untouched, so nothing
+fires.** The invariance check compares numbers as a multiset and an I-squared that changes
+from 31.4 to 0.0 is simply a different number in the bag; the displayable-precision lint
+reads the point; the regression check reads the rendered estimate.
+
+**Found by hand, on 2026-08-20:**
+
+- **5 of 48 pools carrying a stored I-squared do not reproduce it** under a REML refit of
+  their own stored per-trial values. `ablation-af-review` stores 31.4 and refits to
+  **0.0** — a third of the variability beyond chance, against none of it. Measured by
+  `ssot/i2_reproduction_sweep.R`; the denominator is complete, 0 pools could not be refitted.
+- **The house-rule Hartung-Knapp interval on `empagliflozin-hf` crosses the null** where the
+  published interval excludes it — 0.385 to 1.4907 against 0.6825 to 0.8409 — while **the
+  point estimate does not move at all.** At k=2 the narrow interval is a property of the
+  estimator, not of the evidence.
+
+**Neither was found by a gate.** Both were found by writing a one-off comparison, which is
+the definition of an unchecked property.
+
+**AND A DIVERGENCE IS NOT AUTOMATICALLY AN ERROR.** REML is the house rule; a pool fitted
+under DerSimonian-Laird will diverge from a REML refit *by design*. What the sweep
+establishes is which stored numbers were produced by the stated estimator, not which are
+wrong. None of the five is corrected: a stored I-squared feeds the GRADE inconsistency
+domain and the page's own consistency prose, so changing one moves a published claim.
+
+**Until something checks it, a consistency claim on these pages is unverified in the same
+sense that a P47 pass is unverified.** The three GRADE ratings issued on 2026-08-20
+consumed `heterogeneity.i2` before this sweep existed; all three inputs were subsequently
+confirmed sound — and **a rating that happens to be right because its input happened to be
+sound is still a rating whose input was unverified.**
 
 ### 1.23.0-2026-08-20
 

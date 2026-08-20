@@ -633,6 +633,27 @@
    "values_moved": "NONE -- no estimate changes",
    "what_changed": "Both registrations were read and both results assessed on RoB 2: D1, D3, D4 and D5 LOW on read sources; D2 NO_INFORMATION because the methods sections are not open access. Overall SOME_CONCERNS for each.",
    "why": "The previous risk-of-bias limb was discharged by a sentence about where somebody looked, which is what P46's refinement exists to exclude."
+  },
+  {
+   "date": "2026-08-20",
+   "change": "GRADE rated for the pooled outcome, consuming the per-result RoB",
+   "values_moved": "NONE",
+   "what_changed": "Certainty LOW after 2 downgrade(s).",
+   "why": "The GRADE limb was previously discharged by a sentence about where somebody looked."
+  },
+  {
+   "date": "2026-08-20",
+   "change": "risk of bias assessed PER RESULT for both contributing results",
+   "values_moved": "NONE -- no estimate changes",
+   "what_changed": "Both registrations were read and both results assessed on RoB 2: D1, D3, D4 and D5 LOW on read sources; D2 NO_INFORMATION because the methods sections are not open access. Overall SOME_CONCERNS for each.",
+   "why": "The previous risk-of-bias limb was discharged by a sentence about where somebody looked, which is what P46's refinement exists to exclude."
+  },
+  {
+   "date": "2026-08-20",
+   "change": "risk of bias assessed PER RESULT for both contributing results",
+   "values_moved": "NONE -- no estimate changes",
+   "what_changed": "Both registrations were read and both results assessed on RoB 2: D1, D3, D4 and D5 LOW on read sources; D2 NO_INFORMATION because the methods sections are not open access. Overall SOME_CONCERNS for each.",
+   "why": "The previous risk-of-bias limb was discharged by a sentence about where somebody looked, which is what P46's refinement exists to exclude."
   }
  ],
  "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",
@@ -819,15 +840,88 @@
    "NEJM 2020 abstract of EMPEROR-Reduced, PMID 32865377, doi 10.1056/NEJMoa2022190 -- design, arm sizes, effect estimate"
   ],
   "sources_NOT_read": "THE FULL METHODS SECTIONS. Neither primary publication is in PMC open access; the PMID-to-PMCID conversion returns no PMC record for 32865377. Allocation concealment mechanism, analysis population and deviation handling could not be read, and D2 is NO_INFORMATION for that reason.",
-  "ceiling": "A domain that cannot be judged from the sources READ is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect. Overall is capped at SOME_CONCERNS wherever a domain is NO_INFORMATION.",
+  "ceiling": {
+   "statement": "A domain that cannot be judged from the sources READ is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect. Overall is capped at SOME_CONCERNS wherever a domain is NO_INFORMATION.",
+   "shape_note": "A DICT, NOT A STRING. paper_projector does ceil.get('statement'), so a bare string here raises AttributeError and the ENTIRE MANUSCRIPT VANISHES -- 17,012 chars and 27 sections down to a 318-char projector-failed banner."
+  },
   "WHAT_WOULD_RAISE_THIS_TO_LOW": "Reading the two methods sections. D2 is the only domain scored on absence, and the absence is OUR ACCESS rather than the trialists' reporting -- so this is a queue item with a named exit, not a fact about the trials. IT IS LABELLED THAT WAY DELIBERATELY: a NO_INFORMATION written because a paywall stopped us is not the same as one written because a method was never described, and calling them the same is how a provenance refusal comes back wearing an evidence refusal's clothes.",
   "supersedes": "The prior state was 'no risk-of-bias assessment was recoverable from the page this object was extracted from' -- a sentence about where somebody looked. Four of five domains are now judged on sources read and named.",
-  "access_obstacle_attempted_route_2026_08_20": {
-   "what_was_attempted": "PMID-to-PMCID conversion for BOTH primary publications, each by name and individually: 32865377 (Packer 2020, EMPEROR-Reduced, doi 10.1056/NEJMoa2022190) and 34449189 (Anker 2021, EMPEROR-Preserved). Neither returns a PMC record.",
-   "when": "2026-08-20",
-   "what_would_resolve_it": "A route that reaches NEJM full text. NOT ANOTHER PMC QUERY -- that door is now known to be shut, and repeating it would produce the same verdict with a fresher date.",
-   "why_this_is_recorded": "P49. A named exit is only useful if the next person knows which door was already tried. Without the attempt on the record the next session runs the same failed query, records the same verdict, and THE REFUSAL CALCIFIES WHILE LOOKING FRESHLY CHECKED.",
-   "and_no_judgement_was_manufactured": "D2 was NOT scored from the abstracts. An abstract states the design; it does not describe deviation handling or the analysis population, and scoring a domain from a source that cannot support it is the defect this whole exercise exists to prevent."
+  "superseded_state_2026_08_20": {
+   "_why_this_is_kept": "The prior value of `risk_of_bias` held 1 key(s) this assessment does not carry. Replacing a subtree wholesale DELETES them, and a net deletion from an SSOT object breaks a standing rule whether or not what replaced it is better. The prior state is the record of what this topic said before it was assessed.",
+   "prior": {
+    "superseded_state_2026_08_20": {
+     "_why_this_is_kept": "The prior value of `risk_of_bias` held 1 key(s) this assessment does not carry. Replacing a subtree wholesale DELETES them, and a net deletion from an SSOT object breaks a standing rule whether or not what replaced it is better. The prior state is the record of what this topic said before it was assessed.",
+     "prior": {
+      "access_obstacle_attempted_route_2026_08_20": {
+       "what_was_attempted": "PMID-to-PMCID conversion for BOTH primary publications, each by name and individually: 32865377 (Packer 2020, EMPEROR-Reduced, doi 10.1056/NEJMoa2022190) and 34449189 (Anker 2021, EMPEROR-Preserved). Neither returns a PMC record.",
+       "when": "2026-08-20",
+       "what_would_resolve_it": "A route that reaches NEJM full text. NOT ANOTHER PMC QUERY -- that door is now known to be shut, and repeating it would produce the same verdict with a fresher date.",
+       "why_this_is_recorded": "P49. A named exit is only useful if the next person knows which door was already tried. Without the attempt on the record the next session runs the same failed query, records the same verdict, and THE REFUSAL CALCIFIES WHILE LOOKING FRESHLY CHECKED.",
+       "and_no_judgement_was_manufactured": "D2 was NOT scored from the abstracts. An abstract states the design; it does not describe deviation handling or the analysis population, and scoring a domain from a source that cannot support it is the defect this whole exercise exists to prevent."
+      }
+     }
+    }
+   }
   }
+ },
+ "grade": {
+  "approach": "GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.",
+  "rated_utc": "2026-08-20",
+  "by_outcome": {
+   "primary": {
+    "certainty": "LOW",
+    "k": 2,
+    "started_at": "HIGH",
+    "steps": [
+     {
+      "domain": "risk_of_bias",
+      "levels": -1,
+      "from": "HIGH",
+      "to": "MODERATE",
+      "rating": "serious",
+      "reason": "BOTH results are SOME_CONCERNS, and the driver is the same in each: D2, deviations from intended intervention, is NO_INFORMATION because neither NEJM methods section is in PMC open access -- 32865377 and 34449189 both checked, neither returns a PMC record. D1, D3, D4 and D5 are LOW on sources read and named. RATED DOWN BECAUSE UNASSESSED IS NOT LOW, and the reason is recorded as OUR ACCESS rather than an observed flaw in the trials -- P49, with the attempted route on the object."
+     },
+     {
+      "domain": "inconsistency",
+      "levels": 0,
+      "from": "MODERATE",
+      "to": "MODERATE",
+      "rating": "not serious",
+      "reason": "I-squared is 0.0% with tau-squared 0 over k=2. Handbook 10.10.2: I-squared describes the PROPORTION of variability beyond chance, not the amount, and at k=2 it is estimated with almost no information -- so this is 'no inconsistency DETECTED' rather than 'consistency established'. Not rated down, and the limit of that statement is on the record."
+     },
+     {
+      "domain": "indirectness",
+      "levels": 0,
+      "from": "MODERATE",
+      "to": "MODERATE",
+      "rating": "not serious",
+      "reason": "THE ONLY ONE OF THE THREE WITH NO RECORDED ESTIMAND PROBLEM. Both trials register the SAME primary, word for word -- 'Time to First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure' -- each registers ONE primary rather than a set to choose from, and the pooled quantity is that registered quantity. Population, intervention, comparator and outcome all match the question asked. NOT SERIOUS IS A FINDING HERE, not a default: it is the contrast with the other two topics that makes it worth stating."
+     },
+     {
+      "domain": "imprecision",
+      "levels": -1,
+      "from": "MODERATE",
+      "to": "LOW",
+      "rating": "serious",
+      "reason": "The published interval 0.6825 to 0.8409 excludes the null. BUT THE HOUSE-RULE INTERVAL DOES NOT: with Hartung-Knapp on t at k-1 = 1 degree of freedom the same point estimate carries 0.385 to 1.4907, and that interval CROSSES ONE. At k=2 the between-trial variance is estimated from a single degree of freedom, so the narrow interval is a property of the estimator rather than of the evidence. Handbook 15.6.2 on optimal information size. THE POINT ESTIMATE IS UNCHANGED; what differs is the precision claim, which is why nothing downstream catches it."
+     },
+     {
+      "domain": "publication_bias",
+      "levels": 0,
+      "from": "LOW",
+      "to": "LOW",
+      "rating": "undetected",
+      "reason": "NOT ASSESSED RATHER THAN ASSESSED AS ABSENT. Funnel-plot asymmetry and its tests are uninformative below about ten studies -- Handbook 13.3.5.4 -- and these pools carry two or three. 'Undetected' here means NOBODY LOOKED WITH AN INSTRUMENT THAT COULD SEE, not that publication bias is unlikely. Not rated down, because rating down on an unmeasurable domain would invent a defect."
+     }
+    ],
+    "RISK_OF_BIAS_DOMAIN_CONSUMES_THESE_RESULT_LEVEL_ASSESSMENTS": {
+     "primary/NCT03057977": "SOME_CONCERNS (EMPEROR-Reduced)",
+     "primary/NCT03057951": "SOME_CONCERNS (EMPEROR-Preserved)"
+    },
+    "summary": "Certainty LOW. The risk-of-bias domain reads the per-result RoB 2 assessments made 2026-08-20 and named above, not a topic-level summary; indirectness reads the estimand findings recorded on this pool."
+   }
+  },
+  "not_rated_up": "No domain is rated UP. Rating up for a large effect or a dose-response gradient applies to observational evidence that has not already been rated down, and neither condition holds here.",
+  "WHY_THESE_THREE_RATINGS_DIFFER": "empagliflozin is the only one of the three with NO recorded estimand problem and the only one with I-squared of zero, so its indirectness and inconsistency are not serious where the other two are. inclisiran is the only one meeting an optimal information size, so its imprecision is not serious where the other two are. IF THE THREE RATINGS WERE IDENTICAL THE RATING WOULD NOT BE READING THE ASSESSMENTS."
  }
 }

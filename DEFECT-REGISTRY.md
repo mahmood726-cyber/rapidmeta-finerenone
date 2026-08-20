@@ -3215,6 +3215,239 @@ referred tonight, for exactly this.** So the firing set is small and known; the 
 gap is that nothing made it small.
 
 
+## Class 66 — A REVIEW THAT SELECTS AMONG REGISTERED OPTIONS WITHOUT RECORDING THE SELECTION
+
+**Three instances on 2026-08-20, across three drug classes, three sponsors and three
+registries.** It is no longer a property of our topics; it is a finding about how reviews get
+built.
+
+| topic | what was registered | what the review used | what records the choice |
+|---|---|---|---|
+| `sglt2-mace-cvot` | DECLARE-TIMI 58 registers **two co-primaries** — CV death/MI/ischaemic stroke, and CV death/HHF | the MACE composite | **nothing** |
+| `inclisiran-lipid-kidney` | ORION registers LDL-C change at **day 510** and a **time-averaged** change | day 510 | **nothing** |
+| `icosapent-lipid` | MARINE and ANCHOR each register **three arms** — placebo, 2 g/day, 4 g/day | one dose arm | **nothing** |
+
+**The mechanism is identical and so is the invisibility property.** The object holds one of
+the registered options, correctly transcribed, so **nothing about it looks incomplete.** There
+is no null, no refusal, no missing field — the absence is of a *record that a choice
+occurred*, and an absent record of a choice is indistinguishable from there having been no
+choice to make.
+
+> **A review that selects among registered options without recording the selection has made
+> an analytic decision that cannot be audited from its own output.**
+
+**It is a sibling of the composite-endpoint class**, and the pairing is the useful part: that
+one is *two trials measuring different things pooled as one*; this one is *one trial
+measuring several things, one of which was silently kept.* Both produce a number whose
+question is not the question anyone registered, and **neither is visible in heterogeneity** —
+a silently selected co-primary or dose arm is internally consistent and pools beautifully.
+
+**THE SELECTION RATIOS SPAN 1-OF-2 TO 1-OF-7, and the range is the finding.** One of two
+co-primaries is a defensible convention badly recorded. **One of seven is a trial being
+repurposed.**
+
+| ratio | topic | what the other options were |
+|---|---|---|
+| 1 of 2 | `sglt2-mace-cvot` | the other co-primary, CV death or HHF |
+| 1 of 2 | `inclisiran` | the time-adjusted change across the dosing interval |
+| 1 of 3 arms | `icosapent` | the 2 g/day dose |
+| 1 of 3 arms | `bococizumab` / SPIRE-SI | **an atorvastatin active-comparator arm** |
+| **1 of 7** | `bococizumab` / **SPIRE-AI** | **six measures of whether an injection was successfully administered** |
+
+**SPIRE-AI is what the class means.** Six of its seven registered primaries measure the
+percentage of injections meeting a successful-assessment definition on a participant
+assessment tool — **it is an auto-injector usability study**, and its lipid endpoint is
+pooled into a meta-analysis of lipid lowering. Until 2026-08-20 nothing on the object or the
+page said so.
+
+**And the object already held the evidence twice over.**
+`inputs.trials[NCT02458287].registered_primaries` listed all seven verbatim, and
+`arms_as_the_registry_lists_them` held the correct four-arm dose-matched listing beside the
+two-arm pairing in `arms` that contradicts it. **The object contradicted itself in two places
+and nothing was obliged to read either** — class 65, again. The failure was never extraction
+and never honesty.
+
+**Direction is not asserted.** Nothing read shows a selection made after seeing the data.
+What is asserted is that the selection is unrecorded, which is checkable and true.
+
+## Class 67 — ESTIMAND MISMATCH ARRIVING THROUGH THE SUMMARY STATISTIC
+
+The fourth instance of *the pooled quantity is not the quantity the trials estimated*, and
+the first to arrive through the **summary statistic** rather than through the endpoint's
+components.
+
+MARINE and ANCHOR both register their primary as a **MEDIAN percent change** from baseline to
+Week 12 in fasting serum triglycerides. `icosapent-lipid` stores and pools a **MEAN
+DIFFERENCE**, −25.84.
+
+**In these populations the two diverge by construction.** MARINE enrols on triglycerides
+≥ 500 mg/dL and ANCHOR on ≥ 200 mg/dL — threshold-selected, right-skewed distributions, which
+is precisely the case where a trialist reports a median. **So the pool answers a question
+neither trial asked.**
+
+The family now reads:
+
+| instance | how the estimands differ |
+|---|---|
+| `attr-pn` | the **contrast** — patisiran as intervention in one row and comparator in another |
+| `sglt2-mace-cvot` | the **components** — non-fatal stroke of any type against ischaemic stroke only |
+| `rosuvastatin` | the **outcome** — a pooled estimand HOPE-3 does not hold |
+| `icosapent-lipid` | the **summary statistic** — a registered median pooled as a mean |
+
+**And none of the four is visible in I².** Each pools internally-consistent numbers that
+answer different questions; heterogeneity measures dispersion among estimates, not whether
+they estimate the same thing. `estimand_established` was written for this and, per class 65,
+nothing was obliged to read it.
+
+**Both findings render beside the estimate**, not only on the object — the standing test for
+anything found: *does it reach a reader, or does it exist for us.*
+
+
+## Class 68 — A PATH-KEYED COMPARISON CANNOT DISTINGUISH A RELOCATION FROM A DELETION
+
+**Three instruments, all keyed on position or identity rather than on value, all reporting
+movement as loss.** That is a class, not three notes.
+
+| instrument | keyed on | what it reported |
+|---|---|---|
+| `scripts/baselines/exclusion_by_absence_baseline.json` | `file:line` | 8 guards "new", 9 "gone" after a six-line docstring shifted them. **Not one line of guard logic changed.** |
+| `lint_self_describing_safety_claim` baseline | a **count** of claims | detects growth; **blind to substitution** — a claim replaced by a different claim reads as no change |
+| the leaf-by-leaf object comparison | a **dotted path** | 5 values reported lost when they were **relocated** under `superseded_state_2026_08_20`, all five verified present by value |
+
+**The key does not identify the thing it names.** A line number names a position, a count
+names a quantity, a dotted path names a location — and in each case the thing being watched
+is a *value* that can move. Every one of the three answers "did it move?" while being read as
+"is it still there?"
+
+**And the failure mode is asymmetric in the dangerous direction.** All three over-report
+loss, which is noisy but safe. The *count* baseline additionally under-reports substitution,
+which is silent — a claim swapped for a different claim leaves the number unchanged. **Of the
+three, the count is the one to fix first**, and it is the one whose defect is invisible.
+
+Not fixed tonight. Keying on the guard text plus its enclosing function, on the claims
+themselves rather than their number, and on values rather than paths, would each survive the
+movement they currently mistake for deletion.
+
+## Class 69 — I BREACHED A STANDING RULE THAT WAS ENFORCED, AND THE GUARD HELD WHERE I DID NOT
+
+**"Never net-delete from `ssot/**/*.json`" is one of the five genuinely enforced standing
+instructions** — `scripts/ssot_net_deletion_check.py`, wired into pre-commit. Tonight I wrote
+four appliers that each do:
+
+```python
+obj["risk_of_bias"] = { ... }
+```
+
+**A wholesale subtree replacement.** On `bococizumab-lipid-review` that removed five leaf
+values — the prior tool, state, why, consequence-carried-into-grade and what-would-close-it —
+which were the record of what the topic said *before* it was assessed.
+
+**The guard held and the writer did not**, which is the heredoc lesson exactly: the rule was
+known, written down, and enforced, and it was breached by the person who had spent the night
+writing about it. What caught it was a **leaf-by-leaf comparison against HEAD**, not the
+applier that did the deleting, and not the pre-commit hook — which would have caught it at
+commit time, one step later.
+
+**Measured across the four appliers**: the wholesale pattern is in all four; it caused a real
+loss in **one**. The other three were spared by luck — two replaced an empty field and one
+re-authored identical content. **Wholesale replacement is the natural way to write an applier
+and it will be written again.**
+
+The prior state is restored under `superseded_state_2026_08_20` with the reason on the
+object: *a reader comparing the two learns something a single current value cannot tell them.*
+
+
+## Class 70 — A GUARD THAT COMPARES AGAINST WHAT IS DELIVERED GOES BLIND ONCE A FIRST FAILURE HAS LOWERED THE BASELINE
+
+> **A guard that compares new against delivered cannot fire on a second failure once a first
+> has lowered the baseline, and it will report NOT_ASSESSABLE — a correct answer — while a
+> page is written empty.**
+
+**What happened.** All four risk-of-bias appliers wrote `risk_of_bias.ceiling` as a bare
+STRING. `paper_projector` does `ceil.get("statement")`, so it raised `AttributeError` and the
+whole manuscript collapsed to a 318-character *projector failed* banner — **17,012 characters
+and 27 sections to nothing.**
+
+| page | what the guard said | outcome |
+|---|---|---|
+| `INCLISIRAN` | **REFUSED** — "−98.13% text, −1 sections" | saved |
+| `EMPAGLIFLOZIN` | **NOT_ASSESSABLE** — "the delivered copy carries no manuscript panel — nothing to destroy" | **written empty** |
+| `ICOSAPENT` | same | **written empty** |
+
+**The guard was correct at every step.** The delivered copies genuinely had no panel — because
+an earlier broken build had already stripped them. **The first failure removed the evidence the
+guard needed to catch the second**, and it reported the honest three-state answer while the
+damage went through.
+
+**And the blindness opens exactly when it is most needed:** a guard of this shape is at full
+strength while everything is fine and switches off the moment something has already gone
+wrong.
+
+### Every guard we have is of that shape — measured, not assumed
+
+| guard | compares against |
+|---|---|
+| `manuscript_guard.py` | **working tree** |
+| `regression_check.py` | **working tree** |
+| `prove_register_change_moved_no_content.py` | **working tree** |
+| `rebuild_paper_corpus_2026_08_20.py` | **working tree** |
+| `dashboard_projection_gate.py` | **working tree** |
+| `durable_artefact_gate.py` | **working tree** |
+| `ssot_net_deletion_check.py` | git **and** tree |
+| `prove_no_value_lost.py` | git **and** tree |
+| `generator_stamp_gate.py` | git **and** tree |
+
+**Six of nine ask "is this worse than the file on disk" — a file that may itself be damaged.
+Three ask "is this worse than a committed reference," which is the right question.** Git holds
+a known-good state and six guards do not consult it.
+
+### The corpus is currently clean, and that is a measurement not an assumption
+
+**116 of 116 pages carrying a paper panel have ≥5 rendered sections. 0 show a projector-failed
+banner, 0 have zero sections.** No page is presently sitting in the lowered-baseline state
+where the guard would say "nothing to destroy". The two that were have been rebuilt: 27
+sections each.
+
+**Not fixed tonight.** Converting six guards to a committed reference changes what every one
+of them means on an uncommitted working tree, which is the state most of this project's work
+happens in. That is a design decision for daylight.
+
+
+### Class 70, second instance — A SENTENCE CARRIED BETWEEN ARTEFACTS BY RETYPING
+
+Converting `risk_of_bias.ceiling` from a bare string to a dict — the class-70 fix itself — I
+**retyped** the house-rule sentence into four appliers and wrote `the sources read` where the
+authored text said `the sources READ`. One word, one letter's case, in the sentence that
+states the project's own no-low-by-default rule.
+
+`prove_no_value_lost.py` caught it, **and only by luck**: the shape changed from string to
+dict, so the old scalar path vanished and the value went missing with it. Had `ceiling`
+stayed a string, a retyped word would have passed both the path-keyed and the value-keyed
+check in silence — which is the gap that instrument's own docstring already names.
+
+> **A sentence carried from one artefact to another should be MOVED, never retyped.**
+
+Corrected in four appliers and four objects, and the three delivered pages rebuilt so the
+page renders what the object holds. The rebuild is the point: for a few minutes the object
+said `READ` and the delivered page said `read`, which is a field-versus-page disagreement of
+exactly the shape this project treats as serious, arriving from a one-character edit.
+
+### Class 70, third instance — O2 REPRODUCED IN A NEW INSTRUMENT THE SAME NIGHT
+
+`prove_no_value_lost.py` skipped, with a bare `continue`, any object with no committed copy
+at HEAD — then printed `OBJECTS COMPARED AGAINST HEAD BY VALUE: 155` as though 155 were the
+population. **That is open item O2 of this file**, written here about the pre-push regression
+check, reproduced by the same author in a new instrument on the same night, and a number was
+quoted from it.
+
+Found by `audit_exclusion_by_absence.py --gate`, which refused the commit.
+
+**Measured, the exclusion was LATENT rather than realised: 155 on disk, 155 compared, 0
+excluded.** The reported figure was over the whole population. It was true, and it was not
+*known* to be true, and those are different things. The output now prints all three numbers
+so a reader can reconcile them, and the guard is baselined with the reason.
+
+
 ## OPEN — carried, not fixed
 
 ### O1. A check that reads a different working tree than the one being built

@@ -1,0 +1,261 @@
+"""bococizumab-lipid: six results assessed, and D5 is NOT the same across them.
+
+ESTABLISHED FROM ALL SIX REGISTRATIONS, ClinicalTrials.gov API v2, 2026-08-20, BEFORE ANY
+DOMAIN WAS JUDGED:
+
+    SPIRE-HR   NCT01968954  n=711   QUADRUPLE  2 arms  1 primary
+    SPIRE-LDL  NCT01968967  n=2139  QUADRUPLE  2 arms  1 primary
+    SPIRE-FH   NCT01968980  n=370   QUADRUPLE  2 arms  1 primary
+    SPIRE-LL   NCT02100514  n=746   TRIPLE     2 arms  1 primary   <- assessor NOT masked
+    SPIRE-SI   NCT02135029  n=184   QUADRUPLE  3 ARMS  1 primary   <- one is ATORVASTATIN
+    SPIRE-AI   NCT02458287  n=299   QUADRUPLE  4 ARMS  7 PRIMARIES <- one is LDL-C
+
+TWO IDENTITY FINDINGS, ESTABLISHED FROM THE REGISTRY'S OWN ARM TABLE AND NOT FROM THE
+OBJECT'S LABELS.
+
+  1. SPIRE-AI'S ARM PAIRING ON THIS OBJECT IS NOT A REGISTERED CONTRAST. The registry lists
+     FOUR arms: Bococizumab 150mg, Bococizumab 75mg, Bococizumab 150mg PLACEBO, Bococizumab
+     75mg PLACEBO -- a dose-matched double-dummy. This object records treatment
+     "Bococizumab 150mg" against control "Bococizumab 75mg placebo". THOSE ARE BOTH REAL
+     REGISTERED ARMS AND THEY ARE THE WRONG PAIR: the 150 mg dose's comparator is the 150
+     mg placebo. The object crosses the dose strata. NOT CORRECTED -- the stored MD -63.4
+     was derived from these arms, so a correction moves a published number.
+
+  2. SPIRE-SI REGISTERS THREE ARMS AND ONE IS AN ACTIVE COMPARATOR -- bococizumab,
+     ATORVASTATIN, placebo. This object records two. Which arm was dropped is not recorded,
+     and if the atorvastatin arm had been the comparator this row would be an
+     active-controlled contrast inside a placebo-controlled pool.
+
+AND THE FOURTH AND FIFTH INSTANCES OF CLASS 66 IN ONE NIGHT.
+
+  SPIRE-AI REGISTERS SEVEN PRIMARY OUTCOMES. One is the LDL-C change this review pools; the
+  other six are "Percentage of Injections That Met the Definition for Successful Assessment
+  Using the Participant Assessment Tool" -- SPIRE-AI IS AN AUTO-INJECTOR USABILITY TRIAL
+  with a lipid endpoint among its primaries. Selecting 1 of 7 without recording it is the
+  largest selection ratio found tonight.
+
+  SPIRE-SI's three arms are the fifth instance: an option set of three, one recorded, no
+  record of the choice.
+
+SO D5 DIFFERS ACROSS THE SIX AND IS NOT A TOPIC-LEVEL JUDGEMENT. Four trials register one
+primary and two arms with wording that matches what is pooled: D5 LOW. Two do not: D5
+SOME_CONCERNS. AN ASSESSMENT THAT SCORED ALL SIX ALIKE WOULD HAVE BEEN A TOPIC-LEVEL
+JUDGEMENT WEARING SIX RESULT-LEVEL LABELS.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import atomic_write
+
+TOPIC = "bococizumab-lipid-review"
+TODAY = "2026-08-20"
+OBJ = os.path.join(REPO, "ssot", TOPIC, TOPIC + ".json")
+
+TRIALS = {
+    "NCT01968954": ("SPIRE-HR", 711, "QUADRUPLE", 2, 1),
+    "NCT01968967": ("SPIRE-LDL", 2139, "QUADRUPLE", 2, 1),
+    "NCT01968980": ("SPIRE-FH", 370, "QUADRUPLE", 2, 1),
+    "NCT02100514": ("SPIRE-LL", 746, "TRIPLE", 2, 1),
+    "NCT02135029": ("SPIRE-SI", 184, "QUADRUPLE", 3, 1),
+    "NCT02458287": ("SPIRE-AI", 299, "QUADRUPLE", 4, 7),
+}
+
+D1 = {
+    "judgement": "LOW",
+    "basis": "REGISTRATION DESIGN MODULE, READ",
+    "reason": "allocation: RANDOMIZED is recorded on all six design modules.",
+    "what_is_NOT_established": "The concealment mechanism is not on the registry.",
+}
+D2 = {
+    "judgement": "NO_INFORMATION",
+    "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+    "reason": ("Analysis population and deviation handling are not on any of the six "
+               "registrations. The exit is the SPIRE reports, none of which was read."),
+}
+D3 = {
+    "judgement": "NO_INFORMATION",
+    "basis": "NOT ESTABLISHED",
+    "reason": ("A fixed-timepoint measurement at WEEK 12: a participant who leaves earlier "
+               "has no value rather than shortened follow-up. No registration states how "
+               "many week-12 values were missing or how they were handled. Twelve weeks is "
+               "a smaller attrition threat than inclisiran's day 510 and a comparable one "
+               "to icosapent's week 12 -- the domain is unjudged, not dismissed."),
+}
+
+
+def d4_for(masking):
+    if masking == "TRIPLE":
+        return {
+            "judgement": "LOW",
+            "basis": "REGISTRATION DESIGN MODULE -- AND THE MASKING DIFFERS FROM THE OTHER FIVE",
+            "reason": (
+                "SPIRE-LL's registered masking is TRIPLE -- participant, care provider, "
+                "investigator -- and THE OUTCOMES ASSESSOR IS NOT LISTED, where the other "
+                "five register QUADRUPLE. LOW is scored because fasting LDL-C is an "
+                "automated laboratory assay and an unmasked assessor has nothing to "
+                "decide. THE JUDGEMENT RESTS ON THE ENDPOINT, NOT ON THE MASKING, and the "
+                "difference is recorded so it is not carried to a subjective outcome from "
+                "this trial."),
+        }
+    return {
+        "judgement": "LOW",
+        "basis": "REGISTRATION DESIGN MODULE, READ",
+        "reason": ("Masking is registered QUADRUPLE, including the outcomes assessor, and "
+                   "the outcome is an automated fasting LDL-C assay."),
+    }
+
+
+def d5_for(nct, name, arms, primaries):
+    if nct == "NCT02458287":
+        return {
+            "judgement": "SOME_CONCERNS",
+            "basis": "REGISTRATION COMPARED WITH WHAT IS POOLED",
+            "reason": (
+                "SPIRE-AI REGISTERS SEVEN PRIMARY OUTCOMES. One is the week-12 LDL-C change "
+                "pooled here; the other six are percentages of injections meeting a "
+                "successful-assessment definition on a participant assessment tool -- THIS "
+                "IS AN AUTO-INJECTOR USABILITY TRIAL with a lipid endpoint among its "
+                "primaries. Selecting one of seven with no record of the selection is the "
+                "largest selection ratio in this corpus. AND THE ARM PAIR RECORDED ON THIS "
+                "OBJECT IS NOT A REGISTERED CONTRAST: 'Bococizumab 150mg' against "
+                "'Bococizumab 75mg placebo', where the registry's dose-matched design pairs "
+                "150 mg with the 150 mg placebo."),
+        }
+    if nct == "NCT02135029":
+        return {
+            "judgement": "SOME_CONCERNS",
+            "basis": "REGISTRATION COMPARED WITH WHAT IS POOLED",
+            "reason": (
+                "SPIRE-SI registers THREE arms -- bococizumab, ATORVASTATIN as an active "
+                "comparator, and placebo -- and this object records two. Which arm was "
+                "dropped is not recorded. If the atorvastatin arm were the comparator this "
+                "row would be an active-controlled contrast inside a placebo-controlled "
+                "pool, which is the mixed-contrast defect found on attr-pn tonight. THE "
+                "SELECTION IS THE FINDING; the direction is not asserted."),
+        }
+    return {
+        "judgement": "LOW",
+        "basis": "REGISTRATION COMPARED WITH WHAT IS POOLED",
+        "reason": (
+            "%s registers ONE primary outcome -- percent change from baseline in LDL-C at "
+            "week 12 -- and TWO arms. The registered wording matches what is pooled, and "
+            "there is no option set to select from, so the selection class cannot arise "
+            "here." % name),
+    }
+
+
+def main():
+    dry = "--apply" not in sys.argv
+    obj = json.load(io.open(OBJ, encoding="utf-8"))
+    ncts = set(t.get("nct") for t in (obj.get("inputs") or {}).get("trials") or [])
+    for nct in TRIALS:
+        if nct not in ncts:
+            sys.exit("REFUSED: %s is not on this object (%r)." % (nct, sorted(ncts)))
+
+    oid = "ldlc_pct_change_wk12"
+    if oid not in (obj.get("results") or {}).get("by_outcome", {}):
+        sys.exit("REFUSED: outcome %r is not on this object." % oid)
+
+    by_outcome = {oid: {}}
+    for nct, (name, n, masking, arms, primaries) in TRIALS.items():
+        d5 = d5_for(nct, name, arms, primaries)
+        by_outcome[oid][nct] = {
+            "nct": nct,
+            "trial": name,
+            "registered_enrolment": n,
+            "registered_masking": masking,
+            "registered_arm_count": arms,
+            "registered_primary_count": primaries,
+            "result_assessed": ("percent change from baseline in fasting LDL-C at week 12 "
+                                "-- a fixed-timepoint laboratory measurement"),
+            "domains": {
+                "D1_randomisation_process": D1,
+                "D2_deviations_from_intended_intervention": D2,
+                "D3_missing_outcome_data": D3,
+                "D4_measurement_of_the_outcome": d4_for(masking),
+                "D5_selection_of_the_reported_result": d5,
+            },
+            "overall": ("SOME_CONCERNS" if d5["judgement"] == "SOME_CONCERNS"
+                        else "SOME_CONCERNS"),
+            "overall_reason": (
+                "D2 and D3 NO_INFORMATION cap this at SOME_CONCERNS regardless of D5. "
+                "D5 ITSELF DIFFERS ACROSS THE SIX and the difference is the finding: four "
+                "trials register one primary and two arms, two do not."),
+        }
+
+    _rob = {
+        "tool": "RoB 2 (Cochrane risk-of-bias tool for randomized trials)",
+        "assessed_utc": TODAY,
+        "assessed_per": "RESULT, not trial -- Handbook 8.2",
+        "by_outcome": by_outcome,
+        "sources_read": ["ClinicalTrials.gov API v2 %s -- %s: design module, arm groups, "
+                         "primary outcomes" % (nct, TRIALS[nct][0]) for nct in sorted(TRIALS)],
+        "sources_NOT_read": "The SPIRE publications. D2 and D3 depend on them.",
+        "ceiling": {"statement": "A domain that cannot be judged from the sources READ is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect. Overall is capped at SOME_CONCERNS wherever a domain is NO_INFORMATION.", "shape_note": "A DICT, NOT A STRING. paper_projector does ceil.get('statement'), so a bare string here raises AttributeError and the ENTIRE MANUSCRIPT VANISHES -- 17,012 chars and 27 sections down to a 318-char projector-failed banner."},
+        "D5_IS_NOT_A_TOPIC_LEVEL_JUDGEMENT": (
+            "Four of the six register a single primary and two arms with wording matching "
+            "what is pooled: D5 LOW. SPIRE-AI registers SEVEN primaries and FOUR arms; "
+            "SPIRE-SI registers THREE arms including an ACTIVE comparator: D5 "
+            "SOME_CONCERNS. An assessment that scored all six alike would have been a "
+            "topic-level judgement wearing six result-level labels."),
+        "IDENTITY_ESTABLISHED_FROM_THE_REGISTRY_ARM_TABLE": (
+            "SPIRE-AI registers FOUR arms in a dose-matched double-dummy: Bococizumab "
+            "150mg, Bococizumab 75mg, Bococizumab 150mg placebo, Bococizumab 75mg placebo. "
+            "THIS OBJECT PAIRS 'Bococizumab 150mg' WITH 'Bococizumab 75mg placebo' -- both "
+            "real registered arms, and NOT a registered contrast, because the 150 mg dose's "
+            "comparator is the 150 mg placebo. Established from the registry's own arm "
+            "table before any domain was judged, and NOT corrected: the stored MD -63.4 "
+            "derives from these arms, so a correction moves a published number."),
+        "supersedes": (
+            "'no risk-of-bias assessment was recoverable from the page this object was "
+            "extracted from'."),
+    }
+    atomic_write.merge_not_overwrite(obj, "risk_of_bias", _rob,
+                                     TODAY.replace("-", "_"))
+
+    blk = obj["results"]["by_outcome"][oid]
+    blk["POOL_FINDINGS_%s" % TODAY.replace("-", "_")] = {
+        "a_spire_ai_pairs_a_dose_with_the_other_doses_placebo": (
+            "SPIRE-AI registers FOUR arms in a dose-matched double-dummy -- bococizumab 150 "
+            "mg, bococizumab 75 mg, and a matching placebo for each. THIS POOL'S SPIRE-AI "
+            "ROW PAIRS THE 150 MG DOSE WITH THE 75 MG PLACEBO. Both are real registered "
+            "arms and together they are not a registered contrast. Established from the "
+            "registry's arm table; not corrected, because the stored value derives from "
+            "these arms."),
+        "b_spire_ai_registers_seven_primaries_and_one_is_pooled": (
+            "Six of SPIRE-AI's seven registered primary outcomes concern the PERCENTAGE OF "
+            "INJECTIONS MEETING A SUCCESSFUL-ASSESSMENT DEFINITION on a participant "
+            "assessment tool -- it is an auto-injector usability trial. The seventh is the "
+            "LDL-C change pooled here. The selection is recorded nowhere."),
+        "c_spire_si_registers_three_arms_one_of_them_atorvastatin": (
+            "SPIRE-SI registers bococizumab, ATORVASTATIN and placebo. This object records "
+            "two arms and does not record which was dropped."),
+    }
+
+    obj.setdefault("display_change_announced", []).append({
+        "date": TODAY,
+        "change": "risk of bias assessed per result for all six contributing results",
+        "values_moved": "NONE",
+        "what_changed": (
+            "All six registrations read before judgement. D1 and D4 LOW, D2 and D3 "
+            "NO_INFORMATION, D5 LOW for four trials and SOME_CONCERNS for SPIRE-AI and "
+            "SPIRE-SI. SPIRE-AI's recorded arm pair is not a registered contrast."),
+        "why": ("The risk-of-bias limb was previously discharged by a sentence about where "
+                "somebody looked."),
+    })
+
+    print("bococizumab: 6 results assessed; D5 LOW on four, SOME_CONCERNS on SPIRE-AI and "
+          "SPIRE-SI")
+    if dry:
+        print("DRY RUN -- pass --apply to write")
+        return
+    atomic_write.write_json(OBJ, obj, indent=1)
+    print("wrote %s" % OBJ)
+
+
+if __name__ == "__main__":
+    main()

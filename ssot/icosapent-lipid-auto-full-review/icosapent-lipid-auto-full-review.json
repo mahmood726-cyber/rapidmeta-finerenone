@@ -473,7 +473,11 @@
     },
     "estimator_note_2026_08_20": "REML, applied 2026-08-20 under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The estimator this pool used before that date was DerSimonian-Laird inverse-variance on extracted effect estimates; that fit was reproduced first and is quoted under r_output_superseded_2026_08_20, so the movement is attributable rather than asserted.",
     "estimand_established_reason_2026_08_20": "CHECKED ON 2026-08-20 AND ESTABLISHED. Both registrations post the SAME primary outcome title, BYTE-IDENTICAL: 'Difference Between AMR101 (Ethyl Icosapentate) and Placebo Treatment Groups in Triglyceride Lowering Effect'. What that does NOT establish is a shared population -- MARINE enrolled severe hypertriglyceridaemia and ANCHOR statin-treated patients in a lower band, which is what I-squared of 64.2% on two trials is measuring. The pool estimates the effect ACROSS two settings and the object says so.",
-    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py.",
+    "POOL_FINDINGS_2026_08_20": {
+     "a_the_registered_statistic_is_a_median_and_this_pools_a_mean": "THE REGISTERED PRIMARY OF BOTH TRIALS IS A MEDIAN PERCENT CHANGE from baseline to Week 12 in fasting serum triglycerides -- that wording is on both registrations. This pool is a MEAN DIFFERENCE. In populations selected for triglycerides above 500 mg/dL (MARINE) and above 200 mg/dL (ANCHOR) the mean and the median diverge by construction, so this pooled value answers a question NEITHER TRIAL ASKED. The estimate is not changed here: correcting a summary statistic changes what the published number means and that is a content decision.",
+     "b_three_arms_were_registered_and_two_are_recorded": "Both trials registered THREE arms -- placebo, AMR101 2 g/day and AMR101 4 g/day. This object records two. A dose arm was selected and THE SELECTION IS RECORDED NOWHERE. A review that selects among registered options without recording the selection has made an analytic decision that cannot be audited from its own output."
+    }
    }
   }
  },
@@ -512,6 +516,34 @@
    "what_changed": "`estimand_established` False -> True on byte-identical registered titles, with the population difference stated separately. P46 limb 3 was ABSENT and now holds 2 identified syntheses and 7 checks.",
    "why": "A pooled estimate published with no comparison cannot be checked by a reader against anything, and an estimand recorded as NOT ESTABLISHED because nobody looked is not a negative finding.",
    "what_it_found": "That NO identified synthesis pools MARINE with ANCHOR on this endpoint -- every one is class-wide omega-3 across species and dose. This review's estimate is UNREPLICATED. The Cochrane ~15%% is not a disagreement: their own dose-dependence finding predicts the direction of the gap, and nothing available predicts its size."
+  },
+  {
+   "date": "2026-08-20",
+   "change": "risk of bias assessed per result; two non-bias findings recorded",
+   "values_moved": "NONE",
+   "what_changed": "Both registrations read. D1 and D4 LOW, D2 and D3 NO_INFORMATION, D5 SOME_CONCERNS because the registered primary is a MEDIAN percent change while this object pools a MEAN difference, and because both trials registered three arms while the object records two.",
+   "why": "The risk-of-bias limb was previously discharged by a sentence about where somebody looked."
+  },
+  {
+   "date": "2026-08-20",
+   "change": "GRADE rated for the pooled outcome, consuming the per-result RoB",
+   "values_moved": "NONE",
+   "what_changed": "Certainty VERY_LOW after 4 downgrade(s).",
+   "why": "The GRADE limb was previously discharged by a sentence about where somebody looked."
+  },
+  {
+   "date": "2026-08-20",
+   "change": "risk of bias assessed per result; two non-bias findings recorded",
+   "values_moved": "NONE",
+   "what_changed": "Both registrations read. D1 and D4 LOW, D2 and D3 NO_INFORMATION, D5 SOME_CONCERNS because the registered primary is a MEDIAN percent change while this object pools a MEAN difference, and because both trials registered three arms while the object records two.",
+   "why": "The risk-of-bias limb was previously discharged by a sentence about where somebody looked."
+  },
+  {
+   "date": "2026-08-20",
+   "change": "risk of bias assessed per result; two non-bias findings recorded",
+   "values_moved": "NONE",
+   "what_changed": "Both registrations read. D1 and D4 LOW, D2 and D3 NO_INFORMATION, D5 SOME_CONCERNS because the registered primary is a MEDIAN percent change while this object pools a MEAN difference, and because both trials registered three arms while the object records two.",
+   "why": "The risk-of-bias limb was previously discharged by a sentence about where somebody looked."
   }
  ],
  "question_restated_2026_08_19": {
@@ -584,5 +616,164 @@
    "symmetry": "Confirmations are listed in the same table, in the same detail, as the absences. NO ERROR WAS FOUND ON EITHER SIDE HERE, and that is reported as plainly as an error would be: two of the six rows are ABSENCES rather than clean passes -- no synthesis pools this pair, and identical titles do not make identical populations.",
    "what_this_denominator_does_not_cover": "The 31 records retrieved and not read, and the included-study table of every one of the four appraised. No published trial set here was read."
   }
+ },
+ "risk_of_bias": {
+  "tool": "RoB 2 (Cochrane risk-of-bias tool for randomized trials)",
+  "assessed_utc": "2026-08-20",
+  "assessed_per": "RESULT, not trial -- Handbook 8.2",
+  "by_outcome": {
+   "primary": {
+    "NCT01047683": {
+     "nct": "NCT01047683",
+     "trial": "MARINE",
+     "result_assessed": "percentage change in fasting serum triglycerides at Week 12 -- a SCHEDULED LABORATORY MEASUREMENT, not an adjudicated clinical event",
+     "registered_masking": "QUADRUPLE -- participant, care provider, investigator, OUTCOMES ASSESSOR",
+     "registered_enrolment": 229,
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation: RANDOMIZED is recorded on the registry design module for both trials, not merely implied by a title. Arm sizes are consistent with a concealed sequence.",
+       "what_is_NOT_established": "The concealment MECHANISM is not described on the registry. LOW is scored on the recorded allocation and the balance, not on a mechanism nobody here has read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT DESCRIBE IT",
+       "reason": "Neither registration states the analysis population or how deviations were handled. THIS OBSTACLE IS IN THE EVIDENCE AVAILABLE ON THE REGISTRY, and it is NOT the same as the empagliflozin case, where the methods section exists and is behind a paywall. Here the registry simply does not carry the field. The exit is the published papers -- Bays 2011 (PMID 21683321) for MARINE and the ANCHOR report for the second -- and neither has been read."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- AND THE ENDPOINT SHAPE IS WHY IT MATTERS HERE",
+       "reason": "The result is a FIXED-TIMEPOINT MEASUREMENT at Week 12, not a time-to-event with censoring. A participant who leaves before Week 12 has NO VALUE -- they do not contribute partial follow-up the way an EMPEROR participant does. So missing outcome data is a live threat for this result in a way it is not for an adjudicated event, and neither registration states how many Week-12 values were missing or how they were handled. THE SAME DOMAIN, A DIFFERENT RISK, BECAUSE THE ENDPOINT IS A DIFFERENT KIND OF THING."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "The outcome is fasting serum triglyceride measured by laboratory assay. The registry records the OUTCOMES ASSESSOR as masked, and an automated assay on a fasting sample is not a measurement an assessor's expectation can shade in any case. THIS IS NOT EMPEROR'S REASON -- there the judgement rested on adjudication of clinical events by a blinded committee. Same domain, different evidence, different argument."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTRATION COMPARED WITH WHAT THIS OBJECT POOLS",
+       "reason": "The registered primary is a MEDIAN PERCENT CHANGE and this object pools a MEAN DIFFERENCE. And both trials registered THREE ARMS -- placebo, 2 g/day, 4 g/day -- while this object records two, so a dose arm was selected with no record of the selection. A result reported on a different summary statistic from the registered one, drawn from a multi-arm trial with an unrecorded arm choice, is the domain RoB 2's D5 exists to flag. NOT HIGH: the direction was not chosen after seeing the data as far as anything read shows, and inventing that would be the accusing-direction error."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D5 SOME_CONCERNS on the registered-versus-pooled summary statistic and the unrecorded arm selection; D2 and D3 NO_INFORMATION. Overall cannot exceed its worst judged domain and cannot be LOW while two domains are unjudged."
+    },
+    "NCT01047501": {
+     "nct": "NCT01047501",
+     "trial": "ANCHOR",
+     "result_assessed": "percentage change in fasting serum triglycerides at Week 12 -- a SCHEDULED LABORATORY MEASUREMENT, not an adjudicated clinical event",
+     "registered_masking": "DOUBLE -- participant and investigator; THE OUTCOMES ASSESSOR IS NOT LISTED",
+     "registered_enrolment": 702,
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation: RANDOMIZED is recorded on the registry design module for both trials, not merely implied by a title. Arm sizes are consistent with a concealed sequence.",
+       "what_is_NOT_established": "The concealment MECHANISM is not described on the registry. LOW is scored on the recorded allocation and the balance, not on a mechanism nobody here has read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT DESCRIBE IT",
+       "reason": "Neither registration states the analysis population or how deviations were handled. THIS OBSTACLE IS IN THE EVIDENCE AVAILABLE ON THE REGISTRY, and it is NOT the same as the empagliflozin case, where the methods section exists and is behind a paywall. Here the registry simply does not carry the field. The exit is the published papers -- Bays 2011 (PMID 21683321) for MARINE and the ANCHOR report for the second -- and neither has been read."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- AND THE ENDPOINT SHAPE IS WHY IT MATTERS HERE",
+       "reason": "The result is a FIXED-TIMEPOINT MEASUREMENT at Week 12, not a time-to-event with censoring. A participant who leaves before Week 12 has NO VALUE -- they do not contribute partial follow-up the way an EMPEROR participant does. So missing outcome data is a live threat for this result in a way it is not for an adjudicated event, and neither registration states how many Week-12 values were missing or how they were handled. THE SAME DOMAIN, A DIFFERENT RISK, BECAUSE THE ENDPOINT IS A DIFFERENT KIND OF THING."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ -- AND THE MASKING DIFFERS FROM ITS SIBLING",
+       "reason": "ANCHOR's registered masking is DOUBLE and lists participant and investigator ONLY -- the outcomes assessor is not among the masked roles, where MARINE's is. For a subjective outcome that difference would matter and the two results would not share a judgement. IT DOES NOT MATTER HERE AND THE REASON IS THE ENDPOINT: a fasting triglyceride is an automated laboratory value, and an unmasked assessor has nothing to decide. LOW is scored on the nature of the measurement, NOT on the masking, and the two siblings reach the same judgement by different routes."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTRATION COMPARED WITH WHAT THIS OBJECT POOLS",
+       "reason": "The registered primary is a MEDIAN PERCENT CHANGE and this object pools a MEAN DIFFERENCE. And both trials registered THREE ARMS -- placebo, 2 g/day, 4 g/day -- while this object records two, so a dose arm was selected with no record of the selection. A result reported on a different summary statistic from the registered one, drawn from a multi-arm trial with an unrecorded arm choice, is the domain RoB 2's D5 exists to flag. NOT HIGH: the direction was not chosen after seeing the data as far as anything read shows, and inventing that would be the accusing-direction error."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D5 SOME_CONCERNS on the registered-versus-pooled summary statistic and the unrecorded arm selection; D2 and D3 NO_INFORMATION. Overall cannot exceed its worst judged domain and cannot be LOW while two domains are unjudged."
+    }
+   }
+  },
+  "WHY_THIS_PROFILE_IS_NOT_THE_EMPAGLIFLOZIN_PROFILE": "empagliflozin-hf's two results are ADJUDICATED time-to-event composites: D3 LOW because censoring absorbs withdrawal, D4 LOW because a blinded committee adjudicates, D5 LOW because one primary was registered and reported. THIS result is a FIXED-TIMEPOINT LABORATORY VALUE: D3 is NO_INFORMATION because a missed Week-12 visit is a missing value rather than shortened follow-up, D4 is LOW for a different reason -- an automated assay -- and D5 is SOME_CONCERNS because the pooled statistic is not the registered one. FOUR OF FIVE DOMAINS DIFFER IN JUDGEMENT OR IN REASON. An assessment that came out the same would have been evidence of copying rather than assessing.",
+  "sources_read": [
+   "ClinicalTrials.gov API v2 NCT01047683 -- design module (allocation RANDOMIZED, masking QUADRUPLE incl. outcomes assessor), three arm groups, enrolment 229, verbatim primary outcome and its MEDIAN percent-change description",
+   "ClinicalTrials.gov API v2 NCT01047501 -- design module (allocation RANDOMIZED, masking DOUBLE, outcomes assessor NOT listed), three arm groups, enrolment 702, same verbatim primary outcome"
+  ],
+  "sources_NOT_read": "The published reports. Bays 2011 (PMID 21683321, MARINE) has no PMC record; the ANCHOR report was not retrieved. D2 and D3 are the domains that depend on them.",
+  "ceiling": {
+   "statement": "A domain that cannot be judged from the sources READ is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect. Overall is capped at SOME_CONCERNS wherever a domain is NO_INFORMATION.",
+   "shape_note": "A DICT, NOT A STRING. paper_projector does ceil.get('statement'), so a bare string here raises AttributeError and the ENTIRE MANUSCRIPT VANISHES -- 17,012 chars and 27 sections down to a 318-char projector-failed banner."
+  },
+  "THE_ARM_ROLES_ON_THIS_OBJECT_ARE_INVERTED": "Both trials record 'Placebo' as the TREATMENT arm and 'AMR101 (ethyl icosapentate) - 4 g/day' as the CONTROL -- already on the open list. THIS ASSESSMENT DOES NOT INHERIT THAT LABELLING: every domain is judged against what the REGISTRATION says the trial did.",
+  "TWO_FINDINGS_THAT_ARE_NOT_BIAS_DOMAINS": {
+   "registered_statistic_is_a_median_and_this_pools_a_mean": "Both registered primaries describe a MEDIAN PERCENT CHANGE from baseline to Week 12. This object stores and pools a MEAN DIFFERENCE. In a population selected for triglycerides above 500 mg/dL the two diverge by construction, so the pooled -25.84 is not the registered estimand of either trial. NOT CORRECTED -- it changes what the published number means.",
+   "three_arms_registered_two_recorded": "Placebo, 2 g/day and 4 g/day are registered for both trials; this object records two arms. A dose arm was selected and the selection is recorded nowhere. Same shape as DECLARE-TIMI 58's dropped co-primary, in a second topic on the same night."
+  },
+  "supersedes": "'no risk-of-bias assessment was recoverable from the page this object was extracted from' -- a sentence about where somebody looked."
+ },
+ "grade": {
+  "approach": "GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.",
+  "rated_utc": "2026-08-20",
+  "by_outcome": {
+   "primary": {
+    "certainty": "VERY_LOW",
+    "k": 2,
+    "started_at": "HIGH",
+    "steps": [
+     {
+      "domain": "risk_of_bias",
+      "levels": -1,
+      "from": "HIGH",
+      "to": "MODERATE",
+      "rating": "serious",
+      "reason": "BOTH results are SOME_CONCERNS and the driver is NOT empagliflozin's. D5 is SOME_CONCERNS in its own right: the registered primary is a MEDIAN percent change and this pool is a MEAN difference, and both trials registered THREE arms where the object records two. D2 and D3 are additionally NO_INFORMATION -- and D3 here is a live threat rather than a formality, because a week-12 laboratory value is missing when a participant leaves, where a time-to-event result absorbs the same withdrawal by censoring."
+     },
+     {
+      "domain": "inconsistency",
+      "levels": -1,
+      "from": "MODERATE",
+      "to": "LOW",
+      "rating": "serious",
+      "reason": "I-squared is 64.2% with tau-squared 43.19 over k=2. Handbook 10.10.2 warns against reading I-squared mechanically, and at this k the estimate is imprecise -- but the point estimates themselves differ materially and the direction of the finding does not rest on the statistic alone."
+     },
+     {
+      "domain": "indirectness",
+      "levels": -1,
+      "from": "LOW",
+      "to": "VERY_LOW",
+      "rating": "serious",
+      "reason": "THE POOLED QUANTITY IS NOT THE REGISTERED QUANTITY. Both registrations describe the primary as a MEDIAN PERCENT CHANGE from baseline to week 12 in fasting serum triglycerides; this pool is a MEAN DIFFERENCE. In populations selected on a triglyceride threshold -- above 500 mg/dL in MARINE, above 200 in ANCHOR -- the mean and the median diverge BY CONSTRUCTION, which is precisely why a trialist reports a median. THE POOL THEREFORE ANSWERS A QUESTION NEITHER TRIAL ASKED, and that is an indirectness fact, not a footnote. Compounded by a dose arm selected from three registered arms with the selection recorded nowhere."
+     },
+     {
+      "domain": "imprecision",
+      "levels": -1,
+      "from": "VERY_LOW",
+      "to": "VERY_LOW",
+      "rating": "serious",
+      "reason": "k=2, and the interval -36.84 to -14.84 spans a 22-point range on a percentage change. Two trials of 229 and 702 participants do not meet an optimal information size for an effect reported as a percentage of a skewed baseline. Handbook 15.6.2."
+     },
+     {
+      "domain": "publication_bias",
+      "levels": 0,
+      "from": "VERY_LOW",
+      "to": "VERY_LOW",
+      "rating": "undetected",
+      "reason": "NOT ASSESSED RATHER THAN ASSESSED AS ABSENT. Funnel-plot asymmetry and its tests are uninformative below about ten studies -- Handbook 13.3.5.4 -- and these pools carry two or three. 'Undetected' here means NOBODY LOOKED WITH AN INSTRUMENT THAT COULD SEE, not that publication bias is unlikely. Not rated down, because rating down on an unmeasurable domain would invent a defect."
+     }
+    ],
+    "RISK_OF_BIAS_DOMAIN_CONSUMES_THESE_RESULT_LEVEL_ASSESSMENTS": {
+     "primary/NCT01047683": "SOME_CONCERNS (MARINE)",
+     "primary/NCT01047501": "SOME_CONCERNS (ANCHOR)"
+    },
+    "summary": "Certainty VERY_LOW. The risk-of-bias domain reads the per-result RoB 2 assessments made 2026-08-20 and named above, not a topic-level summary; indirectness reads the estimand findings recorded on this pool."
+   }
+  },
+  "not_rated_up": "No domain is rated UP. Rating up for a large effect or a dose-response gradient applies to observational evidence that has not already been rated down, and neither condition holds here.",
+  "WHY_THESE_THREE_RATINGS_DIFFER": "empagliflozin is the only one of the three with NO recorded estimand problem and the only one with I-squared of zero, so its indirectness and inconsistency are not serious where the other two are. inclisiran is the only one meeting an optimal information size, so its imprecision is not serious where the other two are. IF THE THREE RATINGS WERE IDENTICAL THE RATING WOULD NOT BE READING THE ASSESSMENTS."
  }
 }
