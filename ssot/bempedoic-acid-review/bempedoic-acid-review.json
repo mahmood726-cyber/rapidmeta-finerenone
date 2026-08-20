@@ -426,6 +426,12 @@
      "what_would_change_it": "An estimand shared by two or more included trials. Where k is already above 1 and nothing pooled, the obstacle is the ESTIMAND rather than the evidence base, and this field must say which.",
      "refusal_basis": "SCREENED",
      "k_read_from_object": 1
+    },
+    "r_output_refused": {
+     "why": "NO MODEL WAS FITTED, because k = 1. The interval this page serves is CLEAR Outcomes' own registered Cox analysis, digit for digit, and nothing was pooled.",
+     "why_not_manufactured": "Running metafor over a single trial would print a model fit and satisfy the clause, and it would be a model this review does not use and never used. The clause asks for the output of the analysis that produced the number; where there is no such analysis the honest answer is that there is none.",
+     "what_would_change_it": "A second trial registering the same four-component MACE estimand. Of the four registrations this review includes, only CLEAR Outcomes registers a cardiovascular-event primary at all.",
+     "refusal_discharges_P46_because": "It names what exists (one trial's own Cox interval), why no quotable model output can exist (nothing was pooled), and what would change it."
     }
    }
   }
@@ -751,10 +757,13 @@
   "state": "PENDING_EXTERNAL_RESOLUTION",
   "_why": "Every page this project ships carries this section with a DENOMINATOR. A comparison without one reports the syntheses it happened to find.",
   "denominator": null,
-  "denominator_reason": "Not yet established. Establishing it requires resolving published syntheses' included-sets to REGISTRATION IDs. A second lane has validated that pipeline (stated-k table identification plus two-hop citation->PMID->registration) and is running it now.",
+  "denominator_reason": "The honest denominator here is ZERO, and that is a finding rather than a shortfall. The only benchmark this page holds for this estimand is CLEAR Outcomes itself -- the single trial whose result the card serves. A comparison of a number with itself agrees perfectly and establishes nothing, and that agreement must not be read as external corroboration. No INDEPENDENT synthesis of this estimand is recorded.",
   "explicitly_not_done": "CITATION-STRING MATCHING. It would produce a comparison-shaped answer tonight and it is not identity: two syntheses citing the same trial under different labels would read as different, and the same label on different trials as the same. That is the substitution class this project audits for.",
-  "candidate_source_search": "PubMed search recorded at search.databases[1] (109 records)",
-  "blocked_on": "lane 2 registration-id resolution"
+  "candidate_source_search": "PubMed search recorded at search.databases[1], which reported 109 record(s) and retrieved 50; 59 were not retrieved.",
+  "blocked_on": "lane 2 registration-id resolution",
+  "candidate_source_search_restated": "Restated 2026-08-20. This field previously read 'PubMed search recorded at search.databases[1] (109 records)' on FOURTEEN objects, which is true of bempedoic-acid-review alone; the count and, on half of them, the database were another topic's. Re-derive with: python scripts/lint_refusal_citation_resolves.py",
+  "what_would_have_to_be_obtained": "An independent synthesis of the four-component MACE estimand in bempedoic acid that is not CLEAR Outcomes. The PubMed search at search.databases[1] reported 109 record(s) and retrieved 50; the remaining 59 are unscreened and may contain one.",
+  "refusal_discharges_P46_because": "It names what was reached (one benchmark for this estimand), what was found insufficient (that benchmark IS the trial on the card, so the comparison would be the number against itself), and what would have to be obtained (an independent synthesis). The reason is a fact about the published evidence, not about our queue."
  },
  "registration_identity": {
   "verified_utc": "2026-08-19",

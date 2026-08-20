@@ -2338,10 +2338,13 @@
   "state": "PENDING_EXTERNAL_RESOLUTION",
   "_why": "Every page this project ships carries this section with a DENOMINATOR. A comparison without one reports the syntheses it happened to find.",
   "denominator": null,
-  "denominator_reason": "Not yet established. Establishing it requires resolving published syntheses' included-sets to REGISTRATION IDs. A second lane has validated that pipeline (stated-k table identification plus two-hop citation->PMID->registration) and is running it now.",
-  "explicitly_not_done": "CITATION-STRING MATCHING. It would produce a comparison-shaped answer tonight and it is not identity: two syntheses citing the same trial under different labels would read as different, and the same label on different trials as the same. That is the substitution class this project audits for.",
-  "candidate_source_search": "PubMed search recorded at search.databases[1] (109 records)",
-  "blocked_on": "lane 2 registration-id resolution"
+  "denominator_reason": "Not established, and the obstacle is specific to the three syntheses this review has already identified. 3 published synthes(es) are recorded with their estimates at reconciliation.published_benchmarks, and 3 of them record NO trial_count. The denominator this section requires is how many of THIS review's trials each synthesis included, and it cannot be formed from an estimate alone. A comparison published without it would report the syntheses we happened to find.",
+  "explicitly_not_done": "CITATION-STRING MATCHING. It would produce a comparison-shaped answer immediately and it is not identity: two syntheses citing one trial under different labels read as different trials, and one label on two trials reads as the same trial. That is the substitution class this project audits others for, and it is the reason this section is refused rather than filled.",
+  "candidate_source_search": "PubMed search recorded at search.databases[2], which reported 1452 record(s) and retrieved 50; 1402 were not retrieved. Three of the syntheses it surfaced are carried with their estimates at reconciliation.published_benchmarks.",
+  "blocked_on": "lane 2 registration-id resolution",
+  "candidate_source_search_restated": "Restated 2026-08-20. This field previously read 'PubMed search recorded at search.databases[1] (109 records)' on FOURTEEN objects, which is true of bempedoic-acid-review alone; the count and, on half of them, the database were another topic's. Re-derive with: python scripts/lint_refusal_citation_resolves.py",
+  "what_would_have_to_be_obtained": "The included trial set of each of the 3 syntheses, resolved to REGISTRATION IDs, so that overlap with this review's own included set is counted by identity. Two hops are needed per synthesis: its stated included-set table, then citation -> PMID -> registration. That work is lane 2's and is not blocked on anything this lane holds.",
+  "refusal_discharges_P46_because": "It names what was reached (a PubMed search with its yield, and three syntheses with their estimates), what was found insufficient (no trial_count on any of them, so no denominator), and what would have to be obtained (their included sets resolved to registration ids). Re-derive every number here with: python scripts/lint_refusal_citation_resolves.py"
  },
  "registration_identity": {
   "verified_utc": "2026-08-19",

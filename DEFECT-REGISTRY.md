@@ -743,6 +743,128 @@ reported only the lost pairs — the more natural design — the revert would ha
 would have caught this at step one — an audit that refuses to report on files with uncommitted
 modifications until it says so. Recorded as not written.
 
+### 37. A BASELINE IS THE MOST DANGEROUS PLACE FOR A REMEMBERED NUMBER
+
+**Because everything downstream is measured against it.** A wrong number in a report is wrong
+once. A wrong number in a baseline is the standard every future run is compared to, so it
+converts every later measurement into a comparison with a fiction — and it does so silently,
+because the comparison still *works*.
+
+**Measured, not recalled.** This entry would be self-refuting if its own count were from
+memory, so the instances are enumerated from the record, and they split into two classes that
+should not be conflated.
+
+**A number entered by RECALL rather than measurement — 3:**
+
+| instance | typed | measured | where |
+|---|---|---|---|
+| the templated-refusal baseline | `136` | **19** | `scripts/lint_p46_refusal_is_producibility.py:47` |
+| the next registry class number | `31`, `32` | **30, 31** | commit `cda03b345` — 29 was the highest that existed |
+| a scope line in a rebuild script | `7 pages of 1,473` | **10 of 115 tabbed** | typed once, left behind as the list grew |
+
+**Adjacent and DIFFERENT, listed so the class stays sharp — 3:**
+
+- **37 → 33 missing manuscripts** (`e97fc9960`) — this was quoting *our own document*, which the
+  operating rules already forbid under its own heading. Not recall; citation.
+- **82% is a rendering gap** (`4c3fde9b5`) — a *correct* measurement over-generalised from one
+  object to a corpus. Not a misremembered value; a misstated scope.
+- **`PAGE-STANDARD.md` at 1.6.0 while the code stamped 1.13.0** — a document going stale while
+  nothing read it. No recall involved at all.
+
+> **The tell is the same every time and so is the rescue: each was caught by the very thing it
+> was a baseline for.** The `136` was caught by running the script it belonged to. The class
+> numbering was caught by grepping the register it indexed. The scope line was caught by the
+> pass whose scope it described. **A baseline that is never exercised is never checked**, and
+> the ones that survive longest are those in code nobody runs.
+
+**The rule:** a baseline is written by a command, in the same commit as the command, and the
+command's output is the value. If a constant cannot be produced by running something, it is a
+claim wearing a number's clothes.
+
+**AND IT WENT WRONG A SECOND TIME, WITHIN THE HOUR, IN THE OPPOSITE DIRECTION.** The same
+constant was measured at `19`, correctly, against the lint **as it then was** -- which read
+refusal reasons only from `absent_from_source`. The lint was then widened to read an
+artefact's own block, three topics turned out to carry full refusals the narrow version had
+scored as SILENT, and the count became `52`. **Not one object changed.**
+
+> **A baseline is measured against an INSTRUMENT, not against the world.** So it must be
+> re-derived whenever the thing that produces it changes -- otherwise the ratchet fires on
+> its own improvement, the gate refuses a commit for the crime of looking harder, and the
+> obvious fix to whoever meets it at 2am is to delete the gate.
+
+That is the failure mode a ratchet is most exposed to, and it is not dishonesty or
+carelessness: it is a correct number going stale because its denominator moved.
+
+**Status: PARTIAL.** `BASELINE_TEMPLATED` now carries the command that produces it and the
+record of its own correction. Nothing yet forbids the next hand-typed threshold — and the
+repository holds at least three more (`FLOOR_CHARS = 600`, `PAPER_FLOOR = 1500`, the
+`TOLERANCE = 0.05` in the manuscript guard). Of those, only the manuscript guard's was
+*derived from a measurement* — ten rebuilds showing exactly 0.00% variation — and only it
+records the derivation beside the constant. See also class 33: those same thresholds do not
+report how close they came.
+
+### 36. A TRUE SENTENCE ANSWERING A QUESTION NOBODY ASKED, WHERE THE REAL ANSWER BELONGS
+
+**Found 2026-08-20, on 34 objects, and it survives scrutiny — which is what makes it worse
+than a false statement.**
+
+```
+absent_from_source.rob2   "No risk-of-bias assessment was recoverable from the page."
+absent_from_source.grade  "No certainty rating was recoverable from the page."
+```
+
+**Every one of those sentences is true.** They are careful, they are honestly scoped, and
+they were written by someone doing the right thing: recording what a converted page actually
+contained rather than asserting more.
+
+**They are about the wrong thing.** *What was recoverable from a source page* is a fact about
+**provenance**. *Whether a risk-of-bias assessment can be made* is a fact about **the trials** —
+and those objects hold their registrations in `inputs.trials`. RoB 2 per result is assessed
+from the registrations, not from the page the object was converted from, which is exactly what
+the unit does on `iv-iron-hf`, where a domain that cannot be judged from what was reachable is
+recorded `NO_INFORMATION` rather than left blank. GRADE is computed from k, the estimate, the
+interval and the heterogeneity — all of which those objects already hold.
+
+> **A false statement invites scrutiny and loses. A true statement in the wrong slot passes
+> every check that reads it, including a careful human one, because nothing about it is
+> wrong.** It fails only against a question nobody thought to ask of it: *is this the answer
+> to the question this slot is for?*
+
+**Identical text on 34 objects is the tell.** A reason true of one topic cannot be
+byte-identical across thirty-four; sharing at that scale is the signature of a template, and a
+template cannot be a finding about any particular topic.
+
+**Relation to the register.** This is the near neighbour of class 28 — *a rule that cannot
+return nothing cannot tell you it does not know* — but it is not the same. There the
+instrument had no way to express absence. Here absence IS expressed, correctly, about a
+different subject. It is also the inverse of class 29: a **false refusal contradicted by
+content beneath it** looks like diligence and is wrong; a **true provenance note standing in
+for a refusal** looks like diligence and is right — about something else.
+
+**Status: ENFORCED, on a ratchet.** `scripts/lint_p46_refusal_is_producibility.py --gate`, in
+`.githooks/pre-commit`. **The test is structural, not a keyword match** — a rule firing on the
+word *"recoverable"* would be P14 all over again. The test is that a reason offered for a
+missing P46 artefact must not be byte-identical to another topic's.
+
+**What it measured on its first run:**
+
+| | |
+|---|---:|
+| objects | 141 |
+| in scope (publish a pooled estimate) | **28** |
+| out of scope (no estimate) — *not passing* | 113 |
+| missing artefact, reason **templated** | **19** |
+| missing artefact, reason **specific to its topic** | **0** |
+| missing artefact, **no reason at all** | **74** |
+
+> **Not one topic in this corpus currently offers a P46 refusal that discharges the clause.**
+> Every absence is either silent or templated.
+
+The baseline is recorded as a **backlog, not a permission**: the gate refuses any increase and
+the number may only fall. It was also, briefly, wrong — the constant was first typed as `136`
+from memory and the measured value is `19`. **A baseline typed rather than measured is this
+same class one level up**, and it is recorded in the file beside the corrected number.
+
 ### 34. CLASS 28 IN THE MANUSCRIPT LAYER — *a fallback that always produces something cannot report an absence*
 
 **Found 2026-08-20, and it had been shipping for as long as those pages have existed.** Every

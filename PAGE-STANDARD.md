@@ -175,6 +175,56 @@ has simply only been run on `arni-hfref`, `attr-cm-review`, `iv-iron-hf` and `sg
 > held or refusing — was measuring the description and not the thing described.
 
 
+**A stated reason must be a reason the artefact CANNOT BE PRODUCED — not a reason it was not
+found in the source.**
+
+34 objects carry `absent_from_source`, and every one of them carries the same four strings:
+
+```
+absent_from_source.rob2   "No risk-of-bias assessment was recoverable from the page."
+absent_from_source.grade  "No certainty rating was recoverable from the page."
+absent_from_source.search "No search strategy was recoverable from the page."
+absent_from_source.screening "No screening log was recoverable from the page."
+```
+
+Identical text on all 34, which makes it a **template rather than a finding**.
+
+Each is TRUE, and each is a statement about **provenance** — what the published page this
+object was converted from happened to contain. **It is not a statement about the review.**
+
+> **It does not discharge P46, and the reason is concrete.** Those objects hold their trials
+> in `inputs.trials`, with registrations. **RoB 2 per result is assessed from the
+> registrations, not from the source page** — which is exactly what the unit does on
+> `iv-iron-hf`, recording `NO_INFORMATION` for a domain that cannot be judged from what was
+> reachable. A GRADE rating is computed from k, the estimate, the interval and the
+> heterogeneity, all of which those objects already hold.
+
+So "not recoverable from the page" explains why the artefact **was not extracted**. It does
+not explain why it **cannot be produced**, and only the second discharges the clause.
+
+**The distinction is the same one this register keeps returning to.** `NOT_ASSESSABLE` is the
+honest verdict when an instrument could not look; it becomes a false clear the moment it is
+read as *there is nothing there*. A provenance note read as a completed refusal is that error
+with a manuscript attached.
+
+**AND THE OBSTACLE IT NAMES MUST BE IN THE EVIDENCE, NOT ON OUR QUEUE.** The distinction
+was drawn on `sglt2-hf`, whose comparison could have been refused either way:
+
+| | |
+|---|---|
+| *"blocked on lane 2 registration-id resolution"* | accurate, and **about us** |
+| *"all three recorded syntheses carry no trial count, and the denominator this section needs is how many of THIS review's trials each synthesis included, which cannot be formed from an estimate alone"* | **about the world** |
+
+Both are true. **Only the second is a finding.** The first tells a reader about the order
+in which we happen to be doing our work, which will be false next week and was never
+checkable by them; the second tells them a property of the published evidence they could
+verify themselves. A refusal resting on a workflow note expires silently when the workflow
+changes, and nothing downstream notices.
+
+**Therefore:** a P46 refusal names (a) which of the four is absent, (b) what was reached and
+found insufficient, and (c) what would have to be obtained to produce it. A sentence that says
+only where it was looked for is a note about the search, and the topic remains incomplete.
+
 ### 1.17.0-2026-08-19
 Adds P45, from the bosentan monotherapy reading.
 

@@ -749,15 +749,13 @@
      "what_it_does_NOT_establish": "Nothing about whether either pool is coherent. P36 stands unchanged: the coherence judgements in this file were made by reading definitions and would be identical if every I2 came out zero."
     },
     "r_output": {
-     "state": "NO_QUOTABLE_MODEL_OUTPUT_BUT_A_POOL_EXISTS",
-     "_why_absent": "k=3 AND A POOL WAS COMPUTED -- it is on this page -- but NOT by a model call this object can quote. There is no R session, no printed output and no package version, so P6 refuses on the QUOTATION and not on the synthesis. The arithmetic is reproducible from the script named on the outcome; a quotable metafor call is what is missing and what would hold P6.",
-     "what_would_hold_P6": "metafor::rma(measure='RR', method='PM', test='knha') over the three arm-level tables, with its printed output quoted verbatim.",
-     "k_read_from_object": 3,
-     "quotable_model_call": null,
-     "heterogeneity": null,
-     "heterogeneity_reason": "Undefined: no between-study variance was estimated because no model was run.",
-     "package_version": null,
-     "what_would_change_it": "An estimand shared by two or more included trials. Where k is already above 1 and nothing pooled, the obstacle is the ESTIMAND rather than the evidence base, and this field must say which."
+     "_environment": "R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1",
+     "call": "rma(yi = log(rr), sei = (log(hi) - log(lo))/(2*qnorm(0.975)), method = \"REML\"), with the interval taken as Knapp-Hartung on t(k-1) and the scale factor floored at max(1, Q/(k-1))",
+     "script": "ssot/apx_treatment_pool.R",
+     "verbatim": "Loading required package: Matrix\nLoading required package: metadat\nLoading required package: numDeriv\n\nLoading the 'metafor' package (version 5.0-1). For an\nintroduction to the package please type: help(metafor)\n\nR environment, quoted rather than asserted:\nR version 4.6.0 (2026-04-24 ucrt) \nmetafor 5.0.1 \n\n============================================================================== \nRecurrent VTE -- apixaban against its comparator, random-effects REML on the log scale\n============================================================================== \ntrials: CARAVAGGIO, COBRRA, Japanese acute DVT/PE study \n\n\nRandom-Effects Model (k = 3; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.1309)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 2) = 1.2575, p-val = 0.5333\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb   ci.ub    \n -0.2532  0.1893  -1.3375  0.1811  -0.6243  0.1178    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nKnapp-Hartung with the floor, which is the interval this page serves:\n  scale factor max(1, Q/(k-1)) = max(1, 0.6287) = 1.0000\n  t(2) = 4.3027, against z = 1.9600\n  RR 0.7763 (0.3437 to 1.7531)\n\nFor contrast, the ordinary REML/z interval, which this page does NOT serve:\n\n   pred  ci.lb  ci.ub  pi.lb  pi.ub \n 0.7763 0.5356 1.1251 0.5356 1.1251 \n\n\nPer-trial contributions, as weights:\n                 CARAVAGGIO                      COBRRA \n                      72.39                       26.24 \nJapanese acute DVT/PE study \n                       1.37 \n\nCHECK AGAINST THE VALUE THE PAGE SERVES:\n  refit  [HKSJ, floored]  RR 0.7763 (0.3437 to 1.7531)\n  stored                  RR 0.7763 (0.3437 to 1.7532)\n  Q 1.2575 on 2 df; stored Q 1.2575 on 2 df\n  I^2 0.00%; stored 0.00%\n",
+     "captured_how": "Rscript ssot/apx_treatment_pool.R, stdout captured to a file and read back unchanged. Not retyped.",
+     "reproduces_the_stored_value": "YES, and the one difference is stated rather than smoothed. Point 0.7763 and lower bound 0.3437 reproduce exactly; Q 1.2575 on 2 df and I^2 0.00% reproduce exactly. The upper bound refits to 1.7531 against a stored 1.7532 -- a difference of 1 in the fourth decimal, which is rounding in the stored value and not a disagreement about the model.",
+     "the_first_refit_was_wrong_and_that_is_the_point": "A plain REML/z fit reproduced the point, Q and I^2 EXACTLY and returned 0.5356 to 1.1251 against the stored 0.3437 to 1.7532. Identical point and heterogeneity with a different interval means the inputs were right and the SPECIFICATION was wrong. The stored value was therefore investigated rather than overwritten, and it was correct: the interval is Knapp-Hartung on t(k-1) = t(2) = 4.3027 with the scale factor floored at max(1, Q/(k-1)), and with Q/(k-1) = 0.6288 the floor binds."
     }
    }
   }
@@ -2445,10 +2443,13 @@
   "state": "PENDING_EXTERNAL_RESOLUTION",
   "_why": "Every page this project ships carries this section with a DENOMINATOR. A comparison without one reports the syntheses it happened to find.",
   "denominator": null,
-  "denominator_reason": "Not yet established. Establishing it requires resolving published syntheses' included-sets to REGISTRATION IDs. A second lane has validated that pipeline (stated-k table identification plus two-hop citation->PMID->registration) and is running it now.",
+  "denominator_reason": "Not established, and the obstacle is that no candidate synthesis has been identified for this estimand at all. The PubMed search at search.databases[2] reported 439 record(s) and retrieved 50; 389 were not retrieved and none of the 50 retrieved has been screened for whether it synthesises recurrent VTE on apixaban. There is therefore nothing yet to form a denominator over -- not a synthesis whose included set is unresolved, but no identified synthesis.",
   "explicitly_not_done": "CITATION-STRING MATCHING. It would produce a comparison-shaped answer tonight and it is not identity: two syntheses citing the same trial under different labels would read as different, and the same label on different trials as the same. That is the substitution class this project audits for.",
-  "candidate_source_search": "PubMed search recorded at search.databases[1] (109 records)",
-  "blocked_on": "lane 2 registration-id resolution"
+  "candidate_source_search": "PubMed search recorded at search.databases[2], which reported 439 record(s) and retrieved 50; 389 were not retrieved.",
+  "blocked_on": "lane 2 registration-id resolution",
+  "candidate_source_search_restated": "Restated 2026-08-20. This field previously read 'PubMed search recorded at search.databases[1] (109 records)' on FOURTEEN objects, which is true of bempedoic-acid-review alone; the count and, on half of them, the database were another topic's. Re-derive with: python scripts/lint_refusal_citation_resolves.py",
+  "what_would_have_to_be_obtained": "Two things, in order. First the remaining 389 records, because a search that returned 50 of 439 has not finished and its misses are unknown rather than absent. Then a screen of the full yield for syntheses reporting recurrent VTE on apixaban, each resolved to the registration ids of its included trials so overlap with this review's own three trials is counted by identity.",
+  "refusal_discharges_P46_because": "It names what was reached (a PubMed search with its yield and its shortfall), what was found insufficient (no synthesis identified, and a search that retrieved 50 of 439), and what would have to be obtained. Re-derive with: python scripts/lint_refusal_citation_resolves.py"
  },
  "registration_identity": {
   "verified_utc": "2026-08-19",

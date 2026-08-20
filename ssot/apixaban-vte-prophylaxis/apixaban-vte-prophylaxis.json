@@ -453,15 +453,31 @@
     "what_this_replaces": "THIS REVIEW PREVIOUSLY REPORTED ONE TRIAL'S RESULT AND NOT A POOLED ESTIMATE. Its single included trial, NCT02366871, is n=400 and its registered primaries are MAJOR BLEEDING and clinically relevant non-major bleeding -- so the previous figure was not an estimate of this review's question at all. It now pools four trials and 13,570 participants on an efficacy estimand all four register. This is NOT a delta and must not be presented as one.",
     "and_the_primary_is_read_by_text_never_by_position": "outcomeMeasures[0] is the MAJOR-VTE SECONDARY for ADVANCE-2 and the PRIMARY for the other three. Taking element zero would have pooled one trial's secondary against three trials' primaries, with nothing malformed anywhere.",
     "r_output": {
-     "state": "NO_QUOTABLE_MODEL_OUTPUT_BUT_A_POOL_EXISTS",
-     "_why_absent": "k=4 AND A POOL WAS COMPUTED -- it is on this page -- but NOT by a model call this object can quote. There is no R session, no printed output and no package version, so P6 refuses on the QUOTATION and not on the synthesis. The arithmetic is reproducible from the script named on the outcome; a quotable metafor call is what is missing and what would hold P6.",
-     "what_would_hold_P6": "metafor::rma(measure='RR', method='PM', test='knha')",
-     "k_read_from_object": 4,
-     "quotable_model_call": null,
-     "heterogeneity": null,
-     "heterogeneity_reason": "Undefined: no between-study variance was estimated because no model was run.",
-     "package_version": null,
-     "what_would_change_it": "An estimand shared by two or more included trials. Where k is already above 1 and nothing pooled, the obstacle is the ESTIMAND rather than the evidence base, and this field must say which."
+     "_environment": "R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1",
+     "call": "rma(yi = log(rr), sei = (log(hi) - log(lo))/(2*qnorm(0.975)), method = \"DL\")  -- the fit that PRODUCED the served number",
+     "script": "ssot/apx_prophylaxis_pool.R",
+     "verbatim": "Loading required package: Matrix\nLoading required package: metadat\nLoading required package: numDeriv\n\nLoading the 'metafor' package (version 5.0-1). For an\nintroduction to the package please type: help(metafor)\n\nR environment, quoted rather than asserted:\nR version 4.6.0 (2026-04-24 ucrt) \nmetafor 5.0.1 \n\n============================================================================== \nMajor VTE -- apixaban prophylaxis, k = 4\n============================================================================== \ntrials: ADOPT, ADVANCE-3, ADVANCE-1, ADVANCE-2 \n\nTHE FIT THAT PRODUCED THE SERVED NUMBER -- DerSimonian-Laird, z interval:\n\nRandom-Effects Model (k = 4; tau^2 estimator: DL)\n\ntau^2 (estimated amount of total heterogeneity): 0.1714 (SE = 0.2149)\ntau (square root of estimated tau^2 value):      0.4141\nI^2 (total heterogeneity / total variability):   67.78%\nH^2 (total variability / sampling variability):  3.10\n\nTest for Heterogeneity:\nQ(df = 3) = 9.3122, p-val = 0.0254\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb   ci.ub    \n -0.2917  0.2549  -1.1447  0.2523  -0.7912  0.2078    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBack-transformed to the risk-ratio scale:\n\n   pred  ci.lb  ci.ub  pi.lb  pi.ub \n 0.7470 0.4533 1.2309 0.2880 1.9371 \n\n\n------------------------------------------------------------------------------ \nAND THE SAME DATA UNDER THE ESTIMATOR THIS PROJECT'S RULES REQUIRE.\nDerSimonian-Laird is biased at small k; the rule is REML or PM below k = 10, and k = 4.\nThis object's own P6 refusal already named the correct call:\n    metafor::rma(measure='RR', method='PM', test='knha')\nIt is fitted below. It does NOT reproduce the served number, and that is the finding.\n------------------------------------------------------------------------------ \n\n\nRandom-Effects Model (k = 4; tau^2 estimator: PM)\n\ntau^2 (estimated amount of total heterogeneity): 0.2213 (SE = 0.2538)\ntau (square root of estimated tau^2 value):      0.4704\nI^2 (total heterogeneity / total variability):   73.09%\nH^2 (total variability / sampling variability):  3.72\n\nTest for Heterogeneity:\nQ(df = 3) = 9.3122, p-val = 0.0254\n\nModel Results:\n\nestimate      se     tval  df    pval    ci.lb   ci.ub    \n -0.2988  0.2788  -1.0719   3  0.3623  -1.1859  0.5883    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBack-transformed to the risk-ratio scale:\n\n   pred  ci.lb  ci.ub  pi.lb  pi.ub \n 0.7417 0.3055 1.8010 0.1302 4.2261 \n\n\nThe Knapp-Hartung scale factor, and whether its floor binds here:\n  Q = 9.3122 on 3 df, so Q/(k-1) = 3.1041\n  max(1, Q/(k-1)) = 3.1041 -- the floor does NOT bind; the scaling widens.\n  On apixaban-vte-treatment the same rule floored at 1 because Q/(k-1) was 0.63.\n\nCHECK AGAINST THE VALUE THE PAGE SERVES:\n  served   DL/z     RR 0.7470 (0.4533 to 1.2309)  tau^2 0.17144  I^2 67.8%\n  stored            RR 0.7469 (0.4532 to 1.2309)  tau^2 0.17148  I^2 67.8%   REPRODUCED\n  required PM/knha  RR 0.7417 (0.3055 to 1.8010)  tau^2 0.22126  I^2 73.1%   DIFFERS\n\nThe direction of travel matters: the corrected interval is WIDER, and both intervals\ncross 1, so the interpretation is unchanged while the precision claimed is not.\n",
+     "captured_how": "Rscript ssot/apx_prophylaxis_pool.R, stdout captured to a file and read back unchanged. Not retyped.",
+     "reproduces_the_stored_value": "YES, exactly. DL with a z interval returns RR 0.7470 (0.4533 to 1.2309), tau^2 0.17144, I^2 67.8% against a stored 0.7469 (0.4532 to 1.2309), tau^2 0.17148, I^2 67.8%. Differences are in the fourth decimal and are rounding in the stored value.",
+     "but_the_estimator_is_the_wrong_one": "DerSimonian-Laird is biased downward at small k and this project's statistics notes require REML or PM below k = 10. k = 4. THIS OBJECT'S OWN P6 REFUSAL ALREADY NAMED THE CORRECT CALL -- metafor::rma(method='PM', test='knha') -- so the defect was known and recorded before it was measured.",
+     "what_the_required_estimator_gives": {
+      "call": "rma(method='PM', test='knha')",
+      "point": 0.7417,
+      "ci_low": 0.3055,
+      "ci_high": 1.801,
+      "tau2": 0.22126,
+      "i2": 73.1,
+      "against_served": {
+       "point": 0.7469,
+       "ci_low": 0.4532,
+       "ci_high": 1.2309,
+       "tau2": 0.17148,
+       "i2": 67.8
+      },
+      "what_changes": "The interval WIDENS substantially (0.4532-1.2309 -> 0.3055-1.8010). Both cross 1, so the interpretation is unchanged while the precision claimed is not.",
+      "knapp_hartung_floor": "Q/(k-1) = 3.10 here, so the floor max(1, .) does NOT bind and the scaling genuinely widens. On apixaban-vte-treatment the same rule floored at 1 because Q/(k-1) was 0.63."
+     },
+     "why_not_restated_here": "P19: a promotion must reach every derived block in the same pass -- the heterogeneity, the GRADE inconsistency domain which reads I^2, the prediction interval and the result card. Restating is a decision with a blast radius and is recorded with both values so it can be taken deliberately rather than arriving as a side effect of holding P6."
     }
    }
   }
@@ -1759,7 +1775,8 @@
   "state": "NOT_ASSESSED_FOR_THIS_REVIEW",
   "why": "The four contributing results were extracted and pooled on 2026-08-19 and no result-level RoB 2 assessment was performed for any of them. THIS IS RECORDED AS UNASSESSED AND NOT AS ABSENT OF BIAS: an unassessed domain is NOT_ASSESSABLE, never LOW.",
   "consequence_carried_into_grade": "GRADE rates this outcome down one level for risk of bias on the ground that it is unassessed, which is the same handling the corpus applied to sglt2-hf's harmonised pool.",
-  "what_would_close_it": "RoB 2 per RESULT for the shared secondary in each of NCT00457002, NCT00423319, NCT00371683 and NCT00452530."
+  "what_would_close_it": "RoB 2 per RESULT for the shared secondary in each of NCT00457002, NCT00423319, NCT00371683 and NCT00452530.",
+  "refusal_discharges_P46_because": "It names the state (NOT_ASSESSED_FOR_THIS_REVIEW), why (the four contributing results were extracted and pooled and no result-level RoB 2 was performed), that this is recorded as UNASSESSED and NOT as absent of bias, the consequence carried into GRADE (rated down one level), and what would close it: RoB 2 per RESULT for the shared secondary in NCT00457002, NCT00423319, NCT00371683 and NCT00452530. The obstacle is in the evidence and is checkable without knowing anything about how this project is organised."
  },
  "grade": {
   "approach": "GRADE",
@@ -1966,10 +1983,14 @@
   "state": "PENDING_EXTERNAL_RESOLUTION",
   "_why": "Every page this project ships carries this section with a DENOMINATOR. A comparison without one reports the syntheses it happened to find.",
   "denominator": null,
-  "denominator_reason": "Not yet established. Establishing it requires resolving published syntheses' included-sets to REGISTRATION IDs. A second lane has validated that pipeline (stated-k table identification plus two-hop citation->PMID->registration) and is running it now.",
+  "denominator_reason": "Not established, and the obstacle is that no candidate synthesis has been identified for this estimand. The PubMed search at search.databases[2] reported 439 record(s) and retrieved 50; 389 were not retrieved, and 0 published benchmark(s) are recorded on this object. There is nothing yet to form a denominator over.",
   "explicitly_not_done": "CITATION-STRING MATCHING. It would produce a comparison-shaped answer tonight and it is not identity: two syntheses citing the same trial under different labels would read as different, and the same label on different trials as the same. That is the substitution class this project audits for.",
-  "candidate_source_search": "PubMed search recorded at search.databases[1] (109 records)",
-  "blocked_on": "lane 2 registration-id resolution"
+  "candidate_source_search": "PubMed search recorded at search.databases[2], which reported 439 record(s) and retrieved 50; 389 were not retrieved.",
+  "blocked_on": "lane 2 registration-id resolution",
+  "candidate_source_search_restated": "Restated 2026-08-20. This field previously read 'PubMed search recorded at search.databases[1] (109 records)' on FOURTEEN objects, which is true of bempedoic-acid-review alone; the count and, on half of them, the database were another topic's. Re-derive with: python scripts/lint_refusal_citation_resolves.py",
+  "what_would_have_to_be_obtained": "The remaining 389 records, then a screen of the full yield for syntheses reporting major VTE on apixaban prophylaxis, each resolved to the registration ids of its included trials so overlap with this review's own four (NCT00457002, NCT00423319, NCT00371683, NCT00452530) is counted by identity rather than by citation string.",
+  "and_the_estimate_itself_is_under_question": "Specific to this topic and stated because it changes the ORDER of the work: the served pool was computed with DerSimonian-Laird at k = 4, which this project's statistics notes forbid below k = 10, and the corrected PM/Knapp-Hartung fit widens the interval from 0.4532-1.2309 to 0.3055-1.8010. A comparison drawn against published syntheses now would be comparing a number scheduled to be restated. See results.by_outcome.major_vte.r_output.what_the_required_estimator_gives.",
+  "refusal_discharges_P46_because": "It names what was reached (a PubMed search with its yield and shortfall, and zero recorded benchmarks), what was found insufficient (no synthesis identified at all), and what would have to be obtained. Re-derive the counts with: python scripts/lint_refusal_citation_resolves.py"
  },
  "registration_identity": {
   "verified_utc": "2026-08-19",

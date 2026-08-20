@@ -2841,7 +2841,10 @@
        "call": "rma(yi, sei, method = \"PM\")  and  ... test = \"knha\"",
        "output": "\nRandom-Effects Model (k = 4; tau^2 estimator: PM)\n\ntau^2 (estimated amount of total heterogeneity): 0.0220 (SE = 0.0382)\ntau (square root of estimated tau^2 value):      0.1485\nI^2 (total heterogeneity / total variability):   55.69%\nH^2 (total variability / sampling variability):  2.26\n\nTest for Heterogeneity:\nQ(df = 3) = 5.1613, p-val = 0.1604\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb   ci.ub    \n -0.1010  0.1081  -0.9346  0.3500  -0.3129  0.1108    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n## Hartung-Knapp-Sidik-Jonkman:\n\n\nRandom-Effects Model (k = 4; tau^2 estimator: PM)\n\ntau^2 (estimated amount of total heterogeneity): 0.0220 (SE = 0.0382)\ntau (square root of estimated tau^2 value):      0.1485\nI^2 (total heterogeneity / total variability):   55.69%\nH^2 (total variability / sampling variability):  2.26\n\nTest for Heterogeneity:\nQ(df = 3) = 5.1613, p-val = 0.1604\n\nModel Results:\n\nestimate      se     tval  df    pval    ci.lb   ci.ub    \n -0.1010  0.1081  -0.9346   3  0.4189  -0.4450  0.2430    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n"
       }
-     }
+     },
+     "call": "rma(yi = log_hr, sei = log_se, method = \"REML\", level = 95)",
+     "verbatim": "\nRandom-Effects Model (k = 4; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 0.0086 (SE = 0.0211)\ntau (square root of estimated tau^2 value):      0.0927\nI^2 (total heterogeneity / total variability):   32.89%\nH^2 (total variability / sampling variability):  1.49\n\nTest for Heterogeneity:\nQ(df = 3) = 5.1613, p-val = 0.1604\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb   ci.ub    \n -0.1375  0.0793  -1.7340  0.0829  -0.2929  0.0179  . \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n",
+     "reproduces_the_stored_value": "The quoted output is parsed and compared against the projected values at the moment it is stored -- k, I-squared, Q and the back-transformed estimate with its interval. A quotation that disagrees with the number printed beside it is worse than no quotation, because it looks like provenance. The write refuses if they disagree."
     },
     "resolved_question": {
      "headline": "RESOLVED 2026-08-18. The contributing ratio IS a hazard ratio. ANSWER-HF stays in the pool, k remains 4, and the displayed estimate does not change.",
@@ -15667,5 +15670,363 @@
   "what_would_change_it": "Porting the docmodel's content INTO THIS OBJECT -- risk of bias per result, GRADE per pooled outcome, a published comparison carrying a denominator, and the model output quoted verbatim. That is the same P46 content work every other topic needs, and ARNI should reach the projector through that route rather than through a rollout.",
   "what_protects_it_meanwhile": "ssot/manuscript_guard.py refuses any build that would shrink a delivered manuscript by more than 5% or drop a section. Proven on this exact page: the destroying build was run against the live file, refused with exit code 1, and the delivered bytes were unchanged.",
   "the_page_is_therefore": "serving a manuscript that this object cannot currently reproduce. That is stated here so the gap is visible from the object rather than only from the page."
+ },
+ "risk_of_bias": {
+  "tool": "Cochrane RoB-2 for randomized trials",
+  "version": "effect of ASSIGNMENT to intervention (intention-to-treat), as pre-registered in PROTOCOL.md section 9",
+  "handbook": "PROTOCOL.md section 9",
+  "unit_of_assessment": "the result being pooled, not the trial overall: the composite of cardiovascular death or first hospitalisation for heart failure, as a time-to-first-event hazard ratio",
+  "target": "effect of ASSIGNMENT to intervention (intention-to-treat), as pre-registered in PROTOCOL.md section 9",
+  "default_rule": "A trial with no judgement is shown as a row of not-assessed markers rather than omitted, so a gap in the assessment cannot be mistaken for a clean assessment.",
+  "assessors": {
+   "assessor_1": "GPT-5 (openai family)",
+   "assessor_2": "Gemini 3.1 Pro (google family)",
+   "assembler": "Neither assembled the canonical object.",
+   "blinding": "each assessor saw only its own trial packet; neither saw the other's answers"
+  },
+  "by_outcome": {
+   "cvdeath_or_hfh_first": {
+    "paradigm-hf": {
+     "pooled_result": "the composite of cardiovascular death or first hospitalisation for heart failure, as a time-to-first-event hazard ratio",
+     "domains": {
+      "D1": {
+       "domain": "D1 bias arising from the randomization process",
+       "assessor_1_openai": "LOW",
+       "assessor_2_google": "LOW",
+       "agreed": "yes"
+      },
+      "D2": {
+       "domain": "D2 bias due to deviations from intended interventions (effect of assignment)",
+       "assessor_1_openai": "LOW",
+       "assessor_2_google": "LOW",
+       "agreed": "yes"
+      },
+      "D3": {
+       "domain": "D3 bias due to missing outcome data",
+       "assessor_1_openai": "LOW",
+       "assessor_2_google": "LOW",
+       "agreed": "yes"
+      },
+      "D4": {
+       "domain": "D4 bias in measurement of the outcome",
+       "assessor_1_openai": "LOW",
+       "assessor_2_google": "LOW",
+       "agreed": "yes"
+      },
+      "D5": {
+       "domain": "D5 bias in selection of the reported result",
+       "assessor_1_openai": "SOME CONCERNS",
+       "assessor_2_google": "LOW",
+       "agreed": "NO"
+      }
+     },
+     "overall": {
+      "assessor_1_openai": "SOME CONCERNS",
+      "assessor_2_google": "LOW",
+      "agreed": "NO"
+     }
+    },
+    "parallel-hf": {
+     "pooled_result": "the composite of cardiovascular death or first hospitalisation for heart failure, as a time-to-first-event hazard ratio",
+     "domains": {
+      "D1": {
+       "domain": "D1 bias arising from the randomization process",
+       "assessor_1_openai": "SOME CONCERNS",
+       "assessor_2_google": "LOW",
+       "agreed": "NO"
+      },
+      "D2": {
+       "domain": "D2 bias due to deviations from intended interventions (effect of assignment)",
+       "assessor_1_openai": "LOW",
+       "assessor_2_google": "LOW",
+       "agreed": "yes"
+      },
+      "D3": {
+       "domain": "D3 bias due to missing outcome data",
+       "assessor_1_openai": "LOW",
+       "assessor_2_google": "LOW",
+       "agreed": "yes"
+      },
+      "D4": {
+       "domain": "D4 bias in measurement of the outcome",
+       "assessor_1_openai": "LOW",
+       "assessor_2_google": "LOW",
+       "agreed": "yes"
+      },
+      "D5": {
+       "domain": "D5 bias in selection of the reported result",
+       "assessor_1_openai": "SOME CONCERNS",
+       "assessor_2_google": "LOW",
+       "agreed": "NO"
+      }
+     },
+     "overall": {
+      "assessor_1_openai": "SOME CONCERNS",
+      "assessor_2_google": "LOW",
+      "agreed": "NO"
+     }
+    },
+    "parachute-hf": {
+     "pooled_result": "the composite of cardiovascular death or first hospitalisation for heart failure, as a time-to-first-event hazard ratio",
+     "domains": {
+      "D1": {
+       "domain": "D1 bias arising from the randomization process",
+       "assessor_1_openai": "LOW",
+       "assessor_2_google": "SOME CONCERNS",
+       "agreed": "NO"
+      },
+      "D2": {
+       "domain": "D2 bias due to deviations from intended interventions (effect of assignment)",
+       "assessor_1_openai": "SOME CONCERNS",
+       "assessor_2_google": "SOME CONCERNS",
+       "agreed": "yes"
+      },
+      "D3": {
+       "domain": "D3 bias due to missing outcome data",
+       "assessor_1_openai": "LOW",
+       "assessor_2_google": "LOW",
+       "agreed": "yes"
+      },
+      "D4": {
+       "domain": "D4 bias in measurement of the outcome",
+       "assessor_1_openai": "LOW",
+       "assessor_2_google": "LOW",
+       "agreed": "yes"
+      },
+      "D5": {
+       "domain": "D5 bias in selection of the reported result",
+       "assessor_1_openai": "LOW",
+       "assessor_2_google": "SOME CONCERNS",
+       "agreed": "NO"
+      }
+     },
+     "overall": {
+      "assessor_1_openai": "SOME CONCERNS",
+      "assessor_2_google": "SOME CONCERNS",
+      "agreed": "yes"
+     }
+    }
+   }
+  },
+  "agreement": {
+   "measured": "before any reconciliation",
+   "per_domain": {
+    "agreed": 10,
+    "total": 15,
+    "rate_pct": 66.7
+   },
+   "overall": {
+    "agreed": 1,
+    "total": 3
+   },
+   "text": "Inter-assessor agreement, measured before any reconciliation: 10 of 15 domain judgements agreed (66.7%), and 1 of 3 overall judgements agreed. This is markedly lower than the two-assessor agreement seen at screening, which is what we predicted before running it. Screening asks whether a record meets stated eligibility axes, which is close to a lookup. RoB-2 asks for a graded judgement under uncertainty, where 'no information' and 'some concerns' are reached by different routes. Almost no published review reports its RoB-2 inter-assessor agreement at all, so there is no external benchmark. We publish it because an unreported agreement rate is not the same as a high one."
+  },
+  "open_disagreements": [
+   {
+    "trial": "paradigm-hf",
+    "domain": "D5",
+    "assessor_1": "SOME CONCERNS",
+    "assessor_2": "LOW",
+    "carried": "SOME CONCERNS",
+    "status": "AWAITING ADJUDICATION by the named human (Mahmood Ahmad)"
+   },
+   {
+    "trial": "parallel-hf",
+    "domain": "D1",
+    "assessor_1": "SOME CONCERNS",
+    "assessor_2": "LOW",
+    "carried": "SOME CONCERNS",
+    "status": "AWAITING ADJUDICATION by the named human (Mahmood Ahmad)"
+   },
+   {
+    "trial": "parallel-hf",
+    "domain": "D5",
+    "assessor_1": "SOME CONCERNS",
+    "assessor_2": "LOW",
+    "carried": "SOME CONCERNS",
+    "status": "AWAITING ADJUDICATION by the named human (Mahmood Ahmad)"
+   },
+   {
+    "trial": "parachute-hf",
+    "domain": "D1",
+    "assessor_1": "LOW",
+    "assessor_2": "SOME CONCERNS",
+    "carried": "SOME CONCERNS",
+    "status": "AWAITING ADJUDICATION by the named human (Mahmood Ahmad)"
+   },
+   {
+    "trial": "parachute-hf",
+    "domain": "D5",
+    "assessor_1": "LOW",
+    "assessor_2": "SOME CONCERNS",
+    "carried": "SOME CONCERNS",
+    "status": "AWAITING ADJUDICATION by the named human (Mahmood Ahmad)"
+   }
+  ],
+  "integrity_flags": [
+   {
+    "flag": "assessor 1 cited a statistical analysis plan by version number and release date",
+    "text": "Integrity flag. assessor 1 cited a statistical analysis plan by version number and release date 'PARACHUTE-HF SAP version 2.1, release date 29-Apr-2025' appears in assessor 1's D1 and D2 sources, and it marked protocol_available true for those domains. That specificity was not in the packet we supplied. It is either a genuine retrieval or a recalled identifier, and the output alone cannot tell us which. NOT adopted. Any domain resting on it is treated as protocol-unavailable until the SAP is retrieved and checked. This is the identifier-from-recall failure mode this project has already been caught by once.",
+    "action": "NOT adopted. Any domain resting on it is treated as protocol-unavailable until the SAP is retrieved and checked."
+   }
+  ],
+  "no_domain_reached_high": "No domain in any trial was rated at high risk of bias by either assessor."
+ },
+ "grade": {
+  "approach": "GRADE",
+  "reference": "Grading of Recommendations Assessment, Development and Evaluation approach",
+  "handbook_chapter": "Cochrane Handbook's guidance that sensitivity analysis should test the decisions capable of changing the conclusion",
+  "starting_point": "start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -> low.",
+  "by_outcome": {
+   "cvdeath_or_hfh_first": {
+    "rated": true,
+    "certainty": "low",
+    "k": 4,
+    "i2": 32.9,
+    "estimate": {
+     "point": 0.872,
+     "ci_low": 0.746,
+     "ci_high": 1.02
+    },
+    "started_at": "high",
+    "steps": [
+     {
+      "domain": "risk_of_bias",
+      "levels": -1,
+      "from": "high",
+      "to": "moderate",
+      "reason": "Three separate features, each read from a staged source rather than assumed. PARACHUTE-HF describes itself as an 'open-label, multicenter randomized clinical trial' with blinded endpoint adjudication; blinded adjudication protects how an event is classified but not the unblinded management decisions that produce a heart failure hospitalization, which is one of the two components. In the same trial"
+     },
+     {
+      "domain": "imprecision",
+      "levels": -1,
+      "from": "moderate",
+      "to": "low",
+      "reason": "The pooled result is not robust to the removal of the largest trial. Omitting it gives 0.966 (0.79 to 1.18), an interval that includes the null. The three smaller trials are therefore individually and jointly compatible with no effect on this composite, and the pooled estimate is best read as the large trial's result, slightly attenuated by the three smaller trials, which neither confirm nor contradict it. Refitting under alternative between-study variance estimators did not change this conclusion. Each refit is shown in the leave-one-out figure and tabulated in the leave-one-out table; 2 of 4 refits still exclude no difference."
+     }
+    ],
+    "summary": "start high; risk_of_bias serious (-1), imprecision serious (-1); total -2 -> low.",
+    "grade_table_rows": [
+     {
+      "domain": "Risk of bias",
+      "rating": "serious",
+      "basis": "Three separate features, each read from a staged source rather than assumed. PARACHUTE-HF describes itself as an 'open-label, multicenter randomized clinical trial' with blinded endpoint adjudication; blinded adjudication protects how an event is classified but not the unblinded management decisions that produce a heart failure hospitalization, which is one of the two components. In the same trial"
+     },
+     {
+      "domain": "Inconsistency",
+      "rating": "not serious",
+      "basis": ""
+     },
+     {
+      "domain": "Indirectness",
+      "rating": "not serious",
+      "basis": "All four trials enrol the population the question names, randomise the intervention the question names against the comparator the question names, and report the outcome the question names. The Chagas aetiology of one trial makes its population narrower than the others, not indirect: it is heart failure with reduced ejection fraction, entered on an ejection fraction of 40% or less and NYHA class II"
+     },
+     {
+      "domain": "Imprecision",
+      "rating": "serious",
+      "basis": ""
+     },
+     {
+      "domain": "Publication bias",
+      "rating": "not assessable",
+      "basis": ""
+     }
+    ],
+    "rob2_effect_on_risk_of_bias_rating": "Effect on the GRADE risk-of-bias rating: it does NOT move. It was serious before the assessment and remains serious. Two reasons, and the second is the load-bearing one.\n\nFirst, RoB-2 confirmed the substance of the downgrade rather than removing it. Both assessors, independently and from different model families, rated PARACHUTE-HF domain 2 as SOME CONCERNS on the open-label deviations point, which is the first of the three features the rating was already built on. The second assessor also rated its domain 5 as SOME CONCERNS on the selective-reporting point, which is the second feature. The assessment agreed with the reasoning the rating rested on.\n\nSecond, and this is why 'no domain reached HIGH' does not discharge the downgrade: RoB-2 has no domain for a trial stopped early for benefit. Early stopping is not a randomization failure, a deviation, missing data, a measurement problem, or selective reporting of a result; it is a stopping-rule effect on the magnitude of the estimate, and the RoB-2 tool does not ask about it in any of its five domains. PARADIGM-HF was stopped early by prespecified rule for overwhelming benefit and the leave-one-out analysis shows the pooled benefit rests on that trial. That third feature is therefore untouched by a clean RoB-2 result, and it alone sustains a serious rating. Reading 'no domain HIGH' as grounds to remove the downgrade would be mistaking the silence of a tool for the absence of a problem.",
+    "opposite_reading_recorded": "The opposite reading is available and is recorded here rather than suppressed: under a common mapping, trials at SOME CONCERNS with none at HIGH support 'not serious', which would raise certainty from low to moderate. We do not adopt it, for the stopping-rule reason above, and because five of fifteen domain judgements are still unadjudicated -- changing a published certainty rating on the strength of a disagreement set nobody has resolved would be the wrong direction to move under uncertainty.",
+    "supporting_sensitivity_tables": {
+     "leave_one_out": {
+      "headers": [
+       "Trial omitted",
+       "Pooled estimate (95% interval)",
+       "I-squared (%)"
+      ],
+      "rows": [
+       [
+        "paradigm-hf",
+        "0.966 (0.79 to 1.18)",
+        "1.2"
+       ],
+       [
+        "parachute-hf",
+        "0.972 (0.666 to 1.42)",
+        "52.9"
+       ],
+       [
+        "parallel-hf",
+        "0.844 (0.736 to 0.967)",
+        "26.5"
+       ],
+       [
+        "answer-hf",
+        "0.839 (0.743 to 0.948)",
+        "22.2"
+       ]
+      ]
+     },
+     "between_study_variance_estimators": {
+      "headers": [
+       "Estimator",
+       "Interval method",
+       "Point",
+       "Lower",
+       "Upper",
+       "tau-squared"
+      ],
+      "rows": [
+       [
+        "REML",
+        "Wald",
+        "0.872",
+        "0.746",
+        "1.02",
+        "0.0086"
+       ],
+       [
+        "REML",
+        "HKSJ",
+        "0.872",
+        "0.657",
+        "1.16",
+        "0.0086"
+       ],
+       [
+        "DL",
+        "Wald",
+        "0.883",
+        "0.741",
+        "1.05",
+        "0.0126"
+       ],
+       [
+        "DL",
+        "HKSJ",
+        "0.883",
+        "0.651",
+        "1.2",
+        "0.0126"
+       ],
+       [
+        "PM",
+        "Wald",
+        "0.904",
+        "0.731",
+        "1.12",
+        "0.022"
+       ],
+       [
+        "PM",
+        "HKSJ",
+        "0.904",
+        "0.641",
+        "1.28",
+        "0.022"
+       ]
+      ]
+     }
+    }
+   }
+  }
  }
 }
