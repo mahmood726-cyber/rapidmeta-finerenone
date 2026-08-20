@@ -1,0 +1,169 @@
+"""How many paths read authored manuscript prose WITHOUT the token guard on them?
+
+A GUARD ON ONE DOOR IS NOT A GUARD. `_manuscript_prose()` refuses any text still carrying a
+`[[token]]`, so `rests on [[k]] trials` can never reach a reader through it. On 2026-08-20
+the abstract read `manuscript.abstract.Conclusions` with a bare `get()` instead, and ARNI's
+conclusion reached the projection as "Across [[k]] randomised trials". The guard was
+correct, present, and bypassed.
+
+SAME SHAPE AS TWO EARLIER INSTANCES IN THIS PROJECT: the `.get(k, default)` class where 89
+sites matched and 8 reached a reader, and the substring trap reintroduced in a screener
+twenty minutes after being fixed in the identity module. A fix applied at one call site is a
+fix at one call site.
+
+SO THE QUESTION IS BOUNDED AND THIS COUNTS IT: every read of `manuscript.<key>` in the
+projector, and whether it passes through a guarded accessor.
+
+GUARDED    `_manuscript_prose(obj, key)` -- flattens and refuses on a surviving token.
+           `_authored(obj, field)`       -- worded, tokens RESOLVED, None if any survives.
+UNGUARDED  a bare `get(obj, "manuscript...")` whose value reaches a paragraph.
+
+NOT EVERY UNGUARDED READ IS A DEFECT, and this does not pretend otherwise. A read whose
+value is only tested for existence, or a field that never carries authored prose, is safe.
+Each is listed so a human decides, which is the same standing as the empty-DataFrame rule.
+"""
+import io
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls          # noqa: E402
+
+TARGETS = [os.path.join(REPO, "ssot", "paper_projector.py"),
+           os.path.join(REPO, "ssot", "build_tabbed.py")]
+
+# EVERY `manuscript.<key>` LITERAL, NOT JUST THE ONES SPELLED INLINE IN A get() CALL.
+#
+# The first cut of this reader matched `get(obj, "manuscript...")` on one line and found
+# ONE read where the file mentions `manuscript.` seventeen times. Most reads take their
+# field name from a TUPLE -- `for _f in ("manuscript.abstract.Background", ...)` -- so the
+# literal and the call are on different lines. It reported 0 doors from a population of 1,
+# which is a clean answer over a population the reader had narrowed to almost nothing.
+#
+# THAT IS THE SAME DEFECT THIS FILE EXISTS TO MEASURE, COMMITTED WHILE MEASURING IT. The
+# floor assertion below exists so an under-counting reader fails loudly instead of
+# reporting all-clear.
+READ = re.compile(r'"(manuscript(?:\.[A-Za-z0-9_]+)+)"')
+GUARDED_CALL = re.compile(r'_manuscript_prose\(|_authored\(')
+# The authored-prose keys. A read of one of these that is not guarded is a real door.
+PROSE_KEYS = {"introduction", "discussion", "conclusions", "limitations", "abstract",
+              "methods_prose", "results_prose"}
+
+
+def classify(path, line_src, in_refusal=False):
+    """CITATION / GUARDED / EXISTENCE_ONLY / PROSE_DOOR / NON_PROSE.
+
+    A literal inside a `refusals.append(...)` field list NAMES a field; it does not READ
+    one. No value is fetched and nothing reaches a paragraph, so the token guard is
+    irrelevant to it. The first cut called two of these doors, which would have sent a
+    reader to inspect the two places that are provably safe -- a false positive in an
+    instrument whose whole purpose is to say where to look.
+    """
+    if in_refusal:
+        return "CITATION"
+    if GUARDED_CALL.search(line_src):
+        return "GUARDED"
+    # `path.split(".")`, NOT `"." in path`. A membership test against a parameter that
+    # could be a collection is the substring trap this repo has a lint for, and that lint
+    # refused this file -- correctly, because reading `x in path` requires knowing what
+    # `path` is. Splitting says what is meant without the ambiguity.
+    _parts = path.split(".")
+    leaf = _parts[1] if len(_parts) > 1 else ""
+    if leaf not in PROSE_KEYS:
+        return "NON_PROSE"
+    if re.search(r"is not None|is None|if get\(", line_src) and "s.add" not in line_src:
+        return "EXISTENCE_ONLY"
+    return "PROSE_DOOR"
+
+
+def main():
+    gate = "--gate" in sys.argv
+    require_controls(
+        "audit_manuscript_prose_doors",
+        positive=("a bare get() of manuscript.conclusions reaching a paragraph is a DOOR",
+                  classify("manuscript.conclusions",
+                           's.add(obj, get(obj, "manuscript.conclusions"), [f])')
+                  == "PROSE_DOOR", True),
+        negative=("a guarded read is reported as a DOOR",
+                  classify("manuscript.discussion",
+                           '_manuscript_prose(obj, "discussion")') == "PROSE_DOOR", True))
+
+    rows, files = [], 0
+    for target in TARGETS:
+        if not os.path.exists(target):
+            continue
+        files += 1
+        rel = os.path.relpath(target, REPO).replace("\\", "/")
+        lines = io.open(target, encoding="utf-8").read().split("\n")
+        for i, ln in enumerate(lines):
+            for m in READ.finditer(ln):
+                ctx = "\n".join(lines[max(0, i - 2):i + 3])
+                back = "\n".join(lines[max(0, i - 8):i + 1])
+                in_ref = ("refusals.append(" in back
+                          and back.rfind("refusals.append(") > back.rfind("s.add("))
+                rows.append((rel, i + 1, m.group(1),
+                             classify(m.group(1), ctx, in_ref), ln.strip()[:88]))
+
+    if not rows:
+        print("NOT_ASSESSABLE: no `manuscript.` reads found across %d file(s). That is a "
+              "broken reader, not a clean projector." % files)
+        return 2
+
+    # THE FLOOR. `grep -c 'manuscript\.'` over the projector is the crude population, and
+    # this reader must not come back with a small fraction of it. A reader that narrows its
+    # own population reports all-clear over almost nothing -- which the first cut of THIS
+    # FILE did, finding 1 read where grep sees 17.
+    crude = 0
+    for target in TARGETS:
+        if os.path.exists(target):
+            crude += len(re.findall(r"manuscript\.", io.open(target, encoding="utf-8").read()))
+    if len(rows) * 3 < crude:
+        sys.exit("PROOF FAILED: this reader found %d `manuscript.<key>` literal(s) while a "
+                 "plain grep sees %d mentions across the same files. The reader has "
+                 "narrowed its own population; an all-clear from it would mean nothing."
+                 % (len(rows), crude))
+    print("")
+    print("population floor: %d literal(s) read against %d crude `manuscript.` mentions"
+          % (len(rows), crude))
+
+    order = ("PROSE_DOOR", "EXISTENCE_ONLY", "GUARDED", "CITATION", "NON_PROSE")
+    counts = dict((k, len([r for r in rows if r[3] == k])) for k in order)
+    print("")
+    print("READS OF `manuscript.<key>` ACROSS %d FILE(S): %d" % (files, len(rows)))
+    for k in order:
+        print("   %-15s %d of %d" % (k, counts[k], len(rows)))
+
+    print("")
+    print("PROSE_DOOR -- authored prose reaching a paragraph WITHOUT the token guard:")
+    doors = [r for r in rows if r[3] == "PROSE_DOOR"]
+    if not doors:
+        print("   none. Every authored-prose read passes through _manuscript_prose() or")
+        print("   _authored(), both of which refuse on a surviving [[token]].")
+    for rel, ln, path, _c, src in doors:
+        print("   %s:%-5d %-34s %s" % (rel, ln, path, src))
+
+    print("")
+    print("EXISTENCE_ONLY -- read to test presence, value never rendered. Safe:")
+    for rel, ln, path, _c, src in [r for r in rows if r[3] == "EXISTENCE_ONLY"]:
+        print("   %s:%-5d %s" % (rel, ln, path))
+
+    print("")
+    print("CITATION -- the literal NAMES a field in a refusal; no value is read. Safe:")
+    for rel, ln, path, _c, _s in [r for r in rows if r[3] == "CITATION"]:
+        print("   %s:%-5d %s" % (rel, ln, path))
+
+    print("")
+    print("NON_PROSE -- a manuscript key that carries a declaration or a dict, not authored")
+    print("prose. The token guard is not the right guard for these; `_v_str` words them.")
+    for rel, ln, path, _c, _s in [r for r in rows if r[3] == "NON_PROSE"]:
+        print("   %s:%-5d %s" % (rel, ln, path))
+
+    if gate and doors:
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
