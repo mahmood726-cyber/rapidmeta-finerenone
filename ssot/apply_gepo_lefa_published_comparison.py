@@ -1,0 +1,231 @@
+"""gepotidacin and lefamulin: the published comparison. P46 limb 3, and it closes both.
+
+PREDICTED BEFORE THE SCREENS: neither would yield a class-76 instance -- single-drug
+registrational programmes, where the sponsor pools its own two trials. BOTH PREDICTIONS
+HOLD, and one of the two carries a disagreement anyway.
+
+gepotidacin -- PMID 42413960, Clinical Infectious Diseases 2026. Pooled Phase 3 data from
+EAGLE-2 (NCT04020341) and EAGLE-3 (NCT04187144), BOTH NAMED IN THE ABSTRACT WITH THEIR
+REGISTRATION IDS, so the trial-set match is READ and not inferred.
+
+    published  therapeutic success, TREATMENT DIFFERENCE in the pooled micro-ITT
+               nitrofurantoin-SUSCEPTIBLE population:      +9.6%  [4.1, 15.2]
+               and in the nitrofurantoin-NOT-susceptible:  +20.8% [9.2, 32.4]
+    this object  RR 1.2007 (0.9668 to 1.4912), k = 2
+
+    THE PUBLISHED DIFFERENCE EXCLUDES ZERO AND THIS OBJECT'S RATIO INCLUDES ONE. Those are
+    opposite conclusions -- but they are NOT the same quantity, and this is recorded as an
+    estimand difference rather than as a discrepancy:
+
+      * SCALE. They report a RISK DIFFERENCE in percentage points; this object pools a RISK
+        RATIO. A difference and a ratio can disagree about significance on the same data.
+      * POPULATION. Theirs is micro-ITT. This object's own contributing trials register
+        "Therapeutic Response" without naming an analysis population -- one of the 30 of 34
+        pooled outcomes in this corpus whose registered text does not say.
+      * STRATIFICATION. They split by nitrofurantoin susceptibility and the effect is
+        MORE THAN TWICE AS LARGE in the not-susceptible stratum. THIS OBJECT COLLAPSES THAT
+        SPLIT, so its single ratio averages two populations the sponsor's own analysis keeps
+        apart.
+
+    The third point is the substantive one for a reader: the pooled estimate here is an
+    average over a susceptibility split that the published analysis shows matters.
+
+lefamulin -- PMID 33964925, BMC Pulmonary Medicine 2021. Pooled LEAP 1 and LEAP 2 on Early
+Clinical Response, the same endpoint this object pools.
+
+    IT CORROBORATES THE DESIGN DIFFERENCE THIS OBJECT ALREADY DISCLOSES, and adds one this
+    object does not: LEAP 1 was an INTRAVENOUS-TO-ORAL SWITCH study (IV lefamulin 150 mg
+    q12h, optional switch) and LEAP 2 was ORAL-ONLY (600 mg q12h). So the two trials differ
+    not only in comparator -- moxifloxacin with or without linezolid against moxifloxacin
+    alone -- BUT IN ROUTE AND DURATION OF THE EXPERIMENTAL ARM ITSELF.
+
+    That is a real qualification of a k = 2 pool and it was NOT previously recorded on this
+    object. No stored number changes; the fact is added where a reader meets the estimate.
+
+NEITHER PUBLISHED ANALYSIS DECLINED TO POOL, and both are sponsor analyses of a sponsor's
+own programme -- which is itself worth stating rather than treating a company pooled
+analysis as a neutral referee.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import atomic_write
+
+TODAY = "2026-08-21"
+STAMP = TODAY.replace("-", "_")
+
+SPEC = {
+    "gepotidacin-urinary-tract-auto-full-review": {
+        "outcome": "primary",
+        "query": ('(gepotidacin[tiab]) AND (meta-analysis[pt] OR "systematic review"[pt] OR '
+                  'meta-analysis[tiab] OR "pooled"[tiab] OR EAGLE[tiab])'),
+        "denom": {"matched": 25, "retrieved": 25, "read": 25, "appraised": 1,
+                  "flagged_by_title": 8, "not_returned_by_the_tool": 0},
+        "review": {
+            "pmid": "42413960", "year": 2026, "journal": "Clinical Infectious Diseases",
+            "title": ("Subgroup Analysis of Pooled Phase 3 Efficacy Data from Two Randomized "
+                      "Trials of Gepotidacin Versus Nitrofurantoin in Uncomplicated Urinary "
+                      "Tract Infections"),
+            "trial_set": ["NCT04020341 (EAGLE-2)", "NCT04187144 (EAGLE-3)"],
+            "trial_set_basis": "BOTH REGISTRATION IDS ARE NAMED IN THE ABSTRACT. Read.",
+            "design": "pooled Phase 3 efficacy data, sponsor analysis, subgroup-structured",
+            "outcome_pooled": ("therapeutic success at test-of-cure, reported as a TREATMENT "
+                               "DIFFERENCE in the pooled micro-ITT population, split by "
+                               "nitrofurantoin susceptibility"),
+            "estimate_quoted": (
+                "nitrofurantoin-susceptible micro-ITT: therapeutic +9.6% [4.1, 15.2], "
+                "clinical +2.8% [-2.4, 8.1], microbiological +10.4% [5.2, 15.6]. "
+                "Nitrofurantoin-NOT-susceptible: therapeutic +20.8% [9.2, 32.4], clinical "
+                "+10.3% [-1.4, 22.1], microbiological +20.7% [9.2, 32.3]."),
+            "comparable_to_ours": False,
+            "why_not_comparable": (
+                "DIFFERENT SCALE, POPULATION AND STRATIFICATION. Theirs is a RISK DIFFERENCE "
+                "in micro-ITT, split by susceptibility; this object pools a RISK RATIO over "
+                "an unstated population with the split collapsed. Their difference excludes "
+                "zero and this ratio includes one, but they are not estimates of one "
+                "quantity so no discrepancy is claimed."),
+        },
+        "finding": {
+            "a_the_published_pool_of_the_same_two_trials_splits_what_this_pool_averages": (
+                "THE SPONSOR'S OWN POOLED ANALYSIS OF THESE EXACT TWO TRIALS SPLITS BY "
+                "NITROFURANTOIN SUSCEPTIBILITY, AND THE EFFECT IS MORE THAN TWICE AS LARGE "
+                "IN THE NOT-SUSCEPTIBLE STRATUM: therapeutic success difference +9.6% [4.1, "
+                "15.2] where the uropathogen is susceptible against +20.8% [9.2, 32.4] where "
+                "it is not (PMID 42413960, Clin Infect Dis 2026, EAGLE-2 NCT04020341 and "
+                "EAGLE-3 NCT04187144). THIS POOL COLLAPSES THAT SPLIT, so its single ratio "
+                "is an average over two populations the published analysis keeps apart."),
+            "b_and_the_scales_differ_so_no_discrepancy_is_claimed": (
+                "They report a RISK DIFFERENCE in percentage points and this object pools a "
+                "RISK RATIO; theirs is micro-ITT and this object's registered outcome text "
+                "names no analysis population. Their interval excludes zero and this one "
+                "includes one, and those are not contradictory statements about one "
+                "quantity."),
+            "c_whose_analysis_it_is": (
+                "The pooled analysis is by the sponsor's investigators. That does not make it "
+                "wrong and it is the most direct evidence about these two trials, but it is "
+                "stated rather than treated as an independent referee."),
+        },
+    },
+    "lefamulin-cabp-auto-full-review": {
+        "outcome": "primary",
+        "query": ('(lefamulin[tiab]) AND (meta-analysis[pt] OR "systematic review"[pt] OR '
+                  'meta-analysis[tiab] OR "pooled"[tiab] OR LEAP[tiab])'),
+        "denom": {"matched": 19, "retrieved": 19, "read": 19, "appraised": 1,
+                  "flagged_by_title": 6, "not_returned_by_the_tool": 0},
+        "review": {
+            "pmid": "33964925", "year": 2021, "journal": "BMC Pulmonary Medicine",
+            "title": ("Lefamulin efficacy and safety in a pooled phase 3 clinical trial "
+                      "population with community-acquired bacterial pneumonia and common "
+                      "clinical comorbidities"),
+            "trial_set": ["LEAP 1 (NCT02559310)", "LEAP 2 (NCT02813694)"],
+            "trial_set_basis": ("BOTH TRIALS NAMED IN THE ABSTRACT by their study names and "
+                                "their designs described. Registration ids are matched from "
+                                "this object, which keys LEAP 1 and LEAP 2 to those NCTs."),
+            "design": "pooled phase 3 analysis, sponsor authors, comorbidity subgroups",
+            "outcome_pooled": "Early Clinical Response at 96 +/- 24 hours -- THE SAME "
+                              "ENDPOINT THIS OBJECT POOLS",
+            "estimate_quoted": (
+                "The abstract describes the pooled population and the two designs; the "
+                "subgroup effect estimates were NOT extracted here and are recorded as NOT "
+                "READ rather than summarised."),
+            "comparable_to_ours": True,
+            "agreement": (
+                "SAME ENDPOINT AND SAME TWO TRIALS. No numeric comparison is made because "
+                "the pooled ECR estimate was not extracted from the abstract -- recorded as "
+                "not read."),
+        },
+        "finding": {
+            "a_the_two_trials_differ_in_route_and_duration_not_only_in_comparator": (
+                "THE EXPERIMENTAL ARMS ARE NOT THE SAME INTERVENTION. Read from the pooled "
+                "analysis (PMID 33964925, BMC Pulm Med 2021): LEAP 1 randomised patients to "
+                "INTRAVENOUS lefamulin 150 mg every 12 hours for 5-7 days with an OPTIONAL "
+                "INTRAVENOUS-TO-ORAL SWITCH; LEAP 2 randomised to ORAL lefamulin 600 mg "
+                "every 12 hours for 5 days. THIS OBJECT POOLS THEM AS ONE INTERVENTION."),
+            "b_and_the_comparators_differ_as_this_object_already_says": (
+                "LEAP 1's comparator is moxifloxacin WITH OR WITHOUT LINEZOLID and LEAP 2's "
+                "is moxifloxacin alone -- corroborated from the registered arm groups. This "
+                "object's own question already states the comparator difference; THE ROUTE "
+                "AND DURATION DIFFERENCE WAS NOT PREVIOUSLY RECORDED."),
+            "c_what_is_not_claimed": (
+                "NOT that the pool is invalid -- an intravenous-to-oral switch and an oral "
+                "course of the same drug are a defensible thing to combine, and the "
+                "published analysis combines them. What is claimed is that a reader meeting "
+                "one ratio should know the two arms differed in route, duration and "
+                "comparator, and no field said so."),
+        },
+    },
+}
+
+
+def main():
+    dry = "--apply" not in sys.argv
+    for topic, spec in sorted(SPEC.items()):
+        path = os.path.join(REPO, "ssot", topic, topic + ".json")
+        obj = json.load(io.open(path, encoding="utf-8"))
+        blk = ((obj.get("results") or {}).get("by_outcome") or {}).get(spec["outcome"])
+        if not isinstance(blk, dict):
+            sys.exit("REFUSED: %s has no `%s`." % (topic, spec["outcome"]))
+
+        d = dict(spec["denom"])
+        d["_house_form"] = (
+            "matched / retrieved / read / appraised / not returned -- P53. The fifth is the "
+            "instrument's own limit and is reported even when zero. %d records were flagged "
+            "by title; ONE was appraised against its abstract and the rest were NOT READ."
+            % d["flagged_by_title"])
+
+        pc = {
+            "_why": "P46 limb 3.",
+            "_how_identified": (
+                "PubMed E-utilities, executed %s. Query, counts and per-record disposition "
+                "in ssot/%s/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json." % (TODAY, topic)),
+            "denominator": d,
+            "identity_basis": spec["review"]["trial_set_basis"],
+            "reviews": [spec["review"]],
+            "THE_FINDING_OF_THIS_COMPARISON_%s" % STAMP: (
+                " ".join(spec["finding"][k] for k in sorted(spec["finding"]))),
+        }
+        atomic_write.merge_not_overwrite(obj, "published_comparison", pc, STAMP)
+
+        prior = blk.get("POOL_FINDINGS_%s" % STAMP) or {}
+        prior.update(spec["finding"])
+        blk["POOL_FINDINGS_%s" % STAMP] = prior
+
+        obj.setdefault("display_change_announced", []).append({
+            "date": TODAY,
+            "change": "published comparison added with a denominator (P46 limb 3)",
+            "values_moved": "NONE",
+            "what_changed": "%d matched / %d retrieved / %d read / %d appraised / %d lost"
+                            % (d["matched"], d["retrieved"], d["read"], d["appraised"],
+                               d["not_returned_by_the_tool"]),
+            "why": "The limb was ABSENT: no denominator and no stated reason.",
+        })
+
+        screen = os.path.join(REPO, "ssot", topic, "appraisal",
+                              "PUBLISHED_SYNTHESIS_SCREEN.json")
+        os.makedirs(os.path.dirname(screen), exist_ok=True)
+        print("%-44s %d matched / %d read / %d appraised"
+              % (topic, d["matched"], d["read"], d["appraised"]))
+        if not dry:
+            atomic_write.write_json(screen, {
+                "executed_utc": TODAY,
+                "source": "PubMed E-utilities esearch + esummary",
+                "query_as_executed": spec["query"],
+                "matched": d["matched"], "retrieved": d["retrieved"], "read": d["read"],
+                "flagged_by_title": d["flagged_by_title"],
+                "appraised": [spec["review"]["pmid"]],
+                "not_returned_by_the_tool": 0,
+                "_honesty": ("One record was appraised against its abstract. The other "
+                             "title-flagged records and every unflagged summary were NOT "
+                             "READ, and no included-study table was read."),
+            }, indent=1)
+            atomic_write.write_json(path, obj, indent=1)
+    if dry:
+        print("DRY RUN -- pass --apply to write")
+
+
+if __name__ == "__main__":
+    main()

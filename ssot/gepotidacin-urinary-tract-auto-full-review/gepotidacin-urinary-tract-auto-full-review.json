@@ -142,7 +142,22 @@
     "schema_alias_note": "estimator_used mirrors the estimator this pool actually used (REML, already recorded). The generator reads res[\"estimator_used\"]; our schema wrote it as \"estimator\". SAME VALUE, PLACED WHERE THE CONSUMER LOOKS -- not a new claim.",
     "POOL_FINDINGS_2026_08_21": {
      "a_the_analysis_population_was_checked_and_is_consistent": "CHECKED AND CLEAN. Read from the registrations on 2026-08-21: NCT04020341 registers 'Number of Participants With Therapeutic Response (Combined Per Participant Clinical and Microbiological Respon' (population: TR); NCT04187144 registers 'Number of Participants With Therapeutic Response (Combined Per Participant Clinical and Microbiological Respon' (population: TR). Both trials register the same primary in the same population, so this pool does NOT cross an analysis-population boundary. Recorded because a check that only speaks when it finds something cannot be told from a check that was never run.",
-     "b_what_remains_unresolved": "Whether these are non-inferiority designs is NOT established: the registration fields fetched do not use the word, and a pooled ratio from non-inferiority trials answers a different question from a superiority pool. Unresolved, not assumed."
+     "b_what_remains_unresolved": "Whether these are non-inferiority designs is NOT established: the registration fields fetched do not use the word, and a pooled ratio from non-inferiority trials answers a different question from a superiority pool. Unresolved, not assumed.",
+     "a_the_published_pool_of_the_same_two_trials_splits_what_this_pool_averages": "THE SPONSOR'S OWN POOLED ANALYSIS OF THESE EXACT TWO TRIALS SPLITS BY NITROFURANTOIN SUSCEPTIBILITY, AND THE EFFECT IS MORE THAN TWICE AS LARGE IN THE NOT-SUSCEPTIBLE STRATUM: therapeutic success difference +9.6% [4.1, 15.2] where the uropathogen is susceptible against +20.8% [9.2, 32.4] where it is not (PMID 42413960, Clin Infect Dis 2026, EAGLE-2 NCT04020341 and EAGLE-3 NCT04187144). THIS POOL COLLAPSES THAT SPLIT, so its single ratio is an average over two populations the published analysis keeps apart.",
+     "b_and_the_scales_differ_so_no_discrepancy_is_claimed": "They report a RISK DIFFERENCE in percentage points and this object pools a RISK RATIO; theirs is micro-ITT and this object's registered outcome text names no analysis population. Their interval excludes zero and this one includes one, and those are not contradictory statements about one quantity.",
+     "c_whose_analysis_it_is": "The pooled analysis is by the sponsor's investigators. That does not make it wrong and it is the most direct evidence about these two trials, but it is stated rather than treated as an independent referee."
+    },
+    "r_output": {
+     "verbatim": "TOPIC   gepotidacin-urinary-tract-auto-full-review\nOUTCOME primary\nSTORED  RR 1.2007 (0.9668 to 1.4912), k = 2, random-effects / REML\nINPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):\n   NCT04020341    RR 1.0762 (0.9138 to 1.2676)  yi=+0.073436  sei=0.083488\n   NCT04187144    RR 1.3426 (1.1334 to 1.5904)  yi=+0.294608  sei=0.086421\n----------------------------------------------------------------\nCALL: rma(yi = yi, sei = sei, method = \"REML\", test = \"knha\")\n\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  0.4365   -0.8729    3.1271   -0.8729   15.1271   \n\ntau^2 (estimated amount of total heterogeneity): 0.0172 (SE = 0.0346)\ntau (square root of estimated tau^2 value):      0.1313\nI^2 (total heterogeneity / total variability):   70.48%\nH^2 (total variability / sampling variability):  3.39\n\nTest for Heterogeneity:\nQ(df = 1) = 3.3879, p-val = 0.0657\n\nModel Results:\n\nestimate      se    zval    pval    ci.lb   ci.ub    \n  0.1829  0.1106  1.6540  0.0981  -0.0338  0.3996  . \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n--- SAME FIT WITH HARTUNG-KNAPP (test = \"knha\") ---\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  0.4365   -0.8729    3.1271   -0.8729   15.1271   \n\ntau^2 (estimated amount of total heterogeneity): 0.0172 (SE = 0.0346)\ntau (square root of estimated tau^2 value):      0.1313\nI^2 (total heterogeneity / total variability):   70.48%\nH^2 (total variability / sampling variability):  3.39\n\nTest for Heterogeneity:\nQ(df = 1) = 3.3879, p-val = 0.0657\n\nModel Results:\n\nestimate      se    tval  df    pval    ci.lb   ci.ub    \n  0.1829  0.1106  1.6540   1  0.3462  -1.2222  1.5879    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBACK-TRANSFORMED:\n   unadjusted     RR 1.2007 (0.9667 to 1.4913)\n   Hartung-Knapp  RR 1.2007 (0.2946 to 4.8937)   [t crit 12.7062 on 1 df]\n   tau^2 0.017239   Q 3.3879 on 1 df, p = 0.0657   I^2 70.48%\n\nAGREES WITH THE STORED POINT TO 4 dp: YES",
+     "_what_this_is": "The console output of the fit, captured as it was printed. NOT re-typed and NOT summarised -- P46 limb 4 asks for the model output, and a paraphrase of model output is a claim about a model rather than the model's own words.",
+     "environment": "R version 4.6.0 (2026-04-24 ucrt) \nmetafor 5.0.1 \nrun_utc 2026-08-21",
+     "call": "rma(yi = yi, sei = sei, method = \"REML\")  and the same fit with test = \"knha\"",
+     "script": "ssot/fit_gepotidacin_lefamulin.R",
+     "run_utc": "2026-08-21",
+     "inputs_derivation": "yi = log(point); sei = (log(ci_high) - log(ci_low)) / (2 * 1.959964). Read from this object's own per_trial rows. NO COUNT IS INVENTED and no interval is re-typed.",
+     "reproduces_stored_point": true,
+     "hartung_knapp_note": "Shown BESIDE the unadjusted interval, never instead of it. At k = 2 the t critical value is 12.7062 on 1 degree of freedom, which is why the adjusted interval is very wide -- that width is the honest one at this k.",
+     "what_k_equals_2_means": "Two trials cannot inform a between-study variance. tau^2 is estimated with ONE degree of freedom and Q on 1 df carries almost no information about heterogeneity. THAT IS A PROPERTY OF THE EVIDENCE -- there are two trials -- and not of our access to it."
     }
    }
   }
@@ -161,6 +176,34 @@
    "values_moved": "NONE",
    "what_changed": "consistent: TR",
    "why": "The analysis population is part of the estimand and no field recorded whether this pool crossed it."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "model output quoted verbatim (P46 limb 4)",
+   "values_moved": "NONE",
+   "what_changed": "REML random-effects refit run in R 4.6.0 / metafor 5.0.1 from this object's own per-trial estimates; it reproduces the stored pooled point to 4 decimal places.",
+   "why": "The limb was ABSENT. 'No R output is stored' is a fact about our pipeline, not about the evidence, so a refusal citing it is provenance-shaped and does not discharge P46."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "risk of bias assessed per result from the registrations (P46 limb 1)",
+   "values_moved": "NONE",
+   "what_changed": "2 results assessed; overall SOME_CONCERNS",
+   "why": "The limb was ABSENT."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "GRADE rated per pooled outcome (P46 limb 2)",
+   "values_moved": "NONE",
+   "what_changed": "certainty VERY_LOW at k = 2",
+   "why": "The limb was ABSENT."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "published comparison added with a denominator (P46 limb 3)",
+   "values_moved": "NONE",
+   "what_changed": "25 matched / 25 retrieved / 25 read / 1 appraised / 0 lost",
+   "why": "The limb was ABSENT: no denominator and no stated reason."
   }
  ],
  "render": [
@@ -208,5 +251,176 @@
  ],
  "carried_contrasts": [],
  "sources": {},
- "schema_fields_added_2026_08_18": "question, outcomes, carried_contrasts and sources were absent and the generator requires all four. THEY WERE FILLED WITH CONTENT ESTABLISHED TOPIC BY TOPIC, NOT WITH EMPTY VALUES TO MAKE A BUILD SUCCEED. carried_contrasts is [] and sources is {} because both are GENUINELY EMPTY for this topic -- it is a k=2 pairwise pool with no carried network contrasts, and the same two fields are empty on acs-antiplatelet-review, which builds. An empty value written merely to pass a schema check would be the defaulted-field lie at the schema layer, and it would be published."
+ "schema_fields_added_2026_08_18": "question, outcomes, carried_contrasts and sources were absent and the generator requires all four. THEY WERE FILLED WITH CONTENT ESTABLISHED TOPIC BY TOPIC, NOT WITH EMPTY VALUES TO MAKE A BUILD SUCCEED. carried_contrasts is [] and sources is {} because both are GENUINELY EMPTY for this topic -- it is a k=2 pairwise pool with no carried network contrasts, and the same two fields are empty on acs-antiplatelet-review, which builds. An empty value written merely to pass a schema check would be the defaulted-field lie at the schema layer, and it would be published.",
+ "risk_of_bias": {
+  "tool": "RoB 2 (Cochrane risk-of-bias tool for randomized trials)",
+  "assessed_utc": "2026-08-21",
+  "assessed_per": "RESULT, not trial -- Handbook 8.2",
+  "by_outcome": {
+   "primary": {
+    "NCT04020341": {
+     "nct": "NCT04020341",
+     "trial": "EAGLE-2",
+     "registered_enrolment": 1531,
+     "registered_masking": "DOUBLE -- participant and investigator; THE OUTCOMES ASSESSOR IS NOT AMONG THE MASKED ROLES",
+     "result_assessed": "therapeutic response, combined per-participant CLINICAL AND MICROBIOLOGICAL response -- ONE OF TWO REGISTERED PRIMARY OUTCOMES",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read. LOW is scored on the recorded allocation, not on a mechanism nobody here has seen."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from intended intervention and the analysis population actually used are not on the registration. The exit is the trial reports, which were not read."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Neither registration states how many participants were missing from the analysed population or how they were handled."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTRATION DESIGN MODULE AND THE ENDPOINT'S NATURE",
+       "reason": "The endpoint COMBINES a microbiological result with a CLINICAL response, and the clinical half is a judgement. THE OUTCOMES ASSESSOR IS NOT MASKED on either registration -- masking is DOUBLE, participant and investigator -- so an unmasked assessor has something to decide. Not HIGH: nothing read shows assessment differed by arm, and asserting that would be the accusing-direction error."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTRATION COMPARED WITH WHAT THIS OBJECT POOLS",
+       "reason": "EACH TRIAL REGISTERS TWO PRIMARY OUTCOMES, both named 'Therapeutic Response (TR)'. This review pools one and records no reason for the choice. Same shape as inclisiran's two co-primaries. NOT HIGH: nothing read shows the choice was made after seeing the data."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D4 and D5 SOME_CONCERNS; D2 and D3 NO_INFORMATION. Overall cannot be LOW while a domain is SOME_CONCERNS, and cannot be judged further while two are unread."
+    },
+    "NCT04187144": {
+     "nct": "NCT04187144",
+     "trial": "EAGLE-3",
+     "registered_enrolment": 1606,
+     "registered_masking": "DOUBLE -- participant and investigator; THE OUTCOMES ASSESSOR IS NOT AMONG THE MASKED ROLES",
+     "result_assessed": "therapeutic response, combined per-participant CLINICAL AND MICROBIOLOGICAL response -- ONE OF TWO REGISTERED PRIMARY OUTCOMES",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read. LOW is scored on the recorded allocation, not on a mechanism nobody here has seen."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from intended intervention and the analysis population actually used are not on the registration. The exit is the trial reports, which were not read."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Neither registration states how many participants were missing from the analysed population or how they were handled."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTRATION DESIGN MODULE AND THE ENDPOINT'S NATURE",
+       "reason": "The endpoint COMBINES a microbiological result with a CLINICAL response, and the clinical half is a judgement. THE OUTCOMES ASSESSOR IS NOT MASKED on either registration -- masking is DOUBLE, participant and investigator -- so an unmasked assessor has something to decide. Not HIGH: nothing read shows assessment differed by arm, and asserting that would be the accusing-direction error."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTRATION COMPARED WITH WHAT THIS OBJECT POOLS",
+       "reason": "EACH TRIAL REGISTERS TWO PRIMARY OUTCOMES, both named 'Therapeutic Response (TR)'. This review pools one and records no reason for the choice. Same shape as inclisiran's two co-primaries. NOT HIGH: nothing read shows the choice was made after seeing the data."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D4 and D5 SOME_CONCERNS; D2 and D3 NO_INFORMATION. Overall cannot be LOW while a domain is SOME_CONCERNS, and cannot be judged further while two are unread."
+    }
+   }
+  },
+  "sources_read": [
+   "ClinicalTrials.gov API v2 NCT04020341 -- design module, arm groups and registered primary outcomes",
+   "ClinicalTrials.gov API v2 NCT04187144 -- design module, arm groups and registered primary outcomes"
+  ],
+  "sources_NOT_read": "The trial publications. D2 and D3 are the domains that depend on them, and both are NO_INFORMATION for that reason.",
+  "ceiling": {
+   "statement": "A domain that cannot be judged from the sources READ is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect. Overall is capped at SOME_CONCERNS wherever a domain is NO_INFORMATION.",
+   "shape_note": "A DICT, NOT A STRING. paper_projector does ceil.get('statement'), so a bare string raises AttributeError and the manuscript collapses to a projector-failed banner -- registry class 70."
+  },
+  "ONE_ASSESSOR_ONLY": "ASSESSED BY ONE ASSESSOR. Under the standing specification that risk of bias 2 must be complete and done by TWO AIs from different model families, THIS ASSESSMENT IS INCOMPLETE. It is recorded as such rather than presented as finished, and `rob2.assessors` is deliberately NOT written."
+ },
+ "grade": {
+  "approach": "GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.",
+  "rated_utc": "2026-08-21",
+  "not_rated_up": "No domain is rated UP. Rating up for a large effect, a dose-response gradient or opposing plausible confounding applies to observational evidence; these are randomised trials, which start HIGH and can only be rated down.",
+  "by_outcome": {
+   "primary": {
+    "certainty": "VERY_LOW",
+    "k": 2,
+    "started_at": "HIGH",
+    "steps": [
+     {
+      "domain": "risk_of_bias",
+      "move": "HIGH to MODERATE, down 1 level(s)",
+      "reason": "BOTH results are SOME_CONCERNS and the driver is named: the OUTCOMES ASSESSOR IS NOT MASKED (masking is DOUBLE -- participant and investigator) on an endpoint whose clinical half is a judgement, and each trial registers TWO primaries of which this review pools one without recording the choice. D2 and D3 are NO_INFORMATION."
+     },
+     {
+      "domain": "inconsistency",
+      "move": "MODERATE to LOW, down 1 level(s)",
+      "reason": "The two trials disagree in direction of conclusion: 1.0762 (0.9138 to 1.2676) INCLUDES no difference and 1.3426 (1.1334 to 1.5904) EXCLUDES it. The stored refit gives I-squared 70.48%, Q 3.3879 on 1 df, p = 0.0657. At k = 2 that I-squared is not itself evidence, but the non-overlap of conclusions is."
+     },
+     {
+      "domain": "indirectness",
+      "move": "LOW to VERY LOW, down 1 level(s)",
+      "reason": "The pooled result is ONE OF TWO REGISTERED PRIMARY OUTCOMES, chosen without a recorded reason, and the endpoint COMBINES a microbiological result with a clinical judgement. The quantity pooled is therefore not cleanly the quantity a reader would take 'therapeutic response' to mean."
+     },
+     {
+      "domain": "imprecision",
+      "move": "VERY LOW -- already at the floor, no further downgrade applied",
+      "reason": "k = 2. The Hartung-Knapp interval is RR 1.2007 (0.2946 to 4.8937) on t = 12.7062 with 1 df, and the unadjusted interval crosses no difference. The rating cannot fall below VERY LOW, so this domain is recorded as warranting a downgrade that the scale cannot express."
+     },
+     {
+      "domain": "publication_bias",
+      "move": "NOT ASSESSABLE -- no rating applied",
+      "reason": "k = 2. A funnel plot and its asymmetry tests have essentially no power below about ten trials (Handbook 13.3.5.4), so this is NOT ASSESSABLE rather than 'undetected'."
+     }
+    ],
+    "summary": "VERY LOW certainty. Both contributing results carry unmasked outcome assessment on a partly-judgemental endpoint; the two trials disagree on whether the effect excludes no difference; the pooled quantity is one of two registered primaries; and k = 2 cannot support precision.",
+    "RISK_OF_BIAS_DOMAIN_CONSUMES_THESE_RESULT_LEVEL_ASSESSMENTS": [
+     "NCT04020341 (EAGLE-2): SOME_CONCERNS",
+     "NCT04187144 (EAGLE-3): SOME_CONCERNS"
+    ],
+    "INCONSISTENCY_READ_FROM_THE_STORED_REFIT": "The heterogeneity numbers cited above are quoted from `results.by_outcome.primary.r_output`, which is this object's own captured model output, not a re-derivation."
+   }
+  }
+ },
+ "published_comparison": {
+  "_why": "P46 limb 3.",
+  "_how_identified": "PubMed E-utilities, executed 2026-08-21. Query, counts and per-record disposition in ssot/gepotidacin-urinary-tract-auto-full-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json.",
+  "denominator": {
+   "matched": 25,
+   "retrieved": 25,
+   "read": 25,
+   "appraised": 1,
+   "flagged_by_title": 8,
+   "not_returned_by_the_tool": 0,
+   "_house_form": "matched / retrieved / read / appraised / not returned -- P53. The fifth is the instrument's own limit and is reported even when zero. 8 records were flagged by title; ONE was appraised against its abstract and the rest were NOT READ."
+  },
+  "identity_basis": "BOTH REGISTRATION IDS ARE NAMED IN THE ABSTRACT. Read.",
+  "reviews": [
+   {
+    "pmid": "42413960",
+    "year": 2026,
+    "journal": "Clinical Infectious Diseases",
+    "title": "Subgroup Analysis of Pooled Phase 3 Efficacy Data from Two Randomized Trials of Gepotidacin Versus Nitrofurantoin in Uncomplicated Urinary Tract Infections",
+    "trial_set": [
+     "NCT04020341 (EAGLE-2)",
+     "NCT04187144 (EAGLE-3)"
+    ],
+    "trial_set_basis": "BOTH REGISTRATION IDS ARE NAMED IN THE ABSTRACT. Read.",
+    "design": "pooled Phase 3 efficacy data, sponsor analysis, subgroup-structured",
+    "outcome_pooled": "therapeutic success at test-of-cure, reported as a TREATMENT DIFFERENCE in the pooled micro-ITT population, split by nitrofurantoin susceptibility",
+    "estimate_quoted": "nitrofurantoin-susceptible micro-ITT: therapeutic +9.6% [4.1, 15.2], clinical +2.8% [-2.4, 8.1], microbiological +10.4% [5.2, 15.6]. Nitrofurantoin-NOT-susceptible: therapeutic +20.8% [9.2, 32.4], clinical +10.3% [-1.4, 22.1], microbiological +20.7% [9.2, 32.3].",
+    "comparable_to_ours": false,
+    "why_not_comparable": "DIFFERENT SCALE, POPULATION AND STRATIFICATION. Theirs is a RISK DIFFERENCE in micro-ITT, split by susceptibility; this object pools a RISK RATIO over an unstated population with the split collapsed. Their difference excludes zero and this ratio includes one, but they are not estimates of one quantity so no discrepancy is claimed."
+   }
+  ],
+  "THE_FINDING_OF_THIS_COMPARISON_2026_08_21": "THE SPONSOR'S OWN POOLED ANALYSIS OF THESE EXACT TWO TRIALS SPLITS BY NITROFURANTOIN SUSCEPTIBILITY, AND THE EFFECT IS MORE THAN TWICE AS LARGE IN THE NOT-SUSCEPTIBLE STRATUM: therapeutic success difference +9.6% [4.1, 15.2] where the uropathogen is susceptible against +20.8% [9.2, 32.4] where it is not (PMID 42413960, Clin Infect Dis 2026, EAGLE-2 NCT04020341 and EAGLE-3 NCT04187144). THIS POOL COLLAPSES THAT SPLIT, so its single ratio is an average over two populations the published analysis keeps apart. They report a RISK DIFFERENCE in percentage points and this object pools a RISK RATIO; theirs is micro-ITT and this object's registered outcome text names no analysis population. Their interval excludes zero and this one includes one, and those are not contradictory statements about one quantity. The pooled analysis is by the sponsor's investigators. That does not make it wrong and it is the most direct evidence about these two trials, but it is stated rather than treated as an independent referee."
+ }
 }

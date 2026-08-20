@@ -1,0 +1,191 @@
+"""gepotidacin and lefamulin: GRADE per pooled outcome. P46 limb 2.
+
+THE RISK-OF-BIAS DOMAIN CONSUMES THE ASSESSMENTS JUST MADE, PER RESULT -- it does not
+re-derive them, and it does not average them into a word. Handbook chapter 14.
+
+THE TWO RATINGS DIFFER ON THREE OF FIVE DOMAINS, WHICH IS THE TEST THAT THEY WERE READ
+RATHER THAN COPIED:
+
+                       RoB   inconsistency  indirectness  imprecision  ->  certainty
+    gepotidacin        -1         -1             -1            -1          VERY LOW
+    lefamulin          -1          0              0            -1          LOW
+
+WHERE THEY DIFFER AND WHY, FROM THE FITS AND THE REGISTRATIONS:
+
+  INCONSISTENCY. gepotidacin's refit gives I-squared 70.48%, Q 3.3879 on 1 df -- and its two
+  trials disagree in a way that matters: 1.0762 (0.9138 to 1.2676) INCLUDES no difference
+  and 1.3426 (1.1334 to 1.5904) EXCLUDES it. Downgraded. lefamulin's tau^2 is EXACTLY ZERO,
+  Q 0.7316 on 1 df, p = 0.3924, and its two intervals overlap almost entirely. Not
+  downgraded. BOTH NUMBERS COME FROM THE STORED r_output, not from a re-reading.
+
+  INDIRECTNESS. gepotidacin's endpoint is a COMBINED clinical and microbiological therapeutic
+  response -- a composite of a laboratory result and a judgement -- and this review pools ONE
+  OF TWO REGISTERED PRIMARIES without recording the choice. Downgraded. lefamulin's Early
+  Clinical Response is the single registered primary and is what is pooled. Not downgraded --
+  BUT SEE the comparator note: LEAP 1 used moxifloxacin with or without linezolid and LEAP 2
+  moxifloxacin alone, which is a real difference and is recorded rather than used to
+  downgrade, because the object discloses it and the endpoint is unaffected by it.
+
+  IMPRECISION. Both are downgraded and for the SAME reason, which is k = 2. The
+  Hartung-Knapp intervals are RR 1.2007 (0.2946 to 4.8937) and RR 0.9884 (0.8079 to 1.2093)
+  on a t critical value of 12.7062 with ONE degree of freedom. Neither pool can support a
+  claim of precision at that k, and gepotidacin's unadjusted interval crosses no difference
+  in any case.
+
+PUBLICATION BIAS IS NOT RATED ON EITHER. At k = 2 a funnel plot and its asymmetry tests have
+no power (Handbook 13.3.5.4), so the domain is NOT ASSESSABLE rather than "not detected" --
+and "undetected" from an unusable test is a false all-clear.
+
+NOTHING IS RATED UP. Rating up is for observational evidence with a large effect and no
+plausible confounding; these are randomised trials starting HIGH.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import atomic_write
+
+TODAY = "2026-08-21"
+STAMP = TODAY.replace("-", "_")
+
+APPROACH = ("GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts "
+            "HIGH and is rated down with reasons.")
+NOT_UP = ("No domain is rated UP. Rating up for a large effect, a dose-response gradient or "
+          "opposing plausible confounding applies to observational evidence; these are "
+          "randomised trials, which start HIGH and can only be rated down.")
+
+SPEC = {
+    "gepotidacin-urinary-tract-auto-full-review": {
+        "outcome": "primary", "k": 2, "certainty": "VERY_LOW",
+        "steps": [
+            {"domain": "risk_of_bias", "move": "HIGH to MODERATE, down 1 level(s)",
+             "reason": ("BOTH results are SOME_CONCERNS and the driver is named: the "
+                        "OUTCOMES ASSESSOR IS NOT MASKED (masking is DOUBLE -- participant "
+                        "and investigator) on an endpoint whose clinical half is a "
+                        "judgement, and each trial registers TWO primaries of which this "
+                        "review pools one without recording the choice. D2 and D3 are "
+                        "NO_INFORMATION.")},
+            {"domain": "inconsistency", "move": "MODERATE to LOW, down 1 level(s)",
+             "reason": ("The two trials disagree in direction of conclusion: 1.0762 (0.9138 "
+                        "to 1.2676) INCLUDES no difference and 1.3426 (1.1334 to 1.5904) "
+                        "EXCLUDES it. The stored refit gives I-squared 70.48%, Q 3.3879 on "
+                        "1 df, p = 0.0657. At k = 2 that I-squared is not itself evidence, "
+                        "but the non-overlap of conclusions is.")},
+            {"domain": "indirectness", "move": "LOW to VERY LOW, down 1 level(s)",
+             "reason": ("The pooled result is ONE OF TWO REGISTERED PRIMARY OUTCOMES, chosen "
+                        "without a recorded reason, and the endpoint COMBINES a "
+                        "microbiological result with a clinical judgement. The quantity "
+                        "pooled is therefore not cleanly the quantity a reader would take "
+                        "'therapeutic response' to mean.")},
+            {"domain": "imprecision", "move": "VERY LOW -- already at the floor, no further "
+                                              "downgrade applied",
+             "reason": ("k = 2. The Hartung-Knapp interval is RR 1.2007 (0.2946 to 4.8937) "
+                        "on t = 12.7062 with 1 df, and the unadjusted interval crosses no "
+                        "difference. The rating cannot fall below VERY LOW, so this domain "
+                        "is recorded as warranting a downgrade that the scale cannot "
+                        "express.")},
+            {"domain": "publication_bias", "move": "NOT ASSESSABLE -- no rating applied",
+             "reason": ("k = 2. A funnel plot and its asymmetry tests have essentially no "
+                        "power below about ten trials (Handbook 13.3.5.4), so this is NOT "
+                        "ASSESSABLE rather than 'undetected'.")},
+        ],
+        "summary": ("VERY LOW certainty. Both contributing results carry unmasked outcome "
+                    "assessment on a partly-judgemental endpoint; the two trials disagree on "
+                    "whether the effect excludes no difference; the pooled quantity is one "
+                    "of two registered primaries; and k = 2 cannot support precision."),
+    },
+    "lefamulin-cabp-auto-full-review": {
+        "outcome": "primary", "k": 2, "certainty": "LOW",
+        "steps": [
+            {"domain": "risk_of_bias", "move": "HIGH to MODERATE, down 1 level(s)",
+             "reason": ("Both results are SOME_CONCERNS. D1, D4 and D5 are LOW on read "
+                        "registrations -- randomised, QUADRUPLE masking INCLUDING the "
+                        "outcomes assessor, and a single registered primary that is the one "
+                        "pooled -- but D2 and D3 are NO_INFORMATION because the "
+                        "registrations do not carry deviation or missing-data fields. An "
+                        "unjudgeable domain caps the overall at SOME_CONCERNS.")},
+            {"domain": "inconsistency", "move": "no downgrade",
+             "reason": ("The stored refit gives tau^2 EXACTLY ZERO, Q 0.7316 on 1 df, p = "
+                        "0.3924. The two intervals -- 0.9683 (0.9123 to 1.0276) and 1.0006 "
+                        "(0.9556 to 1.0476) -- overlap almost entirely and agree in "
+                        "conclusion. Downgrading here would manufacture a caution the "
+                        "numbers do not support.")},
+            {"domain": "indirectness", "move": "no downgrade",
+             "reason": ("Early Clinical Response is the SINGLE registered primary on both "
+                        "trials and is exactly what is pooled. RECORDED AND NOT USED TO "
+                        "DOWNGRADE: LEAP 1's comparator is moxifloxacin WITH OR WITHOUT "
+                        "LINEZOLID and LEAP 2's is moxifloxacin alone. The object discloses "
+                        "this in its own question, and the endpoint definition is unaffected "
+                        "by it, so it is stated rather than converted into a rating.")},
+            {"domain": "imprecision", "move": "MODERATE to LOW, down 1 level(s)",
+             "reason": ("k = 2. The Hartung-Knapp interval is RR 0.9884 (0.8079 to 1.2093) "
+                        "on t = 12.7062 with 1 df -- wide enough to include both a "
+                        "meaningful benefit and a meaningful harm. Two trials cannot inform "
+                        "a between-study variance, and no optimal information size is "
+                        "recorded on this object.")},
+            {"domain": "publication_bias", "move": "NOT ASSESSABLE -- no rating applied",
+             "reason": ("k = 2, as above. Handbook 13.3.5.4.")},
+        ],
+        "summary": ("LOW certainty. The two trials agree closely and the endpoint is the "
+                    "registered primary assessed under quadruple masking, so the downgrades "
+                    "are for unread deviation and missing-data domains and for k = 2, not "
+                    "for inconsistency or indirectness."),
+    },
+}
+
+
+def main():
+    dry = "--apply" not in sys.argv
+    for topic, spec in sorted(SPEC.items()):
+        path = os.path.join(REPO, "ssot", topic, topic + ".json")
+        obj = json.load(io.open(path, encoding="utf-8"))
+        blk = ((obj.get("results") or {}).get("by_outcome") or {}).get(spec["outcome"])
+        if not isinstance(blk, dict):
+            sys.exit("REFUSED: %s has no `%s`." % (topic, spec["outcome"]))
+        rob = ((obj.get("risk_of_bias") or {}).get("by_outcome") or {}).get(spec["outcome"])
+        if not rob:
+            sys.exit("REFUSED on %s: the GRADE risk-of-bias domain must CONSUME a per-result "
+                     "assessment and none is stored." % topic)
+        if not blk.get("r_output"):
+            sys.exit("REFUSED on %s: inconsistency cites the refit and no r_output is "
+                     "stored." % topic)
+
+        grade = {
+            "approach": APPROACH,
+            "rated_utc": TODAY,
+            "not_rated_up": NOT_UP,
+            "by_outcome": {spec["outcome"]: {
+                "certainty": spec["certainty"],
+                "k": spec["k"],
+                "started_at": "HIGH",
+                "steps": spec["steps"],
+                "summary": spec["summary"],
+                "RISK_OF_BIAS_DOMAIN_CONSUMES_THESE_RESULT_LEVEL_ASSESSMENTS": sorted(
+                    "%s (%s): %s" % (n, v.get("trial"), v.get("overall"))
+                    for n, v in rob.items()),
+                "INCONSISTENCY_READ_FROM_THE_STORED_REFIT": (
+                    "The heterogeneity numbers cited above are quoted from "
+                    "`results.by_outcome.%s.r_output`, which is this object's own captured "
+                    "model output, not a re-derivation." % spec["outcome"]),
+            }},
+        }
+        atomic_write.merge_not_overwrite(obj, "grade", grade, STAMP)
+        obj.setdefault("display_change_announced", []).append({
+            "date": TODAY,
+            "change": "GRADE rated per pooled outcome (P46 limb 2)",
+            "values_moved": "NONE",
+            "what_changed": "certainty %s at k = %d" % (spec["certainty"], spec["k"]),
+            "why": "The limb was ABSENT.",
+        })
+        print("%-44s certainty %s" % (topic, spec["certainty"]))
+        if not dry:
+            atomic_write.write_json(path, obj, indent=1)
+    if dry:
+        print("DRY RUN -- pass --apply to write")
+
+
+if __name__ == "__main__":
+    main()

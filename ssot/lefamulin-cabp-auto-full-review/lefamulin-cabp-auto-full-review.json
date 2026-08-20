@@ -129,7 +129,22 @@
     "estimator_used": "REML",
     "POOL_FINDINGS_2026_08_21": {
      "a_the_analysis_population_was_checked_and_is_consistent": "CHECKED AND CLEAN. Read from the registrations on 2026-08-21: NCT02559310 registers 'Early Clinical Response (ECR)' (population: ECR); NCT02813694 registers 'Early Clinical Response (ECR)' (population: ECR). Both trials register the same primary in the same population, so this pool does NOT cross an analysis-population boundary. Recorded because a check that only speaks when it finds something cannot be told from a check that was never run.",
-     "b_what_remains_unresolved": "Whether these are non-inferiority designs is NOT established: the registration fields fetched do not use the word, and a pooled ratio from non-inferiority trials answers a different question from a superiority pool. Unresolved, not assumed."
+     "b_what_remains_unresolved": "Whether these are non-inferiority designs is NOT established: the registration fields fetched do not use the word, and a pooled ratio from non-inferiority trials answers a different question from a superiority pool. Unresolved, not assumed.",
+     "a_the_two_trials_differ_in_route_and_duration_not_only_in_comparator": "THE EXPERIMENTAL ARMS ARE NOT THE SAME INTERVENTION. Read from the pooled analysis (PMID 33964925, BMC Pulm Med 2021): LEAP 1 randomised patients to INTRAVENOUS lefamulin 150 mg every 12 hours for 5-7 days with an OPTIONAL INTRAVENOUS-TO-ORAL SWITCH; LEAP 2 randomised to ORAL lefamulin 600 mg every 12 hours for 5 days. THIS OBJECT POOLS THEM AS ONE INTERVENTION.",
+     "b_and_the_comparators_differ_as_this_object_already_says": "LEAP 1's comparator is moxifloxacin WITH OR WITHOUT LINEZOLID and LEAP 2's is moxifloxacin alone -- corroborated from the registered arm groups. This object's own question already states the comparator difference; THE ROUTE AND DURATION DIFFERENCE WAS NOT PREVIOUSLY RECORDED.",
+     "c_what_is_not_claimed": "NOT that the pool is invalid -- an intravenous-to-oral switch and an oral course of the same drug are a defensible thing to combine, and the published analysis combines them. What is claimed is that a reader meeting one ratio should know the two arms differed in route, duration and comparator, and no field said so."
+    },
+    "r_output": {
+     "verbatim": "TOPIC   lefamulin-cabp-auto-full-review\nOUTCOME primary\nSTORED  RR 0.9884 (0.9530 to 1.0250), k = 2, random-effects / REML\nINPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):\n   NCT02559310    RR 0.9683 (0.9123 to 1.0276)  yi=-0.032213  sei=0.030361\n   NCT02813694    RR 1.0006 (0.9556 to 1.0476)  yi=+0.000600  sei=0.023449\n----------------------------------------------------------------\nCALL: rma(yi = yi, sei = sei, method = \"REML\", test = \"knha\")\n\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  2.3225   -4.6450   -0.6450   -4.6450   11.3550   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0010)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.7316, p-val = 0.3924\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb   ci.ub    \n -0.0117  0.0186  -0.6283  0.5298  -0.0480  0.0247    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n--- SAME FIT WITH HARTUNG-KNAPP (test = \"knha\") ---\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  2.3225   -4.6450   -0.6450   -4.6450   11.3550   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0010)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.7316, p-val = 0.3924\n\nModel Results:\n\nestimate      se     tval  df    pval    ci.lb   ci.ub    \n -0.0117  0.0159  -0.7346   1  0.5967  -0.2134  0.1900    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBACK-TRANSFORMED:\n   unadjusted     RR 0.9884 (0.9531 to 1.0250)\n   Hartung-Knapp  RR 0.9884 (0.8079 to 1.2093)   [t crit 12.7062 on 1 df]\n   tau^2 0.000000   Q 0.7316 on 1 df, p = 0.3924   I^2 0.00%\n\nAGREES WITH THE STORED POINT TO 4 dp: YES",
+     "_what_this_is": "The console output of the fit, captured as it was printed. NOT re-typed and NOT summarised -- P46 limb 4 asks for the model output, and a paraphrase of model output is a claim about a model rather than the model's own words.",
+     "environment": "R version 4.6.0 (2026-04-24 ucrt) \nmetafor 5.0.1 \nrun_utc 2026-08-21",
+     "call": "rma(yi = yi, sei = sei, method = \"REML\")  and the same fit with test = \"knha\"",
+     "script": "ssot/fit_gepotidacin_lefamulin.R",
+     "run_utc": "2026-08-21",
+     "inputs_derivation": "yi = log(point); sei = (log(ci_high) - log(ci_low)) / (2 * 1.959964). Read from this object's own per_trial rows. NO COUNT IS INVENTED and no interval is re-typed.",
+     "reproduces_stored_point": true,
+     "hartung_knapp_note": "Shown BESIDE the unadjusted interval, never instead of it. At k = 2 the t critical value is 12.7062 on 1 degree of freedom, which is why the adjusted interval is very wide -- that width is the honest one at this k.",
+     "what_k_equals_2_means": "Two trials cannot inform a between-study variance. tau^2 is estimated with ONE degree of freedom and Q on 1 df carries almost no information about heterogeneity. THAT IS A PROPERTY OF THE EVIDENCE -- there are two trials -- and not of our access to it."
     }
    }
   }
@@ -149,6 +164,34 @@
    "values_moved": "NONE",
    "what_changed": "consistent: ECR",
    "why": "The analysis population is part of the estimand and no field recorded whether this pool crossed it."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "model output quoted verbatim (P46 limb 4)",
+   "values_moved": "NONE",
+   "what_changed": "REML random-effects refit run in R 4.6.0 / metafor 5.0.1 from this object's own per-trial estimates; it reproduces the stored pooled point to 4 decimal places.",
+   "why": "The limb was ABSENT. 'No R output is stored' is a fact about our pipeline, not about the evidence, so a refusal citing it is provenance-shaped and does not discharge P46."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "risk of bias assessed per result from the registrations (P46 limb 1)",
+   "values_moved": "NONE",
+   "what_changed": "2 results assessed; overall SOME_CONCERNS",
+   "why": "The limb was ABSENT."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "GRADE rated per pooled outcome (P46 limb 2)",
+   "values_moved": "NONE",
+   "what_changed": "certainty LOW at k = 2",
+   "why": "The limb was ABSENT."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "published comparison added with a denominator (P46 limb 3)",
+   "values_moved": "NONE",
+   "what_changed": "19 matched / 19 retrieved / 19 read / 1 appraised / 0 lost",
+   "why": "The limb was ABSENT: no denominator and no stated reason."
   }
  ],
  "carried_contrasts": [],
@@ -364,5 +407,177 @@
     }
    }
   }
+ },
+ "risk_of_bias": {
+  "tool": "RoB 2 (Cochrane risk-of-bias tool for randomized trials)",
+  "assessed_utc": "2026-08-21",
+  "assessed_per": "RESULT, not trial -- Handbook 8.2",
+  "by_outcome": {
+   "primary": {
+    "NCT02559310": {
+     "nct": "NCT02559310",
+     "trial": "LEAP 1",
+     "registered_enrolment": 551,
+     "registered_masking": "QUADRUPLE -- participant, care provider, investigator AND OUTCOMES ASSESSOR",
+     "result_assessed": "Early Clinical Response (ECR) -- THE SINGLE REGISTERED PRIMARY OUTCOME",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read. LOW is scored on the recorded allocation, not on a mechanism nobody here has seen."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from intended intervention and the analysis population actually used are not on the registration. The exit is the trial reports, which were not read."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Neither registration states how many participants were missing from the analysed population or how they were handled."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "Masking is QUADRUPLE on both registrations and the OUTCOMES ASSESSOR IS EXPLICITLY AMONG THE MASKED ROLES. Early clinical response is an assessed judgement, so the masked assessor is what makes this LOW -- the judgement rests on the masking, not on the endpoint being objective."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION COMPARED WITH WHAT THIS OBJECT POOLS",
+       "reason": "ONE primary outcome is registered on each trial -- Early Clinical Response -- and that is the result pooled here. There is no set to choose from, so the selection found on gepotidacin cannot arise."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D1, D4 and D5 LOW on read registrations; D2 and D3 NO_INFORMATION. Under RoB 2 an unjudgeable domain cannot yield LOW overall, and SOME_CONCERNS is the ceiling this project applies where a domain is unread rather than adverse."
+    },
+    "NCT02813694": {
+     "nct": "NCT02813694",
+     "trial": "LEAP 2",
+     "registered_enrolment": 738,
+     "registered_masking": "QUADRUPLE -- participant, care provider, investigator AND OUTCOMES ASSESSOR",
+     "result_assessed": "Early Clinical Response (ECR) -- THE SINGLE REGISTERED PRIMARY OUTCOME",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read. LOW is scored on the recorded allocation, not on a mechanism nobody here has seen."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from intended intervention and the analysis population actually used are not on the registration. The exit is the trial reports, which were not read."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Neither registration states how many participants were missing from the analysed population or how they were handled."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "Masking is QUADRUPLE on both registrations and the OUTCOMES ASSESSOR IS EXPLICITLY AMONG THE MASKED ROLES. Early clinical response is an assessed judgement, so the masked assessor is what makes this LOW -- the judgement rests on the masking, not on the endpoint being objective."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION COMPARED WITH WHAT THIS OBJECT POOLS",
+       "reason": "ONE primary outcome is registered on each trial -- Early Clinical Response -- and that is the result pooled here. There is no set to choose from, so the selection found on gepotidacin cannot arise."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D1, D4 and D5 LOW on read registrations; D2 and D3 NO_INFORMATION. Under RoB 2 an unjudgeable domain cannot yield LOW overall, and SOME_CONCERNS is the ceiling this project applies where a domain is unread rather than adverse."
+    }
+   }
+  },
+  "sources_read": [
+   "ClinicalTrials.gov API v2 NCT02559310 -- design module, arm groups and registered primary outcomes",
+   "ClinicalTrials.gov API v2 NCT02813694 -- design module, arm groups and registered primary outcomes"
+  ],
+  "sources_NOT_read": "The trial publications. D2 and D3 are the domains that depend on them, and both are NO_INFORMATION for that reason.",
+  "ceiling": {
+   "statement": "A domain that cannot be judged from the sources READ is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect. Overall is capped at SOME_CONCERNS wherever a domain is NO_INFORMATION.",
+   "shape_note": "A DICT, NOT A STRING. paper_projector does ceil.get('statement'), so a bare string raises AttributeError and the manuscript collapses to a projector-failed banner -- registry class 70."
+  },
+  "ONE_ASSESSOR_ONLY": "ASSESSED BY ONE ASSESSOR. Under the standing specification that risk of bias 2 must be complete and done by TWO AIs from different model families, THIS ASSESSMENT IS INCOMPLETE. It is recorded as such rather than presented as finished, and `rob2.assessors` is deliberately NOT written.",
+  "comparator_read_from_the_registrations": "LEAP 1's comparator is moxifloxacin WITH OR WITHOUT LINEZOLID and LEAP 2's is moxifloxacin alone -- read from the registered arm groups. This object's own question already states it, so the registrations CORROBORATE a disclosure rather than revealing a new one."
+ },
+ "grade": {
+  "approach": "GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.",
+  "rated_utc": "2026-08-21",
+  "not_rated_up": "No domain is rated UP. Rating up for a large effect, a dose-response gradient or opposing plausible confounding applies to observational evidence; these are randomised trials, which start HIGH and can only be rated down.",
+  "by_outcome": {
+   "primary": {
+    "certainty": "LOW",
+    "k": 2,
+    "started_at": "HIGH",
+    "steps": [
+     {
+      "domain": "risk_of_bias",
+      "move": "HIGH to MODERATE, down 1 level(s)",
+      "reason": "Both results are SOME_CONCERNS. D1, D4 and D5 are LOW on read registrations -- randomised, QUADRUPLE masking INCLUDING the outcomes assessor, and a single registered primary that is the one pooled -- but D2 and D3 are NO_INFORMATION because the registrations do not carry deviation or missing-data fields. An unjudgeable domain caps the overall at SOME_CONCERNS."
+     },
+     {
+      "domain": "inconsistency",
+      "move": "no downgrade",
+      "reason": "The stored refit gives tau^2 EXACTLY ZERO, Q 0.7316 on 1 df, p = 0.3924. The two intervals -- 0.9683 (0.9123 to 1.0276) and 1.0006 (0.9556 to 1.0476) -- overlap almost entirely and agree in conclusion. Downgrading here would manufacture a caution the numbers do not support."
+     },
+     {
+      "domain": "indirectness",
+      "move": "no downgrade",
+      "reason": "Early Clinical Response is the SINGLE registered primary on both trials and is exactly what is pooled. RECORDED AND NOT USED TO DOWNGRADE: LEAP 1's comparator is moxifloxacin WITH OR WITHOUT LINEZOLID and LEAP 2's is moxifloxacin alone. The object discloses this in its own question, and the endpoint definition is unaffected by it, so it is stated rather than converted into a rating."
+     },
+     {
+      "domain": "imprecision",
+      "move": "MODERATE to LOW, down 1 level(s)",
+      "reason": "k = 2. The Hartung-Knapp interval is RR 0.9884 (0.8079 to 1.2093) on t = 12.7062 with 1 df -- wide enough to include both a meaningful benefit and a meaningful harm. Two trials cannot inform a between-study variance, and no optimal information size is recorded on this object."
+     },
+     {
+      "domain": "publication_bias",
+      "move": "NOT ASSESSABLE -- no rating applied",
+      "reason": "k = 2, as above. Handbook 13.3.5.4."
+     }
+    ],
+    "summary": "LOW certainty. The two trials agree closely and the endpoint is the registered primary assessed under quadruple masking, so the downgrades are for unread deviation and missing-data domains and for k = 2, not for inconsistency or indirectness.",
+    "RISK_OF_BIAS_DOMAIN_CONSUMES_THESE_RESULT_LEVEL_ASSESSMENTS": [
+     "NCT02559310 (LEAP 1): SOME_CONCERNS",
+     "NCT02813694 (LEAP 2): SOME_CONCERNS"
+    ],
+    "INCONSISTENCY_READ_FROM_THE_STORED_REFIT": "The heterogeneity numbers cited above are quoted from `results.by_outcome.primary.r_output`, which is this object's own captured model output, not a re-derivation."
+   }
+  }
+ },
+ "published_comparison": {
+  "_why": "P46 limb 3.",
+  "_how_identified": "PubMed E-utilities, executed 2026-08-21. Query, counts and per-record disposition in ssot/lefamulin-cabp-auto-full-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json.",
+  "denominator": {
+   "matched": 19,
+   "retrieved": 19,
+   "read": 19,
+   "appraised": 1,
+   "flagged_by_title": 6,
+   "not_returned_by_the_tool": 0,
+   "_house_form": "matched / retrieved / read / appraised / not returned -- P53. The fifth is the instrument's own limit and is reported even when zero. 6 records were flagged by title; ONE was appraised against its abstract and the rest were NOT READ."
+  },
+  "identity_basis": "BOTH TRIALS NAMED IN THE ABSTRACT by their study names and their designs described. Registration ids are matched from this object, which keys LEAP 1 and LEAP 2 to those NCTs.",
+  "reviews": [
+   {
+    "pmid": "33964925",
+    "year": 2021,
+    "journal": "BMC Pulmonary Medicine",
+    "title": "Lefamulin efficacy and safety in a pooled phase 3 clinical trial population with community-acquired bacterial pneumonia and common clinical comorbidities",
+    "trial_set": [
+     "LEAP 1 (NCT02559310)",
+     "LEAP 2 (NCT02813694)"
+    ],
+    "trial_set_basis": "BOTH TRIALS NAMED IN THE ABSTRACT by their study names and their designs described. Registration ids are matched from this object, which keys LEAP 1 and LEAP 2 to those NCTs.",
+    "design": "pooled phase 3 analysis, sponsor authors, comorbidity subgroups",
+    "outcome_pooled": "Early Clinical Response at 96 +/- 24 hours -- THE SAME ENDPOINT THIS OBJECT POOLS",
+    "estimate_quoted": "The abstract describes the pooled population and the two designs; the subgroup effect estimates were NOT extracted here and are recorded as NOT READ rather than summarised.",
+    "comparable_to_ours": true,
+    "agreement": "SAME ENDPOINT AND SAME TWO TRIALS. No numeric comparison is made because the pooled ECR estimate was not extracted from the abstract -- recorded as not read."
+   }
+  ],
+  "THE_FINDING_OF_THIS_COMPARISON_2026_08_21": "THE EXPERIMENTAL ARMS ARE NOT THE SAME INTERVENTION. Read from the pooled analysis (PMID 33964925, BMC Pulm Med 2021): LEAP 1 randomised patients to INTRAVENOUS lefamulin 150 mg every 12 hours for 5-7 days with an OPTIONAL INTRAVENOUS-TO-ORAL SWITCH; LEAP 2 randomised to ORAL lefamulin 600 mg every 12 hours for 5 days. THIS OBJECT POOLS THEM AS ONE INTERVENTION. LEAP 1's comparator is moxifloxacin WITH OR WITHOUT LINEZOLID and LEAP 2's is moxifloxacin alone -- corroborated from the registered arm groups. This object's own question already states the comparator difference; THE ROUTE AND DURATION DIFFERENCE WAS NOT PREVIOUSLY RECORDED. NOT that the pool is invalid -- an intravenous-to-oral switch and an oral course of the same drug are a defensible thing to combine, and the published analysis combines them. What is claimed is that a reader meeting one ratio should know the two arms differed in route, duration and comparator, and no field said so."
  }
 }
