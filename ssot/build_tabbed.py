@@ -1069,7 +1069,12 @@ def build(canon):
             "project. That is a state of the OBJECT, not a build failure: the review has not "
             "been done. Building a page for it would put a stub where a reader expected "
             "nothing. Nothing has been written.")
-    e_ = html.escape
+    # THE ESCAPER PASSED INTO `_outcome_section`, WHICH IS THE ONE THAT WAS CRASHING.
+    # `build_app_v2` has its own `e`, but this is the callable handed to the outcome
+    # renderer, so patching that one alone changed nothing. An absent field renders as an em
+    # dash; the token `None` is never emitted, so the placeholder-leak lint is unaffected.
+    def e_(x):
+        return html.escape("—" if x is None else str(x))
 
     def p(s, scope=None):
         return e_(G.render(canon, s, scope))
@@ -1166,7 +1171,11 @@ def build(canon):
         "<td><small>%s</small></td></tr>%s"
         % (p(v.get("layer", "")), p(v.get("name", "")), e_(v.get("url", "")),
            p(v.get("access_note", "")), NL)
-        for v in sorted(srcs.values(), key=lambda x: x.get("layer_rank", 99)))
+        # `sources` HAS TWO SHAPES IN THIS CORPUS -- {id: {...}} and {id: "path"} -- and the
+    # References section already carries a note about exactly that. This sort assumed the
+    # first, so a bare-path source raised `'str' object has no attribute 'get'`.
+    for v in sorted((x for x in srcs.values() if isinstance(x, dict)),
+                    key=lambda x: x.get("layer_rank", 99)))
     stmt = canon.get("completeness_statement", "")
 
     page = {

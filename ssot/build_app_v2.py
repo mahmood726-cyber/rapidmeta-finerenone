@@ -324,7 +324,15 @@ def resolve(canon, ref, scope=None):
 
 
 def render(canon, s, scope=None):
-    """Resolve references, bounded so a cycle fails loudly."""
+    """Resolve references, bounded so a cycle fails loudly.
+
+    A NULL FIELD IS AN ABSENCE, NOT A TYPE ERROR. `p(x)` is called on optional fields all
+    over this renderer, and `REF_RE.sub` on None raises `expected string or bytes-like
+    object` from inside `re` -- a message that names neither the object nor the field. The
+    display for an absent value is an em dash, the same as every other empty cell here.
+    """
+    if s is None:
+        return "—"
     for _ in range(8):
         out = REF_RE.sub(lambda m: fmt(resolve(canon, m.group(1), scope)), s)
         if out == s:
@@ -342,7 +350,20 @@ def build(canon: dict) -> str:
     selected endpoint at the surface, which is exactly what reporting all four
     was meant to remove. A projection shows what the object holds.
     """
-    e = html.escape
+    # AN ABSENT VALUE RENDERS AS AN EM DASH, NOT AS AttributeError.
+    #
+    # `html.escape(None)` raises inside the standard library, so the traceback names
+    # `s.replace` in `html/__init__.py` and neither the object, the outcome nor the field.
+    # Four separate call sites hit it on this corpus-wide rebuild -- `pooled['measure']`,
+    # `outcome['measure']`, and two more behind them -- and patching them one at a time is
+    # how you spend a night on the fourth. A field the object does not hold is an ABSENCE,
+    # and the display for an absence is a dash.
+    #
+    # NOT A PLACEHOLDER LEAK. This never emits the token `None`; the house lint that blocks
+    # a bare `None` reaching a page is unaffected, and an em dash is what every other absent
+    # cell in these tables already shows.
+    def e(x):
+        return html.escape("—" if x is None else str(x))
     def p(s, scope=None):
         return e(render(canon, s, scope))
 
@@ -727,7 +748,14 @@ def _outcome_section(canon, oid, p, e):
             + "".join(_finding_block(res, k, "alert", p, NL)
                       for k in sorted(res) if k.startswith("POOL_FINDINGS_"))
             + "</div>" + NL)
-    elif pooled:
+    # A `pooled` DICT OF NULLS IS TRUTHY AND IS NOT A POOLED RESULT.
+    #
+    # 15 topics store `pooled` with every field null -- measure, point, ci_low, ci_high all
+    # None -- to record that the outcome exists and was not pooled. `elif pooled:` accepted
+    # it, and `html.escape(None)` then raised AttributeError with no mention of which object
+    # or which field. Each of those 15 pages had not been rebuilt since the state arose, so
+    # nothing had reached the line; the corpus-wide rebuild was the first thing to.
+    elif pooled and pooled.get("point") is not None:
         # A POOL THAT STANDS SAYS WHY, WITH THE SAME PROMINENCE AS ONE THAT DOES
         # NOT. The withdrawal branch above renders its reason first and states
         # that "the reason is the deliverable". Nothing rendered the symmetric
@@ -739,11 +767,11 @@ def _outcome_section(canon, oid, p, e):
         _cav = pooled.get("caveats")
         headline = (
             "<div class='card'>" + NL + "  <h2>Pooled result</h2>" + NL
-            + f"  <p class='num'>{e(pooled['measure'])} {fmt(pooled['point'])} "
+            + f"  <p class='num'>{e(pooled.get('measure'))} {fmt(pooled['point'])} "
               f"({fmt(pooled['ci_low'])} to {fmt(pooled['ci_high'])}), "
               f"{fmt(pooled['ci_level'])}% interval</p>" + NL
-            + f"  <p>{p(outcome['name'])}. {p(res['model'])}, estimator "
-              f"{p(res['estimator_used'])}, k = {fmt(res['k'])}.</p>" + NL
+            + f"  <p>{p(outcome['name'])}. {p(res.get('model'))}, estimator "
+              f"{p(res.get('estimator_used'))}, k = {fmt(res['k'])}.</p>" + NL
             + ((f"  <p class='num'>Vaccine efficacy "
                 f"{fmt(pooled['pooled_ve_percent'])}% "
                 f"({fmt(pooled['pooled_ve_ci_low_percent'])} to "
@@ -1012,7 +1040,7 @@ def _outcome_section(canon, oid, p, e):
         sg_foot = res.get("subgroup_footnote")
         subgroups = (f"<div class='card'>\n  <h2>{e(sg_head)}</h2>\n  <table>\n"
                      f"    <tr><th>Stratum</th><th>Trials</th>"
-                     f"<th>{e(outcome['measure'])} (95% CI)</th><th>I&sup2;</th>"
+                     f"<th>{e(outcome.get('measure'))} (95% CI)</th><th>I&sup2;</th>"
                      f"<th>What this stratum mixes</th></tr>\n{srows}  </table>\n"
                      + (f"  <p><small>{p(sg_foot)}</small></p>\n" if sg_foot else
                         f"  <p><small>These strata are reported, not tested against each "
@@ -1068,7 +1096,7 @@ def _outcome_section(canon, oid, p, e):
         sens = (f"<div class='card warn'>\n  <h3>Is the finding robust to how "
                 f"it was reached?</h3>\n  <p>{p(s['why'])}</p>\n  <table>\n"
                 f"    <tr><th>What was changed</th>"
-                f"<th>{e(outcome['measure'])} or its alternative (95% CI)</th>"
+                f"<th>{e(outcome.get('measure'))} or its alternative (95% CI)</th>"
                 f"<th>I&sup2;</th><th>Effect on the conclusion</th></tr>\n"
                 f"{srows}  </table>\n"
                 f"  <p><strong>{p(s['conclusion'])}</strong></p>\n"
@@ -1108,7 +1136,7 @@ def _outcome_section(canon, oid, p, e):
         # analysis was not run and why -- and the empty table is dropped.
         _table = (f"  <table>\n"
                   f"    <tr><th>Cohort omitted</th><th>k</th>"
-                  f"<th>{e(outcome['measure'])} (95% CI)</th>"
+                  f"<th>{e(outcome.get('measure'))} (95% CI)</th>"
                   + ("<th>Efficacy</th>" if has_ve else "")
                   + f"</tr>\n{srows}  </table>\n") if s["analyses"] else ""
         sens = (f"<div class='card'>\n  <h3>Leave-one-out sensitivity</h3>\n"
@@ -1258,10 +1286,10 @@ def _outcome_section(canon, oid, p, e):
   <h3>Contributing trials</h3>
   <table>
     <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
-        <th>{e(outcome['measure'])} ({_lvl}), or events</th>
+        <th>{e(outcome.get('measure'))} ({_lvl}), or events</th>
         <th>Source of this cell</th></tr>
 {rows}  </table>
-  <p><small>{p(outcome['definition_note'])}</small></p>
+  <p><small>{p(outcome.get('definition_note'))}</small></p>
 </div>
 {_endpoint_definitions(canon, oid, p, e)}{_not_contributing(canon, p, e)}{hb}{sens}{dissent}{subgroups}{note}</section>
 """
