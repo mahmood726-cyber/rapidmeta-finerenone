@@ -788,6 +788,56 @@
     "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py.",
     "POOL_FINDINGS_2026_08_20": {
      "a_two_co_primaries_were_registered_and_one_is_pooled": "ALL THREE TRIALS REGISTER TWO CO-PRIMARY OUTCOMES: percentage change in LDL-C from baseline to DAY 510, and the TIME-ADJUSTED percentage change after day 90 up to day 540. This pool uses the first. THE SELECTION IS RECORDED NOWHERE. The two answer different questions about a drug given twice a year -- a single timepoint against an average across the dosing interval -- and a review that selects among registered options without recording the selection has made an analytic decision that cannot be audited from its own output. The estimate is not changed here: choosing the other co-primary is a content decision."
+    },
+    "the_other_registered_co_primary_2026_08_21": {
+     "_what": "Each of the three trials registered TWO co-primary outcomes. This pool uses the Day-510 percent change. This field records the other one, read from the same registrations on the same day, so the effect of the choice is a stored number rather than an assertion.",
+     "outcome": "Time-adjusted percent change in LDL-C from baseline after day 90 and up to day 540",
+     "source": "ClinicalTrials.gov API v2, posted results, read 2026-08-21. Each value is the registration's own MEAN DIFFERENCE analysis, not a figure derived here.",
+     "per_trial": [
+      {
+       "trial_id": "NCT03397121",
+       "acronym": "ORION-9",
+       "point": -44.3,
+       "ci_low": -48.48,
+       "ci_high": -40.12,
+       "ci_level": 95
+      },
+      {
+       "trial_id": "NCT03399370",
+       "acronym": "ORION-10",
+       "point": -53.78,
+       "ci_low": -56.23,
+       "ci_high": -51.33,
+       "ci_level": 95
+      },
+      {
+       "trial_id": "NCT03400800",
+       "acronym": "ORION-11",
+       "point": -49.17,
+       "ci_low": -51.57,
+       "ci_high": -46.77,
+       "ci_level": 95
+      }
+     ],
+     "pooled": {
+      "measure": "MD",
+      "point": -49.2953,
+      "ci_low": -54.5221,
+      "ci_high": -44.0686,
+      "ci_level": 95
+     },
+     "heterogeneity": {
+      "tau2": 18.888415,
+      "q": 16.5013,
+      "df": 2,
+      "i2_percent": 87.9
+     },
+     "method": "Random-effects, REML, inverse-variance, standard errors taken from each registration's own interval as (hi - lo) / (2 * 1.959964). Same method as the pool above."
+    },
+    "POOL_FINDINGS_2026_08_21": {
+     "a_each_trial_registered_two_co_primaries_and_this_pools_one": "READ THIS BESIDE THE ESTIMATE. All three trials registered TWO co-primary outcomes: the percent change in LDL-C at Day 510, which this pool uses, and the TIME-ADJUSTED percent change from baseline after day 90 and up to day 540, which it does not. Pooling the other one by the same method gives -49.30 (-54.52 to -44.07) against this pool's -53.97 (-58.30 to -49.64). THE CHOICE OF CO-PRIMARY MOVES THE HEADLINE BY 4.7 PERCENTAGE POINTS, and until now this object said nowhere that a second one existed. Both are stored; neither is withdrawn; which one answers a given question is not a choice this page can make for a reader.",
+     "b_the_extraction_was_checked_against_the_registrations_and_is_exact": "A cross-lane check reported this pool's point as wrong for its own estimand -- -53.97 against roughly -50.6 -- and its heterogeneity as largely an extraction artefact. BOTH WERE CHECKED AGAINST THE POSTED RESULTS ON 2026-08-21 AND NEITHER HOLDS. Every per-trial value here reproduces its registration's own Day-510 mean-difference analysis exactly: -49.52 (-55.04 to -43.99), -57.64 (-60.86 to -54.43), -53.50 (-56.66 to -50.35). The ~-50.6 is the OTHER co-primary, recorded above. THE REPORTED DEFECT WAS A COMPARISON AGAINST A DIFFERENT ESTIMAND, and it is written here rather than dropped because a check that was run and did not hold is evidence too.",
+     "c_the_heterogeneity_is_real_and_the_alternative_is_worse": "I-squared is 74.1% with tau-squared 10.60 on this pool. On the other co-primary it is 87.9% with tau-squared 18.89. The spread is not an artefact of how these numbers were read; it is larger on the estimand that was said to be cleaner."
     }
    }
   }
@@ -980,6 +1030,20 @@
    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
    "what_changed": "references built, introduction written, bookkeeping claims 5",
    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "the second registered co-primary recorded, and the reported point-estimate defect checked and not upheld",
+   "values_moved": "NONE -- the pooled point and interval are unchanged",
+   "what_changed": "a POOL_FINDINGS block beside the estimate, and the other co-primary stored with its own per-trial values and pool",
+   "why": "A reader meeting -53.97 should know that the same three registrations carry a second co-primary that pools to -49.30. The estimate is right for the estimand this page names; the page did not say there was another."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "the kidney scope asserted by the topic name withdrawn",
+   "values_moved": "NONE -- no estimate, judgement or rating moves",
+   "what_changed": "a scope correction on the object; the slug is unchanged so no URL breaks",
+   "why": "The name asserts an analysis that does not exist on the object."
   }
  ],
  "published_comparison": {
@@ -1580,5 +1644,6 @@
     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
    }
   }
- }
+ },
+ "SCOPE_CORRECTED_2026_08_21": "THIS TOPIC IS NAMED `inclisiran-lipid-kidney` AND IT ANALYSES NO KIDNEY OUTCOME. Every result on this object is LDL-C percent change. No renal endpoint -- eGFR, albuminuria, kidney failure, dialysis -- is extracted, pooled, assessed for risk of bias or rated for certainty anywhere here. The slug is retained because it is the key a reader's URL resolves through and changing it would break a page a reader may already hold; the SCOPE is corrected here instead. What this review covers: the effect of inclisiran on LDL-C. What it does not cover, despite its name: anything renal."
 }

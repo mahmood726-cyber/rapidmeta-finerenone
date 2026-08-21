@@ -566,6 +566,13 @@
    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
    "what_changed": "references built, introduction written, bookkeeping claims 4",
    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "the population label 'adults with stroke' withdrawn",
+   "values_moved": "NONE -- no estimate, judgement or rating moves",
+   "what_changed": "a correction recorded on the object naming what was said, what is true, and how",
+   "why": "Both trials are primary prevention; the label came from reading an outcome out of a registry conditions array."
   }
  ],
  "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",
@@ -805,5 +812,6 @@
     "the_judgement_that_is_the_authors": "This sentence is the author's judgement and is not derivable from any field here."
    }
   }
- }
+ },
+ "POPULATION_LABEL_WITHDRAWN_2026_08_21": "THIS OBJECT DESCRIBED ITS POPULATION AS 'ADULTS WITH STROKE'. THAT IS WRONG AND IT IS WITHDRAWN. Both contributing trials are PRIMARY PREVENTION in people WITHOUT established cardiovascular disease. Read from ClinicalTrials.gov API v2 on 2026-08-21: NCT00239681 is JUPITER, registered under the single condition 'Elevated high-sensitivity C-Reactive Protein (hsCRP)'; NCT00468923 is HOPE-3, an intermediate-risk primary-prevention trial. AND THE ORIGIN OF THE ERROR IS IDENTIFIABLE: HOPE-3's registry `conditions` array reads ['Cardiovascular Disease', 'Stroke'] because stroke is an OUTCOME it counts, not because its participants had one. A conditions field lists what a trial is about, which is not the same as what its participants have, and reading it as a population label turns an endpoint into a diagnosis. The correct description is: adults without established cardiovascular disease, at elevated risk. No estimate changes."
 }

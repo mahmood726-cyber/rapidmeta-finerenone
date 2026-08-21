@@ -679,6 +679,15 @@ def pool_referral(blk):
     ON THE PREFIX rather than on one day's spelling -- a renderer keyed to
     `THE_POOL_IS_REFERRED_2026_08_20` would go silent the next time a pool is referred.
     """
+    # EVERY REFERRAL ON THIS POOL, NOT THE FIRST ONE ALPHABETICALLY.
+    #
+    # `attr-pn-review` was referred on 2026-08-20 for putting patisiran on both sides of one
+    # number, and again on 2026-08-21 for two of its three contrasts sharing one external
+    # placebo arm. Returning on the first match meant the SECOND referral -- written the same
+    # night, onto the same pool, for a different defect -- reached no reader at all. A pool
+    # can be wrong in more than one way, and the renderer that reports only the earliest one
+    # is the same "exists for us and not for them" failure this function was written to fix.
+    out, paths = [], []
     for key in sorted(blk):
         if not key.startswith(REFERRED_PREFIX):
             continue
@@ -700,8 +709,11 @@ def pool_referral(blk):
         not_withdrawn = str(r.get("not_withdrawn_because") or "").strip()
         if not_withdrawn:
             bits.append(not_withdrawn)
-        return " ".join(bits), ["results.by_outcome.<this outcome>.%s" % key]
-    return None, []
+        out.append(" ".join(bits))
+        paths.append("results.by_outcome.<this outcome>.%s" % key)
+    if not out:
+        return None, []
+    return " ".join(out), paths
 
 
 def pool_findings(blk):
@@ -965,6 +977,18 @@ def project(obj, journal="generic", length="standard"):
     for _pk in sorted(k for k in obj if str(k).startswith("pointer_to_another_review")):
         if isinstance(obj[_pk], str) and obj[_pk].strip():
             s.add(obj, obj[_pk].strip(), [_pk])
+    # CORRECTIONS AND WITHDRAWALS, AT THE TOP, WHERE A READER ARRIVES.
+    #
+    # A claim found false is withdrawn IN PLACE with what it said and what is true. That is
+    # worth nothing if the withdrawal renders somewhere a reader never reaches -- the same
+    # defect as a referral that exists for us and not for them. Matched on prefixes so the
+    # next correction is not keyed to one day's spelling.
+    for _ck in sorted(k for k in obj
+                      if str(k).startswith(("CLAIM_WITHDRAWN", "ACRONYMS_CORRECTED",
+                                            "POPULATION_LABEL_WITHDRAWN", "SCOPE_CORRECTED",
+                                            "REGISTRATION_DISCREPANCY"))):
+        if isinstance(obj[_ck], str) and obj[_ck].strip():
+            s.add(obj, obj[_ck].strip(), [_ck])
     if _question and _question == _title:
         # THE OBJECT RECORDS THE SAME STRING TWICE, on 10 topics. Printing it twice is not
         # a manuscript, and silently printing it once hides that the review's QUESTION is

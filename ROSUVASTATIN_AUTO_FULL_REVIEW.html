@@ -577,7 +577,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2-converted-from-extractor</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-17T12:06Z</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>d87e68772</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>02f9df260</code>, built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
@@ -589,9 +589,11 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <p class='muted'>Every statement below is projected from a field of this object. The superscripts are sources: each section ends with the fields its statements came from, in order. <strong>A section with no field behind it is not written</strong> &mdash; it is refused, by name, so a reader can tell an absent procedure from an unmentioned one.</p>
 <h3 id="paper-title-and-review-question">Title and review question</h3>
 <p>Time to Major Cardiac Event (Cardiovascular Death, Stroke, Myocardial Infarction, Hospitalization Due to Unstable Angina<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>In adults with stroke, does Rosuvastatin compared with placebo affect the outcome each trial registered as its primary, which differ across the 2 trials here?<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
+<p>THIS OBJECT DESCRIBED ITS POPULATION AS &#x27;ADULTS WITH STROKE&#x27;. THAT IS WRONG AND IT IS WITHDRAWN. Both contributing trials are PRIMARY PREVENTION in people WITHOUT established cardiovascular disease. Read from ClinicalTrials.gov API v2 on 2026-08-21: NCT00239681 is JUPITER, registered under the single condition &#x27;Elevated high-sensitivity C-Reactive Protein (hsCRP)&#x27;; NCT00468923 is HOPE-3, an intermediate-risk primary-prevention trial. AND THE ORIGIN OF THE ERROR IS IDENTIFIABLE: HOPE-3&#x27;s registry `conditions` array reads [&#x27;Cardiovascular Disease&#x27;, &#x27;Stroke&#x27;] because stroke is an OUTCOME it counts, not because its participants had one. A conditions field lists what a trial is about, which is not the same as what its participants have, and reading it as a population label turns an endpoint into a diagnosis. The correct description is: adults without established cardiovascular disease, at elevated risk. No estimate changes.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>In adults with stroke, does Rosuvastatin compared with placebo affect the outcome each trial registered as its primary, which differ across the 2 trials here?<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (3)</summary><ol class='prov-list'>
 <li><code>title</code></li>
+<li><code>POPULATION_LABEL_WITHDRAWN_2026_08_21</code></li>
 <li><code>question</code></li>
 </ol></details>
 <h3 id="paper-abstract">Abstract</h3>

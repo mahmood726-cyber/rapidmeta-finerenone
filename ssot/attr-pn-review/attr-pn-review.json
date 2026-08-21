@@ -615,6 +615,48 @@
      "b_whether_the_extra_trials_can_be_named": "WHICH TRIALS ARE ABSENT IS NOT ESTABLISHED. The published abstract names none of its included studies and no included-study table was read, so this is A DIFFERENCE IN STATED COUNTS AND NOTHING MORE. It is NOT a claim that 7 specific trials were missed, and nobody here has identified them.",
      "c_what_this_means_for_the_estimate_above": "The estimate above is computed from the trials this object carries and is not withdrawn or altered by this note. What a reader is owed is the SCOPE: a larger evidence base on this question exists in the literature, and whether this review's search should be widened is a decision that has not been made.",
      "d_also_recorded": "SEPARATELY, this pool is already REFERRED on an obstacle in the evidence: a published feasibility assessment found a network meta-analysis of these treatments NOT FEASIBLE on cross-trial heterogeneity."
+    },
+    "the_control_arms_behind_this_pool_2026_08_21": {
+     "_what": "Which control group each contributing contrast is measured against, read from each registration's own arm list and primary-outcome wording on 2026-08-21. Stored so the sentence beside the estimate cites a field.",
+     "_source": "ClinicalTrials.gov API v2, protocolSection and resultsSection",
+     "rows": [
+      {
+       "trial_id": "NCT01960348",
+       "acronym": "APOLLO",
+       "has_a_placebo_arm": true,
+       "control": "Sterile Normal Saline (0.9% NaCl), PLACEBO_COMPARATOR",
+       "control_n_posted": 77,
+       "note": "The only within-trial placebo comparison in this pool."
+      },
+      {
+       "trial_id": "NCT03759379",
+       "acronym": "HELIOS-A",
+       "has_a_placebo_arm": false,
+       "control": "EXTERNAL placebo group of APOLLO (NCT01960348)",
+       "control_n_posted": 77,
+       "registered_primary_verbatim": "Change From Baseline in the Modified Neurologic Impairment Score +7 (mNIS+7) at Month 9 Between the Vutrisiran Group (HELIOS-A) and the External Placebo Comparator Group [APOLLO (NCT01960348)]",
+       "note": "Its own arms are vutrisiran and patisiran. The registration names the external comparator in the primary outcome itself."
+      },
+      {
+       "trial_id": "NCT04136184",
+       "acronym": "NEURO-TTRansform",
+       "has_a_placebo_arm": false,
+       "control": "Inotersen, ACTIVE_COMPARATOR, n = 24 posted",
+       "control_n_posted": 24,
+       "note": "No placebo arm. The registered comparator is an active drug, not placebo."
+      }
+     ],
+     "independent_control_arms": 1,
+     "contrasts_in_the_pool": 3
+    },
+    "THE_POOL_IS_REFERRED_2026_08_21": {
+     "state": "REFERRED",
+     "primary_defect": "THE SAME 77 PATIENTS CONTROL TWO OF THESE THREE CONTRASTS. HELIOS-A has no placebo arm; its registered primary outcome names, in its own words, \"the External Placebo Comparator Group [APOLLO (NCT01960348)]\". APOLLO's placebo group is 77 patients as posted. So APOLLO's placebo controls both the APOLLO row and the HELIOS-A row, and k = 3 counts two independent control arms as three. THIS IS THE ONE-TRIAL-COUNTED-SEVERAL-TIMES DEFECT THIS PROJECT DOCUMENTS IN PUBLISHED SYNTHESES, in our own pool.",
+     "and_the_third_row_has_no_placebo_arm_either": "NEURO-TTRansform (NCT04136184) registers Inotersen as an ACTIVE_COMPARATOR with 24 patients posted, and no placebo arm. Of three rows in a pool a reader will take as drug-versus-placebo, EXACTLY ONE -- APOLLO -- is a within-trial placebo comparison.",
+     "what_it_does_to_the_interval": "Two contrasts sharing a control arm are correlated, and a fixed- or random-effects pool that treats them as independent understates the standard error. The direction is knowable; the size is not computable from what this object holds, because the covariance needs the shared arm's contribution to each contrast. No corrected interval is asserted here.",
+     "and_the_published_comparison_does_not_corroborate_it": "The nearest published synthesis reuses the same external arms, so agreement with it is SHARED ERROR rather than corroboration. Two syntheses making the same structural choice agree for a reason that has nothing to do with the evidence.",
+     "the_estimate_is_not_changed_here": "-25.11 (-34.87 to -15.35) stands as published. Whether to re-pool, to drop a contrast, or to present this as a single-trial placebo comparison with two supporting external contrasts is a decision about a published number and it is Mahmood's, not this script's. What is not optional is that a reader meets this beside the estimate.",
+     "verified": "Every fact above was read from ClinicalTrials.gov API v2 on 2026-08-21 -- arm lists, arm types, posted flow counts and the registered primary-outcome wording -- and not taken from the report that prompted the check."
     }
    }
   }
@@ -774,6 +816,13 @@
    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
    "what_changed": "references built, introduction written, bookkeeping claims 4",
    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "the pool is referred: two of three contrasts share one external placebo arm",
+   "values_moved": "NONE -- the pooled estimate and interval are unchanged",
+   "what_changed": "a referral beside the estimate, and the control arm behind each contrast stored with its registered wording",
+   "why": "A reader meeting -25.11 across k=3 is entitled to know that k=3 counts two independent control arms, and that only one of the three trials has a placebo arm at all."
   }
  ],
  "published_comparison": {
