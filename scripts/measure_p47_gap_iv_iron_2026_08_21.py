@@ -104,9 +104,9 @@ CLAIMS = [
     ("23b", "Discussion", "The risk of bias of the contributing results", D,
      "risk_of_bias.by_outcome.*.overall"),
     ("23b", "Discussion", "Which risk-of-bias domains drove those judgements", D,
-     "risk_of_bias.by_outcome.*.domains.*.judgement + .reason"),
+     "risk_of_bias.by_outcome.*.domains.*.judgement + .reason / bookkeeping_*.which_risk_of_bias_domains_drove_the_rating"),
     ("23b", "Discussion", "That two assessors disagreed and where", D,
-     "risk_of_bias.SECOND_ASSESSOR_*.PER_DOMAIN"),
+     "risk_of_bias.SECOND_ASSESSOR_*.PER_DOMAIN / bookkeeping_*.that_two_assessors_disagreed_and_where"),
     ("23b", "Discussion", "Whether publication bias could be assessed", D,
      "grade.by_outcome.*.steps[domain=publication_bias]"),
     ("23b", "Discussion", "The number of contributing trials and participants", D,
@@ -117,10 +117,12 @@ CLAIMS = [
      "no field, and it is a design judgement about a trial nobody has run."),
 
     # ---- DISCUSSION: PRISMA 23c, limitations of the review process -----------------------
-    ("23c", "Discussion", "The search, with its date and databases", D, "search"),
-    ("23c", "Discussion", "The screening counts and exclusions", D, "prisma_flow / screening"),
+    ("23c", "Discussion", "The search, with its date and databases", D,
+     "search / bookkeeping_*.the_search_its_date_and_its_databases"),
+    ("23c", "Discussion", "The screening counts and exclusions", D,
+     "prisma_flow / screening / published_comparison.denominator"),
     ("23c", "Discussion", "That the review was or was not prospectively registered", D,
-     "protocol / registration_identity"),
+     "protocol / registration_identity / bookkeeping_*.whether_this_review_was_prospectively_registered"),
     # SIX PATHS, NOT ONE. `build_stamp.refusing` resolves on 8 of 28; the same claim is backed
     # on 27 of 28 by `topic_state`, `absent_from_source`, `precondition_verdict`,
     # `completeness_statement` or `scope_decisions`, each of which records what this review does
@@ -129,7 +131,7 @@ CLAIMS = [
     # because presence alone would have counted "not recorded on the page" as a record.
     ("23c", "Discussion", "Which limbs of the standard this review refuses and why", D,
      "build_stamp.refusing / topic_state / absent_from_source / precondition_verdict / "
-     "completeness_statement / scope_decisions"),
+     "completeness_statement / scope_decisions / bookkeeping_*.which_limbs_this_review_refuses"),
     ("23c", "Discussion", "That risk of bias was assessed by one assessor, or two", D,
      # WRITTEN OUT IN FULL. The shorthand `risk_of_bias.ONE_ASSESSOR_ONLY / .SECOND_ASSESSOR_*`
      # lost its parent on the second alternative, so it addressed a top-level key that does not
