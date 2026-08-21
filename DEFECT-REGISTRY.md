@@ -4254,6 +4254,88 @@ at optimism bias in estimates (74), optimism bias in one instrument (84), and pe
 five separate checks — every one of which accused our own work and was wrong.*
 
 
+## Class 90 — THE PROJECTOR READS A FIXED LIST OF KEYS, SO EVERY NEW FIELD IS SILENT BY DEFAULT
+
+Class 83 has now recurred **five times**, and the fifth landed on the one artefact Mahmood's
+specification names by name: three topics carried a blind cross-family second risk-of-bias
+assessment, with its verbatim reply and its disagreement rate, **and none of it rendered.**
+
+> **This is not a bug that was fixed four times. It is a design whose default is silence.**
+
+`paper_projector` renders by asking the object for a hardcoded list of key names. A field the
+object holds and the list does not name is invisible — and **the only person who knows the field
+exists is the author who just wrote it**, who is also the only person who would think to check.
+Every instance has the same shape and a different key:
+
+| what was written | what read it | what a reader got |
+|---|---|---|
+| `title`, `agreement` on a comparison record | nothing | a PMID and four blank cells |
+| `model_output.verbatim` | nothing | *"no analysis output is stored on this object"* |
+| `POOL_FINDINGS_<stamp>` | the paper only | the qualification a megabyte from its estimate |
+| a refused `risk_of_bias` with `state`/`why` | nothing | *"Risk of bias was assessed with RoB 2"*, asserting an assessment that was refused |
+| `SECOND_ASSESSOR_<stamp>` | nothing | no sign a second assessor existed or disagreed |
+
+*Whether the projector should render declared keys rather than a hardcoded list is an
+architecture question and it is NOT started here.* Noted for daylight. What is fixed is the
+fifth instance.
+
+
+## Class 91 — THE SECOND ASSESSOR'S DISAGREEMENT PROFILE, AND WHY THE CLEAN VERSION IS FALSE
+
+Twelve topics now carry a blind cross-family second RoB 2 assessment. **The result after three
+topics looked publishable and it did not survive the other nine.**
+
+**After 3 topics** — disagreements concentrated on D1, with D2–D5 agreeing almost everywhere.
+The tempting claim: *two independent model families given the same registration facts converge
+on four of five domains and diverge on the one where the guidance is explicit.*
+
+**After 12 topics, 204 judgement comparisons, that claim is false:**
+
+| domain | disagree | |
+|---|---|---|
+| **D1** randomisation | **34 of 34** | **100%** |
+| D2 deviations | 0 of 34 | **0%** |
+| D3 missing data | 0 of 34 | **0%** |
+| D4 measurement | 7 of 34 | 21% |
+| D5 selection | 16 of 34 | 47% |
+| OVERALL | 20 of 34 | 59% |
+
+D1 and D2/D3 are the clean results — **total disagreement and total agreement respectively.**
+D4 and D5 are neither, and the honest statement is that **two model families given identical
+registration facts disagree about how to score measurement and selection roughly half the
+time.** That is a weaker and more interesting finding than the one that nearly got reported.
+
+### 91a. And part of the first measurement was the prompt, not the assessors
+
+Reconciling the replies showed several D4/D5 disagreements were **not judgement differences**:
+the first assessment's stated reason rested on facts the prompt did not carry. On `ceftaroline`
+the D5 reason is *"two register MITTE and one registers CE"* — an analysis-population split held
+in `registered_analysis_population`, which was **not on the prompt's allow-list**. The second
+assessor could not have known.
+
+**A blind assessment given fewer facts is not a comparable assessment, and a disagreement rate
+computed over one is measuring the prompt.** The allow-list went from 9 registry fields to 14
+and one topic was re-run: `gepotidacin` fell from 4 of 12 to **2 of 12** — its entire D5
+disagreement was the prompt. `ceftaroline` and `tigecycline` did not move, so theirs are real.
+
+### 91b. The mirror bias, guarded explicitly
+
+Three topics went against the first assessor on D1 and the guidance backed the second. The
+pressure from there is to defer on everything — **which would make the second assessor a
+reviewer rather than an independent one and reproduce the inheritance problem with the sign
+flipped.**
+
+Where the first assessment is believed right, that is written down with its reason and both
+stand. `gepotidacin` D5 is the case: two registered primary outcomes both named *"Therapeutic
+Response"*, one pooled with no recorded reason for the choice. That is a textbook selection
+concern and the first assessor keeps it.
+
+And in the other direction — **`tigecycline` D4 is an error of the first assessor's**, found by
+the same reconciliation: it scored HIGH on `NCT00081744` with a reason about `NCT00136201` being
+open-label. RoB 2 assesses *this result in this trial*; another trial's masking is not a bias in
+this one. Recorded as a disagreement the first assessor loses.
+
+
 ## OPEN — carried, not fixed
 
 ### O4. The delivered malaria verdict rests on a premise its own registrations contradict

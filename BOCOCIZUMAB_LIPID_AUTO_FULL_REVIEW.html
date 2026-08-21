@@ -825,7 +825,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2-authored-from-source</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-18T00:00Z</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>a2ce0c7e8</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>713b60951</code>, built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
@@ -987,7 +987,17 @@ HARTUNG-KNAPP, FLOORED, AS THE HOUSE RULE REQUIRES
 <h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
 <p>Risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials). The unit of assessment is a result<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>A domain that cannot be judged from the sources READ is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect. Overall is capped at SOME_CONCERNS wherever a domain is NO_INFORMATION. <sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<div class='tscroll'><table><caption>Risk-of-bias judgement for every included result<sup class='prov-ref' title='source 3 for this section'>3</sup></caption>
+<p>A SECOND, INDEPENDENT ASSESSMENT WAS OBTAINED FROM: GPT-5 Codex (openai family), via `codex exec`<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<p>The assessment above was made by: Claude Opus 5 (anthropic family) -- the assessment above<sup class='prov-ref' title='source 4 for this section'>4</sup></p>
+<p>How the second assessor was asked: BLIND, from scripts/second_assessor_prompt.py, which assembles the prompt from an ALLOW-LIST of registry-sourced factual fields and REFUSES to send it if any RoB 2 verdict word appears in the assembled text. The second assessor was not shown this assessment and was not asked whether it agreed. It was given this project&#x27;s NO_INFORMATION-never-LOW rule so the comparison measures judgement rather than house dialect.<sup class='prov-ref' title='source 5 for this section'>5</sup></p>
+<p>THE DISAGREEMENT RATE, reported as disagreement because agreement between two assessors given the same facts authenticates nothing: 18 of 36 judgements -- 50.0%. Reported as DISAGREEMENT: agreement between two assessors given the same facts authenticates nothing.<sup class='prov-ref' title='source 6 for this section'>6</sup></p>
+<p><sup class='prov-ref' title='source 7 for this section'>7</sup>The second assessor&#x27;s reply, verbatim: NCT01968954__ldlc_pct_change_wk12 D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=NO_INFORMATION OVERALL=NO_INFORMATION
+NCT01968967__ldlc_pct_change_wk12 D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=NO_INFORMATION OVERALL=NO_INFORMATION
+NCT01968980__ldlc_pct_change_wk12 D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=NO_INFORMATION OVERALL=NO_INFORMATION
+NCT02100514__ldlc_pct_change_wk12 D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=NO_INFORMATION OVERALL=NO_INFORMATION
+NCT02135029__ldlc_pct_change_wk12 D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=NO_INFORMATION OVERALL=NO_INFORMATION
+NCT02458287__ldlc_pct_change_wk12 D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=NO_INFORMATION OVERALL=NO_INFORMATION</p>
+<div class='tscroll'><table><caption>Risk-of-bias judgement for every included result<sup class='prov-ref' title='source 8 for this section'>8</sup></caption>
 <tr><th>Result</th><th>Judgement</th><th>Reason</th></tr>
 <tr><td>percent change from baseline in fasting LDL-C at week 12 -- SPIRE-HR (NCT01968954)</td><td>SOME_CONCERNS</td><td>D2 and D3 NO_INFORMATION cap this at SOME_CONCERNS regardless of D5. D5 ITSELF DIFFERS ACROSS THE SIX and the difference is the finding: four trials register one primary and two arms, two do not.  D1 randomisation process: LOW -- allocation: RANDOMIZED is recorded on all six design modules.  D4 measurement of the outcome: LOW -- Masking is registered QUADRUPLE, including the outcomes assessor, and the outcome is an automated fasting LDL-C assay.  D5 selection of the reported result: LOW -- SPIRE-HR registers ONE primary outcome -- percent change from baseline in LDL-C at week 12 -- and TWO arms. The registered wording matches what is pooled, and there is no option set to select from, so the selection class cannot arise here.</td></tr>
 <tr><td>percent change from baseline in fasting LDL-C at week 12 -- SPIRE-LDL (NCT01968967)</td><td>SOME_CONCERNS</td><td>D2 and D3 NO_INFORMATION cap this at SOME_CONCERNS regardless of D5. D5 ITSELF DIFFERS ACROSS THE SIX and the difference is the finding: four trials register one primary and two arms, two do not.  D1 randomisation process: LOW -- allocation: RANDOMIZED is recorded on all six design modules.  D4 measurement of the outcome: LOW -- Masking is registered QUADRUPLE, including the outcomes assessor, and the outcome is an automated fasting LDL-C assay.  D5 selection of the reported result: LOW -- SPIRE-LDL registers ONE primary outcome -- percent change from baseline in LDL-C at week 12 -- and TWO arms. The registered wording matches what is pooled, and there is no option set to select from, so the selection class cannot arise here.</td></tr>
@@ -999,6 +1009,11 @@ HARTUNG-KNAPP, FLOORED, AS THE HOUSE RULE REQUIRES
 <div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
 <li><code>risk_of_bias.tool</code></li>
 <li><code>risk_of_bias.ceiling.statement</code></li>
+<li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.assessor_2</code></li>
+<li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.assessor_1</code></li>
+<li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.how_it_was_asked</code></li>
+<li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.DISAGREEMENT_RATE</code></li>
+<li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.verbatim_reply</code></li>
 <li><code>risk_of_bias.by_outcome</code></li>
 </ol></div>
 <h3 id="paper-certainty-of-the-evidence">Certainty of the evidence</h3>

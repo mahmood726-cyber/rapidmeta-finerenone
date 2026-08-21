@@ -216,6 +216,13 @@
    "values_moved": "NONE -- every refit reproduces its stored point to 4 dp",
    "what_changed": "re-ran primary; the raw metafor interval is now printed separately and labelled UNFLOORED",
    "why": "The previous output printed metafor's RAW knha interval under the bare label 'Hartung-Knapp'. Six stored runs across the corpus did this; P46 limb 4 quotes them VERBATIM."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "a blind cross-family second risk-of-bias assessment was obtained",
+   "values_moved": "NONE",
+   "what_changed": "disagreement 4 of 12 judgements",
+   "why": "Mahmood's specification requires two assessors from different model families."
   }
  ],
  "carried_contrasts": [],
@@ -524,7 +531,30 @@
    "shape_note": "A DICT, NOT A STRING. paper_projector does ceil.get('statement'), so a bare string raises AttributeError and the manuscript collapses to a projector-failed banner -- registry class 70."
   },
   "ONE_ASSESSOR_ONLY": "ASSESSED BY ONE ASSESSOR. Under the standing specification that risk of bias 2 must be complete and done by TWO AIs from different model families, THIS ASSESSMENT IS INCOMPLETE. It is recorded as such rather than presented as finished, and `rob2.assessors` is deliberately NOT written.",
-  "comparator_read_from_the_registrations": "LEAP 1's comparator is moxifloxacin WITH OR WITHOUT LINEZOLID and LEAP 2's is moxifloxacin alone -- read from the registered arm groups. This object's own question already states it, so the registrations CORROBORATE a disclosure rather than revealing a new one."
+  "comparator_read_from_the_registrations": "LEAP 1's comparator is moxifloxacin WITH OR WITHOUT LINEZOLID and LEAP 2's is moxifloxacin alone -- read from the registered arm groups. This object's own question already states it, so the registrations CORROBORATE a disclosure rather than revealing a new one.",
+  "SECOND_ASSESSOR_2026_08_21": {
+   "assessor_2": "GPT-5 Codex (openai family), via `codex exec`",
+   "assessor_1": "Claude Opus 5 (anthropic family) -- the assessment above",
+   "how_it_was_asked": "BLIND, from scripts/second_assessor_prompt.py, which assembles the prompt from an ALLOW-LIST of registry-sourced factual fields and REFUSES to send it if any RoB 2 verdict word appears in the assembled text. The second assessor was not shown this assessment and was not asked whether it agreed. It was given this project's NO_INFORMATION-never-LOW rule so the comparison measures judgement rather than house dialect.",
+   "verbatim_reply": "NCT02559310__primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=LOW OVERALL=NO_INFORMATION\nNCT02559310__primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=LOW OVERALL=NO_INFORMATION\nNCT02813694__primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=LOW OVERALL=NO_INFORMATION\nNCT02813694__primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=LOW OVERALL=NO_INFORMATION",
+   "DISAGREEMENT_RATE": "4 of 12 judgements -- 33.3%. Reported as DISAGREEMENT: agreement between two assessors given the same facts authenticates nothing.",
+   "PER_DOMAIN": {
+    "D1": "2 of 2 disagree",
+    "D2": "0 of 2 disagree",
+    "D3": "0 of 2 disagree",
+    "D4": "0 of 2 disagree",
+    "D5": "0 of 2 disagree",
+    "OVERALL": "2 of 2 disagree"
+   },
+   "each_disagreement": [
+    "NCT02559310__primary D1: assessor 1 LOW, assessor 2 NO_INFORMATION",
+    "NCT02559310__primary OVERALL: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION",
+    "NCT02813694__primary D1: assessor 1 LOW, assessor 2 NO_INFORMATION",
+    "NCT02813694__primary OVERALL: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION"
+   ],
+   "prompt_generation": "first allow-list (9 registry fields)",
+   "not_resolved_here": "A disagreement is recorded, not adjudicated. The second assessor is NOT an appeal court: three topics went against assessor 1 on D1 and the RoB 2 guidance backed assessor 2, and the pressure from there is to defer on everything -- which would make the second assessor a reviewer and reproduce the inheritance problem with the sign flipped."
+  }
  },
  "grade": {
   "approach": "GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.",

@@ -862,6 +862,13 @@
    "values_moved": "NONE -- point, interval and heterogeneity all reproduce under the declared estimator",
    "what_changed": "re-ran primary under REML; the previous output printed a DerSimonian-Laird or Paule-Mandel fit",
    "why": "P56: verbatim quotation guarantees fidelity to the TOOL, not to the METHOD. Nine stored outputs across the corpus quoted a fit that did not produce their page's numbers."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "a blind cross-family second risk-of-bias assessment was obtained",
+   "values_moved": "NONE",
+   "what_changed": "disagreement 9 of 18 judgements",
+   "why": "Mahmood's specification requires two assessors from different model families."
   }
  ],
  "published_comparison": {
@@ -1142,7 +1149,35 @@
    "shape_note": "A DICT, NOT A STRING. paper_projector does ceil.get('statement'), so a bare string here raises AttributeError and the ENTIRE MANUSCRIPT VANISHES -- 17,012 chars and 27 sections down to a 318-char projector-failed banner."
   },
   "WHY_THIS_PROFILE_DIFFERS_FROM_ITS_SIBLINGS": "Against empagliflozin: that result is an adjudicated time-to-event composite, so D3 is LOW because censoring absorbs withdrawal and D4 is LOW because a blinded committee adjudicates. Against icosapent: the same fixed-timepoint laboratory shape, but at DAY 510 rather than week 12, so the D3 threat is materially larger for the same reasoning. D5 is SOME_CONCERNS here for a DIFFERENT reason than icosapent's -- there a dose arm was selected from three, here a co-primary was selected from two.",
-  "supersedes": "'no risk-of-bias assessment was recoverable from the page this object was extracted from' -- a sentence about where somebody looked."
+  "supersedes": "'no risk-of-bias assessment was recoverable from the page this object was extracted from' -- a sentence about where somebody looked.",
+  "SECOND_ASSESSOR_2026_08_21": {
+   "assessor_2": "GPT-5 Codex (openai family), via `codex exec`",
+   "assessor_1": "Claude Opus 5 (anthropic family) -- the assessment above",
+   "how_it_was_asked": "BLIND, from scripts/second_assessor_prompt.py, which assembles the prompt from an ALLOW-LIST of registry-sourced factual fields and REFUSES to send it if any RoB 2 verdict word appears in the assembled text. The second assessor was not shown this assessment and was not asked whether it agreed. It was given this project's NO_INFORMATION-never-LOW rule so the comparison measures judgement rather than house dialect.",
+   "verbatim_reply": "NCT03397121__primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=LOW OVERALL=NO_INFORMATION\nNCT03399370__primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=LOW OVERALL=NO_INFORMATION\nNCT03400800__primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=LOW OVERALL=NO_INFORMATION",
+   "DISAGREEMENT_RATE": "9 of 18 judgements -- 50.0%. Reported as DISAGREEMENT: agreement between two assessors given the same facts authenticates nothing.",
+   "PER_DOMAIN": {
+    "D1": "3 of 3 disagree",
+    "D2": "0 of 3 disagree",
+    "D3": "0 of 3 disagree",
+    "D4": "0 of 3 disagree",
+    "D5": "3 of 3 disagree",
+    "OVERALL": "3 of 3 disagree"
+   },
+   "each_disagreement": [
+    "NCT03397121__primary D1: assessor 1 LOW, assessor 2 NO_INFORMATION",
+    "NCT03397121__primary D5: assessor 1 SOME_CONCERNS, assessor 2 LOW",
+    "NCT03397121__primary OVERALL: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION",
+    "NCT03399370__primary D1: assessor 1 LOW, assessor 2 NO_INFORMATION",
+    "NCT03399370__primary D5: assessor 1 SOME_CONCERNS, assessor 2 LOW",
+    "NCT03399370__primary OVERALL: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION",
+    "NCT03400800__primary D1: assessor 1 LOW, assessor 2 NO_INFORMATION",
+    "NCT03400800__primary D5: assessor 1 SOME_CONCERNS, assessor 2 LOW",
+    "NCT03400800__primary OVERALL: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION"
+   ],
+   "prompt_generation": "first allow-list (9 registry fields)",
+   "not_resolved_here": "A disagreement is recorded, not adjudicated. The second assessor is NOT an appeal court: three topics went against assessor 1 on D1 and the RoB 2 guidance backed assessor 2, and the pressure from there is to defer on everything -- which would make the second assessor a reviewer and reproduce the inheritance problem with the sign flipped."
+  }
  },
  "grade": {
   "approach": "GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.",

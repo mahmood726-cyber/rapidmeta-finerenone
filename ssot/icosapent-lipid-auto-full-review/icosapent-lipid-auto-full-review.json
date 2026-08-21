@@ -553,6 +553,13 @@
    "values_moved": "NONE -- point, interval and heterogeneity all reproduce under the declared estimator",
    "what_changed": "re-ran primary under REML; the previous output printed a DerSimonian-Laird or Paule-Mandel fit",
    "why": "P56: verbatim quotation guarantees fidelity to the TOOL, not to the METHOD. Nine stored outputs across the corpus quoted a fit that did not produce their page's numbers."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "a blind cross-family second risk-of-bias assessment was obtained",
+   "values_moved": "NONE",
+   "what_changed": "disagreement 6 of 12 judgements",
+   "why": "Mahmood's specification requires two assessors from different model families."
   }
  ],
  "question_restated_2026_08_19": {
@@ -723,7 +730,32 @@
    "registered_statistic_is_a_median_and_this_pools_a_mean": "Both registered primaries describe a MEDIAN PERCENT CHANGE from baseline to Week 12. This object stores and pools a MEAN DIFFERENCE. In a population selected for triglycerides above 500 mg/dL the two diverge by construction, so the pooled -25.84 is not the registered estimand of either trial. NOT CORRECTED -- it changes what the published number means.",
    "three_arms_registered_two_recorded": "Placebo, 2 g/day and 4 g/day are registered for both trials; this object records two arms. A dose arm was selected and the selection is recorded nowhere. Same shape as DECLARE-TIMI 58's dropped co-primary, in a second topic on the same night."
   },
-  "supersedes": "'no risk-of-bias assessment was recoverable from the page this object was extracted from' -- a sentence about where somebody looked."
+  "supersedes": "'no risk-of-bias assessment was recoverable from the page this object was extracted from' -- a sentence about where somebody looked.",
+  "SECOND_ASSESSOR_2026_08_21": {
+   "assessor_2": "GPT-5 Codex (openai family), via `codex exec`",
+   "assessor_1": "Claude Opus 5 (anthropic family) -- the assessment above",
+   "how_it_was_asked": "BLIND, from scripts/second_assessor_prompt.py, which assembles the prompt from an ALLOW-LIST of registry-sourced factual fields and REFUSES to send it if any RoB 2 verdict word appears in the assembled text. The second assessor was not shown this assessment and was not asked whether it agreed. It was given this project's NO_INFORMATION-never-LOW rule so the comparison measures judgement rather than house dialect.",
+   "verbatim_reply": "NCT01047501__primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=SOME_CONCERNS D5=LOW OVERALL=SOME_CONCERNS\nNCT01047501__primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=SOME_CONCERNS D5=LOW OVERALL=SOME_CONCERNS\nNCT01047683__primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=LOW OVERALL=NO_INFORMATION\nNCT01047683__primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=LOW OVERALL=NO_INFORMATION",
+   "DISAGREEMENT_RATE": "6 of 12 judgements -- 50.0%. Reported as DISAGREEMENT: agreement between two assessors given the same facts authenticates nothing.",
+   "PER_DOMAIN": {
+    "D1": "2 of 2 disagree",
+    "D2": "0 of 2 disagree",
+    "D3": "0 of 2 disagree",
+    "D4": "1 of 2 disagree",
+    "D5": "2 of 2 disagree",
+    "OVERALL": "1 of 2 disagree"
+   },
+   "each_disagreement": [
+    "NCT01047501__primary D1: assessor 1 LOW, assessor 2 NO_INFORMATION",
+    "NCT01047501__primary D4: assessor 1 LOW, assessor 2 SOME_CONCERNS",
+    "NCT01047501__primary D5: assessor 1 SOME_CONCERNS, assessor 2 LOW",
+    "NCT01047683__primary D1: assessor 1 LOW, assessor 2 NO_INFORMATION",
+    "NCT01047683__primary D5: assessor 1 SOME_CONCERNS, assessor 2 LOW",
+    "NCT01047683__primary OVERALL: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION"
+   ],
+   "prompt_generation": "first allow-list (9 registry fields)",
+   "not_resolved_here": "A disagreement is recorded, not adjudicated. The second assessor is NOT an appeal court: three topics went against assessor 1 on D1 and the RoB 2 guidance backed assessor 2, and the pressure from there is to defer on everything -- which would make the second assessor a reviewer and reproduce the inheritance problem with the sign flipped."
+  }
  },
  "grade": {
   "approach": "GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.",
