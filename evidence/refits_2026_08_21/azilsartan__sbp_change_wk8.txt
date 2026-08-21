@@ -1,0 +1,68 @@
+R version 4.6.0 (2026-04-24 ucrt) 
+metafor 5.0.1 
+run_utc 2026-08-21
+
+================================================================
+TOPIC   azilsartan-chlorthalidone-vs-olmesartan-hctz
+OUTCOME sbp_change_wk8
+STORED  MD -5.6910 (-7.3000 to -4.0830), k = 2, random-effects / REML (restricted maximum likelihood)
+INPUTS READ FROM THE OBJECT (natural scale, SE derived from the published interval):
+   NCT00846365      -6.1000 (-8.4000 to -3.8000)  yi=-6.100000  sei=1.173491
+   NCT01033071      -5.3000 (-7.6000 to -3.1000)  yi=-5.300000  sei=1.147980
+----------------------------------------------------------------
+CALL: rma(yi = yi, sei = sei, method = "REML", test = "knha")
+
+
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+ -1.1868    2.3736    6.3736    2.3736   18.3736   
+
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 1.9056)
+tau (square root of estimated tau^2 value):      0
+I^2 (total heterogeneity / total variability):   0.00%
+H^2 (total variability / sampling variability):  1.00
+
+Test for Heterogeneity:
+Q(df = 1) = 0.2375, p-val = 0.6260
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb    ci.ub      
+ -5.6912  0.8206  -6.9353  <.0001  -7.2996  -4.0828  *** 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+--- SAME FIT WITH HARTUNG-KNAPP (test = "knha") ---
+
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+ -1.1868    2.3736    6.3736    2.3736   18.3736   
+
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 1.9056)
+tau (square root of estimated tau^2 value):      0
+I^2 (total heterogeneity / total variability):   0.00%
+H^2 (total variability / sampling variability):  1.00
+
+Test for Heterogeneity:
+Q(df = 1) = 0.2375, p-val = 0.6260
+
+Model Results:
+
+estimate      se      tval  df    pval     ci.lb    ci.ub    
+ -5.6912  0.3999  -14.2315   1  0.0447  -10.7725  -0.6100  * 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+BACK-TRANSFORMED:
+   unadjusted     -5.6912 (-7.2996 to -4.0828)
+   Hartung-Knapp  -5.6912 (-16.1181 to 4.7357)   [t crit 12.7062 on 1 df]  <- HOUSE INTERVAL, inflation factor floored at 1 (raw 0.4873)
+   metafor raw    -5.6912 (-10.7725 to -0.6100)   [test=knha, UNFLOORED]
+   tau^2 0.000000   Q 0.2375 on 1 df, p = 0.6260   I^2 0.00%
+
+AGREES WITH THE STORED POINT TO 4 dp: NO

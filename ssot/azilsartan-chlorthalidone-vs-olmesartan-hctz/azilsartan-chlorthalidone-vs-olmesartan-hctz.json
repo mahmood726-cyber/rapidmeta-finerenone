@@ -226,7 +226,13 @@
      "package_version": null,
      "what_would_change_it": "An estimand shared by two or more included trials. Where k is already above 1 and nothing pooled, the obstacle is the ESTIMAND rather than the evidence base, and this field must say which."
     },
-    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py.",
+    "POOL_FINDINGS_2026_08_21": {
+     "a_the_two_trials_do_not_measure_at_the_same_time": "READ THIS BESIDE THE ESTIMATE. This pooled outcome is identified as WEEK 8. NCT00846365 registers its primary at week 8; NCT01033071 REGISTERS ITS PRIMARY AT WEEK 12 -- 'Change From Baseline in Trough, Sitting, Clinic Systolic Blood Pressure', time frame 'Baseline and Week 12'. The measurement is the same measurement in the same words; it is not taken at the same time. GRADE indirectness is rated down for it.",
+     "b_each_trial_has_two_dose_arms_and_this_pool_carries_one_effect_each": "Both trials randomise TWO experimental arms -- azilsartan/chlorthalidone 20-40mg and 40-80mg -- against ONE olmesartan/hydrochlorothiazide comparator. This object stores ONE effect per trial. WHICH DOSE CONTRAST IT REPRESENTS, OR WHETHER THE TWO WERE COMBINED, IS NOT ESTABLISHED from the registrations. Recorded as unestablished rather than assumed, because a multi-arm trial contributing one row against a shared control is where control-group double counting arises.",
+     "c_the_effect_does_not_survive_the_small_sample_adjustment": "The unadjusted interval is MD -5.6912 (-7.2996 to -4.0828) mmHg and EXCLUDES no effect. This project's floored Hartung-Knapp interval at k = 2 is -16.1181 to 4.7357 and INCLUDES it. THE HONEST READING IS NARROW: at k = 2 the t critical value is 12.7062 and almost nothing survives, so this is weaker evidence against the result than the same crossing would be at larger k. Disclosed because a reader is entitled to both intervals.",
+     "d_risk_of_bias_has_not_been_assessed_on_this_topic": "STATED PLAINLY. No result-level RoB 2 assessment has been performed for either contributing result. That is recorded as UNASSESSED, never as absent of bias, and GRADE is rated down one level for it. What would close it: RoB 2 per result on the clinic systolic pressure outcome in both registrations."
+    }
    }
   }
  },
@@ -256,6 +262,13 @@
    "values_moved": "NONE",
    "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
    "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "GRADE rated for the pooled outcome (P46 limb 2)",
+   "values_moved": "NONE",
+   "what_changed": "certainty LOW; and the registrations show the two trials measure at WEEK 8 and WEEK 12 under an outcome identified as week 8",
+   "why": "The limb was ABSENT, and reading the registrations for it found the timing."
   }
  ],
  "carried_contrasts": [],
@@ -3538,5 +3551,50 @@
    "P7_published_comparison"
   ],
   "_ratchet": "This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant."
+ },
+ "grade": {
+  "approach": "GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.",
+  "assessed_utc": "2026-08-21",
+  "by_outcome": {
+   "sbp_change_wk8": {
+    "k": 2,
+    "starting_certainty": "HIGH",
+    "certainty": "LOW",
+    "steps": [
+     {
+      "domain": "risk_of_bias",
+      "move": "HIGH to MODERATE, down 1 level(s)",
+      "reason": "THE RISK-OF-BIAS LIMB IS REFUSED ON THIS OBJECT, and its refusal names its own consequence: 'GRADE rates down one level for risk of bias.' No result-level RoB 2 assessment has been performed for either contributing result, and the refusal records that as UNASSESSED, never as absent of bias. THE DOWNGRADE IS FOR WHAT WE HAVE NOT DONE, not for anything shown about these trials -- both register QUADRUPLE masking including the outcomes assessor, which is the strongest masking either could record."
+     },
+     {
+      "domain": "inconsistency",
+      "move": "no downgrade",
+      "reason": "tau-squared is EXACTLY ZERO, Q 0.2375 on 1 df, p = 0.6260, I-squared 0.00%. The two effects -- -6.1 (-8.4 to -3.8) and -5.3 (-7.6 to -3.1) mmHg -- agree in size and in direction. Downgrading here would manufacture a caution the numbers do not support."
+     },
+     {
+      "domain": "indirectness",
+      "move": "MODERATE to LOW, down 1 level(s)",
+      "reason": "THE POOLED OUTCOME IS CALLED WEEK 8 AND ONE OF ITS TWO TRIALS REGISTERS ITS PRIMARY AT WEEK 12. NCT00846365's registered time frame is 'Baseline and Week 8'; NCT01033071's is 'Baseline and Week 12'. The measurement is identical in words -- trough, sitting, clinic systolic blood pressure -- but an antihypertensive effect at eight weeks and at twelve weeks are not the same quantity, and the outcome's own identifier asserts week 8 for both. RECORDED AND NOT SEPARATELY RATED: both trials randomise TWO experimental dose arms against ONE comparator and this object stores one effect per trial; which dose contrast that is, or whether the two were combined, is not established from the registrations."
+     },
+     {
+      "domain": "imprecision",
+      "move": "LOW to VERY LOW -- WARRANTED AND NOT APPLIED, see reason",
+      "reason": "k = 2. This project's floored Hartung-Knapp interval is -16.1181 to 4.7357 on t = 12.7062 with 1 degree of freedom AND IT INCLUDES NO EFFECT, where the unadjusted interval -7.2996 to -4.0828 excludes it. A downgrade is warranted on that alone. IT IS NOT APPLIED, and the reason is stated rather than hidden: at k = 2 the t critical value is 12.7062 and almost nothing survives the adjustment, so the crossing is weak evidence of imprecision in either direction. NOTE ALSO WHAT IS NOT USED: metafor's RAW unfloored interval here is -10.7725 to -0.6100 and DOES exclude no effect. That is not this project's interval and it is not cited as one."
+     },
+     {
+      "domain": "publication_bias",
+      "move": "NOT ASSESSABLE -- no rating applied",
+      "reason": "k = 2. A funnel plot and its asymmetry tests have essentially no power below about ten trials (Handbook 13.3.5.4), so this is NOT ASSESSABLE rather than 'undetected'."
+     }
+    ],
+    "summary": "LOW certainty. The two trials agree closely and both are quadruple-masked, so the downgrades are NOT for inconsistency or for anything shown about how the trials were run. They are for a risk-of-bias assessment this review has not performed, and for the two trials measuring the same quantity AT DIFFERENT TIMES -- week 8 on one registration and WEEK 12 on the other, under an outcome this object identifies as week 8.",
+    "rating_up_not_applied": "No domain is rated UP. Rating up for a large effect, a dose-response gradient or opposing plausible confounding applies to observational evidence; these are randomised trials, which start HIGH.",
+    "risk_of_bias_downgrade_follows_the_object_s_own_refusal": "The risk-of-bias limb on this object is REFUSED and states its consequence: 'GRADE rates down one level for risk of bias.' That instruction is followed rather than re-derived. The object's refusal is the authority on what its own absence costs."
+   }
+  },
+  "sources_read": [
+   "ClinicalTrials.gov API v2 NCT00846365 -- design module, arm groups, registered primary outcome AND ITS TIME FRAME",
+   "ClinicalTrials.gov API v2 NCT01033071 -- design module, arm groups, registered primary outcome AND ITS TIME FRAME"
+  ]
  }
 }

@@ -491,18 +491,24 @@
     },
     "r_output": {
      "state": "PRESENT",
-     "environment": "R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1",
+     "environment": "R 4.6.0 with metafor 5.0.1",
      "script": "ssot/reml_corpus_refit.R",
-     "run_utc": "2026-08-20",
-     "call": "metafor::rma(yi = ..., sei = ..., method = 'REML')",
+     "run_utc": "2026-08-21",
+     "call": "Rscript ssot/fit_from_per_trial.R finerenone-cv cv_composite_first",
      "interval_method": "z",
-     "verbatim": "finerenone-cv :: cv_composite_first   k = 2   measure = HR\n================================================================================================\ntrials: NCT02540993, NCT02545049\n\nA. THE FIT THAT PRODUCED THE SERVED NUMBER -- method = DL, z interval\n\nRandom-Effects Model (k = 2; tau^2 estimator: DL)\n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0066)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.0143, p-val = 0.9047\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb    ci.ub     \n -0.1445  0.0481  -3.0058  0.0026  -0.2387  -0.0503  ** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n   CHECK AGAINST THE STORED VALUE -- the change is not earned until this passes:\n     point  refit 0.865478       stored 0.865478        reproduced\n     ci_low refit 0.787667       stored 0.787667        reproduced\n     ci_hi  refit 0.950976       stored 0.950976        reproduced\n     tau^2  refit 0.000000       stored 0.000000        reproduced\n     Q      refit 0.014323       stored 0.014323        reproduced\n     I^2    refit 0.0000         stored 0.0000          reproduced\n     => REPRODUCED\n\nB. THE SAME DATA UNDER REML -- Cochrane Handbook 6.5 section 10.10.4.4, which records\n   REML as RevMan's own current default, and DECISIONS-COCHRANE-2026-08-18.md section 1,\n   whose decision line reads: \"Decision: REML, everywhere.\"\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0066)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.0143, p-val = 0.9047\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb    ci.ub     \n -0.1445  0.0481  -3.0058  0.0026  -0.2387  -0.0503  ** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nC. WHAT MOVES\n     point    0.865478       -> 0.865478        (+0.0000%)\n     ci_low   0.787667       -> 0.787667      \n     ci_high  0.950976       -> 0.950976      \n     tau^2    0.000000       -> 0.000000      \n     I^2      0.0000         -> 0.0000        \n     Q        0.014323       -> 0.014323        (Q is estimator-independent)\n     excludes the null (1):  TRUE -> TRUE\n     prediction interval under REML: 0.7877 to 0.9510\n\nR environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1\nScript: ssot/reml_corpus_refit.R",
+     "verbatim": "R version 4.6.0 (2026-04-24 ucrt) \nmetafor 5.0.1 \nrun_utc 2026-08-21\n\n================================================================\nTOPIC   finerenone-cv\nOUTCOME cv_composite_first\nSTORED  HR 0.8655 (0.7877 to 0.9510), k = 2, random / REML\nINPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):\n   NCT02540993      0.8600 (0.7470 to 0.9890)  yi=-0.150823  sei=0.071590\n   NCT02545049      0.8700 (0.7600 to 0.9800)  yi=-0.139262  sei=0.064857\n----------------------------------------------------------------\nCALL: rma(yi = yi, sei = sei, method = \"REML\", test = \"knha\")\n\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  1.7576   -3.5153    0.4847   -3.5153   12.4847   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0066)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.0143, p-val = 0.9047\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb    ci.ub     \n -0.1445  0.0481  -3.0058  0.0026  -0.2387  -0.0503  ** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n--- SAME FIT WITH HARTUNG-KNAPP (test = \"knha\") ---\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  1.7576   -3.5153    0.4847   -3.5153   12.4847   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0066)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.0143, p-val = 0.9047\n\nModel Results:\n\nestimate      se      tval  df    pval    ci.lb    ci.ub    \n -0.1445  0.0058  -25.1156   1  0.0253  -0.2176  -0.0714  * \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBACK-TRANSFORMED:\n   unadjusted     0.8655 (0.7877 to 0.9510)\n   Hartung-Knapp  0.8655 (0.4699 to 1.5940)   [t crit 12.7062 on 1 df]  <- HOUSE INTERVAL, inflation factor floored at 1 (raw 0.1197)\n   metafor raw    0.8655 (0.8045 to 0.9311)   [test=knha, UNFLOORED]  *** NARROWER THAN UNADJUSTED -- NOT USED; this is what the floor prevents ***\n   tau^2 0.000000   Q 0.0143 on 1 df, p = 0.9047   I^2 0.00%\n\nAGREES WITH THE STORED POINT TO 4 dp: YES\n",
      "what_it_is": "The fit that produces the numbers this block now publishes, printed by metafor and pasted unaltered. The previous fit, under the estimator this pool used before 2026-08-20, is kept beside it under r_output_superseded_2026_08_20 rather than discarded.",
-     "reproduction_of_the_previous_value": "Before this refit was applied, the OLD estimator was refitted on the same inputs and checked against the stored value: REPRODUCED. A pool whose old fit did not reproduce was not overwritten."
+     "reproduction_of_the_previous_value": "Before this refit was applied, the OLD estimator was refitted on the same inputs and checked against the stored value: REPRODUCED. A pool whose old fit did not reproduce was not overwritten.",
+     "stored_at": "evidence/refits_2026_08_21/finerenone-cv__cv_composite_first.txt",
+     "why_this_was_re_run": "THE PREVIOUS STORED OUTPUT NAMED AN ESTIMATOR THIS OBJECT DOES NOT DECLARE: it printed 'tau^2 estimator: DL' where the object declares REML, at k = 2. This project's own statistics rule forbids DerSimonian-Laird below k = 10, so the quotation carried a wrong label AND a forbidden method, faithfully. P56. Ten stored outputs across the corpus did this; this is one of them."
     },
     "estimator_note_2026_08_18_superseded_2026_08_20": "Published as DerSimonian-Laird. The house-rule interval is recorded alongside rather than replacing it, so the difference is visible instead of silently resolved.",
     "estimator_note_2026_08_20": "REML, applied 2026-08-20 under DECISIONS-COCHRANE-2026-08-18.md section 1, on Cochrane Handbook 6.5 section 10.10.4.4: \"Decision: REML, everywhere.\" The estimator this pool used before that date was DerSimonian-Laird; that fit was reproduced first and is quoted under r_output_superseded_2026_08_20, so the movement is attributable rather than asserted.",
-    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py.",
+    "POOL_FINDINGS_2026_08_21": {
+     "a_the_pooled_result_is_one_trial_s_primary_and_the_other_s_secondary": "READ THIS BESIDE THE ESTIMATE. FIDELIO-DKD (NCT02540993) registers the KIDNEY composite as its primary outcome and the CARDIOVASCULAR composite -- the one pooled here -- as the FIRST OF FIVE SECONDARIES. FIGARO-DKD (NCT02545049) registers them the other way round. THE QUANTITY IS IDENTICAL ON BOTH, word for word, so this is a question about which rank was selected and not about what was measured.",
+     "b_the_effect_does_not_survive_the_small_sample_adjustment": "The unadjusted interval is HR 0.8655 (0.7877 to 0.9510) and EXCLUDES no effect. This project's floored Hartung-Knapp interval at k = 2 is 0.4699 to 1.5940 and INCLUDES it. At k = 2 the t critical value is 12.7062 and almost nothing survives, so this is weaker evidence against the result than the same crossing would be at larger k. NOTE THAT metafor's RAW interval here, 0.8045 to 0.9311, is NARROWER than the unadjusted one -- which is what the house floor exists to prevent, and it is not cited as ours."
+    }
    }
   }
  },
@@ -538,6 +544,13 @@
    "values_moved": "NONE",
    "what_changed": "added citation, how_it_differs_from_ours, scope to the comparison record(s); nothing renamed, nothing removed",
    "why": "The projector reads `citation`/`their_k`/`scope`/`how_it_differs_from_ours`; these records stored `title`/`journal`/`outcome_pooled`/`agreement`. A reader met a PMID and four empty cells. Registry class 83."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "risk of bias per result and GRADE both written (P46 limbs 1 and 2)",
+   "values_moved": "NONE",
+   "what_changed": "2 results assessed; GRADE MODERATE; the model output re-run under the declared estimator",
+   "why": "Both limbs were ABSENT, and the stored fit named DL where the object declares REML."
   }
  ],
  "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",
@@ -576,5 +589,141 @@
    }
   ],
   "THE_FINDING_OF_THIS_COMPARISON_2026_08_20": "THIS IS THE CONTROL CASE FOR CLASS 76 AND IT WAS PREDICTED BEFORE THE SCREEN RAN. Four topics have now been found where the published synthesis chose a better-defined target than this corpus did. Here it did not: an aggregate-data pool of two trials REPRODUCES a prespecified individual-patient-data analysis of the same two trials to three significant figures. The pool was feasible -- one drug, one programme, complementary populations by design, pooling prespecified by the trialists -- and where the pool is feasible the method holds. THAT MAKES CLASS 76 A FINDING ABOUT FEASIBILITY RATHER THAN ABOUT ARITHMETIC, and it is the reason a pattern needs a case where it does not fire."
+ },
+ "risk_of_bias": {
+  "tool": "RoB 2 (Cochrane risk-of-bias tool for randomized trials)",
+  "assessed_utc": "2026-08-21",
+  "assessed_per": "RESULT, not trial -- Handbook 8.2",
+  "by_outcome": {
+   "cv_composite_first": {
+    "NCT02540993": {
+     "nct": "NCT02540993",
+     "trial": "FIDELIO-DKD",
+     "registered_masking": "QUADRUPLE",
+     "rank_of_the_result_this_review_pools": "SECONDARY -- the first of five",
+     "result_assessed": "the cardiovascular composite: CV death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention and the analysis population used are not on the registration."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many participants were missing from the analysed population or how they were handled. Follow-up runs years on all five."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "Masking is QUADRUPLE and the OUTCOMES ASSESSOR IS EXPLICITLY AMONG THE MASKED ROLES. The endpoint is an adjudicated composite, so it is the masked assessor that makes this LOW."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
+       "reason": "THE REGISTERED PRIMARY IS THE KIDNEY COMPOSITE -- onset of kidney failure, a sustained eGFR decrease of at least 40%, or renal death. The result this review pools is the CARDIOVASCULAR composite, which is THE FIRST OF FIVE REGISTERED SECONDARIES on this trial. Selecting a secondary from among registered ranks is a D5 concern whatever the reason. NOT HIGH: the choice is transparent and the same quantity is FIGARO's registered primary, so nothing suggests the rank was picked after seeing the data."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain.",
+     "registered_enrolment": 5734
+    },
+    "NCT02545049": {
+     "nct": "NCT02545049",
+     "trial": "FIGARO-DKD",
+     "registered_masking": "QUADRUPLE",
+     "rank_of_the_result_this_review_pools": "PRIMARY",
+     "result_assessed": "the cardiovascular composite: CV death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention and the analysis population used are not on the registration."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many participants were missing from the analysed population or how they were handled. Follow-up runs years on all five."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "Masking is QUADRUPLE and the OUTCOMES ASSESSOR IS EXPLICITLY AMONG THE MASKED ROLES. The endpoint is an adjudicated composite, so it is the masked assessor that makes this LOW."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "LOW",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
+       "reason": "THE REGISTERED PRIMARY IS THE CARDIOVASCULAR COMPOSITE and it is exactly the result this review pools -- CV death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure. There is no set of ranks to have chosen from. RECORDED BECAUSE THE CONTRAST WITH FIDELIO IS THE POINT: the two trials register the same two composites with the ranks swapped."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain.",
+     "registered_enrolment": 7352
+    }
+   }
+  },
+  "sources_read": [
+   "ClinicalTrials.gov API v2 NCT02540993 -- design module and the full registered primary and secondary outcome lists",
+   "ClinicalTrials.gov API v2 NCT02545049 -- design module and the full registered primary and secondary outcome lists"
+  ],
+  "sources_NOT_read": "The trial publications. D2 and D3 depend on them and are NO_INFORMATION for that reason.",
+  "ceiling": {
+   "statement": "A domain that cannot be judged from the sources read is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect. Overall is capped at SOME_CONCERNS wherever a domain is NO_INFORMATION.",
+   "shape_note": "A DICT, NOT A STRING -- paper_projector does ceil.get('statement') and a bare string collapses the manuscript to a projector-failed banner."
+  },
+  "THE_TWO_TRIALS_REGISTER_THE_SAME_TWO_COMPOSITES_WITH_THE_RANKS_SWAPPED": "FIDELIO-DKD registers the KIDNEY composite as its primary and the CARDIOVASCULAR composite as its first secondary. FIGARO-DKD registers the CARDIOVASCULAR composite as its primary and the KIDNEY composite as its first secondary. This review pools the cardiovascular composite, so it takes one trial's primary and the other's secondary -- and the quantity is identical, word for word, on both registrations.",
+  "ONE_ASSESSOR_ONLY": "ASSESSED BY ONE ASSESSOR. Under the standing specification that risk of bias 2 must be complete and done by TWO AIs from different model families, THIS ASSESSMENT IS INCOMPLETE. `rob2.assessors` is deliberately NOT written."
+ },
+ "grade": {
+  "approach": "GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.",
+  "assessed_utc": "2026-08-21",
+  "by_outcome": {
+   "cv_composite_first": {
+    "k": 2,
+    "starting_certainty": "HIGH",
+    "certainty": "MODERATE",
+    "steps": [
+     {
+      "domain": "risk_of_bias",
+      "move": "HIGH to MODERATE, down 1 level(s)",
+      "reason": "Both contributing results are SOME_CONCERNS. D1 and D4 are LOW on read registrations -- randomised, QUADRUPLE masking including the outcomes assessor on both -- and D5 is LOW on FIGARO and SOME_CONCERNS on FIDELIO, where the pooled cardiovascular composite is the first of five registered SECONDARIES. D2 and D3 are NO_INFORMATION on both."
+     },
+     {
+      "domain": "inconsistency",
+      "move": "no downgrade",
+      "reason": "tau-squared is EXACTLY ZERO, Q 0.0143 on 1 df, p = 0.9047, I-squared 0.00%. The two estimates are 0.86 (0.747 to 0.989) and 0.87 (0.76 to 0.98) -- as close as two trials get. Downgrading would manufacture a caution the numbers contradict."
+     },
+     {
+      "domain": "indirectness",
+      "move": "no downgrade",
+      "reason": "THE QUANTITY IS THE SAME QUANTITY. Both registrations define the composite in the same words -- cardiovascular death, non-fatal myocardial infarction, non-fatal stroke, or hospitalisation for heart failure. RECORDED AND DELIBERATELY NOT CONVERTED INTO A RATING: it is FIGARO's registered PRIMARY and FIDELIO's registered first SECONDARY. That is a selection question, which D5 already carries; rating it again here would count one fact as two defects."
+     },
+     {
+      "domain": "imprecision",
+      "move": "MODERATE to LOW -- WARRANTED AND NOT APPLIED, see reason",
+      "reason": "k = 2. This project's floored Hartung-Knapp interval is 0.4699 to 1.5940 on t = 12.7062 with 1 degree of freedom AND IT INCLUDES NO EFFECT, where the unadjusted interval 0.7877 to 0.9510 excludes it. IT IS NOT APPLIED for the reason this project applies consistently at k = 2: the t critical value is 12.7062 and almost nothing survives, so the crossing is weak evidence in either direction. WHAT IS NOT USED: metafor's RAW unfloored interval here is 0.8045 to 0.9311 -- NARROWER THAN THE UNADJUSTED INTERVAL, which is exactly what the house floor exists to prevent, and it is not this project's interval."
+     },
+     {
+      "domain": "publication_bias",
+      "move": "NOT ASSESSABLE -- no rating applied",
+      "reason": "k = 2. Handbook 13.3.5.4."
+     }
+    ],
+    "summary": "MODERATE certainty. The two trials agree almost exactly, both are quadruple-masked, and the pooled composite is defined identically on both registrations -- so the single downgrade is for the unread deviation and missing-data domains and for the pooled result being FIDELIO's registered SECONDARY rather than its primary.",
+    "rating_up_not_applied": "No domain is rated UP. Rating up applies to observational evidence; these are randomised trials, which start HIGH."
+   }
+  }
  }
 }

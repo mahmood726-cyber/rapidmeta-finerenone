@@ -1631,6 +1631,10 @@
      "call": "rma(yi = log(hr), sei = (log(hi)-log(lo))/(2*qnorm(0.975)), method = \"REML\")",
      "script": "ssot/sglt2_pools.R",
      "reproduces_the_stored_value": "The stored pooled value was HR 0.7636 (0.7062 to 0.8258). This run reproduces it EXACTLY -- an independent confirmation of a number that was already on the page."
+    },
+    "POOL_FINDINGS_2026_08_21": {
+     "a_one_of_these_three_trials_is_not_contributing_its_registered_primary": "READ THIS BESIDE THE ESTIMATE. This outcome is the HARMONISED two-component composite -- cardiovascular death or hospitalisation for heart failure. That is the registered primary of EMPEROR-Reduced and EMPEROR-Preserved. IT IS NOT DAPA-HF'S: NCT03036124 registers a THREE-component primary that also counts an URGENT HEART-FAILURE VISIT. The harmonisation is disclosed in this outcome's own name; what follows from it for risk of bias is recorded per result.",
+     "b_and_two_of_the_three_do_not_mask_their_outcomes_assessor": "EMPEROR-Reduced and EMPEROR-Preserved register masking as DOUBLE -- participant and investigator only. Their endpoints are adjudicated, which is the standard mitigation, but no registration states that the adjudicators were blinded. DAPA-HF is quadruple-masked."
     }
    },
    "threecomp_cvdeath_hhf_urgent": {
@@ -3139,17 +3143,198 @@
  },
  "risk_of_bias": {
   "tool": "RoB 2 (Cochrane risk-of-bias tool for randomized trials)",
-  "version": "22 August 2019 version, as reproduced in the Cochrane Handbook",
-  "handbook": "Higgins JPT, Savovic J, Page MJ, Elbers RG, Sterne JAC. Chapter 8: Assessing risk of bias in a randomized trial. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1",
-  "unit_of_assessment": "A RESULT, not a study -- Handbook 8.2: 'risk of bias is assessed for a specific result'. Every judgement below names its outcome.",
-  "default_rule": "A domain that cannot be judged from the registration and the published report is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect.",
-  "ceiling": {
-   "no_result_can_reach_LOW": true,
-   "statement": "NO RESULT IN THIS REVIEW CAN REACH LOW RISK OF BIAS ON THE EVIDENCE WE CAN REACH, AND THAT IS A FACT ABOUT OUR ACCESS RATHER THAN ABOUT THE TRIALS. The two domains that would distinguish LOW from SOME CONCERNS need documents this review does not hold: D1 needs allocation concealment and baseline data, which are in neither the registration nor the published abstract; D5 needs the trial's statistical analysis plan, which is not held for any trial. SOME CONCERNS IS THEREFORE THE CEILING, NOT A FINDING. A trial rated SOME CONCERNS here may well be at low risk of bias -- we cannot show it, and we do not imply the opposite.",
-   "what_would_change_it": "Retrieving each trial's full published report and its statistical analysis plan or protocol. Until then the rating is bounded by what we read, and the bound is reported rather than the reader inferring it.",
-   "why_this_is_stated_rather_than_left_implicit": "A rating of SOME CONCERNS with no explanation reads as a judgement against the trial. Omitting the reason would manufacture a criticism exactly as a low-by-default manufactures a reassurance -- the same defect pointed the other way."
-  },
+  "assessed_utc": "2026-08-21",
+  "assessed_per": "RESULT, not trial -- Handbook 8.2",
   "by_outcome": {
+   "harmonised_cvdeath_or_hhf": {
+    "NCT03036124": {
+     "nct": "NCT03036124",
+     "trial": "DAPA-HF",
+     "registered_masking": "QUADRUPLE",
+     "rank_of_the_result_this_review_pools": "NOT THE REGISTERED PRIMARY -- harmonised to two components",
+     "result_assessed": "the harmonised TWO-component composite: cardiovascular death or hospitalisation for heart failure",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention and the analysis population used are not on the registration."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many participants were missing from the analysed population or how they were handled. Follow-up runs years on all five."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "Masking is QUADRUPLE and the OUTCOMES ASSESSOR IS EXPLICITLY AMONG THE MASKED ROLES. The endpoint is an adjudicated composite, so it is the masked assessor that makes this LOW."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
+       "reason": "THIS TRIAL'S REGISTERED PRIMARY HAS THREE COMPONENTS -- CV death, hospitalisation for heart failure, OR AN URGENT HEART-FAILURE VISIT. The outcome pooled here is the TWO-component composite, which is not this trial's registered primary. The object discloses the harmonisation in the outcome's own name; the consequence for this domain is recorded here. NOT HIGH: harmonising to the narrower definition the other two trials registered is a stated method, not a choice made after seeing the data."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain."
+    },
+    "NCT03057951": {
+     "nct": "NCT03057951",
+     "trial": "EMPEROR-Preserved",
+     "registered_masking": "DOUBLE",
+     "rank_of_the_result_this_review_pools": "PRIMARY",
+     "result_assessed": "the harmonised TWO-component composite: cardiovascular death or hospitalisation for heart failure",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention and the analysis population used are not on the registration."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many participants were missing from the analysed population or how they were handled. Follow-up runs years on all five."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTRATION DESIGN MODULE AND THE REGISTERED OUTCOME TITLE, TOGETHER",
+       "reason": "Masking is DOUBLE -- PARTICIPANT AND INVESTIGATOR ONLY -- so the OUTCOMES ASSESSOR IS NOT AMONG THE MASKED ROLES. The endpoint is ADJUDICATED, which the registered outcome title states ('Adjudicated Cardiovascular Death or Adjudicated Hospitalisation for Heart Failure'), and adjudication blinded to allocation is the standard mitigation. BUT NO REGISTRATION STATES THAT THE ADJUDICATORS WERE BLINDED, so the mitigation is PLAUSIBLE AND NOT ESTABLISHED. Not HIGH: nothing read shows adjudication differed by arm."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "LOW",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
+       "reason": "THE REGISTERED PRIMARY IS THE TWO-COMPONENT COMPOSITE, in the same words as EMPEROR-Reduced, and that is what is pooled."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain."
+    },
+    "NCT03057977": {
+     "nct": "NCT03057977",
+     "trial": "EMPEROR-Reduced",
+     "registered_masking": "DOUBLE",
+     "rank_of_the_result_this_review_pools": "PRIMARY",
+     "result_assessed": "the harmonised TWO-component composite: cardiovascular death or hospitalisation for heart failure",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention and the analysis population used are not on the registration."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many participants were missing from the analysed population or how they were handled. Follow-up runs years on all five."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTRATION DESIGN MODULE AND THE REGISTERED OUTCOME TITLE, TOGETHER",
+       "reason": "Masking is DOUBLE -- PARTICIPANT AND INVESTIGATOR ONLY -- so the OUTCOMES ASSESSOR IS NOT AMONG THE MASKED ROLES. The endpoint is ADJUDICATED, which the registered outcome title states ('Adjudicated Cardiovascular Death or Adjudicated Hospitalisation for Heart Failure'), and adjudication blinded to allocation is the standard mitigation. BUT NO REGISTRATION STATES THAT THE ADJUDICATORS WERE BLINDED, so the mitigation is PLAUSIBLE AND NOT ESTABLISHED. Not HIGH: nothing read shows adjudication differed by arm."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "LOW",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
+       "reason": "THE REGISTERED PRIMARY IS THE TWO-COMPONENT COMPOSITE -- adjudicated CV death or adjudicated hospitalisation for heart failure -- and that is the harmonised outcome pooled here."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain."
+    }
+   },
+   "threecomp_cvdeath_hhf_urgent": {
+    "NCT03036124": {
+     "nct": "NCT03036124",
+     "trial": "DAPA-HF",
+     "registered_masking": "QUADRUPLE",
+     "rank_of_the_result_this_review_pools": "PRIMARY",
+     "result_assessed": "the THREE-component composite: cardiovascular death, hospitalisation for heart failure, or an urgent heart-failure visit",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention and the analysis population used are not on the registration."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many participants were missing from the analysed population or how they were handled. Follow-up runs years on all five."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "Masking is QUADRUPLE and the OUTCOMES ASSESSOR IS EXPLICITLY AMONG THE MASKED ROLES. The endpoint is an adjudicated composite, so it is the masked assessor that makes this LOW."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "LOW",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
+       "reason": "HERE THE POOLED OUTCOME IS THIS TRIAL'S REGISTERED PRIMARY -- CV death, hospitalisation for heart failure, or an urgent heart-failure visit. THE SAME TRIAL IS SOME_CONCERNS ON D5 IN THE HARMONISED POOL AND LOW HERE, which is the clearest illustration in this corpus of why RoB 2 is assessed PER RESULT and not per trial."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain."
+    },
+    "NCT03619213": {
+     "nct": "NCT03619213",
+     "trial": "DELIVER",
+     "registered_masking": "QUADRUPLE",
+     "rank_of_the_result_this_review_pools": "PRIMARY",
+     "result_assessed": "the THREE-component composite: cardiovascular death, hospitalisation for heart failure, or an urgent heart-failure visit",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention and the analysis population used are not on the registration."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many participants were missing from the analysed population or how they were handled. Follow-up runs years on all five."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "Masking is QUADRUPLE and the OUTCOMES ASSESSOR IS EXPLICITLY AMONG THE MASKED ROLES. The endpoint is an adjudicated composite, so it is the masked assessor that makes this LOW."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "LOW",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
+       "reason": "The registered primary is the three-component composite and that is what is pooled. RECORDED AND NOT SCORED: this registration lists TWO primary outcome entries whose measure text is the same composite; a duplicated registry entry is not a second endpoint and is not treated as one."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain."
+    }
+   },
    "cvdeath_or_whf_first": {
     "NCT03036124": {
      "trial": "DAPA-HF",
@@ -3406,7 +3591,38 @@
      "contributes_to_a_pooled_estimate": false
     }
    }
-  }
+  },
+  "sources_read": [
+   "ClinicalTrials.gov API v2 NCT03036124 -- design module and registered primary outcomes",
+   "ClinicalTrials.gov API v2 NCT03057951 -- design module and registered primary outcomes",
+   "ClinicalTrials.gov API v2 NCT03057977 -- design module and registered primary outcomes",
+   "ClinicalTrials.gov API v2 NCT03619213 -- design module and registered primary outcomes"
+  ],
+  "sources_NOT_read": "The trial publications. D2 and D3 depend on them and are NO_INFORMATION for that reason.",
+  "ceiling": {
+   "no_result_can_reach_LOW": true,
+   "statement": "NO RESULT IN THIS REVIEW CAN REACH LOW RISK OF BIAS ON THE EVIDENCE WE CAN REACH, AND THAT IS A FACT ABOUT OUR ACCESS RATHER THAN ABOUT THE TRIALS. The two domains that would distinguish LOW from SOME CONCERNS need documents this review does not hold: D1 needs allocation concealment and baseline data, which are in neither the registration nor the published abstract; D5 needs the trial's statistical analysis plan, which is not held for any trial. SOME CONCERNS IS THEREFORE THE CEILING, NOT A FINDING. A trial rated SOME CONCERNS here may well be at low risk of bias -- we cannot show it, and we do not imply the opposite.",
+   "what_would_change_it": "Retrieving each trial's full published report and its statistical analysis plan or protocol. Until then the rating is bounded by what we read, and the bound is reported rather than the reader inferring it.",
+   "why_this_is_stated_rather_than_left_implicit": "A rating of SOME CONCERNS with no explanation reads as a judgement against the trial. Omitting the reason would manufacture a criticism exactly as a low-by-default manufactures a reassurance -- the same defect pointed the other way."
+  },
+  "THE_SAME_TRIAL_IS_JUDGED_DIFFERENTLY_IN_THE_TWO_POOLS": "DAPA-HF (NCT03036124) contributes to both outcomes on this object. In `threecomp_cvdeath_hhf_urgent` the pooled outcome IS its registered primary and D5 is LOW. In `harmonised_cvdeath_or_hhf` the pooled outcome is the TWO-component composite, which is NOT its registered primary -- its primary carries a third component, an urgent heart-failure visit -- and D5 is SOME_CONCERNS. THAT IS WHY RoB 2 IS ASSESSED PER RESULT AND NOT PER TRIAL, and it is the clearest example of it in this corpus.",
+  "THE_EMPEROR_TRIALS_DO_NOT_MASK_THEIR_OUTCOMES_ASSESSOR": "NCT03057977 and NCT03057951 register masking as DOUBLE -- participant and investigator. Their endpoints are ADJUDICATED, which their registered outcome titles state, but no registration states that the adjudicators were blinded. DAPA-HF and DELIVER are QUADRUPLE-masked and D4 is LOW on both.",
+  "ONE_ASSESSOR_ONLY": "ASSESSED BY ONE ASSESSOR. Under the standing specification that risk of bias 2 must be complete and done by TWO AIs from different model families, THIS ASSESSMENT IS INCOMPLETE. `rob2.assessors` is deliberately NOT written.",
+  "superseded_state_2026_08_21": {
+   "_why_this_is_kept": "The prior value of `risk_of_bias` held 4 key(s) this assessment does not carry. Replacing a subtree wholesale DELETES them, and a net deletion from an SSOT object breaks a standing rule whether or not what replaced it is better. The prior state is the record of what this topic said before it was assessed.",
+   "prior": {
+    "version": "22 August 2019 version, as reproduced in the Cochrane Handbook",
+    "handbook": "Higgins JPT, Savovic J, Page MJ, Elbers RG, Sterne JAC. Chapter 8: Assessing risk of bias in a randomized trial. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1",
+    "unit_of_assessment": "A RESULT, not a study -- Handbook 8.2: 'risk of bias is assessed for a specific result'. Every judgement below names its outcome.",
+    "default_rule": "A domain that cannot be judged from the registration and the published report is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect."
+   }
+  },
+  "restored_2026_08_21": "`by_outcome` HELD `cvdeath_or_whf_first` WITH 4 RESULT-LEVEL ASSESSMENTS AND A WHOLESALE MERGE DISPLACED THEM. atomic_write.merge_not_overwrite preserves any key the NEW value does not carry -- but `by_outcome` IS carried, with DIFFERENT CHILDREN, so the guard saw the key present and kept nothing. THE MERGE IS NOT DEEP. That is the bococizumab defect the function was written to prevent, arriving one level down, and it was caught by a leaf-by-leaf comparison against HEAD before the commit -- the same check that caught it the first time, and again the applier did not.",
+  "version": "22 August 2019 version, as reproduced in the Cochrane Handbook",
+  "handbook": "Higgins JPT, Savovic J, Page MJ, Elbers RG, Sterne JAC. Chapter 8: Assessing risk of bias in a randomized trial. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1",
+  "unit_of_assessment": "A RESULT, not a study -- Handbook 8.2: 'risk of bias is assessed for a specific result'. Every judgement below names its outcome.",
+  "default_rule": "A domain that cannot be judged from the registration and the published report is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect.",
+  "restored_framing_2026_08_21": "`version`, `handbook`, `unit_of_assessment`, `default_rule`, `ceiling` WERE THIS OBJECT'S OWN AND WERE OVERWRITTEN BY A GENERIC BLOCK. The prior `ceiling` carried `no_result_can_reach_LOW`, `what_would_change_it` and an explicit statement of why the ceiling is stated rather than left implicit -- ALL RICHER THAN WHAT REPLACED THEM. Four of the five were recoverable from `superseded_state_2026_08_21`; the ceiling was not, because the replacement carried that key too. Restored from HEAD, leaf by leaf. AN APPLIER THAT WRITES A HOUSE-STANDARD BLOCK OVER A TOPIC'S OWN BETTER ONE IS A NET DELETION EVEN WHERE EVERY FIELD NAME SURVIVES."
  },
  "grade": {
   "approach": "GRADE",
@@ -3528,5 +3744,21 @@
   "what_was_actually_done": "Eligibility criteria were derived POST HOC from the trials and the methodological authority, and the derivation is recorded element by element in `screening.eligibility_provenance` with the source of each.",
   "authority_permitting_it": "MECIR R107 permits post-hoc eligibility criteria PROVIDED THEY ARE DECLARED AS SUCH. They are declared, here and on the page, and the page says 'derived, post hoc' in its heading.",
   "forward_remedy": "For topics not yet built, a protocol is to be written and registered BEFORE the search is executed, so that the claim becomes true GOING FORWARD. It is never to be made true retroactively for a built topic."
- }
+ },
+ "display_change_announced": [
+  {
+   "date": "2026-08-21",
+   "change": "risk of bias assessed per result on both pooled outcomes (P46 limb 1)",
+   "values_moved": "NONE",
+   "what_changed": "5 result-level assessments across 2 outcomes; DAPA-HF is judged differently in the two pools and the reason is stated",
+   "why": "The limb was ABSENT."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "prior risk-of-bias assessments restored after a non-deep merge displaced them",
+   "values_moved": "NONE",
+   "what_changed": "`risk_of_bias.by_outcome.cvdeath_or_whf_first` (4 assessments) was displaced by writing two new outcomes into the same key, and is restored beside them",
+   "why": "merge_not_overwrite preserves keys the new value does NOT carry. `by_outcome` was carried with different children, so its prior children were not preserved. The merge is not deep."
+  }
+ ]
 }

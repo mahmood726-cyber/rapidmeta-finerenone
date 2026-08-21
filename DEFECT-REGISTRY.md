@@ -4125,6 +4125,39 @@ by comparing output against something already established — a public-host veri
 field, a count established by hand on a previous night.
 
 
+## Class 87 — THE MERGE GUARD IS NOT DEEP, AND THE APPLIER DID NOT CATCH IT AGAIN
+
+`atomic_write.merge_not_overwrite` exists because `obj["risk_of_bias"] = {...}` deleted five
+leaves on `bococizumab-lipid-review`. It preserves any key the **new** value does not carry.
+
+**It does not look inside a key that IS carried.** Writing two new outcomes into
+`risk_of_bias.by_outcome` on `sglt2-hf` displaced `cvdeath_or_whf_first` and its **four
+result-level assessments** — the guard saw `by_outcome` present in both and kept nothing.
+
+> **That is the bococizumab defect one level down**, committed by the author who had spent the
+> night writing about it, in the applier that closed the last open topic.
+
+And a second loss the same write caused, which no key-level guard could ever see: the applier
+wrote a **generic house `ceiling`** over this object's own, which carried
+`no_result_can_reach_LOW`, `what_would_change_it`, and an explicit statement of why the ceiling
+is stated rather than left implicit — **all richer than what replaced them**. Four sibling keys
+were recoverable from `superseded_state`; the ceiling was not, because the replacement carried
+that key too.
+
+**An applier that writes a house-standard block over a topic's own better one is a net deletion
+even where every field name survives.**
+
+Caught by the **leaf-by-leaf comparison against HEAD before commit** — the same check that
+caught it the first time, and again *not* by the applier, *not* by the merge guard, and *not*
+by the pre-commit hook. 130 changed leaves on two files; 126 of them were this.
+
+*The remedy is not another guard at the same level.* A deep merge would need to know which
+subtrees are additive and which are replacements, and that is a per-key judgement. What holds
+is the routine: **compare leaves against HEAD before every commit that touches an SSOT
+object**, which is now the third time it has been the only thing standing between an applier
+and a silent deletion.
+
+
 ## OPEN — carried, not fixed
 
 ### O4. The delivered malaria verdict rests on a premise its own registrations contradict
