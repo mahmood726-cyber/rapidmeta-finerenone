@@ -98,6 +98,15 @@ def payloads_for(artefact: Mapping[str, Any]) -> list[tuple[str, dict]]:
         for cap in caps:
             if cap.get("engine_can_pool") is None:
                 continue
+            # NO DISPLAYED ESTIMATE, NO ORPHAN. CHK020 asks whether a pooled value a
+            # reader can see is one the engine says cannot be computed. An outcome that
+            # displays NOTHING has no such value, so the verdict cannot depend on
+            # `engine_can_pool` and the PASS is vacuous -- `malaria-vaccines` carries six
+            # such outcomes and every one of them reported INVALID on the pre-push gate.
+            # Scoping it out is not a weakening: an outcome with a displayed value and
+            # `engine_can_pool` false still fails, which is the defect this check is for.
+            if cap.get("displayed_pooled_estimate") is None:
+                continue
             out.append(("CHK020_ORPHAN_POOLED_RESULT",
                         {"page_id": "%s::%s" % (page, cap.get("outcome_id") or "?"),
                          "displayed_pooled_estimate":
