@@ -4004,6 +4004,49 @@ The six are transcribed into the objects **by hand**, each carrying the sentence
 each marked *counted, not identified*, rather than parsed out of prose at render time.
 
 
+## Class 84 — THE OPTIMISM BIAS APPEARED IN CODE. THE DEFECT AND ITS REPAIR RAN THE SAME WAY.
+
+Class 74 recorded that our estimates of our own remaining work are **biased, not noisy** —
+they run short, and every figure describing remaining work is a floor until measured. That was
+about *numbers we state*. This is the same bias **inside an instrument and inside its fix**.
+
+`audit_our_k_against_theirs.py` decides how many trials a published synthesis carried. It had
+three defects, and **all three ran in the direction that flatters us**:
+
+| defect | effect |
+|---|---|
+| `NUM_WORDS` stopped at *ten* | "twelve trials", "fifteen studies" → **their count NOT STATED** |
+| the noun list omitted `CVOT` | "ten CVOTs" → **NOT STATED** |
+| any prose entry without "NOT READ"/"NOT NAMED" counted as one **named** trial | a sentence became **k = 1, IDENTIFIED** — a false *equal*, or a false *ours higher* |
+
+Its positive control asserted that *"six RCTs"* reads as 6 — **a word inside the range and a
+noun inside the list**. It could not have caught any of the three.
+
+**Then the repair ran the same way.** The replacement named-trial test rejected entries over
+40 characters. `CANVAS Program -- NOT pooled by this object` is **42**. The fix dropped the
+corpus's only nameable missing trial — *the single case the whole instrument exists to
+surface* — **by two characters**, inside a correction to an instrument that was already
+flattering us.
+
+> It was caught for one reason: the summary printed a nameable count of **0** where **1** was
+> already established, and the discrepancy was looked at instead of accepted.
+
+**Why this is its own class and not class 74 again.** Class 74 is a bias in a *stated
+estimate*, correctable by measuring. This is a bias in a *measuring device* and then in its
+*calibration* — so measuring harder does not help, because the instrument is the thing
+leaning. The only defence that worked was a **known answer the instrument had to reproduce**,
+and the only reason a known answer existed was that CANVAS had been established by hand on a
+previous night.
+
+Now a hard exit rather than a control: Kluger's stored three-trial set must read as
+`(3, True)` or the file refuses to print anything. **A named-trial test is judged on the name
+before the separator, never on the length of the whole entry.**
+
+*Third recorded instance of the general shape — see also
+`grep-prose-copies-not-just-numeric`: a number written as a word is invisible to a check that
+looks for a number.*
+
+
 ## OPEN — carried, not fixed
 
 ### O0a. `NCT00081744` — a trial contributing to two published pools with no registered primary outcome

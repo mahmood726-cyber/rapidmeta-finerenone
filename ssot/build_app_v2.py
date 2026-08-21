@@ -714,6 +714,18 @@ def _outcome_section(canon, oid, p, e):
                      f"</strong></p>" + NL)
                     if pooled.get("what_the_split_does_not_establish") else "")))
                if pooled.get("split_pools") else "")
+            # AND THE POOL FINDINGS, ON THE WITHDRAWAL CARD TOO.
+            #
+            # The reported branch below renders POOL_FINDINGS_<stamp> beside the
+            # estimate. This branch did not, so on `cangrelor-pci-review` and
+            # `incretin-hfpef-review` -- whose findings sit on a WITHDRAWN
+            # primary -- the qualification rendered only in the manuscript, a
+            # megabyte down the page. A reader who meets "Estimate withdrawn" is
+            # precisely the reader the finding was written for: on cangrelor it
+            # says a published pool of the same three trials reports 0.81 where
+            # this object does not pool at all.
+            + "".join(_finding_block(res, k, "alert", p, NL)
+                      for k in sorted(res) if k.startswith("POOL_FINDINGS_"))
             + "</div>" + NL)
     elif pooled:
         # A POOL THAT STANDS SAYS WHY, WITH THE SAME PROMINENCE AS ONE THAT DOES
