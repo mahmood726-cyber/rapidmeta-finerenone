@@ -932,7 +932,6 @@ def project(obj, journal="generic", length="standard"):
 
     # ---- METHODS: SEARCH --------------------------------------------------------------
     s = Section("methods_search", "Methods — search")
-    _add_bookkeeping(s, obj, "the_search_its_date_and_its_databases")
     dbs = get(obj, "search.databases") or []
     for i, d in enumerate(dbs):
         q = d.get("query_as_executed")
@@ -966,6 +965,12 @@ def project(obj, journal="generic", length="standard"):
         s.paras.append((txt, ["search.databases[%d]" % i]))
     if not dbs:
         s.refusals.append(("the entire search description", ["search.databases"]))
+    # AFTER the refusal decision, never before it. Placed at the top of the
+    # section this line made `s.paras` non-empty, the `if not (s.paras or
+    # s.tables)` refusal stopped firing, and six topics lost a refusal that was
+    # true -- delivery 26 -> 20. A bookkeeping claim belongs in the section; it
+    # must not be the thing that decides the section has content.
+    _add_bookkeeping(s, obj, "the_search_its_date_and_its_databases")
     secs.append(s)
 
     # ---- METHODS: ELIGIBILITY ---------------------------------------------------------
@@ -1636,7 +1641,6 @@ def project(obj, journal="generic", length="standard"):
 
     # ---- CERTAINTY OF THE EVIDENCE (GRADE) ---------------------------------------------
     s = Section("certainty", "Certainty of the evidence")
-    _add_bookkeeping(s, obj, "which_risk_of_bias_domains_drove_the_rating")
     g = get(obj, "grade") or {}
     if g.get("approach"):
         s.add(obj, "Certainty was rated with %s. %s"
@@ -1665,11 +1669,16 @@ def project(obj, journal="generic", length="standard"):
         s.refusals.append(("the certainty assessment -- no GRADE record is held, so the "
                            "certainty column elsewhere on this page is an em dash rather "
                            "than a guess", ["grade"]))
+    # AFTER the refusal decision, never before it. Placed at the top of the
+    # section this line made `s.paras` non-empty, the `if not (s.paras or
+    # s.tables)` refusal stopped firing, and six topics lost a refusal that was
+    # true -- delivery 26 -> 20. A bookkeeping claim belongs in the section; it
+    # must not be the thing that decides the section has content.
+    _add_bookkeeping(s, obj, "which_risk_of_bias_domains_drove_the_rating")
     secs.append(s)
 
     # ---- RISK OF BIAS ------------------------------------------------------------------
     s = Section("risk_of_bias", "Risk of bias in the included results")
-    _add_bookkeeping(s, obj, "that_two_assessors_disagreed_and_where")
     rob = get(obj, "risk_of_bias") or {}
     if rob.get("tool"):
         s.add(obj, "Risk of bias was assessed with %s. The unit of assessment is %s"
@@ -1887,6 +1896,12 @@ def project(obj, journal="generic", length="standard"):
 
     if not (s.paras or s.tables):
         s.refusals.append(("the risk-of-bias assessment", ["risk_of_bias"]))
+    # AFTER the refusal decision, never before it. Placed at the top of the
+    # section this line made `s.paras` non-empty, the `if not (s.paras or
+    # s.tables)` refusal stopped firing, and six topics lost a refusal that was
+    # true -- delivery 26 -> 20. A bookkeeping claim belongs in the section; it
+    # must not be the thing that decides the section has content.
+    _add_bookkeeping(s, obj, "that_two_assessors_disagreed_and_where")
     secs.append(s)
 
     # ---- DISAGREEMENTS BETWEEN SOURCES -------------------------------------------------
@@ -2033,7 +2048,6 @@ def project(obj, journal="generic", length="standard"):
 
     # ---- SECTIONS NOT WRITTEN, AND WHY -------------------------------------------------
     s = Section("not_written", "Sections not written, and why")
-    _add_bookkeeping(s, obj, "which_limbs_this_review_refuses")
     ref = get(obj, "build_stamp.refusing")
     if isinstance(ref, list) and ref:
         s.add(obj, "This review refuses %d of the page standard's properties, by name: %s. "
@@ -2042,6 +2056,12 @@ def project(obj, journal="generic", length="standard"):
               ["build_stamp.refusing"])
     else:
         s.refusals.append(("the list of refused properties", ["build_stamp.refusing"]))
+    # AFTER the refusal decision, never before it. Placed at the top of the
+    # section this line made `s.paras` non-empty, the `if not (s.paras or
+    # s.tables)` refusal stopped firing, and six topics lost a refusal that was
+    # true -- delivery 26 -> 20. A bookkeeping claim belongs in the section; it
+    # must not be the thing that decides the section has content.
+    _add_bookkeeping(s, obj, "which_limbs_this_review_refuses")
     secs.append(s)
 
     # ---- FUNDING AND CONFLICTS (content gap) -------------------------------------------
@@ -2279,7 +2299,6 @@ def project(obj, journal="generic", length="standard"):
 
     # ---- NOTE ON REGISTRATION ----------------------------------------------------------
     s = Section("note_on_registration", "Note on registration")
-    _add_bookkeeping(s, obj, "whether_this_review_was_prospectively_registered")
     pr = get(obj, "protocol") or {}
     if pr.get("permanently_refused") or pr.get("prespecified") is not None:
         s.add(obj, "Protocol status. Prespecified: %s. %s"
@@ -2292,6 +2311,12 @@ def project(obj, journal="generic", length="standard"):
                   ["protocol.authority_permitting_it"])
     else:
         s.refusals.append(("the registration note", ["protocol"]))
+    # AFTER the refusal decision, never before it. Placed at the top of the
+    # section this line made `s.paras` non-empty, the `if not (s.paras or
+    # s.tables)` refusal stopped firing, and six topics lost a refusal that was
+    # true -- delivery 26 -> 20. A bookkeeping claim belongs in the section; it
+    # must not be the thing that decides the section has content.
+    _add_bookkeeping(s, obj, "whether_this_review_was_prospectively_registered")
     secs.append(s)
 
     # ---- TABLES: TRIAL CHARACTERISTICS -------------------------------------------------
