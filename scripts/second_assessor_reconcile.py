@@ -33,6 +33,27 @@ KEY = {"D1": "D1_randomisation_process", "D2": "D2_deviations_from_intended_inte
        "D5": "D5_selection_of_the_reported_result"}
 
 
+def align(mine, theirs):
+    """Match reply rows to first-assessment rows when the id FORMAT differs.
+
+    The first three topics were asked before the prompt builder appended `__<outcome>` to the
+    result id, so their stored replies are keyed by a bare NCT. `set(mine) & set(theirs)` is
+    then EMPTY and the whole topic silently contributes nothing -- twelfth lookup in this run
+    to miss because the corpus writes one thing two ways. A bare NCT that matches exactly one
+    first-assessment id by prefix is that row; an ambiguous one is left unmatched rather than
+    guessed.
+    """
+    out = {}
+    for rid, row in theirs.items():
+        if rid in mine:
+            out[rid] = row
+            continue
+        cand = [k for k in mine if k.split("__")[0] == rid.split("__")[0]]
+        if len(cand) == 1:
+            out[cand[0]] = row
+    return out
+
+
 def norm(v):
     v = str(v).strip().upper().replace(" ", "_")
     return {"SOMECONCERNS": "SOME_CONCERNS", "NOINFORMATION": "NO_INFORMATION"}.get(v, v)
@@ -101,6 +122,7 @@ def main():
         if not theirs:
             print("%-46s NO PARSEABLE REPLY -- reported, not counted" % topic[:46])
             continue
+        theirs = align(mine, theirs)
         dis = cmp = 0
         bydom = {d: [0, 0] for d in DOMS}
         missing = [k for k in theirs if k not in mine]

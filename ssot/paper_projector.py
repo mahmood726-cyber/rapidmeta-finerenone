@@ -1670,12 +1670,29 @@ def project(obj, journal="generic", length="standard"):
                                                 "nothing"),
                           ("the_disagreement", "Where they disagree"),
                           ("verbatim_reply", "The second assessor's reply, verbatim"),
+                          ("THE_ALLOW_LIST_THE_RATE_IS_CONDITIONAL_ON",
+                           "The facts both assessors were shown -- a rate is meaningless "
+                           "without them"),
                           ("not_changed_here", "What has NOT been changed on the strength of "
                                                "it")):
             _v = _sa.get(_f)
             if isinstance(_v, str) and _v.strip():
                 s.add(obj, "%s: %s" % (_lead, _v.strip()),
                       ["risk_of_bias.%s.%s" % (_k, _f)])
+        # THE PER-DOMAIN BREAKDOWN, WHICH IS THE FINDING AND NOT THE RATE.
+        #
+        # Written onto 19 topics and rendered on none: the projector read DISAGREEMENT_RATE and
+        # not PER_DOMAIN. A bare rate reads as noise; "they disagree on D1 every time and on D2
+        # and D3 never" is a measurement, and it was the half that never reached a reader.
+        _pd = _sa.get("PER_DOMAIN")
+        if isinstance(_pd, dict) and _pd:
+            s.add(obj, "Where they disagree, by domain: %s."
+                  % _and_list(["%s %s" % (k, v) for k, v in sorted(_pd.items())]),
+                  ["risk_of_bias.%s.PER_DOMAIN" % _k])
+        _ea = _sa.get("each_disagreement")
+        if isinstance(_ea, list) and _ea:
+            s.add(obj, "Every disagreement, named: %s." % "; ".join(str(x) for x in _ea),
+                  ["risk_of_bias.%s.each_disagreement" % _k])
         _td = _sa.get("the_three_disagreements")
         if isinstance(_td, dict):
             for _dk in sorted(_td):
