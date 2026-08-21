@@ -65,8 +65,15 @@ def first_assessment(topic):
             # and the n=3 profile. The domain prefix is the thing that is actually stable.
             row = {}
             for short in KEY:
+                # PREFIX **OR** THE BARE SHORT NAME. arni-hfref keys its domains `D1`..`D5`
+                # with no suffix at all, so a `D1_` prefix test matched nothing and only
+                # OVERALL was compared -- the same under-count as the exact-name version, one
+                # spelling further out. SIXTH lookup in this run to miss because the corpus
+                # spells one thing several ways.
                 dv = next((v for k, v in sorted(d.items())
-                           if str(k).upper().startswith(short + "_") and isinstance(v, dict)),
+                           if isinstance(v, dict)
+                           and (str(k).upper() == short
+                                or str(k).upper().startswith(short + "_"))),
                           None)
                 if isinstance(dv, dict):
                     row[short] = norm(dv.get("judgement"))

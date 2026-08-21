@@ -4472,6 +4472,71 @@ stronger resolution than any assertion of mine could be. *An assessor asked only
 cannot be adjudicated against; ask for the basis in the same round.*
 
 
+## Class 94 — TWO SYSTEMATIC PRIORS MEETING LOOK EXACTLY LIKE UNRELIABILITY
+
+**Generalises well past risk of bias.** Give two assessors the same facts and let each default in
+its own direction on the questions where it has no evidence, and you get a disagreement rate
+that reads as noise and is nothing of the kind: **both are perfectly consistent, and opposed.**
+
+| domains a registry **cannot** answer | domains a registry **can** answer |
+|---|---|
+| D1, D2, D3 | D4, D5 |
+| assessor 1 judged anyway | assessor 1 found specific concerns |
+| assessor 2 said NO_INFORMATION — **100 of 100** | assessor 2 said LOW — **51 of 67** |
+
+> **The rate is not the finding. The direction within each domain is.**
+
+**An agreement rate would have concealed this entirely.** 45% agreement reads as poor
+inter-rater reliability and invites a kappa and a shrug. What is actually happening is that each
+assessor is applying a stable rule about what to do with absent evidence, and the two rules
+point opposite ways. *That is the sharpest instance yet of "agreement authenticates nothing" —
+here, the agreement statistic would have actively hidden the mechanism.*
+
+### 94a. What it implies for the specification
+
+Mahmood asked for two AIs. **This shows two AIs do not converge on truth. They converge on
+nothing** — and the whole value is in the adjudication, which needs a third thing neither
+assessor supplies:
+
+| domain | what settled it | outcome |
+|---|---|---|
+| D1 | **the RoB 2 guidance text** | assessor 2, 51 judgements |
+| D5 | **the registered primary-outcome count** | assessor 2 ×29, assessor 1 ×3 |
+| 10 D5 cases | *no field to appeal to* | **unresolved; both render** |
+
+**THE OPERATING RULE: a disagreement is resolvable exactly when a field can settle it.** Two
+assessors is not a stamp; it is a disagreement to be adjudicated against a registry fact or a
+guidance sentence, and where neither exists the honest output is both judgements and the split.
+That rule carries to every specialty after this one.
+
+### 94b. And the one topic that disagreed on everything is the purest case of the prompt problem
+
+`arni-hfref` disagrees **18 of 18 — 100%, the highest on the corpus** — and it is not a measure
+of the assessors. It is the authored docmodel topic: its risk-of-bias entries were written as
+prose judgements with bare `D1`..`D5` keys and **no registry fields at all**, backfilled only
+today, *after* those judgements were made. Assessor 1 judged from sources this comparison cannot
+see; assessor 2 judged from the registry alone. **The fact-allow-list problem in its purest
+form, on the one topic where the first assessment did not come from the registry.**
+
+### 94c. Six lookups, one shape
+
+Counted across this run, six separate lookups under-counted their own population by reading one
+spelling where the corpus uses several:
+
+| # | what it read | what it missed |
+|---|---|---|
+| 1 | number words to *ten* | "twelve trials", "fifteen studies" |
+| 2 | a 9-field fact allow-list | `registered_analysis_population` |
+| 3 | one fixed D1 phrase | 21 entries saying it in other words |
+| 4 | exact domain key names | `D1_randomisation` vs `D1_randomisation_process` |
+| 5 | `nct` on the entry only | `inputs.trials` and `per_trial` held the mapping |
+| 6 | a `D1_` **prefix** | `arni-hfref` keys them bare `D1` |
+
+*Every one of the six under-counted. None over-counted.* A lookup written against the spelling
+in front of you inherits that spelling as an assumption — class 86's mechanism, in string
+matching rather than in judgement.
+
+
 ## OPEN — carried, not fixed
 
 ### O4. The delivered malaria verdict rests on a premise its own registrations contradict

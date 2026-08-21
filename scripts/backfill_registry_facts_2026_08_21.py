@@ -107,6 +107,35 @@ def main():
                     continue
                 nct = j.get("nct") or (rid.split("::")[0] if rid.startswith("NCT") else None)
                 if not nct:
+                    # THE REGISTRATION IS ON THE OBJECT, KEYED BY trial_id, NOT BY nct.
+                    #
+                    # arni-hfref's three entries are keyed `paradigm-hf`, `parallel-hf`,
+                    # `parachute-hf` and carry no `nct` field -- so the first version of this
+                    # lookup refused them as unidentifiable. THEY ARE NOT: `inputs.trials` and
+                    # `results.by_outcome.*.per_trial` both hold `paradigm-hf -> NCT01035255`.
+                    # A refusal that says "the registration cannot be identified" while the
+                    # object holds the mapping two keys away is a refusal that misattributes
+                    # its own cause -- class 73 -- and it is the FIFTH lookup in this run to
+                    # under-count by reading one field where the corpus uses two.
+                    key = rid.split("::")[0]
+                    for src in ((obj.get("inputs") or {}).get("trials") or []):
+                        if isinstance(src, dict) and src.get("id") == key and src.get("nct"):
+                            nct = src["nct"]
+                            break
+                    if not nct:
+                        for blk in (((obj.get("results") or {}).get("by_outcome")) or {}).values():
+                            for t in ((blk or {}).get("per_trial") or []):
+                                if isinstance(t, dict) and t.get("trial_id") == key                                         and t.get("nct"):
+                                    nct = t["nct"]
+                                    break
+                            if nct:
+                                break
+                    if nct:
+                        j["nct_recovered_from_the_object"] = (
+                            "This entry is keyed `%s` and carried no `nct`. The registration "
+                            "%s was read off this object's own `inputs.trials` / `per_trial`, "
+                            "not guessed from the key." % (key, nct))
+                if not nct:
                     print("   REFUSED %-30s %-26s no `nct` on the entry -- the registration "
                           "cannot be identified" % (oid[:30], rid[:26]))
                     refused += 1

@@ -15653,6 +15653,20 @@
    "values_moved": "NONE",
    "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
    "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "registry facts backfilled onto risk-of-bias entries",
+   "values_moved": "NONE -- no judgement, reason or overall is touched",
+   "what_changed": "3 entr(ies): cvdeath_or_hfh_first/NCT01035255, cvdeath_or_hfh_first/NCT02468232, cvdeath_or_hfh_first/NCT04023227",
+   "why": "These entries recorded a judgement and the reason for it without the registry fields the judgement was made from, so no blind second assessment could be given the same evidence."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "a blind cross-family second risk-of-bias assessment was obtained",
+   "values_moved": "NONE",
+   "what_changed": "disagreement 18 of 18 judgements -- the highest on the corpus",
+   "why": "Mahmood's specification requires two assessors from different model families."
   }
  ],
  "INTERNAL_CONSISTENCY_2026_08_18": {
@@ -15725,7 +15739,16 @@
       "assessor_1_openai": "SOME CONCERNS",
       "assessor_2_google": "LOW",
       "agreed": "NO"
-     }
+     },
+     "nct_recovered_from_the_object": "This entry is keyed `paradigm-hf` and carried no `nct`. The registration NCT01035255 was read off this object's own `inputs.trials` / `per_trial`, not guessed from the key.",
+     "nct": "NCT01035255",
+     "registered_masking": "DOUBLE -- participant, investigator",
+     "registered_primary_count": 1,
+     "registered_arm_count": 2,
+     "registered_enrolment": 8442,
+     "registered_primary_outcome": "Number of Participants That Had First Occurrence of the Composite Endpoint, Which is Defined as Either Cardiovascular (CV) Death or Heart Failure (HF) Hospitalization",
+     "registered_sites": "Argentina, Belgium, Brazil, Bulgaria, Canada, Chile, China, Colombia, Czechia, Denmark, Dominican Republic, Ecuador, Estonia, Finland, France, Germany, Guatemala, Hong Kong, Hungary, Iceland, India, Israel, Italy, Latvia, Lithuania, Malaysia, Mexico, Netherlands, Panama, Peru, Philippines, Poland, Portugal, Romania, Russia, Singapore, Slovakia, South Africa, South Korea, Spain, Sweden, Taiwan, Thailand, Turkey (Türkiye), United Kingdom, United States, Venezuela",
+     "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment."
     },
     "parallel-hf": {
      "pooled_result": "the composite of cardiovascular death or first hospitalisation for heart failure, as a time-to-first-event hazard ratio",
@@ -15765,7 +15788,16 @@
       "assessor_1_openai": "SOME CONCERNS",
       "assessor_2_google": "LOW",
       "agreed": "NO"
-     }
+     },
+     "nct_recovered_from_the_object": "This entry is keyed `parallel-hf` and carried no `nct`. The registration NCT02468232 was read off this object's own `inputs.trials` / `per_trial`, not guessed from the key.",
+     "nct": "NCT02468232",
+     "registered_masking": "QUADRUPLE -- participant, care provider, investigator, outcomes assessor",
+     "registered_primary_count": 2,
+     "registered_arm_count": 2,
+     "registered_enrolment": 225,
+     "registered_primary_outcome": "Number of Participants Who Had CEC (Clinical Endpoint Committee) Confirmed Composite Endpoints; Exposure-adjusted Incident Rate (EAIR) of CEC Confirmed Composite Endpoints",
+     "registered_sites": "Japan",
+     "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment."
     },
     "parachute-hf": {
      "pooled_result": "the composite of cardiovascular death or first hospitalisation for heart failure, as a time-to-first-event hazard ratio",
@@ -15805,7 +15837,16 @@
       "assessor_1_openai": "SOME CONCERNS",
       "assessor_2_google": "SOME CONCERNS",
       "agreed": "yes"
-     }
+     },
+     "nct_recovered_from_the_object": "This entry is keyed `parachute-hf` and carried no `nct`. The registration NCT04023227 was read off this object's own `inputs.trials` / `per_trial`, not guessed from the key.",
+     "nct": "NCT04023227",
+     "registered_masking": "SINGLE -- outcomes assessor",
+     "registered_primary_count": 4,
+     "registered_arm_count": 2,
+     "registered_enrolment": 922,
+     "registered_primary_outcome": "Hierarchical Composite Endpoint Composed of Time to Cardiovascular (CV) Death, Time to First Heart Failure (HF) Hospitalization, and Relative Change in NT-proBNP From Baseline to Week 12; Percentage of Participants Who Died From Cardiovascular Causes; Percentage of Participants With First Hospitalization for Worsening Heart Failure; Change From Baseline to Week 12 in NT-proBNP Levels",
+     "registered_sites": "Argentina, Brazil, Colombia, Mexico",
+     "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment."
     }
    }
   },
@@ -15871,7 +15912,45 @@
     "action": "NOT adopted. Any domain resting on it is treated as protocol-unavailable until the SAP is retrieved and checked."
    }
   ],
-  "no_domain_reached_high": "No domain in any trial was rated at high risk of bias by either assessor."
+  "no_domain_reached_high": "No domain in any trial was rated at high risk of bias by either assessor.",
+  "SECOND_ASSESSOR_2026_08_21": {
+   "assessor_2": "GPT-5 Codex (openai family), via `codex exec`",
+   "assessor_1": "Claude Opus 5 (anthropic family) -- the assessment above",
+   "was_a_second_assessment_possible_here": "YES, AND THE EARLIER REFUSAL WAS WRONG. These three entries are keyed `paradigm-hf`, `parallel-hf` and `parachute-hf` and carry no `nct` field, so the backfill first reported them as 'the registration cannot be identified'. THE OBJECT HELD THE MAPPING TWO KEYS AWAY: inputs.trials and results.by_outcome.*.per_trial both give paradigm-hf -> NCT01035255, parallel-hf -> NCT02468232, parachute-hf -> NCT04023227. NOT a permanent refusal and NOT an obstacle in the evidence -- a lookup that read one field where this corpus uses two.",
+   "how_it_was_asked": "BLIND, from scripts/second_assessor_prompt.py, which refuses to send if any RoB 2 verdict word appears in the assembled facts.",
+   "verbatim_reply": "NCT01035255__cvdeath_or_hfh_first D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=LOW OVERALL=NO_INFORMATION\nNCT02468232__cvdeath_or_hfh_first D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=SOME_CONCERNS OVERALL=SOME_CONCERNS\nNCT04023227__cvdeath_or_hfh_first D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=SOME_CONCERNS D5=SOME_CONCERNS OVERALL=SOME_CONCERNS",
+   "DISAGREEMENT_RATE": "18 of 18 judgements -- 100.0%. THE HIGHEST ON THE CORPUS.",
+   "PER_DOMAIN": {
+    "D1": "3 of 3 disagree",
+    "D2": "3 of 3 disagree",
+    "D3": "3 of 3 disagree",
+    "D4": "3 of 3 disagree",
+    "D5": "3 of 3 disagree",
+    "OVERALL": "3 of 3 disagree"
+   },
+   "each_disagreement": [
+    "NCT01035255__cvdeath_or_hfh_first D1: assessor 1 NONE, assessor 2 NO_INFORMATION",
+    "NCT01035255__cvdeath_or_hfh_first D2: assessor 1 NONE, assessor 2 NO_INFORMATION",
+    "NCT01035255__cvdeath_or_hfh_first D3: assessor 1 NONE, assessor 2 NO_INFORMATION",
+    "NCT01035255__cvdeath_or_hfh_first D4: assessor 1 NONE, assessor 2 LOW",
+    "NCT01035255__cvdeath_or_hfh_first D5: assessor 1 NONE, assessor 2 LOW",
+    "NCT01035255__cvdeath_or_hfh_first OVERALL: assessor 1 {'ASSESSOR_1_OPENAI':_'SOME_CONCERNS',_'ASSESSOR_2_GOOGLE':_'LOW',_'AGREED':_'NO'}, assessor 2 NO_INFORMATION",
+    "NCT02468232__cvdeath_or_hfh_first D1: assessor 1 NONE, assessor 2 NO_INFORMATION",
+    "NCT02468232__cvdeath_or_hfh_first D2: assessor 1 NONE, assessor 2 NO_INFORMATION",
+    "NCT02468232__cvdeath_or_hfh_first D3: assessor 1 NONE, assessor 2 NO_INFORMATION",
+    "NCT02468232__cvdeath_or_hfh_first D4: assessor 1 NONE, assessor 2 LOW",
+    "NCT02468232__cvdeath_or_hfh_first D5: assessor 1 NONE, assessor 2 SOME_CONCERNS",
+    "NCT02468232__cvdeath_or_hfh_first OVERALL: assessor 1 {'ASSESSOR_1_OPENAI':_'SOME_CONCERNS',_'ASSESSOR_2_GOOGLE':_'LOW',_'AGREED':_'NO'}, assessor 2 SOME_CONCERNS",
+    "NCT04023227__cvdeath_or_hfh_first D1: assessor 1 NONE, assessor 2 NO_INFORMATION",
+    "NCT04023227__cvdeath_or_hfh_first D2: assessor 1 NONE, assessor 2 NO_INFORMATION",
+    "NCT04023227__cvdeath_or_hfh_first D3: assessor 1 NONE, assessor 2 NO_INFORMATION",
+    "NCT04023227__cvdeath_or_hfh_first D4: assessor 1 NONE, assessor 2 SOME_CONCERNS",
+    "NCT04023227__cvdeath_or_hfh_first D5: assessor 1 NONE, assessor 2 SOME_CONCERNS",
+    "NCT04023227__cvdeath_or_hfh_first OVERALL: assessor 1 {'ASSESSOR_1_OPENAI':_'SOME_CONCERNS',_'ASSESSOR_2_GOOGLE':_'SOME_CONCERNS',_'AGREED':_'YES'}, assessor 2 SOME_CONCERNS"
+   ],
+   "why_this_topic_disagrees_on_everything": "ARNI IS THE AUTHORED DOCMODEL TOPIC. Its risk-of-bias entries were written as prose judgements with domain keys D1..D5 and no registry fields at all -- the facts were backfilled on 2026-08-21, AFTER those judgements were made. So assessor 1 judged from sources this comparison cannot see, and assessor 2 judged from the registry alone. THE 100% RATE IS NOT A MEASURE OF THE ASSESSORS; it is the fact-allow-list problem in its purest form, on the one topic where the first assessment did not come from the registry.",
+   "not_resolved_here": "A disagreement is recorded, not adjudicated."
+  }
  },
  "grade": {
   "approach": "GRADE",
