@@ -4047,7 +4047,82 @@ before the separator, never on the length of the whole entry.**
 looks for a number.*
 
 
+## Class 85 — LIMB 4 QUOTES A TOOL VERBATIM, SO A DEFECT IN THE TOOL IS PUBLISHED AS EVIDENCE
+
+`ssot/fit_from_per_trial.R` printed **metafor's raw `knha` interval**, which **narrows below
+the unadjusted interval** whenever the Hartung-Knapp standard error is smaller than the
+random-effects one. On `malaria-vaccines / rtss_recurrent_children_final`, Q = 0.0013 against
+1 df and the raw interval is **0.6273 to 0.6473** against an unadjusted **0.5967 to 0.6805** —
+four times narrower.
+
+> **P46 limb 4 stores that output VERBATIM.** A reader would have met, quoted as our own model
+> output, an interval this project's own floor rule exists to forbid. Every other limb is
+> prose we wrote and can be held to; this one is a machine's words, and *quoting faithfully is
+> not the same as quoting safely*.
+
+The script now prints the **house interval first** and labels metafor's raw value separately,
+flagging it when it is narrower.
+
+### 85a. And the first version of the fix used the wrong factor
+
+The floor was implemented as `max(1, sqrt(Q/(k-1)))` — the textbook expression. **It does not
+reproduce what this corpus stores.** On `cab-prep-hiv-review` it gives 1.7910 where the object
+holds `variance_inflation_applied: 1.0`, and the interval came out **0.0000 to 50888.9**
+against the stored **0.0002 to 211.78** — because metafor has already absorbed the adjustment
+into its `knha` standard error, so multiplying again **double-counts it**.
+
+The factor this project actually applies is `max(1, SE_knha / SE_unadjusted)`. It reproduces
+every stored value checked: agyw `0.3918 → 1`, cab `1.0000`, both malaria pools floored to 1.
+
+**Caught only by comparing the computed interval against what the objects already held.** A
+wrong statistical formula was one commit from being stored as limb 4 on three topics — and it
+would have been quoted, verbatim and unchallengeable, as the output of our own engine.
+
+### 85b. The number attributed to us was not ours
+
+The same confusion had already reached a delivered page. `agyw-hiv-prep-review`'s finding and
+its GRADE imprecision step both cited **"this project's Hartung-Knapp interval … 0.4054 to
+1.2191"**. That is metafor's **raw unfloored** value. This project's interval is **0.1725 to
+2.8655** — *three times wider* — and it was sitting in the object's own
+`pooled_hartung_knapp` field the whole time.
+
+The conclusion is unchanged: both intervals include no difference. **But a reader was told an
+interval was ours that our own method does not produce, and the one we published was the
+narrower of the two.** Corrected, with the correction announced.
+
+
 ## OPEN — carried, not fixed
+
+### O4. Two malaria-vaccine objects reach opposite conclusions, and the reader gets the "not poolable" one
+
+| | `malaria-vaccine` (singular) | `malaria-vaccines` (plural) |
+|---|---|---|
+| built | **2026-08-18** | 2026-08-08 |
+| in `PAGE_MAP` | **yes** — `MALARIA_VACCINE_REVIEW.html` | **no** — reaches nobody |
+| registrations read | **3** | **7**, across 8 randomised cohorts |
+| verdict | **NOT POOLABLE**, MECIR C62 | nine outcome blocks, two pooled estimates |
+
+The singular object's stated ground is: *"3 TRIALS, AND NO TWO SHARE A REGISTERED PRIMARY
+OUTCOME FAMILY."* But two of the three it read are **both R21 trials**, and on its own
+recorded `registered_primaries` both register *protective efficacy against clinical malaria*:
+
+- `NCT03896724` — "The protective efficacy (number of cases) against clinical malaria of R21
+  adjuvanted with Matrix-M…"
+- `NCT04704830` — "Efficacy: To assess the protective efficacy of R21/Matrix-M against
+  clinical malaria…"
+
+It compared **across vaccines**, which is a comparison the plural object deliberately never
+makes — that object pools R21 with R21 and RTS,S with RTS,S and never across the two.
+
+**What has been done:** the plural object now holds all four P46 limbs — risk of bias on 12
+results across 9 outcomes, GRADE on both pooled outcomes, a published comparison over 28
+records, and the R output for both pools. **It has NOT been mapped**, because publishing a
+pooled estimate would contradict a later recorded decision that this topic is not poolable,
+and *which of the two objects is right is a content decision*.
+
+**What is needed:** Mahmood's decision on whether the NOT POOLABLE verdict survives being
+re-read against seven registrations instead of three, and against a within-vaccine rather
+than across-vaccine question.
 
 ### O0a. `NCT00081744` — a trial contributing to two published pools with no registered primary outcome
 

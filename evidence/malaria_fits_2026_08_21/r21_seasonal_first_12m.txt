@@ -3,12 +3,12 @@ metafor 5.0.1
 run_utc 2026-08-21
 
 ================================================================
-TOPIC   agyw-hiv-prep-review
-OUTCOME primary
-STORED  RR 0.7030 (0.5660 to 0.8731), k = 2, random-effects / REML
+TOPIC   malaria-vaccines
+OUTCOME r21_seasonal_first_12m
+STORED  HR 0.2167 (0.1753 to 0.2678), k = 2, random / REML
 INPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):
-   NCT01539226      0.6711 (0.4884 to 0.9221)  yi=-0.398837  sei=0.162125
-   NCT01617096      0.7320 (0.5442 to 0.9845)  yi=-0.311975  sei=0.151232
+   datoo-2021-phase2b 0.2300 (0.1600 to 0.3300)  yi=-1.469676  sei=0.184677
+   datoo-2024-phase3 0.2100 (0.1600 to 0.2700)  yi=-1.560648  sei=0.133484
 ----------------------------------------------------------------
 CALL: rma(yi = yi, sei = sei, method = "REML", test = "knha")
 
@@ -16,20 +16,20 @@ CALL: rma(yi = yi, sei = sei, method = "REML", test = "knha")
 Random-Effects Model (k = 2; tau^2 estimator: REML)
 
   logLik  deviance       AIC       BIC      AICc   
-  0.8573   -1.7145    2.2855   -1.7145   14.2855   
+  0.8269   -1.6539    2.3461   -1.6539   14.3461   
 
-tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0348)
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0367)
 tau (square root of estimated tau^2 value):      0
 I^2 (total heterogeneity / total variability):   0.00%
 H^2 (total variability / sampling variability):  1.00
 
 Test for Heterogeneity:
-Q(df = 1) = 0.1535, p-val = 0.6952
+Q(df = 1) = 0.1594, p-val = 0.6897
 
 Model Results:
 
-estimate      se     zval    pval    ci.lb    ci.ub     
- -0.3524  0.1106  -3.1865  0.0014  -0.5691  -0.1356  ** 
+estimate      se      zval    pval    ci.lb    ci.ub      
+ -1.5294  0.1082  -14.1374  <.0001  -1.7415  -1.3174  *** 
 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
@@ -40,29 +40,29 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 Random-Effects Model (k = 2; tau^2 estimator: REML)
 
   logLik  deviance       AIC       BIC      AICc   
-  0.8573   -1.7145    2.2855   -1.7145   14.2855   
+  0.8269   -1.6539    2.3461   -1.6539   14.3461   
 
-tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0348)
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0367)
 tau (square root of estimated tau^2 value):      0
 I^2 (total heterogeneity / total variability):   0.00%
 H^2 (total variability / sampling variability):  1.00
 
 Test for Heterogeneity:
-Q(df = 1) = 0.1535, p-val = 0.6952
+Q(df = 1) = 0.1594, p-val = 0.6897
 
 Model Results:
 
-estimate      se     tval  df    pval    ci.lb   ci.ub    
- -0.3524  0.0433  -8.1334   1  0.0779  -0.9029  0.1981  . 
+estimate      se      tval  df    pval    ci.lb    ci.ub    
+ -1.5294  0.0432  -35.4116   1  0.0180  -2.0782  -0.9806  * 
 
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 
 BACK-TRANSFORMED:
-   unadjusted     0.7030 (0.5660 to 0.8732)
-   Hartung-Knapp  0.7030 (0.1725 to 2.8655)   [t crit 12.7062 on 1 df]  <- HOUSE INTERVAL, inflation factor floored at 1 (raw 0.3918)
-   metafor raw    0.7030 (0.4054 to 1.2191)   [test=knha, UNFLOORED]
-   tau^2 0.000000   Q 0.1535 on 1 df, p = 0.6952   I^2 0.00%
+   unadjusted     0.2167 (0.1753 to 0.2678)
+   Hartung-Knapp  0.2167 (0.0548 to 0.8566)   [t crit 12.7062 on 1 df]  <- HOUSE INTERVAL, inflation factor floored at 1 (raw 0.3992)
+   metafor raw    0.2167 (0.1252 to 0.3751)   [test=knha, UNFLOORED]
+   tau^2 0.000000   Q 0.1594 on 1 df, p = 0.6897   I^2 0.00%
 
 AGREES WITH THE STORED POINT TO 4 dp: YES

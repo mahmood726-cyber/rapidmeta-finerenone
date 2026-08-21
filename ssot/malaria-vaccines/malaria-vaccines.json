@@ -3389,7 +3389,24 @@
      "no_rule_is_decided_here": "The house rule is REML with Hartung-Knapp below k=10, settled days ago. Whether it means ALWAYS or WITH A FLOOR AT k=3 is a decision about this corpus, not a computation, and it has been referred rather than taken. BOTH INTERVALS STAND ON THIS PAGE UNTIL IT IS MADE. Nothing is unpublished and no reader is left with only the narrower one.",
      "what_this_means_for_this_pool": "THE SIGNIFICANCE SURVIVES THE STRICTER INTERVAL. This pool is BETTER ESTABLISHED than its published interval alone conveys -- the finding holds under the more conservative of the two defensible methods. Recorded as prominently as the reverse case, because a strengthened result is a result."
     },
-    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py.",
+    "r_output": {
+     "state": "PRESENT",
+     "what_it_is": "The random-effects fit of THIS BLOCK'S OWN per-trial estimates, quoted as the software printed it.",
+     "script": "ssot/fit_from_per_trial.R",
+     "call": "Rscript ssot/fit_from_per_trial.R malaria-vaccines r21_seasonal_first_12m",
+     "environment": "R 4.6.0 with metafor 5.0.1",
+     "run_utc": "2026-08-21",
+     "interval_method": "REML with the unadjusted Wald interval, and the same fit under Hartung-Knapp beside it. THE HOUSE INTERVAL FLOORS THE VARIANCE-INFLATION FACTOR AT 1 so the adjustment can never narrow below the unadjusted interval; metafor's raw unfloored knha value is printed separately and flagged where it is narrower.",
+     "reproduction_of_the_previous_value": "REPRODUCES THE POINT ESTIMATE THIS PAGE DELIVERS TO FOUR DECIMAL PLACES.",
+     "verbatim": "R version 4.6.0 (2026-04-24 ucrt) \nmetafor 5.0.1 \nrun_utc 2026-08-21\n\n================================================================\nTOPIC   malaria-vaccines\nOUTCOME r21_seasonal_first_12m\nSTORED  HR 0.2167 (0.1753 to 0.2678), k = 2, random / REML\nINPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):\n   datoo-2021-phase2b 0.2300 (0.1600 to 0.3300)  yi=-1.469676  sei=0.184677\n   datoo-2024-phase3 0.2100 (0.1600 to 0.2700)  yi=-1.560648  sei=0.133484\n----------------------------------------------------------------\nCALL: rma(yi = yi, sei = sei, method = \"REML\", test = \"knha\")\n\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  0.8269   -1.6539    2.3461   -1.6539   14.3461   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0367)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.1594, p-val = 0.6897\n\nModel Results:\n\nestimate      se      zval    pval    ci.lb    ci.ub      \n -1.5294  0.1082  -14.1374  <.0001  -1.7415  -1.3174  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n--- SAME FIT WITH HARTUNG-KNAPP (test = \"knha\") ---\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  0.8269   -1.6539    2.3461   -1.6539   14.3461   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0367)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.1594, p-val = 0.6897\n\nModel Results:\n\nestimate      se      tval  df    pval    ci.lb    ci.ub    \n -1.5294  0.0432  -35.4116   1  0.0180  -2.0782  -0.9806  * \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBACK-TRANSFORMED:\n   unadjusted     0.2167 (0.1753 to 0.2678)\n   Hartung-Knapp  0.2167 (0.0548 to 0.8566)   [t crit 12.7062 on 1 df]  <- HOUSE INTERVAL, inflation factor floored at 1 (raw 0.3992)\n   metafor raw    0.2167 (0.1252 to 0.3751)   [test=knha, UNFLOORED]\n   tau^2 0.000000   Q 0.1594 on 1 df, p = 0.6897   I^2 0.00%\n\nAGREES WITH THE STORED POINT TO 4 dp: YES\n",
+     "stored_at": "evidence/malaria_fits_2026_08_21/r21_seasonal_first_12m.txt"
+    },
+    "POOL_FINDINGS_2026_08_21": {
+     "a_this_effect_survives_the_small_sample_adjustment": "READ THIS BESIDE THE ESTIMATE. The unadjusted interval is 0.2167 (0.1753 to 0.2678). This project's floored Hartung-Knapp interval at k = 2 is 0.0548 to 0.8566, on t = 12.7062 with 1 degree of freedom, AND IT STILL EXCLUDES NO EFFECT. At k = 2 almost nothing survives that adjustment; this does, because the effect is large. Two other topics in this corpus did not.",
+     "b_one_of_the_two_trials_did_not_mask_its_outcome_assessor": "NCT03896724 registers masking as DOUBLE -- participant and investigator -- so the OUTCOMES ASSESSOR IS NOT MASKED, and the endpoint is clinical malaria meeting a case definition, which is an applied judgement. GRADE risk of bias is rated down for it.",
+     "c_where_the_larger_trial_ran_is_not_established_from_the_registry": "NCT04704830'S REGISTERED LOCATION LIST NAMES ONLY THE UNITED KINGDOM, which is the sponsor's country. Its African sites are not on the registration and were not read elsewhere. Recorded as an absence rather than filled in from general knowledge, and it is worth a reader's attention on a topic whose audience is African."
+    }
    },
    "r21_standard_first_12m": {
     "k": 1,
@@ -3649,7 +3666,24 @@
      "no_rule_is_decided_here": "The house rule is REML with Hartung-Knapp below k=10, settled days ago. Whether it means ALWAYS or WITH A FLOOR AT k=3 is a decision about this corpus, not a computation, and it has been referred rather than taken. BOTH INTERVALS STAND ON THIS PAGE UNTIL IT IS MADE. Nothing is unpublished and no reader is left with only the narrower one.",
      "what_this_means_for_this_pool": "THE SIGNIFICANCE SURVIVES THE STRICTER INTERVAL. This pool is BETTER ESTABLISHED than its published interval alone conveys -- the finding holds under the more conservative of the two defensible methods. Recorded as prominently as the reverse case, because a strengthened result is a result."
     },
-    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py.",
+    "r_output": {
+     "state": "PRESENT",
+     "what_it_is": "The random-effects fit of THIS BLOCK'S OWN per-trial estimates, quoted as the software printed it.",
+     "script": "ssot/fit_from_per_trial.R",
+     "call": "Rscript ssot/fit_from_per_trial.R malaria-vaccines rtss_recurrent_children_final",
+     "environment": "R 4.6.0 with metafor 5.0.1",
+     "run_utc": "2026-08-21",
+     "interval_method": "REML with the unadjusted Wald interval, and the same fit under Hartung-Knapp beside it. THE HOUSE INTERVAL FLOORS THE VARIANCE-INFLATION FACTOR AT 1 so the adjustment can never narrow below the unadjusted interval; metafor's raw unfloored knha value is printed separately and flagged where it is narrower.",
+     "reproduction_of_the_previous_value": "REPRODUCES THE POINT ESTIMATE THIS PAGE DELIVERS TO FOUR DECIMAL PLACES.",
+     "verbatim": "R version 4.6.0 (2026-04-24 ucrt) \nmetafor 5.0.1 \nrun_utc 2026-08-21\n\n================================================================\nTOPIC   malaria-vaccines\nOUTCOME rtss_recurrent_children_final\nSTORED  IRR 0.6372 (0.5967 to 0.6805), k = 2, random / REML\nINPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):\n   rtss-phase3-children 0.6370 (0.5950 to 0.6820)  yi=-0.450986  sei=0.034814\n   rtss-fractional-dose-phase2b 0.6400 (0.5000 to 0.8100)  yi=-0.446287  sei=0.123070\n----------------------------------------------------------------\nCALL: rma(yi = yi, sei = sei, method = \"REML\", test = \"knha\")\n\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  1.4835   -2.9669    1.0331   -2.9669   13.0331   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0116)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.0013, p-val = 0.9707\n\nModel Results:\n\nestimate      se      zval    pval    ci.lb    ci.ub      \n -0.4506  0.0335  -13.4521  <.0001  -0.5163  -0.3850  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n--- SAME FIT WITH HARTUNG-KNAPP (test = \"knha\") ---\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n  1.4835   -2.9669    1.0331   -2.9669   13.0331   \n\ntau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0116)\ntau (square root of estimated tau^2 value):      0\nI^2 (total heterogeneity / total variability):   0.00%\nH^2 (total variability / sampling variability):  1.00\n\nTest for Heterogeneity:\nQ(df = 1) = 0.0013, p-val = 0.9707\n\nModel Results:\n\nestimate      se       tval  df    pval    ci.lb    ci.ub     \n -0.4506  0.0012  -366.1824   1  0.0017  -0.4663  -0.4350  ** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBACK-TRANSFORMED:\n   unadjusted     0.6372 (0.5967 to 0.6805)\n   Hartung-Knapp  0.6372 (0.4163 to 0.9753)   [t crit 12.7062 on 1 df]  <- HOUSE INTERVAL, inflation factor floored at 1 (raw 0.0367)\n   metafor raw    0.6372 (0.6273 to 0.6473)   [test=knha, UNFLOORED]  *** NARROWER THAN UNADJUSTED -- NOT USED; this is what the floor prevents ***\n   tau^2 0.000000   Q 0.0013 on 1 df, p = 0.9707   I^2 0.00%\n\nAGREES WITH THE STORED POINT TO 4 dp: YES\n",
+     "stored_at": "evidence/malaria_fits_2026_08_21/rtss_recurrent_children_final.txt"
+    },
+    "POOL_FINDINGS_2026_08_21": {
+     "a_one_of_these_two_trials_is_open_label": "READ THIS BESIDE THE ESTIMATE. NCT03276962 registers MASKING: NONE. The endpoint is clinical malaria meeting a case definition -- a child is brought to a facility, assessed, and a parasite threshold applied -- so neither the family's decision to attend nor the clinician's application of the definition was blinded, AND THIS REACHES THE POOLED ESTIMATE ABOVE. GRADE risk of bias is rated down for it.",
+     "b_the_two_trials_do_not_give_the_same_dose": "NCT00866619 gives the FULL-DOSE primary series and NCT03276962 is a FRACTIONAL-DOSE trial. This pooled incidence-rate ratio is therefore assembled across two different schedules and is not cleanly an estimate of either. GRADE indirectness is rated down for it.",
+     "c_the_effect_survives_the_adjustment_and_the_raw_statistic_would_have_misled": "The floored Hartung-Knapp interval at k = 2 is 0.4163 to 0.9753 and EXCLUDES no effect. STATED IN FULL BECAUSE THE UNFLOORED STATISTIC POINTS THE WRONG WAY: metafor's raw knha interval here is 0.6273 to 0.6473 -- FOUR TIMES NARROWER than the unadjusted 0.5967 to 0.6805 -- because Q is 0.0013 against 1 degree of freedom. This project floors the variance-inflation factor at 1 so an adjustment can never manufacture precision, and that floor is the only reason the narrower number is not on this page."
+    }
    },
    "rtss_recurrent_infants_final": {
     "k": 1,
@@ -4066,8 +4100,665 @@
    "values_moved": "NONE",
    "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
    "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "all four P46 limbs written; this topic was at 0 of 4",
+   "values_moved": "NONE",
+   "what_changed": "risk of bias on 12 results across 9 outcome(s); GRADE on 2 pooled outcome(s); a published comparison over 28 matched records; the R output stored verbatim for both pools, each reproducing its stored point to 4 dp",
+   "why": "Every limb was ABSENT."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "all four P46 limbs written; this topic was at 0 of 4",
+   "values_moved": "NONE",
+   "what_changed": "risk of bias on 12 results across 9 outcome(s); GRADE on 2 pooled outcome(s); a published comparison over 28 matched records; the R output stored verbatim for both pools, each reproducing its stored point to 4 dp",
+   "why": "Every limb was ABSENT."
   }
  ],
  "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over.",
- "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed."
+ "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",
+ "risk_of_bias": {
+  "tool": "RoB 2 (Cochrane risk-of-bias tool for randomized trials)",
+  "assessed_utc": "2026-08-21",
+  "assessed_per": "RESULT, not trial -- Handbook 8.2. A cohort appearing in three outcome blocks is assessed three times, because the domains that matter differ by the result being used.",
+  "by_outcome": {
+   "exploratory_recurrent_rate": {
+    "NCT00866619::rtss-phase3-children": {
+     "nct": "NCT00866619",
+     "trial": "RTS,S/AS01 phase 3, children 5-17 months",
+     "cohort_id": "rtss-phase3-children",
+     "registered_enrolment": 15459,
+     "registered_masking": "QUADRUPLE -- participant, care provider, investigator AND outcomes assessor",
+     "registered_sites": "Burkina Faso, Gabon, Ghana, Kenya, Malawi, Mozambique, Tanzania",
+     "result_assessed": "the result this object carries for outcome `exploratory_recurrent_rate`",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention, and the analysis population used, are not on the registration. In a malaria-vaccine trial the deviations that matter are bednet use, seasonal chemoprevention and care-seeking, none of which the registry records."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many children were missing from the analysed population or how they were handled. Follow-up here runs 12 months or longer, so attrition is not a formality."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "Masking is QUADRUPLE and the OUTCOMES ASSESSOR IS EXPLICITLY AMONG THE MASKED ROLES. The endpoint is an assessed judgement, so it is the masked assessor that makes this LOW -- not the endpoint being objective."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT CARRIES",
+       "reason": "TWO primary outcomes are registered, both rates of a first or only clinical episode under different case definitions, and this object carries results derived from one family without recording the choice. Same shape as inclisiran's co-primaries. NOT HIGH: nothing read shows the choice followed the data."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION on every cohort here, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain."
+    },
+    "NCT04704830::datoo-2024-phase3": {
+     "nct": "NCT04704830",
+     "trial": "Datoo 2024, R21/Matrix-M phase 3",
+     "cohort_id": "datoo-2024-phase3",
+     "registered_enrolment": 4800,
+     "registered_masking": "QUADRUPLE -- participant, care provider, investigator AND outcomes assessor",
+     "registered_sites": "NOT ESTABLISHED FROM THE REGISTRY. The registered location list names ONLY THE UNITED KINGDOM, which is the sponsor's country. This trial's African sites are not on the registration and were not read elsewhere, so site geography is recorded as an ABSENCE rather than filled in.",
+     "result_assessed": "the result this object carries for outcome `exploratory_recurrent_rate`",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention, and the analysis population used, are not on the registration. In a malaria-vaccine trial the deviations that matter are bednet use, seasonal chemoprevention and care-seeking, none of which the registry records."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many children were missing from the analysed population or how they were handled. Follow-up here runs 12 months or longer, so attrition is not a formality."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "Masking is QUADRUPLE and the OUTCOMES ASSESSOR IS EXPLICITLY AMONG THE MASKED ROLES. The endpoint is an assessed judgement, so it is the masked assessor that makes this LOW -- not the endpoint being objective."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT CARRIES",
+       "reason": "FOUR primary outcomes are registered on this trial -- efficacy, safety, a school-age booster extension and a further efficacy measure -- and this object draws THREE separate result blocks from it without recording which registered primary each answers. NOT HIGH: nothing read shows the mapping was chosen after seeing the data."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION on every cohort here, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain."
+    }
+   },
+   "r21_seasonal_first_12m": {
+    "NCT03896724::datoo-2021-phase2b": {
+     "nct": "NCT03896724",
+     "trial": "Datoo 2021, R21/Matrix-M phase 2b",
+     "cohort_id": "datoo-2021-phase2b",
+     "registered_enrolment": 450,
+     "registered_masking": "DOUBLE -- participant and investigator; THE OUTCOMES ASSESSOR IS NOT AMONG THE MASKED ROLES",
+     "registered_sites": "Burkina Faso",
+     "result_assessed": "the result this object carries for outcome `r21_seasonal_first_12m`",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention, and the analysis population used, are not on the registration. In a malaria-vaccine trial the deviations that matter are bednet use, seasonal chemoprevention and care-seeking, none of which the registry records."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many children were missing from the analysed population or how they were handled. Follow-up here runs 12 months or longer, so attrition is not a formality."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTRATION DESIGN MODULE AND THE ENDPOINT'S NATURE, TOGETHER",
+       "reason": "The OUTCOMES ASSESSOR IS NOT AMONG THE MASKED ROLES on this registration, and the endpoint is clinical malaria against a case definition -- an applied judgement, not a laboratory constant. An unmasked assessor has something to decide. NOT HIGH: nothing read shows it was decided differently by arm."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "LOW",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT CARRIES",
+       "reason": "ONE primary outcome is registered and it is the efficacy endpoint this object carries. There is no set of efficacy endpoints to have chosen between, so the selection concern cannot arise."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION on every cohort here, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain."
+    },
+    "NCT04704830::datoo-2024-phase3": {
+     "nct": "NCT04704830",
+     "trial": "Datoo 2024, R21/Matrix-M phase 3",
+     "cohort_id": "datoo-2024-phase3",
+     "registered_enrolment": 4800,
+     "registered_masking": "QUADRUPLE -- participant, care provider, investigator AND outcomes assessor",
+     "registered_sites": "NOT ESTABLISHED FROM THE REGISTRY. The registered location list names ONLY THE UNITED KINGDOM, which is the sponsor's country. This trial's African sites are not on the registration and were not read elsewhere, so site geography is recorded as an ABSENCE rather than filled in.",
+     "result_assessed": "the result this object carries for outcome `r21_seasonal_first_12m`",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention, and the analysis population used, are not on the registration. In a malaria-vaccine trial the deviations that matter are bednet use, seasonal chemoprevention and care-seeking, none of which the registry records."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many children were missing from the analysed population or how they were handled. Follow-up here runs 12 months or longer, so attrition is not a formality."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "Masking is QUADRUPLE and the OUTCOMES ASSESSOR IS EXPLICITLY AMONG THE MASKED ROLES. The endpoint is an assessed judgement, so it is the masked assessor that makes this LOW -- not the endpoint being objective."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT CARRIES",
+       "reason": "FOUR primary outcomes are registered on this trial -- efficacy, safety, a school-age booster extension and a further efficacy measure -- and this object draws THREE separate result blocks from it without recording which registered primary each answers. NOT HIGH: nothing read shows the mapping was chosen after seeing the data."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION on every cohort here, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain."
+    }
+   },
+   "r21_standard_first_12m": {
+    "NCT04704830::datoo-2024-phase3": {
+     "nct": "NCT04704830",
+     "trial": "Datoo 2024, R21/Matrix-M phase 3",
+     "cohort_id": "datoo-2024-phase3",
+     "registered_enrolment": 4800,
+     "registered_masking": "QUADRUPLE -- participant, care provider, investigator AND outcomes assessor",
+     "registered_sites": "NOT ESTABLISHED FROM THE REGISTRY. The registered location list names ONLY THE UNITED KINGDOM, which is the sponsor's country. This trial's African sites are not on the registration and were not read elsewhere, so site geography is recorded as an ABSENCE rather than filled in.",
+     "result_assessed": "the result this object carries for outcome `r21_standard_first_12m`",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention, and the analysis population used, are not on the registration. In a malaria-vaccine trial the deviations that matter are bednet use, seasonal chemoprevention and care-seeking, none of which the registry records."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many children were missing from the analysed population or how they were handled. Follow-up here runs 12 months or longer, so attrition is not a formality."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "Masking is QUADRUPLE and the OUTCOMES ASSESSOR IS EXPLICITLY AMONG THE MASKED ROLES. The endpoint is an assessed judgement, so it is the masked assessor that makes this LOW -- not the endpoint being objective."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT CARRIES",
+       "reason": "FOUR primary outcomes are registered on this trial -- efficacy, safety, a school-age booster extension and a further efficacy measure -- and this object draws THREE separate result blocks from it without recording which registered primary each answers. NOT HIGH: nothing read shows the mapping was chosen after seeing the data."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION on every cohort here, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain."
+    }
+   },
+   "rtss_first_episode_rate_12m": {
+    "NCT00866619::rtss-phase3-children": {
+     "nct": "NCT00866619",
+     "trial": "RTS,S/AS01 phase 3, children 5-17 months",
+     "cohort_id": "rtss-phase3-children",
+     "registered_enrolment": 15459,
+     "registered_masking": "QUADRUPLE -- participant, care provider, investigator AND outcomes assessor",
+     "registered_sites": "Burkina Faso, Gabon, Ghana, Kenya, Malawi, Mozambique, Tanzania",
+     "result_assessed": "the result this object carries for outcome `rtss_first_episode_rate_12m`",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention, and the analysis population used, are not on the registration. In a malaria-vaccine trial the deviations that matter are bednet use, seasonal chemoprevention and care-seeking, none of which the registry records."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many children were missing from the analysed population or how they were handled. Follow-up here runs 12 months or longer, so attrition is not a formality."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "Masking is QUADRUPLE and the OUTCOMES ASSESSOR IS EXPLICITLY AMONG THE MASKED ROLES. The endpoint is an assessed judgement, so it is the masked assessor that makes this LOW -- not the endpoint being objective."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT CARRIES",
+       "reason": "TWO primary outcomes are registered, both rates of a first or only clinical episode under different case definitions, and this object carries results derived from one family without recording the choice. Same shape as inclisiran's co-primaries. NOT HIGH: nothing read shows the choice followed the data."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION on every cohort here, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain."
+    }
+   },
+   "rtss_first_episode_short": {
+    "NCT00380393::bejon-2008-phase2b": {
+     "nct": "NCT00380393",
+     "trial": "Bejon 2008, RTS,S/AS01 phase 2b",
+     "cohort_id": "bejon-2008-phase2b",
+     "registered_enrolment": 894,
+     "registered_masking": "DOUBLE -- CARE PROVIDER and OUTCOMES ASSESSOR; the PARTICIPANT is NOT among the masked roles",
+     "registered_sites": "Kenya, Tanzania",
+     "result_assessed": "the result this object carries for outcome `rtss_first_episode_short`",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention, and the analysis population used, are not on the registration. In a malaria-vaccine trial the deviations that matter are bednet use, seasonal chemoprevention and care-seeking, none of which the registry records."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many children were missing from the analysed population or how they were handled. Follow-up here runs 12 months or longer, so attrition is not a formality."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "Masking is DOUBLE and the two masked roles are the CARE PROVIDER AND THE OUTCOMES ASSESSOR. The person applying the case definition is blinded, which is what D4 asks. RECORDED AND NOT SCORED HERE: the PARTICIPANT is not masked, and care-seeking by an unblinded family is a deviation-from-intervention question, which is D2 -- and D2 is NO_INFORMATION."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "LOW",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT CARRIES",
+       "reason": "ONE primary outcome is registered and it is the efficacy endpoint this object carries. There is no set of efficacy endpoints to have chosen between, so the selection concern cannot arise."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION on every cohort here, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain."
+    }
+   },
+   "rtss_recurrent_children_final": {
+    "NCT00866619::rtss-phase3-children": {
+     "nct": "NCT00866619",
+     "trial": "RTS,S/AS01 phase 3, children 5-17 months",
+     "cohort_id": "rtss-phase3-children",
+     "registered_enrolment": 15459,
+     "registered_masking": "QUADRUPLE -- participant, care provider, investigator AND outcomes assessor",
+     "registered_sites": "Burkina Faso, Gabon, Ghana, Kenya, Malawi, Mozambique, Tanzania",
+     "result_assessed": "the result this object carries for outcome `rtss_recurrent_children_final`",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention, and the analysis population used, are not on the registration. In a malaria-vaccine trial the deviations that matter are bednet use, seasonal chemoprevention and care-seeking, none of which the registry records."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many children were missing from the analysed population or how they were handled. Follow-up here runs 12 months or longer, so attrition is not a formality."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "Masking is QUADRUPLE and the OUTCOMES ASSESSOR IS EXPLICITLY AMONG THE MASKED ROLES. The endpoint is an assessed judgement, so it is the masked assessor that makes this LOW -- not the endpoint being objective."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT CARRIES",
+       "reason": "TWO primary outcomes are registered, both rates of a first or only clinical episode under different case definitions, and this object carries results derived from one family without recording the choice. Same shape as inclisiran's co-primaries. NOT HIGH: nothing read shows the choice followed the data."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION on every cohort here, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain."
+    },
+    "NCT03276962::rtss-fractional-dose-phase2b": {
+     "nct": "NCT03276962",
+     "trial": "RTS,S/AS01 fractional-dose phase 2b",
+     "cohort_id": "rtss-fractional-dose-phase2b",
+     "registered_enrolment": 1500,
+     "registered_masking": "NONE -- OPEN LABEL",
+     "registered_sites": "Ghana, Kenya",
+     "result_assessed": "the result this object carries for outcome `rtss_recurrent_children_final`",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention, and the analysis population used, are not on the registration. In a malaria-vaccine trial the deviations that matter are bednet use, seasonal chemoprevention and care-seeking, none of which the registry records."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many children were missing from the analysed population or how they were handled. Follow-up here runs 12 months or longer, so attrition is not a formality."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTRATION DESIGN MODULE AND THE ENDPOINT'S NATURE, TOGETHER",
+       "reason": "MASKING IS RECORDED AS NONE -- THIS COHORT IS OPEN LABEL. The endpoint is CLINICAL MALARIA MEETING A CASE DEFINITION: a child is brought to a facility, assessed, and a parasite-density threshold applied. Both halves of that -- whether the family attends and whether the clinician calls it a case -- are open to knowledge of allocation. NOT HIGH: nothing read shows assessment differed by arm, and asserting it would be the accusing-direction error."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "LOW",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT CARRIES",
+       "reason": "ONE primary outcome is registered and it is the efficacy endpoint this object carries. There is no set of efficacy endpoints to have chosen between, so the selection concern cannot arise."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION on every cohort here, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain.",
+     "also_recorded": "THIS COHORT CONTRIBUTES TO A POOLED ESTIMATE, so its open-label design reaches a pooled number rather than sitting on a single-trial row."
+    }
+   },
+   "rtss_recurrent_infants_epi_19m": {
+    "NCT00436007::asante-2011-epi-phase2": {
+     "nct": "NCT00436007",
+     "trial": "Asante 2011, RTS,S EPI co-administration phase 2",
+     "cohort_id": "asante-2011-epi-phase2",
+     "registered_enrolment": 511,
+     "registered_masking": "NONE -- OPEN LABEL",
+     "registered_sites": "Gabon, Ghana, Tanzania",
+     "result_assessed": "the result this object carries for outcome `rtss_recurrent_infants_epi_19m`",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention, and the analysis population used, are not on the registration. In a malaria-vaccine trial the deviations that matter are bednet use, seasonal chemoprevention and care-seeking, none of which the registry records."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many children were missing from the analysed population or how they were handled. Follow-up here runs 12 months or longer, so attrition is not a formality."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTRATION DESIGN MODULE AND THE ENDPOINT'S NATURE, TOGETHER",
+       "reason": "MASKING IS RECORDED AS NONE -- THIS COHORT IS OPEN LABEL. The endpoint is CLINICAL MALARIA MEETING A CASE DEFINITION: a child is brought to a facility, assessed, and a parasite-density threshold applied. Both halves of that -- whether the family attends and whether the clinician calls it a case -- are open to knowledge of allocation. NOT HIGH: nothing read shows assessment differed by arm, and asserting it would be the accusing-direction error."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT CARRIES",
+       "reason": "THE ONLY REGISTERED PRIMARY OUTCOME ON THIS TRIAL IS SERIOUS ADVERSE EVENTS. The result this object carries from it is an EFFICACY outcome, which is not a registered primary here at all -- so there is no registered primary against which the result being used can be anchored. Recorded plainly. NOT HIGH: nothing read shows the outcome was selected after seeing the data, and the trial may well have registered efficacy among its seventeen secondaries. SAME SHAPE AS NCT00081744 on tigecycline-ciai, open item O0a."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION on every cohort here, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain."
+    }
+   },
+   "rtss_recurrent_infants_final": {
+    "NCT00866619::rtss-phase3-infants": {
+     "nct": "NCT00866619",
+     "trial": "RTS,S/AS01 phase 3, infants 6-12 weeks",
+     "cohort_id": "rtss-phase3-infants",
+     "registered_enrolment": 15459,
+     "registered_masking": "QUADRUPLE -- the same registration as the children's cohort",
+     "registered_sites": "Burkina Faso, Gabon, Ghana, Kenya, Malawi, Mozambique, Tanzania",
+     "result_assessed": "the result this object carries for outcome `rtss_recurrent_infants_final`",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention, and the analysis population used, are not on the registration. In a malaria-vaccine trial the deviations that matter are bednet use, seasonal chemoprevention and care-seeking, none of which the registry records."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many children were missing from the analysed population or how they were handled. Follow-up here runs 12 months or longer, so attrition is not a formality."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "Masking is QUADRUPLE and the OUTCOMES ASSESSOR IS EXPLICITLY AMONG THE MASKED ROLES. The endpoint is an assessed judgement, so it is the masked assessor that makes this LOW -- not the endpoint being objective."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT CARRIES",
+       "reason": "TWO primary outcomes are registered, both rates of a first or only clinical episode under different case definitions, and this object carries results derived from one family without recording the choice. Same shape as inclisiran's co-primaries. NOT HIGH: nothing read shows the choice followed the data."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION on every cohort here, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain.",
+     "also_recorded": "THE SAME REGISTRATION CARRIES BOTH COHORTS. The enrolment figure of 15,459 is the registration total across both age groups and is NOT this cohort's own n, which the registry does not separate."
+    }
+   },
+   "rtss_versus_chemoprevention": {
+    "NCT03143218::chandramohan-2021-phase3": {
+     "nct": "NCT03143218",
+     "trial": "Chandramohan 2021, RTS,S versus chemoprevention",
+     "cohort_id": "chandramohan-2021-phase3",
+     "registered_enrolment": 5920,
+     "registered_masking": "TRIPLE -- participant, care provider and investigator; THE OUTCOMES ASSESSOR IS NOT AMONG THE MASKED ROLES",
+     "registered_sites": "Burkina Faso, Mali",
+     "result_assessed": "the result this object carries for outcome `rtss_versus_chemoprevention`",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention, and the analysis population used, are not on the registration. In a malaria-vaccine trial the deviations that matter are bednet use, seasonal chemoprevention and care-seeking, none of which the registry records."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "No registration states how many children were missing from the analysed population or how they were handled. Follow-up here runs 12 months or longer, so attrition is not a formality."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "SOME_CONCERNS",
+       "basis": "REGISTRATION DESIGN MODULE AND THE ENDPOINT'S NATURE, TOGETHER",
+       "reason": "The OUTCOMES ASSESSOR IS NOT AMONG THE MASKED ROLES on this registration, and the endpoint is clinical malaria against a case definition -- an applied judgement, not a laboratory constant. An unmasked assessor has something to decide. NOT HIGH: nothing read shows it was decided differently by arm."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "LOW",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT CARRIES",
+       "reason": "ONE primary outcome is registered and it is the efficacy endpoint this object carries. There is no set of efficacy endpoints to have chosen between, so the selection concern cannot arise."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D2 and D3 are NO_INFORMATION on every cohort here, and under RoB 2 an unjudgeable domain cannot yield LOW overall. Where D4 or D5 is also SOME_CONCERNS the reason is named in that domain."
+    }
+   }
+  },
+  "sources_read": [
+   "ClinicalTrials.gov API v2 NCT00380393 -- design module, eligibility module, location module and registered primary outcomes",
+   "ClinicalTrials.gov API v2 NCT00436007 -- design module, eligibility module, location module and registered primary outcomes",
+   "ClinicalTrials.gov API v2 NCT00866619 -- design module, eligibility module, location module and registered primary outcomes",
+   "ClinicalTrials.gov API v2 NCT03143218 -- design module, eligibility module, location module and registered primary outcomes",
+   "ClinicalTrials.gov API v2 NCT03276962 -- design module, eligibility module, location module and registered primary outcomes",
+   "ClinicalTrials.gov API v2 NCT03896724 -- design module, eligibility module, location module and registered primary outcomes",
+   "ClinicalTrials.gov API v2 NCT04704830 -- design module, eligibility module, location module and registered primary outcomes"
+  ],
+  "sources_NOT_read": "The trial publications. D2 and D3 depend on them and are NO_INFORMATION for that reason.",
+  "ceiling": {
+   "statement": "A domain that cannot be judged from the sources read is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect. Overall is capped at SOME_CONCERNS wherever a domain is NO_INFORMATION.",
+   "shape_note": "A DICT, NOT A STRING -- paper_projector does ceil.get('statement') and a bare string collapses the manuscript to a projector-failed banner (registry class 70)."
+  },
+  "TWO_COHORTS_ARE_OPEN_LABEL": "NCT03276962 and NCT00436007 both register MASKING: NONE, on an endpoint that is clinical malaria against a case definition. NCT03276962 CONTRIBUTES TO A POOLED ESTIMATE, so an open-label result reaches a pooled number on this topic.",
+  "ONE_COHORT_REGISTERS_NO_EFFICACY_PRIMARY": "NCT00436007's ONLY registered primary outcome is SERIOUS ADVERSE EVENTS. The result carried from it here is an efficacy outcome, which is not a registered primary on that trial at all. Same shape as NCT00081744 on tigecycline-ciai (open item O0a).",
+  "ONE_ASSESSOR_ONLY": "ASSESSED BY ONE ASSESSOR. Under the standing specification that risk of bias 2 must be complete and done by TWO AIs from different model families, THIS ASSESSMENT IS INCOMPLETE. Recorded as such, and `rob2.assessors` is deliberately NOT written."
+ },
+ "grade": {
+  "approach": "GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.",
+  "assessed_utc": "2026-08-21",
+  "by_outcome": {
+   "r21_seasonal_first_12m": {
+    "k": 2,
+    "starting_certainty": "HIGH",
+    "certainty": "MODERATE",
+    "steps": [
+     {
+      "domain": "risk_of_bias",
+      "move": "HIGH to MODERATE, down 1 level(s)",
+      "reason": "Both contributing results are SOME_CONCERNS. On NCT03896724 the OUTCOMES ASSESSOR IS NOT MASKED and the endpoint is clinical malaria against a case definition; on NCT04704830 FOUR primary outcomes are registered and this object draws three result blocks from it without recording which registered primary each answers. D2 and D3 are NO_INFORMATION on both."
+     },
+     {
+      "domain": "inconsistency",
+      "move": "no downgrade",
+      "reason": "tau-squared is EXACTLY ZERO, Q 0.1594 on 1 df, p = 0.6897, I-squared 0.00%. The two estimates -- 0.23 (0.16 to 0.33) and 0.21 (0.16 to 0.27) -- agree in size and conclusion. Downgrading would manufacture a caution the numbers do not support."
+     },
+     {
+      "domain": "indirectness",
+      "move": "no downgrade",
+      "reason": "Both trials test the SAME vaccine in the SAME age band under the SEASONAL regimen this block is defined by, which is the question asked. RECORDED AND NOT USED TO DOWNGRADE: the two come from ONE research programme, and NCT04704830's registered location list names only the United Kingdom, so its African sites are not established from the registry. Neither fact changes what the endpoint measures."
+     },
+     {
+      "domain": "imprecision",
+      "move": "no downgrade",
+      "reason": "k = 2, which normally warrants one. IT IS NOT APPLIED HERE AND THE REASON IS THE INTERVAL: this project's floored Hartung-Knapp interval at k = 2 is 0.0548 to 0.8566 on t = 12.7062 with 1 df, and it EXCLUDES no effect. The adjusted interval contains no clinically important harm at either end, so calling the estimate imprecise would be a caution the arithmetic contradicts."
+     },
+     {
+      "domain": "publication_bias",
+      "move": "NOT ASSESSABLE -- no rating applied",
+      "reason": "k = 2. A funnel plot and its asymmetry tests have essentially no power below about ten trials (Handbook 13.3.5.4), so this is NOT ASSESSABLE rather than 'undetected'."
+     }
+    ],
+    "summary": "MODERATE certainty. The two R21 trials agree closely and the effect is large enough to survive the small-sample adjustment, so the single downgrade is for unmasked outcome assessment on one trial and an unrecorded mapping to four registered primaries on the other.",
+    "rating_up_not_applied": "No domain is rated UP. Rating up for a large effect, a dose-response gradient or opposing plausible confounding applies to observational evidence; these are randomised trials, which start HIGH."
+   },
+   "rtss_recurrent_children_final": {
+    "k": 2,
+    "starting_certainty": "HIGH",
+    "certainty": "LOW",
+    "steps": [
+     {
+      "domain": "risk_of_bias",
+      "move": "HIGH to MODERATE, down 1 level(s)",
+      "reason": "ONE OF THE TWO CONTRIBUTING TRIALS IS OPEN LABEL. NCT03276962 registers masking NONE, and the endpoint is clinical malaria meeting a case definition -- a presentation-and-judgement endpoint on which neither the family's decision to attend nor the clinician's application of the definition was blinded. THAT REACHES A POOLED ESTIMATE. The other trial is quadruple-masked but registers two primaries. D2 and D3 NO_INFORMATION on both."
+     },
+     {
+      "domain": "inconsistency",
+      "move": "no downgrade",
+      "reason": "tau-squared EXACTLY ZERO, Q 0.0013 on 1 df, p = 0.9707, I-squared 0.00%. 0.637 (0.595 to 0.682) and 0.64 (0.50 to 0.81) agree almost exactly."
+     },
+     {
+      "domain": "indirectness",
+      "move": "MODERATE to LOW, down 1 level(s)",
+      "reason": "THE TWO TRIALS DO NOT GIVE THE SAME VACCINE SCHEDULE. NCT00866619 gives the full-dose primary series; NCT03276962 is a FRACTIONAL-DOSE trial. A single pooled incidence-rate ratio assembled across a full dose and a fractional dose is not cleanly an estimate of either regimen, and a reader deciding which schedule to deploy is not answered by it."
+     },
+     {
+      "domain": "imprecision",
+      "move": "no downgrade",
+      "reason": "k = 2. The floored Hartung-Knapp interval is 0.4163 to 0.9753 on t = 12.7062 with 1 df and it EXCLUDES no effect. STATED BECAUSE THE RAW STATISTIC WOULD MISLEAD: metafor's unfloored knha interval here is 0.6273 to 0.6473, FOUR TIMES NARROWER THAN THE UNADJUSTED interval, because Q is 0.0013 against 1 df. The house floor on the variance-inflation factor is what prevents that number being shown."
+     },
+     {
+      "domain": "publication_bias",
+      "move": "NOT ASSESSABLE -- no rating applied",
+      "reason": "k = 2. Handbook 13.3.5.4."
+     }
+    ],
+    "summary": "LOW certainty. The two trials agree almost exactly and the effect survives the small-sample adjustment, but ONE OF THEM IS OPEN LABEL on a judged endpoint and THE TWO GIVE DIFFERENT DOSES -- so the downgrades are for how the evidence was produced and what the pooled quantity is, not for how consistent or how precise it is.",
+    "rating_up_not_applied": "No domain is rated UP. Rating up for a large effect, a dose-response gradient or opposing plausible confounding applies to observational evidence; these are randomised trials, which start HIGH."
+   }
+  },
+  "outcomes_NOT_rated_and_why": "SEVEN of this object's nine outcome blocks carry NO POOLED ESTIMATE -- they are single-cohort results. GRADE here is applied PER POOLED OUTCOME, per the page standard, so those seven are not rated. Their risk of bias IS assessed, per result, above."
+ },
+ "published_comparison": {
+  "_why": "P46 limb 3.",
+  "_how_identified": "PubMed E-utilities esearch + esummary, executed 2026-08-21. Query, counts and per-record disposition in ssot/malaria-vaccines/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json.",
+  "denominator": {
+   "matched": 28,
+   "retrieved": 28,
+   "read": 28,
+   "appraised": 2,
+   "flagged_by_title": 15,
+   "not_returned_by_the_tool": 0,
+   "_house_form": "matched / retrieved / read / appraised / not returned -- P53. 15 flagged by title; 2 appraised against their abstracts and every other record NOT READ beyond its title and summary."
+  },
+  "identity_basis": "NEITHER APPRAISED REVIEW NAMES ITS INCLUDED STUDIES and no included-study table was opened, so both counts are COUNTED AND NOT IDENTIFIED.",
+  "reviews": [
+   {
+    "pmid": "42204567",
+    "year": 2026,
+    "journal": "(indexed 2026)",
+    "citation": "Efficacy and safety of RTS,S and R21 malaria vaccines in children under five in Africa: a systematic review and meta-analysis of randomized controlled trials. (indexed 2026)",
+    "title": "Efficacy and safety of RTS,S and R21 malaria vaccines in children under five in Africa: a systematic review and meta-analysis of randomized controlled trials",
+    "their_k": 11,
+    "their_k_basis": "QUOTED FROM THE ABSTRACT: 'Eleven studies enrolling 27,178 participants (RTS,S: 21,589; R21: 5589) were included.' A COUNT OF STUDIES, and this object counts randomised COHORTS -- see the finding, where that difference is stated as unresolved.",
+    "trial_set": [
+     "NOT NAMED -- eleven studies, 27,178 participants"
+    ],
+    "trial_set_basis": "NOT READ. The abstract names none of its included studies, so which studies it carries is COUNTED AND NOT IDENTIFIED.",
+    "design": "systematic review and meta-analysis of randomised controlled trials; PubMed, Scopus and Embase; African children under five",
+    "n_pooled": 27178,
+    "scope": "efficacy against clinical malaria and safety, for RTS,S AND R21 TOGETHER in one review",
+    "outcome_pooled": "efficacy against clinical malaria and safety, RTS,S and R21 reported in one review",
+    "comparable_to_ours": true,
+    "how_it_differs_from_ours": "IT PUTS BOTH VACCINES IN ONE REVIEW AND THIS OBJECT DELIBERATELY DOES NOT POOL ACROSS THEM. Their per-vaccine efficacy figures are reported separately in the abstract, so the two are not in conflict about arithmetic -- they differ about SCOPE. On count: eleven studies against this object's eight cohorts.",
+    "agreement": "NOT A NUMERIC DISAGREEMENT. They report per-vaccine pooled efficacy and this object reports per-vaccine, per-regimen blocks; no two quantities were matched closely enough to compare, and none is claimed to."
+   },
+   {
+    "pmid": "42001650",
+    "year": 2026,
+    "journal": "(indexed 2026)",
+    "citation": "Efficacy and immunogenicity of RTS,S/AS01 and R21/Matrix-M malaria vaccines: systematic review. (indexed 2026)",
+    "title": "Efficacy and immunogenicity of RTS,S/AS01 and R21/Matrix-M malaria vaccines: systematic review and meta-analysis",
+    "their_k": 8,
+    "their_k_basis": "QUOTED FROM THE ABSTRACT: 'after which 8 were included in our final review'. EQUAL TO THIS OBJECT'S EIGHT COHORTS, though the units may not be the same -- see the finding.",
+    "trial_set": [
+     "NOT NAMED -- eight included studies"
+    ],
+    "trial_set_basis": "NOT READ. The abstract names none of its included studies.",
+    "design": "systematic review and meta-analysis; databases searched for studies published between 2000 and 2024",
+    "scope": "efficacy and immunogenicity of both vaccines",
+    "outcome_pooled": "efficacy and immunogenicity of both vaccines",
+    "comparable_to_ours": true,
+    "how_it_differs_from_ours": "SAME COUNT AS OURS -- eight -- and also spans both vaccines. Whether their eight and our eight are the same eight is NOT ESTABLISHED: neither names its set.",
+    "agreement": "COUNT EQUAL. No numeric comparison was attempted."
+   }
+  ],
+  "THE_FINDING_OF_THIS_COMPARISON_2026_08_21": "A PUBLISHED SYNTHESIS OF THIS QUESTION INCLUDED ELEVEN STUDIES AND 27,178 PARTICIPANTS where this object carries EIGHT randomised cohorts (PMID 42204567). A second review indexed the same year states EIGHT (PMID 42001650) -- equal to ours. Class 82: on the larger of the two we are lower, and on neither is the trial set named, so both are COUNTED AND NOT IDENTIFIED. THE UNITS MAY NOT BE THE SAME. This object counts at the level of the RANDOMISED COHORT and records, in its own scope decisions, SEVEN cohorts whose further reports at longer follow-up were deliberately set aside as second reports of one study -- Handbook 4.6.1, 'Studies (not reports) as the unit of interest'. A review counting STUDIES as publications would count some of those separately. THAT IS A HYPOTHESIS AND NOT A FINDING: neither review names its set, so whether their eleven includes reports our rule merges HAS NOT BEEN ESTABLISHED. It is recorded because everywhere else in this corpus a lower count has had no stated reason at all. KEEP THE TWO VACCINES APART. Both published reviews put RTS,S and R21 in one review; this object holds nine separate outcome blocks and pools across vaccines in none of them. The vaccines differ in adjuvant, antigen dose and schedule, and their reported efficacies differ substantially. This is a scope difference, not an arithmetic disagreement, and no number here contradicts a number there. STATED SO THE COMPARISON IS NOT READ AS STRONGER THAN IT IS. Two records were appraised against their abstracts out of 28 matched and 28 read; no included-study table was opened and no full text was retrieved. No quantity of theirs was matched to a quantity of ours closely enough to call it agreement or disagreement, and none is claimed."
+ }
 }
