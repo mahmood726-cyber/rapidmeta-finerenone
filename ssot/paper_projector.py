@@ -956,6 +956,15 @@ def project(obj, journal="generic", length="standard"):
     s = Section("title", "Title and review question")
     _title, _question = get(obj, "title") or "", get(obj, "question") or ""
     s.add(obj, _title, ["title"])
+    # A POINTER TO ANOTHER REVIEW, AT THE TOP, WHERE A READER ARRIVES.
+    #
+    # `malaria-vaccine` is NOT POOLABLE and `malaria-vaccines` pools the same two vaccines, and
+    # read side by side without this the two pages contradict each other. They do not -- they
+    # ask different questions -- but a reader cannot know that from either page alone, and a
+    # pointer buried in the back matter is one nobody meets. Nothing is withdrawn by it.
+    for _pk in sorted(k for k in obj if str(k).startswith("pointer_to_another_review")):
+        if isinstance(obj[_pk], str) and obj[_pk].strip():
+            s.add(obj, obj[_pk].strip(), [_pk])
     if _question and _question == _title:
         # THE OBJECT RECORDS THE SAME STRING TWICE, on 10 topics. Printing it twice is not
         # a manuscript, and silently printing it once hides that the review's QUESTION is

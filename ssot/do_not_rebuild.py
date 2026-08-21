@@ -40,13 +40,25 @@ PAGES = {
         "AUTHORED DOCMODEL MANUSCRIPT. The projector reproduces roughly 26% of it, so a "
         "rebuild replaces written argument with a projection. Standing instruction from "
         "Mahmood; ssot/manuscript_guard.py is the second line, not the first."),
-    "TIGECYCLINE_CIAI_SSOT.html": (
-        "BUILT BY DIFFERENT CODE AND NOT IN PAGE_MAP. 36 KB where a tabbed build is 1.6 MB. "
-        "Rebuilding it REPLACES A PAGE A READER ALREADY HAS with one produced by another "
-        "generator, which is a publication decision and belongs to Mahmood. Recorded as held "
-        "on 2026-08-21, then rebuilt the same day by the author who recorded it -- which is "
-        "why this list exists in the builder rather than in a report."),
 }
+
+# RELEASED 2026-08-21, DECIDED BY MAHMOOD, RECORDED HERE RATHER THAN IN A REPORT.
+#
+#     TIGECYCLINE_CIAI_SSOT.html   was protected because it is built by different code -- 36 KB
+#                                  where a tabbed build is 1.6 MB -- and was NOT in PAGE_MAP, so
+#                                  rebuilding it REPLACED A PAGE A READER ALREADY HAD with one
+#                                  from another generator. That is a publication decision and it
+#                                  was not the author's to take; it was taken anyway, the same
+#                                  day it was recorded, which is why this list moved into the
+#                                  builder.
+#
+# BEFORE RELEASING IT THE OLD PAGE WAS READ, not assumed reproducible. 142 visible blocks,
+# 29,372 characters. Four blocks contain wording not present in the object; three are table
+# headers (`Source of this cell`, `Sources`, `Layer Source How it was obtained`). The fourth is
+# a Paule-Mandel sensitivity row, `PM ordinary (Wald) 0.9348 (0.8864 to 0.9859) 0.000178` -- and
+# every number in it IS on the object, under an estimator-comparison block keyed
+# `between_study_variance_estimator: "PM"`. Only the expansion of the abbreviation was display
+# sugar. Nothing a reader currently has is lost by the rebuild.
 
 
 def check(out_path):
