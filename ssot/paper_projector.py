@@ -1645,6 +1645,48 @@ def project(obj, journal="generic", length="standard"):
               ["risk_of_bias.ceiling.statement"])
     if rob.get("default_rule"):
         s.add(obj, str(rob["default_rule"]), ["risk_of_bias.default_rule"])
+
+    # THE SECOND ASSESSOR, AND THE DISAGREEMENT RATE. Added 2026-08-21.
+    #
+    # Mahmood's standing specification is that RoB 2 must be done by TWO AIs. Three topics now
+    # carry a blind cross-family second assessment with its verbatim reply and its disagreement
+    # rate -- AND NONE OF IT RENDERED. The projector read `tool`, `ceiling`, `default_rule` and
+    # `by_outcome`, so a reader met an assessment with no indication that a second assessor had
+    # ever seen it, or that it disagreed. CLASS 83, ON THE ONE THING THE SPECIFICATION NAMES,
+    # recorded on the same night the delivery audit was built for exactly this failure.
+    #
+    # The one-assessor disclosure is rendered too. A page whose assessment is incomplete
+    # against the specification should say so where the assessment is.
+    for _k in sorted(k for k in rob if k.startswith("SECOND_ASSESSOR")):
+        _sa = rob.get(_k)
+        if not isinstance(_sa, dict):
+            continue
+        for _f, _lead in (("assessor_2", "A SECOND, INDEPENDENT ASSESSMENT WAS OBTAINED FROM"),
+                          ("assessor_1", "The assessment above was made by"),
+                          ("how_it_was_asked", "How the second assessor was asked"),
+                          ("DISAGREEMENT_RATE", "THE DISAGREEMENT RATE, reported as "
+                                                "disagreement because agreement between two "
+                                                "assessors given the same facts authenticates "
+                                                "nothing"),
+                          ("the_disagreement", "Where they disagree"),
+                          ("verbatim_reply", "The second assessor's reply, verbatim"),
+                          ("not_changed_here", "What has NOT been changed on the strength of "
+                                               "it")):
+            _v = _sa.get(_f)
+            if isinstance(_v, str) and _v.strip():
+                s.add(obj, "%s: %s" % (_lead, _v.strip()),
+                      ["risk_of_bias.%s.%s" % (_k, _f)])
+        _td = _sa.get("the_three_disagreements")
+        if isinstance(_td, dict):
+            for _dk in sorted(_td):
+                if isinstance(_td[_dk], str) and _td[_dk].strip():
+                    s.add(obj, "Disagreement -- %s: %s"
+                          % (str(_dk).replace("_", " "), _td[_dk].strip()),
+                          ["risk_of_bias.%s.the_three_disagreements" % _k])
+    _one = rob.get("ONE_ASSESSOR_ONLY")
+    if isinstance(_one, str) and _one.strip() and not any(
+            k.startswith("SECOND_ASSESSOR") for k in rob):
+        s.add(obj, _one.strip(), ["risk_of_bias.ONE_ASSESSOR_ONLY"])
     # `by_outcome` IS THE SHAPE THIS CORPUS ACTUALLY USES, and it was not in this list.
     #
     # Measured 2026-08-20 across 155 objects: ONE object holds risk of bias under
