@@ -1352,6 +1352,18 @@ def project(obj, journal="generic", length="standard"):
         if _fnd_txt:
             s.paras.append((_fnd_txt,
                             [p.replace("<this outcome>", oid) for p in _fnd_f]))
+    # AND A POINTER TO THE TRANSCRIPT, so the guarantee is reachable from the body.
+    # The verbatim model output is no longer a numbered section of the article; it sits at the
+    # end as Extended data, where this venue puts material that supports the claims and is not
+    # prose. A reader of Results should not have to discover that by scrolling.
+    if any(((b or {}).get("r_output") or {}).get("verbatim")
+           for b in (get(obj, "results.by_outcome") or {}).values()):
+        s.add(obj, "The full model output for every pooled outcome -- the call, the "
+                   "estimator, the heterogeneity statistics and the back-transformed "
+                   "interval -- is reproduced verbatim as Extended data at the end of this "
+                   "article, so every number above can be checked against the software that "
+                   "produced it.",
+              ["results.by_outcome"])
     secs.append(s)
 
     # ---- LIMITATIONS ------------------------------------------------------------------
@@ -1891,13 +1903,18 @@ def project(obj, journal="generic", length="standard"):
                            "given", ["published_comparison"]))
     secs.append(s)
 
-    # ---- STATISTICAL OUTPUT, QUOTED VERBATIM -------------------------------------------
+    # ---- EXTENDED DATA: STATISTICAL OUTPUT, QUOTED VERBATIM ----------------------------
     #
     # THE SECTION THAT WAS NEARLY MISCLASSIFIED. A first probe looked at
     # `results.cross_engine` and reported this as a CONTENT gap. It lives one level lower,
     # per outcome, at `results.by_outcome.<oid>.r_output.verbatim` -- present for every
     # outcome, with the R call and the package versions. An absence my own search reported.
-    s = Section("statistical_output", "Statistical output, quoted verbatim")
+    # F1000Research's own name for it. The venue defines "Extended data" as "Additional
+    # materials that support the key claims in the paper but are not a part of the main body",
+    # and lists Supplementary Material after the declarations. That is exactly what a metafor
+    # transcript is: it supports the estimate and it is not prose.
+    s = Section("statistical_output",
+                "Extended data: statistical output, quoted verbatim")
     any_out = False
     for oid, blk in sorted((get(obj, "results.by_outcome") or {}).items()):
         ro = (blk or {}).get("r_output") or {}
@@ -2368,18 +2385,52 @@ def project(obj, journal="generic", length="standard"):
 # The fix is a declared reading order applied at the end rather than a reshuffle of the
 # builders, so no section builder changes and a section that is added later and not listed
 # here keeps its position relative to the rest instead of vanishing.
+# THE ORDER IS THE VENUE'S, READ FROM THE VENUE. F1000Research, "Preparing a Systematic
+# Review article", retrieved 2026-08-21. Its canonical element order is:
+#
+#     Authors / Title / Abstract / Keywords / Main Body / Data and Software Availability /
+#     Reporting Guidelines / Author Contributions / Competing Interests / Grant Information /
+#     Acknowledgments / Supplementary Material / References and footnotes / Figures and Tables
+#
+# and, verbatim, "For most Systematic Reviews, the following standard format will be the most
+# appropriate: Introduction / Methods / Results / Conclusions/Discussion".
+#
+# THREE THINGS THE PREVIOUS ORDER GOT WRONG, and each one on its own reads as machine output:
+#
+#   KEYWORDS SAT AT POSITION 21, AFTER REFERENCES. The venue puts it directly after the
+#   Abstract, and References AFTER the declarations rather than before them.
+#
+#   FIVE NON-ARTICLE SECTIONS SAT BETWEEN RESULTS AND DISCUSSION -- statistical output, risk
+#   of bias, certainty, comparison with published syntheses, disagreements between sources.
+#   Those are parts OF Results and OF the Discussion, not peers of them, and interleaving
+#   them breaks the one structure a reader of this venue expects.
+#
+#   METHODS WAS FIVE SIBLING TOP-LEVEL SECTIONS rather than one. They keep their own headings
+#   and their own content; they are simply consecutive now, so "Methods" reads as one thing.
+#
+# AND THE R CONSOLE TRANSCRIPT IS NO LONGER A NUMBERED SECTION OF THE ARTICLE. P46 limb 4
+# requires it verbatim and it is not deleted or shortened -- it moves to the end, after the
+# declarations, where this venue puts Supplementary Material and Extended data. Results
+# references it. A `rma(yi = log(hr), sei = ...)` call with `Signif. codes: 0 '***' 0.001` in
+# the body of a paper does not read LIKE computer code; in that section it IS computer code.
 READING_ORDER = [
-    "title", "abstract", "introduction",
+    # ---- front matter -------------------------------------------------------------------
+    "title", "abstract", "keywords", "introduction",
+    # ---- Main Body: Methods, as one section in five parts -------------------------------
     "methods_search", "methods_eligibility", "methods_flow", "methods_withholding",
     "methods_synthesis",
-    "results", "statistical_output", "risk_of_bias", "certainty",
-    "published_comparison", "disagreements",
-    "discussion", "conclusions", "limitations",
-    "not_written", "funding", "references", "keywords",
-    "data_availability", "software_availability", "note_on_registration",
-    "competing_interests", "grant_information", "author_contributions",
-    "reporting_guidelines", "prospero",
-    "trial_characteristics", "figure_legends", "figures", "submission_conformance",
+    # ---- Main Body: Results, with what belongs to it ------------------------------------
+    "results", "risk_of_bias", "certainty",
+    # ---- Main Body: Discussion, with what belongs to it ---------------------------------
+    "discussion", "published_comparison", "disagreements", "limitations", "conclusions",
+    # ---- declarations, in the venue's order ---------------------------------------------
+    "data_availability", "software_availability", "reporting_guidelines",
+    "author_contributions", "competing_interests", "grant_information", "funding",
+    "note_on_registration", "prospero",
+    # ---- references and display items ---------------------------------------------------
+    "references", "figure_legends", "figures", "trial_characteristics",
+    # ---- supplementary and apparatus, after everything a reader reads as the paper -------
+    "statistical_output", "not_written", "submission_conformance",
 ]
 
 

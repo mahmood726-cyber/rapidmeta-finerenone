@@ -719,11 +719,24 @@ def _projected_paper_html(canon):
             out.append("<div class='absent-state' role='note'><strong>Refused:</strong> "
                        "%s%s</div>" % (e(what), _mark(missing)))
         if sources:
-            out.append("<div class='prov-block'><p class='prov-title'>Where the statements "
-                       "in this section come from, in order</p><ol class='prov-list'>")
+            # COLLAPSED, CLOSED BY DEFAULT. NOTHING IS REMOVED -- every field path is still
+            # here and still one action away.
+            #
+            # THIRD PLACEMENT OF THESE, AND THE FIRST TWO BOTH MADE IT WORSE. They began
+            # inline inside sentences; they were moved out into their own headed blocks,
+            # which made them MORE visible, not less. Measured on the delivered SGLT2 panel:
+            # 33 provenance headers and 58 bare field-name blocks -- `title`, `question`,
+            # `search.databases[0]`, `k_cascade.k_unscreened_remainder` -- standing between
+            # every section, 9.1% of the panel's words against ARNI's 0.2%.
+            #
+            # THE TEST IS NOT WHERE THEY LIVE, IT IS WHETHER A READER WHO IS NOT LOOKING FOR
+            # THEM EVER MEETS ONE. A <details> element answers that: the summary is one short
+            # line, the paths are behind it, and a reader who wants the sources opens it.
+            out.append("<details class='prov-block'><summary class='prov-title'>Sources for "
+                       "this section (%d)</summary><ol class='prov-list'>" % len(sources))
             for src in sources:
                 out.append("<li><code>%s</code></li>" % e(src))
-            out.append("</ol></div>")
+            out.append("</ol></details>")
     out.append("</div>")
     return NL.join(out)
 
@@ -1210,10 +1223,12 @@ def build(canon):
     tag. The block announces itself; reading it is optional, knowing it is there is not. */
  .prov-ref{font-size:.68em;line-height:0;vertical-align:super;color:var(--accent);
        font-family:var(--sans,system-ui,sans-serif);padding-left:.15em}
- .prov-block{margin:.6rem 0 1.4rem;padding:.5rem .8rem;border-left:2px solid var(--line);
+ .prov-block{margin:.4rem 0 1.2rem;padding:0;border:0;background:none}
+ .prov-title{margin:0;font-size:.72rem;letter-spacing:.02em;color:var(--muted);
+       font-family:var(--sans,system-ui,sans-serif);cursor:pointer;opacity:.65}
+ .prov-block[open]>.prov-title{margin-bottom:.35rem;opacity:1}
+ .prov-block[open]{padding:.5rem .8rem;border-left:2px solid var(--line);
        background:var(--soft)}
- .prov-title{margin:0 0 .3rem;font-size:.78rem;letter-spacing:.02em;color:var(--muted);
-       font-family:var(--sans,system-ui,sans-serif);text-transform:uppercase}
  .prov-list{margin:0;padding-left:1.4rem}
  .prov-list li{font-size:.78rem;line-height:1.45;color:var(--muted)}
  .prov-list code{font-size:.95em;word-break:break-word}
