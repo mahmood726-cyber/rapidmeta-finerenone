@@ -93,6 +93,44 @@ def _add_bookkeeping(s, obj, field):
     return bool(t) and s.add(obj, t, src)
 
 
+def _drafted(obj, section):
+    """The drafted interpretive claims for one section, newest dated key wins.
+
+    A DRAFT IS NEVER RETURNED AS THOUGH IT WERE READ. The caller renders these in a marked
+    block, separately from projected facts, because the author replaces them by dictation and
+    must be able to see at a glance which sentences are his to replace.
+    """
+    k = next((x for x in sorted(obj) if str(x).startswith("manuscript_draft_")
+              and isinstance(obj[x], dict)), None)
+    if not k:
+        return []
+    # READING ORDER, NOT KEY ORDER. Sorted alphabetically, the Discussion opened with
+    # "whether the effect size is clinically meaningful" and reached "why this result differs
+    # from the published ones" last -- a paper does not argue in alphabetical order.
+    order = ["why_the_question_is_open", "why_a_new_synthesis",
+             "what_the_evidence_shows", "is_the_effect_size_clinically_meaningful",
+             "is_the_heterogeneity_clinically_important",
+             "why_this_differs_from_published", "is_the_evidence_base_adequate",
+             "was_the_search_broad_enough", "what_further_evidence_would_change_it",
+             "implication_for_practice", "implication_for_policy",
+             "implication_for_research"]
+    out = []
+    for ck, cv in (obj[k].get("claims") or {}).items():
+        if isinstance(cv, dict) and cv.get("section") == section and cv.get("is_a_draft"):
+            out.append((order.index(ck) if ck in order else 99, ck, cv,
+                        "%s.claims.%s.draft" % (k, ck)))
+    return [(ck, cv, path) for _n, ck, cv, path in sorted(out)]
+
+
+def _add_drafts(s, obj, section):
+    n = 0
+    for ck, cv, path in _drafted(obj, section):
+        if s.add(obj, "DRAFT FOR THE AUTHOR TO REPLACE -- %s. %s"
+                 % (cv.get("the_claim", ck.replace("_", " ")), cv.get("draft", "")), [path]):
+            n += 1
+    return n
+
+
 def _manuscript_prose(obj, key):
     """Authored manuscript prose, from `manuscript.<key>`, flattened to one string.
 
@@ -1631,7 +1669,9 @@ def project(obj, journal="generic", length="standard"):
                         else None))
     _intro = (get(obj, "protocol.rationale") if _intro_src == "protocol.rationale"
               else _manuscript_prose(obj, "introduction"))
-    if not (_intro_src and s.add(obj, "Background. %s" % _intro, [_intro_src])):
+    _intro_ok = bool(_intro_src and s.add(obj, "Background. %s" % _intro, [_intro_src]))
+    _add_drafts(s, obj, "Introduction")
+    if not _intro_ok and not _drafted(obj, "Introduction"):
         s.refusals.append(("the Introduction -- no background or rationale is recorded on "
                            "this object. This is a CONTENT gap, not a rendering one: no "
                            "change to this projector produces it, and it is written by "
@@ -2039,11 +2079,18 @@ def project(obj, journal="generic", length="standard"):
         _src = (field if get(obj, field)
                 else ("manuscript.%s" % field if _manuscript_prose(obj, field) else None))
         _txt = (get(obj, field) if _src == field else _manuscript_prose(obj, field))
-        if not (_src and s.add(obj, str(_txt), [_src])):
+        _has = bool(_src and s.add(obj, str(_txt), [_src]))
+        # THE DRAFTS, AFTER ANY AUTHORED TEXT AND AFTER THE REFUSAL DECISION.
+        #
+        # A topic the author has written reads as a finished paper: his prose first, and the
+        # drafts still beneath it so he can see what they said. A topic he has not touched
+        # reads as a full draft he can dictate over rather than an empty refusal.
+        if not _has and not _drafted(obj, heading):
             s.refusals.append(("the %s -- this is a CONTENT gap. The object records no "
                                "interpretive text, and none is generated here: a %s "
                                "written by the renderer would be an argument no field "
                                "supports" % (heading, heading.lower()), [field]))
+        _add_drafts(s, obj, heading)
         secs.append(s)
 
     # ---- SECTIONS NOT WRITTEN, AND WHY -------------------------------------------------

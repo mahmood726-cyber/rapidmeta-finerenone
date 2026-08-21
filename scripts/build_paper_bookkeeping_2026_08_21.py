@@ -236,12 +236,9 @@ def introduction(obj):
         parts.append("Every count and denominator behind those estimates is read as follows. "
                      + (prov if prov.endswith(".") else prov + "."))
     parts.append(
-        "WHAT THIS PARAGRAPH DOES NOT CONTAIN, AND WHY. Why the question is open, what this "
-        "review adds to what was already known, and what the pooled effect means clinically "
-        "are JUDGEMENTS, not fields, and no field on this object can back them. They are owed "
-        "and they are not written here; assembling them from the numbers above would be "
-        "inventing a rationale to fit a result. Everything above is derived from stored "
-        "fields and nothing in it is authored.")
+        "Everything in this paragraph is derived from stored fields and none of it is "
+        "authored. The interpretive sentences that follow are marked as drafts and are the "
+        "author's to replace.")
     return "\n\n".join(parts)
 
 

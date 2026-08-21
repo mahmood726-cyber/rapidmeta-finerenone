@@ -1,0 +1,383 @@
+"""Draft the twelve interpretive claims as scaffolding the author dictates over.
+
+THE RULE THAT DOES NOT RELAX. A drafted sentence asserts NOTHING the object cannot back.
+
+    "The interval excludes no effect"                                   the object holds it
+    "One interval includes no effect and the other excludes it, I2 68.8%"   all three held
+    "This is a clinically meaningful reduction"                          NO FIELD. Never written.
+
+Where the claim genuinely needs a judgement no field can make, the draft STATES THE FACTS THE
+JUDGEMENT NEEDS AND STOPS, and names the judgement as the author's. That gives him something to
+dictate over instead of a blank, and it cannot smuggle a conclusion past him -- A PLAUSIBLE
+SENTENCE IS THE ONE MOST LIKELY TO SURVIVE DICTATION UNEXAMINED, which is exactly why none is
+written.
+
+EVERY DRAFT STAYS DISTINGUISHABLE FROM WHAT WAS READ. They live under one dated key, each entry
+carries `is_a_draft: true` and the fields it rests on, and the projector renders them in a
+marked block. A future pass can always tell what we wrote from what we read; a draft must never
+quietly become a fact.
+"""
+import glob
+import importlib.util
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import atomic_write                                            # noqa: E402
+
+_q = importlib.util.spec_from_file_location(
+    "p46_queue", os.path.join(REPO, "scripts", "p46_queue.py"))
+p46 = importlib.util.module_from_spec(_q)
+_q.loader.exec_module(p46)
+
+TODAY = "2026-08-21"
+FIELD = "manuscript_draft_%s" % TODAY.replace("-", "_")
+AUTHOR = "This sentence is the author's judgement and is not derivable from any field here."
+
+
+def g(o, path, d=None):
+    cur = o
+    for p in path.split("."):
+        if not isinstance(cur, dict):
+            return d
+        cur = cur.get(p)
+    return d if cur is None else cur
+
+
+def num(x, n=3):
+    try:
+        f = float(x)
+    except (TypeError, ValueError):
+        return None
+    s = ("%.*f" % (n, f)).rstrip("0").rstrip(".")
+    return s or "0"
+
+
+def interval(p):
+    if not isinstance(p, dict):
+        return None
+    pt, lo, hi = num(p.get("point")), num(p.get("ci_low")), num(p.get("ci_high"))
+    if not (pt and lo and hi):
+        return None
+    return "%s (%s%% CI %s to %s)" % (pt, p.get("ci_level", 95), lo, hi)
+
+
+def crosses_null(p, measure):
+    """Does this interval include no effect? Ratio measures null at 1, differences at 0."""
+    try:
+        lo, hi = float(p["ci_low"]), float(p["ci_high"])
+    except (KeyError, TypeError, ValueError):
+        return None
+    null = 1.0 if str(measure).upper() in ("RR", "OR", "HR", "IRR", "RATIO") else 0.0
+    return lo <= null <= hi
+
+
+def primary_block(obj):
+    # THE FIRST BLOCK WITH A USABLE INTERVAL, not the first with a `pooled` key. sglt2-hf's
+    # first block holds a `pooled` dict with no interval, so taking it reported NO POOLED
+    # INTERVAL on a topic carrying several -- 4 of 28 lost this way.
+    by = (obj.get("results") or {}).get("by_outcome") or {}
+    for k, v in by.items():
+        if isinstance(v, dict) and interval(v.get("pooled")):
+            return k, v
+    for k, v in by.items():
+        if isinstance(v, dict) and isinstance(v.get("pooled"), dict):
+            return k, v
+    return None, None
+
+
+def grade_for(obj, oid):
+    g_ = ((obj.get("grade") or {}).get("by_outcome") or {}).get(oid)
+    return g_ if isinstance(g_, dict) else {}
+
+
+def andlist(xs):
+    xs = [x for x in xs if x]
+    if len(xs) <= 1:
+        return xs[0] if xs else ""
+    return ", ".join(xs[:-1]) + " and " + xs[-1]
+
+
+def downgrades(gr):
+    out = []
+    for st in (gr.get("steps") or []):
+        if isinstance(st, dict) and "down" in str(st.get("move", "")).lower():
+            out.append(str(st.get("domain", "")).replace("_", " "))
+    return out
+
+
+def facts(obj):
+    """Everything the twelve drafts are allowed to rest on, read once."""
+    oid, blk = primary_block(obj)
+    if not blk:
+        return None
+    gr = grade_for(obj, oid)
+    per = [t for t in (blk.get("per_trial") or []) if isinstance(t, dict)]
+    meas = blk.get("measure") or (blk.get("pooled") or {}).get("measure") or ""
+    cross = [crosses_null(t, meas) for t in per]
+    het = blk.get("heterogeneity") or {}
+    pc = obj.get("published_comparison") or {}
+    revs = [r for r in (pc.get("reviews") or []) if isinstance(r, dict)]
+    return {
+        "oid": oid, "blk": blk, "grade": gr, "per": per, "measure": meas,
+        "pooled": interval(blk.get("pooled")),
+        "k": blk.get("k") or len(per),
+        "outcome": blk.get("outcome") or oid,
+        "comparator": blk.get("comparator") or "",
+        "i2": het.get("i2_percent"), "tau2": het.get("tau2"),
+        "certainty": gr.get("certainty"),
+        "downgrades": downgrades(gr),
+        "cross_yes": sum(1 for c in cross if c is True),
+        "cross_no": sum(1 for c in cross if c is False),
+        "not_established": blk.get("what_this_does_not_establish"),
+        "denominator": pc.get("denominator") or {},
+        "reviews": revs,
+        "ncts": sorted({str(t.get("nct") or t.get("trial_id")) for t in per
+                        if t.get("nct") or t.get("trial_id")}),
+    }
+
+
+def _p(oid, *rest):
+    return ["results.by_outcome.%s.%s" % (oid, r) for r in rest]
+
+
+def build(obj):
+    f = facts(obj)
+    if not f or not f["pooled"]:
+        return None
+    oid = f["oid"]
+    C = {}
+
+    def claim(key, section, what, draft, src):
+        C[key] = {"section": section, "the_claim": what, "draft": draft,
+                  "facts_from": src, "is_a_draft": True,
+                  "the_judgement_that_is_the_authors": AUTHOR}
+
+    # ---- INTRODUCTION -----------------------------------------------------------------
+    ev = "%d randomised trial%s (%s)" % (f["k"], "" if f["k"] == 1 else "s",
+                                         ", ".join(f["ncts"]) or "not identified here")
+    d = ("The evidence identified on this question is %s, pooled here at %s for %s."
+         % (ev, f["pooled"], f["outcome"]))
+    if f["certainty"]:
+        d += " Certainty in that estimate is rated %s%s." % (
+            f["certainty"],
+            (", rated down for %s" % andlist(f["downgrades"])) if f["downgrades"] else "")
+    # POINTED AT, NOT QUOTED. `what_this_does_not_establish` is prose written at an earlier
+    # pass and it can fall out of date with the object around it -- on cab-prep-hiv-review it
+    # says NO RISK-OF-BIAS ASSESSMENT IS RECORDED while the object now holds two. Quoting it
+    # here put a contradiction inside one manuscript. The reader is sent to the field instead.
+    if isinstance(f["not_established"], str) and f["not_established"].strip():
+        d += (" What this estimate does not establish is recorded in full with the result in "
+              "Results, and is not restated here.")
+    d += (" WHICH OF THOSE UNRESOLVED POINTS MAKES THE QUESTION WORTH ASKING NOW IS THE "
+          "AUTHOR'S JUDGEMENT.")
+    claim("why_the_question_is_open", "Introduction",
+          "Why the question is still open -- the specific uncertainty this review addresses",
+          d, _p(oid, "pooled", "k", "what_this_does_not_establish")
+          + ["grade.by_outcome.%s.certainty" % oid])
+
+    den = f["denominator"]
+    if den:
+        d = ("A search for published syntheses matched %s record(s); %s were read and %s "
+             "appraised against this review."
+             % (den.get("matched", "an unrecorded number of"), den.get("read", "an unrecorded number"),
+                den.get("appraised", "an unrecorded number")))
+    else:
+        d = "No search for published syntheses is recorded on this object."
+    if f["reviews"]:
+        r = f["reviews"][0]
+        d += (" The appraised synthesis is %s%s."
+              % (str(r.get("title") or "an untitled record"),
+                 (" (%s, %s)" % (r.get("journal"), r.get("year"))) if r.get("journal") else ""))
+    d += (" WHETHER THOSE DIFFERENCES WARRANT A NEW SYNTHESIS RATHER THAN CITING THE EXISTING "
+          "ONE IS THE AUTHOR'S JUDGEMENT.")
+    claim("why_a_new_synthesis", "Introduction",
+          "Why a NEW synthesis is warranted rather than citing an existing one",
+          d, ["published_comparison.denominator", "published_comparison.reviews"])
+
+    # ---- DISCUSSION -------------------------------------------------------------------
+    if f["reviews"]:
+        r = f["reviews"][0]
+        d = ("This review pools %s over %d trial%s. The appraised synthesis pooled %s%s."
+             % (f["pooled"], f["k"], "" if f["k"] == 1 else "s",
+                str(r.get("outcome_pooled") or "an outcome not recorded here"),
+                (" over %s participants" % format(r["n_pooled"], ",")) if isinstance(
+                    r.get("n_pooled"), int) else ""))
+        ib = g(obj, "published_comparison.identity_basis")
+        if isinstance(ib, str) and ib.strip():
+            d += " Which trials that synthesis carries: %s" % ib.strip()
+        d += (" WHY THE TWO RESULTS DIFFER -- WHETHER BY POPULATION, OUTCOME DEFINITION, "
+              "MODEL OR INCLUDED SET -- IS THE AUTHOR'S JUDGEMENT.")
+    else:
+        d = ("No published synthesis was appraised against this review, so no difference "
+             "between this result and a published one is recorded. There is nothing here for "
+             "this sentence to explain, and stating a reason for a difference that has not "
+             "been established would be inventing one.")
+    claim("why_this_differs_from_published", "Discussion",
+          "WHY this result differs from the published ones, mechanically or methodologically",
+          d, ["published_comparison.reviews", "published_comparison.identity_basis"])
+
+    bits = []
+    if f["i2"] is not None:
+        bits.append("I-squared is %s%%" % num(f["i2"], 1))
+    if f["tau2"] is not None:
+        bits.append("tau-squared %s" % num(f["tau2"], 4))
+    if f["cross_yes"] and f["cross_no"]:
+        bits.append("%d of the %d trial intervals include no effect and %d exclude it"
+                    % (f["cross_yes"], len(f["per"]), f["cross_no"]))
+    elif f["cross_no"] and not f["cross_yes"]:
+        bits.append("every trial interval excludes no effect")
+    elif f["cross_yes"] and not f["cross_no"]:
+        bits.append("every trial interval includes no effect")
+    hr = g(obj, "results.by_outcome.%s.heterogeneity.how_to_read_this_at_k2" % oid)
+    d = ("Across %d trial%s, %s." % (f["k"], "" if f["k"] == 1 else "s", "; ".join(bits))
+         if bits else "No heterogeneity statistic is recorded for this pool.")
+    if isinstance(hr, str) and hr.strip():
+        d += " %s" % hr.strip()
+    d += (" WHETHER THAT DEGREE OF DISAGREEMENT MATTERS CLINICALLY -- WHETHER THE TRIALS ARE "
+          "ANSWERING THE SAME QUESTION IN THE SAME PATIENTS -- IS THE AUTHOR'S JUDGEMENT.")
+    claim("is_the_heterogeneity_clinically_important", "Discussion",
+          "Whether the observed heterogeneity is clinically important",
+          d, _p(oid, "heterogeneity", "per_trial"))
+
+    d = ("The pooled %s is %s over %d trial%s%s."
+         % (f["measure"] or "estimate", f["pooled"], f["k"], "" if f["k"] == 1 else "s",
+            (", against %s" % f["comparator"]) if f["comparator"] else ""))
+    if f["certainty"]:
+        d += " Certainty is rated %s." % f["certainty"]
+    if f["cross_no"] == len(f["per"]) and f["per"]:
+        d += " Every contributing interval excludes no effect."
+    d += (" WHETHER A CHANGE OF THAT MAGNITUDE IS CLINICALLY MEANINGFUL IN THIS POPULATION IS "
+          "THE AUTHOR'S JUDGEMENT: NO FIELD ON THIS OBJECT RECORDS A THRESHOLD OF IMPORTANCE, "
+          "AND NONE IS ASSUMED HERE.")
+    claim("is_the_effect_size_clinically_meaningful", "Discussion",
+          "Whether the effect size is clinically meaningful",
+          d, _p(oid, "pooled", "k", "comparator")
+          + ["grade.by_outcome.%s.certainty" % oid])
+
+    rob = obj.get("risk_of_bias") or {}
+    ovs = {}
+    for per in (rob.get("by_outcome") or {}).values():
+        if isinstance(per, dict):
+            for j in per.values():
+                if isinstance(j, dict) and j.get("overall"):
+                    ovs[str(j["overall"])] = ovs.get(str(j["overall"]), 0) + 1
+    d = ("The evidence base is %d trial%s%s."
+         % (f["k"], "" if f["k"] == 1 else "s",
+            (", assessed for risk of bias as %s"
+             % ", ".join("%s on %d result(s)" % (k, v) for k, v in sorted(ovs.items())))
+            if ovs else ", with no risk-of-bias assessment recorded"))
+    if f["certainty"]:
+        d += (" GRADE certainty is %s%s." % (f["certainty"],
+              (", rated down for %s" % andlist(f["downgrades"])) if f["downgrades"] else ""))
+    d += (" WHETHER THAT IS ENOUGH TO ANSWER THE QUESTION DEPENDS ON THE DECISION THE ANSWER "
+          "IS FOR, WHICH IS NOT STATED ON THIS OBJECT, AND IS THE AUTHOR'S JUDGEMENT.")
+    claim("is_the_evidence_base_adequate", "Discussion",
+          "Whether the evidence base is adequate to answer the question",
+          d, ["risk_of_bias.by_outcome", "grade.by_outcome.%s" % oid])
+
+    d = ("Certainty was rated down for %s."
+         % andlist(f["downgrades"])) if f["downgrades"] else (
+        "Certainty was not rated down on any GRADE domain." if f["certainty"] else
+        "No GRADE assessment is recorded, so no downgrade reason is available.")
+    d += (" WHAT FURTHER EVIDENCE WOULD CHANGE THE CONCLUSION IS A JUDGEMENT ABOUT A TRIAL "
+          "NOBODY HAS RUN, AND IS THE AUTHOR'S.")
+    claim("what_further_evidence_would_change_it", "Discussion",
+          "What further evidence would change the conclusion",
+          d, ["grade.by_outcome.%s.steps" % oid])
+
+    bk = next((obj[k] for k in sorted(obj) if str(k).startswith("bookkeeping_")
+               and isinstance(obj[k], dict)), None)
+    sr = (bk or {}).get("the_search_its_date_and_its_databases")
+    d = (str(sr).strip() if isinstance(sr, str) and sr.strip()
+         else "No search record is held on this object.")
+    d += (" WHETHER THAT IS BROAD ENOUGH FOR THE CLAIM THIS REVIEW MAKES IS THE AUTHOR'S "
+          "JUDGEMENT.")
+    claim("was_the_search_broad_enough", "Discussion",
+          "Whether the search was broad enough", d,
+          ["%s.the_search_its_date_and_its_databases"
+           % next((k for k in sorted(obj) if str(k).startswith("bookkeeping_")), "bookkeeping")])
+
+    # ---- CONCLUSIONS ------------------------------------------------------------------
+    d = ("Across %d randomised trial%s, %s was %s for %s%s.%s"
+         % (f["k"], "" if f["k"] == 1 else "s",
+            f["measure"] or "the pooled estimate", f["pooled"], f["outcome"],
+            (" against %s" % f["comparator"]) if f["comparator"] else "",
+            (" Certainty in that estimate is %s." % f["certainty"]) if f["certainty"] else ""))
+    d += (" THAT IS THE ESTIMATE. WHAT THE EVIDENCE SHOWS -- STATED AS A FINDING RATHER THAN "
+          "AS A NUMBER -- IS THE AUTHOR'S SENTENCE.")
+    claim("what_the_evidence_shows", "Conclusions",
+          "A one-sentence statement of what the evidence shows",
+          d, _p(oid, "pooled", "k", "outcome") + ["grade.by_outcome.%s.certainty" % oid])
+
+    # THE FACTS ONCE, NOT THREE TIMES. The three implications rest on the same estimate and
+    # the same certainty; repeating them made the Conclusions read as one paragraph pasted
+    # three times, which is precisely the "reads like code" complaint.
+    for key, label, extra in (
+            ("implication_for_practice", "The implication for clinical practice",
+             "What a clinician should do differently"),
+            ("implication_for_policy", "The implication for policy",
+             "What a payer, guideline or programme should do"),
+            ("implication_for_research", "The implication for future research",
+             "What should be studied next")):
+        d = ("%s on this evidence -- the estimate and certainty stated above -- is a "
+             "RECOMMENDATION, not a measurement. No field on this object can back one, and "
+             "none is drafted. It is the author's sentence." % extra)
+        claim(key, "Conclusions", label, d,
+              _p(oid, "pooled", "k") + ["grade.by_outcome.%s" % oid])
+
+    return {
+        "_what": ("The twelve claims a PRISMA manuscript needs that NO FIELD CAN BACK, drafted "
+                  "as scaffolding for the author to dictate over. Each states the facts the "
+                  "judgement needs and then names the judgement as his."),
+        "_status": ("DRAFT. Every sentence here was written by the projector's drafter, not "
+                    "read from a source. They are kept under this dated key, each marked "
+                    "`is_a_draft`, so a later pass can always tell what was written from what "
+                    "was read. A draft must never quietly become a fact."),
+        "_the_rule": ("No drafted sentence asserts anything this object cannot back. Where the "
+                      "claim requires a judgement, the draft stops at the facts and says so. "
+                      "A plausible sentence is the one most likely to survive dictation "
+                      "unexamined, which is why none is written."),
+        "claims": C,
+    }
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    dry = "--apply" not in sys.argv
+    only = [a for a in sys.argv[1:] if not a.startswith("--")]
+    n = seen = 0
+    for path in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        topic = os.path.basename(os.path.dirname(path))
+        if os.path.basename(path) != topic + ".json":
+            continue
+        if only and topic not in only:
+            continue
+        try:
+            obj = json.load(io.open(path, encoding="utf-8"))
+        except ValueError:
+            continue
+        if not p46.pooled_outcomes(obj):
+            continue
+        seen += 1
+        d = build(obj)
+        if not d:
+            print("%-44s NO POOLED INTERVAL -- nothing to draft from" % topic[:44])
+            continue
+        obj[FIELD] = d
+        n += 1
+        print("%-44s %d interpretive claim(s) drafted" % (topic[:44], len(d["claims"])))
+        if not dry:
+            atomic_write.write_json(path, obj, indent=1)
+    if not seen:
+        sys.exit("PROOF FAILED: no topic with a pooled outcome was read.")
+    print("\n%d of %d topic(s) drafted" % (n, seen))
+    if dry:
+        print("DRY RUN -- pass --apply to write")
+
+
+if __name__ == "__main__":
+    main()
