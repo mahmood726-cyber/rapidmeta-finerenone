@@ -412,7 +412,7 @@ def panels_card(res, p):
 
 def output_card(canon, p):
     sof = ""
-    for oid, r in canon["results"]["by_outcome"].items():
+    for oid, r in ((canon.get("results") or {}).get("by_outcome") or {}).items():
         # THE THIRD SITE OF THE SAME BARE next(), AND THE THIRD BUILD IT KILLED.
         #
         # cangrelor-pci-review's `corrected_composite_3component` is declared in no
@@ -443,7 +443,7 @@ def output_card(canon, p):
                    p(g["certainty"]) if g.get("certainty") else "&mdash;", NL))
     reg = canon.get("registration") or {}
     c0 = (reg.get("commits") or [{}])[0]
-    first = next(iter(canon["results"]["by_outcome"].values()), {})
+    first = next(iter(((canon.get("results") or {}).get("by_outcome") or {}).values()), {})
     repro = pj.kv_card("Reproducibility artifact", [
         ("Canonical object", "<code>%s</code>" % _v((reg.get("path", "")))),
         ("Registered at", "<code>%s</code> %s" % (_v(c0.get("sha", ""), limit=12),
@@ -1056,13 +1056,33 @@ def _standard_block(canon, e_):
 
 
 def build(canon):
+    # AN OBJECT WITH NO TITLE AND NO RESULTS IS NOT A PAPER, AND THIS SAYS SO ONCE.
+    #
+    # 14 topics are empty shells -- no `results` key, no `title`. Building them produced a
+    # cascade of bare KeyErrors, one field at a time, each naming a key rather than the
+    # condition: `results`, then `title`, and so on for as long as anyone kept guarding. The
+    # condition is that there is nothing here to project, and a reader arriving at a page
+    # built from one would meet the tombstone problem -- a stub where they expected nothing.
+    if not canon.get("title") and not (canon.get("results") or {}).get("by_outcome"):
+        sys.exit(
+            "REFUSED: this object records no title and no results, so there is no paper to "
+            "project. That is a state of the OBJECT, not a build failure: the review has not "
+            "been done. Building a page for it would put a stub where a reader expected "
+            "nothing. Nothing has been written.")
     e_ = html.escape
 
     def p(s, scope=None):
         return e_(G.render(canon, s, scope))
 
     parts = []
-    for oid in canon["results"]["by_outcome"]:
+    # AN OBJECT WITH NO `results` KEY AT ALL IS NOT A CRASH.
+    #
+    # `bamlanivimab-outp` and `bezlotoxumab-cdiff` hold no `results` block whatsoever -- 14
+    # topics are in that state -- and the bare subscript raised KeyError: 'results' rather
+    # than producing a page that says the review records no result. Same shape as the
+    # undeclared-outcome case below, one level further out: the absence is the thing to
+    # report, not the thing to fall over.
+    for oid in ((canon.get("results") or {}).get("by_outcome") or {}):
         # AN UNDECLARED OUTCOME BLOCK IS REFUSED BY NAME, NOT CRASHED ON -- AND THIS IS THE
         # SECOND SITE, WHICH IS THE POINT.
         #
@@ -1106,7 +1126,7 @@ def build(canon):
             })
             continue
         d = G._outcome_section(canon, oid, p, e_)
-        res = canon["results"]["by_outcome"][oid]
+        res = ((canon.get("results") or {}).get("by_outcome") or {})[oid]
         if isinstance(d, str):          # original returns one string
             d = {"name": p(outcome["name"]), "trials": d, "headline": "",
                  "estimand": "", "hb": "", "sens": "", "dissent": "",
@@ -1134,8 +1154,12 @@ def build(canon):
         parts.append(d)
 
     rd = pj.readiness(canon)
-    first_oid = next(iter(canon["results"]["by_outcome"]))
-    first_res = next(iter(canon["results"]["by_outcome"].values()))
+    # `next(iter(...))` ON AN EMPTY MAPPING IS StopIteration, WHICH IS NOT A DIAGNOSIS.
+    # 14 topics record no result at all. They are pages that should say so, not builds that
+    # abort with a bare iterator error naming nothing.
+    _by = ((canon.get("results") or {}).get("by_outcome") or {})
+    first_oid = next(iter(_by), None)
+    first_res = _by.get(first_oid) if first_oid is not None else {}
     srcs = canon.get("sources") or {}
     sources_rows = "".join(
         "    <tr><td>%s</td><td>%s<br><small>%s</small></td>"

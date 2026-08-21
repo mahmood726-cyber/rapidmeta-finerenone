@@ -4888,3 +4888,20 @@ them, so a page cannot be improved while it is broken. That is a real property o
 a complaint about it — but it means the remedy has to be the underlying repair, not a notice.
 
 `TIRZEPATIDE_ARDS` is additionally the page whose title says *Andexanet alfa*.
+
+---
+
+## Class 97 — a right decision resting on a false premise
+
+**Eleventh instance of a lookup under-counting its own population, and the first where the wrong
+reason survived into a correct action.** Requiring `back_transform` on CHK021 was reverted on the
+stated ground that the field is absent corpus-wide. It is not: all 135 rows carry it — 109
+`('log','exp')`, 26 `('natural','identity')`. The measurement that found it "absent" filtered the
+key out of its own printed output and then read the absence as data.
+
+*The revert was still right. Nothing downstream failed, and that is exactly what makes this
+harder to catch than a wrong decision* — a wrong decision breaks something. A right one taken for
+a false reason leaves a false fact in the record, cited later as settled.
+
+`python scripts/sweep_mixed_measure_pools_2026_08_21.py` — the sweep written the same hour, which
+exits `PROOF FAILED` unless it finds the case the gate found.

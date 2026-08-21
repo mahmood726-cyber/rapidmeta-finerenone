@@ -334,7 +334,7 @@ def readiness(canon):
     is not assessable at three studies whoever signs the form."""
     att = canon.get("attestations") or {}
     reg = canon.get("registration") or {}
-    by_out = canon["results"]["by_outcome"]
+    by_out = ((canon.get("results") or {}).get("by_outcome") or {})
     attestable = []
     for key, label in (("screening", "Screening decisions"),
                        ("extraction", "Data extraction against source"),
@@ -460,7 +460,7 @@ def verdict_card(canon, rd, p):
                   "discharge this)</small> &mdash; %s</li>%s"
                   % (e(l["label"]), p(l["detail"]), NL))
     quals = ""
-    for oid, r in canon["results"]["by_outcome"].items():
+    for oid, r in ((canon.get("results") or {}).get("by_outcome") or {}).items():
         f = (r.get("sensitivity") or {}).get("leave_one_out_finding")
         if f:
             quals += "    <li>%s</li>%s" % (p(f), NL)

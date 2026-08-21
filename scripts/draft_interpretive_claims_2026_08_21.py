@@ -33,6 +33,7 @@ _q = importlib.util.spec_from_file_location(
 p46 = importlib.util.module_from_spec(_q)
 _q.loader.exec_module(p46)
 
+ALL_TOPICS = "--all" in sys.argv
 TODAY = "2026-08-21"
 FIELD = "manuscript_draft_%s" % TODAY.replace("-", "_")
 AUTHOR = "This sentence is the author's judgement and is not derivable from any field here."
@@ -360,7 +361,12 @@ def main():
             obj = json.load(io.open(path, encoding="utf-8"))
         except ValueError:
             continue
-        if not p46.pooled_outcomes(obj):
+        # `--all` WIDENS THE SCOPE TO EVERY TOPIC WITH A PAGE, not only the 28 that
+        # pool. Each part still refuses on its own terms: a topic with no included
+        # registration gets no reference list, one with no pooled interval gets no
+        # drafts. That is a per-part absence with a reason, not a whole topic
+        # skipped for want of one field.
+        if not ALL_TOPICS and not p46.pooled_outcomes(obj):
             continue
         seen += 1
         d = build(obj)

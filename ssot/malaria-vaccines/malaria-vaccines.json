@@ -4089,7 +4089,8 @@
     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
     "estimand_established": null,
     "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
-    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py.",
+    "MIXED_MEASURE_TYPES_2026_08_21": "THIS POOL GROUPS A HAZARD RATIO WITH AN INCIDENCE RATE RATIO AND SHOULD NOT. `datoo-2024-phase3` contributes an HR and `rtss-phase3-children` an IRR. They are not the same quantity: an HR is a ratio of instantaneous rates under a proportional-hazards assumption over follow-up, an IRR a ratio of counts per person-time. An average of the two has no estimand. FOUND BY THE PRE-PUSH HARNESS GATE (CHK018_MIXED_POOLING) at the moment this topic was mapped for delivery, and recorded here so it is visible on the object rather than only in a gate log a reader never sees. NOTHING IS DISPLAYED FROM THIS POOL -- `pooled` is null -- so no reader currently meets a wrong number. It is still wrong in the object and it is why the mapping of this topic was backed out on 2026-08-21 rather than pushed. WHAT WOULD CLOSE IT: a decision about whether these two trials belong in one exploratory pool at all. That is a judgement about the evidence, not a bookkeeping repair, and it is not taken here."
    }
   }
  },
@@ -4156,6 +4157,20 @@
    "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
    "what_changed": "references built, introduction written, bookkeeping claims 5",
    "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 5",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "mixed measure types recorded on exploratory_recurrent_rate",
+   "values_moved": "NONE -- this pool displays nothing and no estimate is touched",
+   "what_changed": "a finding written onto the pool that groups HR with IRR",
+   "why": "The gate that found it runs only on what is pushed. A defect visible only in a gate log is not visible."
   },
   {
    "date": "2026-08-21",
