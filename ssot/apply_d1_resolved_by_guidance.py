@@ -1,0 +1,237 @@
+"""D1: apply the RoB 2 guidance to every judgement scored LOW on a bare `allocation: RANDOMIZED`.
+
+ONE COMMAND, HELD UNTIL MAHMOOD ANSWERS. `--apply` writes; without it, nothing is touched and
+the exact scope is printed.
+
+THIS IS RESOLVED BY GUIDANCE, NOT BY PREFERENCE, AND THAT DISTINCTION IS WRITTEN ONTO EVERY
+JUDGEMENT IT TOUCHES. An 89% disagreement rate between two model families would ordinarily be a
+dispute to adjudicate. It is not one here, because the tool's own text decides it:
+
+    RoB 2 guidance 2019, Box 4, signalling question 1.1 -- verbatim:
+        "Answer 'No information' if the only information about randomization methods is a
+         statement that the study is randomized."
+
+    RoB 2 guidance 2019, section 4.4 -- verbatim:
+        "A judgement of low risk of bias requires that the trial has an adequate method of
+         concealing the allocation sequence from those involved in enrolling participants, and
+         there are no concerns about generation of the allocation sequence."
+
+    Cochrane Handbook 6.5, section 8.3, names the domain's three components: whether the
+    allocation sequence was random, whether it was adequately concealed, and whether baseline
+    differences suggest a problem.
+
+A ClinicalTrials.gov design module gives `allocation: RANDOMIZED` and nothing about the method.
+Every D1 entry this touches SAYS SO IN ITS OWN WORDS -- "the concealment MECHANISM is not on the
+registry and no publication was read" -- and then scores LOW, against this project's own ceiling
+rule that a domain which cannot be judged from the sources read is NO_INFORMATION, never LOW.
+
+    THE FIRST ASSESSOR WAS WRONG IN ONE DIRECTION ON NEARLY EVERY TRIAL, AND ITS OWN NOTE
+    RECORDED THE EVIDENCE THAT MADE IT WRONG.
+
+WHAT MOVES AND WHAT DOES NOT. Measured before the decision and unchanged by it:
+
+    D1 judgements scored LOW on a bare randomisation statement    51, across 15 topics
+    of those, sitting under an OVERALL of LOW                      0
+    already capped at SOME_CONCERNS or HIGH by another domain     51 of 51
+    OVERALL ratings that change                                    0
+    GRADE certainty ratings that move a level                      0
+
+So this is a domain-level accuracy fix with no downstream consequence. It changes what a reader
+is told about one domain on 51 results and changes no rating, no certainty and no estimate.
+
+WHY NO_INFORMATION AND NOT SOME_CONCERNS. The tool's algorithm maps 'No information' on 1.1 and
+1.2 with no baseline concern to a domain judgement of SOME CONCERNS. This project's house
+convention writes NO_INFORMATION on the DOMAIN when the domain could not be judged from the
+sources read, and caps the overall at SOME_CONCERNS -- which lands in the same place and keeps
+"we could not judge this" distinguishable from "we judged it and had concerns". Both are
+recorded on each judgement so a reader can see the mapping rather than infer it.
+"""
+import glob
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import atomic_write
+
+TODAY = "2026-08-21"
+
+RESOLUTION = {
+    "resolved_by": "GUIDANCE, NOT PREFERENCE",
+    "what_this_judgement_was": "LOW",
+    "what_it_is_now": "NO_INFORMATION",
+    "the_text_that_decides_it": (
+        "RoB 2 guidance 2019, Box 4, signalling question 1.1: \"Answer 'No information' if the "
+        "only information about randomization methods is a statement that the study is "
+        "randomized.\" And section 4.4: \"A judgement of low risk of bias requires that the "
+        "trial has an adequate method of concealing the allocation sequence from those "
+        "involved in enrolling participants, and there are no concerns about generation of the "
+        "allocation sequence.\" Cochrane Handbook 6.5 section 8.3 names the domain's three "
+        "components."),
+    "why_this_is_not_an_adjudicated_dispute": (
+        "A blind second assessor from a different model family disagreed with this domain on "
+        "89% of judgements across 22 topics. THAT WOULD ORDINARILY BE A DISPUTE TO ADJUDICATE. "
+        "It is not one: the tool's own text names this exact evidential situation -- a bare "
+        "statement that a study was randomised -- and prescribes the answer. The second "
+        "assessor is not being deferred to; the guidance is being applied."),
+    "what_the_registry_gives_and_does_not": (
+        "A ClinicalTrials.gov design module records `allocation: RANDOMIZED`. It carries no "
+        "sequence-generation method and no allocation-concealment mechanism. The original "
+        "judgement's own note said so before scoring LOW."),
+    "how_this_maps_to_the_tool_s_algorithm": (
+        "The tool maps 'No information' on 1.1 and 1.2 with no baseline concern to a DOMAIN "
+        "judgement of SOME CONCERNS. This project writes NO_INFORMATION on the domain when it "
+        "could not be judged from the sources read, and caps the OVERALL at SOME_CONCERNS. "
+        "Same place, and it keeps 'we could not judge this' distinguishable from 'we judged it "
+        "and had concerns'."),
+    "what_does_not_change": (
+        "NO OVERALL RATING AND NO GRADE CERTAINTY MOVES. All 51 judgements were already capped "
+        "at SOME_CONCERNS or HIGH by another NO_INFORMATION domain."),
+    "what_would_close_it_properly": (
+        "The trial publications or protocols, which carry sequence generation and concealment. "
+        "Neither was read. Until one is, LOW is not available on this domain for any result in "
+        "this corpus."),
+}
+
+# MATCH THE EVIDENTIAL SITUATION, NOT A FIXED SENTENCE.
+#
+# A first version matched one phrase -- "allocation is recorded as RANDOMIZED on the design
+# module" -- and caught 30 of 51, reporting the other 21 as "scored LOW on OTHER evidence".
+# They were not. They say the same thing in different words: "allocation: RANDOMIZED is
+# recorded on all six design modules. The concealment mechanism is not on the registry."
+#
+# FOURTH TIME IN THIS RUN THAT A FIXED-STRING MATCH UNDER-COUNTED ITS OWN POPULATION, after
+# the fact allow-list, the domain key names, and the number-words. The stable thing is the
+# EVIDENCE the judgement rests on, and it has two halves that must BOTH be present:
+#
+#   (a) the registry records the allocation as randomised, and
+#   (b) the concealment mechanism was NOT read.
+#
+# A D1 scored LOW on a concealment mechanism actually read is a different judgement and is
+# left alone -- this pass applies a rule to one evidential situation, not to a verdict it
+# dislikes.
+import re as _re
+SAYS_RANDOMISED = _re.compile(r"allocation[^.]{0,40}randomi[sz]ed|randomi[sz]ed[^.]{0,30}"
+                              r"design module", _re.I)
+SAYS_NO_CONCEALMENT = _re.compile(
+    r"concealment\s+(mechanism|method)?[^.]{0,60}(not|no)\s+"
+    r"(on|in|established|read|recorded|described)"
+    r"|(not|no)[^.]{0,40}concealment\s+(mechanism|method)", _re.I)
+
+# AND THE FOUR THAT STILL DID NOT MATCH WERE THE SAME SITUATION WITH AN EXTRA INFERENCE.
+#
+# empagliflozin and icosapent scored LOW citing, in addition, that "arm sizes are consistent
+# with a concealed sequence" and "closely balanced, which is what a concealed sequence produces
+# at this scale". THAT IS AN INFERENCE, NOT A REGISTRY FACT. Balanced arms are consistent with
+# concealment and do not establish it; RoB 2's question 1.3 asks whether baseline DIFFERENCES
+# suggest a problem, which is a different question from whether concealment was adequate. The
+# guidance requires an adequate METHOD for LOW, and both entries state in their own words that
+# the mechanism was never read.
+#
+# Recorded because it is the same discriminator that separates the D5 disagreements: WHICH
+# ASSESSOR'S REASON CITES A REGISTRY FACT AND WHICH CITES AN INFERENCE.
+INFERS_FROM_BALANCE = _re.compile(r"arm sizes[^.]{0,60}(consistent|balanc)"
+                                  r"|balanced[^.]{0,60}concealed sequence", _re.I)
+
+# AND TWO NAMED BY HAND, BECAUSE THEIR EVIDENCE IS DIFFERENT AND WEAKER.
+#
+# empagliflozin-hf's two D1 entries do not cite the design module at all. They cite THE
+# REGISTERED TITLE -- "A Phase III RANDOMISED, DOUBLE-BLIND Trial to Evaluate Efficacy and
+# Safety of Once Daily Empagliflozin 10 mg Compared to Placebo" -- plus arm balance. A title
+# adjective is the thinnest form of "a statement that the study is randomized", which is the
+# exact phrase the guidance names.
+#
+# THEY ARE LISTED RATHER THAN PATTERN-MATCHED. Widening the regex until they fell in would be
+# the fifth fixed-string near-miss of this run; a hand list of two, each with its reason, is
+# auditable and cannot quietly capture a third judgement nobody looked at.
+NAMED_BY_HAND = {
+    ("empagliflozin-hf-auto-full-review", "NCT03057977"): (
+        "D1 was scored LOW citing THE REGISTERED TITLE containing the word RANDOMISED, plus "
+        "balanced arm sizes. The design module is not cited. A title adjective is the "
+        "thinnest possible form of the situation the guidance names."),
+    ("empagliflozin-hf-auto-full-review", "NCT03057951"): (
+        "As NCT03057977 -- the same two trials on the same object, judged from the same "
+        "registered title wording."),
+}
+
+
+def main():
+    dry = "--apply" not in sys.argv
+    moved = topics = skipped = 0
+    skipped_detail = []
+    for path in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        topic = os.path.basename(os.path.dirname(path))
+        if os.path.basename(path) != topic + ".json":
+            continue
+        obj = json.load(io.open(path, encoding="utf-8"))
+        by = ((obj.get("risk_of_bias") or {}).get("by_outcome") or {})
+        if not by:
+            continue
+        hits = []
+        for oid, per in by.items():
+            if not isinstance(per, dict):
+                continue
+            for rid, j in per.items():
+                if not isinstance(j, dict):
+                    continue
+                d = j.get("domains") or {}
+                key = next((k for k in sorted(d)
+                            if str(k).upper().startswith("D1_")
+                            and isinstance(d[k], dict)), None)
+                if not key or d[key].get("judgement") != "LOW":
+                    continue
+                # ONLY WHERE THE EVIDENCE IS THE BARE REGISTRY FIELD. A D1 scored LOW on a
+                # concealment mechanism actually read would be a different judgement and is
+                # left alone -- this pass applies a rule to one evidential situation, not to a
+                # verdict it dislikes.
+                blob = " ".join(str(v) for v in d[key].values() if isinstance(v, str))
+                hand = NAMED_BY_HAND.get((topic, j.get("nct") or rid))
+                if not hand and not (SAYS_RANDOMISED.search(blob)
+                                     and SAYS_NO_CONCEALMENT.search(blob)):
+                    skipped += 1
+                    skipped_detail.append("%s %s/%s -- %s"
+                                          % (topic, oid, j.get("nct") or rid, blob[:110]))
+                    continue
+                d[key]["judgement"] = "NO_INFORMATION"
+                res = dict(RESOLUTION)
+                if hand:
+                    res["named_by_hand_because_its_evidence_is_weaker_still"] = hand
+                if INFERS_FROM_BALANCE.search(blob):
+                    res["and_this_one_also_inferred_concealment_from_arm_balance"] = (
+                        "This judgement cited, in addition, that the arm sizes are balanced "
+                        "and that this is what a concealed sequence produces. THAT IS AN "
+                        "INFERENCE, NOT A REGISTRY FACT. Balanced arms are CONSISTENT WITH "
+                        "concealment and do not establish it, and RoB 2 signalling question "
+                        "1.3 asks whether baseline DIFFERENCES suggest a problem -- a "
+                        "different question from whether concealment was adequate. The entry "
+                        "states in its own words that the mechanism was never read.")
+                d[key]["resolved_2026_08_21"] = res
+                hits.append("%s/%s" % (oid, j.get("nct") or rid))
+                moved += 1
+        if hits:
+            topics += 1
+            obj.setdefault("display_change_announced", []).append({
+                "date": TODAY,
+                "change": "D1 moved from LOW to NO_INFORMATION on the RoB 2 guidance",
+                "values_moved": ("NONE -- no overall rating, no GRADE certainty, no estimate "
+                                 "and no interval changes"),
+                "what_changed": "%d D1 judgement(s): %s" % (len(hits), ", ".join(hits[:6])),
+                "why": ("RoB 2 Box 4 question 1.1: 'Answer No information if the only "
+                        "information about randomization methods is a statement that the study "
+                        "is randomized.' RESOLVED BY GUIDANCE, NOT BY PREFERENCE."),
+            })
+            print("%-44s %d judgement(s)" % (topic[:44], len(hits)))
+            if not dry:
+                atomic_write.write_json(path, obj, indent=1)
+    print("\n%d D1 judgement(s) across %d topic(s) move LOW -> NO_INFORMATION." % (moved, topics))
+    print("%d D1 judgement(s) scored LOW on OTHER evidence were left alone." % skipped)
+    for line in skipped_detail:
+        print("   LEFT: %s" % line)
+    if dry:
+        print("\nHELD. Nothing has been written. Pass --apply when Mahmood answers.")
+
+
+if __name__ == "__main__":
+    main()

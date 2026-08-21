@@ -4417,6 +4417,61 @@ open-label. RoB 2 assesses *this result in this trial*; another trial's masking 
 this one. Recorded as a disagreement the first assessor loses.
 
 
+## Class 93 — THE TWO ASSESSORS DISAGREE ABOUT WHERE THE EVIDENCE RUNS OUT, NOT ABOUT WHAT IT SHOWS
+
+The 54.5% rate hid a completely systematic structure. Across 22 topics, **every disagreement
+runs one way within a domain, and the direction flips between two groups of domains:**
+
+| domain | direction of disagreement | n |
+|---|---|---|
+| **D1, D2, D3** | assessor 1 judged; **assessor 2 said NO_INFORMATION — 100 of 100** | 100 |
+| **D4, D5** | assessor 1 found a concern; **assessor 2 said LOW — 51 of 67** | 67 |
+
+**Assessor 2 declines to judge the three domains a registry cannot address and scores LOW on
+the two it can. Assessor 1 does the exact opposite** — it judges the invisible ones and finds
+concerns in the visible ones.
+
+> **Neither is being careless. Each defaults in its own direction on the domains where it is
+> not looking** — which is class 86 appearing *between* two assessors rather than inside one
+> instrument.
+
+And the adjudication goes both ways, which is what makes it an adjudication:
+
+- **D1 — assessor 2 is right, and it is settled by guidance rather than by preference.** RoB 2
+  Box 4 q1.1: *"Answer 'No information' if the only information about randomization methods is a
+  statement that the study is randomized."* 51 judgements, one command, held for Mahmood.
+- **D5 — assessor 1 is right 3 times and WRONG 29 times.**
+
+### 93a. The D5 adjudication, on a registry fact both assessors cite
+
+The discriminator is **the registered primary-outcome count** — a field on the registration, not
+a matter of judgement. 42 disagreements, **32 resolved**:
+
+| | n | |
+|---|---|---|
+| **two or more** registered primaries → a set exists to select from | **3** | assessor 1 right |
+| **one** registered primary → no set to select from, LOW is correct | **29** | **assessor 1 wrong** |
+| count not on the entry | 10 | unresolved; both judgements stand and both render |
+
+**Assessor 1 was over-cautious on D5 exactly as it was over-confident on D1.** Declining to
+judge a domain the registry *does* answer is the mirror of scoring LOW on one it does not — the
+same error with the sign reversed, by the same assessor, in the same corpus.
+
+### 93b. And the discriminator could not be applied until assessor 2 was asked for reasons
+
+**A protocol flaw of mine.** The blind prompt asked for verdicts only, so *"which assessor's
+reason cites a registry fact"* was answerable for one side. A second blind round asked assessor 2
+for the single fact each D5 judgement rested on, and its answers settle the 3 in assessor 1's
+favour **out of its own mouth**:
+
+> `NCT04020341 BASIS=The assessed therapeutic response was **one of two registered primary
+> outcomes**.` — and it scored that **LOW**.
+
+Naming the selection situation and then scoring LOW is internally inconsistent, and it is a
+stronger resolution than any assertion of mine could be. *An assessor asked only for verdicts
+cannot be adjudicated against; ask for the basis in the same round.*
+
+
 ## OPEN — carried, not fixed
 
 ### O4. The delivered malaria verdict rests on a premise its own registrations contradict

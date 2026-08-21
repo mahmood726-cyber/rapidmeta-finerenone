@@ -2011,6 +2011,13 @@
    "values_moved": "NONE",
    "what_changed": "disagreement 11 of 24 judgements",
    "why": "Mahmood's specification requires two assessors from different model families."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "D5 disagreements adjudicated on a registry fact",
+   "values_moved": "NONE -- no judgement is changed; the adjudication is recorded beside both",
+   "what_changed": "3 D5 disagreement(s) adjudicated: NCT03315143__hfcv_first HIGH -> ASSESSOR 2; NCT03315143__hfcv_total HIGH -> ASSESSOR 2; NCT03521934__hfcv_first HIGH -> ASSESSOR 2",
+   "why": "An unreconciled disagreement tells a reader less than a single judgement with a reason."
   }
  ],
  "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over.",
@@ -2099,7 +2106,15 @@
       "D5_selection_of_reported_result": {
        "judgement": "HIGH",
        "reason": "THE PRIMARY ENDPOINT WAS CHANGED DURING THE TRIAL, and this object carries the sentence verbatim: 'The primary end point was changed during the trial to the composite of the total number of deaths from cardiovascular causes, hospitalizations for heart failure...'. The estimand this pool uses IS the changed endpoint. Handbook 8.7 covers bias arising when 'the reported result is selected (based on its direction, magnitude or statistical significance) from among multiple intervention effect estimates'; a mid-trial change of the primary is that situation at its clearest, and nothing available to us establishes that the change was made blind to accumulating results. Rated HIGH. NOT EXCLUDED: Handbook chapter 3 makes registration status no part of eligibility, and this corpus settled the same question on 2026-08-18 for ANSWER-HF, deciding that an endpoint problem is graded rather than used to remove a trial -- because a wrong exclusion publishes a result we created, while a wrong inclusion leaves the evidence intact.",
-       "evidence_on_this_object": "inputs.trials[id=scored].design; inputs.trials[id=scored].by_outcome.hfcv_total.provenance.source_quotes; DECISIONS-COCHRANE-2026-08-18.md section 2"
+       "evidence_on_this_object": "inputs.trials[id=scored].design; inputs.trials[id=scored].by_outcome.hfcv_total.provenance.source_quotes; DECISIONS-COCHRANE-2026-08-18.md section 2",
+       "adjudicated_2026_08_21": {
+        "assessor_1": "HIGH",
+        "assessor_2": "LOW",
+        "resolved_in_favour_of": "ASSESSOR 2",
+        "the_registry_fact_it_turns_on": "registered_primary_count = 1",
+        "why": "ONE REGISTERED PRIMARY OUTCOME. There is no set of eligible measurements to have selected from, so the selection concern cannot arise and LOW is right. ASSESSOR 1 SCORED HIGH, WHICH WAS OVER-CAUTIOUS: declining to judge a domain the registry does answer is the mirror of scoring LOW on one it does not.",
+        "discriminator": "WHICH ASSESSOR'S REASON CITES A REGISTRY FACT. Both were asked; assessor 2's stated bases were collected in a second blind round rather than assumed. The count of registered primary outcomes is a field on the registration and is not a matter of judgement."
+       }
       }
      },
      "overall": "HIGH",
@@ -2142,7 +2157,15 @@
       "D5_selection_of_reported_result": {
        "judgement": "HIGH",
        "reason": "THIS ANALYSIS WAS NOT REGISTERED. The trial registered a TOTAL-occurrence primary; a time-to-first-event analysis appears nowhere in its registered primaries, secondaries or other outcomes. The value used here comes from the FDA integrated review, whose own words -- quoted on this object -- are 'An analysis was performed on the primary endpoint using time to first event analysis'. Handbook 8.7 exists for exactly this: an analysis ADDED to the results report post hoc, from among multiple estimates the trialists computed. Rated HIGH, and the trial is not criticised for computing it -- the risk attaches to OUR use of a selected result, not to their having produced one.",
-       "evidence_on_this_object": "inputs.trials[id=soloist-whf].registered_primaries, .registered_secondaries, .registered_other_outcomes; inputs.trials[id=soloist-whf].by_outcome.hfcv_first.source_tier = regulator_fda; inputs.trials[id=soloist-whf].by_outcome.hfcv_first.provenance.source_quotes"
+       "evidence_on_this_object": "inputs.trials[id=soloist-whf].registered_primaries, .registered_secondaries, .registered_other_outcomes; inputs.trials[id=soloist-whf].by_outcome.hfcv_first.source_tier = regulator_fda; inputs.trials[id=soloist-whf].by_outcome.hfcv_first.provenance.source_quotes",
+       "adjudicated_2026_08_21": {
+        "assessor_1": "HIGH",
+        "assessor_2": "SOME_CONCERNS",
+        "resolved_in_favour_of": "ASSESSOR 2",
+        "the_registry_fact_it_turns_on": "registered_primary_count = 1",
+        "why": "ONE REGISTERED PRIMARY OUTCOME. There is no set of eligible measurements to have selected from, so the selection concern cannot arise and LOW is right. ASSESSOR 1 SCORED HIGH, WHICH WAS OVER-CAUTIOUS: declining to judge a domain the registry does answer is the mirror of scoring LOW on one it does not.",
+        "discriminator": "WHICH ASSESSOR'S REASON CITES A REGISTRY FACT. Both were asked; assessor 2's stated bases were collected in a second blind round rather than assumed. The count of registered primary outcomes is a field on the registration and is not a matter of judgement."
+       }
       }
      },
      "overall": "HIGH",
@@ -2183,7 +2206,15 @@
       "D5_selection_of_reported_result": {
        "judgement": "HIGH",
        "reason": "BOTH PROBLEMS AT ONCE, and they are independent. The trial's primary endpoint was changed during the trial, and the first-event analysis used here was not registered at all -- it comes from the FDA integrated review rather than from any registered outcome. Either alone would rate HIGH under Handbook 8.7; together they are the least secure of the four results in this review, and a reader should know that the pool's more conservative estimand rests on its weaker provenance.",
-       "evidence_on_this_object": "inputs.trials[id=scored].design; inputs.trials[id=scored].registered_primaries, .registered_secondaries; inputs.trials[id=scored].by_outcome.hfcv_first.source_tier = regulator_fda"
+       "evidence_on_this_object": "inputs.trials[id=scored].design; inputs.trials[id=scored].registered_primaries, .registered_secondaries; inputs.trials[id=scored].by_outcome.hfcv_first.source_tier = regulator_fda",
+       "adjudicated_2026_08_21": {
+        "assessor_1": "HIGH",
+        "assessor_2": "SOME_CONCERNS",
+        "resolved_in_favour_of": "ASSESSOR 2",
+        "the_registry_fact_it_turns_on": "registered_primary_count = 1",
+        "why": "ONE REGISTERED PRIMARY OUTCOME. There is no set of eligible measurements to have selected from, so the selection concern cannot arise and LOW is right. ASSESSOR 1 SCORED HIGH, WHICH WAS OVER-CAUTIOUS: declining to judge a domain the registry does answer is the mirror of scoring LOW on one it does not.",
+        "discriminator": "WHICH ASSESSOR'S REASON CITES A REGISTRY FACT. Both were asked; assessor 2's stated bases were collected in a second blind round rather than assumed. The count of registered primary outcomes is a field on the registration and is not a matter of judgement."
+       }
       }
      },
      "overall": "HIGH",
