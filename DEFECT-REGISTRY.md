@@ -4537,6 +4537,70 @@ in front of you inherits that spelling as an assumption — class 86's mechanism
 matching rather than in judgement.
 
 
+## Class 95 — THE P47 GAP, MEASURED ON ONE TOPIC, AND BOTH PREDICTIONS WERE WRONG
+
+P47 has stood at **0 of 141** all run, and the tier-3 estimate has **moved up twice and never
+down** — currently "at least 154 topics" with no per-topic cost. `scripts/measure_p47_gap_iv_iron_2026_08_21.py`
+enumerates the claims a reader-facing Introduction, Discussion and Conclusions must assert, per
+**PRISMA 2020 items 4, 5, 23a, 23b, 23c and 23d**, and puts a field path beside each.
+
+**Topic: `iv-iron-hf`** — the richest object in the corpus that carries **no authored prose**
+(3,719 leaves, six outcomes, holding `published_comparison`, `grade`, `risk_of_bias`,
+`prisma_flow`, `search`, `screening`, `protocol`, `registration_identity`). `arni-hfref` is
+richer at 12,145 leaves and was **rejected**: it is the one object in 155 holding
+`manuscript.discussion`, so measuring it would count argument somebody already wrote as argument
+the object can derive.
+
+### The three numbers, over 37 claims
+
+| | n | |
+|---|---|---|
+| **DERIVABLE** — a field backs it as it stands | **22** | **59.5%** |
+| **FETCHABLE** — no field, but a named reachable source would | **3** | **8.1%** |
+| **ARGUMENT** — irreducibly a person's | **12** | **32.4%** |
+
+| section | claims | derivable | argument |
+|---|---|---|---|
+| Introduction | 10 | 6 — 60% | 2 — 20% |
+| Discussion | 22 | **15 — 68%** | 6 — 27% |
+| **Conclusions** | 5 | 1 — 20% | **4 — 80%** |
+
+### Both predictions were wrong, in opposite directions
+
+| | Introduction | Discussion |
+|---|---|---|
+| Mahmood | *largely derivable* | *not derivable* |
+| this author | ~40% derivable | ~50% derivable |
+| **measured** | **60%** | **68%** |
+
+**Mahmood was right about the Introduction and wrong about the Discussion. I was wrong about
+both, and wrong low on both.** The Discussion is the *most* derivable section, not the least —
+because PRISMA 23b and 23c are almost entirely bookkeeping this corpus already holds: risk of
+bias per result and what drove it, whether publication bias was assessable, the search, the
+screening counts, the registration, which limbs the review refuses, and now the second
+assessor's disagreement rate.
+
+**The argument is concentrated, not spread.** It sits almost entirely in the Conclusions (80%)
+and in four Discussion claims — *why* results differ, whether heterogeneity is clinically
+important, whether the effect is clinically meaningful, whether the evidence base is adequate.
+Those are the sentences that select and weight what the fields already say.
+
+> **The gap is not "write a Discussion". It is "write four sentences of interpretation and a
+> Conclusions paragraph", on top of a section that is two-thirds projectable today.**
+
+*This is one topic and it is deliberately a floor, not a mean. A topic holding no
+`published_comparison`, no second assessor and no PRISMA flow would derive far less.*
+
+### 95a. And the measuring instrument was instances eight, nine and ten
+
+Three claims were first reported unbacked and **all three were the resolver, not the object**: a
+`" + "` compound path thrown away whole, a `KEY_*` wildcard on a stamped key name treated as a
+literal, and a leading dot. A fourth needed a wildcard to span two levels rather than one.
+
+**Ten lookups this run under-counted their own population. None over-counted.** The three
+numbers above moved from 48.6% derivable to 59.5% purely by fixing the thing doing the counting.
+
+
 ## OPEN — carried, not fixed
 
 ### O4. The delivered malaria verdict rests on a premise its own registrations contradict

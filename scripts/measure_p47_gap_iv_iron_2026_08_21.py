@@ -1,0 +1,276 @@
+"""How much of a reader-facing Introduction, Discussion and Conclusions can this object back?
+
+P47 STANDS AT 0 OF 141 AND THE TIER-3 ESTIMATE HAS MOVED UP TWICE AND NEVER DOWN. It is
+currently "at least 154 topics" with NO PER-TOPIC COST. One topic measured properly turns that
+into a figure.
+
+NO PROSE IS WRITTEN HERE. This enumerates the CLAIMS such a section must assert and puts a field
+path beside each one, or records that there is none. The output is three numbers:
+
+    DERIVABLE    a field on this object backs the claim as it stands
+    FETCHABLE    no field backs it, but a named, reachable source would -- a registration field,
+                 a guideline, a prevalence figure. Work, not judgement.
+    ARGUMENT     irreducibly a person's: interpretation, mechanism, clinical implication,
+                 recommendation. No amount of fetching produces it.
+
+THE TOPIC IS `iv-iron-hf`, CHOSEN TO BE A FLOOR AND NOT A TYPICAL CASE. It is the richest object
+in the corpus that does NOT already carry authored prose -- 3,719 leaves, six outcomes, and it
+holds published_comparison, grade, risk_of_bias, prisma_flow, search, screening, protocol and
+registration_identity. `arni-hfref` is richer at 12,145 leaves and was REJECTED: it is the one
+object in 155 carrying `manuscript.discussion`, so measuring it would count argument somebody
+already wrote as argument the object can derive.
+
+THE CLAIM LIST IS ANCHORED IN PRISMA 2020, not invented. Items 4 (rationale), 5 (objectives),
+23a (interpretation), 23b (limitations of the evidence), 23c (limitations of the review
+processes) and 23d (implications for practice, policy and future research), decomposed into the
+individual assertions each item requires.
+
+THE RULE THAT MAKES THE NUMBER MEAN ANYTHING: a claim counts DERIVABLE only if a field backs it
+AS IT STANDS. "The object holds heterogeneity statistics, so the interpretation of heterogeneity
+is derivable" is false -- the statistic is derivable, the interpretation is argument, and they
+are counted separately. The point is to find out how big the gap is, not to close it by lowering
+the bar.
+
+PREDICTIONS, RECORDED BEFORE THE COUNT:
+    Mahmood     Introduction largely derivable; Discussion not.
+    This author  Introduction LESS derivable than that (~40%): condition and intervention are
+                 fields, but "why the question is open" is a claim about the state of the
+                 literature and this corpus holds a SCREEN, not a narrative.
+                 Discussion MORE derivable (~50%): the comparison, heterogeneity, risk of bias
+                 and both limitations items are all fields. What is irreducible is the "so
+                 what".
+                 Overall 45% derivable / 20% fetchable / 35% argument.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TOPIC = "iv-iron-hf"
+
+D, F, A = "DERIVABLE", "FETCHABLE", "ARGUMENT"
+
+# (PRISMA item, section, the claim a reader-facing section must assert, kind, field path or the
+#  reason there is none)
+CLAIMS = [
+    # ---- INTRODUCTION: PRISMA item 4, rationale ------------------------------------------
+    ("4", "Introduction", "The condition under study, named", D, "title / question"),
+    ("4", "Introduction", "The intervention under study, named", D, "question / inputs.trials[].intervention"),
+    ("4", "Introduction", "The comparator, named", D, "outcomes[].comparator"),
+    ("4", "Introduction", "The population, named", D, "question"),
+    ("4", "Introduction", "How common or serious the condition is", F,
+     "no field. A prevalence or mortality figure from a named source would back it."),
+    ("4", "Introduction", "What is already known about this intervention's effect", F,
+     "published_comparison.reviews[] holds a SCREEN of syntheses with a denominator, not a "
+     "narrative of what they established. The reviews are named; what they collectively show "
+     "is not stated anywhere."),
+    ("4", "Introduction", "Why the question is still open -- the specific uncertainty this "
+     "review addresses", A,
+     "no field, and none could hold it. 'Open' is a judgement about the adequacy of existing "
+     "evidence, not a fact about it."),
+    ("4", "Introduction", "Why a NEW synthesis is warranted rather than citing an existing one", A,
+     "no field. published_comparison establishes that syntheses exist; whether they suffice "
+     "is argument."),
+    ("5", "Introduction", "The objective, stated as PICO", D, "question / outcomes[]"),
+    ("5", "Introduction", "The primary outcome, named and defined", D, "outcomes[].name / .definition"),
+
+    # ---- DISCUSSION: PRISMA 23a, interpretation ------------------------------------------
+    ("23a", "Discussion", "The pooled estimate for each outcome, restated", D,
+     "results.by_outcome.*.pooled"),
+    ("23a", "Discussion", "The direction of effect and which arm it favours", D,
+     "results.by_outcome.*.pooled.favours / outcomes[].direction_of_benefit"),
+    ("23a", "Discussion", "The certainty of the evidence for each outcome", D,
+     "grade.by_outcome.*.certainty"),
+    ("23a", "Discussion", "The heterogeneity statistics", D,
+     "results.by_outcome.*.heterogeneity"),
+    ("23a", "Discussion", "How this result compares with published syntheses", D,
+     "published_comparison.reviews[].how_it_differs_from_ours"),
+    ("23a", "Discussion", "WHY this result differs from the published ones, mechanistically "
+                          "or methodologically", A,
+     "published_comparison records THAT they differ and on what quantities. Why is argument."),
+    ("23a", "Discussion", "Whether the observed heterogeneity is clinically important", A,
+     "the STATISTIC is a field; whether 40% I-squared matters for this decision is not."),
+    ("23a", "Discussion", "Whether the effect size is clinically meaningful", A,
+     "no field. Requires a minimal important difference this object does not hold and a "
+     "judgement about the population."),
+    ("23a", "Discussion", "Whether the effect is consistent across the pre-specified subgroups", F,
+     "no subgroup analysis is stored. The trials report subgroups; extracting them is work."),
+
+    # ---- DISCUSSION: PRISMA 23b, limitations of the evidence -----------------------------
+    ("23b", "Discussion", "The risk of bias of the contributing results", D,
+     "risk_of_bias.by_outcome.*.overall"),
+    ("23b", "Discussion", "Which risk-of-bias domains drove those judgements", D,
+     "risk_of_bias.by_outcome.*.domains.*.judgement + .reason"),
+    ("23b", "Discussion", "That two assessors disagreed and where", D,
+     "risk_of_bias.SECOND_ASSESSOR_*.PER_DOMAIN"),
+    ("23b", "Discussion", "Whether publication bias could be assessed", D,
+     "grade.by_outcome.*.steps[domain=publication_bias]"),
+    ("23b", "Discussion", "The number of contributing trials and participants", D,
+     "results.by_outcome.*.k / inputs.trials[]"),
+    ("23b", "Discussion", "Whether the evidence base is adequate to answer the question", A,
+     "no field. 'Adequate' is a judgement against a decision that is not stated here."),
+    ("23b", "Discussion", "What further evidence would change the conclusion", A,
+     "no field, and it is a design judgement about a trial nobody has run."),
+
+    # ---- DISCUSSION: PRISMA 23c, limitations of the review process -----------------------
+    ("23c", "Discussion", "The search, with its date and databases", D, "search"),
+    ("23c", "Discussion", "The screening counts and exclusions", D, "prisma_flow / screening"),
+    ("23c", "Discussion", "That the review was or was not prospectively registered", D,
+     "protocol / registration_identity"),
+    ("23c", "Discussion", "Which limbs of the standard this review refuses and why", D,
+     "build_stamp.refusing"),
+    ("23c", "Discussion", "That risk of bias was assessed by one assessor, or two", D,
+     # WRITTEN OUT IN FULL. The shorthand `risk_of_bias.ONE_ASSESSOR_ONLY / .SECOND_ASSESSOR_*`
+     # lost its parent on the second alternative, so it addressed a top-level key that does not
+     # exist. A path language where an alternative silently inherits nothing is a path language
+     # that will do this again -- the ambiguity was mine, not the resolver's.
+     "risk_of_bias.ONE_ASSESSOR_ONLY / risk_of_bias.SECOND_ASSESSOR_*"),
+    ("23c", "Discussion", "Whether the search was broad enough", A,
+     "published_comparison gives a trial-count comparison on some topics. Whether OUR search "
+     "was adequate is a judgement, and class 82 records that we are never ahead."),
+
+    # ---- CONCLUSIONS: PRISMA 23d ---------------------------------------------------------
+    ("23d", "Conclusions", "A one-sentence statement of what the evidence shows", A,
+     "no field. Every component is stored; the sentence that selects and weights them is "
+     "argument, and a renderer writing it would be telling the reader what to conclude."),
+    ("23d", "Conclusions", "The implication for clinical practice", A,
+     "no field, and none should exist without a named clinical context."),
+    ("23d", "Conclusions", "The implication for policy", A, "no field."),
+    ("23d", "Conclusions", "The implication for future research", A,
+     "no field. Adjacent: grade steps name what was not assessable, which is a HINT at the "
+     "gap, not a research recommendation."),
+    ("23d", "Conclusions", "An explicit statement of the certainty attached to that conclusion", D,
+     "grade.by_outcome.*.certainty"),
+]
+
+
+def resolve(obj, path):
+    """Does at least one concrete field exist under this (possibly wildcarded) path?"""
+    # THE RESOLVER WAS THE EIGHTH, NINTH AND TENTH INSTANCE OF THE NIGHT'S PATTERN.
+    #
+    # Three claims were reported unbacked and all three were this function, not the object:
+    #   `risk_of_bias.by_outcome.*.domains.*.judgement + .reason`  -- a " + " compound was
+    #        skipped whole because the guard threw away any alternative containing a space
+    #   `risk_of_bias.SECOND_ASSESSOR_*.PER_DOMAIN`                -- `KEY_*` is a wildcard on
+    #        the KEY NAME, not a level, and was treated as a literal key
+    #   `... / .SECOND_ASSESSOR_*`                                 -- a leading dot
+    #
+    # Fixed HERE rather than by rewording the three paths, because rewording would have hidden
+    # a resolver that will fail the same way on the next path somebody writes.
+    for alt in [p.strip() for p in path.split("/")]:
+        alt = alt.split(" + ")[0].strip().lstrip(".")
+        if not alt or " " in alt:
+            continue
+        cur = [obj]
+        ok = True
+        for part in alt.split("."):
+            nxt = []
+            for node in cur:
+                if not isinstance(node, dict):
+                    continue
+                if part == "*":
+                    # A WILDCARD SPANS AS MANY LEVELS AS IT NEEDS TO, NOT EXACTLY ONE.
+                    #
+                    # `risk_of_bias.by_outcome.*.overall` failed on this object because the
+                    # structure is by_outcome[outcome][result].overall -- TWO levels under the
+                    # wildcard, not one -- and four claims were reported as unbacked while the
+                    # fields sat there. SEVENTH lookup in this run to under-count by reading
+                    # one spelling of a structure the corpus writes several ways.
+                    stack, seen = list(node.values()), []
+                    depth = 0
+                    while stack and depth < 4:
+                        seen.extend(stack)
+                        stack = [v for d in stack if isinstance(d, dict)
+                                 for v in d.values()]
+                        depth += 1
+                    nxt.extend(seen)
+                elif part.endswith("[]"):
+                    v = node.get(part[:-2])
+                    if isinstance(v, list):
+                        nxt.extend(v)
+                elif "[" in part:
+                    nxt.append(node.get(part.split("[")[0]))
+                elif part.endswith("_*"):
+                    # A WILDCARD ON THE KEY NAME: `SECOND_ASSESSOR_*` matches the stamped key
+                    # `SECOND_ASSESSOR_2026_08_21`. Stamped keys are how this corpus dates a
+                    # field, so a path language that cannot express one cannot address half
+                    # the fields written this run.
+                    pre = part[:-1]
+                    nxt.extend(v for k, v in node.items() if str(k).startswith(pre))
+                else:
+                    if part in node:
+                        nxt.append(node[part])
+            cur = [c for c in nxt if c not in (None, "", [], {})]
+            if not cur:
+                ok = False
+                break
+        if ok and cur:
+            return True, alt
+    return False, None
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    obj = json.load(io.open(os.path.join(REPO, "ssot", TOPIC, TOPIC + ".json"),
+                            encoding="utf-8"))
+    counts = {D: 0, F: 0, A: 0}
+    unbacked = []
+    print("")
+    print("TOPIC: %s -- the richest object in the corpus that carries NO authored prose."
+          % TOPIC)
+    print("arni-hfref is richer (12,145 leaves v 3,719) and was REJECTED: it is the one object")
+    print("in 155 holding `manuscript.discussion`, so it would count argument somebody already")
+    print("wrote as argument the object can derive.")
+    print("")
+    print("%-5s %-13s %-9s %-6s %s" % ("item", "section", "kind", "backed", "claim"))
+    for item, section, claim, kind, path in CLAIMS:
+        counts[kind] += 1
+        backed, which = (resolve(obj, path) if kind == D else (False, None))
+        if kind == D and not backed:
+            unbacked.append((item, claim, path))
+        print("%-5s %-13s %-9s %-6s %s"
+              % (item, section, kind, ("yes" if backed else "-") if kind == D else "",
+                 claim[:74]))
+    tot = sum(counts.values())
+    print("")
+    print("CLAIMS A READER-FACING INTRODUCTION, DISCUSSION AND CONCLUSIONS MUST ASSERT: %d"
+          % tot)
+    for k in (D, F, A):
+        print("   %-10s %2d   %4.1f%%" % (k, counts[k], 100.0 * counts[k] / tot))
+    print("")
+    if unbacked:
+        print("CLAIMS CLASSED DERIVABLE WHOSE FIELD DOES NOT RESOLVE ON THIS OBJECT: %d"
+              % len(unbacked))
+        for item, claim, path in unbacked:
+            print("   %-5s %-60s  %s" % (item, claim[:60], path[:70]))
+        print("")
+        print("   THESE ARE NOT DERIVABLE ON THIS TOPIC. The classification was made against")
+        print("   the SCHEMA; the resolution is made against THIS OBJECT, and where they")
+        print("   disagree the object wins. Re-counted below.")
+        adj = dict(counts)
+        adj[D] -= len(unbacked)
+        adj[F] += len(unbacked)
+        print("")
+        print("   ADJUSTED: %s %d (%.1f%%)  %s %d (%.1f%%)  %s %d (%.1f%%)"
+              % (D, adj[D], 100.0 * adj[D] / tot, F, adj[F], 100.0 * adj[F] / tot,
+                 A, adj[A], 100.0 * adj[A] / tot))
+    print("")
+    print("BY SECTION:")
+    for sec in ("Introduction", "Discussion", "Conclusions"):
+        rows = [c for c in CLAIMS if c[1] == sec]
+        n = len(rows)
+        d = sum(1 for c in rows if c[3] == D
+                and resolve(obj, c[4])[0])
+        f = sum(1 for c in rows if c[3] == F) + sum(1 for c in rows if c[3] == D
+                                                    and not resolve(obj, c[4])[0])
+        a = sum(1 for c in rows if c[3] == A)
+        print("   %-13s %2d claims   derivable %2d (%3.0f%%)   fetchable %2d   argument %2d (%3.0f%%)"
+              % (sec, n, d, 100.0 * d / n, f, a, 100.0 * a / n))
+    print("")
+    print("A SENTENCE THE OBJECT CANNOT BACK DOES NOT GET WRITTEN, HOWEVER WELL IT WOULD READ.")
+    print("The point of this count is to size the gap, not to close it by lowering the bar.")
+
+
+if __name__ == "__main__":
+    main()
