@@ -81,8 +81,17 @@ def refusal_named_in_section(page_text, heading):
     start = hits[-1]
     nxt = page_text.find("<h3", start)
     span = page_text[start:nxt if nxt > start else start + 6000]
-    return ("Refused:" in span), ("a refusal is named in this section" if "Refused:" in span
-                                  else "the section renders with no refusal in it")
+    # TWO WAYS A REFUSAL REACHES A READER, AND ONLY ONE WAS RECOGNISED.
+    #
+    # The projector emits a `Refused:` block when it has NO field to project. But an object
+    # that refuses a limb DELIBERATELY -- storing state / why / what_would_close_it -- now has
+    # those projected as PROSE, which is a better refusal, not a missing one. Counting only
+    # the marker reported apixaban-vte-prophylaxis as REFUSAL LOST minutes after its refusal
+    # started rendering in full. A check that recognises one of two correct forms manufactures
+    # a defect out of an improvement.
+    named = ("Refused:" in span) or ("This limb is REFUSED" in span)
+    return named, ("a refusal is named in this section" if named
+                   else "the section renders with no refusal in it")
 
 
 def probe_is_distinctive(probe, page, other_pages):
