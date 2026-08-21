@@ -4486,6 +4486,32 @@ that reads as noise and is nothing of the kind: **both are perfectly consistent,
 
 > **The rate is not the finding. The direction within each domain is.**
 
+#### Corrected 2026-08-21 — the `100 of 100` was measured on one prompt build
+
+Acting on this class is what falsified part of it. Moving D1 from LOW to NO_INFORMATION should
+have taken every D1 disagreement to zero if assessor 2 always said NO_INFORMATION; on
+`agyw-hiv-prep-review` and `cab-prep-hiv-review` it did not, because **assessor 2 said
+SOME_CONCERNS there.** Counted across all 23 topics now stored:
+
+| | assessor 2 said NO_INFORMATION |
+|---|---|
+| D1 | **77 of 81** — four exceptions, all SOME_CONCERNS |
+| D2 | 81 of 81 |
+| D3 | 81 of 81 |
+| **D1+D2+D3** | **239 of 243**, not 100% |
+
+**All four exceptions sit in the EARLIER prompt build** — the one whose reply ids are bare NCTs,
+used on three topics before `__<outcome>` was appended. Under that build: **4 of 6.** Under the
+later build: **0 of 75.** The `100 of 100` was true of the topics it was measured on and was
+generalised past them.
+
+*The mechanism stands; its universality does not — and the thing that varies with it is the
+**prompt**, which is the finding this run has now reached from three directions.* And the third
+direction is that a domain's disagreements can run **both ways at once**: after the move,
+`sglt2-hf` has 4 where this review says SOME_CONCERNS and assessor 2 says NO_INFORMATION, while
+`agyw-hiv-prep-review` has 2 the other way round. Both are the same vocabulary gap — RoB 2's
+algorithm answers SOME CONCERNS where this project writes NO_INFORMATION — seen from each side.
+
 **An agreement rate would have concealed this entirely.** 45% agreement reads as poor
 inter-rater reliability and invites a kappa and a shrug. What is actually happening is that each
 assessor is applying a stable rule about what to do with absent evidence, and the two rules

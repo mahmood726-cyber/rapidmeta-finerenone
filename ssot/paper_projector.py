@@ -1701,6 +1701,37 @@ def project(obj, journal="generic", length="standard"):
             s.add(obj, "Where they disagree, by domain: %s."
                   % _and_list(["%s %s" % (k, v) for k, v in sorted(_pd.items())]),
                   ["risk_of_bias.%s.PER_DOMAIN" % _k])
+        # THE RECOUNT, IMMEDIATELY AFTER THE NUMBER IT QUALIFIES.
+        #
+        # Applying the RoB 2 D1 guidance moved this review onto the position assessor 2 had
+        # taken, which left `PER_DOMAIN` printing `D1: 2 of 2 disagree` inches from a table
+        # saying NO_INFORMATION on both. A page asserting a live disagreement its own object no
+        # longer holds is class 44, and the stored rate is a PUBLISHED NUMBER that is not this
+        # project's to correct silently -- so both are rendered, in order, labelled. Anywhere
+        # else on the page and the reader meets the stale number without the correction.
+        # THE SOURCE PATH IS BUILT FROM THE KEY THAT WAS FOUND, NEVER RETYPED.
+        # Written first as `...RECOUNTED_AFTER_THE_D1_RESOLUTION` while the field is
+        # `..._2026_08_21`, so every sentence here rendered as a REFUSAL on the page -- the
+        # projector could not resolve the path and said so, correctly. Class 83 for the sixth
+        # time in this run, in the projector, in an edit whose whole purpose was to make a
+        # correction visible. Retyping a key beside code that already holds it is the defect.
+        _rk = next((_x for _x in sorted(_sa) if _x.startswith("RECOUNTED_AFTER")
+                    and isinstance(_sa[_x], dict)), None)
+        _rc = _sa.get(_rk) if _rk else None
+        if _rc:
+            _src = ["risk_of_bias.%s.%s" % (_k, _rk)]
+            s.add(obj, "That rate was measured before this review's D1 judgements moved. "
+                       "It is left as measured: %s" % _rc.get("why_this_field_exists", ""),
+                  _src)
+            s.add(obj, "Re-run on the object as it now stands: %s. By domain: %s."
+                  % (_rc.get("recounted_now", ""),
+                     _and_list(["%s %s" % (a, b) for a, b in
+                                sorted((_rc.get("PER_DOMAIN_recounted_now") or {}).items())])),
+                  _src)
+            for _f in ("what_moved_and_what_did_not", "why_D1_still_disagrees_here",
+                       "and_it_bounds_a_finding_of_ours"):
+                if isinstance(_rc.get(_f), str) and _rc[_f].strip():
+                    s.add(obj, _rc[_f].strip(), _src)
         _ea = _sa.get("each_disagreement")
         if isinstance(_ea, list) and _ea:
             s.add(obj, "Every disagreement, named: %s." % "; ".join(str(x) for x in _ea),

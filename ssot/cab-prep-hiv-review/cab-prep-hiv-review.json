@@ -224,6 +224,20 @@
    "values_moved": "NONE",
    "what_changed": "PER_DOMAIN derived from the stored verbatim_reply",
    "why": "Written into the object and never surfaced -- class 83, on the artefact the specification names."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "D1 moved from LOW to NO_INFORMATION on the RoB 2 guidance",
+   "values_moved": "NONE -- no overall rating, no GRADE certainty, no estimate and no interval changes",
+   "what_changed": "2 D1 judgement(s): primary/NCT02720094, primary/NCT03164564",
+   "why": "RoB 2 Box 4 question 1.1: 'Answer No information if the only information about randomization methods is a statement that the study is randomized.' RESOLVED BY GUIDANCE, NOT BY PREFERENCE."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "second-assessor disagreement rate recounted beside the stored one",
+   "values_moved": "NONE -- the stored rate and PER_DOMAIN are untouched. The recount is written as a separate, labelled field.",
+   "what_changed": "D1 2 of 2 disagree -> 2 of 2 disagree; overall 2 of 12 judgements on this topic -> 2 of 12",
+   "why": "Applying the D1 guidance moved this review's judgements to the position assessor 2 had taken, which left the stored rate describing a disagreement the object no longer holds. Both numbers now appear."
   }
  ],
  "renamed_2026_08_18": "Renamed from cab-prep-hiv-auto-full-review. THE READER LANDS ON cab-prep-hiv_REVIEW.html and the object now says so. Leaving the mismatch would have made PAGE_MAP the only place that truth lived -- one more route, and every multi-route value in this corpus has diverged. Done as a git mv, not a delete-and-write.",
@@ -274,10 +288,21 @@
      "result_assessed": "documented incident HIV infection -- the EFFICACY primary of two registered primaries",
      "domains": {
       "D1_randomisation_process": {
-       "judgement": "LOW",
+       "judgement": "NO_INFORMATION",
        "basis": "REGISTRATION DESIGN MODULE, READ",
        "reason": "allocation is recorded as RANDOMIZED on the design module.",
-       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read. LOW is scored on the recorded allocation, not on a mechanism nobody here has seen."
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read. LOW is scored on the recorded allocation, not on a mechanism nobody here has seen.",
+       "resolved_2026_08_21": {
+        "resolved_by": "GUIDANCE, NOT PREFERENCE",
+        "what_this_judgement_was": "LOW",
+        "what_it_is_now": "NO_INFORMATION",
+        "the_text_that_decides_it": "RoB 2 guidance 2019, Box 4, signalling question 1.1: \"Answer 'No information' if the only information about randomization methods is a statement that the study is randomized.\" And section 4.4: \"A judgement of low risk of bias requires that the trial has an adequate method of concealing the allocation sequence from those involved in enrolling participants, and there are no concerns about generation of the allocation sequence.\" Cochrane Handbook 6.5 section 8.3 names the domain's three components.",
+        "why_this_is_not_an_adjudicated_dispute": "A blind second assessor from a different model family disagreed with this domain on 89% of judgements across 22 topics. THAT WOULD ORDINARILY BE A DISPUTE TO ADJUDICATE. It is not one: the tool's own text names this exact evidential situation -- a bare statement that a study was randomised -- and prescribes the answer. The second assessor is not being deferred to; the guidance is being applied.",
+        "what_the_registry_gives_and_does_not": "A ClinicalTrials.gov design module records `allocation: RANDOMIZED`. It carries no sequence-generation method and no allocation-concealment mechanism. The original judgement's own note said so before scoring LOW.",
+        "how_this_maps_to_the_tool_s_algorithm": "The tool maps 'No information' on 1.1 and 1.2 with no baseline concern to a DOMAIN judgement of SOME CONCERNS. This project writes NO_INFORMATION on the domain when it could not be judged from the sources read, and caps the OVERALL at SOME_CONCERNS. Same place, and it keeps 'we could not judge this' distinguishable from 'we judged it and had concerns'.",
+        "what_does_not_change": "NO OVERALL RATING AND NO GRADE CERTAINTY MOVES. All 51 judgements were already capped at SOME_CONCERNS or HIGH by another NO_INFORMATION domain.",
+        "what_would_close_it_properly": "The trial publications or protocols, which carry sequence generation and concealment. Neither was read. Until one is, LOW is not available on this domain for any result in this corpus."
+       }
       },
       "D2_deviations_from_intended_intervention": {
        "judgement": "NO_INFORMATION",
@@ -313,10 +338,21 @@
      "result_assessed": "documented incident HIV infection -- the EFFICACY primary of two registered primaries",
      "domains": {
       "D1_randomisation_process": {
-       "judgement": "LOW",
+       "judgement": "NO_INFORMATION",
        "basis": "REGISTRATION DESIGN MODULE, READ",
        "reason": "allocation is recorded as RANDOMIZED on the design module.",
-       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read. LOW is scored on the recorded allocation, not on a mechanism nobody here has seen."
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read. LOW is scored on the recorded allocation, not on a mechanism nobody here has seen.",
+       "resolved_2026_08_21": {
+        "resolved_by": "GUIDANCE, NOT PREFERENCE",
+        "what_this_judgement_was": "LOW",
+        "what_it_is_now": "NO_INFORMATION",
+        "the_text_that_decides_it": "RoB 2 guidance 2019, Box 4, signalling question 1.1: \"Answer 'No information' if the only information about randomization methods is a statement that the study is randomized.\" And section 4.4: \"A judgement of low risk of bias requires that the trial has an adequate method of concealing the allocation sequence from those involved in enrolling participants, and there are no concerns about generation of the allocation sequence.\" Cochrane Handbook 6.5 section 8.3 names the domain's three components.",
+        "why_this_is_not_an_adjudicated_dispute": "A blind second assessor from a different model family disagreed with this domain on 89% of judgements across 22 topics. THAT WOULD ORDINARILY BE A DISPUTE TO ADJUDICATE. It is not one: the tool's own text names this exact evidential situation -- a bare statement that a study was randomised -- and prescribes the answer. The second assessor is not being deferred to; the guidance is being applied.",
+        "what_the_registry_gives_and_does_not": "A ClinicalTrials.gov design module records `allocation: RANDOMIZED`. It carries no sequence-generation method and no allocation-concealment mechanism. The original judgement's own note said so before scoring LOW.",
+        "how_this_maps_to_the_tool_s_algorithm": "The tool maps 'No information' on 1.1 and 1.2 with no baseline concern to a DOMAIN judgement of SOME CONCERNS. This project writes NO_INFORMATION on the domain when it could not be judged from the sources read, and caps the OVERALL at SOME_CONCERNS. Same place, and it keeps 'we could not judge this' distinguishable from 'we judged it and had concerns'.",
+        "what_does_not_change": "NO OVERALL RATING AND NO GRADE CERTAINTY MOVES. All 51 judgements were already capped at SOME_CONCERNS or HIGH by another NO_INFORMATION domain.",
+        "what_would_close_it_properly": "The trial publications or protocols, which carry sequence generation and concealment. Neither was read. Until one is, LOW is not available on this domain for any result in this corpus."
+       }
       },
       "D2_deviations_from_intended_intervention": {
        "judgement": "NO_INFORMATION",
@@ -372,7 +408,26 @@
     "D5": "0 of 2 disagree",
     "OVERALL": "0 of 2 disagree"
    },
-   "PER_DOMAIN_derived_2026_08_21": "DERIVED FROM THIS OBJECT'S OWN STORED `verbatim_reply` AND THE ASSESSMENT ABOVE. Nothing re-asked, no new judgement: arithmetic over two things this object already held. These three topics were reconciled BEFORE the reconciler existed, so the breakdown was written as prose and not as a field -- class 83's shape, in the one place the specification names."
+   "PER_DOMAIN_derived_2026_08_21": "DERIVED FROM THIS OBJECT'S OWN STORED `verbatim_reply` AND THE ASSESSMENT ABOVE. Nothing re-asked, no new judgement: arithmetic over two things this object already held. These three topics were reconciled BEFORE the reconciler existed, so the breakdown was written as prose and not as a field -- class 83's shape, in the one place the specification names.",
+   "RECOUNTED_AFTER_THE_D1_RESOLUTION_2026_08_21": {
+    "why_this_field_exists": "On 2026-08-21 this review's D1 judgements moved from LOW to NO_INFORMATION on the RoB 2 guidance -- the position assessor 2 had taken. The rate above was measured BEFORE that and is left exactly as measured: it is a published number, it is the record of what a blind second assessor said, and it is the reason the guidance was re-read. Editing it would delete the evidence that the change was warranted. This is the same computation re-run on the object as it now stands, so both are visible and neither is silently corrected.",
+    "as_measured_before": "2 of 12 judgements on this topic -- 16.7%. BOTH ARE D1 AND NOTHING ELSE. D2, D3, D4, D5 and the overall all agree.",
+    "recounted_now": "2 of 12 judgements -- 16.7%",
+    "PER_DOMAIN_recounted_now": {
+     "D1": "2 of 2 disagree",
+     "D2": "0 of 2 disagree",
+     "D3": "0 of 2 disagree",
+     "D4": "0 of 2 disagree",
+     "D5": "0 of 2 disagree",
+     "OVERALL": "0 of 2 disagree"
+    },
+    "D1_before": "2 of 2 disagree",
+    "D1_now": "2 of 2 disagree",
+    "what_moved_and_what_did_not": "2 D1 judgement(s) on this topic moved. Any D1 disagreement that REMAINS is one where this assessment said SOME_CONCERNS rather than LOW -- assessor 2 said NO_INFORMATION there too, and the guidance applied here speaks to LOW, not to SOME_CONCERNS. So a claim that 'the D1 disagreement is resolved' would be false wherever those two numbers differ, which is why the count is re-run per topic instead of asserted once.",
+    "why_D1_still_disagrees_here": "2 D1 disagreement(s) remain -- 2 where this assessment says NO_INFORMATION and assessor 2 says SOME_CONCERNS. BOTH ASSESSORS READ THE SAME ABSENCE OF A CONCEALMENT METHOD, so this is a house-rule divergence and not an evidential one. RoB 2's algorithm answers SOME CONCERNS when 1.2 is `No information` and there is no baseline concern; this project writes NO_INFORMATION on the domain instead, so a reader can tell a domain nobody could evaluate from a domain evaluated and found wanting. Both cap OVERALL at the same place. The disagreement is real and it is about vocabulary.",
+    "and_it_bounds_a_finding_of_ours": "Class 94 records assessor 2 saying NO_INFORMATION on D1/D2/D3 `100 of 100`. Measured across all 23 topics now stored that is 239 of 243, and ALL FOUR exceptions are D1=SOME_CONCERNS on `agyw-hiv-prep-review` and `cab-prep-hiv-review` -- two of the three topics asked under the EARLIER prompt build, the one whose reply ids are bare NCTs. Under that build it is 4 of 6; under the later build 0 of 75. The 100% was measured on the later build's topics. The two-defaults mechanism stands; its universality does not, and what varies with it is the PROMPT.",
+    "the_rate_is_still_conditional_on_the_same_allow_list": "Both numbers are conditional on the fact list in THE_ALLOW_LIST_THE_RATE_IS_CONDITIONAL_ON above. Neither is a rate of agreement between assessors in general."
+   }
   }
  },
  "grade": {
