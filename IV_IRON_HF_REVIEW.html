@@ -24,10 +24,12 @@
     tag. The block announces itself; reading it is optional, knowing it is there is not. */
  .prov-ref{font-size:.68em;line-height:0;vertical-align:super;color:var(--accent);
        font-family:var(--sans,system-ui,sans-serif);padding-left:.15em}
- .prov-block{margin:.6rem 0 1.4rem;padding:.5rem .8rem;border-left:2px solid var(--line);
+ .prov-block{margin:.4rem 0 1.2rem;padding:0;border:0;background:none}
+ .prov-title{margin:0;font-size:.72rem;letter-spacing:.02em;color:var(--muted);
+       font-family:var(--sans,system-ui,sans-serif);cursor:pointer;opacity:.65}
+ .prov-block[open]>.prov-title{margin-bottom:.35rem;opacity:1}
+ .prov-block[open]{padding:.5rem .8rem;border-left:2px solid var(--line);
        background:var(--soft)}
- .prov-title{margin:0 0 .3rem;font-size:.78rem;letter-spacing:.02em;color:var(--muted);
-       font-family:var(--sans,system-ui,sans-serif);text-transform:uppercase}
  .prov-list{margin:0;padding-left:1.4rem}
  .prov-list li{font-size:.78rem;line-height:1.45;color:var(--muted)}
  .prov-list code{font-size:.95em;word-break:break-word}
@@ -2134,7 +2136,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-10</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>740624a84</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>f0cf2ef6e</code>, built to STANDARD v1</td></tr>
     <tr><th scope='col'>Statistical engine</th><td>metafor 5.0.1 under R 4.6.0, generic inverse variance on the same log point and log standard error this object stores</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
@@ -2283,49 +2285,56 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
   </section>
 <!--end-report-->  <section class="panel" id="pn-paper"><span id="paper"></span>
-  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-sections-not-written-and-why">Sections not written, and why</a> &middot; <a href="#paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-keywords">Keywords</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-competing-interests">Competing interests</a> &middot; <a href="#paper-grant-information">Grant information</a> &middot; <a href="#paper-author-contributions">Author contributions</a> &middot; <a href="#paper-reporting-guidelines">Reporting guidelines</a> &middot; <a href="#paper-registration">Registration</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-figures">Figures</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a></p>
+  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-keywords">Keywords</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-reporting-guidelines">Reporting guidelines</a> &middot; <a href="#paper-author-contributions">Author contributions</a> &middot; <a href="#paper-competing-interests">Competing interests</a> &middot; <a href="#paper-grant-information">Grant information</a> &middot; <a href="#paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-registration">Registration</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-figures">Figures</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-extended-data-statistical-output-quoted-ve">Extended data: statistical output, quoted verbatim</a> &middot; <a href="#paper-sections-not-written-and-why">Sections not written, and why</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a></p>
 <div class='card'>
 <h2 id="paper-paper">Paper</h2>
 <p class='muted'>Every statement below is projected from a field of this object. The superscripts are sources: each section ends with the fields its statements came from, in order. <strong>A section with no field behind it is not written</strong> &mdash; it is refused, by name, so a reader can tell an absent procedure from an unmentioned one.</p>
 <h3 id="paper-title-and-review-question">Title and review question</h3>
 <p>Intravenous iron against placebo or usual care in heart failure with iron deficiency: six outcomes under four effect measures, pooled within three families and across none, with the two endpoints that carry no ordinary interval reported from single trials<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>In adults with heart failure and iron deficiency, what is the effect of intravenous iron compared with placebo or usual care on recurrent hospitalisations for heart failure with and without cardiovascular death, on the time to a first such event, on death from any cause, on a hierarchical composite of death, hospitalisation and walk distance, and on exercise capacity itself -- with each of those questions answered separately?<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
 <li><code>title</code></li>
 <li><code>question</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-abstract">Abstract</h3>
 <p>Question. In adults with heart failure and iron deficiency, what is the effect of intravenous iron compared with placebo or usual care on recurrent hospitalisations for heart failure with and without cardiovascular death, on the time to a first such event, on death from any cause, on a hierarchical composite of death, hospitalisation and walk distance, and on exercise capacity itself -- with each of those questions answered separately?<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>Methods. ClinicalTrials.gov API v2 were searched; eligibility was ELIGIBILITY turns on population, intervention, comparator, route and outcome. The population is adults with heart failure and iron deficiency. The intervention is INTRAVENOUS iron as ferric carboxymaltose or ferric derisomaltose. The comparator is placebo OR usual care -- and the second half is load; estimates were pooled under random with the REML estimator; risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials); and certainty was rated with GRADE.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
 <p>Results. Time to death from ANY cause, as a hazard ratio: hazard ratio 0.978 (0.752 to 1.27) across 2 trials; Time to a FIRST cardiovascular death or hospitalisation for heart failure, as a hazard ratio: hazard ratio 0.796 (0.686 to 0.923) across 2 trials; Recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio: rate ratio 0.807 (0.686 to 0.949) across 2 trials; Recurrent hospitalisations for heart failure ALONE, with no death component, as a rate ratio: rate ratio 0.764 (0.636 to 0.919) across 2 trials; heterogeneity was closely (I-squared 0%); and certainty of the evidence was low.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
 <div class='absent-state' role='note'><strong>Refused:</strong> the Background sentence of the abstract. Background is ARGUMENT -- why this question matters -- and no arrangement of the quantities this object holds yields it. It is emitted only from an authored field and there is no composition path for it here<sup class='prov-ref' title='source 4 for this section'>4</sup></div>
 <div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions sentence of the abstract. A conclusion is ARGUMENT -- what a reader should now believe -- and it is emitted only from an authored field. Composing one from the estimate would be this renderer telling the reader what to conclude, which no field supports<sup class='prov-ref' title='source 5 for this section'>5</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (5)</summary><ol class='prov-list'>
 <li><code>question</code></li>
 <li><code>search.databases, screening.eligibility, results.by_outcome, risk_of_bias.tool, grade.approach</code></li>
 <li><code>results.by_outcome</code></li>
 <li><code>manuscript.abstract.Background</code></li>
 <li><code>manuscript.abstract.Conclusions</code></li>
-</ol></div>
+</ol></details>
+<h3 id="paper-keywords">Keywords</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> <sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a CONTENT gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
+<li><code>keywords</code></li>
+<li><code>keywords</code></li>
+</ol></details>
 <h3 id="paper-introduction">Introduction</h3>
 <div class='absent-state' role='note'><strong>Refused:</strong> the Introduction -- no background or rationale is recorded on this object. This is a CONTENT gap, not a rendering one: no change to this projector produces it, and it is written by adding `protocol.rationale` to the object<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>protocol.rationale</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-methods-search">Methods — search</h3>
 <p>Searches were executed in ClinicalTrials.gov API v2 -- QUERY 1, NARROWER, AND IT MISSED TWO INCLUDED TRIALS on 2026-08-19 with the query, verbatim: query.cond=&quot;chronic heart failure&quot;; query.intr=&quot;ferric carboxymaltose OR iron sucrose OR ferric derisomaltose OR iron isomaltoside&quot;; filter.advanced=AREA[StudyType]INTERVENTIONAL; pageSize=100; countTotal=true. It returned 16 record(s). This query surfaced only 3 of this object&#x27;s 5 OWN INCLUDED TRIALS. It missed AFFIRM-AHF (NCT02937454), whose registered condition is &#x27;Iron Deficiency; Heart Failure&#x27;, and HEART-FID (NCT03037931), registered as &#x27;Heart Failure; Iron-deficiency&#x27;. NEITHER CARRIES THE WORD &#x27;CHRONIC&#x27;. This is the same defect shape that dropped DELIVER from the sglt2-hf query: a condition term one word narrower than the registry&#x27;s own wording silently loses included trials. It is recorded rather than replaced, because a search&#x27;s misses are the only available evidence about its recall.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>Searches were executed in ClinicalTrials.gov API v2 -- QUERY 2, BROADER, FULL RECALL ON THE INCLUDED SET on 2026-08-19 with the query, verbatim: query.cond=&quot;heart failure&quot;; query.intr=&quot;ferric carboxymaltose OR iron sucrose OR ferric derisomaltose OR iron isomaltoside OR intravenous iron&quot;; filter.advanced=AREA[StudyType]INTERVENTIONAL; pageSize=200; countTotal=true. It returned 47 record(s).<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
 <li><code>search.databases[0]</code></li>
 <li><code>search.databases[1]</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-methods-eligibility-criteria">Methods — eligibility criteria</h3>
 <p>ELIGIBILITY turns on population, intervention, comparator, route and outcome. The population is adults with heart failure and iron deficiency. The intervention is INTRAVENOUS iron as ferric carboxymaltose or ferric derisomaltose. The comparator is placebo OR usual care -- and the second half is load-bearing rather than generous: one contributing trial randomised against usual care, so a placebo-only criterion would exclude it, which is the defect this criterion was written to avoid. The outcome criterion is that the trial designates a CLINICAL-EVENT endpoint, or a registered functional primary that a regulator relies on. The word adjudicated is deliberately absent from this criterion, and the reason is NOT that adjudication is rare here: two contributing trials&#x27; staged sources state it plainly -- one abstract records masked adjudication of the outcomes, and one full text records an independent clinical endpoint committee adjudicating all hospitalisations and deaths. What cannot be shown is that EVERY contributing trial&#x27;s staged sources establish it, so a criterion demanding adjudication would be one this review could not show all its own members satisfy. An earlier version of this sentence said only ONE trial&#x27;s sources state adjudication, which a later correction in this same object contradicted the moment it established the second -- a fix that created its own inconsistency by not sweeping back to the sentences that quantify over the fact it added. NO criterion refers to membership of a list.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>Each criterion above is recorded with the source it was derived from in `screening.eligibility_provenance`; none is asserted here without one.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
 <li><code>screening.eligibility</code></li>
 <li><code>screening.eligibility_provenance</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</h3>
 <p>The PRISMA 2020 flow counts are recorded in `prisma_flow` and reconcile with the executed searches above.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>The unscreened remainder is 0.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
@@ -2340,16 +2349,16 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <tr><td>Trials included in this review</td><td>5</td></tr>
 <tr><td>Surfaced records not yet screened</td><td>0</td></tr>
 </table></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (3)</summary><ol class='prov-list'>
 <li><code>prisma_flow</code></li>
 <li><code>k_cascade.k_unscreened_remainder</code></li>
 <li><code>k_cascade</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</h3>
 <p>Every registered rank -- primary, secondary and other -- was read for 5 of 5 contributing trials before any decision about which outcomes could be combined; each records the time it was read.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>inputs.trials[].all_ranks_read_utc</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-methods-synthesis">Methods — synthesis</h3>
 <p>For recurrent hospitalisations for heart failure together with cardiovascular death, as a rate ratio, a random model was fitted with the REML estimator.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>For time to a FIRST cardiovascular death or hospitalisation for heart failure, as a hazard ratio, a random model was fitted with the REML estimator.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
@@ -2364,7 +2373,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <p>Certainty of evidence was rated with GRADE, following Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1, Chapter 14: Completing &#x27;Summary of findings&#x27; tables and grading the certainty of the evidence. HIGH for a body of randomised evidence, then rated down with reasons. 4 pooled outcome(s) were rated. No domain is rated UP. Rating up for large effect or dose-response applies to observational evidence that has not already been rated down, and neither condition holds here. 2 outcome(s) were NOT rated because their pool is declined or withdrawn: there is no effect estimate to rate the certainty of, and rating one would be certainty about a number this review refused to publish.<sup class='prov-ref' title='source 11 for this section'>11</sup></p>
 <div class='absent-state' role='note'><strong>Refused:</strong> the claim that records were screened in duplicate -- and this topic OWES one rather than merely lacking one: No second independent screen was run for this topic. This is recorded as OWED rather than described: the remedy is to RUN one, and writing a duplicate-screening sentence without one would be the defect this whole exercise exists to prevent.<sup class='prov-ref' title='source 12 for this section'>12</sup></div>
 <div class='absent-state' role='note'><strong>Refused:</strong> the claim that the review methods were prespecified before data collection. THIS REFUSAL IS PERMANENT AND IS NOT A GAP TO BE FILLED. A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively. Writing one now and calling it prespecified would invalidate every other refusal on these pages, because a reader who caught it would be right to disbelieve all of them. Eligibility criteria were derived POST HOC from the trials and the methodological authority, and the derivation is recorded element by element in `screening.eligibility_provenance` with the source of each. MECIR R107 permits post-hoc eligibility criteria PROVIDED THEY ARE DECLARED AS SUCH. They are declared, here and on the page, and the page says &#x27;derived, post hoc&#x27; in its heading.<sup class='prov-ref' title='source 13 for this section'>13</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (13)</summary><ol class='prov-list'>
 <li><code>results.by_outcome.hfh_cvd_recurrent.model, results.by_outcome.hfh_cvd_recurrent.estimator_used</code></li>
 <li><code>results.by_outcome.hfh_cvd_first.model, results.by_outcome.hfh_cvd_first.estimator_used</code></li>
 <li><code>results.by_outcome.hfh_recurrent.model, results.by_outcome.hfh_recurrent.estimator_used</code></li>
@@ -2378,7 +2387,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <li><code>grade.approach, grade.by_outcome</code></li>
 <li><code>screening.duplicate_screening.performed</code></li>
 <li><code>protocol.prespecified = false (declared, not missing)</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-results">Results</h3>
 <p>The pooled rate ratio for recurrent hospitalisations for heart failure together with cardiovascular death was 0.807 (0.686 to 0.949, 95% interval) across 2 trials, against a saline placebo, except on the recurrent-composite estimand where one contributing trial randomised against usual care.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>The trials&#x27; results were closely consistent with one another: I-squared, the share of the variation between them that is more than chance alone would produce, was 0%; the estimated variance of the true effects between trials (tau-squared) was 0, the heterogeneity test statistic Q was 0.0499, on degrees of freedom 1. Computed from Q and its single degree of freedom. With TWO trials this statistic has almost no power to detect heterogeneity, so a low value is consistent both with agreement and with not being able to tell, and it is reported with that caveat rather than as reassurance. What the statistic cannot see at all are the dimensions the uniformity table records, because those are differences in the question each trial answered rather than in its answer.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
@@ -2391,7 +2400,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <p>The trials&#x27; results were closely consistent with one another: I-squared, the share of the variation between them that is more than chance alone would produce, was 0%; the estimated variance of the true effects between trials (tau-squared) was 0, the heterogeneity test statistic Q was 0.0643, on degrees of freedom 1. The caveat recorded above for recurrent hospitalisations for heart failure together with cardiovascular death applies here too.<sup class='prov-ref' title='source 9 for this section'>9</sup></p>
 <p>A hierarchical composite of death, hospitalisations for heart failure and change in walk distance, as an unmatched win ratio. These 1 trials are NOT pooled, and the reason is stated rather than the outcome being quietly omitted: Only one contributing trial reports this estimand, and the FORM of the quantity would prevent pooling even if a second did: it counts PAIRS rather than participants or events, its direction of benefit is inverted relative to every other ratio here, and its interval is not at the level the others use.<sup class='prov-ref' title='source 10 for this section'>10</sup></p>
 <p>Change in six-minute walk distance at the primary timepoint, in metres. These 1 trials are NOT pooled, and the reason is stated rather than the outcome being quietly omitted: Only one staged source prints an extractable between-arm difference for this endpoint, and that -- not the form of the quantity -- is why nothing is pooled. A mean difference in metres on a common scale is poolable by generic inverse variance like any other, so a later lane that obtains the full texts of the other trials registering a walk-distance endpoint could pool this estimand properly. An earlier version of this field said the FORM would prevent it, which is stricter than the Handbook, false of a mean difference, and contradicted by this object&#x27;s own handbook block three fields away.<sup class='prov-ref' title='source 11 for this section'>11</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<p>The full model output for every pooled outcome -- the call, the estimator, the heterogeneity statistics and the back-transformed interval -- is reproduced verbatim as Extended data at the end of this article, so every number above can be checked against the software that produced it.<sup class='prov-ref' title='source 12 for this section'>12</sup></p>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (12)</summary><ol class='prov-list'>
 <li><code>outcomes[id=hfh_cvd_recurrent].name, results.by_outcome.hfh_cvd_recurrent.pooled, config.confidence_level, outcomes[id=hfh_cvd_recurrent].comparator</code></li>
 <li><code>results.by_outcome.hfh_cvd_recurrent.heterogeneity.i2, results.by_outcome.hfh_cvd_recurrent.heterogeneity.tau2, results.by_outcome.hfh_cvd_recurrent.heterogeneity.q, results.by_outcome.hfh_cvd_recurrent.heterogeneity.df, results.by_outcome.hfh_cvd_recurrent.heterogeneity_status</code></li>
 <li><code>results.by_outcome.hfh_cvd_recurrent.poolable_reason</code></li>
@@ -2403,130 +2413,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <li><code>results.by_outcome.acm.heterogeneity.i2, results.by_outcome.acm.heterogeneity.tau2, results.by_outcome.acm.heterogeneity.q, results.by_outcome.acm.heterogeneity.df, results.by_outcome.acm.heterogeneity_status</code></li>
 <li><code>outcomes[id=hierarchical_primary].name, results.by_outcome.hierarchical_primary.poolable_reason</code></li>
 <li><code>outcomes[id=six_min_walk_24w].name, results.by_outcome.six_min_walk_24w.poolable_reason</code></li>
-</ol></div>
-<h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
-<p><sup class='prov-ref' title='source 1 for this section'>1</sup>[R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1] call: rma(yi = log(est), sei = (log(hi)-log(lo))/(2*qnorm(0.975)), method = &quot;REML&quot;) -- acm -- death from ANY cause, hazard ratio
-  unit of analysis: participant: time to death from any cause
-==============================================================================
-
-Random-Effects Model (k = 2; tau^2 estimator: REML)
-
-tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.1247)
-tau (square root of estimated tau^2 value):      0
-I^2 (total heterogeneity / total variability):   0.00%
-H^2 (total variability / sampling variability):  1.00
-
-Test for Heterogeneity:
-Q(df = 1) = 0.0643, p-val = 0.7999
-
-Model Results:
-
-estimate      se     zval    pval    ci.lb   ci.ub    
- -0.0223  0.1339  -0.1663  0.8679  -0.2846  0.2401    
-
----
-Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
-
-
-Back-transformed:
-
-   pred  ci.lb  ci.ub  pi.lb  pi.ub 
- 0.9780 0.7523 1.2714 0.7523 1.2714</p>
-<p>Cross-engine verification for acm: metafor 5.0.1 under R 4.6.0, generic inverse variance on the same log point and log standard error this object stores Recomputed independently and checked against the stored values, by a script that shares no pooling code path with this builder beyond the estimator module they both call. This is two ENGINES agreeing on one arithmetic; it says nothing about whether the contributing TRIALS agree with each other, and nothing at all about the dimensions the uniformity table records.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<p><sup class='prov-ref' title='source 3 for this section'>3</sup>[R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1] call: rma(yi = log(est), sei = (log(hi)-log(lo))/(2*qnorm(0.975)), method = &quot;REML&quot;) -- hfh_cvd_first -- FIRST CV death or HF hospitalisation, hazard ratio
-  unit of analysis: participant: time to the first component event
-==============================================================================
-
-Random-Effects Model (k = 2; tau^2 estimator: REML)
-
-tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0166)
-tau (square root of estimated tau^2 value):      0
-I^2 (total heterogeneity / total variability):   0.00%
-H^2 (total variability / sampling variability):  1.00
-
-Test for Heterogeneity:
-Q(df = 1) = 0.0067, p-val = 0.9346
-
-Model Results:
-
-estimate      se     zval    pval    ci.lb    ci.ub     
- -0.2286  0.0759  -3.0114  0.0026  -0.3774  -0.0798  ** 
-
----
-Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
-
-
-Back-transformed:
-
-   pred  ci.lb  ci.ub  pi.lb  pi.ub 
- 0.7957 0.6857 0.9233 0.6857 0.9233</p>
-<p>Cross-engine verification for hfh_cvd_first: metafor 5.0.1 under R 4.6.0, generic inverse variance on the same log point and log standard error this object stores Recomputed independently and checked against the stored values, by a script that shares no pooling code path with this builder beyond the estimator module they both call. This is two ENGINES agreeing on one arithmetic; it says nothing about whether the contributing TRIALS agree with each other, and nothing at all about the dimensions the uniformity table records.<sup class='prov-ref' title='source 4 for this section'>4</sup></p>
-<p><sup class='prov-ref' title='source 5 for this section'>5</sup>[R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1] call: rma(yi = log(est), sei = (log(hi)-log(lo))/(2*qnorm(0.975)), method = &quot;REML&quot;) -- hfh_cvd_recurrent -- recurrent HF hospitalisations WITH CV death, rate ratio
-  unit of analysis: event: each participant contributes every qualifying event
-==============================================================================
-
-Random-Effects Model (k = 2; tau^2 estimator: REML)
-
-tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0197)
-tau (square root of estimated tau^2 value):      0
-I^2 (total heterogeneity / total variability):   0.00%
-H^2 (total variability / sampling variability):  1.00
-
-Test for Heterogeneity:
-Q(df = 1) = 0.0499, p-val = 0.8232
-
-Model Results:
-
-estimate      se     zval    pval    ci.lb    ci.ub     
- -0.2150  0.0829  -2.5940  0.0095  -0.3774  -0.0525  ** 
-
----
-Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
-
-
-Back-transformed:
-
-   pred  ci.lb  ci.ub  pi.lb  pi.ub 
- 0.8066 0.6856 0.9488 0.6856 0.9488</p>
-<p>Cross-engine verification for hfh_cvd_recurrent: metafor 5.0.1 under R 4.6.0, generic inverse variance on the same log point and log standard error this object stores Recomputed independently and checked against the stored values, by a script that shares no pooling code path with this builder beyond the estimator module they both call. This is two ENGINES agreeing on one arithmetic; it says nothing about whether the contributing TRIALS agree with each other, and nothing at all about the dimensions the uniformity table records.<sup class='prov-ref' title='source 6 for this section'>6</sup></p>
-<p><sup class='prov-ref' title='source 7 for this section'>7</sup>[R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1] call: rma(yi = log(est), sei = (log(hi)-log(lo))/(2*qnorm(0.975)), method = &quot;REML&quot;) -- hfh_recurrent -- recurrent HF hospitalisations ALONE, no death component, rate ratio
-  unit of analysis: hospitalisation: each participant contributes every hospitalisation
-==============================================================================
-
-Random-Effects Model (k = 2; tau^2 estimator: REML)
-
-tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0256)
-tau (square root of estimated tau^2 value):      0
-I^2 (total heterogeneity / total variability):   0.00%
-H^2 (total variability / sampling variability):  1.00
-
-Test for Heterogeneity:
-Q(df = 1) = 0.1677, p-val = 0.6822
-
-Model Results:
-
-estimate      se     zval    pval    ci.lb    ci.ub     
- -0.2685  0.0939  -2.8583  0.0043  -0.4526  -0.0844  ** 
-
----
-Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
-
-
-Back-transformed:
-
-   pred  ci.lb  ci.ub  pi.lb  pi.ub 
- 0.7645 0.6360 0.9191 0.6360 0.9191</p>
-<p>Cross-engine verification for hfh_recurrent: metafor 5.0.1 under R 4.6.0, generic inverse variance on the same log point and log standard error this object stores Recomputed independently and checked against the stored values, by a script that shares no pooling code path with this builder beyond the estimator module they both call. This is two ENGINES agreeing on one arithmetic; it says nothing about whether the contributing TRIALS agree with each other, and nothing at all about the dimensions the uniformity table records.<sup class='prov-ref' title='source 8 for this section'>8</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>results.by_outcome.acm.r_output.verbatim</code></li>
-<li><code>results.by_outcome.acm.cross_engine</code></li>
-<li><code>results.by_outcome.hfh_cvd_first.r_output.verbatim</code></li>
-<li><code>results.by_outcome.hfh_cvd_first.cross_engine</code></li>
-<li><code>results.by_outcome.hfh_cvd_recurrent.r_output.verbatim</code></li>
-<li><code>results.by_outcome.hfh_cvd_recurrent.cross_engine</code></li>
-<li><code>results.by_outcome.hfh_recurrent.r_output.verbatim</code></li>
-<li><code>results.by_outcome.hfh_recurrent.cross_engine</code></li>
-</ol></div>
+<li><code>results.by_outcome</code></li>
+</ol></details>
 <h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
 <p>Risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials). The unit of assessment is A RESULT, not a study -- Handbook 8.2: &#x27;risk of bias is assessed for a specific result&#x27;. Every judgement below names its outcome.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>NO RESULT IN THIS REVIEW CAN REACH LOW RISK OF BIAS ON THE EVIDENCE WE CAN REACH, AND THAT IS A FACT ABOUT OUR ACCESS RATHER THAN ABOUT THE TRIALS. The two domains that would distinguish LOW from SOME CONCERNS need documents this review does not hold: D1 needs allocation concealment and baseline data, which are in neither the registration nor the published abstract; D5 needs the trial&#x27;s statistical analysis plan, which is not held for any trial. SOME CONCERNS IS THEREFORE THE CEILING, NOT A FINDING. A trial rated SOME CONCERNS here may well be at low risk of bias -- we cannot show it, and we do not imply the opposite. Retrieving each trial&#x27;s full published report and its statistical analysis plan or protocol. Until then the rating is bounded by what we read, and the bound is reported rather than the reader inferring it.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
@@ -2545,7 +2433,10 @@ NCT02937454__hfh_recurrent D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION
 NCT03036462__hfh_cvd_first D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=LOW OVERALL=NO_INFORMATION
 NCT03036462__hfh_recurrent D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=LOW OVERALL=NO_INFORMATION
 NCT03037931__hierarchical_primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=SOME_CONCERNS OVERALL=SOME_CONCERNS</p>
-<div class='tscroll'><table><caption>Risk-of-bias judgement for every included result<sup class='prov-ref' title='source 9 for this section'>9</sup></caption>
+<p>The facts both assessors were shown -- a rate is meaningless without them: A DISAGREEMENT RATE IS MEANINGLESS WITHOUT THE FACTS BOTH ASSESSORS SAW, so the list is stated here the way a denominator is stated. Fields emitted: trial, cohort, registered enrolment, registered masking, registered sites, registered comparator, number of registered arms, number of registered PRIMARY outcomes, registered PRIMARY outcome, registered analysis population, the rank the pooled result holds, the result being assessed, participants this review pools, registered enrolment minus participants pooled. Established by test, not argument: widening this list from 9 fields to 14 HALVED gepotidacin&#x27;s disagreement -- its entire D5 divergence was a fact the second assessor had never been shown -- and left ceftaroline and tigecycline unmoved.<sup class='prov-ref' title='source 9 for this section'>9</sup></p>
+<p>Where they disagree, by domain: D1 10 of 10 disagree, D2 7 of 10 disagree, D3 5 of 10 disagree, D4 4 of 10 disagree, D5 5 of 10 disagree and OVERALL 6 of 10 disagree.<sup class='prov-ref' title='source 10 for this section'>10</sup></p>
+<p>Every disagreement, named: NCT01453608__acm D1: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION; NCT01453608__acm D2: assessor 1 LOW, assessor 2 NO_INFORMATION; NCT01453608__acm OVERALL: assessor 1 NO_INFORMATION, assessor 2 SOME_CONCERNS; NCT01453608__six_min_walk_24w D1: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION; NCT01453608__six_min_walk_24w D2: assessor 1 LOW, assessor 2 NO_INFORMATION; NCT01453608__six_min_walk_24w D3: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION; NCT01453608__six_min_walk_24w D4: assessor 1 SOME_CONCERNS, assessor 2 LOW; NCT01453608__six_min_walk_24w D5: assessor 1 SOME_CONCERNS, assessor 2 LOW; NCT01453608__six_min_walk_24w OVERALL: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION; NCT02642562__hfh_cvd_recurrent D1: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION; NCT02642562__hfh_cvd_recurrent D3: assessor 1 LOW, assessor 2 NO_INFORMATION; NCT02642562__hfh_cvd_recurrent D4: assessor 1 SOME_CONCERNS, assessor 2 LOW; NCT02642562__hfh_cvd_recurrent D5: assessor 1 SOME_CONCERNS, assessor 2 LOW; NCT02937454__acm D1: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION; NCT02937454__acm D2: assessor 1 LOW, assessor 2 NO_INFORMATION; NCT02937454__acm OVERALL: assessor 1 NO_INFORMATION, assessor 2 SOME_CONCERNS; NCT02937454__hfh_cvd_first D1: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION; NCT02937454__hfh_cvd_first D2: assessor 1 LOW, assessor 2 NO_INFORMATION; NCT02937454__hfh_cvd_first OVERALL: assessor 1 NO_INFORMATION, assessor 2 SOME_CONCERNS; NCT02937454__hfh_cvd_recurrent D1: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION; NCT02937454__hfh_cvd_recurrent D2: assessor 1 LOW, assessor 2 NO_INFORMATION; NCT02937454__hfh_cvd_recurrent D3: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION; NCT02937454__hfh_cvd_recurrent D5: assessor 1 SOME_CONCERNS, assessor 2 LOW; NCT02937454__hfh_cvd_recurrent OVERALL: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION; NCT02937454__hfh_recurrent D1: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION; NCT02937454__hfh_recurrent D2: assessor 1 LOW, assessor 2 NO_INFORMATION; NCT02937454__hfh_recurrent OVERALL: assessor 1 NO_INFORMATION, assessor 2 SOME_CONCERNS; NCT03036462__hfh_cvd_first D1: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION; NCT03036462__hfh_cvd_first D3: assessor 1 LOW, assessor 2 NO_INFORMATION; NCT03036462__hfh_cvd_first D4: assessor 1 SOME_CONCERNS, assessor 2 LOW; NCT03036462__hfh_cvd_first D5: assessor 1 SOME_CONCERNS, assessor 2 LOW; NCT03036462__hfh_recurrent D1: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION; NCT03036462__hfh_recurrent D4: assessor 1 SOME_CONCERNS, assessor 2 LOW; NCT03036462__hfh_recurrent D5: assessor 1 SOME_CONCERNS, assessor 2 LOW; NCT03037931__hierarchical_primary D1: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION; NCT03037931__hierarchical_primary D2: assessor 1 LOW, assessor 2 NO_INFORMATION; NCT03037931__hierarchical_primary D3: assessor 1 LOW, assessor 2 NO_INFORMATION.<sup class='prov-ref' title='source 11 for this section'>11</sup></p>
+<div class='tscroll'><table><caption>Risk-of-bias judgement for every included result<sup class='prov-ref' title='source 12 for this section'>12</sup></caption>
 <tr><th>Result</th><th>Judgement</th><th>Reason</th></tr>
 <tr><td>time to death from ANY cause, as a hazard ratio -- CONFIRM-HF (NCT01453608)</td><td>NO_INFORMATION</td><td>  D1 randomisation: SOME_CONCERNS -- `design` states the trial was randomised: &#x27;multicentre, double-blind, placebo-controlled, randomised one to one, with a FUNCTIONAL pr&#x27; Allocation concealment and baseline-imbalance data are in neither the registration nor the fields this object holds.  D2 deviations: LOW -- `design` states double-blind, so participants and carers were probably unaware of assignment. `analysed_scope`: &quot;This trial&#x27;s FULL ANALYSIS SET, 150 and 151, which is NOT its randomised total. 304 patients were enrolled and&quot;  D4 measurement: LOW -- components are objective (death and/or hospitalisation), which limits the scope for assessor influence  D5 selection of result: SOME_CONCERNS -- No trial&#x27;s statistical analysis plan is held, so whether this analysis was pre-specified cannot be established. D5 therefore cannot reach LOW. THE RESULT USED HERE IS AT A DESIGNATED SECONDARY OUTCOME-RELATED ENDPOINT OF THE TRIAL, LISTED AMONG THEM BY NAME IN THE TRIAL&#x27;S OWN METHODS AND ADJUDICATED BY ITS INDEPENDENT CLINICAL ENDPOINT COMMITTEE RANK IN ITS OWN TRIAL. It was selected by this review because it harmonises across trials -- which is exactly the situation D5 exists to flag, and it is flagged rather than argued away. The selection is documented in the object and is the reviewers&#x27;, not the trialists&#x27;.</td></tr>
 <tr><td>time to death from ANY cause, as a hazard ratio -- AFFIRM-AHF (NCT02937454)</td><td>NO_INFORMATION</td><td>  D1 randomisation: SOME_CONCERNS -- `design` states the trial was randomised: &#x27;phase 4, multicentre, double-blind, randomised one to one against placebo, with treatments&#x27; Allocation concealment and baseline-imbalance data are in neither the registration nor the fields this object holds.  D2 deviations: LOW -- `design` states double-blind, so participants and carers were probably unaware of assignment. `analysed_scope`: &quot;This trial&#x27;s FULL ANALYSIS SET, which is smaller than its randomised total: 1132 were randomised, treatment st&quot;  D4 measurement: LOW -- components are objective (death and/or hospitalisation), which limits the scope for assessor influence  D5 selection of result: SOME_CONCERNS -- No trial&#x27;s statistical analysis plan is held, so whether this analysis was pre-specified cannot be established. D5 therefore cannot reach LOW. THE RESULT USED HERE IS AT AN OTHER-PRESPECIFIED OUTCOME, AS THE REGISTRY&#x27;S OWN RECORD CLASSIFIES IT, AND NOT AN ENDPOINT THE PUBLICATION REPORTS RANK IN ITS OWN TRIAL. It was selected by this review because it harmonises across trials -- which is exactly the situation D5 exists to flag, and it is flagged rather than argued away. The selection is documented in the object and is the reviewers&#x27;, not the trialists&#x27;.</td></tr>
@@ -2558,7 +2449,7 @@ NCT03037931__hierarchical_primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFO
 <tr><td>a hierarchical composite of death, hospitalisations for heart failure and change in walk distance, as an unmatched win ratio -- HEART-FID (NCT03037931)</td><td>SOME_CONCERNS</td><td>  D1 randomisation: SOME_CONCERNS -- `design` states the trial was randomised: &#x27;double-blind, randomised one to one against placebo, with a HIERARCHICAL composite primary&#x27; Allocation concealment and baseline-imbalance data are in neither the registration nor the fields this object holds.  D2 deviations: LOW -- `design` states double-blind, so participants and carers were probably unaware of assignment. `analysed_scope`: &#x27;The 1532 and 1533 the trial reports, summing to its randomised total of 3065, and they are the denominators th&#x27;  D3 missing outcome data: LOW -- analysed 3065 of 3065 randomised (0.00% not analysed)  D4 measurement: LOW -- components are objective (death and/or hospitalisation), which limits the scope for assessor influence  D5 selection of result: SOME_CONCERNS -- No trial&#x27;s statistical analysis plan is held, so whether this analysis was pre-specified cannot be established. D5 therefore cannot reach LOW. The result used here is the trial&#x27;s own registered PRIMARY, so no selection among ranks was made by this review.</td></tr>
 <tr><td>change in six-minute walk distance at the primary timepoint, in metres -- CONFIRM-HF (NCT01453608)</td><td>SOME_CONCERNS</td><td>  D1 randomisation: SOME_CONCERNS -- `design` states the trial was randomised: &#x27;multicentre, double-blind, placebo-controlled, randomised one to one, with a FUNCTIONAL pr&#x27; Allocation concealment and baseline-imbalance data are in neither the registration nor the fields this object holds.  D2 deviations: LOW -- `design` states double-blind, so participants and carers were probably unaware of assignment. `analysed_scope`: &quot;This trial&#x27;s FULL ANALYSIS SET, 150 and 151, which is NOT its randomised total. 304 patients were enrolled and&quot;  D3 missing outcome data: SOME_CONCERNS -- analysed 301 of 304 randomised (0.99% not analysed)  D4 measurement: SOME_CONCERNS --   D5 selection of result: SOME_CONCERNS -- No trial&#x27;s statistical analysis plan is held, so whether this analysis was pre-specified cannot be established. D5 therefore cannot reach LOW. The result used here is the trial&#x27;s own registered PRIMARY, so no selection among ranks was made by this review.</td></tr>
 </table></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (12)</summary><ol class='prov-list'>
 <li><code>risk_of_bias.tool</code></li>
 <li><code>risk_of_bias.ceiling.statement</code></li>
 <li><code>risk_of_bias.default_rule</code></li>
@@ -2567,8 +2458,11 @@ NCT03037931__hierarchical_primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFO
 <li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.how_it_was_asked</code></li>
 <li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.DISAGREEMENT_RATE</code></li>
 <li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.verbatim_reply</code></li>
+<li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.THE_ALLOW_LIST_THE_RATE_IS_CONDITIONAL_ON</code></li>
+<li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.PER_DOMAIN</code></li>
+<li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.each_disagreement</code></li>
 <li><code>risk_of_bias.by_outcome</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-certainty-of-the-evidence">Certainty of the evidence</h3>
 <p>Certainty was rated with GRADE. HIGH for a body of randomised evidence, then rated down with reasons.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>No domain is rated UP. Rating up for large effect or dose-response applies to observational evidence that has not already been rated down, and neither condition holds here.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
@@ -2585,7 +2479,7 @@ NCT03037931__hierarchical_primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFO
 <tr><td>a hierarchical composite of death, hospitalisations for heart failure and change in walk distance, as an unmatched win ratio</td><td>not rated</td><td>?</td><td></td><td>no downgrade recorded</td></tr>
 <tr><td>change in six-minute walk distance at the primary timepoint, in metres</td><td>not rated</td><td>?</td><td></td><td>no downgrade recorded</td></tr>
 </table></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (7)</summary><ol class='prov-list'>
 <li><code>grade.approach</code></li>
 <li><code>grade.not_rated_up</code></li>
 <li><code>grade.by_outcome.acm.summary</code></li>
@@ -2593,7 +2487,12 @@ NCT03037931__hierarchical_primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFO
 <li><code>grade.by_outcome.hfh_cvd_recurrent.summary</code></li>
 <li><code>grade.by_outcome.hfh_recurrent.summary</code></li>
 <li><code>grade.by_outcome.acm, grade.by_outcome.hfh_cvd_first, grade.by_outcome.hfh_cvd_recurrent, grade.by_outcome.hfh_recurrent, grade.by_outcome.hierarchical_primary, grade.by_outcome.six_min_walk_24w</code></li>
-</ol></div>
+</ol></details>
+<h3 id="paper-discussion">Discussion</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a discussion written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>discussion</code></li>
+</ol></details>
 <h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
 <p>Published syntheses were identified as follows. PubMed E-utilities; the query, the counts and a decision for every record are in ssot/iv-iron-hf/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json. 61 records matched and all 61 were read at abstract level; 5 name at least one trial we pool.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>This review was compared against 4 published synthesis(es); the denominator is stated because a comparison against an unstated number of reviews is not a comparison.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
@@ -2605,12 +2504,12 @@ NCT03037931__hierarchical_primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFO
 <tr><td>Effect of intravenous iron replacement on recurrent heart failure hospitalizations and cardiovascular mortality in patients with heart failure and iron deficien</td><td>37062867</td><td>4</td><td>FAIR-HF, CONFIRM-HF and AFFIRM-AHF individual participant data re-analysed to match IRONMAN&#x27;s approach</td><td>It is the clearest example in this lane of the estimand work being done properly by someone else: rather than pooling whatever each trial happened to report, it re-derived the outcome in three trials to match the fourth,</td></tr>
 <tr><td>Intravenous iron for heart failure with evidence of iron deficiency: a meta-analysis of randomised trials. Clin Res Cardiol 2021.</td><td>33755777</td><td>7</td><td>seven trials, the composite of FIRST heart-failure hospitalisation or cardiovascular mortality, pooled as odds</td><td>A different estimand -- first event, odds ratio -- and it says so. It describes AFFIRM-AHF&#x27;s primary as the recurrent composite in its introduction and then pools first-event data, which is the correct handling and not a</td></tr>
 </table></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (4)</summary><ol class='prov-list'>
 <li><code>published_comparison._how_identified</code></li>
 <li><code>published_comparison.reviews</code></li>
 <li><code>published_comparison.divergence_decomposed.why_they_differ</code></li>
 <li><code>published_comparison.reviews</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-disagreements-between-sources">Disagreements between sources</h3>
 <p>Because on two earlier apps in this batch it changed the answer: once by recovering an eligible trial from a prior synthesis&#x27;s included-study LIST rather than its count, and once by recovering a benchmark that had been written off as nonexistent. Here it did something different again -- it established, from one synthesis&#x27;s own text, that the synthesis names two of this review&#x27;s trials as studies it EXPECTS to report later, which turns the statement that it cannot contain them from an inference about dates into a quotation.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>Not clean, and the reasons are stated rather than smoothed -- and they are stated SEPARATELY for the two syntheses, because an earlier version of this field ran them together and was false of one. The aggregate-data synthesis pools seven trials this review screens OUT, on intervention, outcome and population grounds the screening log records row by row, and it reports its first-event and its mortality rows as ODDS RATIOS, which are not comparable with the hazard ratios stored here. The individual-patient-data synthesis does NEITHER of those things: every trial it contains is contributing here, and both its headline rows are rate ratios. What the two DO share is that neither contains the most recent trial in this review, which published after both of them. Only the aggregate-data synthesis also lacks the largest trial; the other contains it. And one question remains that this object cannot close with what it holds.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
@@ -2624,45 +2523,92 @@ NCT03037931__hierarchical_primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFO
 <tr><td>PM_PONIKOWSKI2023</td><td>total and recurrent cardiovascular hospitalisations together with cardiovascular death</td><td>RATE_RATIO</td><td>0.86 (0.75 to 0.98)</td><td>3</td></tr>
 <tr><td>PM_PONIKOWSKI2023</td><td>total hospitalisations for heart failure together with cardiovascular death</td><td>RATE_RATIO</td><td>0.87 (0.75 to 1.01)</td><td>3</td></tr>
 </table></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (4)</summary><ol class='prov-list'>
 <li><code>reconciliation.why_this_step_exists</code></li>
 <li><code>reconciliation.clean_because</code></li>
 <li><code>reconciliation.what_the_benchmarks_show</code></li>
 <li><code>reconciliation.published_benchmarks</code></li>
-</ol></div>
-<h3 id="paper-discussion">Discussion</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a discussion written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>discussion</code></li>
-</ol></div>
-<h3 id="paper-conclusions">Conclusions</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a conclusions written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>conclusions</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-limitations">Limitations</h3>
 <p>Known limitation of the screen: No multi-database systematic search was run and nothing here should be read as though one had been. Some of the screened-out records are characterised from a prior synthesis&#x27;s table rather than from the trials&#x27; own reports, and each of those rows says so on itself; how many is COMPUTED into the field beside this one rather than typed here. What IS evidenced is that the search strategy can re-derive every trial this review contains: the rediscovery test, with the query that FAILS that test and the reason it fails, is staged beside this object.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>Eligible trials that do not contribute: Four trials meet this review&#x27;s population, intervention and comparator criteria and contribute nothing, because they have not reported. They are listed rather than left absent so that a reader can tell the category was considered and can see what this review will have to revisit. Each was surfaced by the corrected class-keyed query recorded in the staged search record.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
 <p>What is not claimed: No internal check is described as independent verification. A script that reads this object and reports it consistent has confirmed consistency and nothing else. What CAN be said about the arithmetic here is narrower and is worth saying precisely: every pooled figure was computed twice, by this builder and by a separate script, and checked against an external meta-analysis engine, and the two internal paths share no code beyond the estimator module they both call.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
 <p>4 claim(s) previously made about this review were corrected and the corrections are retained on the object rather than overwritten.<sup class='prov-ref' title='source 4 for this section'>4</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (4)</summary><ol class='prov-list'>
 <li><code>screening.known_limitation</code></li>
 <li><code>eligible_but_not_contributing.note</code></li>
 <li><code>verification_basis.what_is_not_claimed</code></li>
 <li><code>claims_corrected</code></li>
-</ol></div>
-<h3 id="paper-sections-not-written-and-why">Sections not written, and why</h3>
-<p>This review refuses 2 of the page standard&#x27;s properties, by name: P21_ambiguous_question_split, P23_recall_measured. A refused property is a completed outcome with a stated reason, not an omission.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>build_stamp.refusing</code></li>
-</ol></div>
+</ol></details>
+<h3 id="paper-conclusions">Conclusions</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a conclusions written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>conclusions</code></li>
+</ol></details>
+<h3 id="paper-data-availability">Data availability</h3>
+<p>Every trial in this review is keyed to a registration identifier, verified by live fetch of the raw ClinicalTrials.gov v2 record and comparison of the returned nctId against the id stored on this object on 2026-08-19.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>The underlying records are the 15 source(s) listed under References; each names the layer it was read at, so a reader can tell a registry record from a published report.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<div class='tscroll'><table><caption>Registration identifiers, and whether each was verified<sup class='prov-ref' title='source 3 for this section'>3</sup></caption>
+<tr><th>Registration</th><th>Verified</th><th>Link</th></tr>
+<tr><td>NCT02937454</td><td>True</td><td>https://clinicaltrials.gov/study/NCT02937454</td></tr>
+<tr><td>NCT02642562</td><td>True</td><td>https://clinicaltrials.gov/study/NCT02642562</td></tr>
+<tr><td>NCT03036462</td><td>True</td><td>https://clinicaltrials.gov/study/NCT03036462</td></tr>
+<tr><td>NCT03037931</td><td>True</td><td>https://clinicaltrials.gov/study/NCT03037931</td></tr>
+<tr><td>NCT01453608</td><td>True</td><td>https://clinicaltrials.gov/study/NCT01453608</td></tr>
+</table></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (3)</summary><ol class='prov-list'>
+<li><code>registration_identity.method</code></li>
+<li><code>sources</code></li>
+<li><code>registration_identity.trials</code></li>
+</ol></details>
+<h3 id="paper-software-availability">Software availability</h3>
+<p>Analyses were computed under R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Intervals are reported at the 95% level.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
+<li><code>results.by_outcome</code></li>
+<li><code>config.confidence_level</code></li>
+</ol></details>
+<h3 id="paper-reporting-guidelines">Reporting guidelines</h3>
+<p>This review reports against PRISMA 2020. A screening record is held on this object and the flow it supports is shown in the Methods. THE COMPLETED PRISMA CHECKLIST AND FLOW DIAGRAM ARE NOT HELD HERE: the venue requires them deposited in an approved repository with a DOI cited in the Data Availability Statement, and minting that DOI is an author action rather than a build step.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>screening</code></li>
+</ol></details>
+<h3 id="paper-author-contributions">Author contributions</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the author-contributions statement. Who did what is a fact about people, and this object records none<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>manuscript.author_contributions</code></li>
+</ol></details>
+<h3 id="paper-competing-interests">Competing interests</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the competing-interests declaration. F1000Research requires this section on every article, and requires explicit text where there is nothing to declare. IT IS A STATEMENT ABOUT THE AUTHOR AND NOT ABOUT THE EVIDENCE: no field of this object implies it and none is invented here<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>manuscript.competing_interests</code></li>
+</ol></details>
+<h3 id="paper-grant-information">Grant information</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the grant information. The venue requires each funder&#x27;s name, the grant number where applicable, and the person the grant was assigned to. None of that is derivable from a synthesis<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>manuscript.funding_statement</code></li>
+</ol></details>
 <h3 id="paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</h3>
 <div class='absent-state' role='note'><strong>Refused:</strong> <sup class='prov-ref' title='source 1 for this section'>1</sup></div>
 <div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a CONTENT gap. A submission requires it and this object does not carry it; it is not inferable from anything held here<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
 <li><code>funding</code></li>
 <li><code>funding</code></li>
-</ol></div>
+</ol></details>
+<h3 id="paper-note-on-registration">Note on registration</h3>
+<p>Protocol status. Prespecified: False. A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively. Writing one now and calling it prespecified would invalidate every other refusal on these pages, because a reader who caught it would be right to disbelieve all of them.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Eligibility criteria were derived POST HOC from the trials and the methodological authority, and the derivation is recorded element by element in `screening.eligibility_provenance` with the source of each.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>Authority: MECIR R107 permits post-hoc eligibility criteria PROVIDED THEY ARE DECLARED AS SUCH. They are declared, here and on the page, and the page says &#x27;derived, post hoc&#x27; in its heading.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (3)</summary><ol class='prov-list'>
+<li><code>protocol</code></li>
+<li><code>protocol.what_was_actually_done</code></li>
+<li><code>protocol.authority_permitting_it</code></li>
+</ol></details>
+<h3 id="paper-registration">Registration</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the registration statement. No PROSPERO registration is recorded on this object. THAT IS NOT THE SAME AS KNOWING THE REVIEW WAS NOT REGISTERED, and neither claim is made here. Prospective registration cannot be added after the fact, so if none exists the honest statement is that the review was not prospectively registered -- which is a statement only the author can make<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>protocol.prospero</code></li>
+</ol></details>
 <h3 id="paper-references">References</h3>
 <div class='tscroll'><table><caption>Sources this review reads, with the layer each was read at<sup class='prov-ref' title='source 1 for this section'>1</sup></caption>
 <tr><th>Id</th><th>Layer</th><th>Source</th><th>Location</th></tr>
@@ -2682,85 +2628,9 @@ NCT03037931__hierarchical_primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFO
 <tr><td>REG_HEARTFID_SAP</td><td>Registry: posted protocol and statistical analysis plan</td><td>HEART-FID protocol and statistical analysis plan, version 1.3</td><td>https://clinicaltrials.gov/study/NCT03037931</td></tr>
 <tr><td>SEARCH_RECORD</td><td>Record of what the search does and does not find</td><td>Prior-synthesis and completeness search record, 2026-08-10</td><td>https://clinicaltrials.gov/</td></tr>
 </table></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>sources</code></li>
-</ol></div>
-<h3 id="paper-keywords">Keywords</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> <sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a CONTENT gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>keywords</code></li>
-<li><code>keywords</code></li>
-</ol></div>
-<h3 id="paper-data-availability">Data availability</h3>
-<p>Every trial in this review is keyed to a registration identifier, verified by live fetch of the raw ClinicalTrials.gov v2 record and comparison of the returned nctId against the id stored on this object on 2026-08-19.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>The underlying records are the 15 source(s) listed under References; each names the layer it was read at, so a reader can tell a registry record from a published report.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<div class='tscroll'><table><caption>Registration identifiers, and whether each was verified<sup class='prov-ref' title='source 3 for this section'>3</sup></caption>
-<tr><th>Registration</th><th>Verified</th><th>Link</th></tr>
-<tr><td>NCT02937454</td><td>True</td><td>https://clinicaltrials.gov/study/NCT02937454</td></tr>
-<tr><td>NCT02642562</td><td>True</td><td>https://clinicaltrials.gov/study/NCT02642562</td></tr>
-<tr><td>NCT03036462</td><td>True</td><td>https://clinicaltrials.gov/study/NCT03036462</td></tr>
-<tr><td>NCT03037931</td><td>True</td><td>https://clinicaltrials.gov/study/NCT03037931</td></tr>
-<tr><td>NCT01453608</td><td>True</td><td>https://clinicaltrials.gov/study/NCT01453608</td></tr>
-</table></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>registration_identity.method</code></li>
-<li><code>sources</code></li>
-<li><code>registration_identity.trials</code></li>
-</ol></div>
-<h3 id="paper-software-availability">Software availability</h3>
-<p>Analyses were computed under R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>Intervals are reported at the 95% level.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>results.by_outcome</code></li>
-<li><code>config.confidence_level</code></li>
-</ol></div>
-<h3 id="paper-note-on-registration">Note on registration</h3>
-<p>Protocol status. Prespecified: False. A protocol specified before data collection is a HISTORICAL FACT ABOUT THE PAST and cannot be created retrospectively. Writing one now and calling it prespecified would invalidate every other refusal on these pages, because a reader who caught it would be right to disbelieve all of them.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>Eligibility criteria were derived POST HOC from the trials and the methodological authority, and the derivation is recorded element by element in `screening.eligibility_provenance` with the source of each.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<p>Authority: MECIR R107 permits post-hoc eligibility criteria PROVIDED THEY ARE DECLARED AS SUCH. They are declared, here and on the page, and the page says &#x27;derived, post hoc&#x27; in its heading.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>protocol</code></li>
-<li><code>protocol.what_was_actually_done</code></li>
-<li><code>protocol.authority_permitting_it</code></li>
-</ol></div>
-<h3 id="paper-competing-interests">Competing interests</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the competing-interests declaration. F1000Research requires this section on every article, and requires explicit text where there is nothing to declare. IT IS A STATEMENT ABOUT THE AUTHOR AND NOT ABOUT THE EVIDENCE: no field of this object implies it and none is invented here<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>manuscript.competing_interests</code></li>
-</ol></div>
-<h3 id="paper-grant-information">Grant information</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the grant information. The venue requires each funder&#x27;s name, the grant number where applicable, and the person the grant was assigned to. None of that is derivable from a synthesis<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>manuscript.funding_statement</code></li>
-</ol></div>
-<h3 id="paper-author-contributions">Author contributions</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the author-contributions statement. Who did what is a fact about people, and this object records none<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>manuscript.author_contributions</code></li>
-</ol></div>
-<h3 id="paper-reporting-guidelines">Reporting guidelines</h3>
-<p>This review reports against PRISMA 2020. A screening record is held on this object and the flow it supports is shown in the Methods. THE COMPLETED PRISMA CHECKLIST AND FLOW DIAGRAM ARE NOT HELD HERE: the venue requires them deposited in an approved repository with a DOI cited in the Data Availability Statement, and minting that DOI is an author action rather than a build step.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>screening</code></li>
-</ol></div>
-<h3 id="paper-registration">Registration</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the registration statement. No PROSPERO registration is recorded on this object. THAT IS NOT THE SAME AS KNOWING THE REVIEW WAS NOT REGISTERED, and neither claim is made here. Prospective registration cannot be added after the fact, so if none exists the honest statement is that the review was not prospectively registered -- which is a statement only the author can make<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>protocol.prospero</code></li>
-</ol></div>
-<h3 id="paper-trial-characteristics">Trial characteristics</h3>
-<div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<sup class='prov-ref' title='source 1 for this section'>1</sup></caption>
-<tr><th>Registration</th><th>Trial</th><th>Arms</th><th>Participants</th></tr>
-<tr><td>NCT01453608</td><td>CONFIRM-HF</td><td>ferric carboxymaltose (treatment, n=150) vs saline placebo (control, n=151)  [+4 further fields recorded on the object]</td><td>not extracted</td></tr>
-<tr><td>NCT02642562</td><td>IRONMAN</td><td>ferric derisomaltose, dosed by bodyweight and haemoglobin concentration (treatment, n=569) vs usual care, with no placebo infusion of any kind (control, n=568)  [+4 further fields recorded on the object]</td><td>not extracted</td></tr>
-<tr><td>NCT02937454</td><td>AFFIRM-AHF</td><td>ferric carboxymaltose, dosed by the extent of iron deficiency (treatment, n=558) vs matching saline placebo, administered in black syringes by personnel taking no study assessments (control, n=550)  [+4 further fields recorded on the object]  ferric carboxymaltose, dosed by the extent of iron deficiency (registry_role_contradiction_note): This trial&#x27;s registry record classifies THIS arm as an active comparator while classifying the saline arm in the same record as a placebo comparator. That is internally inconsistent -- a randomised trial cannot consist of two comparator arms and no experimental arm -- so the registry&#x27;s arm-type field cannot anchor the roles on this trial and the note is here instead of a silent override. What DOES settle the roles is the sibling arm&#x27;s own classification as a placebo comparator, together with the trial&#x27;s own publication, which names this arm as the intervention and the saline arm as the comparator. The declaration is required rather than assumed, so that an object which really had swapped its arms would have to write the swap down in order to pass.</td><td>not extracted</td></tr>
-<tr><td>NCT03036462</td><td>FAIR-HF2</td><td>ferric carboxymaltose, an initial intravenous dose followed by maintenance dosing (treatment, n=558) vs saline placebo (control, n=547)  [+4 further fields recorded on the object]</td><td>not extracted</td></tr>
-<tr><td>NCT03037931</td><td>HEART-FID</td><td>ferric carboxymaltose, given every six months as needed on the basis of iron indexes and haemoglobin (treatment, n=1532) vs matching placebo added to standard heart failure therapy (control, n=1533)  [+4 further fields recorded on the object]  ferric carboxymaltose, given every six months as needed on the basis of iron indexes and haemoglobin (registry_role_contradiction_note): This trial&#x27;s registry record classifies THIS arm as an active comparator while classifying the saline arm in the same record as a placebo comparator. That is internally inconsistent -- a randomised trial cannot consist of two comparator arms and no experimental arm -- so the registry&#x27;s arm-type field cannot anchor the roles on this trial and the note is here instead of a silent override. What DOES settle the roles is the sibling arm&#x27;s own classification as a placebo comparator, together with the trial&#x27;s own publication, which names this arm as the intervention and the saline arm as the comparator. The declaration is required rather than assumed, so that an object which really had swapped its arms would have to write the swap down in order to pass.</td><td>not extracted</td></tr>
-</table></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>inputs.trials</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-figure-legends">Figure legends</h3>
 <div class='tscroll'><table><caption>Figures, and what each one shows<sup class='prov-ref' title='source 1 for this section'>1</sup></caption>
 <tr><th>Outcome</th><th>Figure</th><th>What it shows</th></tr>
@@ -2771,9 +2641,9 @@ NCT03037931__hierarchical_primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFO
 <tr><td>A hierarchical composite of death, hospitalisations for heart failure and change in walk distance, as an unmatched win ratio</td><td>Forest plot</td><td>not pooled; the reason is given in Results</td></tr>
 <tr><td>Change in six-minute walk distance at the primary timepoint, in metres</td><td>Forest plot</td><td>not pooled; the reason is given in Results</td></tr>
 </table></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>results.by_outcome</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-figures">Figures</h3>
 <figure>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 184" width="100%" role="img" aria-label="Forest plot of the stored per-trial and pooled estimates">
@@ -2933,7 +2803,7 @@ NCT03037931__hierarchical_primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFO
 <div class='absent-state' role='note'><strong>Figure 12 not drawn.</strong> k = 1. A funnel plot and its asymmetry tests have almost no power below about ten trials (Cochrane Handbook 13.3.5.4), so a funnel drawn here would invite a reading of asymmetry this evidence cannot support. IT IS DECLINED RATHER THAN DRAWN, and this slot says so where the plot would have been.</div>
 <figcaption>Figure 12. Funnel plot -- change in six-minute walk distance at the primary timepoint, in metres. Standard error against effect, with the pseudo-confidence funnel drawn from the pooled estimate. k = 1.<sup class='prov-ref' title='source 12 for this section'>12</sup></figcaption>
 </figure>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (12)</summary><ol class='prov-list'>
 <li><code>results.by_outcome.acm.per_trial, results.by_outcome.acm.pooled</code></li>
 <li><code>results.by_outcome.acm.per_trial, results.by_outcome.acm.pooled</code></li>
 <li><code>results.by_outcome.hfh_cvd_first.per_trial, results.by_outcome.hfh_cvd_first.pooled</code></li>
@@ -2946,14 +2816,154 @@ NCT03037931__hierarchical_primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFO
 <li><code>results.by_outcome.hierarchical_primary.per_trial</code></li>
 <li><code>results.by_outcome.six_min_walk_24w.per_trial</code></li>
 <li><code>results.by_outcome.six_min_walk_24w.per_trial</code></li>
-</ol></div>
+</ol></details>
+<h3 id="paper-trial-characteristics">Trial characteristics</h3>
+<div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<sup class='prov-ref' title='source 1 for this section'>1</sup></caption>
+<tr><th>Registration</th><th>Trial</th><th>Arms</th><th>Participants</th></tr>
+<tr><td>NCT01453608</td><td>CONFIRM-HF</td><td>ferric carboxymaltose (treatment, n=150) vs saline placebo (control, n=151)  [+4 further fields recorded on the object]</td><td>not extracted</td></tr>
+<tr><td>NCT02642562</td><td>IRONMAN</td><td>ferric derisomaltose, dosed by bodyweight and haemoglobin concentration (treatment, n=569) vs usual care, with no placebo infusion of any kind (control, n=568)  [+4 further fields recorded on the object]</td><td>not extracted</td></tr>
+<tr><td>NCT02937454</td><td>AFFIRM-AHF</td><td>ferric carboxymaltose, dosed by the extent of iron deficiency (treatment, n=558) vs matching saline placebo, administered in black syringes by personnel taking no study assessments (control, n=550)  [+4 further fields recorded on the object]  ferric carboxymaltose, dosed by the extent of iron deficiency (registry_role_contradiction_note): This trial&#x27;s registry record classifies THIS arm as an active comparator while classifying the saline arm in the same record as a placebo comparator. That is internally inconsistent -- a randomised trial cannot consist of two comparator arms and no experimental arm -- so the registry&#x27;s arm-type field cannot anchor the roles on this trial and the note is here instead of a silent override. What DOES settle the roles is the sibling arm&#x27;s own classification as a placebo comparator, together with the trial&#x27;s own publication, which names this arm as the intervention and the saline arm as the comparator. The declaration is required rather than assumed, so that an object which really had swapped its arms would have to write the swap down in order to pass.</td><td>not extracted</td></tr>
+<tr><td>NCT03036462</td><td>FAIR-HF2</td><td>ferric carboxymaltose, an initial intravenous dose followed by maintenance dosing (treatment, n=558) vs saline placebo (control, n=547)  [+4 further fields recorded on the object]</td><td>not extracted</td></tr>
+<tr><td>NCT03037931</td><td>HEART-FID</td><td>ferric carboxymaltose, given every six months as needed on the basis of iron indexes and haemoglobin (treatment, n=1532) vs matching placebo added to standard heart failure therapy (control, n=1533)  [+4 further fields recorded on the object]  ferric carboxymaltose, given every six months as needed on the basis of iron indexes and haemoglobin (registry_role_contradiction_note): This trial&#x27;s registry record classifies THIS arm as an active comparator while classifying the saline arm in the same record as a placebo comparator. That is internally inconsistent -- a randomised trial cannot consist of two comparator arms and no experimental arm -- so the registry&#x27;s arm-type field cannot anchor the roles on this trial and the note is here instead of a silent override. What DOES settle the roles is the sibling arm&#x27;s own classification as a placebo comparator, together with the trial&#x27;s own publication, which names this arm as the intervention and the saline arm as the comparator. The declaration is required rather than assumed, so that an object which really had swapped its arms would have to write the swap down in order to pass.</td><td>not extracted</td></tr>
+</table></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>inputs.trials</code></li>
+</ol></details>
+<h3 id="paper-extended-data-statistical-output-quoted-ve">Extended data: statistical output, quoted verbatim</h3>
+<p><sup class='prov-ref' title='source 1 for this section'>1</sup>[R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1] call: rma(yi = log(est), sei = (log(hi)-log(lo))/(2*qnorm(0.975)), method = &quot;REML&quot;) -- acm -- death from ANY cause, hazard ratio
+  unit of analysis: participant: time to death from any cause
+==============================================================================
+
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.1247)
+tau (square root of estimated tau^2 value):      0
+I^2 (total heterogeneity / total variability):   0.00%
+H^2 (total variability / sampling variability):  1.00
+
+Test for Heterogeneity:
+Q(df = 1) = 0.0643, p-val = 0.7999
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb   ci.ub    
+ -0.0223  0.1339  -0.1663  0.8679  -0.2846  0.2401    
+
+---
+Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
+
+
+Back-transformed:
+
+   pred  ci.lb  ci.ub  pi.lb  pi.ub 
+ 0.9780 0.7523 1.2714 0.7523 1.2714</p>
+<p>Cross-engine verification for acm: metafor 5.0.1 under R 4.6.0, generic inverse variance on the same log point and log standard error this object stores Recomputed independently and checked against the stored values, by a script that shares no pooling code path with this builder beyond the estimator module they both call. This is two ENGINES agreeing on one arithmetic; it says nothing about whether the contributing TRIALS agree with each other, and nothing at all about the dimensions the uniformity table records.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p><sup class='prov-ref' title='source 3 for this section'>3</sup>[R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1] call: rma(yi = log(est), sei = (log(hi)-log(lo))/(2*qnorm(0.975)), method = &quot;REML&quot;) -- hfh_cvd_first -- FIRST CV death or HF hospitalisation, hazard ratio
+  unit of analysis: participant: time to the first component event
+==============================================================================
+
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0166)
+tau (square root of estimated tau^2 value):      0
+I^2 (total heterogeneity / total variability):   0.00%
+H^2 (total variability / sampling variability):  1.00
+
+Test for Heterogeneity:
+Q(df = 1) = 0.0067, p-val = 0.9346
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb    ci.ub     
+ -0.2286  0.0759  -3.0114  0.0026  -0.3774  -0.0798  ** 
+
+---
+Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
+
+
+Back-transformed:
+
+   pred  ci.lb  ci.ub  pi.lb  pi.ub 
+ 0.7957 0.6857 0.9233 0.6857 0.9233</p>
+<p>Cross-engine verification for hfh_cvd_first: metafor 5.0.1 under R 4.6.0, generic inverse variance on the same log point and log standard error this object stores Recomputed independently and checked against the stored values, by a script that shares no pooling code path with this builder beyond the estimator module they both call. This is two ENGINES agreeing on one arithmetic; it says nothing about whether the contributing TRIALS agree with each other, and nothing at all about the dimensions the uniformity table records.<sup class='prov-ref' title='source 4 for this section'>4</sup></p>
+<p><sup class='prov-ref' title='source 5 for this section'>5</sup>[R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1] call: rma(yi = log(est), sei = (log(hi)-log(lo))/(2*qnorm(0.975)), method = &quot;REML&quot;) -- hfh_cvd_recurrent -- recurrent HF hospitalisations WITH CV death, rate ratio
+  unit of analysis: event: each participant contributes every qualifying event
+==============================================================================
+
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0197)
+tau (square root of estimated tau^2 value):      0
+I^2 (total heterogeneity / total variability):   0.00%
+H^2 (total variability / sampling variability):  1.00
+
+Test for Heterogeneity:
+Q(df = 1) = 0.0499, p-val = 0.8232
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb    ci.ub     
+ -0.2150  0.0829  -2.5940  0.0095  -0.3774  -0.0525  ** 
+
+---
+Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
+
+
+Back-transformed:
+
+   pred  ci.lb  ci.ub  pi.lb  pi.ub 
+ 0.8066 0.6856 0.9488 0.6856 0.9488</p>
+<p>Cross-engine verification for hfh_cvd_recurrent: metafor 5.0.1 under R 4.6.0, generic inverse variance on the same log point and log standard error this object stores Recomputed independently and checked against the stored values, by a script that shares no pooling code path with this builder beyond the estimator module they both call. This is two ENGINES agreeing on one arithmetic; it says nothing about whether the contributing TRIALS agree with each other, and nothing at all about the dimensions the uniformity table records.<sup class='prov-ref' title='source 6 for this section'>6</sup></p>
+<p><sup class='prov-ref' title='source 7 for this section'>7</sup>[R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1] call: rma(yi = log(est), sei = (log(hi)-log(lo))/(2*qnorm(0.975)), method = &quot;REML&quot;) -- hfh_recurrent -- recurrent HF hospitalisations ALONE, no death component, rate ratio
+  unit of analysis: hospitalisation: each participant contributes every hospitalisation
+==============================================================================
+
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.0256)
+tau (square root of estimated tau^2 value):      0
+I^2 (total heterogeneity / total variability):   0.00%
+H^2 (total variability / sampling variability):  1.00
+
+Test for Heterogeneity:
+Q(df = 1) = 0.1677, p-val = 0.6822
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb    ci.ub     
+ -0.2685  0.0939  -2.8583  0.0043  -0.4526  -0.0844  ** 
+
+---
+Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
+
+
+Back-transformed:
+
+   pred  ci.lb  ci.ub  pi.lb  pi.ub 
+ 0.7645 0.6360 0.9191 0.6360 0.9191</p>
+<p>Cross-engine verification for hfh_recurrent: metafor 5.0.1 under R 4.6.0, generic inverse variance on the same log point and log standard error this object stores Recomputed independently and checked against the stored values, by a script that shares no pooling code path with this builder beyond the estimator module they both call. This is two ENGINES agreeing on one arithmetic; it says nothing about whether the contributing TRIALS agree with each other, and nothing at all about the dimensions the uniformity table records.<sup class='prov-ref' title='source 8 for this section'>8</sup></p>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (8)</summary><ol class='prov-list'>
+<li><code>results.by_outcome.acm.r_output.verbatim</code></li>
+<li><code>results.by_outcome.acm.cross_engine</code></li>
+<li><code>results.by_outcome.hfh_cvd_first.r_output.verbatim</code></li>
+<li><code>results.by_outcome.hfh_cvd_first.cross_engine</code></li>
+<li><code>results.by_outcome.hfh_cvd_recurrent.r_output.verbatim</code></li>
+<li><code>results.by_outcome.hfh_cvd_recurrent.cross_engine</code></li>
+<li><code>results.by_outcome.hfh_recurrent.r_output.verbatim</code></li>
+<li><code>results.by_outcome.hfh_recurrent.cross_engine</code></li>
+</ol></details>
+<h3 id="paper-sections-not-written-and-why">Sections not written, and why</h3>
+<p>This review refuses 2 of the page standard&#x27;s properties, by name: P21_ambiguous_question_split, P23_recall_measured. A refused property is a completed outcome with a stated reason, not an omission.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>build_stamp.refusing</code></li>
+</ol></details>
 <h3 id="paper-submission-conformance">Submission conformance</h3>
 <p>This review was built to page standard 1.12.0-2026-08-19 (PAGE-STANDARD.md), by ssot/build_to_standard.py on 2026-08-19. A page built below the current standard is knowably below it rather than silently stale.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>Properties held: 12, by name -- P18_restatement_is_reproducible, P19_promotion_reaches_derived_blocks, P1_executed_search, P20_cascade_reconciles, P22_sharing_recorded, P2_k_cascade, P3_inclusion_criteria, P4_preconditions, P5_extraction_table, P6_analysis_output, P7_published_comparison, P8_registration_identity.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
 <li><code>build_stamp.page_standard_version</code></li>
 <li><code>build_stamp.held</code></li>
-</ol></div>
+</ol></details>
 </div>  </section>
 <!--end-paper--> <section class="panel" id="pn-statistics">
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No statistical panel set is held in this object.</div>

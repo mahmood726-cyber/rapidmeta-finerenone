@@ -24,10 +24,12 @@
     tag. The block announces itself; reading it is optional, knowing it is there is not. */
  .prov-ref{font-size:.68em;line-height:0;vertical-align:super;color:var(--accent);
        font-family:var(--sans,system-ui,sans-serif);padding-left:.15em}
- .prov-block{margin:.6rem 0 1.4rem;padding:.5rem .8rem;border-left:2px solid var(--line);
+ .prov-block{margin:.4rem 0 1.2rem;padding:0;border:0;background:none}
+ .prov-title{margin:0;font-size:.72rem;letter-spacing:.02em;color:var(--muted);
+       font-family:var(--sans,system-ui,sans-serif);cursor:pointer;opacity:.65}
+ .prov-block[open]>.prov-title{margin-bottom:.35rem;opacity:1}
+ .prov-block[open]{padding:.5rem .8rem;border-left:2px solid var(--line);
        background:var(--soft)}
- .prov-title{margin:0 0 .3rem;font-size:.78rem;letter-spacing:.02em;color:var(--muted);
-       font-family:var(--sans,system-ui,sans-serif);text-transform:uppercase}
  .prov-list{margin:0;padding-left:1.4rem}
  .prov-list li{font-size:.78rem;line-height:1.45;color:var(--muted)}
  .prov-list code{font-size:.95em;word-break:break-word}
@@ -391,171 +393,183 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-18</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>2c1ee7a32</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>f0cf2ef6e</code>, built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
  </section>
 <!--end-report-->  <section class="panel" id="pn-paper"><span id="paper"></span>
-  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-sections-not-written-and-why">Sections not written, and why</a> &middot; <a href="#paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-keywords">Keywords</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-figures">Figures</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a></p>
+  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-keywords">Keywords</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-comparison-with-published-syntheses">Comparison with published syntheses</a> &middot; <a href="#paper-disagreements-between-sources">Disagreements between sources</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-reporting-guidelines">Reporting guidelines</a> &middot; <a href="#paper-author-contributions">Author contributions</a> &middot; <a href="#paper-competing-interests">Competing interests</a> &middot; <a href="#paper-grant-information">Grant information</a> &middot; <a href="#paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-registration">Registration</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-figures">Figures</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-extended-data-statistical-output-quoted-ve">Extended data: statistical output, quoted verbatim</a> &middot; <a href="#paper-sections-not-written-and-why">Sections not written, and why</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a></p>
 <div class='card'>
 <h2 id="paper-paper">Paper</h2>
 <p class='muted'>Every statement below is projected from a field of this object. The superscripts are sources: each section ends with the fields its statements came from, in order. <strong>A section with no field behind it is not written</strong> &mdash; it is refused, by name, so a reader can tell an absent procedure from an unmentioned one.</p>
 <h3 id="paper-title-and-review-question">Title and review question</h3>
 <p>Etripamil Psvt: NOT POOLABLE AS POSED -- the OUTCOME limb fails<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>In adults with paroxysmal supraventricular tachycardia (psvt), does Etripamil compared with placebo affect the outcome each trial registered as its primary, which differ across the 2 trials here?<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
 <li><code>title</code></li>
 <li><code>question</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-abstract">Abstract</h3>
 <p>Question. In adults with paroxysmal supraventricular tachycardia (psvt), does Etripamil compared with placebo affect the outcome each trial registered as its primary, which differ across the 2 trials here?<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<div class='absent-state' role='note'><strong>Refused:</strong> the findings sentence of the abstract -- this review pools nothing, and the reason is given in Results rather than an estimate being manufactured here<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<p>Methods. estimates were pooled under random-effects with the not applicable estimator.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Background sentence of the abstract. Background is ARGUMENT -- why this question matters -- and no arrangement of the quantities this object holds yields it. It is emitted only from an authored field and there is no composition path for it here<sup class='prov-ref' title='source 3 for this section'>3</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Results sentence of the abstract -- no outcome on this object carries a pooled point estimate, so there is nothing to report and none is manufactured here. The reason each pool is declined is given in Results<sup class='prov-ref' title='source 4 for this section'>4</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions sentence of the abstract. A conclusion is ARGUMENT -- what a reader should now believe -- and it is emitted only from an authored field. Composing one from the estimate would be this renderer telling the reader what to conclude, which no field supports<sup class='prov-ref' title='source 5 for this section'>5</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (5)</summary><ol class='prov-list'>
 <li><code>question</code></li>
-<li><code>results.by_outcome.*.pooled.point</code></li>
-</ol></div>
+<li><code>results.by_outcome</code></li>
+<li><code>manuscript.abstract.Background</code></li>
+<li><code>results.by_outcome.primary.pooled.point</code></li>
+<li><code>manuscript.abstract.Conclusions</code></li>
+</ol></details>
+<h3 id="paper-keywords">Keywords</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> <sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a CONTENT gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
+<li><code>keywords</code></li>
+<li><code>keywords</code></li>
+</ol></details>
 <h3 id="paper-introduction">Introduction</h3>
 <div class='absent-state' role='note'><strong>Refused:</strong> the Introduction -- no background or rationale is recorded on this object. This is a CONTENT gap, not a rendering one: no change to this projector produces it, and it is written by adding `protocol.rationale` to the object<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>protocol.rationale</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-methods-search">Methods — search</h3>
 <div class='absent-state' role='note'><strong>Refused:</strong> the entire search description<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>search.databases</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-methods-eligibility-criteria">Methods — eligibility criteria</h3>
 <div class='absent-state' role='note'><strong>Refused:</strong> the eligibility criteria<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>screening.eligibility</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-methods-study-flow-and-k-at-every-stage">Methods — study flow and k at every stage</h3>
 <div class='absent-state' role='note'><strong>Refused:</strong> the k cascade<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>k_cascade</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</h3>
 <div class='absent-state' role='note'><strong>Refused:</strong> the statement that outcomes were sought below the primary<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>withholding_question, inputs.trials[].all_ranks_read_utc</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-methods-synthesis">Methods — synthesis</h3>
 <p>For each trial&#x27;s own registered primary outcome, a random-effects model was fitted with the not applicable estimator.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <div class='absent-state' role='note'><strong>Refused:</strong> the claim that records were screened in duplicate by two independent reviewers<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
 <div class='absent-state' role='note'><strong>Refused:</strong> the claim that risk of bias was assessed with a named tool<sup class='prov-ref' title='source 3 for this section'>3</sup></div>
 <div class='absent-state' role='note'><strong>Refused:</strong> the claim that certainty of evidence was graded<sup class='prov-ref' title='source 4 for this section'>4</sup></div>
 <div class='absent-state' role='note'><strong>Refused:</strong> the claim that the review methods were prespecified before data collection<sup class='prov-ref' title='source 5 for this section'>5</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (5)</summary><ol class='prov-list'>
 <li><code>results.by_outcome.primary.model, results.by_outcome.primary.estimator_used</code></li>
 <li><code>screening.duplicate_screening</code></li>
 <li><code>risk_of_bias.tool</code></li>
 <li><code>grade.approach</code></li>
 <li><code>protocol.prespecified</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-results">Results</h3>
 <p>Each trial&#x27;s own registered primary outcome. These 0 trials are NOT pooled, and the reason is stated rather than the outcome being quietly omitted: THIS IS THE CLOSEST OF THE SEVEN TO POOLABLE, AND IT STILL IS NOT. Both trials test etripamil against placebo in paroxysmal supraventricular tachycardia -- intervention, comparator and population all match, which is rare in this set. But the registered primaries are different KINDS of quantity: NCT02296190 registers &#x27;The Percentage of Subjects Successfully Converted From PSVT to Sinus Rhythm Within 15 Minutes&#x27; -- a proportion at a fixed time -- and NCT03464019 registers &#x27;The Time to Conversion of an Episode of PSVT to Sinus Rhythm&#x27; -- a time-to-event. A proportion and a survival time are not two measurements of one estimand, and converting between them requires assumptions neither registration supports. THIS IS THE TOPIC MOST WORTH REVISITING if a common outcome is reported in both publications.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>outcomes[id=primary].name, results.by_outcome.primary.poolable_reason</code></li>
-</ol></div>
-<h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the verbatim model output -- no analysis output is stored on this object, so nothing can be quoted and nothing is paraphrased in its place<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>results.by_outcome.*.r_output.verbatim</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
 <div class='absent-state' role='note'><strong>Refused:</strong> the risk-of-bias assessment<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>risk_of_bias</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-certainty-of-the-evidence">Certainty of the evidence</h3>
 <div class='absent-state' role='note'><strong>Refused:</strong> Certainty of the evidence, by outcome, with every rating step<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
 <div class='absent-state' role='note'><strong>Refused:</strong> the certainty assessment -- no GRADE record is held, so the certainty column elsewhere on this page is an em dash rather than a guess<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
 <li><code>grade.by_outcome</code></li>
 <li><code>grade</code></li>
-</ol></div>
-<h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the comparison with published syntheses -- no published synthesis is recorded for this topic, so no denominator can be given<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>published_comparison</code></li>
-</ol></div>
-<h3 id="paper-disagreements-between-sources">Disagreements between sources</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the reconciliation against other sources<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>reconciliation</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-discussion">Discussion</h3>
 <div class='absent-state' role='note'><strong>Refused:</strong> the Discussion -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a discussion written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>discussion</code></li>
-</ol></div>
-<h3 id="paper-conclusions">Conclusions</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a conclusions written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>conclusions</code></li>
-</ol></div>
+</ol></details>
+<h3 id="paper-comparison-with-published-syntheses">Comparison with published syntheses</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the comparison with published syntheses -- no published synthesis is recorded for this topic, so no denominator can be given<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>published_comparison</code></li>
+</ol></details>
+<h3 id="paper-disagreements-between-sources">Disagreements between sources</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the reconciliation against other sources<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>reconciliation</code></li>
+</ol></details>
 <h3 id="paper-limitations">Limitations</h3>
 <div class='absent-state' role='note'><strong>Refused:</strong> the limitations section<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>screening.known_limitation</code></li>
-</ol></div>
-<h3 id="paper-sections-not-written-and-why">Sections not written, and why</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the list of refused properties<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>build_stamp.refusing</code></li>
-</ol></div>
+</ol></details>
+<h3 id="paper-conclusions">Conclusions</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the Conclusions -- this is a CONTENT gap. The object records no interpretive text, and none is generated here: a conclusions written by the renderer would be an argument no field supports<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>conclusions</code></li>
+</ol></details>
+<h3 id="paper-data-availability">Data availability</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the data availability statement<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>registration_identity, sources</code></li>
+</ol></details>
+<h3 id="paper-software-availability">Software availability</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the software and environment statement<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>results.by_outcome.*.r_output._environment, config.confidence_level</code></li>
+</ol></details>
+<h3 id="paper-reporting-guidelines">Reporting guidelines</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the reporting-guideline compliance statement. PRISMA 2020 is the guideline for a completed systematic review, and THIS OBJECT CARRIES NO SCREENING RECORD, so a claim of compliance would be asserted rather than shown. It is refused rather than written, because a false statement in a compliance section is worse than an absent one<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>screening</code></li>
+</ol></details>
+<h3 id="paper-author-contributions">Author contributions</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the author-contributions statement. Who did what is a fact about people, and this object records none<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>manuscript.author_contributions</code></li>
+</ol></details>
+<h3 id="paper-competing-interests">Competing interests</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the competing-interests declaration. F1000Research requires this section on every article, and requires explicit text where there is nothing to declare. IT IS A STATEMENT ABOUT THE AUTHOR AND NOT ABOUT THE EVIDENCE: no field of this object implies it and none is invented here<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>manuscript.competing_interests</code></li>
+</ol></details>
+<h3 id="paper-grant-information">Grant information</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the grant information. The venue requires each funder&#x27;s name, the grant number where applicable, and the person the grant was assigned to. None of that is derivable from a synthesis<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>manuscript.funding_statement</code></li>
+</ol></details>
 <h3 id="paper-funding-and-conflicts-of-interest">Funding and conflicts of interest</h3>
 <div class='absent-state' role='note'><strong>Refused:</strong> <sup class='prov-ref' title='source 1 for this section'>1</sup></div>
 <div class='absent-state' role='note'><strong>Refused:</strong> the funding and conflict-of-interest statement -- a CONTENT gap. A submission requires it and this object does not carry it; it is not inferable from anything held here<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
 <li><code>funding</code></li>
 <li><code>funding</code></li>
-</ol></div>
-<h3 id="paper-references">References</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the reference list<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>sources</code></li>
-</ol></div>
-<h3 id="paper-keywords">Keywords</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> <sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='absent-state' role='note'><strong>Refused:</strong> the keyword list -- a CONTENT gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>keywords</code></li>
-<li><code>keywords</code></li>
-</ol></div>
-<h3 id="paper-data-availability">Data availability</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the data availability statement<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>registration_identity, sources</code></li>
-</ol></div>
-<h3 id="paper-software-availability">Software availability</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the software and environment statement<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>results.by_outcome.*.r_output._environment, config.confidence_level</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-note-on-registration">Note on registration</h3>
 <div class='absent-state' role='note'><strong>Refused:</strong> the registration note<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>protocol</code></li>
-</ol></div>
-<h3 id="paper-trial-characteristics">Trial characteristics</h3>
-<div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<sup class='prov-ref' title='source 1 for this section'>1</sup></caption>
-<tr><th>Registration</th><th>Trial</th><th>Arms</th><th>Participants</th></tr>
-<tr><td>NCT02296190</td><td></td><td>not recorded on this object</td><td>not extracted</td></tr>
-<tr><td>NCT03464019</td><td></td><td>not recorded on this object</td><td>not extracted</td></tr>
-</table></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>inputs.trials</code></li>
-</ol></div>
+</ol></details>
+<h3 id="paper-registration">Registration</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the registration statement. No PROSPERO registration is recorded on this object. THAT IS NOT THE SAME AS KNOWING THE REVIEW WAS NOT REGISTERED, and neither claim is made here. Prospective registration cannot be added after the fact, so if none exists the honest statement is that the review was not prospectively registered -- which is a statement only the author can make<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>protocol.prospero</code></li>
+</ol></details>
+<h3 id="paper-references">References</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the reference list<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>sources</code></li>
+</ol></details>
 <h3 id="paper-figure-legends">Figure legends</h3>
 <div class='tscroll'><table><caption>Figures, and what each one shows<sup class='prov-ref' title='source 1 for this section'>1</sup></caption>
 <tr><th>Outcome</th><th>Figure</th><th>What it shows</th></tr>
 <tr><td>each trial&#x27;s own registered primary outcome</td><td>Forest plot</td><td>not pooled; the reason is given in Results</td></tr>
 </table></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>results.by_outcome</code></li>
-</ol></div>
+</ol></details>
 <h3 id="paper-figures">Figures</h3>
 <figure>
 <div class='absent-state' role='note'><strong>Figure 1 not drawn.</strong> no per-trial estimates are stored for this outcome, so there are no rows to plot. The pooled value alone is a point, not a forest.</div>
@@ -565,15 +579,34 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='absent-state' role='note'><strong>Figure 2 not drawn.</strong> k = 0. A funnel plot and its asymmetry tests have almost no power below about ten trials (Cochrane Handbook 13.3.5.4), so a funnel drawn here would invite a reading of asymmetry this evidence cannot support. IT IS DECLINED RATHER THAN DRAWN, and this slot says so where the plot would have been.</div>
 <figcaption>Figure 2. Funnel plot -- each trial&#x27;s own registered primary outcome. Standard error against effect, with the pseudo-confidence funnel drawn from the pooled estimate. k = 0.<sup class='prov-ref' title='source 2 for this section'>2</sup></figcaption>
 </figure>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
 <li><code>results.by_outcome.primary.pooled</code></li>
 <li><code>results.by_outcome.primary.pooled</code></li>
-</ol></div>
+</ol></details>
+<h3 id="paper-trial-characteristics">Trial characteristics</h3>
+<div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<sup class='prov-ref' title='source 1 for this section'>1</sup></caption>
+<tr><th>Registration</th><th>Trial</th><th>Arms</th><th>Participants</th></tr>
+<tr><td>NCT02296190</td><td></td><td>not recorded on this object</td><td>not extracted</td></tr>
+<tr><td>NCT03464019</td><td></td><td>not recorded on this object</td><td>not extracted</td></tr>
+</table></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>inputs.trials</code></li>
+</ol></details>
+<h3 id="paper-extended-data-statistical-output-quoted-ve">Extended data: statistical output, quoted verbatim</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the verbatim model output -- no analysis output is stored on this object, so nothing can be quoted and nothing is paraphrased in its place<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>results.by_outcome.*.r_output.verbatim</code></li>
+</ol></details>
+<h3 id="paper-sections-not-written-and-why">Sections not written, and why</h3>
+<div class='absent-state' role='note'><strong>Refused:</strong> the list of refused properties<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>build_stamp.refusing</code></li>
+</ol></details>
 <h3 id="paper-submission-conformance">Submission conformance</h3>
 <div class='absent-state' role='note'><strong>Refused:</strong> the submission conformance statement<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
-<div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>build_stamp</code></li>
-</ol></div>
+</ol></details>
 </div>  </section>
 <!--end-paper--> <section class="panel" id="pn-statistics">
 <div class="absent-state" role="note"><strong>Not held in this object.</strong> No statistical panel set is held in this object.</div>
