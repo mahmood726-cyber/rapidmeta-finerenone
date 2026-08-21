@@ -1699,17 +1699,30 @@ def project(obj, journal="generic", length="standard"):
                                    if isinstance(dv, dict)
                                    and dv.get("judgement") in ("HIGH", "SOME_CONCERNS", "LOW")]
                         for dn, dv in driving:
+                            # EITHER VOCABULARY FOR THE JUSTIFICATION. Some objects store a
+                            # domain's justification as `reason`, others as an `evidence`
+                            # LIST -- bempedoic-acid-review is the second shape, and reading
+                            # only `reason` rendered its whole per-result table as judgements
+                            # with EMPTY reasons. The delivery audit reported the limb as
+                            # reaching no reader, and it was right for the wrong field.
+                            _why = dv.get("reason") or dv.get("why")
+                            if not _why:
+                                _ev = dv.get("evidence")
+                                if isinstance(_ev, list):
+                                    _why = " ".join(str(x) for x in _ev if x)
+                                elif isinstance(_ev, str):
+                                    _why = _ev
                             why += ("  %s: %s -- %s"
                                     % (_ROB_DOMAINS.get(dn, dn.replace("_", " ")),
-                                       dv.get("judgement"),
-                                       dv.get("reason") or ""))
+                                       dv.get("judgement"), _why or ""))
                     # The outcome's NAME, not its key. Handbook 8.2 requires the
                     # result to be named; it does not require it to be named in the
                     # object's storage vocabulary.
                     rows.append(["%s -- %s (%s)"
                                  % (_outcome_words(obj, oid), label, rid),
                                  str(judgement.get("overall") or judgement.get("rating")
-                                     or "not judged"), why])
+                                     or "not judged"),
+                                 why or str(judgement.get("overall_note") or "")])
         else:
             for rid, judgement in sorted(blk.items()):
                 if isinstance(judgement, dict):
@@ -1723,6 +1736,28 @@ def project(obj, journal="generic", length="standard"):
     if rows:
         s.add_table(obj, "Risk-of-bias judgement for every included result",
                     ["Result", "Judgement", "Reason"], rows, fields)
+
+    # A REFUSED ASSESSMENT MUST SAY SO WHERE THE ASSESSMENT WOULD HAVE BEEN.
+    #
+    # An object that refuses this limb stores `state`, `why`, `what_would_close_it` and
+    # `consequence_carried_into_grade`, and NONE of them was read here. So on
+    # apixaban-vte-prophylaxis a reader met exactly one sentence -- "Risk of bias was
+    # assessed with RoB 2 … the unit of assessment is a result" -- and nothing else. THAT
+    # ASSERTS AN ASSESSMENT THAT WAS REFUSED, which is worse than the refusal it replaced.
+    # P46 counts a refusal as a completed outcome; a completed outcome nobody can read is
+    # not completed.
+    if not rows:
+        for _k, _lead in (("state", "This limb is REFUSED, and the state recorded is"),
+                          ("why", "Why it is refused"),
+                          ("what_would_close_it", "What would close it"),
+                          ("consequence_carried_into_grade",
+                           "What this refusal carries into the certainty rating"),
+                          ("refusal_discharges_P46_because",
+                           "Why the refusal discharges the standard")):
+            _v = rob.get(_k)
+            if isinstance(_v, str) and _v.strip():
+                s.add(obj, "%s: %s" % (_lead, _v.strip()), ["risk_of_bias.%s" % _k])
+
     if not (s.paras or s.tables):
         s.refusals.append(("the risk-of-bias assessment", ["risk_of_bias"]))
     secs.append(s)

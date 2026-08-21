@@ -155,12 +155,30 @@ def limb_probe(obj, limb):
                 for _, blk in p46.pooled_outcomes(obj)]
         node = [s for s in node if s] or None
     if not node:
-        return None
+        return []
+    out = []
     for s in sorted(strings_under(node), key=len, reverse=True):
         p = probe_from(s)
-        if p:
-            return p
-    return None
+        if p and p not in out:
+            out.append(p)
+        if len(out) >= 12:
+            break
+    return out
+
+
+# WHY A LIST AND NOT THE LONGEST STRING -- THE THIRD PROBE-DESIGN CORRECTION IN THIS FILE.
+#
+# The first version returned the single longest HTML-safe run under the limb. That is not the
+# same as "a sentence the renderer emits", and for risk of bias it is systematically the wrong
+# one: the projector deliberately renders the OVERALL reason and the reasons for HIGH,
+# SOME_CONCERNS and LOW domains, and deliberately SKIPS NO_INFORMATION reasons -- which are
+# the longest strings in the block, because they carry the standing explanation of what this
+# review did not retrieve.
+#
+# So alirocumab, bempedoic-acid and iv-iron-hf were reported HELD ONLY on the strength of a
+# probe drawn from the one field guaranteed not to render. Twelve candidates now, and the
+# limb counts as reaching a reader if ANY of them is found. If none of twelve stored
+# sentences appears in the delivered bytes, the limb genuinely does not reach a reader.
 
 
 def page_map():
@@ -192,7 +210,7 @@ def main():
     # negative is a sentence of the right shape that is in no object at all.
     cab = json.load(io.open(os.path.join(
         REPO, "ssot", "cab-prep-hiv-review", "cab-prep-hiv-review.json"), encoding="utf-8"))
-    pos_probe = limb_probe(cab, "comparison_denominator")
+    pos_probe = (limb_probe(cab, "comparison_denominator") or [None])[0]
     pos_page = delivered("CAB_PREP_HIV_REVIEW.html") or ""
     require_controls(
         "audit_p46_limbs_reach_a_reader",
@@ -242,13 +260,19 @@ def main():
                                       else ("REFUSED, NOT NAMED", why))
                 continue
 
-            pr = limb_probe(obj, limb)
-            if not pr:
+            prs = limb_probe(obj, limb)
+            if not prs:
                 row["limbs"][limb] = ("UNPROBEABLE", "no HTML-safe run of 40+ chars stored")
                 continue
-            hit = [pg for pg in pages if pr in (delivered(pg) or "")]
+            hit, pr = [], None
+            for cand in prs:
+                hit = [pg for pg in pages if cand in (delivered(pg) or "")]
+                if hit:
+                    pr = cand
+                    break
             if not hit:
-                row["limbs"][limb] = ("HELD ONLY", "not in %s" % ", ".join(pages))
+                row["limbs"][limb] = ("HELD ONLY", "none of %d stored sentence(s) is in %s"
+                                                   % (len(prs), ", ".join(pages)))
                 continue
             others = [delivered(pg) or "" for pg in CONTROL_PAGES if pg not in pages]
             if not probe_is_distinctive(pr, delivered(hit[0]) or "", others):

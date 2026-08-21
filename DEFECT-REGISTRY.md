@@ -4093,7 +4093,57 @@ narrower of the two.** Corrected, with the correction announced.
 
 ## OPEN — carried, not fixed
 
-### O4. Two malaria-vaccine objects reach opposite conclusions, and the reader gets the "not poolable" one
+### O4. The delivered malaria verdict rests on a premise its own registrations contradict
+
+**VERIFIED DIRECTLY FROM ClinicalTrials.gov ON 2026-08-21, second reading:**
+
+- `NCT03896724` primary 1 — *"**The protective efficacy** (number of cases) **against clinical
+  malaria** of R21 adjuvanted with Matrix-M in 5-17 month old children…"*
+- `NCT04704830` primary 1 — *"Efficacy: To assess **the protective efficacy** of R21/Matrix-M
+  **against clinical malaria** caused by Plasmodium falciparum, in 5-36 month old children…"*
+
+> **THE ONE SENTENCE TO ACT ON.** `malaria-vaccine` is delivered to readers declaring this
+> topic NOT POOLABLE because *"no two share a registered primary outcome family"* — and two of
+> the three trials it read are both R21 trials whose registered primaries **both name
+> protective efficacy against clinical malaria**. That ground is false as written.
+
+**MY VIEW, STATED RATHER THAN LEFT TO THE FILES.** The singular object's *verdict* is defensible
+and its *ground* is not, and the distinction is the whole decision:
+
+- It asked **can these three be pooled together** — across RTS,S and R21, across an efficacy
+  measure and a rate. The honest answer to that is no, and `malaria-vaccines` **agrees**: it
+  pools R21 with R21 and RTS,S with RTS,S and never across the two.
+- It did **not** ask whether the within-vaccine pools hold, so **its verdict does not reach
+  them.** It also read **3 of the 7** registrations the plural object carries.
+- The true objection is *"no two share a VACCINE"* — a narrower claim that leaves both of the
+  plural object's pools untouched.
+
+**I believe `malaria-vaccines` is the correct object to deliver**, and that the singular's
+NOT POOLABLE finding should survive only as a statement about pooling ACROSS vaccines, which is
+something neither object does. *This is a publication decision and nothing has been mapped.*
+
+The plural object now holds all four limbs — risk of bias on 12 results across 9 outcomes,
+GRADE on both pooled outcomes, a comparison over 28 records, and the R output for both pools.
+
+### O4a. The pair was on the duplicate list ON THE DAY THE MERGES WERE DECLARED COMPLETE
+
+Not a newly found duplicate. `evidence/2026-08-19-batch1/corpus_duplication.json` **at commit
+`9f9121193`** — *"merge(9 clusters): 10 topics RETIRED"* — already contained:
+
+```
+{"subset": "malaria-vaccine", "superset": "malaria-vaccines",
+ "n_shared": 3, "n_superset": 7}
+```
+
+It was listed, and no cluster was opened for it. **Third duplicate pair surviving a merge round
+that was closed on the understanding none remained** — after `attr-pn`/`attr-cm` and the
+apixaban split. The instrument was right and nobody read its output to the end.
+
+*Cluster to open:* `malaria-vaccine` (3 trials, verdict-only, **mapped**) and `malaria-vaccines`
+(7 trials, 9 outcome blocks, **unmapped**). Same subject, opposite conclusions, and the reader
+gets the one built on the false premise.
+
+### O4b. The original framing, kept
 
 | | `malaria-vaccine` (singular) | `malaria-vaccines` (plural) |
 |---|---|---|
