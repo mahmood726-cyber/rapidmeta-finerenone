@@ -65,7 +65,23 @@ SECTION_HEADING = {
     "rob_per_result": "Risk of bias in the included results",
     "grade_per_pool": "Certainty of the evidence",
     "comparison_denominator": "Comparison with published syntheses",
-    "model_output_verbatim": "Statistical output, quoted verbatim",
+    # THE HEADING THIS LIMB IS PROJECTED UNDER MOVED, AND THE PROBE HAS TO SURVIVE THAT.
+    #
+    # On 2026-08-21 the manuscript was reordered to F1000's canonical structure and this
+    # section became `Extended data: statistical output, quoted verbatim` -- the venue's own
+    # words for material supporting the key claims but not part of the main body. The old
+    # value was matched with `re.escape` against the raw page, so it stopped matching on TWO
+    # counts at once: a new prefix, and `Statistical` becoming lowercase `statistical`.
+    #
+    # A heading match that fails reports `the section heading is not on the page at all`,
+    # which the audit scores as REFUSAL LOST. So a purely cosmetic rename would have been
+    # reported as P46 limb 4 ceasing to reach readers on every topic that refuses it. That is
+    # the SEVENTEENTH lookup in this run to under-count by reading one spelling of a thing the
+    # corpus writes two ways, and the fifth to do it in a direction that reads as ABSENCE.
+    #
+    # Fixed at the resolver: the value is the STABLE TAIL of the heading and the search is
+    # case-insensitive, so a prefix the venue requires cannot blind the probe again.
+    "model_output_verbatim": "statistical output, quoted verbatim",
 }
 
 
@@ -74,8 +90,25 @@ def refusal_named_in_section(page_text, heading):
 
     The section runs from the LAST occurrence of its heading (the first is the in-page
     navigation strip) to the next heading-like marker after it.
+
+    MATCHED AS A HEADING ELEMENT, not as a bare substring, and case-insensitively.
+
+    THE FIRST ATTEMPT AT THIS FIX BROKE FOUR TOPICS AND THE MEASUREMENT CAUGHT IT. Making a
+    bare-substring search case-insensitive moved 4 topics from REFUSED+NAMED to REFUSED, NOT
+    NAMED, because this function is shared by all four limbs and `hits[-1]` assumes the LAST
+    mention is the heading. That assumption was being held up by capitalisation: `Risk of bias
+    in the included results` as a heading, `risk of bias in the included results` in prose
+    further down. Drop the case and the prose mention wins the `[-1]`, the span starts after
+    the real section, and a refusal that renders perfectly is reported missing.
+
+    So the loosening is confined to where it belongs. Prose cannot appear inside an `<h2>`,
+    `<h3>` or `<h4>`, so anchoring on the element is immune to both failure modes at once: a
+    venue-required prefix cannot blind it, and a lowercase prose mention cannot steal it. It
+    also closes a defect the strict version already had -- a prose mention at the start of a
+    sentence is capitalised, and would have stolen the `[-1]` on any page that had one.
     """
-    hits = [m.end() for m in re.finditer(re.escape(heading), page_text)]
+    pat = r"(?is)<h[234][^>]*>[^<]*%s[^<]*</h[234]>" % re.escape(heading)
+    hits = [m.end() for m in re.finditer(pat, page_text)]
     if not hits:
         return False, "the section heading is not on the page at all"
     start = hits[-1]

@@ -198,10 +198,37 @@ def corpus_wide_subset():
     return out
 
 
+def keys_for(subset):
+    """Baseline keys: FILE :: GUARD TEXT # nth-occurrence-of-that-text-in-that-file.
+
+    KEYED BY LINE NUMBER, THIS RATCHET REPORTED UNCHANGED GUARDS AS NEW EVERY TIME ANYTHING
+    ABOVE THEM WAS EDITED. `audit_p46_limbs_reach_a_reader.py`'s three guards were re-baselined
+    THREE TIMES for that reason alone -- the baseline's own note says so -- and a fourth
+    re-baselining was what blocked the commit that prompted this change. Re-writing the entries
+    a fourth time would have been the symptom fix; the key is the cause.
+
+    IT IS NOT MERELY LOOSER. A bare file+text key would collapse two identical guard lines in
+    one file into a single entry, and a genuinely new second instance would then hide behind
+    the first -- three files carry such a pair today. The occurrence index keeps them distinct,
+    so the ratchet still rises when a duplicate guard is ADDED, and stops rising when a line is
+    merely MOVED. `prove_ratchet` demonstrates both directions on every run.
+
+    The line number stays in the printed report, where it helps a reader open the file. It is
+    no longer part of the identity, because it was never the thing that made a guard the guard.
+    """
+    seen = {}
+    out = []
+    for h in subset:
+        base = "%s::%s" % (h[0], h[3])
+        n = seen.get(base, 0)
+        seen[base] = n + 1
+        out.append("%s#%d" % (base, n))
+    return out
+
+
 def ratchet(subset, write_if_missing=True):
     """-> (known, new, healed). Exits non-zero from main() when `new` is non-empty."""
-    key = lambda h: "%s:%d" % (h[0], h[1])
-    present = sorted(key(h) for h in subset)
+    present = sorted(keys_for(subset))
     if not os.path.exists(BASELINE):
         if not write_if_missing:
             return set(), [], []
@@ -269,15 +296,26 @@ def prove_ratchet():
     subset = corpus_wide_subset()
     fake = ("scripts/PROOF_not_a_real_file.py", 1, 1, "if not x:")
     _k, new, _h = ratchet(subset + [fake], write_if_missing=False)
-    if "scripts/PROOF_not_a_real_file.py:1" not in new:
+    if "scripts/PROOF_not_a_real_file.py::if not x:#0" not in new:
         sys.exit("PROOF FAILED: a guard absent from the baseline was NOT reported as new. "
                  "The ratchet cannot rise and therefore cannot fall either.")
+    # THE DUPLICATE DIRECTION, WHICH THE NEW KEY COULD HAVE LOST AND THIS FORBIDS.
+    # Keying on file+text alone would let a SECOND copy of an already-baselined guard line
+    # slip in silently. Take a real baselined guard, add an identical one, and require the
+    # ratchet to see it. Without this the looser key would be an unmeasured weakening.
+    if subset:
+        dup = subset[0]
+        _k, newd, _h = ratchet(subset + [dup], write_if_missing=False)
+        if not newd:
+            sys.exit("PROOF FAILED: a SECOND copy of an already-baselined guard line was not "
+                     "reported as new. The occurrence index is not distinguishing duplicates, "
+                     "so the key is looser than the line-number key it replaced.")
     _k, new2, _h = ratchet(subset, write_if_missing=False)
     if new2:
         sys.exit("PROOF FAILED: the unmodified corpus reports %d new guards, so the "
                  "baseline does not describe the corpus it was written from." % len(new2))
-    print("PROOF PASSED: an unbaselined corpus-wide negative guard is reported NEW, and the")
-    print("corpus as it stands reports none. Both directions demonstrated.")
+    print("PROOF PASSED: an unbaselined corpus-wide negative guard is reported NEW, a DUPLICATE")
+    print("of a baselined one is reported NEW, and the corpus as it stands reports none.")
 
 
 def report_corpus_subset(gate):
