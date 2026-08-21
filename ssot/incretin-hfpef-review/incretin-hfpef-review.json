@@ -456,7 +456,12 @@
     "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
     "estimand_established": null,
     "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
-    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py.",
+    "POOL_FINDINGS_2026_08_21": {
+     "a_a_published_synthesis_carried_more_trials_than_this_pool": "A PUBLISHED SYNTHESIS OF THIS QUESTION INCLUDED 4 TRIALS WHERE THIS POOL CARRIES 2. Source: Musa & Musa, BMC Cardiovascular Disorders 2026, PMID 41906074, a prospectively registered systematic review (CRD420251237462).",
+     "b_whether_the_extra_trials_can_be_named": "WHICH TRIALS ARE ABSENT IS NOT ESTABLISHED. The published abstract names none of its included studies and no included-study table was read, so this is A DIFFERENCE IN STATED COUNTS AND NOTHING MORE. It is NOT a claim that 2 specific trials were missed, and nobody here has identified them.",
+     "c_what_this_means_for_the_estimate_above": "The estimate above is computed from the trials this object carries and is not withdrawn or altered by this note. What a reader is owed is the SCOPE: a larger evidence base on this question exists in the literature, and whether this review's search should be widened is a decision that has not been made."
+    }
    },
    "kccq_css_change": {
     "k": 1,
@@ -709,6 +714,13 @@
    "values_moved": "NONE",
    "what_changed": "51 matched / 51 retrieved / 51 read / 1 appraised / 0 lost. PMID 41906074 pools the same GLP-1 + GIP/GLP-1 mix across four trials and pools first HF hospitalisation to HR 0.52 (0.33-0.82) -- the outcome this object declares primary and does not pool.",
    "why": "The limb was ABSENT: no denominator and no stated reason."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "the breadth deficit now renders beside the estimate",
+   "values_moved": "NONE",
+   "what_changed": "a published synthesis carried 4 trials against this pool's 2",
+   "why": "A reader met the estimate with no indication that a larger evidence base exists. Class 82."
   }
  ],
  "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over.",
