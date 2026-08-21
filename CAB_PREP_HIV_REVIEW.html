@@ -289,6 +289,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p class='num'>RR 0.2081 (0.0715 to 0.6057), 95% interval</p>
   <p>documented incident HIV infection. random-effects, estimator REML, k = 2.</p>
   <p><small>&tau;&sup2; 0.4176 &middot; I&sup2; 68.8% &middot; Q 3.208 on 1 df</small></p>
+  <div class='absent-state' role='alert'><p><strong>READ THIS BESIDE THE ESTIMATE. HPTN 084 (NCT03164564) ran in BOTSWANA, ESWATINI, KENYA, MALAWI, SOUTH AFRICA, UGANDA AND ZIMBABWE, in cisgender women. HPTN 083 (NCT02720094) ran in ARGENTINA, BRAZIL, PERU, SOUTH AFRICA, THAILAND, THE UNITED STATES AND VIETNAM, in men who have sex with men and transgender women -- ONE AFRICAN COUNTRY OF SEVEN -- and it carries the larger weight in this pool. A reader taking this page as evidence about African populations is taking half of it from a trial that was mostly not African and not in women.</strong></p><p>I-squared is 68.83% with tau-squared 0.4178. At k = 2 that statistic proves little by itself, BUT IT DOES NOT STAND BY ITSELF: the two estimates are 0.3335 (0.1785 to 0.6230) in one population and 0.1108 (0.0395 to 0.3107) in the other, and the populations differ by sex, by risk route and by region. The spread has a named cause rather than an unexplained one.</p><p>Wang et al. 2023 (PMID 37498645) report RR 0.21 (0.07 to 0.61), I-squared 70%, on 17 and 75 events. This object reports 0.2081 (0.0715 to 0.6057), I-squared 68.83%, ON THE SAME 17 AND 75 EVENTS. The arithmetic here has an independent external check and it passes -- which is a statement about the computation, not about whether the two trials should have been combined.</p><p>Both registrations register grade 2 or higher adverse events as a SECOND PRIMARY OUTCOME. This review carries only the efficacy primary, so this page is not a benefit-and-harm summary.</p></div>
 </div>
 
 <div class="card">
@@ -467,7 +468,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-18</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>2c1ee7a32</code>, built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>a2ce0c7e8</code>, built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
@@ -549,7 +550,75 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <li><code>results.by_outcome.primary.what_this_does_not_establish</code></li>
 </ol></div>
 <h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
-<p><sup class='prov-ref' title='source 1 for this section'>1</sup>[R 4.6.0 with metafor 5.0.1] call: Rscript ssot/fit_from_per_trial.R cab-prep-hiv-review primary --
+<p><sup class='prov-ref' title='source 1 for this section'>1</sup>[R 4.6.0 with metafor 5.0.1] call: Rscript ssot/fit_from_per_trial.R cab-prep-hiv-review primary -- R version 4.6.0 (2026-04-24 ucrt) 
+metafor 5.0.1 
+run_utc 2026-08-21
+
+================================================================
+TOPIC   cab-prep-hiv-review
+OUTCOME primary
+STORED  RR 0.2081 (0.0715 to 0.6057), k = 2, random-effects / REML
+INPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):
+   NCT02720094      0.3335 (0.1785 to 0.6230)  yi=-1.098112  sei=0.318873
+   NCT03164564      0.1108 (0.0395 to 0.3107)  yi=-2.200029  sei=0.526165
+----------------------------------------------------------------
+CALL: rma(yi = yi, sei = sei, method = &quot;REML&quot;, test = &quot;knha&quot;)
+
+
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+ -1.1694    2.3388    6.3388    2.3388   18.3388   
+
+tau^2 (estimated amount of total heterogeneity): 0.4178 (SE = 0.8586)
+tau (square root of estimated tau^2 value):      0.6464
+I^2 (total heterogeneity / total variability):   68.83%
+H^2 (total variability / sampling variability):  3.21
+
+Test for Heterogeneity:
+Q(df = 1) = 3.2077, p-val = 0.0733
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb    ci.ub     
+ -1.5696  0.5452  -2.8789  0.0040  -2.6381  -0.5010  ** 
+
+---
+Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
+
+
+--- SAME FIT WITH HARTUNG-KNAPP (test = &quot;knha&quot;) ---
+
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+ -1.1694    2.3388    6.3388    2.3388   18.3388   
+
+tau^2 (estimated amount of total heterogeneity): 0.4178 (SE = 0.8586)
+tau (square root of estimated tau^2 value):      0.6464
+I^2 (total heterogeneity / total variability):   68.83%
+H^2 (total variability / sampling variability):  3.21
+
+Test for Heterogeneity:
+Q(df = 1) = 3.2077, p-val = 0.0733
+
+Model Results:
+
+estimate      se     tval  df    pval    ci.lb   ci.ub    
+ -1.5696  0.5452  -2.8789   1  0.2128  -8.4969  5.3578    
+
+---
+Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
+
+
+BACK-TRANSFORMED:
+   unadjusted     0.2081 (0.0715 to 0.6059)
+   Hartung-Knapp  0.2081 (0.0002 to 212.2504)   [t crit 12.7062 on 1 df]
+   tau^2 0.417845   Q 3.2077 on 1 df, p = 0.0733   I^2 68.83%
+
+AGREES WITH THE STORED POINT TO 4 dp: YES
+</p>
+<p><sup class='prov-ref' title='source 2 for this section'>2</sup>[R 4.6.0 with metafor 5.0.1] call: Rscript ssot/fit_from_per_trial.R cab-prep-hiv-review primary --
 
 R version 4.6.0 (2026-04-24 ucrt) 
 metafor 5.0.1 
@@ -619,8 +688,9 @@ BACK-TRANSFORMED:
 
 AGREES WITH THE STORED POINT TO 4 dp: YES
 </p>
-<p>This refit REPRODUCES THE POINT ESTIMATE THIS PAGE DELIVERS TO FOUR DECIMAL PLACES. The output above is quoted as the software printed it and is not paraphrased.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>This refit REPRODUCES THE POINT ESTIMATE THIS PAGE DELIVERS TO FOUR DECIMAL PLACES. The output above is quoted as the software printed it and is not paraphrased.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
 <div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
+<li><code>results.by_outcome.primary.r_output.verbatim</code></li>
 <li><code>model_output.verbatim</code></li>
 <li><code>model_output.reproduces_the_stored_point_to_4dp</code></li>
 </ol></div>
@@ -715,9 +785,9 @@ AGREES WITH THE STORED POINT TO 4 dp: YES
 <li><code>registration_identity, sources</code></li>
 </ol></div>
 <h3 id="paper-software-availability">Software availability</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the software and environment statement<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<p>Analyses were computed under R 4.6.0 with metafor 5.0.1.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>results.by_outcome.*.r_output._environment, config.confidence_level</code></li>
+<li><code>results.by_outcome</code></li>
 </ol></div>
 <h3 id="paper-note-on-registration">Note on registration</h3>
 <div class='absent-state' role='note'><strong>Refused:</strong> the registration note<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
