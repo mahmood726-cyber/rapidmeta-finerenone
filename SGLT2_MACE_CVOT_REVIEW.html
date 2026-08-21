@@ -638,7 +638,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2-converted-from-extractor</td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-17T12:06Z</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>a2ce0c7e8</code> (uncommitted generator changes -- NOT REPRODUCIBLE from this stamp alone), built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>713b60951</code>, built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
@@ -722,46 +722,26 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <li><code>results.by_outcome.primary.poolable_reason</code></li>
 </ol></div>
 <h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
-<p><sup class='prov-ref' title='source 1 for this section'>1</sup>[R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1] call: metafor::rma(yi = ..., sei = ..., method = &#x27;REML&#x27;) -- sglt2-mace-cvot-review :: primary   k = 2   measure = OR
-================================================================================================
-trials: NCT01131676, NCT01730534
+<p><sup class='prov-ref' title='source 1 for this section'>1</sup>[R 4.6.0 with metafor 5.0.1] call: Rscript ssot/fit_from_per_trial.R sglt2-mace-cvot-review primary -- R version 4.6.0 (2026-04-24 ucrt) 
+metafor 5.0.1 
+run_utc 2026-08-21
 
-A. THE FIT THAT PRODUCED THE SERVED NUMBER -- method = DL, z interval
+================================================================
+TOPIC   sglt2-mace-cvot-review
+OUTCOME primary
+STORED  OR 0.9074 (0.8310 to 0.9908), k = 2, random-effects / REML
+INPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):
+   NCT01131676      0.8491 (0.7267 to 0.9922)  yi=-0.163544  sei=0.079453
+   NCT01730534      0.9353 (0.8428 to 1.0380)  yi=-0.066851  sei=0.053146
+----------------------------------------------------------------
+CALL: rma(yi = yi, sei = sei, method = &quot;REML&quot;, test = &quot;knha&quot;)
 
-Random-Effects Model (k = 2; tau^2 estimator: DL)
-
-tau^2 (estimated amount of total heterogeneity): 0.0001 (SE = 0.0066)
-tau (square root of estimated tau^2 value):      0.0103
-I^2 (total heterogeneity / total variability):   2.27%
-H^2 (total variability / sampling variability):  1.02
-
-Test for Heterogeneity:
-Q(df = 1) = 1.0232, p-val = 0.3118
-
-Model Results:
-
-estimate      se     zval    pval    ci.lb    ci.ub    
- -0.0972  0.0449  -2.1661  0.0303  -0.1851  -0.0092  * 
-
----
-Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
-
-
-   CHECK AGAINST THE STORED VALUE -- the change is not earned until this passes:
-     point  refit 0.907411       stored 0.907411        reproduced
-     ci_low refit 0.831042       stored 0.831042        reproduced
-     ci_hi  refit 0.990798       stored 0.990798        reproduced
-     tau^2  refit 0.000106       stored 0.000106        reproduced
-     Q      refit 1.023231       stored 1.023231        reproduced
-     I^2    refit 2.2704         stored 2.2704          reproduced
-     =&gt; REPRODUCED
-
-B. THE SAME DATA UNDER REML -- Cochrane Handbook 6.5 section 10.10.4.4, which records
-   REML as RevMan&#x27;s own current default, and DECISIONS-COCHRANE-2026-08-18.md section 1,
-   whose decision line reads: &quot;Decision: REML, everywhere.&quot;
 
 Random-Effects Model (k = 2; tau^2 estimator: REML)
 
+  logLik  deviance       AIC       BIC      AICc   
+  1.2639   -2.5277    1.4723   -2.5277   13.4723   
+
 tau^2 (estimated amount of total heterogeneity): 0.0001 (SE = 0.0066)
 tau (square root of estimated tau^2 value):      0.0103
 I^2 (total heterogeneity / total variability):   2.27%
@@ -779,18 +759,38 @@ estimate      se     zval    pval    ci.lb    ci.ub
 Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
 
 
-C. WHAT MOVES
-     point    0.907411       -&gt; 0.907411        (+0.0000%)
-     ci_low   0.831042       -&gt; 0.831042      
-     ci_high  0.990798       -&gt; 0.990798      
-     tau^2    0.000106       -&gt; 0.000106      
-     I^2      2.2704         -&gt; 2.2704        
-     Q        1.023231       -&gt; 1.023231        (Q is estimator-independent)
-     excludes the null (1):  TRUE -&gt; TRUE
-     prediction interval under REML: 0.8291 to 0.9931
+--- SAME FIT WITH HARTUNG-KNAPP (test = &quot;knha&quot;) ---
 
-R environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1
-Script: ssot/reml_corpus_refit.R</p>
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+  1.2639   -2.5277    1.4723   -2.5277   13.4723   
+
+tau^2 (estimated amount of total heterogeneity): 0.0001 (SE = 0.0066)
+tau (square root of estimated tau^2 value):      0.0103
+I^2 (total heterogeneity / total variability):   2.27%
+H^2 (total variability / sampling variability):  1.02
+
+Test for Heterogeneity:
+Q(df = 1) = 1.0232, p-val = 0.3118
+
+Model Results:
+
+estimate      se     tval  df    pval    ci.lb   ci.ub    
+ -0.0972  0.0449  -2.1661   1  0.2753  -0.6671  0.4728    
+
+---
+Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
+
+
+BACK-TRANSFORMED:
+   unadjusted     0.9074 (0.8310 to 0.9908)
+   Hartung-Knapp  0.9074 (0.5132 to 1.6045)   [t crit 12.7062 on 1 df]  &lt;- HOUSE INTERVAL, inflation factor floored at 1 (raw 1.0000)
+   metafor raw    0.9074 (0.5132 to 1.6045)   [test=knha, UNFLOORED]
+   tau^2 0.000106   Q 1.0232 on 1 df, p = 0.3118   I^2 2.27%
+
+AGREES WITH THE STORED POINT TO 4 dp: YES
+</p>
 <div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
 <li><code>results.by_outcome.primary.r_output.verbatim</code></li>
 </ol></div>
@@ -879,7 +879,7 @@ Script: ssot/reml_corpus_refit.R</p>
 <li><code>registration_identity, sources</code></li>
 </ol></div>
 <h3 id="paper-software-availability">Software availability</h3>
-<p>Analyses were computed under R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Analyses were computed under R 4.6.0 with metafor 5.0.1.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
 <li><code>results.by_outcome</code></li>
 </ol></div>

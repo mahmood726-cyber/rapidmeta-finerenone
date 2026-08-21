@@ -1,0 +1,70 @@
+R version 4.6.0 (2026-04-24 ucrt) 
+metafor 5.0.1 
+run_utc 2026-08-21
+
+================================================================
+TOPIC   apixaban-vte-prophylaxis
+OUTCOME major_vte
+STORED  RR 0.7433 (0.4371 to 1.2640), k = 4, random-effects / REML
+INPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):
+   ADOPT            0.9247 (0.6559 to 1.3036)  yi=-0.078286  sei=0.175227
+   ADVANCE-3        0.3993 (0.1922 to 0.8293)  yi=-0.918042  sei=0.372978
+   ADVANCE-1        1.4068 (0.7636 to 2.5919)  yi=+0.341318  sei=0.311767
+   ADVANCE-2        0.5017 (0.2590 to 0.9715)  yi=-0.689753  sei=0.337254
+----------------------------------------------------------------
+CALL: rma(yi = yi, sei = sei, method = "REML", test = "knha")
+
+
+Random-Effects Model (k = 4; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+ -2.5205    5.0410    9.0410    7.2383   21.0410   
+
+tau^2 (estimated amount of total heterogeneity): 0.2042 (SE = 0.2398)
+tau (square root of estimated tau^2 value):      0.4519
+I^2 (total heterogeneity / total variability):   71.48%
+H^2 (total variability / sampling variability):  3.51
+
+Test for Heterogeneity:
+Q(df = 3) = 9.3122, p-val = 0.0254
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb   ci.ub    
+ -0.2967  0.2709  -1.0953  0.2734  -0.8275  0.2342    
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+--- SAME FIT WITH HARTUNG-KNAPP (test = "knha") ---
+
+Random-Effects Model (k = 4; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+ -2.5205    5.0410    9.0410    7.2383   21.0410   
+
+tau^2 (estimated amount of total heterogeneity): 0.2042 (SE = 0.2398)
+tau (square root of estimated tau^2 value):      0.4519
+I^2 (total heterogeneity / total variability):   71.48%
+H^2 (total variability / sampling variability):  3.51
+
+Test for Heterogeneity:
+Q(df = 3) = 9.3122, p-val = 0.0254
+
+Model Results:
+
+estimate      se     tval  df    pval    ci.lb   ci.ub    
+ -0.2967  0.2781  -1.0666   3  0.3644  -1.1818  0.5885    
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+BACK-TRANSFORMED:
+   unadjusted     0.7433 (0.4371 to 1.2639)
+   Hartung-Knapp  0.7433 (0.3067 to 1.8013)   [t crit 3.1824 on 3 df]  <- HOUSE INTERVAL, inflation factor floored at 1 (raw 1.0269)
+   metafor raw    0.7433 (0.3067 to 1.8013)   [test=knha, UNFLOORED]
+   tau^2 0.204237   Q 9.3122 on 3 df, p = 0.0254   I^2 71.48%
+
+AGREES WITH THE STORED POINT TO 4 dp: YES

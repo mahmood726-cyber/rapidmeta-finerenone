@@ -1019,45 +1019,27 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <li><code>results.by_outcome.major_vte.poolable_reason</code></li>
 </ol></div>
 <h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
-<p><sup class='prov-ref' title='source 1 for this section'>1</sup>[R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1] call: metafor::rma(yi = ..., sei = ..., method = &#x27;REML&#x27;) -- apixaban-vte-prophylaxis :: major_vte   k = 4   measure = RR
-================================================================================================
-trials: ADOPT, ADVANCE-3, ADVANCE-1, ADVANCE-2
+<p><sup class='prov-ref' title='source 1 for this section'>1</sup>[R 4.6.0 with metafor 5.0.1] call: Rscript ssot/fit_from_per_trial.R apixaban-vte-prophylaxis major_vte -- R version 4.6.0 (2026-04-24 ucrt) 
+metafor 5.0.1 
+run_utc 2026-08-21
 
-A. THE FIT THAT PRODUCED THE SERVED NUMBER -- method = DL, z interval
+================================================================
+TOPIC   apixaban-vte-prophylaxis
+OUTCOME major_vte
+STORED  RR 0.7433 (0.4371 to 1.2640), k = 4, random-effects / REML
+INPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):
+   ADOPT            0.9247 (0.6559 to 1.3036)  yi=-0.078286  sei=0.175227
+   ADVANCE-3        0.3993 (0.1922 to 0.8293)  yi=-0.918042  sei=0.372978
+   ADVANCE-1        1.4068 (0.7636 to 2.5919)  yi=+0.341318  sei=0.311767
+   ADVANCE-2        0.5017 (0.2590 to 0.9715)  yi=-0.689753  sei=0.337254
+----------------------------------------------------------------
+CALL: rma(yi = yi, sei = sei, method = &quot;REML&quot;, test = &quot;knha&quot;)
 
-Random-Effects Model (k = 4; tau^2 estimator: DL)
-
-tau^2 (estimated amount of total heterogeneity): 0.1714 (SE = 0.2149)
-tau (square root of estimated tau^2 value):      0.4141
-I^2 (total heterogeneity / total variability):   67.78%
-H^2 (total variability / sampling variability):  3.10
-
-Test for Heterogeneity:
-Q(df = 3) = 9.3122, p-val = 0.0254
-
-Model Results:
-
-estimate      se     zval    pval    ci.lb   ci.ub    
- -0.2917  0.2549  -1.1447  0.2523  -0.7912  0.2078    
-
----
-Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
-
-
-   CHECK AGAINST THE STORED VALUE -- the change is not earned until this passes:
-     point  refit 0.746967       stored 0.746900        reproduced
-     ci_low refit 0.453280       stored 0.453200        reproduced
-     ci_hi  refit 1.230939       stored 1.230900        reproduced
-     tau^2  refit 0.171442       stored 0.171480        reproduced
-     Q      refit 9.312180       stored 9.314000        reproduced
-     I^2    refit 67.7841        stored 67.8000         reproduced
-     =&gt; REPRODUCED
-
-B. THE SAME DATA UNDER REML -- Cochrane Handbook 6.5 section 10.10.4.4, which records
-   REML as RevMan&#x27;s own current default, and DECISIONS-COCHRANE-2026-08-18.md section 1,
-   whose decision line reads: &quot;Decision: REML, everywhere.&quot;
 
 Random-Effects Model (k = 4; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+ -2.5205    5.0410    9.0410    7.2383   21.0410   
 
 tau^2 (estimated amount of total heterogeneity): 0.2042 (SE = 0.2398)
 tau (square root of estimated tau^2 value):      0.4519
@@ -1076,18 +1058,38 @@ estimate      se     zval    pval    ci.lb   ci.ub
 Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
 
 
-C. WHAT MOVES
-     point    0.746900       -&gt; 0.743294        (-0.4828%)
-     ci_low   0.453200       -&gt; 0.437130      
-     ci_high  1.230900       -&gt; 1.263895      
-     tau^2    0.171480       -&gt; 0.204237      
-     I^2      67.8000        -&gt; 71.4820       
-     Q        9.314000       -&gt; 9.312180        (Q is estimator-independent)
-     excludes the null (1):  FALSE -&gt; FALSE
-     prediction interval under REML: 0.2647 to 2.0876
+--- SAME FIT WITH HARTUNG-KNAPP (test = &quot;knha&quot;) ---
 
-R environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1
-Script: ssot/reml_corpus_refit.R</p>
+Random-Effects Model (k = 4; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+ -2.5205    5.0410    9.0410    7.2383   21.0410   
+
+tau^2 (estimated amount of total heterogeneity): 0.2042 (SE = 0.2398)
+tau (square root of estimated tau^2 value):      0.4519
+I^2 (total heterogeneity / total variability):   71.48%
+H^2 (total variability / sampling variability):  3.51
+
+Test for Heterogeneity:
+Q(df = 3) = 9.3122, p-val = 0.0254
+
+Model Results:
+
+estimate      se     tval  df    pval    ci.lb   ci.ub    
+ -0.2967  0.2781  -1.0666   3  0.3644  -1.1818  0.5885    
+
+---
+Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
+
+
+BACK-TRANSFORMED:
+   unadjusted     0.7433 (0.4371 to 1.2639)
+   Hartung-Knapp  0.7433 (0.3067 to 1.8013)   [t crit 3.1824 on 3 df]  &lt;- HOUSE INTERVAL, inflation factor floored at 1 (raw 1.0269)
+   metafor raw    0.7433 (0.3067 to 1.8013)   [test=knha, UNFLOORED]
+   tau^2 0.204237   Q 9.3122 on 3 df, p = 0.0254   I^2 71.48%
+
+AGREES WITH THE STORED POINT TO 4 dp: YES
+</p>
 <div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
 <li><code>results.by_outcome.major_vte.r_output.verbatim</code></li>
 </ol></div>
@@ -1182,7 +1184,7 @@ Script: ssot/reml_corpus_refit.R</p>
 <li><code>registration_identity.trials</code></li>
 </ol></div>
 <h3 id="paper-software-availability">Software availability</h3>
-<p>Analyses were computed under R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Analyses were computed under R 4.6.0 with metafor 5.0.1.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>Intervals are reported at the 95% level.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
 <div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
 <li><code>results.by_outcome</code></li>
@@ -1351,45 +1353,27 @@ Script: ssot/reml_corpus_refit.R</p>
     <caption>Table 18. The withholding question, asked at every rank</caption>
 <tr><th>registration</th><th>rank</th><th>matching outcome</th></tr></table></div><h4>Every trial, with its reason</h4><div class='tscroll'><table>
     <caption>Table 19. Every trial, with its reason</caption>
-<tr><th>registration</th><th>verdict</th><th>limb</th><th>reason</th></tr></table></div><h3>Analysis output — major_vte (quoted verbatim)</h3><p><small>— &nbsp;|&nbsp; call: <code>metafor::rma(yi = ..., sei = ..., method = &#x27;REML&#x27;)</code></small></p><pre style='overflow-x:auto'>apixaban-vte-prophylaxis :: major_vte   k = 4   measure = RR
-================================================================================================
-trials: ADOPT, ADVANCE-3, ADVANCE-1, ADVANCE-2
+<tr><th>registration</th><th>verdict</th><th>limb</th><th>reason</th></tr></table></div><h3>Analysis output — major_vte (quoted verbatim)</h3><p><small>— &nbsp;|&nbsp; call: <code>Rscript ssot/fit_from_per_trial.R apixaban-vte-prophylaxis major_vte</code></small></p><pre style='overflow-x:auto'>R version 4.6.0 (2026-04-24 ucrt) 
+metafor 5.0.1 
+run_utc 2026-08-21
 
-A. THE FIT THAT PRODUCED THE SERVED NUMBER -- method = DL, z interval
+================================================================
+TOPIC   apixaban-vte-prophylaxis
+OUTCOME major_vte
+STORED  RR 0.7433 (0.4371 to 1.2640), k = 4, random-effects / REML
+INPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):
+   ADOPT            0.9247 (0.6559 to 1.3036)  yi=-0.078286  sei=0.175227
+   ADVANCE-3        0.3993 (0.1922 to 0.8293)  yi=-0.918042  sei=0.372978
+   ADVANCE-1        1.4068 (0.7636 to 2.5919)  yi=+0.341318  sei=0.311767
+   ADVANCE-2        0.5017 (0.2590 to 0.9715)  yi=-0.689753  sei=0.337254
+----------------------------------------------------------------
+CALL: rma(yi = yi, sei = sei, method = &quot;REML&quot;, test = &quot;knha&quot;)
 
-Random-Effects Model (k = 4; tau^2 estimator: DL)
-
-tau^2 (estimated amount of total heterogeneity): 0.1714 (SE = 0.2149)
-tau (square root of estimated tau^2 value):      0.4141
-I^2 (total heterogeneity / total variability):   67.78%
-H^2 (total variability / sampling variability):  3.10
-
-Test for Heterogeneity:
-Q(df = 3) = 9.3122, p-val = 0.0254
-
-Model Results:
-
-estimate      se     zval    pval    ci.lb   ci.ub    
- -0.2917  0.2549  -1.1447  0.2523  -0.7912  0.2078    
-
----
-Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
-
-
-   CHECK AGAINST THE STORED VALUE -- the change is not earned until this passes:
-     point  refit 0.746967       stored 0.746900        reproduced
-     ci_low refit 0.453280       stored 0.453200        reproduced
-     ci_hi  refit 1.230939       stored 1.230900        reproduced
-     tau^2  refit 0.171442       stored 0.171480        reproduced
-     Q      refit 9.312180       stored 9.314000        reproduced
-     I^2    refit 67.7841        stored 67.8000         reproduced
-     =&gt; REPRODUCED
-
-B. THE SAME DATA UNDER REML -- Cochrane Handbook 6.5 section 10.10.4.4, which records
-   REML as RevMan&#x27;s own current default, and DECISIONS-COCHRANE-2026-08-18.md section 1,
-   whose decision line reads: &quot;Decision: REML, everywhere.&quot;
 
 Random-Effects Model (k = 4; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+ -2.5205    5.0410    9.0410    7.2383   21.0410   
 
 tau^2 (estimated amount of total heterogeneity): 0.2042 (SE = 0.2398)
 tau (square root of estimated tau^2 value):      0.4519
@@ -1408,18 +1392,38 @@ estimate      se     zval    pval    ci.lb   ci.ub
 Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
 
 
-C. WHAT MOVES
-     point    0.746900       -&gt; 0.743294        (-0.4828%)
-     ci_low   0.453200       -&gt; 0.437130      
-     ci_high  1.230900       -&gt; 1.263895      
-     tau^2    0.171480       -&gt; 0.204237      
-     I^2      67.8000        -&gt; 71.4820       
-     Q        9.314000       -&gt; 9.312180        (Q is estimator-independent)
-     excludes the null (1):  FALSE -&gt; FALSE
-     prediction interval under REML: 0.2647 to 2.0876
+--- SAME FIT WITH HARTUNG-KNAPP (test = &quot;knha&quot;) ---
 
-R environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1
-Script: ssot/reml_corpus_refit.R</pre><h3>Published-meta comparison — PENDING_EXTERNAL_RESOLUTION</h3><p><strong>Denominator: —.</strong> Not established, and the obstacle is that no candidate synthesis has been identified for this estimand. The PubMed search at search.databases[2] reported 439 record(s) and retrieved 50; 389 were not retrieved, and 0 published benchmark(s) are recorded on this object. There is nothing yet to form a denominator over.</p><p><small><strong>Explicitly not done:</strong> CITATION-STRING MATCHING. It would produce a comparison-shaped answer tonight and it is not identity: two syntheses citing the same trial under different labels would read as different, and the same label on different trials as the same. That is the substitution class this project audits for.</small></p><p><small>Blocked on: lane 2 registration-id resolution</small></p><h3>Preconditions</h3><p><small>Authority: Cochrane Handbook for Systematic Reviews of Interventions 6.5, 2024, verified 2026-08-19. Publishable: True.</small></p><div class='tscroll'><table>
+Random-Effects Model (k = 4; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+ -2.5205    5.0410    9.0410    7.2383   21.0410   
+
+tau^2 (estimated amount of total heterogeneity): 0.2042 (SE = 0.2398)
+tau (square root of estimated tau^2 value):      0.4519
+I^2 (total heterogeneity / total variability):   71.48%
+H^2 (total variability / sampling variability):  3.51
+
+Test for Heterogeneity:
+Q(df = 3) = 9.3122, p-val = 0.0254
+
+Model Results:
+
+estimate      se     tval  df    pval    ci.lb   ci.ub    
+ -0.2967  0.2781  -1.0666   3  0.3644  -1.1818  0.5885    
+
+---
+Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
+
+
+BACK-TRANSFORMED:
+   unadjusted     0.7433 (0.4371 to 1.2639)
+   Hartung-Knapp  0.7433 (0.3067 to 1.8013)   [t crit 3.1824 on 3 df]  &lt;- HOUSE INTERVAL, inflation factor floored at 1 (raw 1.0269)
+   metafor raw    0.7433 (0.3067 to 1.8013)   [test=knha, UNFLOORED]
+   tau^2 0.204237   Q 9.3122 on 3 df, p = 0.0254   I^2 71.48%
+
+AGREES WITH THE STORED POINT TO 4 dp: YES
+</pre><h3>Published-meta comparison — PENDING_EXTERNAL_RESOLUTION</h3><p><strong>Denominator: —.</strong> Not established, and the obstacle is that no candidate synthesis has been identified for this estimand. The PubMed search at search.databases[2] reported 439 record(s) and retrieved 50; 389 were not retrieved, and 0 published benchmark(s) are recorded on this object. There is nothing yet to form a denominator over.</p><p><small><strong>Explicitly not done:</strong> CITATION-STRING MATCHING. It would produce a comparison-shaped answer tonight and it is not identity: two syntheses citing the same trial under different labels would read as different, and the same label on different trials as the same. That is the substitution class this project audits for.</small></p><p><small>Blocked on: lane 2 registration-id resolution</small></p><h3>Preconditions</h3><p><small>Authority: Cochrane Handbook for Systematic Reviews of Interventions 6.5, 2024, verified 2026-08-19. Publishable: True.</small></p><div class='tscroll'><table>
     <caption>Table 20. Preconditions</caption>
 <tr><th>precondition</th><th>verdict</th><th>reason</th><th>authority</th></tr><tr><td>population_stated</td><td><strong>PASS</strong></td><td><small>present: question carries 220 characters</small></td><td><small>MECIR C62 &#x27;Ensuring meta-analyses are meaningful&#x27; (Mandatory, READ 2026-08-19): &#x27;Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be s</small></td></tr><tr><td>arm_role_resolved</td><td><strong>NOT-ASSESSABLE</strong></td><td><small>cannot assess: inputs.trials has 1 trial(s) with no readable arms [&#x27;NCT02366871&#x27;] and 0 with a blank arm role []. Absent role data is not a wrong role.</small></td><td><small>MECIR C62 (Mandatory), &#x27;interventions&#x27; limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are &#x27;sufficiently similar&#x27; without knowing whi</small></td></tr><tr><td>comparators_identified</td><td><strong>PASS</strong></td><td><small>every outcome names a comparator type [&#x27;active&#x27;]; none declares &#x27;mixed&#x27;. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged.</small></td><td><small>MECIR C62 (Mandatory), &#x27;comparisons&#x27; limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency.</small></td></tr><tr><td>estimand_named</td><td><strong>PASS</strong></td><td><small>outcomes.estimand: all 1 outcome(s) name a quantity</small></td><td><small>MECIR C8 &#x27;Clarifying role of outcomes&#x27; (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), &#x27;outcomes&#x27; limb</small></td></tr><tr><td>criteria_stated</td><td><strong>PASS</strong></td><td><small>present: screening.eligibility carries 891 characters</small></td><td><small>MECIR R29 &#x27;Eligibility criteria for types of participants&#x27;, R30 &#x27;...types of interventions&#x27;, R31 &#x27;Role of outcomes&#x27; -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block</small></td></tr><tr><td>criteria_predefined</td><td><strong>FAIL</strong></td><td><small>screening.eligibility_provenance.predefined is false: the criteria were DERIVED post hoc from this object&#x27;s own question and recorded exclusions. That is auditable (R29/R30/R31) and is not pre-specification (C5/C7). This</small></td><td><small>MECIR C5 &#x27;Predefining unambiguous criteria for participants&#x27; AND C7 &#x27;...for interventions and comparators&#x27;, BOTH Mandatory (READ 2026-08-19): &#x27;Predefined, unambiguous eligibility criteria are a fundam</small></td></tr><tr><td>eligibility_met</td><td><strong>NOT-ASSESSABLE</strong></td><td><small>cannot assess: criteria are stated, but sources is an empty dict -- no full text was available this pass, and inclusion logic is conditional prose</small></td><td><small>MECIR C5/C7 (Mandatory) with C6 &#x27;Predefining a strategy for studies with a subset of eligible participants&#x27; (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report</small></td></tr><tr><td>contributes_a_randomised_contrast</td><td><strong>NOT-ASSESSABLE</strong></td><td><small>cannot assess: 1 of 5 trial(s) carry no readable arm roles [&#x27;NCT02366871&#x27;]</small></td><td><small>Handbook 6.5 s23.3.4 &#x27;How to include multiple groups from one study&#x27; (READ 2026-08-19) and s23.3.6 &#x27;Factorial trials&#x27;; MECIR C7 &#x27;Predefining unambiguous criteria for interventions and comparators&#x27; (Ma</small></td></tr></table></div><p><small>This page is stamped to the standard version above. If the standard rises, this page is BELOW it and knowably so. No page is grandfathered; arni-hfref is presently UNSTAMPED and is therefore unknown-version, not compliant.</small></p></div>
 <p><small>Every number on this page is projected from a single canonical object,

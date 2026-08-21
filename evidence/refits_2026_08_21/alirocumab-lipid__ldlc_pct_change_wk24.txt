@@ -1,0 +1,74 @@
+R version 4.6.0 (2026-04-24 ucrt) 
+metafor 5.0.1 
+run_utc 2026-08-21
+
+================================================================
+TOPIC   alirocumab-lipid
+OUTCOME ldlc_pct_change_wk24
+STORED  MD -54.7200 (-60.6200 to -48.8200), k = 8, random / REML
+INPUTS READ FROM THE OBJECT (natural scale, SE derived from the published interval):
+   NCT01507831      -61.9000 (-64.3000 to -59.4000)  yi=-61.900000  sei=1.250023
+   NCT01617655      -39.1000 (-51.1000 to -27.1000)  yi=-39.100000  sei=6.122561
+   NCT01623115      -57.9000 (-63.3000 to -52.6000)  yi=-57.900000  sei=2.729642
+   NCT01644175      -45.9000 (-52.5000 to -39.3000)  yi=-45.900000  sei=3.367409
+   NCT01709500      -51.4000 (-58.1000 to -44.8000)  yi=-51.400000  sei=3.392919
+   NCT02107898      -64.1000 (-68.5000 to -59.8000)  yi=-64.100000  sei=2.219429
+   NCT02289963      -63.4000 (-71.5800 to -55.2200)  yi=-63.400000  sei=4.173546
+   NCT02585778      -48.8300 (-53.7400 to -43.9200)  yi=-48.830000  sei=2.505148
+----------------------------------------------------------------
+CALL: rma(yi = yi, sei = sei, method = "REML", test = "knha")
+
+
+Random-Effects Model (k = 8; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+-25.1765   50.3529   54.3529   54.2447   57.3529   
+
+tau^2 (estimated amount of total heterogeneity): 61.4512 (SE = 38.5470)
+tau (square root of estimated tau^2 value):      7.8391
+I^2 (total heterogeneity / total variability):   90.02%
+H^2 (total variability / sampling variability):  10.02
+
+Test for Heterogeneity:
+Q(df = 7) = 58.4577, p-val < .0001
+
+Model Results:
+
+estimate      se      zval    pval     ci.lb     ci.ub      
+-54.7195  3.0091  -18.1850  <.0001  -60.6172  -48.8219  *** 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+--- SAME FIT WITH HARTUNG-KNAPP (test = "knha") ---
+
+Random-Effects Model (k = 8; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+-25.1765   50.3529   54.3529   54.2447   57.3529   
+
+tau^2 (estimated amount of total heterogeneity): 61.4512 (SE = 38.5470)
+tau (square root of estimated tau^2 value):      7.8391
+I^2 (total heterogeneity / total variability):   90.02%
+H^2 (total variability / sampling variability):  10.02
+
+Test for Heterogeneity:
+Q(df = 7) = 58.4577, p-val < .0001
+
+Model Results:
+
+estimate      se      tval  df    pval     ci.lb     ci.ub      
+-54.7195  3.1030  -17.6346   7  <.0001  -62.0569  -47.3822  *** 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+BACK-TRANSFORMED:
+   unadjusted     -54.7195 (-60.6172 to -48.8219)
+   Hartung-Knapp  -54.7195 (-62.0569 to -47.3822)   [t crit 2.3646 on 7 df]  <- HOUSE INTERVAL, inflation factor floored at 1 (raw 1.0312)
+   metafor raw    -54.7195 (-62.0569 to -47.3822)   [test=knha, UNFLOORED]
+   tau^2 61.451183   Q 58.4577 on 7 df, p = 0.0000   I^2 90.02%
+
+AGREES WITH THE STORED POINT TO 4 dp: NO

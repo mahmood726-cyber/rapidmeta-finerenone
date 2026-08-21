@@ -55,6 +55,7 @@ PAT = {
     "q": re.compile(r"Q\(df\s*=\s*(\d+)\)\s*=\s*" + NUM),
     "estimator": re.compile(r"tau\^2 estimator:\s*([A-Za-z-]+)"),
     "unadjusted": re.compile(r"unadjusted\s+" + NUM + r"\s*\(" + NUM + r"\s*to\s*" + NUM + r"\)"),
+    "hartung": re.compile(r"Hartung-Knapp\s+" + NUM + r"\s*\(" + NUM + r"\s*to\s*" + NUM + r"\)"),
 }
 
 ESTIMATOR_WORDS = {
@@ -197,8 +198,28 @@ def main():
             m = PAT["unadjusted"].search(v)
             if m:
                 note("point", m.group(1), pooled.get("point"))
-                note("ci_low", m.group(2), pooled.get("ci_low"))
-                note("ci_high", m.group(3), pooled.get("ci_high"))
+                # NOT EVERY OBJECT PUBLISHES THE WALD INTERVAL AS ITS INTERVAL.
+                #
+                # apixaban-vte-treatment publishes 0.3437 to 1.7530, which is its HARTUNG-KNAPP
+                # interval; its Wald interval is 0.5356 to 1.1251 and appears nowhere on the
+                # page. Comparing the printed Wald line against `pooled.ci_low/ci_high`
+                # reported that object as carrying two wrong numbers when BOTH ITS INTERVALS
+                # REPRODUCE EXACTLY -- the mismatch was in which pair this file chose to
+                # compare. A stored CI that matches EITHER printed interval reproduces.
+                hk = PAT["hartung"].search(v)
+                pairs = [(m.group(2), m.group(3))]
+                if hk:
+                    pairs.append((hk.group(2), hk.group(3)))
+                lo, hi = pooled.get("ci_low"), pooled.get("ci_high")
+                if lo is None or hi is None:
+                    absent["ci"] = absent.get("ci", 0) + 1
+                elif any(close(a, lo) and close(b, hi) for a, b in pairs):
+                    checked += 2
+                else:
+                    checked += 2
+                    bad.append((topic, oid, "published interval", "%s to %s"
+                                % (m.group(2), m.group(3)), "%s to %s" % (lo, hi),
+                                "matches NEITHER the Wald nor the Hartung-Knapp line"))
             else:
                 absent["unadjusted interval"] = absent.get("unadjusted interval", 0) + 1
 

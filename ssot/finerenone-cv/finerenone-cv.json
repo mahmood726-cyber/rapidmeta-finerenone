@@ -551,6 +551,13 @@
    "values_moved": "NONE",
    "what_changed": "2 results assessed; GRADE MODERATE; the model output re-run under the declared estimator",
    "why": "Both limbs were ABSENT, and the stored fit named DL where the object declares REML."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "a second, cross-family risk-of-bias assessment was obtained and reconciled",
+   "values_moved": "NONE -- no judgement was changed on the strength of the disagreement",
+   "what_changed": "disagreement rate 5 of 12 judgements (41.7%); the D1 disagreement implicates 51 LOW judgements across 15 topics",
+   "why": "Mahmood's specification requires two assessors from different model families. This is the first."
   }
  ],
  "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",
@@ -684,7 +691,23 @@
    "shape_note": "A DICT, NOT A STRING -- paper_projector does ceil.get('statement') and a bare string collapses the manuscript to a projector-failed banner."
   },
   "THE_TWO_TRIALS_REGISTER_THE_SAME_TWO_COMPOSITES_WITH_THE_RANKS_SWAPPED": "FIDELIO-DKD registers the KIDNEY composite as its primary and the CARDIOVASCULAR composite as its first secondary. FIGARO-DKD registers the CARDIOVASCULAR composite as its primary and the KIDNEY composite as its first secondary. This review pools the cardiovascular composite, so it takes one trial's primary and the other's secondary -- and the quantity is identical, word for word, on both registrations.",
-  "ONE_ASSESSOR_ONLY": "ASSESSED BY ONE ASSESSOR. Under the standing specification that risk of bias 2 must be complete and done by TWO AIs from different model families, THIS ASSESSMENT IS INCOMPLETE. `rob2.assessors` is deliberately NOT written."
+  "ONE_ASSESSOR_ONLY": "ASSESSED BY ONE ASSESSOR. Under the standing specification that risk of bias 2 must be complete and done by TWO AIs from different model families, THIS ASSESSMENT IS INCOMPLETE. `rob2.assessors` is deliberately NOT written.",
+  "SECOND_ASSESSOR_2026_08_21": {
+   "_why": "Mahmood's standing specification is that RoB 2 must be complete and done by TWO AIs. Every assessment written in this run was one-assessor. This is the FIRST reconciliation.",
+   "assessor_2": "GPT-5 Codex (openai family), via `codex exec`, model self-named in the same session",
+   "assessor_1": "Claude Opus 5 (anthropic family) -- the assessment above",
+   "families_are_independent": "anthropic and openai. A second assessment from the same family would test wording, not judgement.",
+   "how_it_was_asked": "BLIND. The second assessor was given the registration facts and the house NO_INFORMATION-never-LOW rule INLINE, and asked to score the five domains and an overall for each result. IT WAS NOT SHOWN THIS ASSESSMENT AND WAS NOT ASKED WHETHER IT AGREED. Asking 'do you agree' measures deference, not judgement.",
+   "verbatim_reply": "NCT02540993 D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=LOW OVERALL=NO_INFORMATION\nNCT02545049 D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=LOW OVERALL=NO_INFORMATION",
+   "DISAGREEMENT_RATE": "5 of 12 judgements -- 41.7%. REPORTED AS DISAGREEMENT AND NOT AS AGREEMENT: agreement between two assessors given the same facts authenticates nothing, and the whole value of a second assessor is in what it does not confirm.",
+   "the_three_disagreements": {
+    "D1_on_both_results": "ASSESSOR 1 SAID LOW, ASSESSOR 2 SAID NO_INFORMATION -- and assessor 2 has the better of it against assessor 1's OWN STATED RULE. RoB 2 domain 1 asks about the randomisation PROCESS: sequence generation, allocation concealment, and baseline imbalance. The registry records only that the design was RANDOMIZED. Assessor 1's own D1 entry says in its own words that 'the concealment MECHANISM is not on the registry and no publication was read' -- AND THEN SCORES LOW, against this object's own ceiling, which says a domain that cannot be judged from the sources read is NO_INFORMATION, NEVER LOW. THAT IS THE LOW-BY-DEFAULT FAILURE THE CEILING EXISTS TO FORBID, committed systematically.",
+    "D5_on_NCT02540993": "ASSESSOR 1 SAID SOME_CONCERNS, ASSESSOR 2 SAID LOW. Genuinely contestable and NOT resolved here. Assessor 1 scored the pooled result being FIDELIO's registered SECONDARY rather than its primary. Assessor 2's implicit position is the defensible counter-argument: RoB 2 domain 5 concerns selection among multiple measurements or analyses OF THE OUTCOME BEING ASSESSED, and which outcome a REVIEW chooses to review is not a bias in the TRIAL. Left as a disagreement.",
+    "OVERALL_on_both": "A consequence of the D1 disagreement, not an independent one."
+   },
+   "CORPUS_EXPOSURE_IF_ASSESSOR_2_IS_RIGHT_ON_D1": "84 D1 judgements exist across this corpus and 51 ARE SCORED LOW, over 15 topics. Every one rests on the same evidence -- the registry recording an allocation of RANDOMIZED -- and every one sits beside a note saying the concealment mechanism was not read. IF THE SECOND ASSESSOR IS RIGHT, 51 JUDGEMENTS AND THE OVERALL RATING ABOVE EACH OF THEM ARE WRONG IN THE DIRECTION THAT FLATTERS THE TRIALS. Changing them is a methodological decision and it is NOT MADE HERE.",
+   "what_is_NOT_claimed": "That this reconciliation completes the limb. ONE topic of at least fifteen has a second assessment. `rob2.assessors` remains deliberately unwritten on every object including this one."
+  }
  },
  "grade": {
   "approach": "GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.",

@@ -234,11 +234,35 @@ def main():
             if not f or f["k"] < 2:
                 continue
             (hlo, hhi), (rlo, rhi), factor, t = intervals(f)
+
+            # PREFER THE STORED R OUTPUT OVER THIS FILE'S RE-IMPLEMENTATION.
+            #
+            # The Python REML fixed point above DIVERGES at k = 2 when tau-squared is large
+            # relative to the within-study variance. On four blocks it produced house
+            # intervals of 0.0000 to 1.26e18, 0.0000 to 2.07e12 and 0.0001 to 9996 -- and
+            # those four were reported as "stored house interval CANNOT BE REPRODUCED",
+            # standing against objects whose values are correct. metafor reproduces ALL FOUR
+            # to the stored precision. THE INSTRUMENT WAS THE THING THAT COULD NOT REPRODUCE
+            # THEM, which is class 86 for the fourth time in one night.
+            #
+            # Where the object carries an R output printing the HOUSE line, that is the
+            # authoritative fit and it is used. This file's own arithmetic is the fallback for
+            # blocks with no stored run, and it says which one it used.
+            src = "this file's REML fixed point"
+            _v = (blk.get("r_output") or {}).get("verbatim") or ""
+            _m = re.search(r"Hartung-Knapp\s+[-\d.]+ \(([-\d.]+) to ([-\d.]+)\).*?HOUSE",
+                           _v)
+            _r = re.search(r"metafor raw\s+[-\d.]+ \(([-\d.]+) to ([-\d.]+)\)", _v)
+            if _m:
+                hlo, hhi = float(_m.group(1)), float(_m.group(2))
+                src = "the stored metafor output"
+                if _r:
+                    rlo, rhi = float(_r.group(1)), float(_r.group(2))
             stored = blk.get("pooled_hartung_knapp") or {}
             rows.append({
                 "topic": topic, "oid": oid, "k": f["k"], "factor": factor, "t": t,
                 "house": (hlo, hhi), "raw": (rlo, rhi),
-                "stored": (stored.get("ci_low"), stored.get("ci_high")),
+                "stored": (stored.get("ci_low"), stored.get("ci_high")), "src": src,
                 "pages": rev.get(topic) or [],
                 "raw_narrower": (rhi - rlo) < (
                     pooled["point"] * 0 + (pooled.get("ci_high") or 0)

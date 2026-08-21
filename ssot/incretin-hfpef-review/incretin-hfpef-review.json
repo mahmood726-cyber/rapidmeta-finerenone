@@ -464,7 +464,7 @@
     }
    },
    "kccq_css_change": {
-    "k": 1,
+    "k": 2,
     "estimand_id": "kccq_css_change",
     "model": "random-effects",
     "estimator": "REML random-effects, inverse-variance (tau-squared estimated as zero)",
@@ -701,7 +701,8 @@
      "a_the_sensitivity_interval_this_page_quoted_was_not_this_project_s": "CORRECTION, AND IT REVERSES WHAT THIS PAGE SAID ABOUT ITS OWN SENSITIVITY ANALYSIS. The caveat on this pool stated that the Hartung-Knapp interval 'gives 1.80 to 13.06 -- far wider, and arguably the honest interval at this k. It still excludes no effect.' THE FIGURES 1.80 TO 13.06 ARE metafor's RAW UNFLOORED knha OUTPUT. THIS PROJECT'S INTERVAL IS -7.7429 TO 22.6028, AND IT INCLUDES NO EFFECT.",
      "b_why_the_raw_interval_is_the_wrong_one_here_specifically": "The raw variance-inflation factor on this pool is 0.3708 -- metafor's Hartung-Knapp standard error is barely a THIRD of the random-effects one -- so the unfloored adjustment NARROWS the interval instead of widening it. That is the exact instability this project's floor exists to prevent, and it is why the raw figures looked reassuringly wide next to the Wald interval while being the product of a correction pointing the wrong way.",
      "c_what_is_and_is_not_changed": "THE POINT ESTIMATE AND ITS WALD INTERVAL ARE UNCHANGED: MD 7.43 (5.09 to 9.77) points on the KCCQ clinical summary score, k = 2, 1,094 participants. What changes is a sentence about what the sensitivity analysis showed, which said the opposite of what it shows. A seven-point KCCQ difference remains a symptom benefit and this page still estimates nothing about death or hospitalisation."
-    }
+    },
+    "k_corrected_2026_08_21": "THIS FIELD READ 1 AND THE POOL HAS TWO TRIALS. The correction is made on THIS OBJECT'S OWN WORDS, not on an outside judgement: `pooled.stands_because` states 'IT IS POOLED AT k=2, NOT k=3, AND THAT IS THE HONEST NUMBER' and 'POOLED: MD 7.43 (5.09 to 9.77) points on the KCCQ clinical summary score, k=2, 1,094 participants'. Two per-trial rows are carried, NCT04788511 and NCT04847557. Found by sweep_r_output_labels_reproduce, which compared the k printed by the stored metafor run (2) against the k this field stored (1) -- the one INTEGER disagreement in the corpus, and the reason that sweep requires exact equality at zero decimals instead of a rounding band."
    }
   },
   "headline_outcome": "kccq_css_change",
@@ -754,6 +755,13 @@
    "values_moved": "NONE -- the point estimate and its Wald interval are untouched; a SENTENCE about the sensitivity analysis is corrected",
    "what_changed": "a REML refit on the natural scale reproducing the stored point to 4 dp; and the sensitivity interval quoted for this pool was metafor's RAW value, not this project's",
    "why": "The limb was ABSENT, and storing it revealed that this page's own statement about its sensitivity analysis was drawn from the unfloored interval and reached the opposite conclusion."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "the stored k for this pooled outcome read 1 and the pool carries two trials",
+   "values_moved": "NONE -- no estimate, interval or heterogeneity value is touched",
+   "what_changed": "results.by_outcome.kccq_css_change.k: 1 -> 2",
+   "why": "The object's own pooled prose states k=2 in two places and two per-trial rows are carried. Found by comparing the k printed by the stored metafor run against the k the field stored."
   }
  ],
  "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over.",

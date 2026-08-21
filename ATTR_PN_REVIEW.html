@@ -619,45 +619,26 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <li><code>results.by_outcome.primary.poolable_reason</code></li>
 </ol></div>
 <h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
-<p><sup class='prov-ref' title='source 1 for this section'>1</sup>[R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1] call: metafor::rma(yi = ..., sei = ..., method = &#x27;REML&#x27;) -- attr-pn-review :: primary   k = 3   measure = MD
-================================================================================================
-trials: NCT01960348, NCT03759379, NCT04136184
+<p><sup class='prov-ref' title='source 1 for this section'>1</sup>[R 4.6.0 with metafor 5.0.1] call: Rscript ssot/fit_from_per_trial.R attr-pn-review primary -- R version 4.6.0 (2026-04-24 ucrt) 
+metafor 5.0.1 
+run_utc 2026-08-21
 
-A. THE FIT THAT PRODUCED THE SERVED NUMBER -- method = DL, z interval
+================================================================
+TOPIC   attr-pn-review
+OUTCOME primary
+STORED  MD -25.1100 (-34.8700 to -15.3500), k = 3, random-effects / REML
+INPUTS READ FROM THE OBJECT (natural scale, SE derived from the published interval):
+   NCT01960348      -33.9900 (-40.1239 to -27.8561)  yi=-33.990000  sei=3.129600
+   NCT03759379      -17.0000 (-21.8188 to -12.1812)  yi=-17.000000  sei=2.458600
+   NCT04136184      -24.7593 (-31.4112 to -18.1074)  yi=-24.759300  sei=3.393900
+----------------------------------------------------------------
+CALL: rma(yi = yi, sei = sei, method = &quot;REML&quot;, test = &quot;knha&quot;)
 
-Random-Effects Model (k = 3; tau^2 estimator: DL)
-
-tau^2 (estimated amount of total heterogeneity): 72.1258 (SE = 81.9612)
-tau (square root of estimated tau^2 value):      8.4927
-I^2 (total heterogeneity / total variability):   89.09%
-H^2 (total variability / sampling variability):  9.17
-
-Test for Heterogeneity:
-Q(df = 2) = 18.3311, p-val = 0.0001
-
-Model Results:
-
-estimate      se     zval    pval     ci.lb     ci.ub      
--25.1224  5.2019  -4.8294  &lt;.0001  -35.3180  -14.9268  *** 
-
----
-Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
-
-
-   CHECK AGAINST THE STORED VALUE -- the change is not earned until this passes:
-     point  refit -25.122390     stored -25.122390      reproduced
-     ci_low refit -35.317967     stored -35.317967      reproduced
-     ci_hi  refit -14.926813     stored -14.926813      reproduced
-     tau^2  refit 72.125764      stored 72.125764       reproduced
-     Q      refit 18.331130      stored 18.331130       reproduced
-     I^2    refit 89.0896        stored 89.0896         reproduced
-     =&gt; REPRODUCED
-
-B. THE SAME DATA UNDER REML -- Cochrane Handbook 6.5 section 10.10.4.4, which records
-   REML as RevMan&#x27;s own current default, and DECISIONS-COCHRANE-2026-08-18.md section 1,
-   whose decision line reads: &quot;Decision: REML, everywhere.&quot;
 
 Random-Effects Model (k = 3; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+ -7.1341   14.2683   18.2683   15.6546   30.2683   
 
 tau^2 (estimated amount of total heterogeneity): 65.4032 (SE = 74.4699)
 tau (square root of estimated tau^2 value):      8.0872
@@ -676,18 +657,38 @@ estimate      se     zval    pval     ci.lb     ci.ub
 Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
 
 
-C. WHAT MOVES
-     point    -25.122390     -&gt; -25.110507      (+0.0473%)
-     ci_low   -35.317967     -&gt; -34.874425    
-     ci_high  -14.926813     -&gt; -15.346590    
-     tau^2    72.125764      -&gt; 65.403249     
-     I^2      89.0896        -&gt; 88.1016       
-     Q        18.331130      -&gt; 18.331130       (Q is estimator-independent)
-     excludes the null (0):  TRUE -&gt; TRUE
-     prediction interval under REML: -43.7271 to -6.4939
+--- SAME FIT WITH HARTUNG-KNAPP (test = &quot;knha&quot;) ---
 
-R environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1
-Script: ssot/reml_corpus_refit.R</p>
+Random-Effects Model (k = 3; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+ -7.1341   14.2683   18.2683   15.6546   30.2683   
+
+tau^2 (estimated amount of total heterogeneity): 65.4032 (SE = 74.4699)
+tau (square root of estimated tau^2 value):      8.0872
+I^2 (total heterogeneity / total variability):   88.10%
+H^2 (total variability / sampling variability):  8.40
+
+Test for Heterogeneity:
+Q(df = 2) = 18.3311, p-val = 0.0001
+
+Model Results:
+
+estimate      se     tval  df    pval     ci.lb    ci.ub    
+-25.1105  4.9452  -5.0778   2  0.0367  -46.3878  -3.8332  * 
+
+---
+Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
+
+
+BACK-TRANSFORMED:
+   unadjusted     -25.1105 (-34.8744 to -15.3466)
+   Hartung-Knapp  -25.1105 (-46.5450 to -3.6761)   [t crit 4.3027 on 2 df]  &lt;- HOUSE INTERVAL, inflation factor floored at 1 (raw 0.9927)
+   metafor raw    -25.1105 (-46.3878 to -3.8332)   [test=knha, UNFLOORED]
+   tau^2 65.403249   Q 18.3311 on 2 df, p = 0.0001   I^2 88.10%
+
+AGREES WITH THE STORED POINT TO 4 dp: NO
+</p>
 <div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
 <li><code>results.by_outcome.primary.r_output.verbatim</code></li>
 </ol></div>
@@ -776,7 +777,7 @@ Script: ssot/reml_corpus_refit.R</p>
 <li><code>registration_identity, sources</code></li>
 </ol></div>
 <h3 id="paper-software-availability">Software availability</h3>
-<p>Analyses were computed under R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Analyses were computed under R 4.6.0 with metafor 5.0.1.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
 <li><code>results.by_outcome</code></li>
 </ol></div>

@@ -657,46 +657,26 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <li><code>results.by_outcome.primary.poolable_reason</code></li>
 </ol></div>
 <h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
-<p><sup class='prov-ref' title='source 1 for this section'>1</sup>[R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1] call: metafor::rma(yi = ..., sei = ..., method = &#x27;REML&#x27;) -- rosuvastatin-auto-full-review :: primary   k = 2   measure = OR
-================================================================================================
-trials: NCT00239681, NCT00468923
+<p><sup class='prov-ref' title='source 1 for this section'>1</sup>[R 4.6.0 with metafor 5.0.1] call: Rscript ssot/fit_from_per_trial.R rosuvastatin-auto-full-review primary -- R version 4.6.0 (2026-04-24 ucrt) 
+metafor 5.0.1 
+run_utc 2026-08-21
 
-A. THE FIT THAT PRODUCED THE SERVED NUMBER -- method = DL, z interval
+================================================================
+TOPIC   rosuvastatin-auto-full-review
+OUTCOME primary
+STORED  OR 0.6561 (0.4840 to 0.8894), k = 2, random-effects / REML
+INPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):
+   NCT00239681      0.5587 (0.4538 to 0.6878)  yi=-0.582148  sei=0.106095
+   NCT00468923      0.7622 (0.6405 to 0.9070)  yi=-0.271580  sei=0.088733
+----------------------------------------------------------------
+CALL: rma(yi = yi, sei = sei, method = &quot;REML&quot;, test = &quot;knha&quot;)
 
-Random-Effects Model (k = 2; tau^2 estimator: DL)
-
-tau^2 (estimated amount of total heterogeneity): 0.0387 (SE = 0.0682)
-tau (square root of estimated tau^2 value):      0.1966
-I^2 (total heterogeneity / total variability):   80.17%
-H^2 (total variability / sampling variability):  5.04
-
-Test for Heterogeneity:
-Q(df = 1) = 5.0420, p-val = 0.0247
-
-Model Results:
-
-estimate      se     zval    pval    ci.lb    ci.ub     
- -0.4214  0.1552  -2.7155  0.0066  -0.7256  -0.1173  ** 
-
----
-Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
-
-
-   CHECK AGAINST THE STORED VALUE -- the change is not earned until this passes:
-     point  refit 0.656115       stored 0.656115        reproduced
-     ci_low refit 0.484043       stored 0.484043        reproduced
-     ci_hi  refit 0.889359       stored 0.889359        reproduced
-     tau^2  refit 0.038661       stored 0.038661        reproduced
-     Q      refit 5.042035       stored 5.042035        reproduced
-     I^2    refit 80.1667        stored 80.1667         reproduced
-     =&gt; REPRODUCED
-
-B. THE SAME DATA UNDER REML -- Cochrane Handbook 6.5 section 10.10.4.4, which records
-   REML as RevMan&#x27;s own current default, and DECISIONS-COCHRANE-2026-08-18.md section 1,
-   whose decision line reads: &quot;Decision: REML, everywhere.&quot;
 
 Random-Effects Model (k = 2; tau^2 estimator: REML)
 
+  logLik  deviance       AIC       BIC      AICc   
+  0.0970   -0.1940    3.8060   -0.1940   15.8060   
+
 tau^2 (estimated amount of total heterogeneity): 0.0387 (SE = 0.0682)
 tau (square root of estimated tau^2 value):      0.1966
 I^2 (total heterogeneity / total variability):   80.17%
@@ -714,18 +694,38 @@ estimate      se     zval    pval    ci.lb    ci.ub
 Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
 
 
-C. WHAT MOVES
-     point    0.656115       -&gt; 0.656115        (-0.0000%)
-     ci_low   0.484043       -&gt; 0.484043      
-     ci_high  0.889359       -&gt; 0.889359      
-     tau^2    0.038661       -&gt; 0.038661      
-     I^2      80.1667        -&gt; 80.1667       
-     Q        5.042035       -&gt; 5.042035        (Q is estimator-independent)
-     excludes the null (1):  TRUE -&gt; TRUE
-     prediction interval under REML: 0.4016 to 1.0720
+--- SAME FIT WITH HARTUNG-KNAPP (test = &quot;knha&quot;) ---
 
-R environment: R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1
-Script: ssot/reml_corpus_refit.R</p>
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+  0.0970   -0.1940    3.8060   -0.1940   15.8060   
+
+tau^2 (estimated amount of total heterogeneity): 0.0387 (SE = 0.0682)
+tau (square root of estimated tau^2 value):      0.1966
+I^2 (total heterogeneity / total variability):   80.17%
+H^2 (total variability / sampling variability):  5.04
+
+Test for Heterogeneity:
+Q(df = 1) = 5.0420, p-val = 0.0247
+
+Model Results:
+
+estimate      se     tval  df    pval    ci.lb   ci.ub    
+ -0.4214  0.1552  -2.7155   1  0.2246  -2.3933  1.5504    
+
+---
+Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
+
+
+BACK-TRANSFORMED:
+   unadjusted     0.6561 (0.4840 to 0.8894)
+   Hartung-Knapp  0.6561 (0.0913 to 4.7135)   [t crit 12.7062 on 1 df]  &lt;- HOUSE INTERVAL, inflation factor floored at 1 (raw 1.0000)
+   metafor raw    0.6561 (0.0913 to 4.7135)   [test=knha, UNFLOORED]
+   tau^2 0.038661   Q 5.0420 on 1 df, p = 0.0247   I^2 80.17%
+
+AGREES WITH THE STORED POINT TO 4 dp: YES
+</p>
 <div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
 <li><code>results.by_outcome.primary.r_output.verbatim</code></li>
 </ol></div>
@@ -814,7 +814,7 @@ Script: ssot/reml_corpus_refit.R</p>
 <li><code>registration_identity, sources</code></li>
 </ol></div>
 <h3 id="paper-software-availability">Software availability</h3>
-<p>Analyses were computed under R version 4.6.0 (2026-04-24 ucrt); metafor 5.0.1.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Analyses were computed under R 4.6.0 with metafor 5.0.1.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
 <li><code>results.by_outcome</code></li>
 </ol></div>
