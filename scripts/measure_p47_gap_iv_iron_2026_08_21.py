@@ -13,7 +13,10 @@ path beside each one, or records that there is none. The output is three numbers
     ARGUMENT     irreducibly a person's: interpretation, mechanism, clinical implication,
                  recommendation. No amount of fetching produces it.
 
-THE TOPIC IS `iv-iron-hf`, CHOSEN TO BE A FLOOR AND NOT A TYPICAL CASE. It is the richest object
+THE TOPIC IS `iv-iron-hf`. IT WAS CHOSEN AS A "FLOOR" AND THAT WAS BACKWARDS -- class 96.
+Richest means BEST-DERIVED, so picking it bounded the CEILING. Across all 28 topics it is
+the BEST at 22 of 37; the worst is attr-pn-review at 12 and the mean is 17.1. The figure
+below is an UPPER BOUND. See measure_p47_gap_corpus_2026_08_21.py for the distribution. It is the richest object
 in the corpus that does NOT already carry authored prose -- 3,719 leaves, six outcomes, and it
 holds published_comparison, grade, risk_of_bias, prisma_flow, search, screening, protocol and
 registration_identity. `arni-hfref` is richer at 12,145 leaves and was REJECTED: it is the one

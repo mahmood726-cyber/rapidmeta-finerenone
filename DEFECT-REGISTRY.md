@@ -4601,6 +4601,84 @@ literal, and a leading dot. A fourth needed a wildcard to span two levels rather
 numbers above moved from 48.6% derivable to 59.5% purely by fixing the thing doing the counting.
 
 
+## Class 96 — I CHOSE THE RICHEST OBJECT AND CALLED IT A FLOOR. IT WAS THE CEILING.
+
+`iv-iron-hf` was picked as *"the richest object that carries no authored prose, so the answer is
+a floor rather than a typical case"*. **Richest means best-derived. Choosing an extreme bounds
+the side it is extreme on, and I named the wrong side.**
+
+Across all 28 topics carrying a pooled outcome:
+
+| | claims of 37 | |
+|---|---|---|
+| **worst** — `attr-pn-review` | **12** | **32.4%** |
+| median | 17 | 45.9% |
+| mean | 17.1 | 46.2% |
+| **best** — `iv-iron-hf` | **22** | **59.5%** |
+| spread | 10 claims | **27.0 points** |
+
+**0 of 28 topics derive more than the "floor". 27 derive the same or less.** Mahmood's
+expectation — *the floor holds and the mean is higher* — was reasonable against my framing and
+wrong because the framing was wrong.
+
+**Tier 3 is not one job.** Six topics derive 12 of 37 where one derives 22, and a per-topic cost
+quoted from the best case understates the worst by 27 points.
+
+### 96a. But the gap is bookkeeping, not research
+
+Every claim that fails most often is **FETCHABLE, not ARGUMENT** — a field the schema can hold
+and the object does not:
+
+| claim | missing on |
+|---|---|
+| which limbs the review refuses (`build_stamp.refusing`) | **20 of 28** |
+| the search, with its date and databases | 19 of 28 |
+| whether the review was prospectively registered | 19 of 28 |
+| that two assessors disagreed, and where | 12 of 28 |
+| which risk-of-bias domains drove the judgements | 9 of 28 |
+
+> **Closing the fetchable gap would move the worst topic from 32.4% to near 59.5% without
+> writing one sentence of argument.**
+
+And `ARGUMENT` is **a constant 12 of 37 on every topic** — whether an effect is clinically
+meaningful is not something an object can come to hold. *The irreducible writing is identical
+across the corpus; only the bookkeeping varies.*
+
+
+## Class 86, RESTATED — REPLACING EVERY ONE-DIRECTIONAL VERSION IN THIS FILE
+
+Five measured instances, and **the fifth runs the other way**, which settles the shape:
+
+| instance | direction | corrected by |
+|---|---|---|
+| class 74 — our estimates of our own remaining work | **optimistic** | measuring |
+| class 84 — `audit_our_k_against_theirs` and its repair | **optimistic** | a known answer |
+| class 86 — five checks that accused our own work | **pessimistic** | reading the flagged case |
+| class 92 — the n=3 disagreement profile | **optimistic** (tidy, quotable) | n=22 |
+| **class 95 — the P47 derivability estimate** | **PESSIMISTIC** — both predictors guessed low | measuring |
+
+> **It is not "we flatter ourselves". It is not "our instruments accuse us". An unmeasured
+> estimate is unreliable in whichever direction its estimator's assumption leaned, and the only
+> remedy that has worked all night is measuring.**
+
+Class 95 is the first estimate whose correction moved the headline **up** — 48.6% to 59.5% by
+fixing the resolver — and then widening to the corpus moved the *planning* number **down** to
+32.4%. Same measurement, corrections in both directions.
+
+### The resolver family has a systematic direction, and it is toward absence
+
+**Ten lookups this run under-counted their own population. None over-counted.** Not chance:
+**a path that fails to resolve reads as "the object does not hold this"**, indistinguishable
+from the object genuinely not holding it. Same shape as a refusal misattributing its own cause —
+class 73 — and it cost a wrong conclusion six or seven times tonight: 21 D1 entries called
+"other evidence"; three `arni` registrations called unidentifiable; *"D3 disagrees 60%"* when
+four domains were never compared; four P47 claims called unbacked while the fields sat there.
+
+**That is why fixing the resolver rather than the paths was the right call.** Rewording a path
+hides a resolver that will fail the same way on the next one, and the failure is silent and
+always points at the data.
+
+
 ## OPEN — carried, not fixed
 
 ### O4. The delivered malaria verdict rests on a premise its own registrations contradict
