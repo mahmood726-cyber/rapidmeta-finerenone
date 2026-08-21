@@ -643,7 +643,24 @@
     "POOL_FINDINGS_2026_08_21": {
      "a_the_setting_may_be_biasing_this_estimate_downward": "A PUBLISHED INDIVIDUAL-LEVEL ANALYSIS ARGUES THIS KIND OF ESTIMATE IS BIASED TOWARD THE NULL BY THE SETTING IT WAS MEASURED IN. Amin et al., American Journal of Epidemiology 2025 (PMID 39745811), pooled 83,592 infants across 23 countries from monovalent rotavirus vaccine trials. Efficacy against severe rotavirus gastroenteritis appeared to vary from 10% to 100% between countries; after adjusting for local exposure magnitude, all but two countries fell between 80% and 86%. High-burden settings -- which include the African settings pooled here -- are where the unadjusted estimates are lowest.",
      "b_and_this_pool_mixes_three_vaccines_where_they_used_one": "That analysis held the vaccine class CONSTANT (monovalent) and modelled the setting. This pool combines Rotarix, RotaTeq and Rotasiil -- three different vaccines -- and pools across settings. The two designs answer different questions and theirs isolates a cause.",
-     "c_no_discrepancy_is_claimed": "Their 80-86% and this pool's ~51% are NOT two estimates of one quantity: one is exposure-adjusted single-vaccine efficacy, the other is unadjusted multi-vaccine. The finding is about DESIGN, not about a number being wrong."
+     "c_no_discrepancy_is_claimed": "Their 80-86% and this pool's ~51% are NOT two estimates of one quantity: one is exposure-adjusted single-vaccine efficacy, the other is unadjusted multi-vaccine. The finding is about DESIGN, not about a number being wrong.",
+     "a_the_adjusted_interval_crosses_no_effect_at_k_equals_3": "READ THIS BESIDE THE ESTIMATE. The unadjusted interval is OR 0.4941 (0.3466 to 0.7045) and EXCLUDES no effect. THIS PROJECT'S HARTUNG-KNAPP INTERVAL AT k = 3 IS 0.2268 TO 1.0764, on t = 4.3027 with 2 degrees of freedom, AND IT INCLUDES NO EFFECT. The house rule already requires the adjusted interval to be shown beside the unadjusted one where k is small; on this pool the two disagree about the conclusion.",
+     "b_and_this_is_not_the_almost_nothing_survives_case": "STATED SO THE CAUTION IS NOT DISCOUNTED. At k = 2 the t critical value is 12.7062 and almost no effect survives the adjustment, so a crossing there is weak evidence. HERE k = 3 AND t IS 4.3027, which is a far less demanding test. There is also real spread: tau-squared 0.0557, Q 4.7195 on 2 df, I-squared 56.97%. The crossing is driven by disagreement between the trials, not by the correction being brutal at tiny k.",
+     "c_what_has_and_has_not_been_done": "THE STORED ESTIMATE IS NOT CHANGED. Withdrawing or restating a published number is a content decision. What has been done is to put the adjusted interval where a reader meets the number."
+    },
+    "r_output": {
+     "state": "PRESENT",
+     "what_it_is": "The random-effects fit of THIS BLOCK'S OWN per-trial estimates, quoted as the software printed it.",
+     "script": "ssot/fit_from_per_trial.R",
+     "call": "Rscript ssot/fit_from_per_trial.R rotavirus-vaccine-africa-review primary",
+     "environment": "R 4.6.0 with metafor 5.0.1",
+     "run_utc": "2026-08-21",
+     "scale": "log",
+     "scale_note": "READ FROM THE MEASURE, NOT ASSUMED. This measure is OR, so the fit is on the log scale. The script log-transformed unconditionally until 2026-08-21, which is right for RR/OR/HR/IRR and WRONG for a mean difference -- on this corpus it would have printed 'unadjusted 1685.7331 (162.3105 to 17507.7801)' for a 7.43-point KCCQ difference, and limb 4 stores that output VERBATIM.",
+     "interval_method": "REML with the unadjusted Wald interval, and the same fit under Hartung-Knapp beside it. THE HOUSE INTERVAL FLOORS THE VARIANCE-INFLATION FACTOR AT max(1, SE_knha / SE_unadjusted); metafor's raw unfloored value is printed separately and flagged where it is narrower than the unadjusted interval.",
+     "reproduction_of_the_previous_value": "REPRODUCES THE POINT ESTIMATE THIS PAGE DELIVERS TO FOUR DECIMAL PLACES.",
+     "verbatim": "R version 4.6.0 (2026-04-24 ucrt) \nmetafor 5.0.1 \nrun_utc 2026-08-21\n\n================================================================\nTOPIC   rotavirus-vaccine-africa-review\nOUTCOME primary\nSTORED  OR 0.4941 (0.3466 to 0.7045), k = 3, random-effects / REML (restricted maximum likelihood)\nINPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):\n   NCT00241644      0.5615 (0.3264 to 0.9659)  yi=-0.577228  sei=0.276795\n   NCT00362648      0.6013 (0.4521 to 0.7998)  yi=-0.508616  sei=0.145501\n   NCT02145000      0.3470 (0.2293 to 0.5251)  yi=-1.058465  sei=0.211385\n----------------------------------------------------------------\nCALL: rma(yi = yi, sei = sei, method = \"REML\", test = \"knha\")\n\n\nRandom-Effects Model (k = 3; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n -0.4893    0.9785    4.9785    2.3648   16.9785   \n\ntau^2 (estimated amount of total heterogeneity): 0.0557 (SE = 0.0995)\ntau (square root of estimated tau^2 value):      0.2360\nI^2 (total heterogeneity / total variability):   56.97%\nH^2 (total variability / sampling variability):  2.32\n\nTest for Heterogeneity:\nQ(df = 2) = 4.7195, p-val = 0.0944\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb    ci.ub      \n -0.7050  0.1810  -3.8959  <.0001  -1.0597  -0.3503  *** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n--- SAME FIT WITH HARTUNG-KNAPP (test = \"knha\") ---\n\nRandom-Effects Model (k = 3; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n -0.4893    0.9785    4.9785    2.3648   16.9785   \n\ntau^2 (estimated amount of total heterogeneity): 0.0557 (SE = 0.0995)\ntau (square root of estimated tau^2 value):      0.2360\nI^2 (total heterogeneity / total variability):   56.97%\nH^2 (total variability / sampling variability):  2.32\n\nTest for Heterogeneity:\nQ(df = 2) = 4.7195, p-val = 0.0944\n\nModel Results:\n\nestimate      se     tval  df    pval    ci.lb   ci.ub    \n -0.7050  0.1750  -4.0289   2  0.0564  -1.4580  0.0479  . \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBACK-TRANSFORMED:\n   unadjusted     0.4941 (0.3466 to 0.7045)\n   Hartung-Knapp  0.4941 (0.2268 to 1.0764)   [t crit 4.3027 on 2 df]  <- HOUSE INTERVAL, inflation factor floored at 1 (raw 0.9670)\n   metafor raw    0.4941 (0.2327 to 1.0491)   [test=knha, UNFLOORED]\n   tau^2 0.055676   Q 4.7195 on 2 df, p = 0.0944   I^2 56.97%\n\nAGREES WITH THE STORED POINT TO 4 dp: YES\n",
+     "stored_at": "evidence/refits_2026_08_21/rotavirus-vaccine-africa-review__primary.txt"
     }
    }
   }
@@ -681,6 +698,13 @@
    "values_moved": "NONE",
    "what_changed": "added citation, how_it_differs_from_ours, scope to the comparison record(s); nothing renamed, nothing removed",
    "why": "The projector reads `citation`/`their_k`/`scope`/`how_it_differs_from_ours`; these records stored `title`/`journal`/`outcome_pooled`/`agreement`. A reader met a PMID and four empty cells. Registry class 83."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "the model output for `primary` is stored verbatim (P46 limb 4)",
+   "values_moved": "NONE",
+   "what_changed": "a REML refit on the log scale reproducing the stored point to 4 dp",
+   "why": "The limb was ABSENT."
   }
  ],
  "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",

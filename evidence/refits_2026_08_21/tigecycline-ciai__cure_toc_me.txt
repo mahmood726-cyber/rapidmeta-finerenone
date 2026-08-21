@@ -1,0 +1,69 @@
+R version 4.6.0 (2026-04-24 ucrt) 
+metafor 5.0.1 
+run_utc 2026-08-21
+
+================================================================
+TOPIC   tigecycline-ciai
+OUTCOME cure_toc_me
+STORED  RR 0.9351 (0.8885 to 0.9842), k = 3, random / REML
+INPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):
+   study-301        0.9783 (0.8999 to 1.0636)  yi=-0.021939  sei=0.042636
+   study-316        0.8838 (0.7879 to 0.9914)  yi=-0.123524  sei=0.058610
+   study-b1811185   0.9231 (0.8546 to 0.9972)  yi=-0.080018  sei=0.039368
+----------------------------------------------------------------
+CALL: rma(yi = yi, sei = sei, method = "REML", test = "knha")
+
+
+Random-Effects Model (k = 3; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+  3.2079   -6.4158   -2.4158   -5.0295    9.5842   
+
+tau^2 (estimated amount of total heterogeneity): 0.0000 (SE = 0.0021)
+tau (square root of estimated tau^2 value):      0.0050
+I^2 (total heterogeneity / total variability):   1.16%
+H^2 (total variability / sampling variability):  1.01
+
+Test for Heterogeneity:
+Q(df = 2) = 2.1564, p-val = 0.3402
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb    ci.ub    
+ -0.0671  0.0261  -2.5699  0.0102  -0.1183  -0.0159  * 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+--- SAME FIT WITH HARTUNG-KNAPP (test = "knha") ---
+
+Random-Effects Model (k = 3; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+  3.2079   -6.4158   -2.4158   -5.0295    9.5842   
+
+tau^2 (estimated amount of total heterogeneity): 0.0000 (SE = 0.0021)
+tau (square root of estimated tau^2 value):      0.0050
+I^2 (total heterogeneity / total variability):   1.16%
+H^2 (total variability / sampling variability):  1.01
+
+Test for Heterogeneity:
+Q(df = 2) = 2.1564, p-val = 0.3402
+
+Model Results:
+
+estimate      se     tval  df    pval    ci.lb   ci.ub    
+ -0.0671  0.0270  -2.4885   2  0.1306  -0.1831  0.0489    
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+BACK-TRANSFORMED:
+   unadjusted     0.9351 (0.8884 to 0.9842)
+   Hartung-Knapp  0.9351 (0.8327 to 1.0501)   [t crit 4.3027 on 2 df]  <- HOUSE INTERVAL, inflation factor floored at 1 (raw 1.0327)
+   metafor raw    0.9351 (0.8327 to 1.0501)   [test=knha, UNFLOORED]
+   tau^2 0.000025   Q 2.1564 on 2 df, p = 0.3402   I^2 1.16%
+
+AGREES WITH THE STORED POINT TO 4 dp: YES

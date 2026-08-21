@@ -643,9 +643,76 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <li><code>outcomes[id=corrected_composite_3component].name</code></li>
 </ol></div>
 <h3 id="paper-statistical-output-quoted-verbatim">Statistical output, quoted verbatim</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the verbatim model output -- no analysis output is stored on this object, so nothing can be quoted and nothing is paraphrased in its place<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<p><sup class='prov-ref' title='source 1 for this section'>1</sup>[R 4.6.0 with metafor 5.0.1] call: Rscript ssot/fit_from_per_trial.R cangrelor-pci-review corrected_composite_3component -- R version 4.6.0 (2026-04-24 ucrt) 
+metafor 5.0.1 
+run_utc 2026-08-21
+
+================================================================
+TOPIC   cangrelor-pci-review
+OUTCOME corrected_composite_3component
+INPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):
+   NCT00305162      1.0442 (0.8910 to 1.2238)  yi=+0.043251  sei=0.080964
+   NCT00385138      0.8766 (0.7248 to 1.0602)  yi=-0.131704  sei=0.097021
+----------------------------------------------------------------
+CALL: rma(yi = yi, sei = sei, method = &quot;REML&quot;, test = &quot;knha&quot;)
+
+
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+  0.6709   -1.3417    2.6583   -1.3417   14.6583   
+
+tau^2 (estimated amount of total heterogeneity): 0.0073 (SE = 0.0216)
+tau (square root of estimated tau^2 value):      0.0856
+I^2 (total heterogeneity / total variability):   47.83%
+H^2 (total variability / sampling variability):  1.92
+
+Test for Heterogeneity:
+Q(df = 1) = 1.9169, p-val = 0.1662
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb   ci.ub    
+ -0.0361  0.0871  -0.4140  0.6789  -0.2068  0.1346    
+
+---
+Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
+
+
+--- SAME FIT WITH HARTUNG-KNAPP (test = &quot;knha&quot;) ---
+
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+  0.6709   -1.3417    2.6583   -1.3417   14.6583   
+
+tau^2 (estimated amount of total heterogeneity): 0.0073 (SE = 0.0216)
+tau (square root of estimated tau^2 value):      0.0856
+I^2 (total heterogeneity / total variability):   47.83%
+H^2 (total variability / sampling variability):  1.92
+
+Test for Heterogeneity:
+Q(df = 1) = 1.9169, p-val = 0.1662
+
+Model Results:
+
+estimate      se     tval  df    pval    ci.lb   ci.ub    
+ -0.0361  0.0871  -0.4140   1  0.7501  -1.1427  1.0706    
+
+---
+Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
+
+
+BACK-TRANSFORMED:
+   unadjusted     0.9646 (0.8132 to 1.1441)
+   Hartung-Knapp  0.9646 (0.3190 to 2.9171)   [t crit 12.7062 on 1 df]  &lt;- HOUSE INTERVAL, inflation factor floored at 1 (raw 1.0000)
+   metafor raw    0.9646 (0.3190 to 2.9171)   [test=knha, UNFLOORED]
+   tau^2 0.007321   Q 1.9169 on 1 df, p = 0.1662   I^2 47.83%
+
+AGREES WITH THE STORED POINT TO 4 dp: YES
+</p>
 <div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>results.by_outcome.*.r_output.verbatim</code></li>
+<li><code>results.by_outcome.corrected_composite_3component.r_output.verbatim</code></li>
 </ol></div>
 <h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
 <div class='absent-state' role='note'><strong>Refused:</strong> the risk-of-bias assessment<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
@@ -733,9 +800,9 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <li><code>registration_identity, sources</code></li>
 </ol></div>
 <h3 id="paper-software-availability">Software availability</h3>
-<div class='absent-state' role='note'><strong>Refused:</strong> the software and environment statement<sup class='prov-ref' title='source 1 for this section'>1</sup></div>
+<p>Analyses were computed under R 4.6.0 with metafor 5.0.1.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <div class='prov-block'><p class='prov-title'>Where the statements in this section come from, in order</p><ol class='prov-list'>
-<li><code>results.by_outcome.*.r_output._environment, config.confidence_level</code></li>
+<li><code>results.by_outcome</code></li>
 </ol></div>
 <h3 id="paper-note-on-registration">Note on registration</h3>
 <div class='absent-state' role='note'><strong>Refused:</strong> the registration note<sup class='prov-ref' title='source 1 for this section'>1</sup></div>

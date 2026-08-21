@@ -1,0 +1,68 @@
+R version 4.6.0 (2026-04-24 ucrt) 
+metafor 5.0.1 
+run_utc 2026-08-21
+
+================================================================
+TOPIC   nirsevimab-infant-rsv-review
+OUTCOME primary
+STORED  RR 0.2605 (0.1766 to 0.3845), k = 2, random-effects / REML
+INPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):
+   NCT02878330      0.2715 (0.1689 to 0.4363)  yi=-1.303793  sei=0.242102
+   NCT03979313      0.2395 (0.1214 to 0.4727)  yi=-1.429202  sei=0.346784
+----------------------------------------------------------------
+CALL: rma(yi = yi, sei = sei, method = "REML", test = "knha")
+
+
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+  0.2442   -0.4884    3.5116   -0.4884   15.5116   
+
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.1265)
+tau (square root of estimated tau^2 value):      0
+I^2 (total heterogeneity / total variability):   0.00%
+H^2 (total variability / sampling variability):  1.00
+
+Test for Heterogeneity:
+Q(df = 1) = 0.0879, p-val = 0.7668
+
+Model Results:
+
+estimate      se     zval    pval    ci.lb    ci.ub      
+ -1.3449  0.1985  -6.7749  <.0001  -1.7340  -0.9558  *** 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+--- SAME FIT WITH HARTUNG-KNAPP (test = "knha") ---
+
+Random-Effects Model (k = 2; tau^2 estimator: REML)
+
+  logLik  deviance       AIC       BIC      AICc   
+  0.2442   -0.4884    3.5116   -0.4884   15.5116   
+
+tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.1265)
+tau (square root of estimated tau^2 value):      0
+I^2 (total heterogeneity / total variability):   0.00%
+H^2 (total variability / sampling variability):  1.00
+
+Test for Heterogeneity:
+Q(df = 1) = 0.0879, p-val = 0.7668
+
+Model Results:
+
+estimate      se      tval  df    pval    ci.lb    ci.ub    
+ -1.3449  0.0589  -22.8478   1  0.0278  -2.0928  -0.5970  * 
+
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+
+BACK-TRANSFORMED:
+   unadjusted     0.2606 (0.1766 to 0.3845)
+   Hartung-Knapp  0.2606 (0.0209 to 3.2461)   [t crit 12.7062 on 1 df]  <- HOUSE INTERVAL, inflation factor floored at 1 (raw 0.2965)
+   metafor raw    0.2606 (0.1233 to 0.5505)   [test=knha, UNFLOORED]
+   tau^2 0.000000   Q 0.0879 on 1 df, p = 0.7668   I^2 0.00%
+
+AGREES WITH THE STORED POINT TO 4 dp: YES

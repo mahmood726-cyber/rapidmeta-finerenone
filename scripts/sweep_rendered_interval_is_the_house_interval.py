@@ -277,11 +277,26 @@ def main():
             continue
         pg = r["pages"][0]
         h = page(pg)
-        has_house = pair_in(h, *r["house"])
+        # THE RULE IS "MATCHES A STORED VALUE", SO COMPARE AGAINST THE STORED VALUE.
+        #
+        # This compared the page against its OWN recomputation, and on lefamulin the
+        # recomputation gives 0.7808 where the object stores 0.7807 -- a last-digit
+        # difference that made a correctly-cited interval read as absent. The stored field is
+        # what prose is required to cite; the recomputation is only the fallback where the
+        # object stores nothing.
+        s_lo, s_hi = r["stored"]
+        house_pair = ((s_lo, s_hi) if isinstance(s_lo, (int, float))
+                      and isinstance(s_hi, (int, float)) else r["house"])
+        has_house = pair_in(h, *house_pair)
         has_raw = pair_in(h, *r["raw"])
         # The stored R output prints the raw interval DELIBERATELY and labels it. A page
         # carrying that label is showing both on purpose and is not a defect.
-        labelled = "UNFLOORED" in h or "metafor raw" in h
+        # "LABELLED" MEANS THE PAGE NAMES THE COMPUTATION, in any of the forms this corpus
+        # uses -- the stored R output prints "metafor raw ... UNFLOORED", and a corrected
+        # sentence says "metafor's RAW unfloored knha interval". Matching only the first two
+        # made a correction look like the defect it corrected.
+        _hl = h.lower()
+        labelled = ("unfloored" in _hl) or ("metafor raw" in _hl) or ("metafor's raw" in _hl)
         if has_raw and not has_house and not labelled:
             wrong.append((r, pg))
         elif has_house:
@@ -313,6 +328,39 @@ def main():
     print("metafor's knha standard error is SMALLER than the random-effects one whenever")
     print("Q < k - 1, so the unfloored interval is the NARROWER of the two on exactly the")
     print("pools where the data support precision least.")
+
+    # ---- P55, AS A GATE ------------------------------------------------------------------
+    #
+    # THREE INSTANCES, ALL WRITTEN BY THE SAME AUTHOR IN ONE NIGHT, AND ONLY THE SECOND WAS
+    # FOUND BY LOOKING:
+    #
+    #   agyw-hiv-prep      "this project's Hartung-Knapp interval ... 0.4054 to 1.2191"
+    #                      ours is 0.1725 to 2.8655          -- found by chance
+    #   lefamulin-cabp     "the Hartung-Knapp interval is ... 0.8079 to 1.2093"
+    #                      ours is 0.7807 to 1.2513          -- found by THIS sweep
+    #   incretin-hfpef     "gives 1.80 to 13.06 ... It still excludes no effect"
+    #                      ours is -7.74 to 22.60, WHICH INCLUDES NO EFFECT
+    #                                                        -- found by refitting for limb 4
+    #
+    # A report is not enough for a defect with three instances and a reader-facing failure
+    # mode. --gate makes this exit non-zero, so it can block a push rather than be read.
+    #
+    # THE RULE: no prose may cite an interval it did not read from the object's own stored
+    # field. A rendered interval must either match a stored value to four decimals, or name
+    # which computation produced it -- which is exactly what the stored R output does when it
+    # prints "metafor raw ... UNFLOORED" beside the house interval.
+    if "--gate" in sys.argv:
+        if wrong:
+            sys.exit(
+                "GATE FAILED: %d block(s) render metafor's RAW interval where the object "
+                "stores a different HOUSE interval. P55 -- no prose may cite an interval it "
+                "did not read from the object's own stored field. Cite the stored value, or "
+                "name the computation beside it as the R output does." % len(wrong))
+        print("")
+        print("GATE PASSED: no delivered page cites a raw interval in place of the house.")
+        print("STATED, NOT HIDDEN: this gate is blind to %d block(s) whose stored house "
+              "interval this file cannot reproduce, and to %d block(s) that render no "
+              "sensitivity interval at all." % (rec_bad, len(neither)))
 
 
 if __name__ == "__main__":

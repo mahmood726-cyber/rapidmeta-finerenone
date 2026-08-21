@@ -33,8 +33,32 @@ pt  <- vapply(rows, function(r) as.numeric(r$point),      numeric(1))
 lo  <- vapply(rows, function(r) as.numeric(r$ci_low),     numeric(1))
 hi  <- vapply(rows, function(r) as.numeric(r$ci_high),    numeric(1))
 
-yi  <- log(pt)
-sei <- (log(hi) - log(lo)) / (2 * qnorm(0.975))
+# SCALE IS READ FROM THE MEASURE, NOT ASSUMED.
+#
+# This script log-transformed unconditionally. That is right for RR, OR, HR and IRR and
+# WRONG for a MEAN DIFFERENCE: incretin-hfpef-review/kccq_css_change is MD 7.43 (5.09 to
+# 9.77) KCCQ points, and log(7.43) estimates nothing. Running it anyway would have produced
+# a number that looked like a fit and was not one -- and P46 limb 4 stores the output
+# VERBATIM, so it would have shipped as our engine`s word.
+# THE MEASURE IS NOT ALWAYS IN THE SAME PLACE. Some blocks carry it on `pooled$measure`
+# and some on the block itself; cangrelor-pci-review/corrected_composite_3component has
+# `measure: "RR"` at block level and NO measure inside `pooled`, so reading only the inner
+# one gave character(0) and the scale test failed with "missing value where TRUE/FALSE
+# needed". Both places, and a refusal if neither carries it -- never a default.
+meas_raw <- blk$pooled$measure
+if (is.null(meas_raw)) meas_raw <- blk$measure
+if (is.null(meas_raw)) stop("REFUSED: no measure on the pooled block or the outcome block.")
+meas <- toupper(as.character(meas_raw))
+logscale <- meas %in% c("RR", "OR", "HR", "IRR", "RATE RATIO", "RISK RATIO", "ODDS RATIO")
+if (!logscale && !(meas %in% c("MD", "SMD", "RD", "MEAN DIFFERENCE"))) {
+  stop(sprintf(paste0("REFUSED: measure %s is neither a recognised ratio nor a recognised ",
+                      "difference. Guessing the scale is how a mean difference gets logged."),
+               meas))
+}
+bt <- if (logscale) exp else function(x) x
+
+yi  <- if (logscale) log(pt) else pt
+sei <- if (logscale) (log(hi) - log(lo)) / (2 * qnorm(0.975)) else (hi - lo) / (2 * qnorm(0.975))
 
 cat(R.version.string, "\n")
 cat("metafor", as.character(packageVersion("metafor")), "\n")
@@ -45,7 +69,9 @@ cat(sprintf("OUTCOME %s\n", outcome))
 cat(sprintf("STORED  %s %.4f (%.4f to %.4f), k = %s, %s / %s\n",
             blk$pooled$measure, blk$pooled$point, blk$pooled$ci_low, blk$pooled$ci_high,
             blk$k, blk$model, blk$estimator_used))
-cat("INPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):\n")
+cat(sprintf("INPUTS READ FROM THE OBJECT (%s scale, SE derived from the published interval):
+",
+            if (logscale) "log" else "natural"))
 for (i in seq_along(ids)) {
   cat(sprintf("   %-16s %.4f (%.4f to %.4f)  yi=%+.6f  sei=%.6f\n",
               ids[i], pt[i], lo[i], hi[i], yi[i], sei[i]))
@@ -61,7 +87,7 @@ print(summary(mk))
 
 cat("\nBACK-TRANSFORMED:\n")
 cat(sprintf("   unadjusted     %.4f (%.4f to %.4f)\n",
-            exp(m$b[1]), exp(m$ci.lb), exp(m$ci.ub)))
+            bt(m$b[1]), bt(m$ci.lb), bt(m$ci.ub)))
 # BOTH HARTUNG-KNAPP INTERVALS, AND THE FLOORED ONE IS THE HOUSE INTERVAL.
 #
 # metafor's raw knha can NARROW the interval below the unadjusted one whenever Q < k - 1,
@@ -92,14 +118,14 @@ raw_f <- mk$se / m$se
 infl  <- max(1, raw_f)
 tcrit <- qt(0.975, m$k - 1)
 cat(sprintf("   Hartung-Knapp  %.4f (%.4f to %.4f)   [t crit %.4f on %d df]  <- HOUSE INTERVAL, inflation factor floored at 1 (raw %.4f)\n",
-            exp(m$b[1]), exp(m$b[1] - tcrit * se_un * infl),
-            exp(m$b[1] + tcrit * se_un * infl), tcrit, m$k - 1, raw_f))
+            bt(m$b[1]), bt(m$b[1] - tcrit * se_un * infl),
+            bt(m$b[1] + tcrit * se_un * infl), tcrit, m$k - 1, raw_f))
 cat(sprintf("   metafor raw    %.4f (%.4f to %.4f)   [test=knha, UNFLOORED]%s\n",
-            exp(mk$b[1]), exp(mk$ci.lb), exp(mk$ci.ub),
-            ifelse((exp(mk$ci.ub) - exp(mk$ci.lb)) < (exp(m$ci.ub) - exp(m$ci.lb)),
+            bt(mk$b[1]), bt(mk$ci.lb), bt(mk$ci.ub),
+            ifelse((bt(mk$ci.ub) - bt(mk$ci.lb)) < (bt(m$ci.ub) - bt(m$ci.lb)),
                    "  *** NARROWER THAN UNADJUSTED -- NOT USED; this is what the floor prevents ***",
                    "")))
 cat(sprintf("   tau^2 %.6f   Q %.4f on %d df, p = %.4f   I^2 %.2f%%\n",
             m$tau2, m$QE, m$k - 1, m$QEp, m$I2))
 cat(sprintf("\nAGREES WITH THE STORED POINT TO 4 dp: %s\n",
-            ifelse(abs(exp(m$b[1]) - blk$pooled$point) < 1e-4, "YES", "NO")))
+            ifelse(abs(bt(m$b[1]) - blk$pooled$point) < 1e-4, "YES", "NO")))

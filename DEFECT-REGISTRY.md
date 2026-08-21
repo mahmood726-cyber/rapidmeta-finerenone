@@ -4091,6 +4091,40 @@ interval was ours that our own method does not produce, and the one we published
 narrower of the two.** Corrected, with the correction announced.
 
 
+## Class 86 — OUR INSTRUMENTS ARE UNRELIABLE IN WHICHEVER DIRECTION THEIR AUTHOR LEANED
+
+**Correcting the record, which currently reads as a one-directional claim.** Class 84 measured
+an optimism bias *in code* — three defects in `audit_our_k_against_theirs`, all running in the
+direction that flattered us, and a repair that dropped CANVAS the same way. Read alone it says
+*we flatter ourselves*. **That is not what the night's evidence shows.**
+
+`audit_p46_limbs_reach_a_reader` has been corrected **three times**, and **every correction
+lowered the defect count**:
+
+| correction | reported | actual |
+|---|---|---|
+| probed `r_output`'s prose siblings instead of `verbatim` | 11 topics "limb 4 reaches no reader" | one of them had been confirmed on the public host an hour earlier |
+| probed the single longest stored string for RoB — the `NO_INFORMATION` reason, which the projector deliberately skips | `alirocumab` ×2, `iv-iron-hf` held-but-undelivered | all three rendered fine |
+| recognised a refusal only by the `Refused:` marker | `apixaban-vte-prophylaxis` REFUSAL LOST | its refusal had started rendering **in full** minutes earlier |
+
+And the interval sweep's first run reported **two** raw-vs-house defects on a 2-decimal match;
+**both were false**, matching `0.74` and `0.86` from unrelated numbers a megabyte apart.
+
+> **So: an optimism bias measured in estimates (class 74), an optimism bias measured in one
+> instrument's code (class 84), and a pessimism bias measured in another's — the second
+> instrument accusing our own work, three times running.**
+
+**The honest summary is not "we flatter ourselves".** It is that *an instrument inherits the
+direction of whatever its author assumed while writing it*, and the assumption is invisible to
+the author precisely because it felt like the obvious way to write the check. Optimism and
+pessimism are the same defect wearing different signs.
+
+The only defence that has worked either way is the same one: **a known answer the instrument
+must reproduce, established independently of the instrument.** Every one of these six was caught
+by comparing output against something already established — a public-host verification, a stored
+field, a count established by hand on a previous night.
+
+
 ## OPEN — carried, not fixed
 
 ### O4. The delivered malaria verdict rests on a premise its own registrations contradict
@@ -4125,7 +4159,7 @@ something neither object does. *This is a publication decision and nothing has b
 The plural object now holds all four limbs — risk of bias on 12 results across 9 outcomes,
 GRADE on both pooled outcomes, a comparison over 28 records, and the R output for both pools.
 
-### O4a. The pair was on the duplicate list ON THE DAY THE MERGES WERE DECLARED COMPLETE
+### O4a. A READING FAILURE — the only one tonight with no mechanical remedy
 
 Not a newly found duplicate. `evidence/2026-08-19-batch1/corpus_duplication.json` **at commit
 `9f9121193`** — *"merge(9 clusters): 10 topics RETIRED"* — already contained:
@@ -4142,6 +4176,23 @@ apixaban split. The instrument was right and nobody read its output to the end.
 *Cluster to open:* `malaria-vaccine` (3 trials, verdict-only, **mapped**) and `malaria-vaccines`
 (7 trials, 9 outcome blocks, **unmapped**). Same subject, opposite conclusions, and the reader
 gets the one built on the false premise.
+
+**AND NO CHECK IS PROPOSED HERE, BECAUSE NONE WOULD HAVE HELPED.** This is the worst of the
+three duplicate findings and it is worth being precise about why:
+
+- It is **not a detection failure.** The instrument ran, and it was right.
+- It is **not a tooling failure.** Its output named the pair, with the shared count and the
+  superset count, in the correct field of the correct file.
+- The file was **committed in the same commit that closed the merge round.**
+
+**It is a reading failure.** Every other class recorded tonight ends in a check — a gate, a
+control, a known-answer floor, a probe. *This one ends in "somebody must read the output to the
+end."* Proposing a detector here would be worse than proposing nothing, because it would imply
+the miss was mechanical and let the actual cause stand: an instrument's output was generated,
+committed, and not read past the part that confirmed the work was done.
+
+The two other survivors — `attr-pn`/`attr-cm` and the apixaban split — were at least arguable
+on their evidence. This one was written down.
 
 ### O4b. The original framing, kept
 

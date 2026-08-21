@@ -221,6 +221,34 @@ REFUSED limb is not yet tested**, because the manuscript generates its own refus
 rather than projecting the object's, so a probe cannot match. Those refusals are counted in
 the 20 and not in the 9.
 
+**P55 — NO PROSE MAY CITE AN INTERVAL IT DID NOT READ FROM THE OBJECT'S OWN STORED FIELD.**
+
+A rendered interval must **match a stored value to four decimals**, or **name the computation
+that produced it**. Nothing else. Where an object stores a house interval and a tool prints a
+raw one, prose that quotes the tool is quoting a number this project does not stand behind.
+
+Three instances, all written by the same author on one night, and only one found by looking:
+
+| topic | cited as ours | actually ours | how found |
+|---|---|---|---|
+| `agyw-hiv-prep` | 0.4054 to 1.2191 | **0.1725 to 2.8655** | by chance |
+| `lefamulin-cabp` | 0.8079 to 1.2093 | **0.7807 to 1.2513** | by the sweep |
+| `incretin-hfpef` | 1.80 to 13.06, *"still excludes no effect"* | **−7.74 to 22.60, which INCLUDES no effect** | by refitting for limb 4 |
+
+And six stored R outputs printed metafor's raw value under the bare label *"Hartung-Knapp"* —
+on `nirsevimab` the raw interval 0.1233 to 0.5505 **excludes** no effect where the stored house
+interval 0.0209 to 3.2477 **includes** it. **Limb 4 quotes those runs verbatim**, so the tool's
+defect shipped as our evidence.
+
+**Every divergence runs the same way.** metafor's `knha` standard error is *smaller* than the
+random-effects one whenever `Q < k − 1`, so the unfloored interval is the **narrower** of the
+two on exactly the pools where the data support precision least.
+
+`scripts/sweep_rendered_interval_is_the_house_interval.py --gate` **exits non-zero** on any
+violation — proven able to fail before it was trusted. It states its own blind spots in its
+output: blocks whose stored house interval it cannot reproduce, and blocks rendering no
+sensitivity interval at all.
+
 **P51 — EVERY CHECK IN THIS PROJECT TESTS THE POINT. NOTHING TESTS SPREAD OR PRECISION.**
 
 Stated as a gap, the way P47's failing case is stated, because anyone quoting an I-squared
