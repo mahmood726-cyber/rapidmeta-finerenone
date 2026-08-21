@@ -71,6 +71,28 @@ def get(obj, path):
     return None if (cur is None or cur == "" or cur == [] or cur == {}) else cur
 
 
+def _bookkeeping(obj, field):
+    """One of the five fetchable PRISMA claims, with the path it came from.
+
+    Returns (text, [source_path]) or (None, None). The key is dated, so the path is built
+    from the key that was FOUND rather than retyped -- retyping it is how the same section
+    rendered its own correction as a refusal earlier today.
+    """
+    k = next((x for x in sorted(obj) if str(x).startswith("bookkeeping_")
+              and isinstance(obj[x], dict)), None)
+    if not k:
+        return None, None
+    v = obj[k].get(field)
+    if not isinstance(v, str) or not v.strip():
+        return None, None
+    return v.strip(), ["%s.%s" % (k, field)]
+
+
+def _add_bookkeeping(s, obj, field):
+    t, src = _bookkeeping(obj, field)
+    return bool(t) and s.add(obj, t, src)
+
+
 def _manuscript_prose(obj, key):
     """Authored manuscript prose, from `manuscript.<key>`, flattened to one string.
 
@@ -910,6 +932,7 @@ def project(obj, journal="generic", length="standard"):
 
     # ---- METHODS: SEARCH --------------------------------------------------------------
     s = Section("methods_search", "Methods — search")
+    _add_bookkeeping(s, obj, "the_search_its_date_and_its_databases")
     dbs = get(obj, "search.databases") or []
     for i, d in enumerate(dbs):
         q = d.get("query_as_executed")
@@ -1613,6 +1636,7 @@ def project(obj, journal="generic", length="standard"):
 
     # ---- CERTAINTY OF THE EVIDENCE (GRADE) ---------------------------------------------
     s = Section("certainty", "Certainty of the evidence")
+    _add_bookkeeping(s, obj, "which_risk_of_bias_domains_drove_the_rating")
     g = get(obj, "grade") or {}
     if g.get("approach"):
         s.add(obj, "Certainty was rated with %s. %s"
@@ -1645,6 +1669,7 @@ def project(obj, journal="generic", length="standard"):
 
     # ---- RISK OF BIAS ------------------------------------------------------------------
     s = Section("risk_of_bias", "Risk of bias in the included results")
+    _add_bookkeeping(s, obj, "that_two_assessors_disagreed_and_where")
     rob = get(obj, "risk_of_bias") or {}
     if rob.get("tool"):
         s.add(obj, "Risk of bias was assessed with %s. The unit of assessment is %s"
@@ -2008,6 +2033,7 @@ def project(obj, journal="generic", length="standard"):
 
     # ---- SECTIONS NOT WRITTEN, AND WHY -------------------------------------------------
     s = Section("not_written", "Sections not written, and why")
+    _add_bookkeeping(s, obj, "which_limbs_this_review_refuses")
     ref = get(obj, "build_stamp.refusing")
     if isinstance(ref, list) and ref:
         s.add(obj, "This review refuses %d of the page standard's properties, by name: %s. "
@@ -2126,10 +2152,42 @@ def project(obj, journal="generic", length="standard"):
                               str(v.get("url") or v.get("staged_as") or "")])
             elif isinstance(v, str) and v.strip():
                 _rows.append([sid, "evidence file", "", v])
+    # THE BIBLIOGRAPHY, WHICH IS NOT THE SAME OBJECT AS `sources`.
+    #
+    # This section refused entirely on every topic whose `sources` is empty, and `sources` is
+    # a record of the provenance LAYER each fact was read at -- what an auditor re-reads, not
+    # what a reader looks up. A paper with no reference list is incomplete in a way nobody
+    # would defend, and it was never argument: the trials are on the object with their
+    # registrations, the appraised syntheses with their PMIDs, the software with its version.
+    _bib = get(obj, "manuscript.references")
+    _bib_rendered = False
+    if isinstance(_bib, dict):
+        _inc = _bib.get("included_studies") or []
+        if _inc:
+            s.add_table(obj, "Included studies, by registration",
+                        ["Trial", "Registration", "Registry", "Read"],
+                        [[r.get("label", ""), r.get("registration", ""),
+                          r.get("registry", ""), r.get("read_utc", "")] for r in _inc],
+                        ["manuscript.references"])
+            _bib_rendered = True
+        _pub = _bib.get("published_syntheses_compared_against") or []
+        if _pub:
+            s.add_table(obj, "Published syntheses this review was compared against",
+                        ["Citation", "Identifier"],
+                        [[r.get("citation", ""), r.get("identifier", "")] for r in _pub],
+                        ["manuscript.references"])
+            _bib_rendered = True
+        _mg = _bib.get("methods_guidance_and_software") or []
+        if _mg:
+            s.add_table(obj, "Methods guidance and software, with what each is cited for",
+                        ["Cited for", "Reference"],
+                        [[r.get("cited_for", ""), r.get("citation", "")] for r in _mg],
+                        ["manuscript.references"])
+            _bib_rendered = True
     if _rows:
         s.add_table(obj, "Sources this review reads, with the layer each was read at",
                     ["Id", "Layer", "Source", "Location"], _rows, ["sources"])
-    else:
+    elif not _bib_rendered:
         s.refusals.append(("the reference list", ["sources"]))
     secs.append(s)
 
@@ -2221,6 +2279,7 @@ def project(obj, journal="generic", length="standard"):
 
     # ---- NOTE ON REGISTRATION ----------------------------------------------------------
     s = Section("note_on_registration", "Note on registration")
+    _add_bookkeeping(s, obj, "whether_this_review_was_prospectively_registered")
     pr = get(obj, "protocol") or {}
     if pr.get("permanently_refused") or pr.get("prespecified") is not None:
         s.add(obj, "Protocol status. Prespecified: %s. %s"
