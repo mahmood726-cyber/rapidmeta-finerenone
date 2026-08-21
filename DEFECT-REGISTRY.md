@@ -4158,6 +4158,102 @@ object**, which is now the third time it has been the only thing standing betwee
 and a silent deletion.
 
 
+## Class 88 — A PAGE WRITTEN TO A GUESSED PATH IS INVISIBLE TO EVERY CHECK KEYED ON THE REAL ONE
+
+`alirocumab-lipid` is delivered as **`ALIROCUMAB_LIPID_AUTO_FULL_REVIEW.html`**. I built
+**`ALIROCUMAB_LIPID_REVIEW.html`** — a filename I inferred from the topic name rather than read
+from `PAGE_MAP.json`. The file did not exist; **my commit created it.**
+
+Three consequences, and the third is the one that matters:
+
+1. The re-stored model output went to a page no reader reaches.
+2. The delivered page kept the old DerSimonian-Laird quotation.
+3. **A page appeared where a reader expected nothing** — the tombstone problem, committed on the
+   night the rule was written down, by the author who holds a memory note titled
+   *one-object-two-delivered-pages*.
+
+**It was caught only by accident of shape.** The delivery audit reported `alirocumab` HELD-ONLY
+on limb 4, and the probe was demonstrably present in the file I had just built. The file was
+right; it was **the wrong file**. Nothing else would have found it: the build succeeded, the
+manuscript guard passed, the commit passed every hook, and the page was byte-correct.
+
+> **A name is not an address, and a guessed address fails silently in both directions** — the
+> real page keeps its stale content, and the guessed page becomes content nobody asked for.
+
+Audited every HTML file in the last 25 commits against `PAGE_MAP`: **25 files, one stray, this
+one.** Removed; the mapped page rebuilt; the host returns 404 for the stray.
+
+
+## Class 89 — WE SCORED D1 LOW ON EVIDENCE THE TOOL NAMES AS "NO INFORMATION"
+
+Not a tie between two assessors. **The RoB 2 guidance names our exact situation and prescribes
+the answer**, so this is a rule the project already holds, applied.
+
+From *Revised Cochrane risk-of-bias tool for randomized trials (RoB 2)*, 2019 guidance, Box 4,
+signalling question **1.1 Was the allocation sequence random?** —
+
+> **"Answer 'No information' if the only information about randomization methods is a statement
+> that the study is randomized."**
+
+That is precisely what a ClinicalTrials.gov design module gives: `allocation: RANDOMIZED`, and
+nothing about the method. And section **4.4**:
+
+> **"A judgement of low risk of bias requires that the trial has an adequate method of
+> concealing the allocation sequence from those involved in enrolling participants, and there
+> are no concerns about generation of the allocation sequence."**
+
+We read no concealment method on any trial, and every D1 entry we wrote **says so in its own
+words** before scoring LOW. Handbook 8.3 states the domain's three components — sequence random,
+sequence concealed, baseline imbalance — and a registry allocation field speaks to none of them.
+
+**IT REFINES BOTH ASSESSORS.** Assessor 1 said LOW: wrong. Assessor 2 said NO_INFORMATION at the
+*domain* level; the tool's algorithm maps NI on 1.1 and 1.2 with no baseline concern to **Some
+concerns**, not to a no-information verdict. The house convention writes NO_INFORMATION for an
+unjudgeable domain and caps the overall at SOME_CONCERNS, which lands in the same place.
+
+### The consequence, measured before the decision
+
+| | |
+|---|---|
+| D1 judgements in the corpus | 84 |
+| scored **LOW** on a bare `allocation: RANDOMIZED` | **51**, across 15 topics |
+| of those 51, currently sitting under an **overall of LOW** | **0** |
+| of those 51, already carrying another NO_INFORMATION domain | **51 of 51** |
+| **overall ratings that would change** | **0** |
+| **GRADE ratings that would move a level** | **0** |
+
+Every one of the 51 already sits under SOME_CONCERNS (48) or HIGH (3), because the house ceiling
+had already capped them on D2/D3. **The correction is a domain-level accuracy fix with no
+downstream consequence** — it changes what a reader is told about one domain on 51 results, and
+changes no rating, no certainty and no estimate.
+
+
+## Class 86, fifth instance — A SWEEP WHOSE TWELVE HITS WERE ALL THE OBJECTS DOING THEIR JOB
+
+`sweep_stored_scalar_contradicts_own_prose` was written because `incretin-hfpef` stored `k: 1`
+while its own sentences said `k=2` twice. Over **63 checkable blocks it flagged 12. All twelve
+were read. NONE is a defect.**
+
+| what the prose was actually doing | n |
+|---|---|
+| naming a **superseded** value beside the current one (`arni`, `sglt2-hf` I²) | 2 |
+| naming a **sibling outcome's** k (`sglt2-hf`, `fcm-hf`, `hiv-prep-injectable`) | 3 |
+| stating *"k = 1 for the question the title asks"* as a **scope finding** | 5 |
+| **already documenting the contradiction itself** — *"Three different counts on one page, and nothing reconciles them"* (`colchicine`, `intensive-bp`) | 2 |
+
+The last two are the sharpest: the instrument flagged as a defect the objects' own record of a
+defect they had found first.
+
+**The shape is real and rare — one confirmed instance in the corpus, already fixed.** The sweep
+cannot distinguish *contradicting itself* from *documenting a contradiction*, and in this corpus
+the second is twelve times more common. Kept as a reader, never a gate, with its false-positive
+rate stated in its own output: **12 of 12.**
+
+*Fifth instance tonight of an instrument running in the accusing direction. The tally now stands
+at optimism bias in estimates (74), optimism bias in one instrument (84), and pessimism bias in
+five separate checks — every one of which accused our own work and was wrong.*
+
+
 ## OPEN — carried, not fixed
 
 ### O4. The delivered malaria verdict rests on a premise its own registrations contradict
