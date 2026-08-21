@@ -1338,6 +1338,13 @@ that this page faithfully reports them.</small></p>
 
 
 if __name__ == "__main__":
+    # BEFORE ANYTHING IS READ OR WRITTEN. Two pages have been rebuilt after an explicit
+    # decision not to touch them, and BOTH overwrites went through this entry point, which
+    # knew nothing about either do-not-rebuild list because both lived in caller scripts.
+    # The check belongs where the write happens.
+    import do_not_rebuild as _dnr
+    _dnr.check(sys.argv[2])
+
     obj = json.load(open(sys.argv[1], encoding="utf-8"))
     out = sys.argv[2]
     # Raster handles, resolved once. If no headless browser is present the

@@ -663,6 +663,20 @@
    "values_moved": "NONE -- point, interval and heterogeneity all reproduce under the declared estimator",
    "what_changed": "re-ran primary under REML; the previous output printed a DerSimonian-Laird or Paule-Mandel fit",
    "why": "P56: verbatim quotation guarantees fidelity to the TOOL, not to the METHOD. Nine stored outputs across the corpus quoted a fit that did not produce their page's numbers."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "registry facts backfilled onto risk-of-bias entries",
+   "values_moved": "NONE -- no judgement, reason or overall is touched",
+   "what_changed": "2 entr(ies): primary/NCT03057977, primary/NCT03057951",
+   "why": "These entries recorded a judgement and the reason for it without the registry fields the judgement was made from, so no blind second assessment could be given the same evidence."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "a blind cross-family second risk-of-bias assessment was obtained",
+   "values_moved": "NONE",
+   "what_changed": "disagreement 6 of 12 judgements",
+   "why": "Mahmood's specification requires two assessors from different model families."
   }
  ],
  "provenance_verified_2026_08_18": "Provenance written ONLY where the registry confirmed it. Every statement on this object names the outcome measure its counts were matched against and the date of the comparison. Trials whose registration posts no results carry an explicit NOT SUPPLIED BY THE REGISTRY note with the source question recorded as owed.",
@@ -803,7 +817,14 @@
       }
      },
      "overall": "SOME_CONCERNS",
-     "overall_reason": "Three domains LOW on read sources and one NO_INFORMATION. Under RoB 2 an unjudgeable domain cannot yield LOW overall, and SOME_CONCERNS is the ceiling this project applies where a domain is unread rather than adverse."
+     "overall_reason": "Three domains LOW on read sources and one NO_INFORMATION. Under RoB 2 an unjudgeable domain cannot yield LOW overall, and SOME_CONCERNS is the ceiling this project applies where a domain is unread rather than adverse.",
+     "registered_masking": "DOUBLE -- participant, investigator",
+     "registered_primary_count": 1,
+     "registered_arm_count": 2,
+     "registered_enrolment": 3730,
+     "registered_primary_outcome": "Time to the First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF)",
+     "registered_sites": "Argentina, Australia, Belgium, Brazil, Canada, China, Czechia, France, Germany, Hungary, India, Italy, Japan, Mexico, Netherlands, Poland, South Korea, Spain, United Kingdom, United States",
+     "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment."
     },
     "NCT03057951": {
      "nct": "NCT03057951",
@@ -839,7 +860,14 @@
       }
      },
      "overall": "SOME_CONCERNS",
-     "overall_reason": "Identical domain profile to its sibling and for identical reasons -- the two trials share a protocol shape, a registered outcome wording and a censoring rule. STATED SEPARATELY RATHER THAN INHERITED: an assessment copied from a sibling is an assertion about a trial nobody assessed."
+     "overall_reason": "Identical domain profile to its sibling and for identical reasons -- the two trials share a protocol shape, a registered outcome wording and a censoring rule. STATED SEPARATELY RATHER THAN INHERITED: an assessment copied from a sibling is an assertion about a trial nobody assessed.",
+     "registered_masking": "DOUBLE -- participant, investigator",
+     "registered_primary_count": 1,
+     "registered_arm_count": 2,
+     "registered_enrolment": 5988,
+     "registered_primary_outcome": "Time to First Event of Adjudicated Cardiovascular (CV) Death or Adjudicated Hospitalisation for Heart Failure (HHF)",
+     "registered_sites": "Argentina, Australia, Belgium, Brazil, Canada, China, Colombia, Czechia, Germany, Hungary, India, Italy, Japan, Mexico, Netherlands, Poland, Romania, Singapore, South Africa, South Korea, Spain, United Kingdom, United States",
+     "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment."
     }
    }
   },
@@ -871,6 +899,31 @@
      }
     }
    }
+  },
+  "SECOND_ASSESSOR_2026_08_21": {
+   "assessor_2": "GPT-5 Codex (openai family), via `codex exec`",
+   "assessor_1": "Claude Opus 5 (anthropic family) -- the assessment above",
+   "how_it_was_asked": "BLIND, from scripts/second_assessor_prompt.py. The prompt is assembled from an ALLOW-LIST of registry-sourced factual fields and REFUSES to send if any RoB 2 verdict word appears in the assembled text. The second assessor was not shown this assessment and was not asked whether it agreed.",
+   "THE_ALLOW_LIST_THE_RATE_IS_CONDITIONAL_ON": "A DISAGREEMENT RATE IS MEANINGLESS WITHOUT THE FACTS BOTH ASSESSORS SAW, so the list is stated here the way a denominator is stated. Fields emitted: trial, cohort, registered enrolment, registered masking, registered sites, registered comparator, number of registered arms, number of registered PRIMARY outcomes, registered PRIMARY outcome, registered analysis population, the rank the pooled result holds, the result being assessed, participants this review pools, registered enrolment minus participants pooled. Established by test, not argument: widening this list from 9 fields to 14 HALVED gepotidacin's disagreement -- its entire D5 divergence was a fact the second assessor had never been shown -- and left ceftaroline and tigecycline unmoved.",
+   "verbatim_reply": "NCT03057951__primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=LOW OVERALL=NO_INFORMATION\nNCT03057977__primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=LOW D5=LOW OVERALL=NO_INFORMATION",
+   "DISAGREEMENT_RATE": "6 of 12 judgements -- 50.0%. Reported as DISAGREEMENT: agreement between two assessors given the same facts authenticates nothing.",
+   "PER_DOMAIN": {
+    "D1": "2 of 2 disagree",
+    "D2": "0 of 2 disagree",
+    "D3": "2 of 2 disagree",
+    "D4": "0 of 2 disagree",
+    "D5": "0 of 2 disagree",
+    "OVERALL": "2 of 2 disagree"
+   },
+   "each_disagreement": [
+    "NCT03057951__primary D1: assessor 1 LOW, assessor 2 NO_INFORMATION",
+    "NCT03057951__primary D3: assessor 1 LOW, assessor 2 NO_INFORMATION",
+    "NCT03057951__primary OVERALL: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION",
+    "NCT03057977__primary D1: assessor 1 LOW, assessor 2 NO_INFORMATION",
+    "NCT03057977__primary D3: assessor 1 LOW, assessor 2 NO_INFORMATION",
+    "NCT03057977__primary OVERALL: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION"
+   ],
+   "not_resolved_here": "A disagreement is recorded, not adjudicated. The second assessor is NOT an appeal court: where the first assessment is believed right that is written with its reason and both stand."
   }
  },
  "grade": {

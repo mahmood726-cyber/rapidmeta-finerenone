@@ -51,9 +51,23 @@ def first_assessment(topic):
                 continue
             nct = (j.get("nct") or rid).split("::")[0]
             d = j.get("domains") or {}
+            # MATCH BY PREFIX, NOT BY EXACT KEY NAME.
+            #
+            # This corpus spells the same domain several ways -- `D1_randomisation` on 28
+            # results and `D1_randomisation_process` on 5; `D5_selection_of_result`,
+            # `D5_selection_of_reported_result` and `D5_selection_of_the_reported_result` all
+            # appear. Matching the exact name read ONLY D3 on 28 of 33 results, because D3 is
+            # the one key spelled identically everywhere -- and the resulting profile said
+            # "D3 disagrees 60%" while D1, D2, D4 and D5 were never compared at all.
+            #
+            # THAT IS THE THIRD MEASUREMENT IN THIS EXERCISE THAT TURNED OUT TO BE OF THE
+            # INSTRUMENT RATHER THAN OF THE ASSESSORS, after the too-narrow fact allow-list
+            # and the n=3 profile. The domain prefix is the thing that is actually stable.
             row = {}
-            for short, full in KEY.items():
-                dv = d.get(full) or d.get(full.split("_")[0])
+            for short in KEY:
+                dv = next((v for k, v in sorted(d.items())
+                           if str(k).upper().startswith(short + "_") and isinstance(v, dict)),
+                          None)
                 if isinstance(dv, dict):
                     row[short] = norm(dv.get("judgement"))
             row["OVERALL"] = norm(j.get("overall") or j.get("rating"))

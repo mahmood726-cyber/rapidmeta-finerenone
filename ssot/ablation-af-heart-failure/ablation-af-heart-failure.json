@@ -1186,7 +1186,15 @@
      },
      "overall": "NO_INFORMATION",
      "overall_note": "NO OVERALL JUDGEMENT IS SYNTHESISED because D2_deviations, D5_selection_of_result could not be assessed. RoB 2's algorithm maps domains to an overall rating, but an overall computed over unknowns would present absence as a result.",
-     "contributes_to_a_pooled_estimate": false
+     "contributes_to_a_pooled_estimate": false,
+     "nct": "NCT00643188",
+     "registered_masking": "NONE -- OPEN LABEL",
+     "registered_primary_count": 1,
+     "registered_arm_count": 2,
+     "registered_enrolment": 398,
+     "registered_primary_outcome": "All-cause mortality or worsening heart failure requiring unplanned hospitalization",
+     "registered_sites": "Australia, Austria, Germany, Hungary, Netherlands, Poland, Russia, United Kingdom",
+     "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment."
     },
     "NCT01420393": {
      "trial": "RAFT-AF",
@@ -1245,9 +1253,44 @@
      },
      "overall": "NO_INFORMATION",
      "overall_note": "NO OVERALL JUDGEMENT IS SYNTHESISED because D2_deviations, D5_selection_of_result could not be assessed. RoB 2's algorithm maps domains to an overall rating, but an overall computed over unknowns would present absence as a result.",
-     "contributes_to_a_pooled_estimate": false
+     "contributes_to_a_pooled_estimate": false,
+     "nct": "NCT01420393",
+     "registered_masking": "NONE -- OPEN LABEL",
+     "registered_primary_count": 1,
+     "registered_arm_count": 2,
+     "registered_enrolment": 411,
+     "registered_primary_outcome": "Composite of All-cause Mortality and Heart Failure Events",
+     "registered_sites": "Brazil, Canada, Sweden, Taiwan",
+     "registry_facts_backfilled_2026_08_21": "READ FROM ClinicalTrials.gov API v2 on 2026-08-21. THE JUDGEMENTS ABOVE WERE NOT REVISITED -- this adds the registry evidence beside a verdict that was made from it and did not record it, so a blind second assessor can be shown the same facts. A second assessment built on fewer facts is not a comparable assessment."
     }
    }
+  },
+  "SECOND_ASSESSOR_2026_08_21": {
+   "assessor_2": "GPT-5 Codex (openai family), via `codex exec`",
+   "assessor_1": "Claude Opus 5 (anthropic family) -- the assessment above",
+   "how_it_was_asked": "BLIND, from scripts/second_assessor_prompt.py. The prompt is assembled from an ALLOW-LIST of registry-sourced factual fields and REFUSES to send if any RoB 2 verdict word appears in the assembled text. The second assessor was not shown this assessment and was not asked whether it agreed.",
+   "THE_ALLOW_LIST_THE_RATE_IS_CONDITIONAL_ON": "A DISAGREEMENT RATE IS MEANINGLESS WITHOUT THE FACTS BOTH ASSESSORS SAW, so the list is stated here the way a denominator is stated. Fields emitted: trial, cohort, registered enrolment, registered masking, registered sites, registered comparator, number of registered arms, number of registered PRIMARY outcomes, registered PRIMARY outcome, registered analysis population, the rank the pooled result holds, the result being assessed, participants this review pools, registered enrolment minus participants pooled. Established by test, not argument: widening this list from 9 fields to 14 HALVED gepotidacin's disagreement -- its entire D5 divergence was a fact the second assessor had never been shown -- and left ceftaroline and tigecycline unmoved.",
+   "verbatim_reply": "NCT00643188__primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=SOME_CONCERNS D5=LOW OVERALL=SOME_CONCERNS\nNCT01420393__primary D1=NO_INFORMATION D2=NO_INFORMATION D3=NO_INFORMATION D4=SOME_CONCERNS D5=LOW OVERALL=SOME_CONCERNS",
+   "DISAGREEMENT_RATE": "8 of 12 judgements -- 66.7%. Reported as DISAGREEMENT: agreement between two assessors given the same facts authenticates nothing.",
+   "PER_DOMAIN": {
+    "D1": "2 of 2 disagree",
+    "D2": "0 of 2 disagree",
+    "D3": "2 of 2 disagree",
+    "D4": "0 of 2 disagree",
+    "D5": "2 of 2 disagree",
+    "OVERALL": "2 of 2 disagree"
+   },
+   "each_disagreement": [
+    "NCT00643188__primary D1: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION",
+    "NCT00643188__primary D3: assessor 1 LOW, assessor 2 NO_INFORMATION",
+    "NCT00643188__primary D5: assessor 1 NO_INFORMATION, assessor 2 LOW",
+    "NCT00643188__primary OVERALL: assessor 1 NO_INFORMATION, assessor 2 SOME_CONCERNS",
+    "NCT01420393__primary D1: assessor 1 SOME_CONCERNS, assessor 2 NO_INFORMATION",
+    "NCT01420393__primary D3: assessor 1 LOW, assessor 2 NO_INFORMATION",
+    "NCT01420393__primary D5: assessor 1 NO_INFORMATION, assessor 2 LOW",
+    "NCT01420393__primary OVERALL: assessor 1 NO_INFORMATION, assessor 2 SOME_CONCERNS"
+   ],
+   "not_resolved_here": "A disagreement is recorded, not adjudicated. The second assessor is NOT an appeal court: where the first assessment is believed right that is written with its reason and both stand."
   }
  },
  "grade": {
@@ -1270,5 +1313,21 @@
   "what_was_actually_done": "Eligibility criteria were derived POST HOC from the trials and the methodological authority, and the derivation is recorded element by element in `screening.eligibility_provenance` with the source of each.",
   "authority_permitting_it": "MECIR R107 permits post-hoc eligibility criteria PROVIDED THEY ARE DECLARED AS SUCH. They are declared, here and on the page, and the page says 'derived, post hoc' in its heading.",
   "forward_remedy": "For topics not yet built, a protocol is to be written and registered BEFORE the search is executed, so that the claim becomes true GOING FORWARD. It is never to be made true retroactively for a built topic."
- }
+ },
+ "display_change_announced": [
+  {
+   "date": "2026-08-21",
+   "change": "registry facts backfilled onto risk-of-bias entries",
+   "values_moved": "NONE -- no judgement, reason or overall is touched",
+   "what_changed": "2 entr(ies): primary/NCT00643188, primary/NCT01420393",
+   "why": "These entries recorded a judgement and the reason for it without the registry fields the judgement was made from, so no blind second assessment could be given the same evidence."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "a blind cross-family second risk-of-bias assessment was obtained",
+   "values_moved": "NONE",
+   "what_changed": "disagreement 8 of 12 judgements",
+   "why": "Mahmood's specification requires two assessors from different model families."
+  }
+ ]
 }

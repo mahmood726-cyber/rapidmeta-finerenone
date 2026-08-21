@@ -4280,7 +4280,88 @@ architecture question and it is NOT started here.* Noted for daylight. What is f
 fifth instance.
 
 
-## Class 91 — THE SECOND ASSESSOR'S DISAGREEMENT PROFILE, AND WHY THE CLEAN VERSION IS FALSE
+## Class 91 — A BLIND ASSESSMENT GIVEN FEWER FACTS IS NOT A COMPARABLE ASSESSMENT
+
+**This is the methodological result of the whole second-assessor exercise and it leads.**
+
+An inter-rater disagreement rate between two models is **conditional on the facts both were
+shown**, and if the second assessor sees fewer facts than the first used, the rate is not a
+measurement of two assessors — **it is a measurement of one prompt.**
+
+**Established by test, not by argument.** The prompt builder emitted 9 registry fields. The
+first assessor's stated reason on `ceftaroline` D5 is *"two register MITTE and one registers
+CE"* — an analysis-population split held in `registered_analysis_population`, which was **not on
+the list**. Widening the list from 9 fields to 14 and re-running three topics:
+
+| topic | 9 fields | 14 fields | |
+|---|---|---|---|
+| `gepotidacin` | 4 of 12 | **2 of 12** | its *entire* D5 divergence was the prompt |
+| `ceftaroline` | 12 of 18 | 12 of 18 | unmoved — the disagreement is real |
+| `tigecycline` | 11 of 18 | 11 of 18 | unmoved — real |
+
+**So the allow-list is stated wherever the rate is quoted, the way a denominator is stated.**
+Every published claim about inter-rater agreement between models has this problem whether or not
+its authors noticed it.
+
+*Fields emitted: trial, cohort, registered enrolment, registered masking, registered sites,
+registered comparator, number of registered arms, number of registered primary outcomes,
+registered primary outcome, registered analysis population, the rank the pooled result holds,
+the result being assessed, participants pooled, enrolment minus participants pooled.*
+
+### 91a. And twelve topics could not be prompted at all until the registrations were re-read
+
+Their risk-of-bias entries recorded a judgement and a reason and **not the registry fields the
+judgement was made from**. Building a thinner prompt would have measured the gaps in our own
+records. `scripts/backfill_registry_facts_2026_08_21.py` re-read 24 registrations and wrote
+**35 entries across 10 topics — additions only, zero leaves changed, no judgement revisited.**
+Three entries on `arni-hfref` carry no `nct` and were **refused by name** rather than filled
+from a result id.
+
+
+## Class 92 — THE CLEAN PROFILE AT n=3 DID NOT SURVIVE n=22, AND WE NEARLY REPORTED IT
+
+**Record this with the prediction score, not in a domain table.** It is the best argument in
+this project's record for not reporting from small samples, and it was ours.
+
+**At n = 3** the disagreements sat almost entirely on D1 while D2–D5 agreed nearly everywhere.
+The claim that suggested itself: *two independent model families given the same registration
+facts converge on four of five RoB 2 domains and diverge on the one where the guidance is
+explicit.* Tidy, publishable, and false.
+
+**At n = 22 topics and 432 judgement comparisons:**
+
+| domain | disagree | |
+|---|---|---|
+| **D1** randomisation | 59 of 66 | **89.4%** |
+| D2 deviations | 17 of 66 | 25.8% |
+| D3 missing data | 24 of 66 | 36.4% |
+| D4 measurement | 25 of 66 | 37.9% |
+| **D5** selection | 42 of 66 | **63.6%** |
+| OVERALL | 49 of 66 | 74.2% |
+| **total** | **216 of 396** | **54.5%** |
+
+*(plus the three topics reconciled inline earlier: 9 of 36, 25.0%)*
+
+**There is no clean profile.** Two model families given identical registration facts disagree on
+more than half of all judgements, on every domain, most on D1 and D5 and least on D2. That is
+weaker, less quotable and more honest than the version that nearly went out.
+
+### 92a. The n=3 result was itself partly an instrument artefact — the third of three
+
+The first three topics were assessed against a **9-field** prompt, and their apparent D2–D5
+agreement partly reflects the second assessor having less to disagree with. Three separate
+measurements in this exercise turned out to be of the instrument rather than of the assessors:
+
+1. the **too-narrow fact allow-list** (9 fields, above),
+2. the **n = 3 profile** itself,
+3. **domain-key matching** — this corpus spells the same domain several ways
+   (`D1_randomisation` on 28 results, `D1_randomisation_process` on 5; three spellings of D5).
+   Exact-name matching compared **only D3** on 28 of 33 results, and printed *"D3 disagrees
+   60%"* while D1, D2, D4 and D5 were never compared at all. Fixed by matching the domain
+   prefix, which is the part that is actually stable.
+
+
+## Class 91b — THE SECOND ASSESSOR'S DISAGREEMENT PROFILE, AND WHY THE CLEAN VERSION IS FALSE
 
 Twelve topics now carry a blind cross-family second RoB 2 assessment. **The result after three
 topics looked publishable and it did not survive the other nine.**

@@ -57,12 +57,14 @@ import prove_register_change_moved_no_content as PROVE
 #
 # The list is checked BEFORE the backup copy is taken, so an excluded page is never even
 # copied, let alone built.
-DO_NOT_REBUILD = {
-    "ARNI_HF_REVIEW.html": (
-        "authored docmodel manuscript; the projector reproduces ~11% of it, so a rebuild "
-        "replaces written argument with a projection. Standing instruction, and "
-        "ssot/manuscript_guard.py is the second line rather than the first."),
-}
+# THE LIST MOVED TO ssot/do_not_rebuild.py, AND THE CHECK MOVED INTO THE BUILDER.
+#
+# It lived here and in scripts/rebuild_paper_corpus_2026_08_20.py -- two copies, which
+# audit_standing_instructions.py had already flagged. Two copies means a THIRD caller
+# inherits neither, and build_tabbed.py invoked directly was exactly that: both pages
+# ever wrongly rebuilt went through it and it knew about no list at all.
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+from do_not_rebuild import PAGES as DO_NOT_REBUILD          # noqa: E402
 
 
 LOCK = os.path.join(REPO, "outputs", ".paper_register_rollout.lock")
