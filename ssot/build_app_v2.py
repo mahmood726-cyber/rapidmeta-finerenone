@@ -843,6 +843,23 @@ def _outcome_section(canon, oid, p, e):
             # prose rather than to a number.
             + _finding_block(res, "resolved_question", "note",
                              p, NL)
+            # AND THE POOL FINDINGS, WHICH UNTIL 2026-08-21 REACHED THE PAPER
+            # PANEL AND NOTHING ELSE. `POOL_FINDINGS_<stamp>` is where every
+            # qualification written during the 2026-08-20/21 run was stored --
+            # the tigecycline interval that disagrees with its own delivered
+            # conclusion, the breadth deficit on four topics, the cangrelor
+            # discrepancy, the AGYW trials that enrolled nobody under 18. ONLY
+            # `paper_projector` read the key, so all of it rendered at the very
+            # bottom of the page inside the manuscript, roughly a megabyte past
+            # the estimate it qualifies. I reported to Mahmood that the
+            # tigecycline discrepancy "renders where a reader meets the number".
+            # IT DID NOT. Class 83, on the findings rather than on the limbs.
+            #
+            # Prefix-matched, not named, for the same reason `pool_findings()`
+            # in the projector is: the key carries a date stamp, so an exact
+            # name would go stale the next time one is written.
+            + "".join(_finding_block(res, k, "alert", p, NL)
+                      for k in sorted(res) if k.startswith("POOL_FINDINGS_"))
             # THE PREDICTION INTERVAL BELONGS BESIDE THE ESTIMATE, NOT IN AN
             # APPENDIX. On a pool with I-squared near 90 the confidence interval
             # answers "where is the average"; the reader almost always wants

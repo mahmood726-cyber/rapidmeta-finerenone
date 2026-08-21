@@ -189,6 +189,19 @@ def main():
     for l in limbs:
         print("  %-24s %d of %d  (%.0f%%)" % (l, per_limb[l], len(rows),
                                               100.0 * per_limb[l] / max(1, len(rows))))
+    # P54. THIS FILE SCORES POSSESSION AND HAS NEVER SCORED DELIVERY.
+    #
+    # Limb 3 was counted as held on thirteen topics whose delivered pages showed a PMID and
+    # four blank cells, and limb 4 was scored ABSENT on two topics that carried a full R run
+    # under a key this function does not read -- both reported to Mahmood as complete. The
+    # number below is possession. It is NOT the number a reader experiences, and it must not
+    # be quoted on its own.
+    print()
+    print("THIS IS A COUNT OF POSSESSION, NOT OF DELIVERY. A limb the object carries can fail")
+    print("to reach a reader entirely -- that has happened on 13 topics for limb 3 and on 2")
+    print("for limb 4. For the delivered count, run:")
+    print("    python scripts/audit_p46_limbs_reach_a_reader.py")
+
     if want:
         print()
         for name, s in rows:

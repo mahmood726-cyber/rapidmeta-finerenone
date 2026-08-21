@@ -1810,7 +1810,10 @@ def project(obj, journal="generic", length="standard"):
         v = ro.get("verbatim")
         if v:
             any_out = True
-            env = ro.get("_environment") or ""
+            # EITHER SPELLING. 17 blocks store `environment` and 7 store `_environment`;
+            # only the second was read, so the engine and package versions were dropped from
+            # the manuscript on 17 of 24. Class 83's mechanism at smaller stakes.
+            env = ro.get("_environment") or ro.get("environment") or ""
             call = ro.get("call") or ""
             s.add(obj, "%s%s%s" % (("[%s] " % env) if env else "",
                                    ("call: %s -- " % call) if call else "", str(v)),
@@ -2058,7 +2061,8 @@ def project(obj, journal="generic", length="standard"):
 
     # ---- SOFTWARE AVAILABILITY ---------------------------------------------------------
     s = Section("software_availability", "Software availability")
-    envs = sorted({(((blk or {}).get("r_output") or {}).get("_environment") or "")
+    envs = sorted({(((blk or {}).get("r_output") or {}).get("_environment")
+                    or ((blk or {}).get("r_output") or {}).get("environment") or "")
                    for blk in (get(obj, "results.by_outcome") or {}).values()} - {""})
     if envs:
         s.add(obj, "Analyses were computed under %s." % "; ".join(envs),

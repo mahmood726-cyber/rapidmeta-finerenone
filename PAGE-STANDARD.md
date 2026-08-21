@@ -183,6 +183,44 @@ The fifth row is the one that gets dropped. On `sglt2-mace-cvot-review` the quer
 limit of the screen rather than of the literature. **A denominator that hides its own
 truncation is worse than no denominator**, because it is quoted as coverage.
 
+**P54 — P46 MEASURES POSSESSION. IT HAS NEVER MEASURED DELIVERY, AND THE TWO NUMBERS ARE NOT
+CLOSE.**
+
+`scripts/p46_queue.py` reads the object. It answers *does this topic possess the limb*. It
+does not, and never did, answer *can a reader open a page and find it* — yet every count
+reported has been heard as the second. **That is the precise definition of "objects built is
+not topics a reader can open", committed by the people who wrote that rule down.**
+
+The gap was found three times in one night, in three different key vocabularies, before
+anyone asked the general question:
+
+| limb | applier wrote | the other end read | what a reader got |
+|---|---|---|---|
+| 3 | `title`, `agreement` | `citation`, `how_it_differs_from_ours` | a PMID and four blank cells, 16 rows over 13 topics |
+| 4 | `model_output.verbatim` | `by_outcome.*.r_output.verbatim` | *"no analysis output is stored on this object"* |
+| 4 | `model_output.verbatim` | the **scorer**, same key | `ABSENT` — and two topics **reported as 4 of 4 at 3 of 4** |
+
+**Both numbers are reported, always, and the delivered one is the headline.** As at
+2026-08-21, over 28 topics carrying a pooled outcome:
+
+| | count |
+|---|---|
+| all four limbs HELD or refused on an obstacle in the evidence — **possession** | **20** |
+| of those, all four strictly HELD | 14 |
+| all four HELD **and found in the delivered bytes** — **delivery** | **9** |
+| held-all-four topics **absent from `PAGE_MAP`**, reaching no reader by any route | **6** |
+
+`scripts/audit_p46_limbs_reach_a_reader.py` is the delivery scorer. It imports
+`p46_queue.score` so there is one definition of *held* in the repo, and it decides *renders*
+by taking a probe **out of the stored limb** and looking for it in the delivered page bytes —
+never in the object, never in the projector's source, never in a list of section names.
+
+*Two limits it states rather than hides:* the probe must be an HTML-safe run of 40+
+characters, since escaping would make a present string look absent; and **the delivery of a
+REFUSED limb is not yet tested**, because the manuscript generates its own refusal wording
+rather than projecting the object's, so a probe cannot match. Those refusals are counted in
+the 20 and not in the 9.
+
 **P51 — EVERY CHECK IN THIS PROJECT TESTS THE POINT. NOTHING TESTS SPREAD OR PRECISION.**
 
 Stated as a gap, the way P47's failing case is stated, because anyone quoting an I-squared
