@@ -56,6 +56,48 @@ _spec.loader.exec_module(p46)
 LIMBS = ["rob_per_result", "grade_per_pool", "comparison_denominator",
          "model_output_verbatim"]
 
+# THE MANUSCRIPT SECTION EACH LIMB IS PROJECTED INTO, by its rendered heading. Used ONLY for
+# refused limbs: the projector generates its own refusal wording rather than projecting the
+# object's, so a probe taken from the object cannot match, and the testable property is
+# narrower -- IS THE REFUSAL NAMED IN THIS LIMB'S OWN SECTION. Reported as REFUSED+NAMED, a
+# deliberately weaker claim than HELD+RENDERS.
+SECTION_HEADING = {
+    "rob_per_result": "Risk of bias in the included results",
+    "grade_per_pool": "Certainty of the evidence",
+    "comparison_denominator": "Comparison with published syntheses",
+    "model_output_verbatim": "Statistical output, quoted verbatim",
+}
+
+
+def refusal_named_in_section(page_text, heading):
+    """Does a `Refused:` block appear inside this section on the delivered page?
+
+    The section runs from the LAST occurrence of its heading (the first is the in-page
+    navigation strip) to the next heading-like marker after it.
+    """
+    hits = [m.end() for m in re.finditer(re.escape(heading), page_text)]
+    if not hits:
+        return False, "the section heading is not on the page at all"
+    start = hits[-1]
+    nxt = page_text.find("<h3", start)
+    span = page_text[start:nxt if nxt > start else start + 6000]
+    return ("Refused:" in span), ("a refusal is named in this section" if "Refused:" in span
+                                  else "the section renders with no refusal in it")
+
+
+def probe_is_distinctive(probe, page, other_pages):
+    """A probe found on OTHER topics' pages is boilerplate and proves nothing here.
+
+    THE SECOND STATED LIMIT, CLOSED. A short or generic stored sentence can be shared across
+    objects -- house-rule wording, a ceiling statement, a standard refusal. Finding it in
+    this page would then say nothing about THIS limb reaching a reader. A probe that appears
+    on a page belonging to a different topic is reported WEAK rather than counted.
+    """
+    for p in other_pages:
+        if probe in p:
+            return False
+    return True
+
 # Characters the renderer escapes on the way out. A probe containing one of these would be
 # looked for in a form the page never carries, and would report a false ABSENT.
 UNSAFE = re.compile(r"[<>&\"'‘’“”]")
@@ -129,6 +171,12 @@ def page_map():
     return rev
 
 
+# Pages from OTHER topics, used to test that a probe is distinctive rather than boilerplate.
+# Chosen to span builders and eras: an authored docmodel, an antibiotic pool, a lipid pool.
+CONTROL_PAGES = ["ARNI_HF_REVIEW.html", "LEFAMULIN_CABP_AUTO_FULL_REVIEW.html",
+                 "INCLISIRAN_LIPID_KIDNEY_AUTO_FULL_REVIEW.html", "ATTR_CM_REVIEW.html"]
+
+
 def main():
     rev = page_map()
     cache = {}
@@ -172,19 +220,43 @@ def main():
         row = {"topic": topic, "pages": pages, "limbs": {}}
         for limb in LIMBS:
             state = sc.get(limb, ("ABSENT", ""))[0]
-            if state != "HELD":
+            if state == "ABSENT":
                 row["limbs"][limb] = ("not held", state)
                 continue
             if not pages:
                 row["limbs"][limb] = ("NO PAGE", "topic absent from PAGE_MAP")
                 continue
+
+            # A REFUSED LIMB IS A COMPLETED OUTCOME UNDER P46 AND ITS DELIVERY IS ASKED TOO.
+            # The claim is narrower and labelled as such: the projector generates its own
+            # refusal wording, so what can be tested is that the refusal is NAMED IN THIS
+            # LIMB'S OWN SECTION, not that the object's reason was projected.
+            if state == "REFUSED":
+                named, why = False, "no section mapped for this limb"
+                for pg in pages:
+                    named, why = refusal_named_in_section(delivered(pg) or "",
+                                                          SECTION_HEADING[limb])
+                    if named:
+                        break
+                row["limbs"][limb] = (("REFUSED+NAMED", why) if named
+                                      else ("REFUSED, NOT NAMED", why))
+                continue
+
             pr = limb_probe(obj, limb)
             if not pr:
                 row["limbs"][limb] = ("UNPROBEABLE", "no HTML-safe run of 40+ chars stored")
                 continue
             hit = [pg for pg in pages if pr in (delivered(pg) or "")]
-            row["limbs"][limb] = (("HELD+RENDERS", hit[0]) if hit
-                                  else ("HELD ONLY", "not in %s" % ", ".join(pages)))
+            if not hit:
+                row["limbs"][limb] = ("HELD ONLY", "not in %s" % ", ".join(pages))
+                continue
+            others = [delivered(pg) or "" for pg in CONTROL_PAGES if pg not in pages]
+            if not probe_is_distinctive(pr, delivered(hit[0]) or "", others):
+                row["limbs"][limb] = ("WEAK PROBE", "the probe also appears on another "
+                                                    "topic's page, so it is boilerplate and "
+                                                    "proves nothing about this limb")
+                continue
+            row["limbs"][limb] = ("HELD+RENDERS", hit[0])
         rows.append(row)
 
     print("")
@@ -193,7 +265,8 @@ def main():
     hdr = ("topic", "RoB", "GRADE", "compare", "output")
     print("%-42s %-13s %-13s %-13s %-13s" % hdr)
     tally = dict((s, 0) for s in
-                 ("HELD+RENDERS", "HELD ONLY", "NO PAGE", "UNPROBEABLE", "not held"))
+                 ("HELD+RENDERS", "HELD ONLY", "REFUSED+NAMED", "REFUSED, NOT NAMED",
+                  "NO PAGE", "UNPROBEABLE", "WEAK PROBE", "not held"))
     both = held_only_topics = []
     both, held_only_topics = [], []
     for r in sorted(rows, key=lambda x: x["topic"]):
@@ -202,10 +275,14 @@ def main():
             st = r["limbs"][limb][0]
             tally[st] += 1
             cells.append({"HELD+RENDERS": "renders", "HELD ONLY": "HELD-ONLY",
+                          "REFUSED+NAMED": "refusal shown",
+                          "REFUSED, NOT NAMED": "REFUSAL LOST",
                           "NO PAGE": "no page", "UNPROBEABLE": "unprobeable",
-                          "not held": "-"}[st])
+                          "WEAK PROBE": "WEAK PROBE", "not held": "-"}[st])
         states = [r["limbs"][l][0] for l in LIMBS]
-        if all(s == "HELD+RENDERS" for s in states):
+        # DELIVERED means every limb reached a reader in the state P46 scored it: a held limb
+        # found in the bytes, or a refusal named in its own section.
+        if all(s in ("HELD+RENDERS", "REFUSED+NAMED") for s in states):
             both.append(r["topic"])
         if any(s == "HELD ONLY" for s in states):
             held_only_topics.append(r["topic"])
@@ -214,7 +291,8 @@ def main():
 
     print("")
     print("LIMB-INSTANCES, over %d topics x 4 limbs = %d:" % (len(rows), len(rows) * 4))
-    for k in ("HELD+RENDERS", "HELD ONLY", "NO PAGE", "UNPROBEABLE", "not held"):
+    for k in ("HELD+RENDERS", "HELD ONLY", "REFUSED+NAMED", "REFUSED, NOT NAMED",
+              "NO PAGE", "UNPROBEABLE", "WEAK PROBE", "not held"):
         print("   %-14s %d" % (k, tally[k]))
     print("")
     print("TOPICS WHERE ALL FOUR LIMBS BOTH HOLD AND RENDER: %d" % len(both))
