@@ -614,7 +614,9 @@
       "log_se": 1.1599427731465848,
       "estimand_id": "primary",
       "population": "not recorded on the page this object was extracted from",
-      "derivation": "DERIVED by conversion: the extractor recovered an estimate and a variance on the analysis scale; the point and interval are estimate +/- 1.96*sqrt(variance), back-transformed. No source printed this interval."
+      "derivation": "DERIVED by conversion: the extractor recovered an estimate and a variance on the analysis scale; the point and interval are estimate +/- 1.96*sqrt(variance), back-transformed. No source printed this interval.",
+      "nulled": true,
+      "nulled_note": "THIS ENTRY IS NULLED AND IS NOT A CONTRIBUTING TRIAL. It carries a value and it is not counted in k, which is why the contributing-trials panel showed four rows under a headline stating k=3 -- caught by CHK009_POOL_IDENTITY on the pre-push gate. It is MARKED rather than deleted: the record that this trial was nulled is part of the review, and removing the row would make the page tidy and the history unreadable. The panel and the artefact now exclude it from the contributing count; it remains on the object."
      }
     ],
     "pooled": {
@@ -669,13 +671,6 @@
      "registry": "ClinicalTrials.gov",
      "url": "https://clinicaltrials.gov/study/NCT04435626",
      "read_utc": ""
-    },
-    {
-     "registration": "NULLED:NCT01874431",
-     "label": "NULLED:NCT01874431",
-     "registry": "ClinicalTrials.gov",
-     "url": "https://clinicaltrials.gov/study/NULLED:NCT01874431",
-     "read_utc": ""
     }
    ],
    "published_syntheses_compared_against": [],
@@ -707,6 +702,13 @@
    "values_moved": "NONE",
    "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
    "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 4",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
   },
   {
    "date": "2026-08-21",
@@ -751,7 +753,7 @@
  "bookkeeping_2026_08_21": {
   "_what": "The five reporting claims a PRISMA-2020 manuscript needs that are FETCHABLE rather than argued -- each derived from a field here, or stated as an honest absence.",
   "which_limbs_this_review_refuses": "Of the four properties this project requires of a completed topic, 0 are held (none) and 4 are refused with the obstacle named in the evidence (comparison denominator, grade per pool, model output verbatim, rob per result).",
-  "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 4 included trials were identified by reading named registrations on the dates recorded on each entry; {'what_verifies_this_object': 'not recorded on the page this object was extracted from', 'what_is_not_claimed': 'not recorded on the page this object was extracted from', 'families': [], 'bar': 'not recorded on the page this object was extracted from'}.",
+  "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 3 included trials were identified by reading named registrations on the dates recorded on each entry; {'what_verifies_this_object': 'not recorded on the page this object was extracted from', 'what_is_not_claimed': 'not recorded on the page this object was extracted from', 'families': [], 'bar': 'not recorded on the page this object was extracted from'}.",
   "whether_this_review_was_prospectively_registered": "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.",
   "that_two_assessors_disagreed_and_where": "NO SECOND, INDEPENDENT RISK-OF-BIAS ASSESSMENT IS RECORDED FOR THIS TOPIC. The judgements were made once. Stated so that single assessment is not mistaken for agreement between two."
  }

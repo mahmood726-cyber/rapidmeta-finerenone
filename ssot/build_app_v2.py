@@ -551,6 +551,15 @@ def _outcome_section(canon, oid, p, e):
 
     rows = ""
     for ti, t in enumerate(canon["inputs"]["trials"]):
+        # A NULLED TRIAL IS NOT A CONTRIBUTING TRIAL, AND THIS TABLE IS HEADED
+        # "Contributing trials". `finerenone-review` carries `NULLED:NCT01874431` and the
+        # panel showed four rows under a headline stating k=3 -- CHK009_POOL_IDENTITY caught
+        # it on the artefact, and a reader would have met the same contradiction on the page.
+        # The entry stays on the object and its `nulled_note` says why; it is not listed here
+        # as though it contributed.
+        if t.get("nulled") or str(t.get("trial_id") or t.get("nct")
+                                  or t.get("id") or "").startswith("NULLED:"):
+            continue
         # Not every trial posts every symptom: induration is absent from three
         # of these registrations. A trial that does not report an outcome has no
         # row under it, and its absence is stated in the object's subgroup_note

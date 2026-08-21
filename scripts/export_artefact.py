@@ -121,6 +121,12 @@ def _pool_from_outcome(oid, res, outcome_def, omissions):
 
     panel_rows = []
     for t in per:
+        # A NULLED ENTRY IS NOT A CONTRIBUTING TRIAL AND MUST NOT BE COUNTED AS ONE.
+        # `finerenone-review` carries `NULLED:NCT01874431` in `per_trial` with a value while
+        # `k` is 3, so the panel showed four rows under a headline stating three --
+        # CHK009_POOL_IDENTITY, correctly. The entry stays on the object; it leaves the count.
+        if t.get("nulled") or str(t.get("trial_id") or t.get("nct") or "").startswith("NULLED:"):
+            continue
         panel_rows.append({
             "id": t.get("trial_id") or t.get("nct") or "?",
             "outcome": res.get("estimand_id") or oid,

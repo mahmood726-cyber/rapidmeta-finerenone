@@ -626,8 +626,13 @@ def forest_svg(res, outcome, window=None, bare=False):
     same projected estimates the table beside it prints, and the axis ticks,
     which are round scale marks plus the null value. Placing a number on a scale
     is a rendering transform; it originates nothing."""
+    # A NULLED ENTRY IS NOT PLOTTED. It is not counted in k, so plotting it drew a fourth
+    # point on a forest whose caption says three -- the same contradiction CHK009_POOL_IDENTITY
+    # found in the artefact, seen by a reader instead of by a gate.
     rows = [r for r in (res.get("per_trial") or [])
-            if r.get("point") and r.get("ci_low") and r.get("ci_high")]
+            if r.get("point") and r.get("ci_low") and r.get("ci_high")
+            and not (r.get("nulled") or str(r.get("trial_id") or r.get("nct")
+                                            or "").startswith("NULLED:"))]
     if not rows:
         return ""
     pooled = res.get("pooled") or {}
@@ -1727,7 +1732,9 @@ def forest_ranged(res, outcome, e, browser=None, workdir=None, outdir=None):
     # does not contain the data is DROPPED and said to be dropped, rather than
     # offered and quietly broken. Found by adversarial review.
     _rows = [r for r in (res.get("per_trial") or [])
-             if r.get("ci_low") and r.get("ci_high")]
+             if r.get("ci_low") and r.get("ci_high")
+             and not (r.get("nulled") or str(r.get("trial_id") or r.get("nct")
+                                             or "").startswith("NULLED:"))]
     _pool = res.get("pooled") or {}
     # Includes the null for the same reason forest_svg's range does, and it must
     # be the SAME range or the two disagree: a window could satisfy this check by

@@ -94,6 +94,10 @@ def included_studies(obj):
         if not isinstance(t, dict):
             continue
         nct = t.get("nct") or t.get("trial_id")
+        # A NULLED TRIAL IS NOT AN INCLUDED STUDY. It appeared in the reference list under
+        # "Included studies, by registration" on finerenone-review while k said three.
+        if t.get("nulled") or str(nct or "").startswith("NULLED:"):
+            continue
         if not nct or nct in seen:
             continue
         seen.add(nct)
