@@ -249,6 +249,40 @@ violation — proven able to fail before it was trusted. It states its own blind
 output: blocks whose stored house interval it cannot reproduce, and blocks rendering no
 sensitivity interval at all.
 
+**P56 — VERBATIM QUOTATION GUARANTEES FIDELITY TO THE TOOL, NOT FIDELITY TO THE METHOD.**
+
+This is the counterweight to the whole verbatim-quotation discipline, and it belongs beside it.
+
+> **Where the tool's default differs from the house convention, quoting faithfully publishes
+> the wrong number under the right name.**
+
+Limb 4 exists because a paraphrase of a fit can be shaped to a conclusion and a quotation
+cannot. That reasoning is sound and it has a blind spot: it protects the *numbers* from us and
+protects nothing from the *tool*. A machine's label is as unchecked as a field name — this is
+`field-name-is-not-an-address` arriving inside the one artefact the project treats as
+unimpeachable, and a verbatim block is trusted **because** it is verbatim, so nothing
+downstream ever asks whether the words above the numbers are true.
+
+Measured across all 32 stored `r_output` blocks, 233 labelled quantities checked:
+
+| finding | n |
+|---|---|
+| stored outputs printing metafor's **raw** knha interval labelled "Hartung-Knapp" | 6 |
+| stored outputs naming a **tau² estimator the object does not declare** | **10** |
+| of those ten, run at **k < 10, where this project's own rule forbids DL** | **10 of 10** |
+| blocks where the estimator mismatch shows through as a wrong τ² **and** I² | 4 |
+| `k` printed disagreeing with the `k` the object stores | 1 |
+
+Ten outputs print `DL` or `PM` while their objects declare **REML**, at k between 2 and 8.
+*Never use DL below k = 10* is a standing rule of this project, so those quotations publish
+both a **wrong label** and a **forbidden method**, faithfully.
+
+**The rule:** a stored verbatim output must reproduce every labelled quantity the object
+carries a field for, or the mismatch must be named beside it.
+`scripts/sweep_r_output_labels_reproduce.py --gate` enforces it. Rounding is not a mismatch —
+the band is five units in the last printed place — but an **integer** difference never is,
+because an ulp band at zero decimals would swallow the one `k` disagreement in the corpus.
+
 **P51 — EVERY CHECK IN THIS PROJECT TESTS THE POINT. NOTHING TESTS SPREAD OR PRECISION.**
 
 Stated as a gap, the way P47's failing case is stated, because anyone quoting an I-squared

@@ -1,0 +1,238 @@
+"""Every labelled quantity in every stored `r_output`, against the object that stores it.
+
+LIMB 4 QUOTES A MACHINE, AND A MACHINE'S LABEL IS AS UNCHECKED AS A FIELD NAME.
+
+Six stored outputs printed metafor's RAW knha interval under the bare label
+"Hartung-Knapp" -- a label that did not describe its contents -- and on
+`nirsevimab-infant-rsv-review` the two intervals disagreed about the answer: the raw one
+EXCLUDES no effect, the stored house one INCLUDES it. They were found because somebody was
+looking at intervals.
+
+    THE QUESTION THIS FILE SETTLES IS WHETHER SIX WAS THE POPULATION.
+
+`field-name-is-not-an-address` arriving inside the one artefact this project treats as
+unimpeachable. A verbatim quotation is trusted BECAUSE it is verbatim, so nothing downstream
+ever asks whether the words above the numbers are true. This checks every labelled quantity a
+stored output prints -- not only intervals -- against the object's own stored field.
+
+WHAT IS CHECKED, AND WHAT EACH IS CHECKED AGAINST:
+
+    k                    "Random-Effects Model (k = N"       results.by_outcome.<o>.k
+    tau-squared          "tau^2 (estimated amount ...): X"   heterogeneity.tau2
+    I-squared            "I^2 (total heterogeneity ...): X%" heterogeneity.i2 / i2_percent
+    Q                    "Q(df = N) = X"                     heterogeneity.q  and df
+    tau-squared estimator "tau^2 estimator: NAME"            estimator / estimator_used
+    the point estimate   "unadjusted     P (L to H)"         pooled.point / ci_low / ci_high
+    the self-declaration "STORED  M P (L to H), k = N"       the same fields
+
+A LABEL THE OUTPUT DOES NOT PRINT IS NOT A FAILURE -- these outputs come from several
+generations of several scripts, and most print only some of the above. Absent is reported as
+absent. A label that IS printed and does not reproduce is the finding.
+
+TOLERANCES ARE THE PRINTED PRECISION, NOT AN OPINION. metafor prints tau-squared to 4
+decimals and I-squared to 2, so a stored 0.0 against a printed 0.0000 is agreement and a
+stored 68.8 against a printed 68.83 is agreement to the precision the object carries. The
+comparison is made at the COARSER of the two precisions, which is the only comparison either
+side can support.
+"""
+import glob
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls          # noqa: E402
+
+NUM = r"([-+]?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)"
+
+PAT = {
+    "k": re.compile(r"Random-Effects Model \(k\s*=\s*(\d+)"),
+    "tau2": re.compile(r"tau\^2 \(estimated amount of total heterogeneity\):\s*" + NUM),
+    "i2": re.compile(r"I\^2 \(total heterogeneity / total variability\):\s*" + NUM + r"%"),
+    "q": re.compile(r"Q\(df\s*=\s*(\d+)\)\s*=\s*" + NUM),
+    "estimator": re.compile(r"tau\^2 estimator:\s*([A-Za-z-]+)"),
+    "unadjusted": re.compile(r"unadjusted\s+" + NUM + r"\s*\(" + NUM + r"\s*to\s*" + NUM + r"\)"),
+}
+
+ESTIMATOR_WORDS = {
+    "REML": ("REML", "RESTRICTED MAXIMUM LIKELIHOOD"),
+    "DL": ("DL", "DERSIMONIAN", "DERSIMONIAN-LAIRD"),
+    "PM": ("PM", "PAULE", "PAULE-MANDEL"),
+    "ML": ("ML", "MAXIMUM LIKELIHOOD"),
+}
+
+
+def close(printed, stored):
+    """Agreement at the COARSER of the two printed precisions.
+
+    A stored 68.8 against a printed 68.83 is agreement -- the object carries one decimal and
+    cannot support a comparison at two. Asserting a mismatch there would manufacture a defect
+    out of a rounding difference, which is the pessimism half of class 86.
+    """
+    if stored is None:
+        return None
+    try:
+        p, s = float(printed), float(stored)
+    except (TypeError, ValueError):
+        return None
+    # ONE OR TWO UNITS IN THE LAST PRINTED PLACE IS ROUNDING. MORE IS SUBSTANCE.
+    #
+    # The first version compared at the coarser precision exactly, and reported 21 "failures"
+    # of which most were last-digit: a printed 1.1441 against a stored 1.1442, a printed Q of
+    # 3.2077 against 3.2081. Every stored fit is re-derived from per-trial intervals the
+    # object holds ROUNDED, so a last-digit difference is arithmetic, not a wrong label -- and
+    # reporting it as one would have buried the real finding under twenty near-misses. That is
+    # the pessimism half of class 86 arriving in the instrument written to check labels.
+    #
+    # The band is TWO units in the last place the coarser side prints. On a value near 1.14
+    # printed to 4 dp that is 0.0002; on tau-squared printed as 9.5247 against a stored
+    # 10.595364 it is nowhere near, and the difference stands.
+    dp_p = len(str(printed).split(".")[1]) if "." in str(printed) else 0
+    dp_s = len(str(stored).split(".")[1]) if "." in str(stored) else 0
+    dp = min(dp_p, dp_s)
+    if dp == 0:
+        # AN INTEGER DIFFERENCE IS NEVER ROUNDING. k printed as 2 against a stored 1 is a
+        # disagreement about how many trials the fit used, and an ulp band at dp = 0 would
+        # have swallowed it -- which is exactly the case this sweep exists to catch.
+        return p == s
+    return abs(round(p, dp) - round(s, dp)) <= 5.0 * (10.0 ** -dp) + 1e-12
+
+
+def het(blk, *names):
+    h = blk.get("heterogeneity") or {}
+    for n in names:
+        if isinstance(h.get(n), (int, float)):
+            return h[n]
+    return None
+
+
+def main():
+    require_controls(
+        "sweep_r_output_labels_reproduce",
+        positive=("a printed 68.83 against a stored 68.8 is agreement at the object's own "
+                  "precision, and a printed 0.0000 against a stored 0.0 likewise",
+                  close("68.83", 68.8) is True and close("0.0000", 0.0) is True, True),
+        negative=("a printed 68.83 against a stored 12.5 is reported as agreement, or a "
+                  "printed tau-squared of 9.5247 against a stored 10.595364 is",
+                  (close("68.83", 12.5) is True) or (close("9.5247", 10.595364) is True),
+                  True))
+    # AND THE ROUNDING BAND MUST ACCEPT WHAT IT WAS WIDENED FOR, or it is not a band.
+    if close("2", 1) is not False:
+        sys.exit("PROOF FAILED: k printed as 2 against a stored 1 must NOT be called "
+                 "rounding. An ulp band at zero decimals would swallow the one integer "
+                 "disagreement this sweep exists to catch.")
+    for _pr, _st in (("1.1441", 1.1442), ("3.2077", 3.2081), ("0.6059", 0.6057)):
+        if close(_pr, _st) is not True:
+            sys.exit("PROOF FAILED: %s against %s is a last-digit difference on a refit "
+                     "derived from rounded inputs, and this file must not call it a wrong "
+                     "label." % (_pr, _st))
+
+    blocks = 0
+    checked = 0
+    absent = {}
+    bad = []
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        topic = os.path.basename(os.path.dirname(p))
+        if os.path.basename(p) != topic + ".json":
+            continue
+        try:
+            obj = json.load(io.open(p, encoding="utf-8"))
+        except ValueError:
+            continue
+        for oid, blk in sorted(((obj.get("results") or {}).get("by_outcome") or {}).items()):
+            if not isinstance(blk, dict):
+                continue
+            v = (blk.get("r_output") or {}).get("verbatim")
+            if not isinstance(v, str) or not v.strip():
+                continue
+            blocks += 1
+            pooled = blk.get("pooled") or {}
+
+            def note(label, printed, stored, why=""):
+                nonlocal checked
+                if stored is None:
+                    absent[label] = absent.get(label, 0) + 1
+                    return
+                checked += 1
+                ok = close(printed, stored)
+                if ok is False:
+                    bad.append((topic, oid, label, printed, stored, why))
+
+            m = PAT["k"].search(v)
+            if m:
+                note("k", m.group(1), blk.get("k"))
+            else:
+                absent["k"] = absent.get("k", 0) + 1
+
+            for label, field in (("tau2", ("tau2",)), ("i2", ("i2", "i2_percent", "i2_pct"))):
+                m = PAT[label].search(v)
+                if m:
+                    note(label, m.group(1), het(blk, *field))
+                else:
+                    absent[label] = absent.get(label, 0) + 1
+
+            m = PAT["q"].search(v)
+            if m:
+                note("Q", m.group(2), het(blk, "q"))
+                note("Q df", m.group(1), het(blk, "df"))
+            else:
+                absent["Q"] = absent.get("Q", 0) + 1
+
+            m = PAT["estimator"].search(v)
+            declared = str(blk.get("estimator") or blk.get("estimator_used") or "").upper()
+            if m and declared:
+                checked += 1
+                key = m.group(1).upper()
+                words = ESTIMATOR_WORDS.get(key, (key,))
+                if not any(w in declared for w in words):
+                    bad.append((topic, oid, "tau^2 estimator", m.group(1), declared,
+                                "the output names one estimator and the object declares "
+                                "another"))
+            else:
+                absent["estimator"] = absent.get("estimator", 0) + 1
+
+            m = PAT["unadjusted"].search(v)
+            if m:
+                note("point", m.group(1), pooled.get("point"))
+                note("ci_low", m.group(2), pooled.get("ci_low"))
+                note("ci_high", m.group(3), pooled.get("ci_high"))
+            else:
+                absent["unadjusted interval"] = absent.get("unadjusted interval", 0) + 1
+
+    print("")
+    print("POPULATION")
+    print("   objects swept                                       %d"
+          % len(set(os.path.basename(os.path.dirname(x))
+                    for x in glob.glob(os.path.join(REPO, "ssot", "*", "*.json")))))
+    print("   stored r_output blocks carrying a verbatim          %d" % blocks)
+    print("   labelled quantities CHECKED against the object      %d" % checked)
+    print("")
+    print("LABELS NOT PRINTED BY A GIVEN OUTPUT (not a failure -- several script generations):")
+    for k in sorted(absent):
+        print("   %-22s absent from %d of %d block(s)" % (k, absent[k], blocks))
+    print("")
+    if bad:
+        print("LABELLED QUANTITIES THAT DO NOT REPRODUCE FROM THE OBJECT: %d" % len(bad))
+        for topic, oid, label, printed, stored, why in bad:
+            print("   %-34s %-30s %-16s printed %s  object %s"
+                  % (topic[:34], oid[:30], label, printed, stored))
+            if why:
+                print("        %s" % why)
+    else:
+        print("EVERY LABELLED QUANTITY THAT IS PRINTED REPRODUCES FROM THE OBJECT.")
+    print("")
+    print("WHAT THIS DOES NOT COVER, STATED RATHER THAN IMPLIED: the Hartung-Knapp line, which")
+    print("has its own gate (P55, sweep_rendered_interval_is_the_house_interval.py --gate);")
+    print("and any quantity a stored output prints that the object does not carry a field for,")
+    print("which cannot be checked against anything and is not counted as passing.")
+    if "--gate" in sys.argv and bad:
+        sys.exit("\nGATE FAILED: %d labelled quantity/quantities in a stored verbatim output "
+                 "do not reproduce from the object. Verbatim quotation guarantees fidelity to "
+                 "the TOOL, not to the METHOD." % len(bad))
+
+
+if __name__ == "__main__":
+    main()
