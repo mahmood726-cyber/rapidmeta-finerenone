@@ -1,0 +1,622 @@
+"""agyw-hiv-prep-review and cab-prep-hiv-review: all four P46 limbs. Both were at 0 of 4.
+
+READ FROM THE REGISTRATIONS, ClinicalTrials.gov API v2, 2026-08-21. Two of the facts read
+there change what these pages can honestly claim, and neither was visible on the objects.
+
+    NCT01539226  ASPIRE / MTN-020   n=1959  RANDOMIZED  DOUBLE [PARTICIPANT, INVESTIGATOR]
+                 South Africa, Uganda            FEMALE, 18 to 45 years
+    NCT01617096  The Ring Study     n=2629  RANDOMIZED  DOUBLE [PARTICIPANT, INVESTIGATOR]
+                 Malawi, South Africa, Uganda, Zimbabwe   FEMALE, 18 to 45 years
+
+    NCT02720094  HPTN 083           n=4570  RANDOMIZED  QUADRUPLE [PARTICIPANT, CARE_PROVIDER,
+                 INVESTIGATOR, OUTCOMES_ASSESSOR]
+                 Argentina, Brazil, Peru, South Africa, Thailand, United States, Vietnam
+                 sex ALL, 18 years and over
+    NCT03164564  HPTN 084           n=3224  RANDOMIZED  QUADRUPLE (the same four roles)
+                 Botswana, Eswatini, Kenya, Malawi, South Africa, Uganda, Zimbabwe
+                 FEMALE, 18 to 45 years
+
+FIRST FINDING -- THIS TOPIC IS CALLED AGYW AND NEITHER TRIAL ENROLLED AN ADOLESCENT.
+"AGYW" is adolescent girls and young women. BOTH REGISTRATIONS SET A MINIMUM AGE OF 18
+YEARS. No girl under 18 was eligible for either trial, so the estimate cannot speak to the
+younger half of the population the topic names. This is not a subtlety recovered from a
+publication: it is on the eligibility module of both registrations, and nothing on the object
+said it. GRADE indirectness is rated down for it and the finding renders beside the estimate.
+
+SECOND FINDING -- THE CABOTEGRAVIR POOL IS ONLY HALF AN AFRICAN RESULT.
+HPTN 084 ran in SEVEN African countries in cisgender women. HPTN 083 ran in men who have sex
+with men and transgender women across SEVEN COUNTRIES OF WHICH ONE IS AFRICAN, and it
+contributes the larger weight. The pool therefore crosses BOTH population and region, and
+I-squared is 68.83%. A reader taking this page as evidence about African populations is
+taking half of it from a trial that was mostly not African and not in women.
+
+THIRD FINDING -- THE CLOSEST AGREEMENT WITH A PUBLISHED SYNTHESIS IN THE CORPUS, AND IT
+REFINES CLASS 82. Wang et al. 2023 (PMID 37498645) pool CAB-LA against TDF/FTC for
+prevention and report RR 0.21 (0.07 to 0.61), I-squared 70%, on EVENT COUNTS OF 17 AND 75.
+This object reports 0.2081 (0.0715 to 0.6057), I-squared 68.83%, on event counts of 17 and
+75. IDENTICAL EVENTS, AGREEING ESTIMATE. Their review states TWELVE trials to our two --
+seven of them prevention trials -- yet the contrast itself rests on the same events. THE
+STATED TRIAL COUNT AND THE CONTRIBUTING EVIDENCE ARE DIFFERENT THINGS, which is the
+strongest vindication yet of class 82's refusal to convert a count gap into named missing
+trials.
+
+FOURTH -- A CO-PRIMARY NEITHER TOPIC CARRIES. All four registrations register TWO primary
+outcomes, and on all four the second is SAFETY (adverse events). Neither review carries it.
+Under RoB 2 that is not a D5 selection problem -- the efficacy primary is unambiguous, so D5
+is LOW -- but it is a scope fact a reader is owed, and it is recorded as one.
+
+FIFTH -- ANALYSIS POPULATION, AGAIN UNSTATED (P48). Registered enrolment against the
+participants this object pools: ASPIRE 1959 v 1952, The Ring Study 2629 v 2626, HPTN 083
+4570 v 4561, HPTN 084 3224 v 3224. The differences are small and unsurprising for posted
+results, but NOT ONE OF THE FOUR NAMES ITS ANALYSIS POPULATION. That is four more for the
+30-of-34 count.
+
+NO STORED NUMBER IS CHANGED. Both fits were re-run through ssot/fit_from_per_trial.R and
+both reproduce the stored point to four decimal places; the R output is stored verbatim.
+"""
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import atomic_write
+
+TODAY = "2026-08-21"
+STAMP = TODAY.replace("-", "_")
+FITS = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "evidence",
+                    "africa_prep_fits_2026_08_21")
+
+CEILING = {
+    "statement": ("A domain that cannot be judged from the sources read is NO_INFORMATION, "
+                  "never LOW. Low-by-default asserts a fact; high-by-default invents a "
+                  "defect. Overall is capped at SOME_CONCERNS wherever a domain is "
+                  "NO_INFORMATION."),
+    "shape_note": ("A DICT, NOT A STRING -- paper_projector does ceil.get('statement'), and "
+                   "a bare string collapses the manuscript to a projector-failed banner "
+                   "(registry class 70)."),
+}
+
+D1 = {"judgement": "LOW", "basis": "REGISTRATION DESIGN MODULE, READ",
+      "reason": "allocation is recorded as RANDOMIZED on the design module.",
+      "what_is_NOT_established": (
+          "The concealment MECHANISM is not on the registry and no publication was read. LOW "
+          "is scored on the recorded allocation, not on a mechanism nobody here has seen.")}
+D2 = {"judgement": "NO_INFORMATION",
+      "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+      "reason": ("Deviations from the intended intervention, and the analysis population "
+                 "actually used, are not on the registration. ADHERENCE IS THE WHOLE STORY "
+                 "IN PrEP TRIALS and it is exactly what this domain would test, so the "
+                 "absence matters more here than on most topics.")}
+D3 = {"judgement": "NO_INFORMATION",
+      "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+      "reason": ("Neither registration states how many participants were missing from the "
+                 "analysed population or how they were handled. The posted-results counts "
+                 "this object pools are 3 to 9 lower than registered enrolment on three of "
+                 "the four trials, and nothing read explains the difference.")}
+
+D5_LOW = {
+    "judgement": "LOW",
+    "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
+    "reason": ("TWO primary outcomes are registered, but the second is SAFETY -- adverse "
+               "events -- not a competing measure of efficacy. There is no set of efficacy "
+               "endpoints to choose between, so the selection concern found on gepotidacin "
+               "and inclisiran cannot arise here. RECORDED SEPARATELY AND NOT SCORED: this "
+               "review does not carry the registered safety co-primary at all."),
+}
+
+SPEC = {
+    "agyw-hiv-prep-review": {
+        "outcome": "primary",
+        "trials": {"NCT01539226": ("ASPIRE / MTN-020", 1959, 1952),
+                   "NCT01617096": ("The Ring Study", 2629, 2626)},
+        "masking": ("DOUBLE -- participant and investigator; THE OUTCOMES ASSESSOR IS NOT "
+                    "AMONG THE MASKED ROLES"),
+        "result": ("HIV-1 seroconversion determined by a comprehensive HIV testing "
+                   "algorithm -- the EFFICACY primary of two registered primaries"),
+        "d4": {"judgement": "LOW",
+               "basis": "THE REGISTERED ENDPOINT DEFINITION AND THE MASKED ROLES TOGETHER",
+               "reason": (
+                   "The outcome is HIV-1 seroconversion determined by a LABORATORY TESTING "
+                   "ALGORITHM, not by a rater's judgement, so an unmasked assessor has "
+                   "essentially nothing to decide. STATED PLAINLY BECAUSE IT CUTS THE OTHER "
+                   "WAY ON A SISTER TOPIC: the outcomes assessor is NOT among the masked "
+                   "roles here -- masking is DOUBLE -- and LOW rests on the endpoint being "
+                   "an algorithmic determination, NOT on masking. Where the endpoint carries "
+                   "a judgement and the assessor is unmasked, this project scores "
+                   "SOME_CONCERNS.")},
+        "overall": "SOME_CONCERNS",
+        "overall_reason": (
+            "D1, D4 and D5 LOW on read registrations; D2 and D3 NO_INFORMATION. Under RoB 2 "
+            "an unjudgeable domain cannot yield LOW overall. On a PrEP trial the unjudgeable "
+            "domain is adherence, which is the mechanism the effect depends on."),
+        "grade": {
+            "certainty": "LOW",
+            "steps": [
+                {"domain": "risk_of_bias", "move": "HIGH to MODERATE, down 1 level(s)",
+                 "reason": ("Both results are SOME_CONCERNS. D1, D4 and D5 are LOW on read "
+                            "registrations, but D2 and D3 are NO_INFORMATION and on a PrEP "
+                            "trial those are the adherence and attrition domains -- the ones "
+                            "that decide whether an intention-to-treat ring effect reflects "
+                            "the drug or its use.")},
+                {"domain": "inconsistency", "move": "no downgrade",
+                 "reason": ("tau-squared is EXACTLY ZERO, Q 0.1535 on 1 df, p = 0.6952, "
+                            "I-squared 0.00%. The two intervals -- 0.6711 (0.4884 to 0.9221) "
+                            "and 0.7320 (0.5442 to 0.9845) -- agree in size and in "
+                            "conclusion. Downgrading here would manufacture a caution the "
+                            "numbers do not support.")},
+                {"domain": "indirectness", "move": "MODERATE to LOW, down 1 level(s)",
+                 "reason": (
+                     "THIS TOPIC IS NAMED FOR ADOLESCENT GIRLS AND YOUNG WOMEN AND NEITHER "
+                     "TRIAL ENROLLED AN ADOLESCENT. Both registrations set a MINIMUM AGE OF "
+                     "18 YEARS (NCT01539226 and NCT01617096, eligibility module, both 18 to "
+                     "45 years, FEMALE). The estimate is therefore indirect for the younger "
+                     "half of the named population, in whom adherence to a vaginal ring is "
+                     "the very thing in question. THE SETTING IS NOT THE PROBLEM: the trials "
+                     "ran in South Africa, Uganda, Malawi and Zimbabwe, which is directly "
+                     "the population of interest by region.")},
+                {"domain": "imprecision", "move": "LOW to VERY LOW -- WARRANTED AND NOT "
+                                                  "APPLIED, see reason",
+                 "reason": (
+                     "k = 2. The Hartung-Knapp interval is RR 0.7030 (0.4054 to 1.2191) on "
+                     "t = 12.7062 with 1 df AND IT INCLUDES NO DIFFERENCE, where the "
+                     "unadjusted interval excludes it. A downgrade is warranted on that "
+                     "alone. IT IS NOT APPLIED, and the reason is stated rather than hidden: "
+                     "at k = 2 the t critical value is 12.7062 and ONLY A VERY LARGE EFFECT "
+                     "SURVIVES HARTUNG-KNAPP AT ALL, so the adjusted interval at this k is "
+                     "weak evidence of imprecision in either direction. The rating is left "
+                     "at LOW and the disagreement is disclosed to the reader instead.")},
+                {"domain": "publication_bias", "move": "NOT ASSESSABLE -- no rating applied",
+                 "reason": ("k = 2. A funnel plot and its asymmetry tests have essentially "
+                            "no power below about ten trials (Handbook 13.3.5.4), so this is "
+                            "NOT ASSESSABLE rather than 'undetected'.")},
+            ],
+            "summary": (
+                "LOW certainty. The two trials agree closely and ran in the right countries, "
+                "so the downgrades are for the unread adherence and attrition domains and "
+                "for a population mismatch the topic's own name conceals: NEITHER TRIAL "
+                "ENROLLED ANYONE UNDER 18."),
+        },
+        "screen": {
+            "query": ('(dapivirine[tiab] OR "vaginal ring"[tiab]) AND (HIV[tiab]) AND '
+                      '(meta-analysis[pt] OR "systematic review"[pt] OR meta-analysis[tiab] '
+                      'OR pooled[tiab])'),
+            "denom": {"matched": 8, "retrieved": 8, "read": 8, "appraised": 0,
+                      "flagged_by_title": 5, "not_returned_by_the_tool": 0},
+            "reviews": [],
+            "finding": {
+                "a_no_published_pool_of_these_two_trials_was_found_in_this_screen": (
+                    "NO PUBLISHED SYNTHESIS POOLING THE EFFICACY OF THESE TWO TRIALS WAS "
+                    "FOUND. Eight records matched, eight were read, FIVE were flagged by "
+                    "title as syntheses, and every one of the five is about something else: "
+                    "ring ADHERENCE (PMID 42149895, PMID 40709072), ring ACCEPTABILITY (PMID "
+                    "34644609), and PREGNANCY AND NEONATAL OUTCOMES under PrEP (PMID "
+                    "38685925, PMID 35187529). NONE POOLS HIV SEROCONVERSION ACROSS ASPIRE "
+                    "AND THE RING STUDY. Absence here is absence FROM THIS SCREEN of eight "
+                    "records, not from the literature."),
+                "b_what_that_does_and_does_not_license": (
+                    "It does NOT license calling this pool novel. One query on one database "
+                    "was run and no included-study table was opened anywhere. What it "
+                    "licenses is the narrow statement that this screen found no comparator, "
+                    "so THIS TOPIC HAS NO EXTERNAL CHECK ON ITS ESTIMATE and the reader "
+                    "should treat it as unreplicated here."),
+                "c_and_the_breadth_question_cannot_be_asked_here": (
+                    "Class 82 compares our trial count with a published one. WITH NO "
+                    "PUBLISHED COUNT THERE IS NOTHING TO COMPARE, so this topic joins the "
+                    "nine of eighteen whose appraised comparison states no trial count -- "
+                    "not the four where ours is lower. It is neither evidence for nor "
+                    "against the breadth deficit."),
+            },
+        },
+        "pool_findings": {
+            "a_neither_trial_enrolled_an_adolescent": (
+                "READ THIS BESIDE THE ESTIMATE. This review is named for ADOLESCENT GIRLS "
+                "AND YOUNG WOMEN. BOTH CONTRIBUTING TRIALS SET A MINIMUM AGE OF 18 YEARS on "
+                "their registrations -- NCT01539226 and NCT01617096, both FEMALE, both 18 to "
+                "45 years. NO PARTICIPANT UNDER 18 WAS ELIGIBLE FOR EITHER TRIAL. The "
+                "estimate does not speak to adolescent girls, and GRADE indirectness is "
+                "rated down for it."),
+            "b_the_countries_are_right_even_though_the_ages_are_not": (
+                "Stated so the caution is not read wider than it is. ASPIRE ran in South "
+                "Africa and Uganda; The Ring Study ran in Malawi, South Africa, Uganda and "
+                "Zimbabwe. BY REGION THIS IS DIRECTLY THE POPULATION OF INTEREST. The "
+                "indirectness is about AGE ALONE."),
+            "c_the_effect_does_not_survive_the_small_sample_adjustment_and_that_cuts_both_ways": (
+                "The unadjusted interval is RR 0.7030 (0.5660 to 0.8731) and EXCLUDES no "
+                "difference. This project's Hartung-Knapp interval at k = 2 is 0.4054 to "
+                "1.2191 and INCLUDES it. THE HONEST READING OF THAT IS NARROW: at k = 2 the "
+                "t critical value is 12.7062 and almost nothing survives the adjustment, so "
+                "this is much weaker evidence against the result than the same disagreement "
+                "would be at larger k. It is disclosed because a reader is entitled to both "
+                "intervals, not because it overturns the estimate."),
+            "d_no_external_check_exists_for_this_estimate": (
+                "A screen of eight records found NO published synthesis pooling HIV "
+                "seroconversion across these two trials -- the five flagged syntheses are "
+                "about adherence, acceptability and pregnancy outcomes. THIS ESTIMATE IS "
+                "UNREPLICATED so far as this project has looked."),
+            "e_a_registered_safety_co_primary_is_not_carried": (
+                "Both registrations register adverse events as a SECOND PRIMARY OUTCOME. "
+                "This review carries only the efficacy primary. That is a scope fact, not a "
+                "defect in the estimate, and it is recorded so a reader does not read this "
+                "page as a benefit-and-harm summary."),
+        },
+        "question_repair": {
+            "was": ("Dapivirine vaginal ring versus placebo ring for HIV prevention in women "
+                    "versus placebo vaginal ring on HIV-1 seroconversion?"),
+            "now": ("Does a dapivirine vaginal ring reduce HIV-1 seroconversion compared "
+                    "with a placebo vaginal ring in women?"),
+            "why": ("The delivered question named the comparator TWICE in one sentence -- "
+                    "'versus placebo ring ... versus placebo vaginal ring' -- which reads as "
+                    "a three-way contrast that this object does not carry. A malformed "
+                    "sentence, not a changed number: the contrast, the trials and every "
+                    "value are untouched."),
+        },
+    },
+
+    "cab-prep-hiv-review": {
+        "outcome": "primary",
+        "trials": {"NCT02720094": ("HPTN 083", 4570, 4561),
+                   "NCT03164564": ("HPTN 084", 3224, 3224)},
+        "masking": ("QUADRUPLE -- participant, care provider, investigator AND OUTCOMES "
+                    "ASSESSOR"),
+        "result": ("documented incident HIV infection -- the EFFICACY primary of two "
+                   "registered primaries"),
+        "d4": {"judgement": "LOW",
+               "basis": "REGISTRATION DESIGN MODULE, READ",
+               "reason": (
+                   "Masking is QUADRUPLE on both registrations and the OUTCOMES ASSESSOR IS "
+                   "EXPLICITLY AMONG THE MASKED ROLES. The endpoint is a documented "
+                   "laboratory-confirmed infection, so BOTH the endpoint's nature and the "
+                   "masking point the same way. Note for identity: HPTN 083 registers its "
+                   "arms as 'Arm A' and 'Arm B', BOTH TYPED EXPERIMENTAL, so the comparator "
+                   "identity is NOT established from that design module -- it is established "
+                   "from HPTN 084, which types its TDF/FTC arm ACTIVE_COMPARATOR, and from "
+                   "this object's own recorded contrast.")},
+        "overall": "SOME_CONCERNS",
+        "overall_reason": (
+            "D1, D4 and D5 LOW on read registrations; D2 and D3 NO_INFORMATION. The "
+            "unjudgeable domains are adherence and attrition, and in a trial whose whole "
+            "premise is that an INJECTION is adhered to better than a DAILY PILL, the "
+            "adherence domain is not a formality -- it is the mechanism of the effect."),
+        "grade": {
+            "certainty": "LOW",
+            "steps": [
+                {"domain": "risk_of_bias", "move": "HIGH to MODERATE, down 1 level(s)",
+                 "reason": ("Both results are SOME_CONCERNS. Randomised, quadruple-masked "
+                            "including the outcomes assessor, single unambiguous efficacy "
+                            "primary -- but D2 and D3 are NO_INFORMATION, and the comparator "
+                            "arm here is a DAILY ORAL PILL whose adherence is precisely what "
+                            "the unread domain would describe.")},
+                {"domain": "inconsistency", "move": "MODERATE to LOW, down 1 level(s)",
+                 "reason": ("tau-squared 0.4178, Q 3.2077 on 1 df, p = 0.0733, I-squared "
+                            "68.83%. At k = 2 the statistic is weak evidence on its own, but "
+                            "it does not stand on its own here: THE TWO TRIALS ARE IN "
+                            "DIFFERENT POPULATIONS. 0.3335 (0.1785 to 0.6230) in men who "
+                            "have sex with men and transgender women, and 0.1108 (0.0395 to "
+                            "0.3107) in cisgender women. A named reason for the spread is "
+                            "stronger than the statistic.")},
+                {"domain": "indirectness", "move": "LOW to VERY LOW, down 1 level(s)",
+                 "reason": (
+                     "THE POOL CROSSES BOTH POPULATION AND REGION. HPTN 084 ran in SEVEN "
+                     "African countries in FEMALE participants. HPTN 083 ran in men who have "
+                     "sex with men and transgender women across Argentina, Brazil, Peru, "
+                     "South Africa, Thailand, the United States and Vietnam -- SEVEN "
+                     "COUNTRIES OF WHICH ONE IS AFRICAN -- and it is the larger and more "
+                     "precisely estimated of the two. A single ratio assembled across those "
+                     "two is not a quantity that answers either question cleanly.")},
+                {"domain": "imprecision", "move": "VERY LOW -- already at the floor, no "
+                                                  "further downgrade applied",
+                 "reason": ("k = 2. The Hartung-Knapp interval is RR 0.2081 (0.0002 to "
+                            "212.2504) on t = 12.7062 with 1 df, which carries no "
+                            "information at all. The rating cannot fall below VERY LOW, so "
+                            "this domain is recorded as warranting a downgrade the scale "
+                            "cannot express. THE UNADJUSTED INTERVAL, 0.0715 to 0.6057, "
+                            "still excludes no difference by a wide margin.")},
+                {"domain": "publication_bias", "move": "NOT ASSESSABLE -- no rating applied",
+                 "reason": "k = 2. Handbook 13.3.5.4.",
+                 },
+            ],
+            "summary": (
+                "LOW certainty, and the reason is not the size of the effect -- which is "
+                "large, consistent in direction, and reproduced exactly by a published "
+                "synthesis. It is that TWO TRIALS IN TWO DIFFERENT POPULATIONS ACROSS TWO "
+                "REGIONS have been combined into one ratio, with I-squared 68.83%, and that "
+                "the adherence domain both trials turn on was not read."),
+        },
+        "screen": {
+            "query": ('(cabotegravir[tiab]) AND (prophylaxis[tiab] OR PrEP[tiab] OR '
+                      'prevention[tiab]) AND (meta-analysis[pt] OR "systematic review"[pt] '
+                      'OR meta-analysis[tiab] OR pooled[tiab])'),
+            "denom": {"matched": 46, "retrieved": 46, "read": 46, "appraised": 1,
+                      "flagged_by_title": 8, "not_returned_by_the_tool": 0},
+            "reviews": [{
+                "pmid": "37498645", "year": 2023,
+                "journal": "JMIR Public Health and Surveillance",
+                "title": ("Safety and Efficacy of Long-Acting Injectable Agents for HIV-1: "
+                          "Systematic Review and Meta-Analysis"),
+                "trial_set": ["NOT NAMED -- twelve trials, of which seven are prevention "
+                              "trials; 10,957 individuals in total"],
+                "trial_set_basis": ("NOT READ. The abstract names none of its included "
+                                    "studies, so which trials it carries is COUNTED AND NOT "
+                                    "IDENTIFIED. BUT SEE THE EVENT COUNTS BELOW, which "
+                                    "establish that the CAB-LA prevention contrast rests on "
+                                    "the same events as ours."),
+                "design": ("systematic review and meta-analysis; PubMed, Embase and the "
+                           "Cochrane Library to 12 November 2022; protocol registered on "
+                           "the Open Science Framework"),
+                "n_pooled": 10957,
+                "outcome_pooled": ("HIV-1 infection under CAB-LA versus tenofovir disoproxil "
+                                   "fumarate-emtricitabine, plus safety and treatment "
+                                   "outcomes not comparable to this object"),
+                "estimate_quoted": (
+                    "Quoted: 'CAB-LA had a better effect on HIV-1 prevention than tenofovir "
+                    "disoproxil fumarate-emtricitabine (17/5161, 0.33% vs 75/5129, 1.46%; "
+                    "RR 0.21, 95% CI 0.07-0.61; I2=70%).'"),
+                "comparable_to_ours": True,
+                "agreement": (
+                    "AGREES, AND MORE CLOSELY THAN ANY OTHER COMPARISON IN THIS CORPUS. "
+                    "Theirs RR 0.21 (0.07 to 0.61), I-squared 70%, on 17 and 75 events. Ours "
+                    "RR 0.2081 (0.0715 to 0.6057), I-squared 68.83%, on 13 + 4 = 17 and "
+                    "39 + 36 = 75 events. THE EVENT COUNTS ARE IDENTICAL."),
+            }],
+            "finding": {
+                "a_a_published_synthesis_reproduces_this_estimate_on_identical_event_counts": (
+                    "THE CLOSEST AGREEMENT WITH A PUBLISHED SYNTHESIS ANYWHERE IN THIS "
+                    "CORPUS. Wang et al., JMIR Public Health and Surveillance 2023, PMID "
+                    "37498645, report CAB-LA versus TDF/FTC for prevention as RR 0.21 (95% "
+                    "CI 0.07 to 0.61), I-squared 70%, on 17 events of 5,161 against 75 of "
+                    "5,129. This object reports RR 0.2081 (0.0715 to 0.6057), I-squared "
+                    "68.83%, on 13 + 4 = 17 events against 39 + 36 = 75. THE EVENT COUNTS "
+                    "ARE THE SAME NUMBERS."),
+                "b_but_their_participant_denominators_are_larger_than_ours": (
+                    "THE ONE PLACE THE TWO DIFFER. They pool 5,161 and 5,129 participants; "
+                    "this object pools 3,894 and 3,891 -- about 1,250 more per arm on their "
+                    "side, CONTRIBUTING NO EVENTS. Nothing read explains where those "
+                    "participants come from; the candidates are a wider analysis population "
+                    "on the same two trials, or a further prevention trial with zero "
+                    "infections. WHICH IT IS HAS NOT BEEN ESTABLISHED and no included-study "
+                    "table was opened."),
+                "c_this_is_the_sharpest_test_class_82_has_had_and_it_passes": (
+                    "Their review states TWELVE trials -- seven of them prevention trials -- "
+                    "against this object's TWO. On the stated count alone that is the "
+                    "largest gap in the corpus. YET THE CONTRAST ITSELF RESTS ON THE SAME "
+                    "SEVENTEEN AND SEVENTY-FIVE EVENTS. A STATED TRIAL COUNT AND THE "
+                    "EVIDENCE CONTRIBUTING TO A PARTICULAR CONTRAST ARE DIFFERENT THINGS, "
+                    "and this topic is the proof. It is why class 82 reports 'ours lower' "
+                    "and 'trials identified' as SEPARATE states, and why the four "
+                    "count-only topics are worded as a difference in stated counts and "
+                    "nothing more."),
+                "d_what_the_agreement_does_not_certify": (
+                    "That the pool is a good idea. The two trials are in DIFFERENT "
+                    "POPULATIONS across DIFFERENT REGIONS and I-squared is 68.83%. A second "
+                    "team reaching the same number from the same events does not make the "
+                    "combination appropriate -- it makes the arithmetic checked. GRADE "
+                    "certainty here is LOW and indirectness is rated down."),
+            },
+        },
+        "pool_findings": {
+            "a_only_one_of_these_two_trials_is_an_african_result": (
+                "READ THIS BESIDE THE ESTIMATE. HPTN 084 (NCT03164564) ran in BOTSWANA, "
+                "ESWATINI, KENYA, MALAWI, SOUTH AFRICA, UGANDA AND ZIMBABWE, in cisgender "
+                "women. HPTN 083 (NCT02720094) ran in ARGENTINA, BRAZIL, PERU, SOUTH AFRICA, "
+                "THAILAND, THE UNITED STATES AND VIETNAM, in men who have sex with men and "
+                "transgender women -- ONE AFRICAN COUNTRY OF SEVEN -- and it carries the "
+                "larger weight in this pool. A reader taking this page as evidence about "
+                "African populations is taking half of it from a trial that was mostly not "
+                "African and not in women."),
+            "b_the_heterogeneity_has_a_name": (
+                "I-squared is 68.83% with tau-squared 0.4178. At k = 2 that statistic proves "
+                "little by itself, BUT IT DOES NOT STAND BY ITSELF: the two estimates are "
+                "0.3335 (0.1785 to 0.6230) in one population and 0.1108 (0.0395 to 0.3107) "
+                "in the other, and the populations differ by sex, by risk route and by "
+                "region. The spread has a named cause rather than an unexplained one."),
+            "c_a_published_synthesis_reproduces_this_number_exactly": (
+                "Wang et al. 2023 (PMID 37498645) report RR 0.21 (0.07 to 0.61), I-squared "
+                "70%, on 17 and 75 events. This object reports 0.2081 (0.0715 to 0.6057), "
+                "I-squared 68.83%, ON THE SAME 17 AND 75 EVENTS. The arithmetic here has an "
+                "independent external check and it passes -- which is a statement about the "
+                "computation, not about whether the two trials should have been combined."),
+            "d_a_registered_safety_co_primary_is_not_carried": (
+                "Both registrations register grade 2 or higher adverse events as a SECOND "
+                "PRIMARY OUTCOME. This review carries only the efficacy primary, so this "
+                "page is not a benefit-and-harm summary."),
+        },
+    },
+}
+
+
+def main():
+    dry = "--apply" not in sys.argv
+    for topic, spec in sorted(SPEC.items()):
+        path = os.path.join(REPO, "ssot", topic, topic + ".json")
+        obj = json.load(io.open(path, encoding="utf-8"))
+        blk = ((obj.get("results") or {}).get("by_outcome") or {}).get(spec["outcome"])
+        if not isinstance(blk, dict):
+            sys.exit("REFUSED: %s has no `%s` result block." % (topic, spec["outcome"]))
+        declared = [d.get("id") for d in (obj.get("outcomes") or []) if isinstance(d, dict)]
+        if spec["outcome"] not in declared:
+            sys.exit("REFUSED: `%s` is not declared on %s, so anything attached to it would "
+                     "not render." % (spec["outcome"], topic))
+        carried = set(t.get("nct") for t in (blk.get("per_trial") or []) if isinstance(t, dict))
+        for n in spec["trials"]:
+            if n not in carried:
+                sys.exit("REFUSED: %s is not carried by %s (%r)" % (n, topic, sorted(carried)))
+
+        # ---- limb 1: risk of bias, per result ------------------------------------------
+        per_result = {}
+        for nct, (name, registered, pooled_n) in sorted(spec["trials"].items()):
+            per_result[nct] = {
+                "nct": nct, "trial": name,
+                "registered_enrolment": registered,
+                "participants_this_object_pools": pooled_n,
+                "enrolment_minus_pooled": registered - pooled_n,
+                "registered_masking": spec["masking"],
+                "result_assessed": spec["result"],
+                "domains": {
+                    "D1_randomisation_process": D1,
+                    "D2_deviations_from_intended_intervention": D2,
+                    "D3_missing_outcome_data": D3,
+                    "D4_measurement_of_the_outcome": spec["d4"],
+                    "D5_selection_of_the_reported_result": D5_LOW,
+                },
+                "overall": spec["overall"],
+                "overall_reason": spec["overall_reason"],
+            }
+        atomic_write.merge_not_overwrite(obj, "risk_of_bias", {
+            "tool": "RoB 2 (Cochrane risk-of-bias tool for randomized trials)",
+            "assessed_utc": TODAY,
+            "assessed_per": "RESULT, not trial -- Handbook 8.2",
+            "by_outcome": {spec["outcome"]: per_result},
+            "sources_read": [
+                "ClinicalTrials.gov API v2 %s -- design module, eligibility module, arm "
+                "groups and registered primary outcomes" % n for n in sorted(spec["trials"])],
+            "sources_NOT_read": (
+                "The trial publications. D2 and D3 are the domains that depend on them, and "
+                "both are NO_INFORMATION for that reason."),
+            "ceiling": CEILING,
+            "analysis_population_NOT_stated": (
+                "NEITHER REGISTRATION NAMES THE ANALYSIS POPULATION FOR THE POOLED RESULT. "
+                "Registered enrolment against participants pooled: " +
+                "; ".join("%s %d v %d" % (v[0], v[1], v[2])
+                          for v in sorted(spec["trials"].values())) +
+                ". P48 -- estimand_established certifies MEASUREMENT, not the population the "
+                "measurement was taken in."),
+            "registered_co_primary_not_carried": (
+                "BOTH registrations register TWO primary outcomes and on both the second is "
+                "SAFETY. This review carries only the efficacy primary. Recorded as scope, "
+                "not scored as D5 selection, because there is no competing EFFICACY endpoint "
+                "to have chosen between."),
+            "ONE_ASSESSOR_ONLY": (
+                "ASSESSED BY ONE ASSESSOR. Under the standing specification that risk of "
+                "bias 2 must be complete and done by TWO AIs from different model families, "
+                "THIS ASSESSMENT IS INCOMPLETE. It is recorded as such rather than presented "
+                "as finished, and `rob2.assessors` is deliberately NOT written."),
+        }, STAMP)
+
+        # ---- limb 2: GRADE, per pooled outcome -----------------------------------------
+        g = spec["grade"]
+        atomic_write.merge_not_overwrite(obj, "grade", {
+            "approach": ("GRADE, following the Cochrane Handbook chapter 14. Randomised "
+                         "evidence starts HIGH and is rated down with reasons."),
+            "assessed_utc": TODAY,
+            "by_outcome": {spec["outcome"]: {
+                "k": 2, "starting_certainty": "HIGH",
+                "certainty": g["certainty"],
+                "steps": g["steps"],
+                "summary": g["summary"],
+                "rating_up_not_applied": (
+                    "No domain is rated UP. Rating up for a large effect, a dose-response "
+                    "gradient or opposing plausible confounding applies to observational "
+                    "evidence; these are randomised trials, which start HIGH."),
+            }},
+        }, STAMP)
+
+        # ---- limb 3: published comparison, with a denominator --------------------------
+        sc = spec["screen"]
+        d = dict(sc["denom"])
+        d["_house_form"] = (
+            "matched / retrieved / read / appraised / not returned -- P53. %d flagged by "
+            "title; %d appraised against the abstract and every other record NOT READ beyond "
+            "its title and summary."
+            % (d["flagged_by_title"], d["appraised"]))
+        atomic_write.merge_not_overwrite(obj, "published_comparison", {
+            "_why": "P46 limb 3.",
+            "_how_identified": (
+                "PubMed E-utilities esearch + esummary, executed %s. Query, counts and "
+                "per-record disposition in ssot/%s/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json."
+                % (TODAY, topic)),
+            "denominator": d,
+            "identity_basis": (sc["reviews"][0]["trial_set_basis"] if sc["reviews"] else
+                               "NOT APPLICABLE -- no comparable synthesis was found, so there "
+                               "is no trial set to have identified."),
+            "reviews": sc["reviews"],
+            "THE_FINDING_OF_THIS_COMPARISON_%s" % STAMP:
+                " ".join(sc["finding"][k] for k in sorted(sc["finding"])),
+        }, STAMP)
+
+        # ---- limb 4: model output, verbatim --------------------------------------------
+        fit = os.path.join(FITS, topic + ".txt")
+        if not os.path.exists(fit):
+            sys.exit("REFUSED: no stored R output at %s. Limb 4 is the VERBATIM output of "
+                     "the fit; composing a summary of a run whose text was not kept is "
+                     "exactly the failure this limb exists to prevent." % fit)
+        text = io.open(fit, encoding="utf-8").read()
+        if "AGREES WITH THE STORED POINT TO 4 dp: YES" not in text:
+            sys.exit("REFUSED: the stored fit for %s does not record agreement with the "
+                     "stored point. A refit that does not reproduce the delivered number is "
+                     "a finding, not a limb to tick." % topic)
+        atomic_write.merge_not_overwrite(obj, "model_output", {
+            "_why": "P46 limb 4 -- the model output as the software printed it.",
+            "engine": "R 4.6.0 with metafor 5.0.1",
+            "script": "ssot/fit_from_per_trial.R",
+            "invocation": "Rscript ssot/fit_from_per_trial.R %s %s" % (topic, spec["outcome"]),
+            "run_utc": TODAY,
+            "inputs_note": (
+                "yi = log(point) and sei = (log(hi) - log(lo)) / (2 * 1.959964), derived from "
+                "the per-trial intervals THIS OBJECT ALREADY CARRIES. No new extraction."),
+            "reproduces_the_stored_point_to_4dp": True,
+            "stored_at": "evidence/africa_prep_fits_2026_08_21/%s.txt" % topic,
+            "verbatim": text,
+        }, STAMP)
+
+        # ---- render the findings beside the estimate -----------------------------------
+        prior = blk.get("POOL_FINDINGS_%s" % STAMP) or {}
+        prior.update(spec["pool_findings"])
+        blk["POOL_FINDINGS_%s" % STAMP] = prior
+
+        if spec.get("question_repair"):
+            qr = spec["question_repair"]
+            if obj.get("question") != qr["was"]:
+                sys.exit("REFUSED: %s's question is not the string this repair was written "
+                         "against. Repairing a sentence that has since changed would "
+                         "overwrite somebody else's edit.\n  expected: %r\n  found:    %r"
+                         % (topic, qr["was"], obj.get("question")))
+            obj["question"] = qr["now"]
+            obj.setdefault("display_change_announced", []).append({
+                "date": TODAY,
+                "change": "the displayed question named its comparator twice; repaired",
+                "values_moved": "NONE",
+                "what_changed": "was %r; now %r" % (qr["was"], qr["now"]),
+                "why": qr["why"],
+            })
+
+        obj.setdefault("display_change_announced", []).append({
+            "date": TODAY,
+            "change": "all four P46 limbs written; this topic was at 0 of 4",
+            "values_moved": "NONE",
+            "what_changed": ("risk of bias on %d results; GRADE %s on the pooled outcome; a "
+                             "published comparison over %d matched records; the R output "
+                             "stored verbatim and reproducing the stored point to 4 dp"
+                             % (len(spec["trials"]), g["certainty"], d["matched"])),
+            "why": "Every limb was ABSENT.",
+        })
+
+        print("%-24s rob %d results / GRADE %-8s / comparison %d matched, %d appraised / "
+              "fit reproduces"
+              % (topic, len(spec["trials"]), g["certainty"], d["matched"], d["appraised"]))
+
+        if not dry:
+            screen = os.path.join(REPO, "ssot", topic, "appraisal",
+                                  "PUBLISHED_SYNTHESIS_SCREEN.json")
+            os.makedirs(os.path.dirname(screen), exist_ok=True)
+            atomic_write.write_json(screen, {
+                "executed_utc": TODAY,
+                "source": "PubMed E-utilities esearch + esummary",
+                "query_as_executed": sc["query"],
+                "matched": d["matched"], "retrieved": d["retrieved"], "read": d["read"],
+                "flagged_by_title": d["flagged_by_title"],
+                "appraised": [r["pmid"] for r in sc["reviews"]],
+                "not_returned_by_the_tool": 0,
+                "_honesty": ("%d record(s) appraised against the abstract; every other "
+                             "title-flagged record and every unflagged summary NOT READ "
+                             "beyond its title. No included-study table was opened."
+                             % d["appraised"]),
+            }, indent=1)
+            atomic_write.write_json(path, obj, indent=1)
+    if dry:
+        print("DRY RUN -- pass --apply to write")
+
+
+if __name__ == "__main__":
+    main()

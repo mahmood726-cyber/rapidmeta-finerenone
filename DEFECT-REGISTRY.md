@@ -3954,6 +3954,56 @@ decision, and the one nameable case — CANVAS — is a decision about `sglt2-ma
 specifically.*
 
 
+## Class 83 — WE SPENT THE RUN WRITING LIMB 3 AND DELIVERED IT TO NOBODY
+
+**A reader met a table headed `Citation | PMID | Their k | Scope | How it differs from ours`
+containing one identifier and FOUR EMPTY CELLS.** Not a refusal. A table asserting that a
+comparison had been made, with nothing behind it — *strictly worse than the refusal the same
+section emits when no comparison exists*, because the refusal at least tells the truth.
+
+**The cause is two vocabularies and one reader.** `paper_projector` asked each record for
+`citation`, `their_k`, `scope`, `how_it_differs_from_ours`. Every applier written during this
+run stored `title`, `journal`, `year`, `outcome_pooled`, `agreement` instead.
+
+| rows | vocabulary | what the reader got |
+|---|---|---|
+| 22 | the projector's | rendered |
+| **16 across 13 topics** | **the appliers'** | **a PMID and four blanks** |
+
+And the conclusion of each comparison — written to `THE_FINDING_OF_THIS_COMPARISON_<stamp>` —
+**was read by nothing at all.** It reached readers only on the topics where the same sentences
+happened to be copied into the outcome block as well. Limb 4 was the same: `model_output.verbatim`
+was written by this run's appliers and the projector read `results.by_outcome.*.r_output.verbatim`,
+so a refit that had been captured, stored and checked against the delivered point still produced
+the refusal *"no analysis output is stored on this object"*.
+
+> **This is class 65's mechanism landing on the limb we spent the night writing.** Limb 3 was
+> counted as held on thirteen topics on the evidence that the object carried it. **Nobody opened
+> the rendered table.** The P46 count I have been reporting measured objects, and P50 already
+> says a referral must render where the estimate renders — the same test was never applied to
+> the limbs themselves.
+
+**Fixed at both ends, 2026-08-21.** The projector reads either vocabulary, renders the finding
+and the identity basis, and reads top-level `model_output`; `add_table` now DROPS a row carrying
+content in one column only and refuses a table left with none — *an empty cell under a filled
+header asserts more than the object holds*. The objects are repaired additively so neither end
+depends on the other being right.
+
+### 83a. The count that was written as a word
+
+Repairing the rows forced a second reading of `audit_our_k_against_theirs.py`: it derives their
+trial count from the LENGTH of a stored list, so a count stated inside a sentinel string —
+*"NOT NAMED — **fifteen studies**"*, *"**twelve trials**"*, *"**six** RCTs"* — was recorded as
+**THEIR COUNT NOT STATED**. Six such counts existed. Class 82's comparable denominator was
+therefore too small and its table understated how often ours is lower.
+
+> **Third instance of the same shape.** A number spelled out is invisible to a check that looks
+> for a number — the memory `grep-prose-copies-not-just-numeric` records the first.
+
+The six are transcribed into the objects **by hand**, each carrying the sentence it came from and
+each marked *counted, not identified*, rather than parsed out of prose at render time.
+
+
 ## OPEN — carried, not fixed
 
 ### O0a. `NCT00081744` — a trial contributing to two published pools with no registered primary outcome

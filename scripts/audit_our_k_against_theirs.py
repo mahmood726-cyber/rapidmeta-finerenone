@@ -31,12 +31,61 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from instrument_controls import require_controls          # noqa: E402
 
 # "n = 12,086", "six RCTs", "three trials" -- the published count as the abstract stated it.
+# THE WORD LIST STOPPED AT TEN AND THE NOUN LIST OMITTED THIS DOMAIN'S OWN ABBREVIATION.
+#
+# Three published counts were invisible to this instrument and reported as THEIR COUNT NOT
+# STATED, each for a different reason:
+#
+#     "twelve trials"    cab-prep-hiv-review, PMID 37498645   -- past the end of NUM_WORDS
+#     "fifteen studies"  tigecycline-ciai,    PMID 31577763   -- past the end of NUM_WORDS
+#     "ten CVOTs"        sglt2-mace-cvot,     PMID 34231123   -- CVOT is not in the nouns
+#
+# AND THE POSITIVE CONTROL COULD NOT HAVE CAUGHT ANY OF THEM: it asserted that "six RCTs"
+# reads as 6 -- a word inside the range and a noun inside the list. A control that tests the
+# instrument where it already works is class 77 wearing a different hat. The controls below
+# now carry the three real misses as a KNOWN-ANSWER FLOOR, so this cannot regress silently.
 NUM_WORDS = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5, "six": 6, "seven": 7,
-             "eight": 8, "nine": 9, "ten": 10}
-COUNT_RE = re.compile(r"\b(\d+|one|two|three|four|five|six|seven|eight|nine|ten)\s+"
-                      r"(?:randomi[sz]ed\s+)?(?:controlled\s+)?(?:RCTs?|trials?|studies)\b",
+             "eight": 8, "nine": 9, "ten": 10, "eleven": 11, "twelve": 12, "thirteen": 13,
+             "fourteen": 14, "fifteen": 15, "sixteen": 16, "seventeen": 17, "eighteen": 18,
+             "nineteen": 19, "twenty": 20}
+COUNT_RE = re.compile(r"\b(\d+|" + "|".join(sorted(NUM_WORDS, key=len, reverse=True)) + r")\s+"
+                      r"(?:randomi[sz]ed\s+)?(?:controlled\s+)?"
+                      r"(?:RCTs?|CVOTs?|trials?|studies|cohorts?|publications?)\b",
                       re.I)
 NOT_READ = re.compile(r"NOT READ|NOT NAMED|not established", re.I)
+
+
+NCT_RE = re.compile(r"NCT\d{8}")
+
+
+def _is_a_named_trial(x):
+    """Is this list entry a TRIAL, or a sentence about trials?
+
+    THE BUG THIS CLOSES WAS WORSE THAN THE ONE IT WAS FOUND CHASING. The old test was
+    `not NOT_READ.search(entry)` -- so any descriptive sentence that happened not to contain
+    the words "NOT READ", "NOT NAMED" or "not established" counted as ONE NAMED TRIAL and was
+    reported as IDENTIFIED. A review described as "twelve trials, of which seven are
+    prevention trials" would have been recorded as k = 1, identified: a FALSE 'equal' or a
+    false 'ours higher' in the class 82 table, in the direction that flatters us.
+
+    Every genuine entry in this corpus is either an NCT identifier or a short trial label --
+    "CHAMPION-PCI", "LEAP 1 (NCT02559310)", "NCT01131676 (EMPA-REG OUTCOME)". A sentence is
+    not a trial name, and length is the honest discriminator.
+
+    THE FIRST VERSION OF THIS TEST DROPPED CANVAS. Entries in this corpus are written as
+    `<name> -- <annotation>`, and `CANVAS Program -- NOT pooled by this object` is 42
+    characters, so a flat 40-character rule rejected it -- REMOVING THE CORPUS'S ONLY
+    NAMEABLE MISSING TRIAL, which is the entire reason this instrument exists. It was caught
+    because the summary printed a nameable count of 0 where 1 was already established.
+    Judge the NAME, which is the part before the separator, not the annotation after it.
+    """
+    s = str(x).strip()
+    if not s or NOT_READ.search(s):
+        return False
+    if NCT_RE.search(s):
+        return True
+    head = s.split(" -- ")[0].strip()
+    return bool(head) and not NOT_READ.search(head) and len(head) <= 40
 
 
 def their_count(review):
@@ -44,7 +93,7 @@ def their_count(review):
     for field in ("n_trials", "trial_set"):
         v = review.get(field)
         if isinstance(v, list):
-            named = [x for x in v if not NOT_READ.search(str(x))]
+            named = [x for x in v if _is_a_named_trial(x)]
             if named:
                 return len(named), True          # named, so identifiable
         if isinstance(v, str):
@@ -63,13 +112,39 @@ def their_count(review):
 
 
 def main():
+    # THE FLOOR IS THE THREE COUNTS THIS INSTRUMENT USED TO MISS, not a case it always read.
+    _floor = [("NOT NAMED -- twelve trials, of which seven are prevention trials; "
+               "10,957 individuals in total", 12),
+              ("NOT NAMED -- fifteen studies, 6,745 participants", 15),
+              ("NOT READ -- ten CVOTs, membership not established here", 10)]
+    _got = [their_count({"trial_set": [s]})[0] for s, _ in _floor]
     require_controls(
         "audit_our_k_against_theirs",
-        positive=("'six RCTs' is read as a count of 6",
-                  their_count({"trial_set": ["NOT NAMED -- six RCTs, n = 12,086"]}) == (6, False),
-                  True),
-        negative=("a NOT-READ trial list is reported as identified",
-                  their_count({"trial_set": ["NOT READ"]})[1], True))
+        positive=("the three counts that were reported NOT STATED until 2026-08-21 -- "
+                  "'twelve trials', 'fifteen studies', 'ten CVOTs' -- read as 12, 15 and 10",
+                  _got == [n for _, n in _floor], True),
+        negative=("a NOT-READ trial list is reported as identified, or a SENTENCE about "
+                  "trials is counted as one named trial",
+                  (their_count({"trial_set": ["NOT READ"]})[1]
+                   or their_count({"trial_set": [
+                       "a network across many antibiotic regimens, membership unclear"]})[1]),
+                  True))
+    # AND THE CASE THE FIRST FIX DESTROYED. Kluger's three-trial set must read as 3 NAMED --
+    # the corpus's only nameable missing trial is the third entry, and a flat 40-character
+    # rule rejected it for being 42 characters long. Checked against the real stored strings.
+    _canvas = their_count({"trial_set": ["NCT01131676 (EMPA-REG OUTCOME)",
+                                         "NCT01730534 (DECLARE-TIMI 58)",
+                                         "CANVAS Program -- NOT pooled by this object"]})
+    if _canvas != (3, True):
+        sys.exit("PROOF FAILED: Kluger's named trial set reads as %r, not (3, True). CANVAS "
+                 "is the ONLY nameable missing trial in this corpus and the whole reason "
+                 "this instrument exists; an instrument that drops it reports nothing."
+                 % (_canvas,))
+    if _got != [n for _, n in _floor]:
+        sys.exit("PROOF FAILED: the known-answer floor did not hold -- expected %r, got %r. "
+                 "A count spelled out as a word is exactly what this instrument missed three "
+                 "times, so it exits rather than reporting a smaller denominator."
+                 % ([n for _, n in _floor], _got))
 
     rows = []
     for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
@@ -103,6 +178,16 @@ def main():
         if cur is None or (cur["theirs"] or -1) < r["theirs"]:
             best[r["topic"]] = r
 
+    # AND CARRY THE NAMEABLE CASE FORWARD SEPARATELY, because taking the largest count alone
+    # LOSES IT. On sglt2-mace-cvot two reviews exist: Kluger 2018 states THREE and NAMES them
+    # (CANVAS is in its title), and a five-drug network states TEN and names none. Selecting
+    # the larger count replaced an IDENTIFIED gap of one trial with a counted-only gap of
+    # eight -- and the corpus's ONLY nameable missing trial vanished from the summary. The
+    # bigger number is not the more informative one.
+    for r in rows:
+        if r["theirs"] and r["theirs"] > r["ours"] and r["identified"]:
+            best[r["topic"]]["identified_elsewhere_on_this_topic"] = r
+
     print("")
     print("TOPICS CARRYING A PUBLISHED COMPARISON: %d" % len(best))
     print("")
@@ -128,13 +213,17 @@ def main():
     print("ours higher         %d of %d" % (higher, len(best)))
     print("their count NOT STATED %d of %d" % (unknown, len(best)))
     print("")
-    idn = [t for t, r in best.items()
-           if r["theirs"] and r["theirs"] > r["ours"] and r["identified"]]
+    idn = [(t, r.get("identified_elsewhere_on_this_topic") or r) for t, r in best.items()
+           if r["theirs"] and r["theirs"] > r["ours"]
+           and (r["identified"] or r.get("identified_elsewhere_on_this_topic"))]
     cnt = [t for t, r in best.items()
-           if r["theirs"] and r["theirs"] > r["ours"] and not r["identified"]]
+           if r["theirs"] and r["theirs"] > r["ours"]
+           and not (r["identified"] or r.get("identified_elsewhere_on_this_topic"))]
     print("WHERE OURS IS LOWER AND THE TRIALS ARE IDENTIFIED (a nameable gap): %d" % len(idn))
-    for t in idn:
-        print("   %s" % t)
+    for t, r in idn:
+        print("   %-38s ours %d v %s, PMID %s -- THE NAMEABLE COUNT, which is not "
+              "necessarily the largest one on this topic"
+              % (t, r["ours"], r["theirs"], r["pmid"]))
     print("WHERE OURS IS LOWER AND THE SET WAS NOT READ (counted, NOT identified): %d"
           % len(cnt))
     for t in cnt:

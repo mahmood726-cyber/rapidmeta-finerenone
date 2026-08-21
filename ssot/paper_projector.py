@@ -249,6 +249,53 @@ def _source_names(dbs):
     return out
 
 
+def _pc_cell(r, *names):
+    """First non-empty of `names` on a published-synthesis record.
+
+    TWO VOCABULARIES WROTE THESE RECORDS AND ONLY ONE WAS EVER READ. The projector asked
+    for `scope` and `how_it_differs_from_ours`; the appliers written during the 2026-08-20
+    run stored `outcome_pooled` and `agreement`. Sixteen rows across thirteen topics
+    therefore reached readers as a PMID beside four empty cells -- limb 3 of the page
+    standard written into the object and delivered to nobody. Registry class 83.
+
+    Reading the alternates here is the DELIVERY half of the fix; the objects are repaired
+    to carry both names as well, so neither end depends on the other being right.
+    """
+    for n in names:
+        t = str(r.get(n) or "").strip()
+        if t:
+            return t
+    return ""
+
+
+def _pc_citation(r):
+    """A citation, from `citation` if stored and composed from its parts if not."""
+    t = str(r.get("citation") or "").strip()
+    if t:
+        return t
+    bits = [str(r.get(k) or "").strip() for k in ("title", "journal", "year")]
+    bits = [b for b in bits if b]
+    return ". ".join(bits) if bits else ""
+
+
+def _pc_their_k(r):
+    """How many trials THEY carried -- never guessed, and blank rather than wrong.
+
+    Taken from a stored `their_k`, or from the LENGTH of a named trial set. A trial set
+    whose first entry is a sentinel ("NOT READ -- ten studies") has length 1 and does NOT
+    mean k = 1, so those return blank here and the count is written into the object by
+    hand, where it can be audited, rather than parsed out of prose at render time.
+    """
+    k = r.get("their_k")
+    if isinstance(k, int) or (isinstance(k, str) and k.strip()):
+        return str(k).strip()
+    ts = r.get("trial_set")
+    if isinstance(ts, list) and ts and all(
+            isinstance(x, str) and not x.strip().upper().startswith("NOT ") for x in ts):
+        return str(len(ts))
+    return ""
+
+
 def _v_str(v):
     """Word a stored declaration. NEVER `str()` a container into a manuscript.
 
@@ -338,7 +385,35 @@ class Section(object):
         if not rows:
             self.refusals.append((caption + " (no rows resolved)", list(fields)))
             return False
-        self.tables.append((caption, list(headers), [list(r) for r in rows], list(fields)))
+
+        # A ROW OF BLANKS IS WORSE THAN NO TABLE. Added 2026-08-21 as registry class 83.
+        #
+        # Sixteen rows across thirteen topics were reaching readers as a PMID and FOUR
+        # EMPTY CELLS under the headers "Citation / Their k / Scope / How it differs from
+        # ours". Every published comparison written during this run rendered that way,
+        # because the appliers stored `title`/`journal`/`outcome_pooled`/`agreement` and
+        # this projector read `citation`/`their_k`/`scope`/`how_it_differs_from_ours`. Two
+        # vocabularies, never reconciled, because nobody opened the rendered table.
+        #
+        # An empty cell under a filled header ASSERTS that the comparison was made and has
+        # nothing behind it -- strictly worse than the refusal the same section emits when
+        # no comparison exists at all. So a row carrying content in at most one column is
+        # dropped, and a table left with no surviving row refuses and names the reason.
+        kept = [list(r) for r in rows
+                if sum(1 for c in r if str(c if c is not None else "").strip()) > 1]
+        if not kept:
+            self.refusals.append(
+                (caption + " -- EVERY ROW WAS BLANK EXCEPT FOR AN IDENTIFIER, so the table "
+                          "is refused rather than drawn. An empty cell under a filled "
+                          "header asserts a comparison that has nothing behind it",
+                 list(fields)))
+            return False
+        if len(kept) < len(rows):
+            self.paras.append(
+                ("%d of %d rows of the table below carried content in one column only and "
+                 "were dropped; a row of blanks under filled headers asserts more than the "
+                 "object holds." % (len(rows) - len(kept), len(rows)), list(fields)))
+        self.tables.append((caption, list(headers), kept, list(fields)))
         return True
 
     def add_figure(self, obj, caption, svg, fields, refusal=None):
@@ -1687,15 +1762,31 @@ def project(obj, journal="generic", length="standard"):
     if isinstance(revs, list) and revs:
         s.add_table(obj, "Published syntheses compared with this review, with a denominator",
                     ["Citation", "PMID", "Their k", "Scope", "How it differs from ours"],
-                    [[str(r.get("citation", ""))[:120], str(r.get("pmid", "")),
-                      str(r.get("their_k", "")), str(r.get("scope", ""))[:80],
-                      str(r.get("how_it_differs_from_ours", ""))[:160]]
+                    [[_pc_citation(r)[:160], str(r.get("pmid", "")),
+                      _pc_their_k(r), _pc_cell(r, "scope", "outcome_pooled")[:110],
+                      _pc_cell(r, "how_it_differs_from_ours", "agreement",
+                               "why_not_comparable")[:220]]
                      for r in revs if isinstance(r, dict)],
                     ["published_comparison.reviews"])
         s.add(obj, "This review was compared against %d published synthesis(es); the "
                    "denominator is stated because a comparison against an unstated number "
                    "of reviews is not a comparison." % len(revs),
               ["published_comparison.reviews"])
+    # THE FINDING OF THE COMPARISON, WHICH IS THE POINT OF MAKING ONE.
+    #
+    # Every applier this run wrote its conclusion to `THE_FINDING_OF_THIS_COMPARISON_<stamp>`
+    # and NOTHING READ THAT KEY. The text reached readers only on the topics where the same
+    # sentences were also copied into the outcome block's findings -- so on the rest, the
+    # manuscript showed that a comparison existed and never said what it found. Class 83.
+    for _k in sorted(k for k in pc if k.startswith("THE_FINDING_OF_THIS_COMPARISON")):
+        _t = _v_str(pc.get(_k))
+        if _t:
+            s.add(obj, "What this comparison found. %s" % _t,
+                  ["published_comparison.%s" % _k])
+    _ib = str(pc.get("identity_basis") or "").strip()
+    if _ib:
+        s.add(obj, "On what basis their trial set is known: %s" % _ib,
+              ["published_comparison.identity_basis"])
     dd = pc.get("divergence_decomposed")
     if isinstance(dd, dict) and dd.get("why_they_differ"):
         s.add(obj, "Where our result differs from theirs: %s" % dd["why_they_differ"],
@@ -1729,6 +1820,26 @@ def project(obj, journal="generic", length="standard"):
             s.add(obj, "Cross-engine verification for %s: %s %s"
                   % (oid, ce.get("engine"), ce.get("agreement") or ""),
                   ["results.by_outcome.%s.cross_engine" % oid])
+    # AND THE SAME OUTPUT STORED AT THE TOP LEVEL. Added 2026-08-21, class 83.
+    #
+    # The loop above reads `results.by_outcome.<oid>.r_output.verbatim`. Limb 4 of the page
+    # standard was being written to a TOP-LEVEL `model_output.verbatim` by this run's
+    # appliers, which nothing read -- so a refit whose R output had been captured, stored
+    # and checked against the delivered point still produced the refusal "no analysis
+    # output is stored on this object". Both locations are read now.
+    mo = get(obj, "model_output") or {}
+    if isinstance(mo, dict) and str(mo.get("verbatim") or "").strip():
+        any_out = True
+        s.add(obj, "%s%s\n\n%s"
+              % (("[%s] " % mo["engine"]) if mo.get("engine") else "",
+                 ("call: %s --" % mo["invocation"]) if mo.get("invocation") else "",
+                 str(mo["verbatim"])),
+              ["model_output.verbatim"])
+        if mo.get("reproduces_the_stored_point_to_4dp") is True:
+            s.add(obj, "This refit REPRODUCES THE POINT ESTIMATE THIS PAGE DELIVERS TO FOUR "
+                       "DECIMAL PLACES. The output above is quoted as the software printed "
+                       "it and is not paraphrased.",
+                  ["model_output.reproduces_the_stored_point_to_4dp"])
     if not any_out and not s.paras:
         s.refusals.append(("the verbatim model output -- no analysis output is stored on "
                            "this object, so nothing can be quoted and nothing is "

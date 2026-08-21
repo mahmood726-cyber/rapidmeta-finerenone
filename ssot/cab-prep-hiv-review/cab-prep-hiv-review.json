@@ -145,6 +145,12 @@
      "no_rule_is_decided_here": "The house rule is REML with Hartung-Knapp below k=10, settled days ago. Whether it means ALWAYS or WITH A FLOOR AT k=3 is a decision about this corpus, not a computation, and it has been referred rather than taken. BOTH INTERVALS STAND ON THIS PAGE UNTIL IT IS MADE. Nothing is unpublished and no reader is left with only the narrower one.",
      "what_this_means_for_this_pool": "THE PUBLISHED INTERVAL EXCLUDES 1 AND THE HOUSE-RULE INTERVAL CROSSES IT. A SIGNIFICANCE VERDICT TURNS ON THE INTERVAL METHOD ALONE. A reader shown only the published interval has been told something firmer than the evidence supports; a reader shown only the wider one loses that the contributing trials agree. BOTH ARE HERE.",
      "read_the_width_with_care": "AT k=2 HARTUNG-KNAPP USES t ON ONE DEGREE OF FREEDOM -- 12.7062 against the normal 1.9600 -- and the interval is enormously wider. That width is a property of the method at very few studies, not a measurement of this evidence. It is recorded so a reader can see it; it is NOT presented as the better interval."
+    },
+    "POOL_FINDINGS_2026_08_21": {
+     "a_only_one_of_these_two_trials_is_an_african_result": "READ THIS BESIDE THE ESTIMATE. HPTN 084 (NCT03164564) ran in BOTSWANA, ESWATINI, KENYA, MALAWI, SOUTH AFRICA, UGANDA AND ZIMBABWE, in cisgender women. HPTN 083 (NCT02720094) ran in ARGENTINA, BRAZIL, PERU, SOUTH AFRICA, THAILAND, THE UNITED STATES AND VIETNAM, in men who have sex with men and transgender women -- ONE AFRICAN COUNTRY OF SEVEN -- and it carries the larger weight in this pool. A reader taking this page as evidence about African populations is taking half of it from a trial that was mostly not African and not in women.",
+     "b_the_heterogeneity_has_a_name": "I-squared is 68.83% with tau-squared 0.4178. At k = 2 that statistic proves little by itself, BUT IT DOES NOT STAND BY ITSELF: the two estimates are 0.3335 (0.1785 to 0.6230) in one population and 0.1108 (0.0395 to 0.3107) in the other, and the populations differ by sex, by risk route and by region. The spread has a named cause rather than an unexplained one.",
+     "c_a_published_synthesis_reproduces_this_number_exactly": "Wang et al. 2023 (PMID 37498645) report RR 0.21 (0.07 to 0.61), I-squared 70%, on 17 and 75 events. This object reports 0.2081 (0.0715 to 0.6057), I-squared 68.83%, ON THE SAME 17 AND 75 EVENTS. The arithmetic here has an independent external check and it passes -- which is a statement about the computation, not about whether the two trials should have been combined.",
+     "d_a_registered_safety_co_primary_is_not_carried": "Both registrations register grade 2 or higher adverse events as a SECOND PRIMARY OUTCOME. This review carries only the efficacy primary, so this page is not a benefit-and-harm summary."
     }
    }
   }
@@ -156,6 +162,27 @@
    "values_moved": "NONE",
    "what_changed": "`heterogeneity.i2` and `heterogeneity.tau2` are field names that each map to more than one standard definition. Every number is unchanged; each now carries the definition it holds. tau2's definition was already recoverable from the declared `estimator` beside it and is copied, never inferred. i2's was not recoverable and is DECIDED BY RECOMPUTING BOTH FORMS from this object's own per-trial inputs, with the evidence recorded.",
    "why": "A reader recomputing Higgins I-squared from the Q printed beside it would have concluded the object was wrong -- and would have been behaving exactly as we want readers to behave. An ambiguous label on an unambiguous number is a defect specifically against the only reader we claim to serve."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "all four P46 limbs written; this topic was at 0 of 4",
+   "values_moved": "NONE",
+   "what_changed": "risk of bias on 2 results; GRADE LOW on the pooled outcome; a published comparison over 46 matched records; the R output stored verbatim and reproducing the stored point to 4 dp",
+   "why": "Every limb was ABSENT."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "the published-comparison table rendered blank cells; repaired",
+   "values_moved": "NONE",
+   "what_changed": "added citation, how_it_differs_from_ours, scope, their_k to the comparison record(s); nothing renamed, nothing removed",
+   "why": "The projector reads `citation`/`their_k`/`scope`/`how_it_differs_from_ours`; these records stored `title`/`journal`/`outcome_pooled`/`agreement`. A reader met a PMID and four empty cells. Registry class 83."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "a sentence in the comparison finding began mid-clause; repaired",
+   "values_moved": "NONE",
+   "what_changed": "was 'That the pool is a good idea.'; now 'WHAT THE AGREEMENT DOES NOT CERTIFY IS THAT THE POOL IS A GOOD IDEA.'",
+   "why": "The finding is stored as keyed parts and rendered as one paragraph with the keys dropped, so a part written to continue its key name arrived with no antecedent. A prose repair to text written today; no number and no source is touched."
   }
  ],
  "renamed_2026_08_18": "Renamed from cab-prep-hiv-auto-full-review. THE READER LANDS ON cab-prep-hiv_REVIEW.html and the object now says so. Leaving the mismatch would have made PAGE_MAP the only place that truth lived -- one more route, and every multi-route value in this corpus has diverged. Done as a git mv, not a delete-and-write.",
@@ -189,5 +216,193 @@
    "outcomes (derived)",
    "question (derived)"
   ]
+ },
+ "risk_of_bias": {
+  "tool": "RoB 2 (Cochrane risk-of-bias tool for randomized trials)",
+  "assessed_utc": "2026-08-21",
+  "assessed_per": "RESULT, not trial -- Handbook 8.2",
+  "by_outcome": {
+   "primary": {
+    "NCT02720094": {
+     "nct": "NCT02720094",
+     "trial": "HPTN 083",
+     "registered_enrolment": 4570,
+     "participants_this_object_pools": 4561,
+     "enrolment_minus_pooled": 9,
+     "registered_masking": "QUADRUPLE -- participant, care provider, investigator AND OUTCOMES ASSESSOR",
+     "result_assessed": "documented incident HIV infection -- the EFFICACY primary of two registered primaries",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read. LOW is scored on the recorded allocation, not on a mechanism nobody here has seen."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention, and the analysis population actually used, are not on the registration. ADHERENCE IS THE WHOLE STORY IN PrEP TRIALS and it is exactly what this domain would test, so the absence matters more here than on most topics."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Neither registration states how many participants were missing from the analysed population or how they were handled. The posted-results counts this object pools are 3 to 9 lower than registered enrolment on three of the four trials, and nothing read explains the difference."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "Masking is QUADRUPLE on both registrations and the OUTCOMES ASSESSOR IS EXPLICITLY AMONG THE MASKED ROLES. The endpoint is a documented laboratory-confirmed infection, so BOTH the endpoint's nature and the masking point the same way. Note for identity: HPTN 083 registers its arms as 'Arm A' and 'Arm B', BOTH TYPED EXPERIMENTAL, so the comparator identity is NOT established from that design module -- it is established from HPTN 084, which types its TDF/FTC arm ACTIVE_COMPARATOR, and from this object's own recorded contrast."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "LOW",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
+       "reason": "TWO primary outcomes are registered, but the second is SAFETY -- adverse events -- not a competing measure of efficacy. There is no set of efficacy endpoints to choose between, so the selection concern found on gepotidacin and inclisiran cannot arise here. RECORDED SEPARATELY AND NOT SCORED: this review does not carry the registered safety co-primary at all."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D1, D4 and D5 LOW on read registrations; D2 and D3 NO_INFORMATION. The unjudgeable domains are adherence and attrition, and in a trial whose whole premise is that an INJECTION is adhered to better than a DAILY PILL, the adherence domain is not a formality -- it is the mechanism of the effect."
+    },
+    "NCT03164564": {
+     "nct": "NCT03164564",
+     "trial": "HPTN 084",
+     "registered_enrolment": 3224,
+     "participants_this_object_pools": 3224,
+     "enrolment_minus_pooled": 0,
+     "registered_masking": "QUADRUPLE -- participant, care provider, investigator AND OUTCOMES ASSESSOR",
+     "result_assessed": "documented incident HIV infection -- the EFFICACY primary of two registered primaries",
+     "domains": {
+      "D1_randomisation_process": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "allocation is recorded as RANDOMIZED on the design module.",
+       "what_is_NOT_established": "The concealment MECHANISM is not on the registry and no publication was read. LOW is scored on the recorded allocation, not on a mechanism nobody here has seen."
+      },
+      "D2_deviations_from_intended_intervention": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Deviations from the intended intervention, and the analysis population actually used, are not on the registration. ADHERENCE IS THE WHOLE STORY IN PrEP TRIALS and it is exactly what this domain would test, so the absence matters more here than on most topics."
+      },
+      "D3_missing_outcome_data": {
+       "judgement": "NO_INFORMATION",
+       "basis": "NOT ESTABLISHED -- THE REGISTRY DOES NOT CARRY THE FIELD",
+       "reason": "Neither registration states how many participants were missing from the analysed population or how they were handled. The posted-results counts this object pools are 3 to 9 lower than registered enrolment on three of the four trials, and nothing read explains the difference."
+      },
+      "D4_measurement_of_the_outcome": {
+       "judgement": "LOW",
+       "basis": "REGISTRATION DESIGN MODULE, READ",
+       "reason": "Masking is QUADRUPLE on both registrations and the OUTCOMES ASSESSOR IS EXPLICITLY AMONG THE MASKED ROLES. The endpoint is a documented laboratory-confirmed infection, so BOTH the endpoint's nature and the masking point the same way. Note for identity: HPTN 083 registers its arms as 'Arm A' and 'Arm B', BOTH TYPED EXPERIMENTAL, so the comparator identity is NOT established from that design module -- it is established from HPTN 084, which types its TDF/FTC arm ACTIVE_COMPARATOR, and from this object's own recorded contrast."
+      },
+      "D5_selection_of_the_reported_result": {
+       "judgement": "LOW",
+       "basis": "REGISTERED PRIMARY OUTCOMES COMPARED WITH WHAT THIS OBJECT POOLS",
+       "reason": "TWO primary outcomes are registered, but the second is SAFETY -- adverse events -- not a competing measure of efficacy. There is no set of efficacy endpoints to choose between, so the selection concern found on gepotidacin and inclisiran cannot arise here. RECORDED SEPARATELY AND NOT SCORED: this review does not carry the registered safety co-primary at all."
+      }
+     },
+     "overall": "SOME_CONCERNS",
+     "overall_reason": "D1, D4 and D5 LOW on read registrations; D2 and D3 NO_INFORMATION. The unjudgeable domains are adherence and attrition, and in a trial whose whole premise is that an INJECTION is adhered to better than a DAILY PILL, the adherence domain is not a formality -- it is the mechanism of the effect."
+    }
+   }
+  },
+  "sources_read": [
+   "ClinicalTrials.gov API v2 NCT02720094 -- design module, eligibility module, arm groups and registered primary outcomes",
+   "ClinicalTrials.gov API v2 NCT03164564 -- design module, eligibility module, arm groups and registered primary outcomes"
+  ],
+  "sources_NOT_read": "The trial publications. D2 and D3 are the domains that depend on them, and both are NO_INFORMATION for that reason.",
+  "ceiling": {
+   "statement": "A domain that cannot be judged from the sources read is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect. Overall is capped at SOME_CONCERNS wherever a domain is NO_INFORMATION.",
+   "shape_note": "A DICT, NOT A STRING -- paper_projector does ceil.get('statement'), and a bare string collapses the manuscript to a projector-failed banner (registry class 70)."
+  },
+  "analysis_population_NOT_stated": "NEITHER REGISTRATION NAMES THE ANALYSIS POPULATION FOR THE POOLED RESULT. Registered enrolment against participants pooled: HPTN 083 4570 v 4561; HPTN 084 3224 v 3224. P48 -- estimand_established certifies MEASUREMENT, not the population the measurement was taken in.",
+  "registered_co_primary_not_carried": "BOTH registrations register TWO primary outcomes and on both the second is SAFETY. This review carries only the efficacy primary. Recorded as scope, not scored as D5 selection, because there is no competing EFFICACY endpoint to have chosen between.",
+  "ONE_ASSESSOR_ONLY": "ASSESSED BY ONE ASSESSOR. Under the standing specification that risk of bias 2 must be complete and done by TWO AIs from different model families, THIS ASSESSMENT IS INCOMPLETE. It is recorded as such rather than presented as finished, and `rob2.assessors` is deliberately NOT written."
+ },
+ "grade": {
+  "approach": "GRADE, following the Cochrane Handbook chapter 14. Randomised evidence starts HIGH and is rated down with reasons.",
+  "assessed_utc": "2026-08-21",
+  "by_outcome": {
+   "primary": {
+    "k": 2,
+    "starting_certainty": "HIGH",
+    "certainty": "LOW",
+    "steps": [
+     {
+      "domain": "risk_of_bias",
+      "move": "HIGH to MODERATE, down 1 level(s)",
+      "reason": "Both results are SOME_CONCERNS. Randomised, quadruple-masked including the outcomes assessor, single unambiguous efficacy primary -- but D2 and D3 are NO_INFORMATION, and the comparator arm here is a DAILY ORAL PILL whose adherence is precisely what the unread domain would describe."
+     },
+     {
+      "domain": "inconsistency",
+      "move": "MODERATE to LOW, down 1 level(s)",
+      "reason": "tau-squared 0.4178, Q 3.2077 on 1 df, p = 0.0733, I-squared 68.83%. At k = 2 the statistic is weak evidence on its own, but it does not stand on its own here: THE TWO TRIALS ARE IN DIFFERENT POPULATIONS. 0.3335 (0.1785 to 0.6230) in men who have sex with men and transgender women, and 0.1108 (0.0395 to 0.3107) in cisgender women. A named reason for the spread is stronger than the statistic."
+     },
+     {
+      "domain": "indirectness",
+      "move": "LOW to VERY LOW, down 1 level(s)",
+      "reason": "THE POOL CROSSES BOTH POPULATION AND REGION. HPTN 084 ran in SEVEN African countries in FEMALE participants. HPTN 083 ran in men who have sex with men and transgender women across Argentina, Brazil, Peru, South Africa, Thailand, the United States and Vietnam -- SEVEN COUNTRIES OF WHICH ONE IS AFRICAN -- and it is the larger and more precisely estimated of the two. A single ratio assembled across those two is not a quantity that answers either question cleanly."
+     },
+     {
+      "domain": "imprecision",
+      "move": "VERY LOW -- already at the floor, no further downgrade applied",
+      "reason": "k = 2. The Hartung-Knapp interval is RR 0.2081 (0.0002 to 212.2504) on t = 12.7062 with 1 df, which carries no information at all. The rating cannot fall below VERY LOW, so this domain is recorded as warranting a downgrade the scale cannot express. THE UNADJUSTED INTERVAL, 0.0715 to 0.6057, still excludes no difference by a wide margin."
+     },
+     {
+      "domain": "publication_bias",
+      "move": "NOT ASSESSABLE -- no rating applied",
+      "reason": "k = 2. Handbook 13.3.5.4."
+     }
+    ],
+    "summary": "LOW certainty, and the reason is not the size of the effect -- which is large, consistent in direction, and reproduced exactly by a published synthesis. It is that TWO TRIALS IN TWO DIFFERENT POPULATIONS ACROSS TWO REGIONS have been combined into one ratio, with I-squared 68.83%, and that the adherence domain both trials turn on was not read.",
+    "rating_up_not_applied": "No domain is rated UP. Rating up for a large effect, a dose-response gradient or opposing plausible confounding applies to observational evidence; these are randomised trials, which start HIGH."
+   }
+  }
+ },
+ "published_comparison": {
+  "_why": "P46 limb 3.",
+  "_how_identified": "PubMed E-utilities esearch + esummary, executed 2026-08-21. Query, counts and per-record disposition in ssot/cab-prep-hiv-review/appraisal/PUBLISHED_SYNTHESIS_SCREEN.json.",
+  "denominator": {
+   "matched": 46,
+   "retrieved": 46,
+   "read": 46,
+   "appraised": 1,
+   "flagged_by_title": 8,
+   "not_returned_by_the_tool": 0,
+   "_house_form": "matched / retrieved / read / appraised / not returned -- P53. 8 flagged by title; 1 appraised against the abstract and every other record NOT READ beyond its title and summary."
+  },
+  "identity_basis": "NOT READ. The abstract names none of its included studies, so which trials it carries is COUNTED AND NOT IDENTIFIED. BUT SEE THE EVENT COUNTS BELOW, which establish that the CAB-LA prevention contrast rests on the same events as ours.",
+  "reviews": [
+   {
+    "pmid": "37498645",
+    "year": 2023,
+    "journal": "JMIR Public Health and Surveillance",
+    "title": "Safety and Efficacy of Long-Acting Injectable Agents for HIV-1: Systematic Review and Meta-Analysis",
+    "trial_set": [
+     "NOT NAMED -- twelve trials, of which seven are prevention trials; 10,957 individuals in total"
+    ],
+    "trial_set_basis": "NOT READ. The abstract names none of its included studies, so which trials it carries is COUNTED AND NOT IDENTIFIED. BUT SEE THE EVENT COUNTS BELOW, which establish that the CAB-LA prevention contrast rests on the same events as ours.",
+    "design": "systematic review and meta-analysis; PubMed, Embase and the Cochrane Library to 12 November 2022; protocol registered on the Open Science Framework",
+    "n_pooled": 10957,
+    "outcome_pooled": "HIV-1 infection under CAB-LA versus tenofovir disoproxil fumarate-emtricitabine, plus safety and treatment outcomes not comparable to this object",
+    "estimate_quoted": "Quoted: 'CAB-LA had a better effect on HIV-1 prevention than tenofovir disoproxil fumarate-emtricitabine (17/5161, 0.33% vs 75/5129, 1.46%; RR 0.21, 95% CI 0.07-0.61; I2=70%).'",
+    "comparable_to_ours": true,
+    "agreement": "AGREES, AND MORE CLOSELY THAN ANY OTHER COMPARISON IN THIS CORPUS. Theirs RR 0.21 (0.07 to 0.61), I-squared 70%, on 17 and 75 events. Ours RR 0.2081 (0.0715 to 0.6057), I-squared 68.83%, on 13 + 4 = 17 and 39 + 36 = 75 events. THE EVENT COUNTS ARE IDENTICAL.",
+    "citation": "Safety and Efficacy of Long-Acting Injectable Agents for HIV-1: Systematic Review and Meta-Analysis. JMIR Public Health and Surveillance. 2023",
+    "scope": "HIV-1 infection under CAB-LA versus tenofovir disoproxil fumarate-emtricitabine, plus safety and treatment outcomes not comparable to this object",
+    "how_it_differs_from_ours": "AGREES, AND MORE CLOSELY THAN ANY OTHER COMPARISON IN THIS CORPUS. Theirs RR 0.21 (0.07 to 0.61), I-squared 70%, on 17 and 75 events. Ours RR 0.2081 (0.0715 to 0.6057), I-squared 68.83%, on 13 + 4 = 17 and 39 + 36 = 75 events. THE EVENT COUNTS ARE IDENTICAL.",
+    "their_k": 12,
+    "their_k_basis": "TRANSCRIBED FROM THIS RECORD'S OWN STORED SENTENCE, 'twelve trials, of which seven are prevention trials', which states the count as a WORD. No included-study list was read, so this is a COUNT AND NOT AN IDENTIFICATION -- which trials they carry remains unestablished. Written by hand rather than parsed, because a number spelled out is exactly what an automated count misses."
+   }
+  ],
+  "THE_FINDING_OF_THIS_COMPARISON_2026_08_21": "THE CLOSEST AGREEMENT WITH A PUBLISHED SYNTHESIS ANYWHERE IN THIS CORPUS. Wang et al., JMIR Public Health and Surveillance 2023, PMID 37498645, report CAB-LA versus TDF/FTC for prevention as RR 0.21 (95% CI 0.07 to 0.61), I-squared 70%, on 17 events of 5,161 against 75 of 5,129. This object reports RR 0.2081 (0.0715 to 0.6057), I-squared 68.83%, on 13 + 4 = 17 events against 39 + 36 = 75. THE EVENT COUNTS ARE THE SAME NUMBERS. THE ONE PLACE THE TWO DIFFER. They pool 5,161 and 5,129 participants; this object pools 3,894 and 3,891 -- about 1,250 more per arm on their side, CONTRIBUTING NO EVENTS. Nothing read explains where those participants come from; the candidates are a wider analysis population on the same two trials, or a further prevention trial with zero infections. WHICH IT IS HAS NOT BEEN ESTABLISHED and no included-study table was opened. Their review states TWELVE trials -- seven of them prevention trials -- against this object's TWO. On the stated count alone that is the largest gap in the corpus. YET THE CONTRAST ITSELF RESTS ON THE SAME SEVENTEEN AND SEVENTY-FIVE EVENTS. A STATED TRIAL COUNT AND THE EVIDENCE CONTRIBUTING TO A PARTICULAR CONTRAST ARE DIFFERENT THINGS, and this topic is the proof. It is why class 82 reports 'ours lower' and 'trials identified' as SEPARATE states, and why the four count-only topics are worded as a difference in stated counts and nothing more. WHAT THE AGREEMENT DOES NOT CERTIFY IS THAT THE POOL IS A GOOD IDEA. The two trials are in DIFFERENT POPULATIONS across DIFFERENT REGIONS and I-squared is 68.83%. A second team reaching the same number from the same events does not make the combination appropriate -- it makes the arithmetic checked. GRADE certainty here is LOW and indirectness is rated down."
+ },
+ "model_output": {
+  "_why": "P46 limb 4 -- the model output as the software printed it.",
+  "engine": "R 4.6.0 with metafor 5.0.1",
+  "script": "ssot/fit_from_per_trial.R",
+  "invocation": "Rscript ssot/fit_from_per_trial.R cab-prep-hiv-review primary",
+  "run_utc": "2026-08-21",
+  "inputs_note": "yi = log(point) and sei = (log(hi) - log(lo)) / (2 * 1.959964), derived from the per-trial intervals THIS OBJECT ALREADY CARRIES. No new extraction.",
+  "reproduces_the_stored_point_to_4dp": true,
+  "stored_at": "evidence/africa_prep_fits_2026_08_21/cab-prep-hiv-review.txt",
+  "verbatim": "R version 4.6.0 (2026-04-24 ucrt) \nmetafor 5.0.1 \nrun_utc 2026-08-21\n\n================================================================\nTOPIC   cab-prep-hiv-review\nOUTCOME primary\nSTORED  RR 0.2081 (0.0715 to 0.6057), k = 2, random-effects / REML\nINPUTS READ FROM THE OBJECT (log scale, SE derived from the published interval):\n   NCT02720094      0.3335 (0.1785 to 0.6230)  yi=-1.098112  sei=0.318873\n   NCT03164564      0.1108 (0.0395 to 0.3107)  yi=-2.200029  sei=0.526165\n----------------------------------------------------------------\nCALL: rma(yi = yi, sei = sei, method = \"REML\", test = \"knha\")\n\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n -1.1694    2.3388    6.3388    2.3388   18.3388   \n\ntau^2 (estimated amount of total heterogeneity): 0.4178 (SE = 0.8586)\ntau (square root of estimated tau^2 value):      0.6464\nI^2 (total heterogeneity / total variability):   68.83%\nH^2 (total variability / sampling variability):  3.21\n\nTest for Heterogeneity:\nQ(df = 1) = 3.2077, p-val = 0.0733\n\nModel Results:\n\nestimate      se     zval    pval    ci.lb    ci.ub     \n -1.5696  0.5452  -2.8789  0.0040  -2.6381  -0.5010  ** \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\n--- SAME FIT WITH HARTUNG-KNAPP (test = \"knha\") ---\n\nRandom-Effects Model (k = 2; tau^2 estimator: REML)\n\n  logLik  deviance       AIC       BIC      AICc   \n -1.1694    2.3388    6.3388    2.3388   18.3388   \n\ntau^2 (estimated amount of total heterogeneity): 0.4178 (SE = 0.8586)\ntau (square root of estimated tau^2 value):      0.6464\nI^2 (total heterogeneity / total variability):   68.83%\nH^2 (total variability / sampling variability):  3.21\n\nTest for Heterogeneity:\nQ(df = 1) = 3.2077, p-val = 0.0733\n\nModel Results:\n\nestimate      se     tval  df    pval    ci.lb   ci.ub    \n -1.5696  0.5452  -2.8789   1  0.2128  -8.4969  5.3578    \n\n---\nSignif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1\n\n\nBACK-TRANSFORMED:\n   unadjusted     0.2081 (0.0715 to 0.6059)\n   Hartung-Knapp  0.2081 (0.0002 to 212.2504)   [t crit 12.7062 on 1 df]\n   tau^2 0.417845   Q 3.2077 on 1 df, p = 0.0733   I^2 68.83%\n\nAGREES WITH THE STORED POINT TO 4 dp: YES\n"
  }
 }

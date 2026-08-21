@@ -925,7 +925,10 @@
     "outcome_pooled": "primary: death, myocardial infarction, ischaemia-driven revascularisation or stent thrombosis at 48 h. Secondary TRIPLE composite: all-cause death, myocardial infarction or ischaemia-driven revascularisation at 48 h.",
     "estimate_quoted": "primary composite OR 0.81 (0.71 to 0.91), p = 0.0007; secondary triple composite OR 0.81 (0.71 to 0.92), p = 0.0014; stent thrombosis OR 0.59 (0.43 to 0.80)",
     "comparable_to_ours": true,
-    "agreement": "DISAGREES. Their triple composite is OR 0.81 (0.71 to 0.92) on THREE trials; this object's corrected three-component composite is 0.9646 (0.8132 to 1.1442) on TWO. THE PUBLISHED INTERVAL EXCLUDES NO DIFFERENCE AND OURS DOES NOT -- opposite conclusions, not a rounding gap. The k difference is stated first because a dropped trial is the likeliest cause."
+    "agreement": "DISAGREES. Their triple composite is OR 0.81 (0.71 to 0.92) on THREE trials; this object's corrected three-component composite is 0.9646 (0.8132 to 1.1442) on TWO. THE PUBLISHED INTERVAL EXCLUDES NO DIFFERENCE AND OURS DOES NOT -- opposite conclusions, not a rounding gap. The k difference is stated first because a dropped trial is the likeliest cause.",
+    "citation": "Effect of cangrelor on periprocedural outcomes in percutaneous coronary interventions: a pooled analysis of patient-level data. Lancet. 2013",
+    "scope": "primary: death, myocardial infarction, ischaemia-driven revascularisation or stent thrombosis at 48 h. Secondary TRIPLE composite: all-cause death, myocardial infarction or ischaemia-driven revascularisation at 48 h.",
+    "how_it_differs_from_ours": "DISAGREES. Their triple composite is OR 0.81 (0.71 to 0.92) on THREE trials; this object's corrected three-component composite is 0.9646 (0.8132 to 1.1442) on TWO. THE PUBLISHED INTERVAL EXCLUDES NO DIFFERENCE AND OURS DOES NOT -- opposite conclusions, not a rounding gap. The k difference is stated first because a dropped trial is the likeliest cause."
    }
   ],
   "THE_FINDING_OF_THIS_COMPARISON_2026_08_20": "A MATERIAL DISAGREEMENT, AND IT IS NOT A CLASS-76 INSTANCE. Class 76 is about the published work choosing a better-defined target; here it chose the SAME target and got a different answer with MORE data. Steg 2013 pooled all three CHAMPION trials at patient level to OR 0.81 (0.71 to 0.92) on the triple composite; this object pools TWO to 0.9646 (0.8132 to 1.1442). One interval excludes no difference and the other does not. SEPARATELY, THIS OBJECT'S DECLARED PRIMARY OUTCOME CARRIES NO POOLED ESTIMATE AT ALL despite k = 3. Which trial is absent from the three-component pool, and whether 0.9646 should stand, is a content decision and is not made here.",
@@ -952,6 +955,13 @@
    "values_moved": "NONE",
    "what_changed": "Steg 2013 reports the primary composite at OR 0.81 (0.71-0.91) across all three CHAMPION trials at patient level -- the same value this object records as the withdrawn card's figure.",
    "why": "The finding was first attached to `corrected_composite_3component`, which is NOT declared in `outcomes` and therefore never renders: 0 projection paragraphs carried it. A finding on a block the reader never sees is the defect it was written to fix."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "the published-comparison table rendered blank cells; repaired",
+   "values_moved": "NONE",
+   "what_changed": "added citation, how_it_differs_from_ours, scope to the comparison record(s); nothing renamed, nothing removed",
+   "why": "The projector reads `citation`/`their_k`/`scope`/`how_it_differs_from_ours`; these records stored `title`/`journal`/`outcome_pooled`/`agreement`. A reader met a PMID and four empty cells. Registry class 83."
   }
  ]
 }
