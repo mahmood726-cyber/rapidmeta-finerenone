@@ -121,8 +121,15 @@ CLAIMS = [
     ("23c", "Discussion", "The screening counts and exclusions", D, "prisma_flow / screening"),
     ("23c", "Discussion", "That the review was or was not prospectively registered", D,
      "protocol / registration_identity"),
+    # SIX PATHS, NOT ONE. `build_stamp.refusing` resolves on 8 of 28; the same claim is backed
+    # on 27 of 28 by `topic_state`, `absent_from_source`, `precondition_verdict`,
+    # `completeness_statement` or `scope_decisions`, each of which records what this review does
+    # not have and why. ELEVENTH INSTANCE of a path reading one spelling where the corpus writes
+    # several -- and the first where widening had to be paired with a placeholder filter,
+    # because presence alone would have counted "not recorded on the page" as a record.
     ("23c", "Discussion", "Which limbs of the standard this review refuses and why", D,
-     "build_stamp.refusing"),
+     "build_stamp.refusing / topic_state / absent_from_source / precondition_verdict / "
+     "completeness_statement / scope_decisions"),
     ("23c", "Discussion", "That risk of bias was assessed by one assessor, or two", D,
      # WRITTEN OUT IN FULL. The shorthand `risk_of_bias.ONE_ASSESSOR_ONLY / .SECOND_ASSESSOR_*`
      # lost its parent on the second alternative, so it addressed a top-level key that does not
@@ -148,8 +155,30 @@ CLAIMS = [
 ]
 
 
+# A FIELD PRESENT IS NOT A FIELD THAT BACKS THE CLAIM.
+#
+# `attr-pn-review.completeness_statement` reads "not recorded on the page this object was
+# extracted from". That is the object saying it HAS NO record, stored in the field where a
+# record would go. Counting its presence would have inflated the derivable figure by exactly
+# the topics that hold least -- and this is the FIRST correction of the run that guards against
+# OVER-counting rather than under-counting.
+PLACEHOLDER = __import__("re").compile(
+    r"not recorded on the page|not recoverable from the page|^not established$|^unknown$"
+    r"|^n/?a$|^none recorded$", __import__("re").I)
+
+
+def says_something(v):
+    if isinstance(v, str):
+        return bool(v.strip()) and not PLACEHOLDER.search(v.strip())
+    if isinstance(v, dict):
+        return any(says_something(x) for x in v.values())
+    if isinstance(v, list):
+        return any(says_something(x) for x in v)
+    return v not in (None, "", [], {})
+
+
 def resolve(obj, path):
-    """Does at least one concrete field exist under this (possibly wildcarded) path?"""
+    """Does at least one field under this path SAY SOMETHING, not merely exist?"""
     # THE RESOLVER WAS THE EIGHTH, NINTH AND TENTH INSTANCE OF THE NIGHT'S PATTERN.
     #
     # Three claims were reported unbacked and all three were this function, not the object:
@@ -204,7 +233,7 @@ def resolve(obj, path):
                 else:
                     if part in node:
                         nxt.append(node[part])
-            cur = [c for c in nxt if c not in (None, "", [], {})]
+            cur = [c for c in nxt if says_something(c)]
             if not cur:
                 ok = False
                 break
