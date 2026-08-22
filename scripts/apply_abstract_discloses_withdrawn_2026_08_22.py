@@ -28,8 +28,28 @@ FIELD = "what_this_review_does_not_publish_%s" % TODAY.replace("-", "_")
 HITS = os.path.join(REPO, "outputs", "abstract_omits_withdrawn_2026_08_22.json")
 
 
-def phrase(oid, k, why):
-    name = oid.replace("_", " ")
+def outcome_name(obj, oid):
+    """The outcome's registered name, never its identifier.
+
+    BOTH REVIEWERS FLAGGED `cvdeath or whf first` as malformed reader-facing English -- one
+    called it "raw variable names or shorthand code rather than standard English words". It
+    was `oid.replace("_", " ")`, which is an identifier with its underscores removed and is
+    not a name. The object records the real one.
+    """
+    blk = ((obj.get("results") or {}).get("by_outcome") or {}).get(oid) or {}
+    for src in (blk.get("outcome"), blk.get("name")):
+        if isinstance(src, str) and src.strip():
+            return src.strip()
+    for o in (obj.get("outcomes") or []):
+        if isinstance(o, dict) and o.get("id") == oid:
+            for key in ("name", "definition"):
+                if isinstance(o.get(key), str) and o[key].strip():
+                    return o[key].strip()
+    return oid.replace("_", " ")
+
+
+def phrase(obj, oid, k, why):
+    name = outcome_name(obj, oid)
     why = (why or "").strip()
     if why.lower().startswith("not pooled"):
         return "%s (k=%s), which is not pooled" % (name, k)
@@ -54,7 +74,7 @@ def main():
         t = h["topic"]
         p = os.path.join(REPO, "ssot", t, t + ".json")
         obj = json.load(io.open(p, encoding="utf-8"))
-        others = [phrase(oid, k, why) for oid, k, why in h["unmentioned"]]
+        others = [phrase(obj, oid, k, why) for oid, k, why in h["unmentioned"]]
         claims = ", ".join("%s at k=%s" % (pt, k) for _oid, pt, k in h["abstract_claims"])
         # PROSE, NOT A FIELD DUMP. The first version read "This object also holds 1
         # outcome(s) for which no pooled estimate is published" -- it named the DATA OBJECT to
@@ -69,9 +89,10 @@ def main():
             "WHAT THIS REVIEW DOES NOT PUBLISH. This review also examined %s outcome%s for "
             "which no pooled estimate is published: %s. "
             % (_count, "" if _n == 1 else "s", "; ".join(others)) + (
-            "Each is recorded with its reason, and none of them is part of the estimate "
-            "reported above (%s). A reader meeting the pooled result should not take it as "
-            "covering every outcome, or every trial, this review examined. "
+            "Each of those outcomes is recorded on this review with the reason it was not "
+            "pooled, and none of them contributes to the estimate reported above (%s). A "
+            "reader meeting the pooled result should not take it as covering every outcome, "
+            "or every trial, this review examined. "
             "This sentence exists because a second, independent reading -- by a different "
             "model family, given the object and the abstract and none of our conclusions -- "
             "found that a reader would reasonably conclude the review pools all relevant "

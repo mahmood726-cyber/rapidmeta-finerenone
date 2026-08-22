@@ -51,7 +51,8 @@ def _round_base_fmt():
 
 
 _round_base_fmt()
-import projectors as pj           # noqa: E402
+import projectors as pj
+import paper_projector as _pp           # noqa: E402
 import projectors2 as p2
 import paper as pp
 import wysiwyg as wy          # noqa: E402
@@ -715,9 +716,15 @@ def _projected_paper_html(canon):
             out.append("<figcaption>Figure %d. %s%s</figcaption>"
                        % (n, e(caption), _mark(fields)))
             out.append("</figure>")
+        # REFUSALS ARE PROSE TOO, AND THEY WERE THE LAST THING STILL SHOUTING.
+        #
+        # They never passed through `Section.add`, so the tidy that sentence-cased every
+        # paragraph never touched them -- and a refusal is a full sentence a reader reads:
+        # "Background is ARGUMENT -- why this question matters". Two blind copy-edit reads
+        # flagged the surviving capitals and both were reading refusal text.
         for what, missing in s.refusals:
             out.append("<div class='absent-state' role='note'><strong>Refused:</strong> "
-                       "%s%s</div>" % (e(what), _mark(missing)))
+                       "%s%s</div>" % (e(_pp._tidy(what)), _mark(missing)))
         if sources:
             # COLLAPSED, CLOSED BY DEFAULT. NOTHING IS REMOVED -- every field path is still
             # here and still one action away.
@@ -1052,7 +1059,15 @@ def _standard_block(canon, e_):
            "".join(rows), casc_rows, prov_html, sc_html, ro_html, pc_html,
            _v((auth.get("handbook", ""))), _v((auth.get("version", ""))),
            _v((auth.get("verified_on", ""))), _v((pv.get("publishable"))),
-           pre_rows, _v((stamp.get("_ratchet", "")))))
+           pre_rows,
+           # STORED PROSE RENDERED OUTSIDE `Section.add`, WHICH IS THE THIRD PLACE THIS HAS
+           # HAPPENED. The ratchet note is a full sentence held on the object and printed
+           # here, so the tidy that sentence-cased every paragraph never reached it -- it
+           # read "this page is BELOW it" and "presently UNSTAMPED". Tidied at the point of
+           # render because the stored text cannot be rewritten without restamping every
+           # object, and `_v` is too broad to tidy wholesale: it also renders table cells
+           # whose values are verdict tokens like HELD and FAIL.
+           _v(_pp._tidy(stamp.get("_ratchet", "")))))
 
 
 def build(canon):

@@ -481,7 +481,7 @@ def _flatten_container(text):
 
 # WORDS THAT ARE CAPITALS BECAUSE THAT IS THEIR NAME, not because we were shouting.
 _KEEP_CAPS = {
-    "GRADE", "PRISMA", "REML", "REM", "DL", "PM", "HR", "RR", "OR", "IRR", "MD", "SMD", "RD",
+    "GRADE", "PRISMA", "REML", "REM", "DL", "PM", "HR", "RR", "IRR", "MD", "SMD", "RD",
     "CI", "NCT", "PMID", "DOI", "FDA", "EMA", "NICE", "WHO", "RCT", "RCTS", "ITT", "PP", "AE",
     "SAE", "LDL", "HFPEF", "HFREF", "CKD", "T2D", "HIV", "PCI", "MI", "TOC", "APOLLO",
     "HELIOS", "JUPITER", "EMPEROR", "STEP", "FLOW", "SELECT", "ROSE", "TIGER", "HORUS",
@@ -490,6 +490,7 @@ _KEEP_CAPS = {
     # recorded certainty rating into an adjective, which is a loss of meaning and not a
     # change of presentation.
     "LOW", "HIGH", "MODERATE",
+
     "CERTAINTY", "PROSPERO", "REFUSED", "WITHDRAWN", "PENDING",
     # NOT function words. `IS`, `THE`, `AND`, `A` were in this set at first and the
     # result was "A Disagreement rate IS meaningless without THE facts" -- half-shouted,
@@ -502,7 +503,56 @@ _KEEP_CAPS = {
 # page -- shorter ones, and ones broken by a comma, a dash or a full stop. Emphasis does not
 # come in a minimum length.
 _CAPS_RUN = re.compile(
-    r"\b(?:[A-Z][A-Z'\-]{1,}[,;:\-]?\s+){1,}[A-Z][A-Z'\-]{1,}\b")
+    # A ONE-LETTER WORD DOES NOT END A RUN OF SHOUTING.
+    # "BOTH CONTRIBUTING TRIALS SET A MINIMUM AGE OF 18 YEARS" was two runs
+    # separated by "A", so both halves lowered and the "A" stood alone in the
+    # middle of the sentence: "...trials set A minimum age of 18 years".
+    r"\b(?:[A-Z][A-Z'\-]*[,;:\-]?\s+){1,}[A-Z][A-Z'\-]{1,}\b")
+
+
+# A SINGLE SHOUTED WORD IS STILL SHOUTING. The run rule needs two adjacent capitalised words,
+# so `ELIGIBILITY turns on...`, `adults with CHRONIC heart failure`, `Background is ARGUMENT`
+# and `it does NOT turn on` all survived it -- and those are the ones left on the live page.
+#
+# WHAT IS NOT TOUCHED, and the exclusions matter more than the rule:
+#   anything in _KEEP_CAPS                     GRADE, PRISMA, REML, trial acronyms
+#   anything with an underscore                NO_INFORMATION, SOME_CONCERNS -- stored values
+#   anything adjacent to a hyphen              DAPA-HF, EMPEROR-Reduced
+#   anything containing a digit                COVID19, PHASE3
+#   anything with no vowel                     RCT, NCT, HR, CI -- initialisms
+#   anything of three letters or fewer         too likely to be an initialism
+_SINGLE_CAPS = re.compile(r"(?<![A-Z0-9_\-])\b([A-Z]{3,})\b(?![A-Z0-9_\-])")
+_VOWELS = set("AEIOUY")
+# VERDICT TOKENS ARE VALUES IN A TABLE CELL AND ORDINARY WORDS IN A SENTENCE.
+# Protecting them globally produced "No PROSPERO registration OR protocol record is
+# HELD on this object" -- a stored verdict word leaking into prose because a cell
+# elsewhere needed it. The protection is passed in by the caller that needs it.
+_CELL_TOKENS = {"HELD", "FAIL", "PASS", "SKIP", "ABSENT", "PRESENT", "REFUSING",
+                "STANDS", "WITHDRAWN", "REFERRED", "PENDING", "UNSTAMPED", "PROOF",
+                "OR", "RR", "HR"}
+# SHOUTED SHORT WORDS, BY NAME. The four-letter floor leaves "it does NOT turn on" and
+# its neighbours standing. A general three-letter rule would eat RCT, NCT, ITT, AE and
+# every initialism in the corpus, so these are listed rather than inferred.
+_SHOUTED_SHORT = {"NOT", "AND", "BUT", "ALL", "ANY", "ONE", "TWO", "NOR", "YET", "OWN",
+                  "WHY", "HOW", "WHO", "NEW", "OLD", "FEW", "PER", "VIA", "THE", "ITS"}
+
+
+def _lower_single_caps(text):
+    def _fix(m):
+        w = m.group(1)
+        if w in _KEEP_CAPS:
+            return w
+        if len(w) == 3 and w not in _SHOUTED_SHORT:
+            return w
+        if not (_VOWELS & set(w)):
+            return w
+        # a word that starts a sentence keeps its initial capital
+        pre = m.string[:m.start()].rstrip()
+        if (not pre) or pre.endswith((".", "?", "!", ":", ";")):
+            return w.capitalize()
+        return w.lower()
+
+    return _SINGLE_CAPS.sub(_fix, text)
 
 
 def _sentence_case(text):
@@ -549,11 +599,17 @@ _SELF_NARRATION = re.compile(
     r"replace\.)")
 
 
-def _tidy(text):
+def _tidy(text, protect=()):
     if not isinstance(text, str):
         text = str(text)
     text = _SELF_NARRATION.sub(" ", text)
-    return _sentence_case(_flatten_container(text)).strip()
+    if protect:
+        _KEEP_CAPS.update(protect)
+    try:
+        return _lower_single_caps(_sentence_case(_flatten_container(text))).strip()
+    finally:
+        if protect:
+            _KEEP_CAPS.difference_update(protect)
 
 
 class Section(object):
@@ -576,7 +632,8 @@ class Section(object):
         """Emit `text` only if EVERY field it cites resolves. Otherwise record the refusal."""
         missing = [f for f in fields if get(obj, f) is None]
         if missing:
-            self.refusals.append((text[:70] + ("..." if len(text) > 70 else ""), missing))
+            self.refusals.append((_tidy(text)[:70] + ("..." if len(text) > 70 else ""),
+                                  missing))
             return False
         # EVERY PARAGRAPH IS TIDIED HERE, which is the whole point of doing it here.
         self.paras.append((_tidy(text), list(fields)))
@@ -596,11 +653,22 @@ class Section(object):
         """
         missing = [f for f in fields if get(obj, f) is None]
         if missing:
-            self.refusals.append((caption, missing))
+            self.refusals.append((_tidy(caption), missing))
             return False
         if not rows:
-            self.refusals.append((caption + " (no rows resolved)", list(fields)))
+            self.refusals.append((_tidy(caption) + " (no rows resolved)", list(fields)))
             return False
+
+        # A TABLE CELL CAN HOLD A PARAGRAPH, AND FOUR OF THEM WERE STILL SHOUTING.
+        #
+        # `add` tidied every paragraph; `add_table` tidied nothing, so a cell carrying
+        # "THREE TRIALS. NCT00761267's registered primary is ADVERSE EVENTS" reached the page
+        # untouched -- and a reader does not know or care which method emitted the sentence
+        # they are reading. Only cells long enough to be prose are tidied: a short cell is a
+        # value, and verdict tokens are protected by name in _KEEP_CAPS above.
+        caption = _tidy(caption)
+        rows = [[(_tidy(c, _CELL_TOKENS) if isinstance(c, str) and len(c.split()) >= 6
+                  else c) for c in row] for row in rows]
 
         # A ROW OF BLANKS IS WORSE THAN NO TABLE. Added 2026-08-21 as registry class 83.
         #
@@ -916,8 +984,116 @@ def _outcome_words(obj, oid):
         if isinstance(o, dict) and o.get("id") == oid:
             nm = (o.get("name") or "").strip()
             if nm:
-                return nm[0].lower() + nm[1:] if nm[0].isupper() else nm
+                return _lc_first(nm)
     return oid.replace("_", " ")
+
+
+
+def _phrase(value, max_words=14):
+    """A value fit to drop into `X was {slot}`, or None if it is prose.
+
+    THE CLASS THIS FIXES. A template reading `eligibility was {field}` was handed a paragraph
+    that itself begins "ELIGIBILITY turns on population, intervention and comparator: ..." and
+    produced, live on the page:
+
+        "eligibility was ELIGIBILITY turns on population, intervention and comparator: a trial
+         is in scope if it randomised adults with CHRONIC heart failure ... because section
+         3.2.4 cautions that making e;"
+
+    -- the slot's own name repeated, a whole paragraph inside a clause, and a cut mid-word at
+    300 characters. Three defects in one sentence, and none of them is specific to eligibility.
+
+    THE RULE: A SLOT TAKES A PHRASE; PROSE GETS ITS OWN SENTENCE. This returns the value only
+    when it is genuinely phrase-like -- short, one sentence, not opening with a shouted field
+    name. Otherwise the caller drops the template and lets the field's own sentence stand.
+    """
+    if value is None:
+        return None
+    t = _v_str(value).strip()
+    if not t:
+        return None
+    # a paragraph, or several sentences, is not a phrase
+    if "\n" in t or t.count(". ") >= 1:
+        return None
+    if len(t.split()) > max_words:
+        return None
+    # a value opening with its own field name in capitals is a field, not a phrase
+    if re.match(r"^[A-Z]{4,}[A-Z_ ]*\b", t):
+        return None
+    return t.rstrip(". ")
+
+
+def _own_sentence(value, limit=600):
+    """The field's own prose, cut at a SENTENCE boundary and never mid-word."""
+    t = _v_str(value).strip()
+    if not t:
+        return None
+    t = re.sub(r"\s+", " ", t)
+    if len(t) <= limit:
+        return t if t.endswith((".", "?", "!")) else t + "."
+    cut = t[:limit]
+    # back off to the last sentence end; if there is none, to the last whole word
+    m = list(re.finditer(r"[.!?]\s", cut))
+    if m:
+        return cut[:m[-1].end()].strip()
+    return cut.rsplit(" ", 1)[0].rstrip(",;:") + " ..."
+
+
+def _model_words(model):
+    """`random` and `fixed` are half a name. The page read "pooled under random"."""
+    t = (_v_str(model) or "").strip()
+    low = t.lower()
+    if low in ("random", "random effects", "randomeffects"):
+        return "a random-effects model"
+    if low in ("fixed", "fixed effect", "fixed effects", "common", "common effect"):
+        return "a fixed-effect model"
+    if low.startswith("random-effects") or low.startswith("fixed-effect"):
+        return "a " + t if not t.lower().startswith("a ") else t
+    return t
+
+
+def _live_certainty(obj):
+    """The GRADE rating, from the GRADE record, over outcomes the review actually publishes.
+
+    THE ABSTRACT PUBLISHED "certainty of the evidence was high" WHILE GRADE HELD LOW. It read
+    `results.by_outcome.<first key>.grade.certainty`, which on sglt2-hf is a stale block on the
+    WITHDRAWN outcome reading "start high; no downgrades". Two defects at once: the wrong field,
+    and selecting the first outcome in KEY ORDER without asking whether it is one the review
+    publishes. Either alone was enough to put a wrong rating in front of a reader.
+    """
+    res = (obj.get("results") or {}).get("by_outcome") or {}
+    grade = ((obj.get("grade") or {}).get("by_outcome") or {})
+    vals = []
+    for oid, g in sorted(grade.items()):
+        if not isinstance(g, dict) or not g.get("certainty"):
+            continue
+        pooled = (res.get(oid) or {}).get("pooled")
+        if not isinstance(pooled, dict) or pooled.get("point") is None or pooled.get("withdrawn"):
+            continue
+        vals.append(str(g["certainty"]).replace("_", " ").lower())
+    if not vals:
+        return None
+    uniq = sorted(set(vals))
+    if len(uniq) == 1:
+        return uniq[0]
+    return "%s across the pooled outcomes" % _and_list(uniq)
+
+
+
+def _lc_first(nm):
+    """Lower-case an initial capital ONLY where it is an ordinary capitalised word.
+
+    `nm[0].lower() + nm[1:]` turned the outcome "HIV-1 seroconversion" into "hIV-1
+    seroconversion" on a delivered page. An acronym's first letter is not a sentence capital,
+    and the test for the difference is the SECOND character: `Cardiovascular` lowers, `HIV`
+    and `LDL` do not.
+    """
+    nm = str(nm or "")
+    if len(nm) < 2 or not nm[0].isupper():
+        return nm
+    if nm[1].isupper():
+        return nm
+    return nm[0].lower() + nm[1:]
 
 
 def _i2_words(i2):
@@ -1492,7 +1668,7 @@ def project(obj, journal="generic", length="standard"):
             _ci = _ci[:-1] + ", %s%% interval)" % _lvl if _ci.endswith(")") else _ci
             f.append("config.confidence_level")
         txt = "The pooled %s for %s was %s across %s trials" % (
-            measure_words(p.get("measure")), _subject[0].lower() + _subject[1:], _ci,
+            measure_words(p.get("measure")), _lc_first(_subject), _ci,
             blk.get("k", "an unstated number of"))
         comparator = (next((o.get("comparator") for o in (obj.get("outcomes") or [])
                             if isinstance(o, dict) and o.get("id") == oid), None))
@@ -1509,11 +1685,11 @@ def project(obj, journal="generic", length="standard"):
         # sentence, not into a methods tab.
         _ref_txt, _ref_f = pool_referral(blk)
         if _ref_txt:
-            s.paras.append((_ref_txt,
+            s.paras.append((_tidy(_ref_txt),
                             [p.replace("<this outcome>", oid) for p in _ref_f]))
         _fnd_txt, _fnd_f = pool_findings(blk)
         if _fnd_txt:
-            s.paras.append((_fnd_txt,
+            s.paras.append((_tidy(_fnd_txt),
                             [p.replace("<this outcome>", oid) for p in _fnd_f]))
 
         # HETEROGENEITY, WITH THE CAVEAT THE OBJECT ALREADY RECORDS.
@@ -1550,7 +1726,7 @@ def project(obj, journal="generic", length="standard"):
                     ht += (" The caveat recorded above for %s applies here too."
                            % _het_caveats_said[status])
                 else:
-                    _het_caveats_said[status] = _subject[0].lower() + _subject[1:]
+                    _het_caveats_said[status] = _lc_first(_subject)
                     ht += " %s" % status
                 hf.append("results.by_outcome.%s.heterogeneity_status" % oid)
             s.paras.append((ht, hf))
@@ -1612,11 +1788,11 @@ def project(obj, journal="generic", length="standard"):
         # literature found instead.
         _ref_txt, _ref_f = pool_referral(blk)
         if _ref_txt:
-            s.paras.append((_ref_txt,
+            s.paras.append((_tidy(_ref_txt),
                             [p.replace("<this outcome>", oid) for p in _ref_f]))
         _fnd_txt, _fnd_f = pool_findings(blk)
         if _fnd_txt:
-            s.paras.append((_fnd_txt,
+            s.paras.append((_tidy(_fnd_txt),
                             [p.replace("<this outcome>", oid) for p in _fnd_f]))
     # AND A POINTER TO THE TRANSCRIPT, so the guarantee is reachable from the body.
     # The verbatim model output is no longer a numbered section of the article; it sits at the
@@ -1699,8 +1875,15 @@ def project(obj, journal="generic", length="standard"):
         if p.get("point") is not None and _nm:
             # THE SUBJECT IS THE REGISTERED OUTCOME TEXT. An abstract that reads
             # "0.81 for hfh_cvd_recurrent" is a record of a dict, not a finding.
-            _pooled.append("%s: %s %s across %s trials"
-                           % (_nm, measure_words(p.get("measure")), ci_prose(p),
+            # THE MEASURE IS NOT NAMED TWICE. Some outcome names already end "... as a
+            # hazard ratio", and appending the measure word produced, live, "as a hazard
+            # ratio: hazard ratio 0.783". Caught by a blind copy-edit read from a second
+            # family; a doubled word is the kind of thing only reading finds.
+            _mw = measure_words(p.get("measure"))
+            _nm_l = str(_nm).lower()
+            _dup = _mw and _mw.lower().rstrip("s") in _nm_l
+            _pooled.append("%s: %s%s across %s trials"
+                           % (_nm, "" if _dup else _mw + " ", ci_prose(p),
                               blk.get("k", "an unstated number of")))
     # A QUALIFIED ESTIMATE MUST NOT APPEAR UNQUALIFIED IN THE ABSTRACT.
     #
@@ -1763,6 +1946,7 @@ def project(obj, journal="generic", length="standard"):
 
     # -- METHODS: composed from facts ----------------------------------------------------
     _mparts, _mfields = [], []
+    _elig_own = None
     _dbs = get(obj, "search.databases")
     if isinstance(_dbs, (list, dict)) and _dbs:
         _names = _source_names(_dbs)
@@ -1771,13 +1955,20 @@ def project(obj, journal="generic", length="standard"):
             _mfields.append("search.databases")
     _elig = get(obj, "screening.eligibility")
     if _elig is not None:
-        _mparts.append("eligibility was %s" % _v_str(_elig)[:300].rstrip(". "))
+        _ep = _phrase(_elig, 18)
+        if _ep:
+            _mparts.append("eligibility was %s" % _ep)
+        else:
+            # PROSE GETS ITS OWN SENTENCE. Dropped into `eligibility was {slot}` this produced
+            # "eligibility was ELIGIBILITY turns on population, intervention and comparator..."
+            # and was then cut mid-word at 300 characters.
+            _elig_own = _own_sentence(_elig)
         _mfields.append("screening.eligibility")
     _model = _first_by_outcome(obj, ("model",))
     _est = _first_by_outcome(obj, ("estimator_used",))
     if _model or _est:
         _mparts.append("estimates were pooled under %s%s"
-                       % (_v_str(_model) if _model else "the recorded model",
+                       % (_model_words(_model) if _model else "the recorded model",
                           " with the %s estimator" % _v_str(_est) if _est else ""))
         _mfields.append("results.by_outcome")
     _tool = get(obj, "risk_of_bias.tool")
@@ -1790,6 +1981,11 @@ def project(obj, journal="generic", length="standard"):
         _mfields.append("grade.approach")
     if _mparts:
         s.add(obj, "Methods. %s." % _sentence_join(_mparts), _mfields)
+        # THE ELIGIBILITY PARAGRAPH DOES NOT BELONG IN THE ABSTRACT. An abstract must stand
+        # alone, and this paragraph cites "section 3.2.4" of a document it never names --
+        # flagged by the second reviewer as reading like a cross-reference to nothing. It is
+        # carried in Methods -- eligibility criteria, where the reader has the context.
+        pass
     else:
         # CITE ONLY WHAT IS ACTUALLY ABSENT. The first cut cited `results.by_outcome` as a
         # stand-in for "the pooling model", but that container is PRESENT on these objects
@@ -1819,16 +2015,22 @@ def project(obj, journal="generic", length="standard"):
         _rfields.append("results.by_outcome")
     _i2 = _first_by_outcome(obj, ("heterogeneity", "i2"))
     if _i2 is not None:
-        _rparts.append("heterogeneity was %s (I-squared %s%%)"
+        # `_i2_words` RETURNS AN ADVERB -- "closely", "loosely" -- because it was written to
+        # complete "the trials agreed closely". Dropped into "heterogeneity was {word}" it
+        # produced "heterogeneity was closely (I-squared 0%)", which is not a sentence.
+        _rparts.append("the trials agreed %s (I-squared %s%%)"
                        % (_i2_words(_i2), _num(_i2)))
         _rfields.append("results.by_outcome")
-    _cert = _first_by_outcome(obj, ("grade", "certainty"))
+    _cert = _live_certainty(obj)
     if _cert is not None:
-        _rparts.append("certainty of the evidence was %s"
-                       % str(_v_str(_cert)).replace("_", " ").lower())
-        _rfields.append("results.by_outcome")
+        _rparts.append("certainty of the evidence was %s" % _cert)
+        _rfields.append("grade.by_outcome")
     if _rparts:
-        s.add(obj, "Results. %s." % _sentence_join(_rparts), sorted(set(_rfields)))
+        # A SENTENCE STARTS WITH A CAPITAL. "Results. cardiovascular death or..." was flagged
+        # by both reviewers; the first clause is an outcome name and arrived lower-cased.
+        _rtext = _sentence_join(_rparts)
+        _rtext = _rtext[:1].upper() + _rtext[1:] if _rtext else _rtext
+        s.add(obj, "Results. %s." % _rtext, sorted(set(_rfields)))
     else:
         # CITE THE LEAVES THAT ARE ACTUALLY ABSENT, NOT A WILDCARD OVER A PARENT THAT IS
         # PRESENT. `results.by_outcome.*.pooled.point` reads to the whole-document check as

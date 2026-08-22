@@ -1544,8 +1544,8 @@ def _finish(obj, path, original, before_keys, props, topic=None):
         "refusing": sorted(k for k, v in props.items() if v["state"] == REFUSING),
         "_ratchet": (
             "This page is stamped to the standard version above. If the standard rises, this "
-            "page is BELOW it and knowably so. No page is grandfathered; arni-hfref is "
-            "presently UNSTAMPED and is therefore unknown-version, not compliant."),
+            "page is below it and knowably so. No page is grandfathered; arni-hfref is "
+            "presently unstamped and is therefore unknown-version, not compliant."),
     }
     props_state = obj["build_stamp"]
 
