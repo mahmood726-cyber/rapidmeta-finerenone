@@ -489,7 +489,7 @@ _KEEP_CAPS = {
     # RATING WORDS ARE VALUES, NOT EMPHASIS. Lowercasing GRADE LOW to "GRADE low" turns a
     # recorded certainty rating into an adjective, which is a loss of meaning and not a
     # change of presentation.
-    "LOW", "HIGH", "MODERATE", "VERY", "SOME", "CONCERNS", "NO", "INFORMATION",
+    "LOW", "HIGH", "MODERATE",
     "CERTAINTY", "PROSPERO", "REFUSED", "WITHDRAWN", "PENDING",
     # NOT function words. `IS`, `THE`, `AND`, `A` were in this set at first and the
     # result was "A Disagreement rate IS meaningless without THE facts" -- half-shouted,
@@ -502,7 +502,7 @@ _KEEP_CAPS = {
 # page -- shorter ones, and ones broken by a comma, a dash or a full stop. Emphasis does not
 # come in a minimum length.
 _CAPS_RUN = re.compile(
-    r"\b(?:[A-Z][A-Z'\-]{1,}[,;:.\-]?\s+){1,}[A-Z][A-Z'\-]{1,}\b")
+    r"\b(?:[A-Z][A-Z'\-]{1,}[,;:\-]?\s+){1,}[A-Z][A-Z'\-]{1,}\b")
 
 
 def _sentence_case(text):
@@ -518,13 +518,19 @@ def _sentence_case(text):
         words = run.split()
         if all(w.strip(",;:") in _KEEP_CAPS or "_" in w for w in words):
             return run
+        # ONLY CAPITALISE IF THE RUN STARTS A SENTENCE. Capitalising the first word of the
+        # run unconditionally produced "A Disagreement rate is meaningless" -- the run began
+        # mid-sentence after "A ", so the capital landed on a word that is not a sentence
+        # start. Caught by a blind read from the other model family.
+        _pre = m.string[:m.start()].rstrip()
+        _starts_sentence = (not _pre) or _pre.endswith((".", "?", "!", ":", ";"))
         out = []
         for n, w in enumerate(words):
             bare = w.strip(",;:")
             if bare in _KEEP_CAPS or "_" in bare or re.match(r"^[A-Z]+\d", bare):
                 out.append(w)
             else:
-                out.append(w.capitalize() if n == 0 else w.lower())
+                out.append(w.capitalize() if (n == 0 and _starts_sentence) else w.lower())
         return " ".join(out)
 
     return _CAPS_RUN.sub(_fix, text)
