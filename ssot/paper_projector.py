@@ -1671,6 +1671,16 @@ def project(obj, journal="generic", length="standard"):
 
     # ---- ABSTRACT ----------------------------------------------------------------------
     s = Section("abstract", "Abstract")
+    # WHAT THE REVIEW DOES NOT PUBLISH, IN THE ABSTRACT ITSELF.
+    #
+    # A withdrawn outcome was recorded beside the outcome it concerned, and a reader of the
+    # abstract never reached it. Found by a blind cross-family read: given the object and the
+    # abstract and none of our conclusions, GPT-5 said a reader "would reasonably conclude the
+    # review publishes a pooled estimate across all relevant trials", and the object does not
+    # support that. Rendered at the END of the abstract so it qualifies the numbers a reader
+    # has just met rather than preceding them.
+    _nd = next((k for k in sorted(obj) if str(k).startswith("what_this_review_does_not_publish")
+                and isinstance(obj[k], str) and obj[k].strip()), None)
     # An AUTHORED abstract, where the object holds one, in preference to the composed
     # sentences below -- and the composed ones still follow, because they name the fields
     # they came from and an authored paragraph does not.
@@ -2465,6 +2475,8 @@ def project(obj, journal="generic", length="standard"):
                     ["Id", "Layer", "Source", "Location"], _rows, ["sources"])
     elif not _bib_rendered:
         s.refusals.append(("the reference list", ["sources"]))
+    if _nd:
+        s.add(obj, obj[_nd].strip(), [_nd])
     secs.append(s)
 
     # ---- KEYWORDS (content gap) --------------------------------------------------------
