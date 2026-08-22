@@ -1077,7 +1077,10 @@ def project(obj, journal="generic", length="standard"):
     secs.append(s)
 
     # ---- METHODS: FLOW ----------------------------------------------------------------
-    s = Section("methods_flow", "Methods — study flow and k at every stage")
+    # PLAIN ENGLISH, NO BARE `k`. The heading read "Methods -- study flow and k at every
+    # stage": a single-letter symbol in an article heading reads as code whatever the section
+    # beneath it says, and it is the only heading in the sequence that carried one.
+    s = Section("methods_flow", "Methods — how many studies at each stage")
     kc = get(obj, "k_cascade") or {}
     if kc:
         # A TABLE, NOT A SENTENCE. This was `key.replace("_", " ")` joined with semicolons,
@@ -2135,7 +2138,10 @@ def project(obj, journal="generic", length="standard"):
         secs.append(s)
 
     # ---- SECTIONS NOT WRITTEN, AND WHY -------------------------------------------------
-    s = Section("not_written", "Sections not written, and why")
+    # APPARATUS, NAMED AS APPARATUS. This was a heading in the article's own sequence,
+    # between Trial characteristics and Submission conformance, so a reader working down the
+    # paper met a section about the paper's own construction as though it were part of it.
+    s = Section("not_written", "Notes on this record — sections not written, and why")
     ref = get(obj, "build_stamp.refusing")
     if isinstance(ref, list) and ref:
         s.add(obj, "This review refuses %d of the page standard's properties, by name: %s. "
@@ -2633,7 +2639,7 @@ READING_ORDER = [
     # ---- references and display items ---------------------------------------------------
     "references", "figure_legends", "figures", "trial_characteristics",
     # ---- supplementary and apparatus, after everything a reader reads as the paper -------
-    "statistical_output", "not_written", "submission_conformance",
+    "statistical_output", "submission_conformance", "not_written",
 ]
 
 

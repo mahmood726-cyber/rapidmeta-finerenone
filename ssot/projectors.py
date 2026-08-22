@@ -1599,8 +1599,24 @@ def tabbed_body(canon, parts, page):
             else:
                 _label = "Not held in this object."
                 note = _tbl.get(tid, "No content is held in this object for this section.")
+            # THE MANUSCRIPT IS THE TAB A READER ARRIVES FOR, SO IT IS THE ONE THAT OPENS.
+            #
+            # The tabs work: `.panel{height:0;overflow:hidden}` and only the checked radio's
+            # panel expands. What was wrong is WHICH ONE was checked. `rt-protocol` was
+            # checked on load because it is first in the list, so a reader arriving to read
+            # the review met the Protocol panel and had to find "7. Paper Studio" -- seventh
+            # of eight, behind Search, Screening, Extraction, the Analysis Suite and
+            # Scientific Output. Five rounds of "it reads like code" were answered by
+            # rewriting a panel he had to click six tabs past to see.
+            #
+            # Nothing is moved and no id changes: `paper` simply takes the default. The
+            # analysis suite is one click away, which is the right way round for a page whose
+            # subject is a review.
             checked = ""
-            if first is None:
+            if tid == "paper":
+                checked = " checked"
+                first = tid
+            elif first is None and not any(t[0] == "paper" for t in TABS):
                 first, checked = tid, " checked"
             inputs += '<input type="radio" name="rmtab" id="rt-%s"%s>%s' % (tid, checked, NL)
             nav += ' <label for="rt-%s">%s</label>%s' % (tid, label, NL)
@@ -1643,8 +1659,13 @@ def tabbed_body(canon, parts, page):
         toc = ("  <p class='toc'><strong>In this section:</strong> "
                + " &middot; ".join('<a href="#%s">%s</a>' % (hid, e(htxt))
                                    for hid, htxt in heads) + "</p>" + NL) if heads else ""
+        # THE MANUSCRIPT OPENS. Second of two tab-emitting sites, and the one the delivered
+        # pages actually use -- patching the other alone changed nothing, which is how you
+        # spend a build finding out there were two.
         checked = ""
-        if first is None:
+        if tid == "paper":
+            checked, first = " checked", tid
+        elif first is None and not any(t[0] == "paper" for t in TABS):
             first, checked = tid, " checked"
         inputs += '<input type="radio" name="rmtab" id="rt-%s"%s>%s' % (tid, checked, NL)
         nav += '  <label for="rt-%s">%s</label>%s' % (tid, label, NL)
