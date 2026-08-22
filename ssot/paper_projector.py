@@ -723,6 +723,12 @@ def pool_findings(blk):
     finding that lives only on the object is a finding that exists for us and not for the
     reader. Returns (text, field paths) or (None, []).
     """
+    # EVERY DATED FINDINGS BLOCK, NOT THE FIRST. Same defect as pool_referral had: cangrelor
+    # carries POOL_FINDINGS_2026_08_20 and a second block written 2026-08-21, and returning on
+    # the first meant the newer one -- the missing measure, and the MI-definition cause --
+    # reached no reader. Findings accumulate on a pool; a renderer that shows only the oldest
+    # goes quieter the more is found.
+    out, paths = [], []
     for key in sorted(blk):
         if not key.startswith(FINDING_PREFIX):
             continue
@@ -736,9 +742,11 @@ def pool_findings(blk):
                 bits.append(v)
         if not bits:
             continue
-        return ("NOTED ON THIS POOL. " + " ".join(bits),
-                ["results.by_outcome.<this outcome>.%s" % key])
-    return None, []
+        out.append(" ".join(bits))
+        paths.append("results.by_outcome.<this outcome>.%s" % key)
+    if not out:
+        return None, []
+    return "NOTED ON THIS POOL. " + " ".join(out), paths
 
 
 def _outcome_words(obj, oid):
