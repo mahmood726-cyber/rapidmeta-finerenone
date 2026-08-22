@@ -125,8 +125,9 @@ def _drafted(obj, section):
 def _add_drafts(s, obj, section):
     n = 0
     for ck, cv, path in _drafted(obj, section):
-        if s.add(obj, "DRAFT FOR THE AUTHOR TO REPLACE -- %s. %s"
-                 % (cv.get("the_claim", ck.replace("_", " ")), cv.get("draft", "")), [path]):
+        # ONE SHORT MARKER, SENTENCE CASE, ONCE PER PASSAGE. The marker was longer than
+        # some of the sentences it marked, shouted, and repeated for every claim.
+        if s.add(obj, "[Draft] %s" % cv.get("draft", ""), [path]):
             n += 1
     return n
 
@@ -401,6 +402,154 @@ def _resolve_tokens(obj, text):
 TOKEN_RE = re.compile(r"\[\[[a-z0-9_]+\]\]", re.I)
 
 
+
+# ---------------------------------------------------------------------------------------
+# PROSE HYGIENE, AT THE ONE PLACE EVERY PARAGRAPH PASSES THROUGH.
+#
+# Four defects made the manuscript read as machine output rather than as a paper, and every
+# one of them was fixable in `Section.add` rather than at the hundred sites that call it.
+# Fixing at the call site is exactly what was tried for the container-repr class and it did
+# not hold: the class recurred in a path the sweep did not cover.
+# ---------------------------------------------------------------------------------------
+
+_DICT_REPR = re.compile(r"\{'[^']+':\s*(?:'|\[|\{)")
+_LIST_REPR = re.compile(r"\['[^']*'(?:,\s*'[^']*')*\]")
+
+
+def _flatten_container(text):
+    """A Python container reaching rendered prose is the container-repr class.
+
+    `{'what_verifies_this_object': 'Two things...', 'families': ['openai', 'google']}` was
+    printed in a Methods body. The value is real and belongs on the page; its REPR does not.
+    Dicts become `key: value.` sentences and lists become `a, b and c`, so the content
+    survives and the punctuation of a data structure does not.
+    """
+    def _list(m):
+        items = re.findall(r"'([^']*)'", m.group(0))
+        if len(items) <= 1:
+            return items[0] if items else ""
+        return ", ".join(items[:-1]) + " and " + items[-1]
+
+    text = _LIST_REPR.sub(_list, text)
+    if not _DICT_REPR.search(text):
+        return text
+    out, i = [], 0
+    while True:
+        m = _DICT_REPR.search(text, i)
+        if not m:
+            out.append(text[i:])
+            break
+        start = m.start()
+        depth, j = 0, start
+        while j < len(text):
+            if text[j] == "{":
+                depth += 1
+            elif text[j] == "}":
+                depth -= 1
+                if depth == 0:
+                    j += 1
+                    break
+            j += 1
+        out.append(text[i:start])
+        body = text[start:j]
+        # STRING **AND** LIST VALUES. Matching only strings dropped
+        # `families: [openai, google]` silently, and the instruction on every one of
+        # these repairs is that the facts survive and only the presentation changes.
+        # ANCHORED TO A PAIR BOUNDARY. `'([^']+)':` could start matching inside a
+        # previous list's items, so the pair that followed a list was swallowed and
+        # `families: [openai, google]` vanished from the flattened text. A presentation fix
+        # that drops a fact is the thing this project refuses all week; it cannot be the fix
+        # that ships.
+        pairs = re.findall(
+            r"(?:[{,]\s*)'([^']+?)':\s*(\[[^\]]*\]|'(?:[^'\\]|\\.)*')", body)
+        bits = []
+        for _k, _raw in pairs:
+            if _raw.startswith('['):  # a list value is a fact and must survive
+                _it = re.findall(r"'([^']*)'", _raw)
+                _v = (', '.join(_it[:-1]) + ' and ' + _it[-1]) if len(_it) > 1 else (
+                    _it[0] if _it else '')
+            else:
+                _v = _raw[1:-1]
+            _v = _v.strip()
+            if _v:
+                bits.append('%s: %s%s' % (_k.replace('_', ' '), _v,
+                                          '' if _v.endswith(('.', '?', '!')) else '.'))
+        out.append(' '.join(bits))
+        i = j
+    return "".join(out)
+
+
+# WORDS THAT ARE CAPITALS BECAUSE THAT IS THEIR NAME, not because we were shouting.
+_KEEP_CAPS = {
+    "GRADE", "PRISMA", "REML", "REM", "DL", "PM", "HR", "RR", "OR", "IRR", "MD", "SMD", "RD",
+    "CI", "NCT", "PMID", "DOI", "FDA", "EMA", "NICE", "WHO", "RCT", "RCTS", "ITT", "PP", "AE",
+    "SAE", "LDL", "HFPEF", "HFREF", "CKD", "T2D", "HIV", "PCI", "MI", "TOC", "APOLLO",
+    "HELIOS", "JUPITER", "EMPEROR", "STEP", "FLOW", "SELECT", "ROSE", "TIGER", "HORUS",
+    "DELIVER", "FIDELIO", "FIGARO", "FIDELITY", "ORION", "CHAMPION", "US", "UK", "EU",
+    # RATING WORDS ARE VALUES, NOT EMPHASIS. Lowercasing GRADE LOW to "GRADE low" turns a
+    # recorded certainty rating into an adjective, which is a loss of meaning and not a
+    # change of presentation.
+    "LOW", "HIGH", "MODERATE", "VERY", "SOME", "CONCERNS", "NO", "INFORMATION",
+    "CERTAINTY", "PROSPERO", "REFUSED", "WITHDRAWN", "PENDING",
+    # NOT function words. `IS`, `THE`, `AND`, `A` were in this set at first and the
+    # result was "A Disagreement rate IS meaningless without THE facts" -- half-shouted,
+    # which reads worse than the shouting did. Inside a run being de-emphasised, a
+    # conjunction is a conjunction.
+}
+# TWO WORDS, NOT THREE, AND PUNCTUATION INSIDE THE RUN.
+#
+# The first version required three consecutive all-caps words and 51 runs survived it on one
+# page -- shorter ones, and ones broken by a comma, a dash or a full stop. Emphasis does not
+# come in a minimum length.
+_CAPS_RUN = re.compile(
+    r"\b(?:[A-Z][A-Z'\-]{1,}[,;:.\-]?\s+){1,}[A-Z][A-Z'\-]{1,}\b")
+
+
+def _sentence_case(text):
+    """Capitals used as emphasis become sentence case. Papers do not shout.
+
+    Only runs of THREE OR MORE consecutive all-caps words are touched, so `GRADE`, `REML`,
+    `RoB 2`, an NCT id and a trial acronym are all left exactly as they are -- the emphasis
+    was doing work that sentence structure should do, and a single capitalised name is not
+    emphasis. ALLCAPS_SNAKE constants are values, not shouting, and are left alone.
+    """
+    def _fix(m):
+        run = m.group(0)
+        words = run.split()
+        if all(w.strip(",;:") in _KEEP_CAPS or "_" in w for w in words):
+            return run
+        out = []
+        for n, w in enumerate(words):
+            bare = w.strip(",;:")
+            if bare in _KEEP_CAPS or "_" in bare or re.match(r"^[A-Z]+\d", bare):
+                out.append(w)
+            else:
+                out.append(w.capitalize() if n == 0 else w.lower())
+        return " ".join(out)
+
+    return _CAPS_RUN.sub(_fix, text)
+
+
+# SENTENCES THAT NARRATE THE SENTENCE THE READER IS READING.
+#
+# "Everything in this paragraph is derived from stored fields and none of it is authored."
+# A reader does not need to be told how the prose in front of them was made; that belongs
+# once, in a note about the record, not inside the Introduction.
+_SELF_NARRATION = re.compile(
+    r"(?is)\s*(?:Everything (?:in this paragraph|above) is derived from stored fields[^.]*\.|"
+    r"Nothing in it is authored\.|"
+    r"Everything above is derived from stored fields and nothing in it is authored\.|"
+    r"The interpretive sentences that follow are marked as drafts and are the author's to "
+    r"replace\.)")
+
+
+def _tidy(text):
+    if not isinstance(text, str):
+        text = str(text)
+    text = _SELF_NARRATION.sub(" ", text)
+    return _sentence_case(_flatten_container(text)).strip()
+
+
 class Section(object):
     """A manuscript section, its text, and THE FIELDS IT WAS PROJECTED FROM.
 
@@ -423,7 +572,8 @@ class Section(object):
         if missing:
             self.refusals.append((text[:70] + ("..." if len(text) > 70 else ""), missing))
             return False
-        self.paras.append((text, list(fields)))
+        # EVERY PARAGRAPH IS TIDIED HERE, which is the whole point of doing it here.
+        self.paras.append((_tidy(text), list(fields)))
         return True
 
     def add_table(self, obj, caption, headers, rows, fields):
@@ -1799,10 +1949,16 @@ def project(obj, journal="generic", length="standard"):
                                                 "assessors given the same facts authenticates "
                                                 "nothing"),
                           ("the_disagreement", "Where they disagree"),
-                          ("verbatim_reply", "The second assessor's reply, verbatim"),
-                          ("THE_ALLOW_LIST_THE_RATE_IS_CONDITIONAL_ON",
-                           "The facts both assessors were shown -- a rate is meaningless "
-                           "without them"),
+                          # `verbatim_reply` AND THE PROTOCOL DESCRIPTION LEAVE THE BODY.
+                          #
+                          # Nine lines of `NCT03036124__cvdeath_or_whf_first
+                          # D1=NO_INFORMATION D2=NO_INFORMATION ...` were printed in the
+                          # middle of the article. That is machine output in a paper. It is
+                          # not dropped -- it is rendered in Extended data beside the R
+                          # transcript, which is where this venue puts material that
+                          # supports the claims and is not prose. The body keeps the rate,
+                          # the per-domain breakdown and the named disagreements, which are
+                          # the finding.
                           ("not_changed_here", "What has NOT been changed on the strength of "
                                                "it")):
             _v = _sa.get(_f)
