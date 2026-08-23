@@ -3137,7 +3137,8 @@ def project(obj, journal="generic", length="standard"):
                     svg = ""
             pt = [r for r in (res.get("per_trial") or []) if isinstance(r, dict)]
             usable = [r for r in pt
-                      if r.get("point") and r.get("ci_low") and r.get("ci_high")]
+                      if r.get("point") is not None and r.get("ci_low") is not None
+              and r.get("ci_high") is not None]
             if not pt:
                 why = ("no per-trial estimates are stored for this outcome, so there are no "
                        "rows to plot. The pooled value alone is a point, not a forest.")

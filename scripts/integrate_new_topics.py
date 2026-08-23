@@ -27,7 +27,8 @@ for json_p in sorted(TOPICS.glob("*.json")):
         ex = t["extracted"]
         nct = ex["nct"]
         per_arm = ex.get("aact_per_arm_counts", {})
-        arm_codes = sorted(per_arm.keys())
+        # ARM ROLE IS READ, NEVER SORTED -- see ssot/arm_roles.py.
+        arm_codes = _arm_order(per_arm)
         tN = per_arm.get(arm_codes[0]) if arm_codes else None
         cN = per_arm.get(arm_codes[1]) if len(arm_codes) > 1 else None
         outcome_rows = ex.get("aact_outcome_count_rows", [])
@@ -37,7 +38,8 @@ for json_p in sorted(TOPICS.glob("*.json")):
                 try: og_vals[og] = int(float(v))
                 except: pass
             if len(og_vals) >= 2: break
-        og_codes_sorted = sorted(og_vals.keys())
+        # ARM ROLE IS READ, NEVER SORTED -- see ssot/arm_roles.py.
+        og_codes_sorted = _arm_order(og_vals)
         tE = og_vals.get(og_codes_sorted[0]) if og_codes_sorted else None
         cE = og_vals.get(og_codes_sorted[1]) if len(og_codes_sorted) > 1 else None
         real_data[nct] = {

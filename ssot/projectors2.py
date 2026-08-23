@@ -647,7 +647,7 @@ def analysis_figures(res, outcome, p):
     # from the surrounding prose.
     _meas = str(((res.get("pooled") or {}).get("measure")) or "Effect")
     out = ""
-    _k = res.get("k") or len(res.get("per_trial") or [])
+    _k = (res["k"] if res.get("k") is not None else len(res.get("per_trial") or []))
     if pan.get("funnel"):
         _fit = pan.get("fit") or {}
         _pl = _fit.get("log_point")
@@ -716,7 +716,7 @@ def analysis_figures(res, outcome, p):
 def visual_abstract(canon, res, outcome, p):
     """The graphical abstract, projected. Under the same gates as any figure."""
     pooled = res.get("pooled") or {}
-    if not pooled.get("point"):
+    if pooled.get("point") is None:
         return ""
     n_total = 0
     for t in (canon.get("inputs") or {}).get("trials", []):
@@ -733,7 +733,7 @@ def visual_abstract(canon, res, outcome, p):
                % (len(kept), len(rows)))
     return fig(visual_abstract_svg(
         canon.get("title", ""), canon.get("question", ""),
-        res.get("k") or len(res.get("per_trial") or []),
+        (res["k"] if res.get("k") is not None else len(res.get("per_trial") or [])),
         "{:,}".format(n_total) if n_total else None,
         pooled.get("measure", ""), pooled["point"], pooled.get("ci_low"),
         pooled.get("ci_high"), outcome.get("null_value", 1),
@@ -917,7 +917,7 @@ def underpowered_figures(res, p):
     them would put a shape on the page that a reader takes as a diagnostic that
     was run and meant something. The honest rendering is the reason.
     """
-    k = res.get("k") or len(res.get("per_trial") or [])
+    k = (res["k"] if res.get("k") is not None else len(res.get("per_trial") or []))
     out = ""
     out += fig(not_computable_svg(
         "GOSH plot",

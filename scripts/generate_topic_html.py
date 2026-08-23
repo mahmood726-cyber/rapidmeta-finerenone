@@ -17,6 +17,24 @@ HERE = Path(__file__).resolve().parent.parent
 TOPICS_DIR = HERE / "outputs" / "new_topics"
 
 
+
+def _arm_order(per_arm):
+    """Group labels ordered TREATMENT FIRST by what the label says, not by the alphabet.
+
+    AACT's per-arm map carries no role, so the label is all there is. A label naming a control
+    is put SECOND explicitly. Sorting was the bug: `BG_CONTROL` < `BG_EXPERIMENTAL`, and the
+    effect inverts silently. See ssot/arm_roles.py.
+    """
+    import sys as _s, os as _o
+    _s.path.insert(0, _o.path.join(_o.path.dirname(_o.path.dirname(_o.path.abspath(__file__))),
+                                   "ssot"))
+    from arm_roles import CONTROL as _CTRL
+    keys = list(per_arm.keys())
+    ctrl = [k for k in keys if any(w in str(k).lower() for w in _CTRL)]
+    rest = [k for k in keys if k not in ctrl]
+    return rest + ctrl if ctrl else keys
+
+
 def esc(s):
     return htmllib.escape(str(s)) if s is not None else ""
 
@@ -79,7 +97,8 @@ def collect_trials(topic_audit):
         nct = ex["nct"]
         acronym = ex.get("aact_acronym") or nct
         per_arm = ex.get("aact_per_arm_counts", {})
-        arm_codes = sorted(per_arm.keys())
+        # ARM ROLE IS READ, NEVER SORTED -- see ssot/arm_roles.py.
+        arm_codes = _arm_order(per_arm)
         tN = per_arm.get(arm_codes[0]) if arm_codes else None
         cN = per_arm.get(arm_codes[1]) if len(arm_codes) > 1 else None
         outcome_rows = ex.get("aact_outcome_count_rows", [])
@@ -89,7 +108,8 @@ def collect_trials(topic_audit):
                 try: og_vals[og] = int(float(v))
                 except: pass
             if len(og_vals) >= 2: break
-        og_sorted = sorted(og_vals.keys())
+        # ARM ROLE IS READ, NEVER SORTED -- see ssot/arm_roles.py.
+        og_sorted = _arm_order(og_vals)
         tE = og_vals.get(og_sorted[0]) if og_sorted else None
         cE = og_vals.get(og_sorted[1]) if len(og_sorted) > 1 else None
         trials.append({

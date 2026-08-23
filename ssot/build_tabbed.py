@@ -143,7 +143,7 @@ def paper_studio(canon, res, p):
     introduction or discussion generated without a source would be argument that
     nothing in this review supports."""
     pooled = res.get("pooled") or {}
-    if not pooled.get("point"):
+    if pooled.get("point") is None:
         return ""
     het = res.get("heterogeneity") or {}
     g = res.get("grade") or {}
@@ -452,7 +452,15 @@ def output_card(canon, p):
                                           pj.fmt(pl["point"]),
                                           pj.fmt(pl["ci_low"]),
                                           pj.fmt(pl["ci_high"]))
-                    if pl.get("point") else "not pooled"),
+                    # `if pl.get("point")` DROPPED A POOLED POINT OF EXACTLY ZERO and rendered
+                    # "not pooled" beside a confidence interval that had been computed. For a
+                    # mean difference or a risk difference ZERO IS THE NULL RESULT -- the most
+                    # ordinary output a meta-analysis can produce -- so the one value the cell
+                    # most needs to show was the one it hid. Latent, not firing: no object
+                    # currently holds `pooled.point == 0`, which is why nothing had caught it.
+                    #
+                    # The test is now "is a number present", not "is the number true".
+                    if pl.get("point") is not None else "not pooled"),
                    p(g["certainty"]) if g.get("certainty") else "&mdash;", NL))
     reg = canon.get("registration") or {}
     c0 = (reg.get("commits") or [{}])[0]

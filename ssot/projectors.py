@@ -630,7 +630,8 @@ def forest_svg(res, outcome, window=None, bare=False):
     # point on a forest whose caption says three -- the same contradiction CHK009_POOL_IDENTITY
     # found in the artefact, seen by a reader instead of by a gate.
     rows = [r for r in (res.get("per_trial") or [])
-            if r.get("point") and r.get("ci_low") and r.get("ci_high")
+            if r.get("point") is not None and r.get("ci_low") is not None
+                and r.get("ci_high") is not None
             and not (r.get("nulled") or str(r.get("trial_id") or r.get("nct")
                                             or "").startswith("NULLED:"))]
     if not rows:
@@ -645,9 +646,9 @@ def forest_svg(res, outcome, window=None, bare=False):
     # it is deterministic and window-independent, so the cross-variant tick
     # invariance the display windows rely on is unaffected.
     lo = min([r["ci_low"] for r in rows] + [null_v]
-             + ([pooled["ci_low"]] if pooled.get("ci_low") else []))
+             + ([pooled["ci_low"]] if pooled.get("ci_low") is not None else []))
     hi = max([r["ci_high"] for r in rows] + [null_v]
-             + ([pooled["ci_high"]] if pooled.get("ci_high") else []))
+             + ([pooled["ci_high"]] if pooled.get("ci_high") is not None else []))
     if log and lo <= 0:
         return ""
     if window:
@@ -684,7 +685,7 @@ def forest_svg(res, outcome, window=None, bare=False):
                     W - 4, y + 4, sig(r["point"], 3), sig(r["ci_low"], 3),
                     sig(r["ci_high"], 3), NL))
         y += H
-    if pooled.get("point"):
+    if pooled.get("point") is not None:
         cy, d = y + 4, 8
         body += ('  <polygon points="%.1f,%d %.1f,%d %.1f,%d %.1f,%d" '
                  'fill="#0f766e"/>%s'
@@ -1753,7 +1754,7 @@ def forest_ranged(res, outcome, e, browser=None, workdir=None, outdir=None):
     # does not contain the data is DROPPED and said to be dropped, rather than
     # offered and quietly broken. Found by adversarial review.
     _rows = [r for r in (res.get("per_trial") or [])
-             if r.get("ci_low") and r.get("ci_high")
+             if r.get("ci_low") is not None and r.get("ci_high") is not None
              and not (r.get("nulled") or str(r.get("trial_id") or r.get("nct")
                                              or "").startswith("NULLED:"))]
     _pool = res.get("pooled") or {}
@@ -1764,9 +1765,9 @@ def forest_ranged(res, outcome, e, browser=None, workdir=None, outdir=None):
     # the silent-clipping this check exists to prevent.
     _null = outcome.get("null_value", 1)
     _lo = min([r["ci_low"] for r in _rows] + [_null]
-              + ([_pool["ci_low"]] if _pool.get("ci_low") else []))
+              + ([_pool["ci_low"]] if _pool.get("ci_low") is not None else []))
     _hi = max([r["ci_high"] for r in _rows] + [_null]
-              + ([_pool["ci_high"]] if _pool.get("ci_high") else []))
+              + ([_pool["ci_high"]] if _pool.get("ci_high") is not None else []))
     _dropped = []
     import figures as fg
     br = browser if browser is not None else fg.find_browser()

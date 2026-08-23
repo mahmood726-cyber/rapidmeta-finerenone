@@ -37,6 +37,25 @@ NCT_PMID = json.loads(_PMID_PATH.read_text(encoding="utf-8")) if _PMID_PATH.exis
 NCT_DESIGN = json.loads(_DESIGN_PATH.read_text(encoding="utf-8")) if _DESIGN_PATH.exists() else {}
 
 
+
+def _arm_order(per_arm):
+    """Group labels ordered TREATMENT FIRST by what the label says, not by the alphabet.
+
+    AACT's per-arm map carries no role, so the label is all there is. A label naming a control
+    is put SECOND explicitly; where neither label says, the order is left as given and the
+    written object must carry `role` for anything downstream to trust it. Sorting was the bug:
+    `BG_CONTROL` < `BG_EXPERIMENTAL`, and the effect inverts silently.
+    """
+    import sys as _s, os as _o
+    _s.path.insert(0, _o.path.join(_o.path.dirname(_o.path.dirname(_o.path.abspath(__file__))),
+                                   "ssot"))
+    from arm_roles import CONTROL as _CTRL
+    keys = list(per_arm.keys())
+    ctrl = [k for k in keys if any(w in str(k).lower() for w in _CTRL)]
+    rest = [k for k in keys if k not in ctrl]
+    return rest + ctrl if ctrl else keys
+
+
 def _rob_from_aact(nct: str) -> tuple[list[str], str]:
     """Return (5-domain RoB-2 list, source-attribution string).
 
@@ -142,10 +161,18 @@ def build_config(topic_doc):
         ex = t["extracted"]
         nct = ex["nct"]
         acr = ex.get("aact_acronym") or nct
+        # ARM ROLE IS READ, NEVER SORTED. `sorted(per_arm.keys())[0]` took the
+        # lexicographically first label as the treatment arm, and `BG_CONTROL` sorts
+        # before `BG_EXPERIMENTAL` -- every effect built that way inverts. AACT's
+        # per-arm map is keyed by group label with no role, so this source cannot
+        # answer the question and the order is recorded rather than trusted: the
+        # written object must carry `role` on each arm, and `ssot/arm_roles.py`
+        # refuses any caller that tries to infer it from position.
         per_arm = ex.get("aact_per_arm_counts") or {}
-        arms = sorted(per_arm.keys())
+        arms = _arm_order(per_arm)
         tN = per_arm.get(arms[0]) if arms else 0
         cN = per_arm.get(arms[1]) if len(arms) > 1 else 0
+        _arm_labels = list(arms[:2])
         outcome_rows = ex.get("aact_outcome_count_rows") or []
         og_vals = {}
         for og, v in outcome_rows:
@@ -153,7 +180,9 @@ def build_config(topic_doc):
                 try: og_vals[og] = int(float(v))
                 except: pass
             if len(og_vals) >= 2: break
-        ogs = sorted(og_vals.keys())
+        # SAME SHAPE, SAME DEFECT: the outcome-group order decides which count is the
+        # treatment arm, and sorting it alphabetically is the identical coin-flip.
+        ogs = _arm_order(og_vals)
         tE_raw = og_vals.get(ogs[0]) if ogs else None
         cE_raw = og_vals.get(ogs[1]) if len(ogs) > 1 else None
         # Apply the percentage-vs-count sanity check at GENERATION time so the

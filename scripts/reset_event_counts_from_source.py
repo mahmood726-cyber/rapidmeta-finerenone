@@ -39,6 +39,25 @@ TRIAL_BLOCK_RE = re.compile(
 )
 
 
+
+def _arm_order(per_arm):
+    """Group labels ordered TREATMENT FIRST by what the label says, not by the alphabet.
+
+    AACT's per-arm map carries no role, so the label is all there is. A label naming a control
+    is put SECOND explicitly; where neither label says, the order is left as given and the
+    written object must carry `role` for anything downstream to trust it. Sorting was the bug:
+    `BG_CONTROL` < `BG_EXPERIMENTAL`, and the effect inverts silently.
+    """
+    import sys as _s, os as _o
+    _s.path.insert(0, _o.path.join(_o.path.dirname(_o.path.dirname(_o.path.abspath(__file__))),
+                                   "ssot"))
+    from arm_roles import CONTROL as _CTRL
+    keys = list(per_arm.keys())
+    ctrl = [k for k in keys if any(w in str(k).lower() for w in _CTRL)]
+    rest = [k for k in keys if k not in ctrl]
+    return rest + ctrl if ctrl else keys
+
+
 def build_source_truth():
     """Build NCT -> (tE, tN, cE, cN) from outputs/new_topics/*.json.
 
@@ -63,7 +82,9 @@ def build_source_truth():
                 continue
             per_arm = ex.get("aact_per_arm_counts") or {}
             og_rows = ex.get("aact_outcome_count_rows") or []
-            arms = sorted(per_arm.keys())
+            # ARM ROLE IS READ, NEVER SORTED -- see ssot/arm_roles.py. Sorting put
+            # `BG_CONTROL` first and inverted the effect.
+            arms = _arm_order(per_arm)
             tN = per_arm.get(arms[0]) if arms else None
             cN = per_arm.get(arms[1]) if len(arms) > 1 else None
             og_vals: dict[str, int] = {}
@@ -75,7 +96,11 @@ def build_source_truth():
                         pass
                 if len(og_vals) >= 2:
                     break
-            ogs = sorted(og_vals.keys())
+            # SAME DEFECT AS THE ARMS LINE ABOVE, AND I FIXED ONLY THAT ONE. The
+            # outcome-group order decides which count is the treatment arm; sorting it
+            # alphabetically is the identical coin-flip. Found by the lint on its first
+            # run -- one-of-two coverage, in the fix for a one-of-three coverage defect.
+            ogs = _arm_order(og_vals)
             tE = og_vals.get(ogs[0]) if ogs else None
             cE = og_vals.get(ogs[1]) if len(ogs) > 1 else None
             # Last write wins per NCT — fine because the same NCT in two
