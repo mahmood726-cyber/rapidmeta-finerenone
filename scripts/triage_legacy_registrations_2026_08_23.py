@@ -117,6 +117,25 @@ def page_terms(name):
 def describes(rec, terms):
     """Does the registry record plausibly describe what the page claims?
 
+    *** THIS FUNCTION IS NOT FIT TO PRODUCE A DONOR COUNT AND ITS FALSE VERDICTS MUST NOT BE
+    *** REPORTED AS A NUMBER. It produced 727 of 745 and then 149 of 602, and BOTH WERE
+    *** WITHDRAWN. It compares tokens taken from a FILENAME against a registry record, and:
+    ***
+    ***   ALS_NEW_AGENTS_NMA   -> terms ['agents']    registry "Amyotrophic Lateral Sclerosis"
+    ***   ALK_NSCLC            -> terms ['nsclc']     registry "Non-Small Cell Lung Cancer"
+    ***   AML_TARGETED_NEW     -> terms ['targeted']  registry "Leukemia"
+    ***
+    *** Every one of those is the CORRECT trial for the page and every one is scored False.
+    *** The acronym is dropped by a length filter, the registry spells conditions out rather
+    *** than abbreviating, and drug records use development codenames (VEGF Trap-Eye, MCI-186)
+    *** where a filename uses the marketing name. Detecting a donor needs concept matching --
+    *** acronym expansion, synonyms, ATC/MeSH -- not substring overlap.
+    ***
+    *** WHAT SURVIVES: the ABSENCE limb. `found is False` is the registry's own 404 and needs
+    *** no judgement; NCT01084557 and NCT04195814 were re-queried live and are genuinely gone.
+    *** The two confirmed donors -- TIRZEPATIDE_ARDS citing andexanet alfa, ICAGEN citing
+    *** edoxaban -- were confirmed BY READING, not by this function.
+
     Deliberately generous. A FALSE 'no' sends a repairable page to needs-a-human, which costs
     a person a read. A FALSE 'yes' puts a donor trial inside a repaired page wearing the SSOT
     format's authority, and that is the outcome this whole bucket exists to prevent.
