@@ -16,6 +16,12 @@ import re
 import sys
 from pathlib import Path
 
+# ONE MAP FOR EVERY SPELLING OF A CONCEPT. Without this import `_aliases` is undefined and the
+# builder dies on the first page with a withdrawn estimate -- which it did, four times, because
+# the insert that was supposed to add this line was guarded by `if "field_aliases" not in src`
+# and the string was already present IN THE COMMENT BELOW explaining the map.
+import field_aliases as _aliases  # noqa: E402
+
 NL = chr(10)
 
 REF_RE = re.compile(r"\{([a-z0-9_]+(?:\.[a-z0-9_]+|\[\d+\])*)\}", re.I)
