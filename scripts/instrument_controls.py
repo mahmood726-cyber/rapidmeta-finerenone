@@ -196,6 +196,139 @@ def scan_covers_what_it_emits(function_name, own_literals_matched, callee_render
         "it emits." % (what, function_name))
 
 
+def method_before_impossibility(measurement, method_tried, work_the_question_needs):
+    """BEFORE ACCEPTING THAT A MEASUREMENT CANNOT BE MADE HERE, CHECK WHETHER THE METHOD IS
+    DOING WORK THE QUESTION DOES NOT REQUIRE.
+
+    THIRD TIME TODAY an "the environment cannot do this" verdict turned out to be an approach
+    problem rather than a limit.
+
+    THE CLEAREST INSTANCE. "Has either wrong PMID reached a delivered page?" was declared
+    unmeasurable after ripgrep timed out at 20 seconds twice and a Python pass timed out at
+    500. The Python pass opened every file with
+
+        io.open(path, encoding="utf-8", errors="replace")
+
+    which DECODES every byte of a 7 MB HTML page into a Python string -- 1,500 times -- to look
+    for an eight-digit number that is pure ASCII. The question needed a byte comparison. The
+    method was running a codec.
+
+        open(path, "rb").read()  ->  b"30201345" in data
+
+    4,625 files in 161 seconds, and the answer was zero delivered pages.
+
+    THE OTHER TWO TODAY: a rollout "stalled" that was building a 3.9 MB page; a liveness probe
+    that reported a dead process because it asked the wrong shell for a command line.
+
+    THE QUESTION TO ASK: what does this measurement actually need? Bytes or characters? One
+    field or a parsed document? The changed copy or all of them? An impossibility verdict is a
+    claim about the environment, and it should not be made until the method has been reduced to
+    the work the question requires.
+    """
+    return None
+
+
+def prior_defectiveness_is_a_prior_not_evidence(suspected, reason_for_suspicion, what_checked):
+    """A FILE THAT IS WRONG ABOUT ONE THING IS NOT THEREFORE WRONG ABOUT THE NEXT.
+
+    THE COUNTERWEIGHT TO EVERYTHING ELSE IN THIS FILE. Three days of work established that
+    defects cluster and that the known defect is never the population. The natural
+    over-correction is to treat a file that has failed once as failed everywhere -- and that
+    is a bias in the direction our own method pushes us.
+
+    THE INSTANCE, 2026-08-23. Two records named different publications for KRONOS:
+
+        PUBLISHED_META_BENCHMARKS.json   pmid_kronos = 30201345
+        regenerate_catastrophic_sidecars.R                30232048
+
+    I suspected the R SCRIPT, because it was the file already known to have written placeholder
+    hazard ratios and a false provenance label. THE R SCRIPT WAS RIGHT. `30232048` is
+    "Triple therapy with budesonide/glycopyrrolate/formoterol fumarate ... (KRONOS)", Lancet
+    Respir Med. `30201345` -- in the BENCHMARK, the file this project validates its pools
+    against -- is "Multiple Polypoid Lesions in the Ileum After Treatment for Primary Ileal
+    Follicular Lymphoma", Gastroenterology. A case report about a different disease.
+
+    PRIOR DEFECTIVENESS IS A PRIOR, NOT EVIDENCE. It tells you where to look first. It does not
+    tell you what you will find, and a file's reputation is not a measurement of the claim in
+    front of you.
+
+    AND THE CORRESPONDING TRAP ON THE OTHER SIDE: the file with the better reputation was the
+    one carrying the wrong citation, in the field everything downstream is checked against. A
+    wrong identifier that RESOLVES passes every mechanical check; only reading the title and
+    asking "is this the trial" catches it.
+    """
+    return None
+
+
+def never_bind_an_identity_by_position(returned, requested, what):
+    """ON AN IDENTITY QUESTION, NEVER INFER WHICH ANSWER BELONGS TO WHICH REQUEST.
+
+    A PubMed lookup of four PMIDs returned four records whose top-level `pmid` field was None.
+    The mapping was available under `identifiers.pmid`; the tempting shortcut was to assume the
+    responses came back in the order requested.
+
+    THAT ASSUMPTION IS EXACTLY THE ONE THAT PRODUCES A CONFLATION, and this project has already
+    conflated two heart-failure trials on a covering label -- PARACHUTE-HF read as ANSWER-HF --
+    which is why the standing rule is that the registration identifier is the identity key. An
+    ordering assumption is a covering label made of array indices.
+
+    It would have been RIGHT here, which is what makes it dangerous: the order did match. A
+    shortcut that works is a shortcut that gets reused on the day the API sorts by relevance,
+    de-duplicates, or drops a not-found record silently -- and then two trials swap identities
+    with nothing in the output to show it.
+
+    BIND BY THE KEY THE RECORD CARRIES. If the record does not carry one, the answer is that
+    the identity cannot be established from this response, not that the order will do.
+    """
+    if len(returned) != len(requested):
+        raise ControlFailed(
+            "REFUSED: %s asked for %d identifiers and got %d records back, so position cannot "
+            "bind them even if it looks like it would. Read the identifier the record carries."
+            % (what, len(requested), len(returned)))
+    return None
+
+
+def a_fingerprint_is_a_property_not_a_cause(signature, property_it_shows, causes, what):
+    """A FINGERPRINT IDENTIFIES A PROPERTY, NOT A CAUSE.
+
+    THE INSTANCE, 2026-08-23, and it produced a false accusation against this project's own
+    corpus. Four sidecars on `dashboard.html` carried a provenance label known to be false.
+    Three of them also carried `tau2 = 0.0` and `I2 = 0.0`, and I read that as the signature of
+    fabrication -- "hand-chosen numbers agree perfectly" -- and reported three topics as built
+    from invented inputs.
+
+    tau2 = 0 WITH I2 = 0 MEANS THE INPUTS AGREE PERFECTLY. THAT IS THE PROPERTY. The causes
+    that produce it include:
+
+        fabricated numbers          FGFR_INHIBITORS_SOLID -- and its own comment says so
+        DERIVED numbers             HPV_DOSE_REDUCTION -- RR = 1 - VE from two real trials
+        ROUNDED numbers             HEPATITIS_HCV_DAA -- approximated from "~1%", "~5-10%"
+        PARTLY ASSUMED numbers      MDRTB_BPAL -- one published RR, two assumed for single-arm
+
+    Only the first is fabrication. The other three are real work with real problems, and
+    calling them invented was an accusation in the same direction as the defect being reported,
+    pointed at our own corpus.
+
+    THE CAUSE WAS ONE FILE AWAY IN A COMMENT THE WHOLE TIME. Each call site says in prose what
+    its numbers are and where they came from. I inferred cause from a statistic instead of
+    reading the source.
+
+    SAME FAMILY AS THE DONOR HEURISTIC, which compared filename substrings against registry
+    text and reported 727 of 745 topics as citing the wrong trial: a computed signature
+    standing in for a judgement about meaning.
+
+    THE RULE: a signature is a SCREEN -- it tells you where to look. Where the conclusion is
+    about CAUSE -- was this invented, is this the right trial, did this procedure happen -- READ
+    THE SOURCE. A statistic can tell you two numbers agree; only the record can tell you why.
+    """
+    if len(causes) <= 1:
+        return
+    raise ControlFailed(
+        "REFUSED: %s treats %r as evidence of one cause, but that signature shows %r, which "
+        "has %d known causes (%s). Read the source rather than infer from the signature."
+        % (what, signature, property_it_shows, len(causes), ", ".join(sorted(causes))))
+
+
 def make_the_honest_path_the_only_path(callable_name, required_args, defaulted_args, what):
     """THE ONE THAT OUTRANKS EVERYTHING ELSE HERE: A REQUIRED ARGUMENT BEATS A CHECK.
 

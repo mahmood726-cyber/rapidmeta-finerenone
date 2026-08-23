@@ -629,9 +629,31 @@ def forest_svg(res, outcome, window=None, bare=False):
     # A NULLED ENTRY IS NOT PLOTTED. It is not counted in k, so plotting it drew a fourth
     # point on a forest whose caption says three -- the same contradiction CHK009_POOL_IDENTITY
     # found in the artefact, seen by a reader instead of by a gate.
+    # ZERO IS A VALUE, AND ON A LOG SCALE IT IS NOT A PLOTTABLE ONE.
+    #
+    # The truthiness test this replaced -- `if r.get("point") and ...` -- dropped a point of
+    # exactly 0.0, which is wrong for a mean difference or a risk difference where zero is the
+    # null. Fixing that to `is not None` then admitted 0.0 into a LOG-SCALE forest, where
+    # log(0) is undefined and the whole figure came back empty: LENACAPAVIR_PREP_SSOT lost two
+    # forest plots and shrank 7.32%, and the manuscript-shrink guard held it. THE ACCIDENTAL
+    # EXCLUSION HAD BEEN PROTECTING THE LOG TRANSFORM.
+    #
+    # So the test is by SCALE, not by truthiness: on a ratio scale a non-positive point cannot
+    # be drawn and is skipped with the reason available; on a linear scale zero is drawn like
+    # any other value. The object itself records this -- lenacapavir's affected outcomes carry
+    # `measure: "not-log-transformable"` -- so the page is not guessing.
+    _log_scale = outcome.get("effect_scale") == "log"
+
+    def _plottable(r):
+        p = r.get("point")
+        if p is None or r.get("ci_low") is None or r.get("ci_high") is None:
+            return False
+        if _log_scale and (p <= 0 or r.get("ci_low") <= 0):
+            return False
+        return True
+
     rows = [r for r in (res.get("per_trial") or [])
-            if r.get("point") is not None and r.get("ci_low") is not None
-                and r.get("ci_high") is not None
+            if _plottable(r)
             and not (r.get("nulled") or str(r.get("trial_id") or r.get("nct")
                                             or "").startswith("NULLED:"))]
     if not rows:

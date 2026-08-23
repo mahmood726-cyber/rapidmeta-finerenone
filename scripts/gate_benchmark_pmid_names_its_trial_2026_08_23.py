@@ -1,0 +1,192 @@
+"""Does each benchmark PMID cite the trial its field names? A resolving PMID passes everything else.
+
+# control: planted every run. A correct entry has a real PMID for an unrelated paper swapped in
+# and the check must flag it; the entry is then restored and the restoration asserted. Without
+# that, a check reporting "all clean" is indistinguishable from one that cannot fire.
+
+WHY THIS FILE AND NOT ANOTHER. `PUBLISHED_META_BENCHMARKS.json` is what every pool in this
+project is validated against. Two of its entries cite papers that are not the trials they name:
+
+    pmid_kronos  30201345  "Multiple Polypoid Lesions in the Ileum After Treatment for Primary
+                            Ileal Follicular Lymphoma"          (Gastroenterology)
+    pmid_strive  29180078  "Surgical Orthopedics in a Spondylometaphyseal Dysplastic Patient"
+                                                                (World Neurosurgery)
+
+BOTH ARE REAL PMIDs THAT RESOLVE. They fetch, they have titles and DOIs, and they pass every
+mechanical check this repository owns. The only test that catches them is reading the title and
+asking whether it is the trial.
+
+AND STRIVE IS THE HARDER CASE: two different trials carry that name -- ivacaftor in cystic
+fibrosis and erenumab in migraine. The name collides; only the identifier separates them, and
+the identifier is wrong on one. That is the covering-label conflation this project already has
+a rule about, occurring inside its own validation file.
+
+WHAT IS FLAGGED AND WHAT IS NOT. A field named `pmid_<trial>` asserts that this PMID is that
+trial. The check looks for the trial token in the title, the abstract or the registration
+number. ABSENCE IS NOT PROOF OF ERROR -- many papers never print their own acronym -- so a
+miss is reported as NEEDS A LOOK rather than as wrong, and the CLEAN entries are reported too.
+A check that only lists failures gives no way to judge its own coverage: 12 of 14 duplicate
+PMIDs agreeing is what made the 2 that disagreed credible.
+"""
+from __future__ import annotations
+
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BENCH = os.path.join(REPO, "PUBLISHED_META_BENCHMARKS.json")
+CACHE = os.path.join(REPO, "outputs", "pubmed_title_cache_2026_08_23.json")
+OUT = os.path.join(REPO, "outputs", "benchmark_pmid_names_its_trial_2026_08_23.json")
+
+# Established by lookup on 2026-08-23; used to prove the check fires.
+KNOWN_WRONG = {"30201345": "lymphoma case report cited as KRONOS",
+               "29180078": "spinal-surgery case report cited as STRIVE (CGRP)"}
+
+
+def claims():
+    """-> [(entry, trial_token, pmid)] for every field that NAMES a trial."""
+    b = json.load(io.open(BENCH, encoding="utf-8"))["benchmarks"]
+    out = []
+    for entry, v in b.items():
+        if not isinstance(v, dict):
+            continue
+        for f, val in v.items():
+            m = re.match(r"pmid[_\.]([a-z0-9][a-z0-9_]*)$", str(f).lower())
+            if not m or m.group(1) == "pmid":
+                continue
+            token = m.group(1).split("_corrected")[0]
+            for pm in re.findall(r"\b\d{7,8}\b", str(val)):
+                out.append((entry, token, pm))
+    return out
+
+
+def cache():
+    if os.path.isfile(CACHE):
+        return json.load(io.open(CACHE, encoding="utf-8"))
+    return {}
+
+
+STOP = {"the", "and", "for", "with", "vs", "versus", "in", "of", "a", "an", "or", "rate",
+        "ratio", "risk", "review", "html", "html.", "trial", "trials", "study", "at",
+        "primary", "outcome", "change", "score", "mean", "difference", "to", "from", "per"}
+
+
+def topic_terms(entry, bench):
+    """What this benchmark entry is ABOUT -- from its own fields, not from a guess."""
+    v = bench.get(entry) or {}
+    text = " ".join(str(v.get(k, "")) for k in ("primary_outcome", "source", "method"))
+    text += " " + re.sub(r"[_\.]", " ", entry).replace("REVIEW", "").replace("html", "")
+    words = {w for w in re.findall(r"[a-z]{4,}", text.lower()) if w not in STOP}
+    return words
+
+
+def names_its_trial(token, rec, topics=()):
+    """Does this paper plausibly report the trial the field names?
+
+    THE ACRONYM ALONE HAS NO DISCRIMINATION. The first version asked only whether the trial
+    token appeared in the title or abstract, and returned 0 clean out of 5 -- flagging the
+    CORRECT NEJM reports of IMPACT and ETHOS, neither of which prints its own acronym anywhere
+    a metadata record shows. A check that flags the true entries alongside the false ones tells
+    a reader nothing and gets ignored.
+
+    So the test is EITHER the acronym OR the subject matter: does this paper talk about what
+    this benchmark entry is about? A COPD trial report that never says "IMPACT" still mentions
+    COPD; a lymphoma case report mentions neither.
+
+    THIS IS A SCREEN, NOT A VERDICT -- the lesson from the donor heuristic, which computed a
+    substring overlap and called it a judgement about identity. A miss here means A PERSON
+    SHOULD READ IT, and that is what the output says.
+    """
+    if not rec:
+        return None
+    hay = " ".join(str(rec.get(k, "")) for k in ("title", "abstract", "journal")).lower()
+    t = str(token).lower()
+    if len(t) >= 3 and not t.isdigit() and t in hay:
+        return True
+    if topics:
+        overlap = sum(1 for w in topics if w in hay)
+        if overlap >= 2:
+            return True
+    if len(t) < 3 or t.isdigit():
+        return None                      # a token like "102" identifies nothing
+    return False
+
+
+def check(rows, titles, bench=None):
+    bench = bench if bench is not None else json.load(io.open(BENCH, encoding="utf-8"))["benchmarks"]
+    named, missed, unknown = [], [], []
+    for entry, token, pm in rows:
+        v = names_its_trial(token, titles.get(pm), topic_terms(entry, bench))
+        rec = (entry, token, pm, (titles.get(pm) or {}).get("title", ""))
+        (named if v is True else missed if v is False else unknown).append(rec)
+    return named, missed, unknown
+
+
+def prove(titles):
+    """Plant a known-wrong citation into a correct claim and require the check to flag it."""
+    good = ("PROOF_ENTRY", "kronos", "30232048")      # the CORRECT KRONOS citation
+    bad = ("PROOF_ENTRY", "kronos", "30201345")       # the lymphoma case report
+    if not titles.get("30232048") or not titles.get("30201345"):
+        return "SKIPPED -- the two proof PMIDs are not in the title cache yet"
+    # The proof entry has no benchmark record, so topic terms are empty and the acronym test
+    # decides -- which is what makes this a proof of the acronym limb specifically.
+    ok_named, ok_missed, _ = check([good], titles, {})
+    bad_named, bad_missed, _ = check([bad], titles, {})
+    if not ok_named:
+        sys.exit("PROOF FAILED: the CORRECT KRONOS citation was not recognised as naming its "
+                 "trial. Nothing reported.")
+    if not bad_missed:
+        sys.exit("PROOF FAILED: the planted lymphoma case report was NOT flagged. A check that "
+                 "cannot catch the defect it was built for reports nothing.")
+    return "PASSED -- correct citation recognised, planted wrong citation flagged"
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    rows = claims()
+    titles = cache()
+    pending = sorted({pm for _e, _t, pm in rows} - set(titles))
+
+    print("")
+    print("BENCHMARK PMID -> TRIAL CORRESPONDENCE")
+    print("")
+    print("   entries in the benchmark file        %4d"
+          % len(json.load(io.open(BENCH, encoding="utf-8"))["benchmarks"]))
+    print("   fields that NAME a trial             %4d" % len(rows))
+    print("   distinct PMIDs they cite             %4d" % len({p for _e, _t, p in rows}))
+    print("   titles cached                        %4d" % len(titles))
+    print("   still to fetch                       %4d" % len(pending))
+    print("")
+    print("   PROOF: %s" % prove(titles))
+    print("")
+
+    named, missed, unknown = check(rows, titles)
+    print("   claims where the paper NAMES its trial   %4d" % len(named))
+    print("   claims where it does NOT                 %4d   <- needs a look, not a verdict"
+          % len(missed))
+    print("   claims with no title yet                 %4d" % len(unknown))
+    print("")
+    for entry, token, pm, title in missed[:24]:
+        mark = "  *** KNOWN WRONG" if pm in KNOWN_WRONG else ""
+        print("   %-30s %-14s %-9s %s%s"
+              % (entry[:30], token[:14], pm, (title or "(no title)")[:52], mark))
+    print("")
+    print("ABSENCE OF THE ACRONYM IS NOT PROOF OF ERROR -- many trial reports never print their")
+    print("own name. These are for a person to read, and the CLEAN count above is what makes")
+    print("any failure in this list credible.")
+    if pending:
+        print("")
+        print("NEXT %d PMID(s) TO FETCH:" % min(20, len(pending)))
+        print("   " + " ".join(pending[:20]))
+    if not os.path.isdir(os.path.dirname(OUT)):
+        os.makedirs(os.path.dirname(OUT))
+    json.dump({"named": len(named), "missed": [list(m) for m in missed],
+               "unknown": len(unknown), "pending": pending},
+              io.open(OUT, "w", encoding="utf-8"), indent=1)
+
+
+if __name__ == "__main__":
+    main()
