@@ -103,3 +103,59 @@ def refuse_unless_marker_lives(marker, corpus_hits, fixture_hit, instrument):
     raise ControlFailed(
         "REFUSED: %s keys on %r, which occurs on NO page in the corpus and in NO fixture. "
         "The check cannot fire. A clean result from it is not evidence." % (instrument, marker))
+
+def same_bytes(a_bytes, b_bytes):
+    """Compare DELIVERED bytes to LOCAL bytes. Both arguments must already be `bytes`.
+
+    READ BYTES, COMPARE BYTES -- CLASS: THE INSTRUMENT NORMALISED WHAT IT WAS MEASURING.
+    ---------------------------------------------------------------------------------
+    A page was reported to Mahmood as a deploy gap, and the report had to be withdrawn. The
+    evidence was that local content differed from `origin/main` by 752 bytes on a file git
+    reported unmodified. The mechanism was the reader, not the repo:
+
+        io.open(name, encoding="utf-8").read()   -> TEXT mode, converts CRLF to LF
+        git show origin/main:name                -> raw bytes, CRLF preserved
+
+    752 was the line count. The two were identical. Worse, the same artefact was used to
+    argue the local tree was a MIXTURE OF BUILDS -- which is a frightening claim, because one
+    passing spot-check would then license trusting a corpus that could not be trusted -- and
+    it was false. Read in binary, local equalled origin on 156 of 157 pages.
+
+    THE CORPUS *WAS* A MIXTURE, JUST NOT IN THE WAY THE BROKEN READ SUGGESTED: 133 pages
+    carried generator `a3c7bb8b2` and 7 carried the current one. A real finding was nearly
+    buried under a fake one produced by the instrument.
+
+    So: open in "rb", or `git show` into bytes, and compare bytes. If a comparison must be
+    newline-insensitive, normalise BOTH sides explicitly and say so -- never let one side be
+    normalised by the mode the file happened to be opened in.
+    """
+    if not isinstance(a_bytes, bytes) or not isinstance(b_bytes, bytes):
+        raise ControlFailed(
+            "REFUSED: same_bytes was handed %s and %s, not bytes. A str argument means the "
+            "caller already read in text mode, which is the defect this function exists to "
+            "prevent -- the newline conversion has happened before the comparison."
+            % (type(a_bytes).__name__, type(b_bytes).__name__))
+    return a_bytes == b_bytes
+
+
+def plant_and_require(instrument, detector, clean_case, planted_case):
+    """THE HOUSE REQUIREMENT FOR GATES: plant the defect, require the gate to find it.
+
+    Three gates earned their result this way -- the bypass mutant that strips the render-point
+    transform, the dead link planted in a synthetic hub, the known-bad input handed to the
+    pass/fail audit. Each of the three was written after a gate had already shipped that could
+    only say yes. A pre-push hook once printed "Regression check PASS" at 0 of 1522 fully-ok,
+    because nothing in it could return non-zero.
+
+    A GATE THAT HAS NEVER BEEN SEEN TO FAIL IS NOT A GATE. It is a log line. `detector` is
+    called on both cases; it must be quiet on `clean_case` and must fire on `planted_case`,
+    and this refuses before the gate is allowed to report anything about real data.
+    """
+    if detector(planted_case) and not detector(clean_case):
+        return
+    raise ControlFailed(
+        "REFUSED: %s did not survive its planted control -- it %s on the planted defect and "
+        "%s on the clean case. A gate that cannot be seen to fail cannot be trusted when it "
+        "passes." % (instrument,
+                     "fired" if detector(planted_case) else "STAYED QUIET",
+                     "fired" if detector(clean_case) else "stayed quiet"))

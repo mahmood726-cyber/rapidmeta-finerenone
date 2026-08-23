@@ -1,0 +1,245 @@
+"""Rebuild EVERY mapped page onto the current generator. One stamp across the corpus, or names.
+
+# no-control: this is an operation, not a detector -- it builds pages and asserts a property
+# per item rather than reporting a corpus-wide count. Its control IS the occurrence predicate
+# below: a page whose generator stamp does not equal the current generator's commit after the
+# build is REFUSED and its old bytes restored, so the run cannot report success for a page it
+# did not change. The corpus-wide before/after is reported by the separate validated probes.
+
+WHY THIS RUNS BEFORE ANYTHING ELSE. The delivered corpus is a mixture of builds:
+
+    a3c7bb8b2   133 pages     predates every projector fix of 2026-08-22/23
+    (no stamp)   14
+    216aa30f0     7 pages     carries them
+    2633d68c9     2
+    d1339a8cb     1
+
+So every fix reported this session is live on SEVEN pages, and every measurement of the
+other 150 is a measurement of a state we are about to replace. Two review lanes sampling
+different pages got different answers about the same construction and BOTH READ CORRECTLY --
+that is not a disagreement to arbitrate, it is a corpus to rebuild.
+
+THE OCCURRENCE PREDICATE, ASSERTED PER PAGE. The property a rebuild necessarily changes is the
+generator stamp. After each build this run reads the stamp OUT OF THE WRITTEN BYTES and
+requires it to equal the current generator commit. A page that comes back carrying the old
+stamp did not rebuild, whatever the exit code said, and it is restored and named. The success
+criterion for the whole run is ONE STAMP ACROSS THE CORPUS, and any page not carrying it is
+listed with a reason -- never folded into a total.
+
+WHAT IT WILL NOT DO. `ssot/do_not_rebuild.py` is authoritative and imported, not re-listed
+here: ARNI_HF_REVIEW's manuscript is an authored docmodel the projector reproduces at about
+11%, so rebuilding it would replace written argument with a projection. The list lives with the
+builder because a rollout that keeps its own copy is a rollout that drifts from it.
+
+RESUMABLE BY DESIGN. 157 pages at roughly two minutes each is over five hours. The ledger is
+written after every page, so a run that dies at hour four resumes at page N+1 rather than
+restarting. A batch size argument bounds each invocation.
+"""
+from __future__ import annotations
+
+import glob
+import io
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import time
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+SSOT = os.path.join(REPO, "ssot")
+LEDGER = os.path.join(REPO, "outputs", "corpus_rebuild_2026_08_23.json")
+LOCK = os.path.join(REPO, "outputs", ".corpus_rebuild_2026_08_23.lock")
+BACKUP = os.path.join(REPO, "outputs", "rebuild_backup_2026_08_23")
+
+sys.path.insert(0, SSOT)
+from do_not_rebuild import PAGES as DO_NOT_REBUILD          # noqa: E402
+
+STAMP = re.compile(rb"Generator build.{0,400}?<code>([0-9a-f]{6,12})</code>", re.S)
+
+# A rebuilt page must not lose the manuscript. The prior rollout caught a real destruction this
+# way -- a POOL_FINDINGS overwrite that deleted 10 findings, seen as a -5.28% shrink -- so the
+# floor stays, and the environment variable that lifts it is set by the caller, never here.
+SHRINK_FLOOR = -0.02
+
+
+def stamp_of(path):
+    try:
+        return (STAMP.search(io.open(path, "rb").read()) or [None, b"(none)"])[1].decode()
+    except Exception:
+        return "(unreadable)"
+
+
+def current_generator():
+    """The stamp build_tabbed will write, asked of build_tabbed itself."""
+    r = subprocess.run(
+        [sys.executable, "-c",
+         "import build_tabbed as b; print(b._generator_stamp()[0])"],
+        cwd=SSOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    out = r.stdout.decode("utf-8", "replace").strip().splitlines()
+    return out[-1].strip() if r.returncode == 0 and out else None
+
+
+def page_to_object():
+    m = json.load(io.open(os.path.join(SSOT, "PAGE_MAP.json"), encoding="utf-8"))
+    if not isinstance(m, dict):
+        # A list of page names: resolve each to ssot/<topic>/<topic>.json by stem.
+        out = {}
+        for n in m:
+            stem = n[:-5] if n.endswith(".html") else n
+            for cand in glob.glob(os.path.join(SSOT, "*", "*.json")):
+                t = os.path.basename(os.path.dirname(cand))
+                if os.path.basename(cand) == t + ".json" and t.upper().replace("-", "_") \
+                        in stem.upper().replace("-", "_"):
+                    out[n] = cand
+                    break
+        return out
+    return {k: (v if os.path.isabs(v) else os.path.join(REPO, v)) for k, v in m.items()}
+
+
+def load():
+    if os.path.isfile(LEDGER):
+        return json.load(io.open(LEDGER, encoding="utf-8"))
+    return {"started": None, "expected": None, "done": {}, "failed": {}, "skipped": {}}
+
+
+def save(led):
+    if not os.path.isdir(os.path.dirname(LEDGER)):
+        os.makedirs(os.path.dirname(LEDGER))
+    json.dump(led, io.open(LEDGER, "w", encoding="utf-8"), indent=1)
+
+
+def acquire():
+    if os.path.isfile(LOCK):
+        age = time.time() - os.path.getmtime(LOCK)
+        if age < 3600:
+            sys.exit("REFUSED: a rollout lock is %d minutes old. A lock file is an artefact "
+                     "and a running process is a fact -- confirm no python is building before "
+                     "removing %s." % (age // 60, LOCK))
+    io.open(LOCK, "w", encoding="utf-8").write(str(os.getpid()))
+
+
+def release():
+    try:
+        os.remove(LOCK)
+    except OSError:
+        pass
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    size = int([a for a in sys.argv[1:] if not a.startswith("--")][0]) \
+        if [a for a in sys.argv[1:] if not a.startswith("--")] else 10
+
+    expected = current_generator()
+    if not expected:
+        sys.exit("REFUSED: could not ask build_tabbed for its generator stamp. Without it the "
+                 "occurrence predicate cannot be asserted and this run would report success "
+                 "for pages it may not have changed.")
+
+    acquire()
+    led = load()
+    if not led["started"]:
+        led["started"] = time.strftime("%Y-%m-%dT%H:%M:%S")
+    led["expected"] = expected
+    mapped = page_to_object()
+
+    if "--stamps" in sys.argv:
+        d = {}
+        for n in sorted(mapped):
+            p = os.path.join(REPO, n)
+            if os.path.isfile(p):
+                d[stamp_of(p)] = d.get(stamp_of(p), 0) + 1
+        print("GENERATOR STAMP DISTRIBUTION, %d mapped page(s):" % len(mapped))
+        for k, v in sorted(d.items(), key=lambda kv: -kv[1]):
+            print("   %-14s %4d%s" % (k, v, "   <- current" if k == expected else ""))
+        release()
+        return
+
+    todo = [n for n in sorted(mapped)
+            if n not in led["done"] and n not in led["failed"]
+            and n not in led["skipped"]]
+    print("CURRENT GENERATOR %s   remaining %d of %d   this batch %d"
+          % (expected, len(todo), len(mapped), min(size, len(todo))))
+    if not todo:
+        print("NOTHING LEFT. done %d, failed %d, skipped %d"
+              % (len(led["done"]), len(led["failed"]), len(led["skipped"])))
+        release()
+        return
+
+    if not os.path.isdir(BACKUP):
+        os.makedirs(BACKUP)
+
+    for name in todo[:size]:
+        page = os.path.join(REPO, name)
+        obj = mapped.get(name)
+        if name in DO_NOT_REBUILD:
+            led["skipped"][name] = "on ssot/do_not_rebuild.py -- authored docmodel"
+            print("  %-52s SKIPPED (do_not_rebuild)" % name[:52])
+            save(led)
+            continue
+        if not obj or not os.path.isfile(obj):
+            led["skipped"][name] = "no object resolved from PAGE_MAP"
+            print("  %-52s SKIPPED (no object)" % name[:52])
+            save(led)
+            continue
+        if not os.path.isfile(page):
+            led["skipped"][name] = "page not on disk"
+            print("  %-52s SKIPPED (not on disk)" % name[:52])
+            save(led)
+            continue
+
+        was_stamp = stamp_of(page)
+        was_size = os.path.getsize(page)
+        bak = os.path.join(BACKUP, name)
+        shutil.copy2(page, bak)
+        started = time.time() - 1
+
+        r = subprocess.run([sys.executable, "build_tabbed.py", obj, page],
+                           cwd=SSOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        out = r.stdout.decode("utf-8", "replace")
+
+        why = []
+        if r.returncode != 0:
+            why.append("builder exit %d: %s" % (r.returncode, out.strip()[-300:]))
+        elif os.path.getmtime(page) < started:
+            why.append("the page was not written -- mtime predates the build")
+        else:
+            now = stamp_of(page)
+            # THE OCCURRENCE PREDICATE. A page that comes back on the old stamp did not
+            # rebuild, whatever the exit code said.
+            if now != expected:
+                why.append("generator stamp is %s, expected %s -- the build did not take"
+                           % (now, expected))
+            grew = (os.path.getsize(page) - was_size) / float(max(1, was_size))
+            if grew < SHRINK_FLOOR and not os.environ.get("RM_ALLOW_MANUSCRIPT_SHRINK"):
+                why.append("page shrank %.2f%% -- content may have been destroyed"
+                           % (100.0 * grew))
+
+        if why:
+            shutil.copy2(bak, page)
+            led["failed"][name] = "; ".join(why)
+            print("  %-52s REFUSED -- old bytes restored" % name[:52])
+            for w in why:
+                print("        %s" % w)
+        else:
+            led["done"][name] = {"was": was_stamp, "now": expected,
+                                 "bytes": os.path.getsize(page),
+                                 "delta": os.path.getsize(page) - was_size}
+            print("  %-52s OK  %s -> %s  %+d bytes"
+                  % (name[:52], was_stamp, expected, os.path.getsize(page) - was_size))
+        save(led)
+
+    print("")
+    print("BATCH COMPLETE. done %d, failed %d, skipped %d, remaining %d"
+          % (len(led["done"]), len(led["failed"]), len(led["skipped"]),
+             len(mapped) - len(led["done"]) - len(led["failed"]) - len(led["skipped"])))
+    release()
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    finally:
+        release()

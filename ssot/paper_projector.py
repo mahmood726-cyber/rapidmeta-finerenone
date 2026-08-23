@@ -423,6 +423,44 @@ def _flatten_container(text):
     printed in a Methods body. The value is real and belongs on the page; its REPR does not.
     Dicts become `key: value.` sentences and lists become `a, b and c`, so the content
     survives and the punctuation of a data structure does not.
+
+    THIS FIX IS NOT COMPLETE AND THE PROBE THAT SAID IT WAS WAS MEASURING THE WRONG THING.
+    ------------------------------------------------------------------------------------
+    The container-repr class was reported CLOSED on the strength of a probe that searched
+    delivered pages for BRACES AND QUOTES and found zero. It found zero because this function
+    removes the braces. IT DOES NOT REMOVE THE FIELD NAMES -- it promotes them to prose
+    labels. Delivered MAVACAMTEN_HCM_REVIEW, Methods-search, verbatim:
+
+        ... on the dates recorded on each entry; what verifies this object:
+        ClinicalTrials.gov protocol records, read 2026-08-18. what is not claimed: that any
+        per-trial count was checked against a results record. bar: not recorded on the page
+        this object was built from.
+
+    `bar:` is a schema identifier sitting in a sentence. A reader meets a data structure with
+    its punctuation filed off, which is most of the way to where it started.
+
+    THE GENERAL LESSON, WHICH COST THREE INSTANCES IN ONE NIGHT TO LEARN: A CHECK BUILT TO
+    FIND THE THING THE FIX REMOVED CAN ONLY EVER AGREE WITH THE PERSON WHO WROTE THE FIX.
+    Key the probe to what a READER MEETS, never to the artefact the remedy happens to delete.
+    The correct predicate here is "does a schema identifier appear where a sentence should
+    be", and braces are irrelevant to it. That probe is
+    `scripts/lint_field_name_in_reader_prose_2026_08_23.py`; its positive control is this
+    page's `bar:`, found by a census lane reading the page, NOT a fixture written by whoever
+    wrote this function.
+
+    IT MEASURES 220 OCCURRENCES ACROSS THE DELIVERED CORPUS -- `what verifies this object`
+    66, `what is not claimed` 61, `bar` 57, plus outcome IDs (`post_hoc`, `primary_oa`,
+    `cvdeath_or_whf_first`) which are a SECOND leak: an outcome identifier standing where an
+    outcome label belongs.
+
+    WHY IT IS NOT FIXED HERE. Closing it properly means deciding WHERE the pairs go, and the
+    standing constraint is that nothing is removed from the page, only moved out of the
+    reading flow. Dropping the keys alone breaks the values -- "that any per-trial count was
+    checked against a results record" asserts nothing without the label that governs it. The
+    honest shapes are (a) refuse the sentence and name the obstacle, keeping the structure in
+    "Sources for this section", or (b) map each key to an English lead-in. Both are design
+    decisions about what a reader is owed, not presentation tweaks, and they are Mahmood's.
+    Left standing, measured, and named rather than half-fixed again.
     """
     def _list(m):
         items = re.findall(r"'([^']*)'", m.group(0))
