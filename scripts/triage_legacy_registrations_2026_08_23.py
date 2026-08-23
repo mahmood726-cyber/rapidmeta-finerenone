@@ -167,9 +167,25 @@ def main():
         if not os.path.isfile(p):
             per_page[n] = {"state": "not_on_disk"}
             continue
-        t = io.open(p, encoding="utf-8", errors="replace").read()
+        raw = io.open(p, encoding="utf-8", errors="replace").read()
+        # ONLY WHAT A READER MEETS. The first version of this ran NCT.findall over the whole
+        # file and produced 727 of 745 pages classified as donor -- 97.6%, which was an
+        # artefact, not a finding.
+        #
+        # THE MECHANISM: every legacy page hardcodes the SAME trial list inside its analysis
+        # engine, `trialData=["NCT01035255","NCT01920711","NCT02924727"]` -- the LCZ696/ARNI
+        # heart-failure trials -- plus a FINEARTS-HF special case on NCT05901831. Those four
+        # appear on 72-79% of legacy pages while the MEDIAN identifier appears on ONE. Read out
+        # of <script>, they look like citations to trials on a completely different subject, so
+        # the donor rule fired on nearly every page in the corpus.
+        #
+        # They are not citations. They are template code. A page's CLAIMS live in its prose and
+        # its tables, so that is where the identifiers are read from -- and the check that
+        # matters is whether what the page TELLS A READER it studied resolves to what it says.
+        t = re.sub(r"(?is)<script\b.*?</script>", " ", raw)
+        t = re.sub(r"(?is)<style\b.*?</style>", " ", t)
         ids = sorted(set(NCT.findall(t)))
-        m = BARE_COUNT.search(t)
+        m = BARE_COUNT.search(raw)
         per_page[n] = {"ids": ids, "bare": int(m.group(1)) if m else None}
         if m:
             bare[n] = int(m.group(1))

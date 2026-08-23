@@ -159,3 +159,44 @@ def plant_and_require(instrument, detector, clean_case, planted_case):
         "passes." % (instrument,
                      "fired" if detector(planted_case) else "STAYED QUIET",
                      "fired" if detector(clean_case) else "stayed quiet"))
+
+
+def authored_not_constructed(path, text):
+    """A CHANNEL NOTHING VALIDATES IS WHERE SILENT CORRUPTION SURVIVES.
+
+    THE INCIDENT. A commit message was passed to `git commit -m "..."` with backticks in the
+    body. The shell COMMAND-SUBSTITUTED them: `` `_REVIEW` `` was executed, produced nothing,
+    and the sentence "whose filenames omit `_REVIEW`" was recorded as "whose filenames omit".
+    The commit succeeded. Every gate passed. The push would have gone out clean.
+
+    WHY THIS ONE IS WORTH A FUNCTION AND NOT JUST A NOTE. It is the same shape as a gate that
+    cannot fail, arriving from the opposite direction. A commit message is a channel NOTHING
+    DOWNSTREAM READS: no test parses it, no linter checks it, no reader diffs it against what
+    was meant. So a corruption there is not caught late -- IT IS NEVER CAUGHT. The record is
+    silently wrong forever, and the only reason this instance was found is that a person
+    happened to read the log within the minute.
+
+    The transport does not have to be malicious or exotic to do this. Backticks command-
+    substitute, `$` expands, `\\b` becomes a literal 0x08 byte, CRLF is rewritten. Every one is
+    a documented failure in this repo's history and every one produced output that looked fine.
+
+    THE RULE, GENERALISED: never construct content through a shell string. Write the bytes to a
+    file with a file tool and hand the FILE to the command -- `git commit -F <file>`. A file is
+    a channel you can read back and diff; a shell argument is not.
+
+    This helper is the assertion form: hand it the path you wrote and the text you meant, and
+    it refuses if what landed is not what was intended.
+    """
+    import io as _io
+    try:
+        got = _io.open(path, encoding="utf-8").read()
+    except OSError as e:
+        raise ControlFailed("REFUSED: cannot read back %s (%s). Content that cannot be read "
+                            "back has not been verified, only sent." % (path, e))
+    if got.strip() == text.strip():
+        return
+    raise ControlFailed(
+        "REFUSED: what landed in %s is not what was authored (%d chars written, %d read "
+        "back). Something in the transport rewrote it, and a commit message is a channel "
+        "nothing downstream validates -- so this would have been wrong permanently and "
+        "silently." % (path, len(text), len(got)))
