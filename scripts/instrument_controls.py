@@ -196,6 +196,55 @@ def scan_covers_what_it_emits(function_name, own_literals_matched, callee_render
         "it emits." % (what, function_name))
 
 
+def make_the_honest_path_the_only_path(callable_name, required_args, defaulted_args, what):
+    """THE ONE THAT OUTRANKS EVERYTHING ELSE HERE: A REQUIRED ARGUMENT BEATS A CHECK.
+
+    Every other lesson in this file describes how to DETECT a defect after it exists -- plant
+    the control, key the probe to the reader, read the copy being changed, abstain rather than
+    guess. All of them are downstream of somebody already having written the wrong thing.
+
+    A REQUIRED ARGUMENT MAKES THE WRONG THING UNCONSTRUCTABLE.
+
+    THE INSTANCE, 2026-08-23. `emit_sidecar()` in
+    `scripts/regenerate_catastrophic_sidecars.R` hardcoded
+
+        "regenerated_from": "curated_publishedHR_via_metafor_<version>"
+
+    on every sidecar it wrote -- including one whose own comment, fifty lines below, says its
+    hazard ratios are placeholders written by hand. Four topics reached `dashboard.html` under
+    "Pooled OR (95% CI)" carrying a provenance string asserting they came from publications.
+
+    A WRONG ESTIMATE CAN BE CAUGHT BY SOMEONE WHO LOOKS; A PROVENANCE STRING THAT LIES REMOVES
+    THE REASON TO LOOK. It answers the question a checker would ask.
+
+    The fix was not a lint that finds false provenance. It was deleting the default:
+
+        emit_sidecar(..., provenance = NULL)  ->  stop() if provenance is missing
+
+    Five call sites now refuse to run. NOT ONE OF THEM CAN EMIT A FLATTERING LABEL BY
+    INATTENTION, because there is no label to inherit. The five are a named list for a person
+    to answer rather than five silent lies, and supplying a string to unblock them would be the
+    original defect performed deliberately.
+
+    THE GENERAL FORM. Wherever a value carries a claim about ITSELF -- where it came from, what
+    verified it, which standard it was built to, whether it was checked -- that claim must be a
+    REQUIRED INPUT at the point of construction, never a default, never inferred, never
+    inherited from a sibling. A default on a self-describing field is a lie with a plausible
+    shape, and it will be believed precisely because it looks like the answer.
+
+    ASK OF ANY CONSTRUCTOR: can this produce an artefact that describes itself wrongly without
+    anyone deciding to? If yes, the field that describes it should be a required argument.
+    """
+    bad = sorted(set(defaulted_args) & set(required_args))
+    if not bad:
+        return
+    raise ControlFailed(
+        "REFUSED: %s lets %s default, and those fields describe the artefact itself (%s). A "
+        "default on a self-describing field is a lie with a plausible shape. Make it required "
+        "so the wrong value cannot be constructed by inattention."
+        % (callable_name, ", ".join(bad), what))
+
+
 def accurate_about_the_wrong_thing(instrument, question_answered, question_asked, what):
     """A CHECK CAN BE ACCURATE AND STILL WORTHLESS IF IT IS ACCURATE ABOUT THE WRONG THING --
     and that failure is invisible precisely because NOTHING IS WRONG WITH THE CHECK.

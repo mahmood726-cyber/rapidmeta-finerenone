@@ -1,77 +1,102 @@
-"""Estimates whose inputs are placeholders, and the reason each is withdrawn.
+"""Estimates whose inputs are not what their provenance label claims, and the reason for each.
 
-WHAT HAPPENED. `scripts/regenerate_catastrophic_sidecars.R` writes, at line 111:
+WHAT HAPPENED. `scripts/regenerate_catastrophic_sidecars.R` emitted five sidecars, every one
+labelled `regenerated_from: "curated_publishedHR_via_metafor_5.0.1"` -- a hardcoded default
+asserting the numbers came from curated publications. Four reached `dashboard.html` under the
+heading "Pooled OR (95% CI)". A WRONG ESTIMATE CAN BE CAUGHT BY SOMEONE WHO LOOKS; A PROVENANCE
+STRING THAT LIES REMOVES THE REASON TO LOOK.
 
-    # Substitute placeholder HRs that reflect single-arm response benchmarks
-    # against historical control; these will be flagged for human verification
-    # via 'regenerated_from' field.
-    hr = c(0.50, 0.45, 0.55)
+I FIRST ASSIGNED THESE REASONS FROM A FINGERPRINT AND GOT TWO OF THEM WRONG. Three sidecars
+carry tau2 = 0.0 and I2 = 0.0, and I read that as "hand-chosen numbers agree perfectly" and
+called all three fabricated. Reading each call site's OWN COMMENT shows five different
+situations, only one of which is a placeholder:
 
-They were never flagged. They were pooled, written to `outputs/r_validation/<topic>.json`,
-copied into `outputs/portfolio_index.json` by `build_portfolio_index.py`, and rendered by
-`dashboard.html` under the heading "Pooled OR (95% CI)". A reader meets an invented number as a
-finding.
+    FGFR_INHIBITORS_SOLID   "Substitute placeholder HRs ... these will be flagged for human
+                            verification" -- FABRICATED, and it says so. No NCTs, no PMIDs.
 
-EVERYTHING ELSE FOUND THIS WEEK HAS BEEN A TRUE FACT RENDERED WRONGLY -- a real reason under
-the wrong key, a real rating in a location no surface reads, a real result hidden by a
-truthiness test. THIS IS A FABRICATED ONE REACHING A READER.
+    HPV_DOSE_REDUCTION      "Vaccine efficacy 97.5% -> RR = 1 - 0.975 = 0.025", with
+                            NCT03832621 and NCT02834637. A DERIVATION FROM A PUBLISHED VE,
+                            not a placeholder -- though applying RR = 1 - VE to the interval
+                            BOUNDS as well as the point is not a sound transformation.
 
-THE FLAG THE COMMENT PROMISED EXISTS AND LIES. `regenerated_from` reads
-"curated_publishedHR_via_metafor_5.0.1" on all four sidecars this script emits, asserting the
-numbers came from publications. A WRONG ESTIMATE CAN BE CAUGHT BY SOMEONE WHO LOOKS; A
-PROVENANCE STRING THAT LIES REMOVES THE REASON TO LOOK. That is the worse defect of the two.
+    HEPATITIS_HCV_DAA       "Failure rates ~1% in DAA, ~5-10% in comparator" -> 0.10, 0.08,
+                            0.05. APPROXIMATED FROM STATED RANGES rather than read per trial.
+                            No NCTs.
 
-TWO REASONS, NOT ONE, AND THE DISTINCTION IS THE POINT. Three sidecars carry tau2 = 0.0 AND
-I2 = 0.0 exactly -- hand-chosen numbers agree perfectly because nothing generated them.
-COPD_TRIPLE does not: tau2 0.0244, I2 88.5, which is what real heterogeneity looks like. Its
-inputs may be genuine. It carries the same false provenance label, so it CANNOT BE DETERMINED
-FROM THE ARTEFACT, and that is the honest verdict rather than an accusation. Four withdrawals
-with two reasons are more useful than four with one.
+    MDRTB_BPAL              "TB-PRACTECAL 0.22 [0.12, 0.39]; others single-arm" -> 0.30, 0.25,
+                            0.22. ONE REAL PUBLISHED RR AND TWO ASSUMED for single-arm trials.
+                            PMIDs present.
 
-NOTHING HERE IS REPAIRED INTO A REAL NUMBER. Establishing what is real means reading the
-pivotal publications, which is not a projection and is not this file's to invent.
+    COPD_TRIPLE             IMPACT, ETHOS, KRONOS with HRs 0.75, 0.76, 0.52 -- AND
+                            NCT02164513/NCT02465567/NCT02497001 AND PMIDs
+                            29668352/32579807/30232048. Its inputs are NAMED AND CHECKABLE.
+
+SO THE tau2 = 0 FINGERPRINT IDENTIFIES "NUMBERS THAT AGREE PERFECTLY", WHICH IS NOT THE SAME AS
+"NUMBERS SOMEBODY INVENTED". A derived value and a rounded value agree perfectly too. The
+fingerprint was a good screen and a bad verdict, and the source comments were the evidence
+sitting one file away the whole time.
+
+COPD_TRIPLE IS THE ONE THAT MAY COME BACK. It is withdrawn NOT because its provenance is
+unverifiable -- it names three registrations and three PMIDs -- but because the label on it was
+false and nobody has yet checked the three hazard ratios against those publications. That is a
+RESTORABLE state, and restoring a good number is as much the job as withdrawing a bad one.
 """
 
 # topic -> (reason_code, the sentence a reader is shown)
+#
+# Four states, deliberately distinguished. Collapsing them into "placeholder" would accuse
+# three topics of something only one of them did.
 WITHDRAWN = {
     "FGFR_INHIBITORS_SOLID": (
         "inputs_are_placeholders",
-        "The estimate is withdrawn. Its inputs were placeholder hazard ratios written by "
-        "hand in the script that produced them -- 0.50, 0.45 and 0.55 -- and the pooled "
-        "result carries tau-squared 0.0 and I-squared 0.0, which is what three chosen "
-        "numbers look like rather than three trials. No estimate is published here until "
-        "the underlying effects are read from their sources."),
+        "The estimate is withdrawn. Its inputs were placeholder hazard ratios written by hand "
+        "in the script that produced them -- 0.50, 0.45 and 0.55, described in that script as "
+        "substitutes awaiting human verification. The trials are single-arm, so no comparative "
+        "hazard ratio was available to read. No estimate is published here until comparative "
+        "effects exist to pool."),
     "HEPATITIS_HCV_DAA": (
-        "inputs_are_placeholders",
-        "The estimate is withdrawn. Its inputs were placeholder effects written by hand in "
-        "the script that produced them, and the pooled result carries tau-squared 0.0 and "
-        "I-squared 0.0 -- perfect agreement between numbers nothing generated. No estimate "
-        "is published here until the underlying effects are read from their sources."),
+        "inputs_approximated_from_ranges",
+        "The estimate is withdrawn. Its inputs were not read per trial: they were approximated "
+        "from stated ranges -- failure rates of about 1% on direct-acting antivirals against "
+        "about 5 to 10% in comparators -- and converted to odds ratios by hand. The trials are "
+        "real and the approximation may be reasonable, but a pooled estimate over numbers "
+        "nobody read from a results table is not published here."),
     "HPV_DOSE_REDUCTION": (
-        "inputs_are_placeholders",
-        "The estimate is withdrawn. Its inputs were placeholder effects written by hand in "
-        "the script that produced them, and the pooled result carries tau-squared 0.0 and "
-        "I-squared 0.0 -- perfect agreement between numbers nothing generated. No estimate "
-        "is published here until the underlying effects are read from their sources."),
+        "derived_by_an_unsound_transformation",
+        "The estimate is withdrawn. Its inputs are NOT invented -- they are derived from "
+        "published vaccine efficacy in KEN-SHE (NCT03832621) and DoRIS (NCT02834637) by "
+        "RR = 1 - VE. That identity holds for the point estimate and NOT for the confidence "
+        "bounds, which were transformed the same way, so the interval around this estimate "
+        "does not mean what an interval means. The underlying trials are sound and this "
+        "estimate can be rebuilt from them."),
+    "MDRTB_BPAL": (
+        "inputs_partly_assumed",
+        "The estimate is withdrawn. One of its three inputs is a published risk ratio "
+        "(TB-PRACTECAL, 0.22 with interval 0.12 to 0.39); the other two are assumed values "
+        "for single-arm studies, which have no comparator and therefore no risk ratio to "
+        "read. Pooling a published comparison with two assumed ones produces a number that "
+        "looks like a synthesis and is not."),
     "COPD_TRIPLE": (
-        "provenance_unverifiable",
-        "The estimate is withdrawn because its provenance cannot be established, NOT because "
-        "its inputs are known to be invented. It was produced by the same script that wrote "
-        "placeholder effects for three other topics, and it carries the same "
-        "'curated_publishedHR' label as those -- a label now known to be false where it was "
-        "checked. Unlike them its heterogeneity is real-looking (tau-squared 0.0244, "
-        "I-squared 88.5), so its inputs may well be genuine. WHICH IS TRUE CANNOT BE "
-        "DETERMINED FROM THE ARTEFACT, and an estimate whose source cannot be named is not "
-        "published here."),
+        "provenance_label_false_inputs_checkable",
+        "The estimate is withheld pending verification, not withdrawn as invented. Its inputs "
+        "name three trials -- IMPACT, ETHOS and KRONOS -- with registrations "
+        "NCT02164513, NCT02465567 and NCT02497001 and publications PMID 29668352, 32579807 "
+        "and 30232048, and its heterogeneity is what real heterogeneity looks like. What was "
+        "false was the label asserting the numbers had been curated from those publications "
+        "when nobody had checked. THIS ONE CAN BE RESTORED: read the three hazard ratios "
+        "against those three papers and the estimate stands or is corrected."),
 }
 
-# The provenance string the script emits on all four. It asserts curation that did not happen.
+# The hardcoded string the script emitted on all five. It asserted curation that did not happen.
 FALSE_PROVENANCE = "curated_publishedHR_via_metafor_5.0.1"
 
-# Fields cleared from a withdrawn row. The ROW SURVIVES: the record that the topic exists and
-# its estimate was withdrawn is itself the finding, which is the form the not-poolable pages
-# already use and the reason this is not a deletion.
+# Fields cleared from a withheld row. THE ROW SURVIVES: the record that a topic exists and its
+# estimate was withdrawn is itself the finding, which is the form the not-poolable pages
+# already use, and the reason this is not a deletion.
 CLEARED = ("pooled_OR", "ci_low", "ci_high", "I2", "tau2", "PI_low", "PI_high")
+
+# Restorable on evidence rather than permanently withdrawn.
+RESTORABLE = {"COPD_TRIPLE", "HPV_DOSE_REDUCTION"}
 
 
 def withdrawal_for(topic, regenerated_from=None):
@@ -80,15 +105,15 @@ def withdrawal_for(topic, regenerated_from=None):
     if hit:
         return hit
     if regenerated_from == FALSE_PROVENANCE:
-        return ("provenance_unverifiable",
-                "The estimate is withdrawn: it carries a provenance label known to be false "
-                "on every topic where it was checked, so the source of its inputs cannot be "
-                "named.")
+        return ("provenance_label_false_unexamined",
+                "The estimate is withheld: it carries a provenance label that was found false "
+                "on every topic where it was examined, so the source of its inputs has not "
+                "been established. This topic has not itself been examined.")
     return None
 
 
 def apply_to_row(row):
-    """Clear a withdrawn estimate from a portfolio row, in place. Returns the reason or None."""
+    """Clear a withheld estimate from a portfolio row, in place. Returns the reason or None."""
     got = withdrawal_for(row.get("topic"), row.get("regenerated_from"))
     if not got:
         return None
@@ -98,4 +123,5 @@ def apply_to_row(row):
     row["estimate_withdrawn"] = True
     row["withdrawn_reason_code"] = code
     row["withdrawn_reason"] = sentence
+    row["restorable_on_evidence"] = row.get("topic") in RESTORABLE
     return code
