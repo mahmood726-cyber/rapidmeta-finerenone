@@ -30,7 +30,14 @@ import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 KEY = "estimand_established_does_not_cover_the_contrast_2026_08_20"
-CUE = "records NOTHING about what that quantity was measured AGAINST"
+# CASE-INSENSITIVE, BECAUSE THE PROJECTOR SENTENCE-CASES STORED PROSE.
+# The object holds "records NOTHING ... AGAINST"; most pages render it as
+# "records nothing ... against", and one -- SGLT2, through a path that does not tidy --
+# keeps the shouted form. A case-sensitive cue matched the one page and missed the
+# other 130, so this rollout was about to refuse with 128 false "BUILT BUT STILL
+# MISSING IT" failures over pages that were carrying the caveat correctly. A selector
+# keyed to the casing of the SOURCE rather than of the RENDER.
+CUE = "records nothing about what that quantity was measured against"
 BUILD = [sys.executable, os.path.join(REPO, "ssot", "build_tabbed.py")]
 
 
@@ -72,7 +79,7 @@ def main():
         path = os.path.join(REPO, page)
         before = io.open(path, encoding="utf-8", errors="replace").read() \
             if os.path.isfile(path) else ""
-        if CUE in before:
+        if CUE in before.lower():
             already += 1
             continue
         if is_frozen:
@@ -86,7 +93,7 @@ def main():
             refusals.append((page, tail or "build refused"))
             continue
         after = io.open(path, encoding="utf-8", errors="replace").read()
-        if CUE in after:
+        if CUE in after.lower():
             built += 1
             sys.stdout.write(".")
             sys.stdout.flush()

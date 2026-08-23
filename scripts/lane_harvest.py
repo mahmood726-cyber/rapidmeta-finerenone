@@ -30,25 +30,41 @@ REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(REPO, "outputs", "lanes", "out")
 LEDGER = os.path.join(REPO, "outputs", "lanes", "harvest.json")
 
-DEFECT = re.compile(r"\bDEFECT\b|\bBUG\b|\bOVERCLAIM\b|\bREJECT\b|"
-                    r"\bTRUNCATED\b|\bnot a fact\b", re.I)
-CLEAN = re.compile(r"\bCLEAN\b|\bNONE\b|\bno defects? found\b|\bACCEPT\b", re.I)
+# KEYED TO THE VERDICT, NOT TO THE PROMPT'S OWN SECTION HEADINGS.
+#
+# The first version matched \bOVERCLAIM\b -- which every agy prompt GUARANTEES, because the
+# prompt asks for a section with that name. So every wording lane classified as
+# CLAIMS_DEFECT and the tally came back CLEAN 0, COULD_NOT_DETERMINE 0, which is not a
+# credible distribution and was the tell. A classifier keyed to a string its own prompt
+# supplies measures the prompt, not the answer.
+#
+# The verdict line carries the finding, so that is what is read.
+VERDICT = re.compile(r"VERDICT[^A-Za-z]{0,12}(ACCEPT WITH CHANGES|ACCEPT|REJECT)", re.I)
+DEFECT = re.compile(r"\bTRUNCATED\b|\bis a defect\b|\bproven defect\b(?!\s+in packet)",
+                    re.I)
+CLEAN = re.compile(r"\bCLEAN\b|\bno proven defect\b|\bno defects? found\b", re.I)
 CND = re.compile(r"COULD NOT DETERMINE|COULD_NOT_DETERMINE", re.I)
 NOANSWER = re.compile(r"I'?m sorry|can'?t complete|cannot complete|"
                       r"command line is too long|SPAWN FAILED", re.I)
 
 
 def classify(text):
+    """The verdict where one was asked for; otherwise the strongest claim actually made."""
     if not text.strip():
         return "NO_ANSWER"
     if NOANSWER.search(text):
         return "NO_ANSWER"
+    v = VERDICT.search(text)
+    if v:
+        return "CLEAN" if v.group(1).upper() == "ACCEPT" else "CLAIMS_DEFECT"
+    # No verdict line means a codex module lane. Those answer per shape with either a
+    # named defect or "No proven defect in packet for: <shape>", so a claim anywhere wins.
     if DEFECT.search(text):
         return "CLAIMS_DEFECT"
-    if CND.search(text):
-        return "COULD_NOT_DETERMINE"
     if CLEAN.search(text):
         return "CLEAN"
+    if CND.search(text):
+        return "COULD_NOT_DETERMINE"
     return "NO_ANSWER"
 
 
