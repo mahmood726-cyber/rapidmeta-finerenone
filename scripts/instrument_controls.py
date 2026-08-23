@@ -161,6 +161,42 @@ def plant_and_require(instrument, detector, clean_case, planted_case):
                      "fired" if detector(clean_case) else "stayed quiet"))
 
 
+def page_states_its_own_condition(page_says, instrument_says, what, page):
+    """WHEN A PAGE STATES ITS OWN CONDITION AND THE INSTRUMENT DISAGREES, THE PAGE IS THE
+    EVIDENCE AND THE INSTRUMENT IS THE HYPOTHESIS.
+
+    THE INCIDENT, AND IT REFUTED A CORRECT PIECE OF REASONING. Legacy pages carry a banner
+    reading, in plain English:
+
+        "47 number(s) on this page marked UNVERIFIED -- no resolvable trial id"
+
+    An extraction was run to test whether such pages ALSO name identifiers a reader could look
+    up. It found NCTs on 128 of 129 of them and reported that the bare-count distinction was
+    "weaker than claimed". The reasoning it refuted was correct. The NCTs it found were real
+    but belonged to other, verified content -- ZERO were among the numbers flagged unverified,
+    which is precisely what the banner had already said. Corrected overlap: 1 of 129.
+
+    THE CORPUS WAS TELLING THE INSTRUMENT THE ANSWER AND THE INSTRUMENT OVERRODE IT.
+
+    This is not the same as trusting page text blindly. A page's SELF-DESCRIPTION of its own
+    state -- "no resolvable trial id", "no pooled estimate was produced", "this review has been
+    retired" -- is a first-class observation, usually written by the code that knows. When a
+    probe contradicts one, the probability that the probe is asking a subtly different question
+    is far higher than the probability that the page is lying about itself. Check the probe
+    first. Every time this has come up tonight, the probe was wrong.
+
+    Call with the page's own claim and the instrument's, and it refuses when they diverge, so
+    the disagreement has to be resolved before a number is published rather than after.
+    """
+    if bool(page_says) == bool(instrument_says):
+        return
+    raise ControlFailed(
+        "REFUSED: %s says %r about %s and this instrument says %r. The page's statement about "
+        "its own condition is the evidence; this check is the hypothesis. Establish which "
+        "question the probe is actually asking before reporting a number."
+        % (page, page_says, what, instrument_says))
+
+
 def authored_not_constructed(path, text):
     """A CHANNEL NOTHING VALIDATES IS WHERE SILENT CORRUPTION SURVIVES.
 
