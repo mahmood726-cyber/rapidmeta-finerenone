@@ -1,0 +1,239 @@
+"""Five buckets, both denominators, and every bucket anchored to a page a person read.
+
+# control: routed through instrument_controls.require_controls. Four hand-read pages must land
+# where the people who read them put them -- GLP1_CVOT (legacy), PCSK9 (tombstone),
+# MAVACAMTEN (SSOT), MOMELOTINIB_MF_AUTO_2 (audit-first). The negative control is that the
+# audit-first family must NOT be counted as legacy, which is the error this revision fixes.
+
+THIS FIGURE HAS BEEN WITHDRAWN TWICE AND THE REASONS ARE WORTH KEEPING, because both were the
+same mistake in different clothes: a denominator that was never stated, and a scheme that split
+a family it did not know existed.
+
+  FIRST WITHDRAWAL -- THE DENOMINATOR STOPPED AT THE FIRST HOP. 579 `href=` occurrences in
+  index.html were called the reader-facing corpus. But `audit_table.html` (889 links) and
+  `portfolio_pools.html` (766) are themselves linked FROM the index, so a reader two clicks in
+  reaches 351 pages the index never names. Both numbers are real and they answer DIFFERENT
+  QUESTIONS, so both are reported here, labelled, and never collapsed.
+
+  SECOND WITHDRAWAL -- A FOUR-BUCKET SCHEME SPLIT ONE FAMILY FOUR WAYS. The `*_AUTO_2`
+  "audit-first build" carries a TRUSTWORTHY badge, a 6-gate audit, a real pooled OR and an
+  auto-derived GRADE, and NONE of the SSOT, legacy or retired markers. Twenty such pages landed
+  as 8 unclassifiable, 8 legacy, 3 SSOT and 1 tombstone. A classification that scatters a
+  coherent family across every bucket is not measuring the corpus, it is measuring its own
+  blind spot -- so the family gets a bucket and the counts are re-derived.
+
+WHAT THE LEGACY SET DOES RIGHT, WHICH IS PART OF THE MEASUREMENT AND NOT A COURTESY. Legacy
+pages carry an Overmind provenance banner that NAMES the identifiers it could not verify --
+"1 UNVERIFIED -- not found in ClinicalTrials.gov, PubMed" with the NCT printed. That disclosure
+is the behaviour this whole project argues for, and the SSOT pages express it differently
+rather than better. They also compute: executed in headless Chrome, roughly nine in ten hold a
+real pooled estimate a reader meets, and `--` in the static bytes is the PRE-SCRIPT state, not
+an absence. Any report of this corpus that omits those two facts is not accurate.
+"""
+from __future__ import annotations
+
+import collections
+import io
+import json
+import os
+import re
+import subprocess
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls  # noqa: E402
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+REF = "origin/main"
+OUT = os.path.join(REPO, "outputs", "five_bucket_classes_2026_08_23.json")
+
+# EVERY EXCLUSION ENUMERATED WITH ITS REASON.
+#
+# A DENOMINATOR WHOSE EXCLUSIONS ARE LISTED IS DEFENSIBLE AT ANY VALUE; ONE THAT IS OFF BY ONE
+# FOR UNSTATED REASONS IS NOT. Three counts of this same population were in circulation --
+# 572, 573, 574 -- and the gaps were never one page of substance, they were three different
+# unstated lists. So the list is here, by name, and the arithmetic is printed rather than
+# asserted.
+#
+# The index links 579 distinct .html files and all 579 resolve. Of those, 24 are not named
+# `*_REVIEW.html`, and they split three ways -- which is the whole reason the count wobbled:
+# ten of the twenty-four ARE reviews whose filenames do not say so.
+NOT_REVIEWS = {
+    # Hubs and instruments: pages ABOUT the corpus, not entries in it.
+    "index.html": "the front page",
+    "audit_table.html": "hub: a table about the corpus",
+    "portfolio_pools.html": "hub: a table about the corpus",
+    "dashboard.html": "hub: renders rows from outputs/portfolio_index.json",
+    "auto-gallery.html": "hub: an index of generated pages",
+    "what_changed.html": "instrument: a change log",
+    "EVIDENCE_GAPS.html": "instrument: a gap report across topics",
+    # Tools and apps: software with a UI, not a review of anything.
+    "AutoGRADE.html": "tool: a GRADE-assessment app",
+    "AutoManuscript.html": "tool: a manuscript-drafting app",
+    "MetaExtract.html": "tool: a data-extraction app",
+    "TrialRadar.html": "tool: a trial-surveillance app",
+    "LivingMeta.html": "tool: a living-meta-analysis app",
+    "META_DASHBOARD.html": "tool: a dashboard app",
+    "cardiology_mortality_atlas.html": "tool: an atlas view over a dataset",
+}
+# NOT EXCLUDED, AND THIS IS THE PART THAT MOVED THE NUMBER: the ten `*_AUTO_2` pages are
+# REVIEWS. Their filenames omit `_REVIEW`, so a name-keyed count drops them and a link-keyed
+# count keeps them, and that alone is worth one to ten pages depending on which was used.
+HUBS = set(NOT_REVIEWS)
+
+SSOT_MARKS = ("Reproducibility artifact", "Sources for this section",
+              "<strong>Refused:</strong>")
+LEGACY_MARKS = ("Run Acquisition", "INTERNAL CHECKS PASSED", "AMSTAR 2",
+                "Fabrication-risk", "Loading...")
+# THE FIFTH BUCKET. `audit-first` and `6-gate` appear on the AUTO_2 pages and nowhere in the
+# SSOT or legacy vocabularies, and the family carries no AMSTAR block at all -- which is what
+# separates it from legacy, whose defining artefact IS the AMSTAR table.
+AUDIT_FIRST_MARKS = ("audit-first", "6-gate")
+
+
+def git(*a):
+    return subprocess.run(["git"] + list(a), cwd=REPO, capture_output=True)
+
+
+def text(p, cache={}):
+    if p not in cache:
+        r = git("show", "%s:%s" % (REF, p))
+        cache[p] = "" if r.returncode else r.stdout.decode("utf-8", "replace")
+    return cache[p]
+
+
+def tree_root():
+    out = git("ls-tree", "-r", "--name-only", REF).stdout.decode("utf-8", "replace")
+    return set(f for f in out.split("\n") if f.endswith(".html") and "/" not in f)
+
+
+def links_of(page, root):
+    return set(m.group(1).split("/")[-1]
+               for m in re.finditer(r'href="([^"#?]+\.html)', text(page))
+               if not m.group(1).startswith("http")
+               and m.group(1).split("/")[-1] in root)
+
+
+def populations(root):
+    """index-linked reviews, and hub-reachable reviews. Two questions, two answers."""
+    idx = links_of("index.html", root)
+    seen, q = {"index.html"}, ["index.html"]
+    while q:
+        for n in links_of(q.pop(0), root):
+            if n not in seen:
+                seen.add(n)
+                q.append(n)
+    return sorted(idx - HUBS), sorted(seen - HUBS)
+
+
+def classify(t):
+    low = t.lower()
+    if (("retired" in low and "noindex" in low)
+            or "this review has been retired" in low
+            or re.search(r'page-state["\s:=]+retired', low)):
+        return "tombstone"
+    ssot = sum(1 for m in SSOT_MARKS if m in t)
+    legacy = sum(1 for m in LEGACY_MARKS if m in t)
+    audit = sum(1 for m in AUDIT_FIRST_MARKS if m in t)
+    # AUDIT-FIRST IS TESTED BEFORE LEGACY. The family has a rapidmeta-integrity-badge, which
+    # is also a legacy marker, so a legacy-first order reabsorbs it into the bucket this
+    # revision exists to take it out of.
+    if audit >= 2 and "AMSTAR" not in t and ssot == 0:
+        return "audit-first"
+    if ssot >= 2:
+        return "ssot"
+    if legacy >= 1 and ssot == 0:
+        return "legacy"
+    return "unclassifiable"
+
+
+def tally(names):
+    b = collections.Counter()
+    byc = collections.defaultdict(list)
+    for n in names:
+        t = text(n)
+        if not t:
+            b["missing"] += 1
+            byc["missing"].append(n)
+            continue
+        c = classify(t)
+        b[c] += 1
+        byc[c].append(n)
+    return b, byc
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    root = tree_root()
+    idx_reviews, hub_reviews = populations(root)
+
+    # THE CONTROLS. Four pages read by people, each asserted into the bucket they put it in.
+    cls = {n: classify(text(n)) for n in
+           ("GLP1_CVOT_REVIEW.html", "PCSK9_REVIEW.html", "MAVACAMTEN_HCM_REVIEW.html",
+            "MOMELOTINIB_MF_AUTO_2.html", "AVACINCAPTAD_GA_AUTO_2.html")
+           if text(n)}
+    hand = {"GLP1_CVOT_REVIEW.html": "legacy", "PCSK9_REVIEW.html": "tombstone",
+            "MAVACAMTEN_HCM_REVIEW.html": "ssot"}
+    agree = all(cls.get(k) == v for k, v in hand.items() if k in cls)
+    a2 = [v for k, v in cls.items() if k.endswith("_AUTO_2.html")]
+    require_controls(
+        "five_bucket_classification",
+        ("GLP1_CVOT=legacy, PCSK9=tombstone, MAVACAMTEN=ssot -- all three read by hand "
+         "(got %s)" % {k: cls.get(k) for k in hand}, agree, True),
+        ("the audit-first family is no longer swallowed by 'legacy' (got %s)" % a2,
+         bool(a2) and any(v == "legacy" for v in a2), True))
+
+    idx_all = links_of("index.html", root)
+    hub_all = set(idx_reviews) | set(hub_reviews) | HUBS
+    print("")
+    print("THE EXCLUSIONS, ENUMERATED -- the arithmetic is shown, not asserted")
+    print("")
+    print("   index links, all resolving                  %4d" % len(idx_all))
+    hubs_hit = sorted(n for n in idx_all if n in NOT_REVIEWS)
+    for n in hubs_hit:
+        print("      -1  %-38s %s" % (n, NOT_REVIEWS[n]))
+    print("   = review pages linked from the index        %4d" % len(idx_reviews))
+    print("")
+    print("   NOT excluded: the %d `*_AUTO_2` pages are REVIEWS whose filenames omit"
+          % len([n for n in idx_reviews if "_AUTO_2" in n]))
+    print("   `_REVIEW`. A name-keyed count drops them and a link-keyed count keeps them,")
+    print("   which is most of the 572/573/574 disagreement on its own.")
+    print("")
+    print("FIVE BUCKETS, BOTH DENOMINATORS -- a rate must name which it is against")
+    print("")
+    for label, names in (("LINKED FROM THE INDEX", idx_reviews),
+                         ("REACHABLE FROM ANY HUB", hub_reviews)):
+        b, byc = tally(names)
+        tot = len(names)
+        print("   %s: %d review pages" % (label, tot))
+        for k, lab in (("ssot", "SSOT-generated"), ("legacy", "legacy app"),
+                       ("audit-first", "audit-first (*_AUTO_2)"),
+                       ("tombstone", "retired tombstone"),
+                       ("unclassifiable", "unclassifiable"),
+                       ("missing", "linked, not on disk")):
+            print("      %-28s %4d   %5.1f%%" % (lab, b[k], 100.0 * b[k] / max(1, tot)))
+        s = sum(b[k] for k in ("ssot", "legacy", "audit-first", "tombstone",
+                               "unclassifiable", "missing"))
+        if s != tot:
+            sys.exit("REFUSED: %s does not close -- %d pages, %d classified." % (label, tot, s))
+        print("      %-28s %4d   == the population" % ("sum", s))
+        print("")
+        if label.startswith("REACHABLE"):
+            json.dump({k: v for k, v in byc.items()},
+                      io.open(OUT, "w", encoding="utf-8"), indent=1)
+            if byc["unclassifiable"]:
+                print("   UNCLASSIFIABLE, BY NAME -- never folded to tidy a total:")
+                for n in byc["unclassifiable"][:24]:
+                    print("      %s" % n)
+                print("")
+
+    print("WHAT THE LEGACY SET DOES RIGHT, AND IT IS PART OF THE MEASUREMENT:")
+    print("   * its provenance banner NAMES the identifiers it could not verify, with the NCT")
+    print("     printed -- the behaviour this project argues for, expressed differently")
+    print("     rather than worse than the SSOT pages express it")
+    print("   * it computes: ~9 in 10 hold a real pooled estimate a reader meets. `--` in the")
+    print("     static bytes is the PRE-SCRIPT state, not an absence.")
+
+
+if __name__ == "__main__":
+    main()

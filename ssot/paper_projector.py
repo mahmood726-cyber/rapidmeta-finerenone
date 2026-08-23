@@ -453,6 +453,26 @@ def _flatten_container(text):
     `cvdeath_or_whf_first`) which are a SECOND leak: an outcome identifier standing where an
     outcome label belongs.
 
+    AND THE STRUCTURAL FORM OF THE SAME LESSON, WHICH IS THE ONE WORTH KEEPING:
+    A PROBE SEES ONLY THE SHAPE IT WAS WRITTEN FOR, AND A SHAPE DISTINCTION READS AS A
+    DISAGREEMENT BETWEEN PEOPLE.
+    ---------------------------------------------------------------------------------------
+    Two review lanes reported ARNI_HF_REVIEW as carrying the dict leak and as not carrying it,
+    and an hour went into treating that as a contradiction to arbitrate. It was not one. This
+    class has TWO shapes and each lane's probe saw exactly one:
+
+        container-key shape    `bar:`, `what verifies this object:`   ABSENT from ARNI
+        outcome-identifier     `primary_oa` x4, `prior_meta` x1       PRESENT on ARNI
+
+    Both lanes read the page correctly. Neither was careless. The failure was structural --
+    each probe was complete with respect to the shape its author had in mind and silent about
+    the other, and silence is indistinguishable from absence at the reporting layer.
+
+    So when two readings of one page conflict, the first question is NOT which reader was
+    wrong. It is whether the two probes are looking for the same shape. A disagreement that
+    dissolves under that question was never a disagreement, and resolving it by picking a
+    winner would have recorded one correct reading as an error.
+
     WHY IT IS NOT FIXED HERE. Closing it properly means deciding WHERE the pairs go, and the
     standing constraint is that nothing is removed from the page, only moved out of the
     reading flow. Dropping the keys alone breaks the values -- "that any per-trial count was
