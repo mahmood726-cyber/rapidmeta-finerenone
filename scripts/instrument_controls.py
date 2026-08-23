@@ -196,6 +196,46 @@ def scan_covers_what_it_emits(function_name, own_literals_matched, callee_render
         "it emits." % (what, function_name))
 
 
+def control_is_keyed_to_something_stable(control_reads, work_changes, what):
+    """A CONTROL MUST BE KEYED TO SOMETHING THE WORK DOES NOT CHANGE -- a fixture, a frozen
+    copy, or a property of the instrument -- NEVER to the corpus state the work is altering.
+
+    THE STRONGEST OF THESE LESSONS, because it is the one that makes SUCCESS INDISTINGUISHABLE
+    FROM FAILURE. Every other class here produces a wrong answer; this one produces a refusal
+    that arrives precisely when the work has gone right, and the natural response to a control
+    failing is to assume the work broke.
+
+    FIVE INSTANCES IN ONE DAY, all the same shape:
+
+      1 `lint_field_name_in_reader_prose` -- positive control was MAVACAMTEN's `bar:` at
+        origin/main. That IS the defect the lint exists to remove: a successful rollout would
+        have made the control fail and the lint refuse every run thereafter. Pinned to
+        a2091846a.
+      2 the grammar-seam gate -- patterns proven against live corpus text that the repair was
+        about to clean. Moved to planted fixtures.
+      3 the procedural-constants scan -- required `protocol_card` to be FOUND carrying
+        procedural constants. Fixing the seven rows made its own control fail.
+      4 the Table 1 classifier -- required `Study selection process` to classify CONSTANT.
+        Same fix, same death.
+      5 the field-name lint again, at the ratchet: a zero-target would have blocked every
+        commit until the rollout landed. Made a ratchet on the baseline instead.
+
+    THE TEST, AND IT TAKES ONE QUESTION: if this work succeeds completely, does the control
+    still hold? If the answer is no, the control is keyed to the thing being removed. Key it to
+    a fixture that will never be cleaned, a pinned revision that will never be rewritten, or a
+    property of the instrument itself -- "the pattern fires on its own planted defect" is true
+    forever regardless of what the corpus does.
+    """
+    shared = set(control_reads) & set(work_changes)
+    if not shared:
+        return
+    raise ControlFailed(
+        "REFUSED: %s keys its control on %s, which is exactly what this work changes. If the "
+        "work succeeds the control fails, and a control that dies on success makes success "
+        "indistinguishable from failure. Key it to a fixture, a pinned revision, or a property "
+        "of the instrument." % (what, ", ".join(sorted(shared))))
+
+
 def match_on_the_meaning_bearing_part(matcher, known_differing_pair, what):
     """WHEN MATCHING NAMES, MATCH ON THE PART THAT CARRIES THE MEANING -- and prove it against
     a pair you already know differs.

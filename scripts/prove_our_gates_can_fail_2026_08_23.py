@@ -39,14 +39,31 @@ PLANTED = [
      lambda s: s.replace("for text, fields in [(_pp._tidy(t), f) for t, f in s.paras]:",
                          "for text, fields in s.paras:", 1),
      "the transform stripped from the paragraph render loop"),
+    # PLANTED FOR REAL. "Self-proving" was accepted for these on the strength of their
+    # internal prove(), which shows the PATTERN can fire -- not that the BUILD refuses. Two
+    # instruments today printed a full report of real defects and exited 0 while wired behind
+    # `|| exit 1`. So every one is planted.
     ("scripts/gate_no_grammar_seam_in_stored_prose_2026_08_23.py",
-     None,
-     None,
-     "self-proving: every pattern is run against a planted fixture and a clean one each run"),
+     "ssot/arni-hfref/arni-hfref.json",
+     lambda s: s.replace('"introduction":', '"introduction": "A seam.. here.",'
+                         '"_planted_introduction":', 1),
+     "a double full stop planted in a stored introduction"),
     ("scripts/gate_every_linked_target_resolves_2026_08_23.py",
-     None,
-     None,
-     "self-proving: a dead link is planted in a synthetic hub each run"),
+     "index.html",
+     lambda s: s.replace('</body>', '<a href="NO_SUCH_PAGE_zz9.html">x</a></body>', 1)
+     if "</body>" in s else s + '<a href="NO_SUCH_PAGE_zz9.html">x</a>',
+     "a dead link planted in index.html itself"),
+    ("scripts/audit_procedural_constants_all_surfaces_2026_08_23.py",
+     "ssot/projectors2.py",
+     lambda s: s.replace('("Study selection process", _selection_process(canon, p, na)),',
+                         '("Study selection process", "Two independent screeners of '
+                         'different model families, title/abstract then full text, with '
+                         'named human adjudication"),', 1),
+     "the original hardcoded screener sentence put back into Table 1"),
+    ("scripts/gate_no_new_schema_synonym_2026_08_23.py",
+     "ssot/sglt2-hf/sglt2-hf.json",
+     lambda s: s.replace('"duplicate_screening"', '"triplicate_screening"', 1),
+     "an eighth spelling of a frozen concept"),
     # PLANTED FOR REAL, BECAUSE ACCEPTING ITS CONTROL WOULD HAVE MISSED THAT IT COULD NOT FAIL.
     # This file printed 231 occurrences and EXITED 0, and had just been wired into pre-push
     # behind `|| exit 1`. It was marked PROVEN on the strength of its positive control holding

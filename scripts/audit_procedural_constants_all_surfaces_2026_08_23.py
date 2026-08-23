@@ -152,6 +152,25 @@ def main():
     print("")
     print("written: %s" % os.path.relpath(OUT, REPO))
 
+    # THIS FILE COULD NOT FAIL, AND I HAD ALREADY COUNTED IT AS A GUARD.
+    #
+    # It printed its findings and exited 0. Planted test: putting the original "Two independent
+    # screeners of different model families ..." constant back into `protocol_card` produced a
+    # full report and exit 0. Second instrument today that could not fail -- after
+    # `lint_field_name_in_reader_prose`, which printed 231 occurrences and exited 0 while wired
+    # into pre-push behind `|| exit 1`.
+    #
+    # ZERO, NOT A RATCHET, deliberately. A procedural assertion from a literal is a FALSE
+    # STATEMENT ABOUT HOW A REVIEW WAS CONDUCTED on every page that renders it. There is no
+    # tolerable floor for that, and the corpus is at zero now, so the gate can demand zero
+    # without blocking work.
+    if findings:
+        sys.exit("REFUSED: %d procedural assertion(s) from literals across %d function(s). "
+                 "A sentence that says a procedure was carried out must be projected from a "
+                 "field or refused by name -- copied as a constant it is true only of the "
+                 "object it was written for, and it arrives wearing that object's authority."
+                 % (len(findings), len(per_func)))
+
 
 if __name__ == "__main__":
     main()

@@ -200,3 +200,13 @@ python "$R/scripts/gate_no_grammar_seam_in_stored_prose_2026_08_23.py" >/dev/nul
 # EVERY LINKED TARGET RESOLVES. A removal that updates two surfaces of three is how
 # audit_table.html came to carry 569 links to pages deliberately deleted eleven weeks earlier.
 python "$R/scripts/gate_every_linked_target_resolves_2026_08_23.py" >/dev/null || { echo "REFUSED: the front page links a target that does not resolve (scripts/gate_every_linked_target_resolves_2026_08_23.py)"; exit 1; }
+
+# FALSE METHOD CLAIMS FROM LITERALS. Table 1 asserted "two independent screeners ... with named
+# human adjudication" on pages whose own text said no screening log is recorded. ARNI holds the
+# timestamps that make those sentences true; they were copied everywhere as constants. Demands
+# ZERO, not a ratchet -- a sentence saying a procedure was carried out has no tolerable floor.
+python "$R/scripts/audit_procedural_constants_all_surfaces_2026_08_23.py" >/dev/null || { echo "REFUSED: a procedural claim is asserted from a literal rather than projected (scripts/audit_procedural_constants_all_surfaces_2026_08_23.py)"; exit 1; }
+
+# AN EIGHTH SPELLING OF A FROZEN CONCEPT. `absent_reason` beside `withdrawn_reason` meant 17
+# pages printed "No reason recorded." while holding a substantive reason.
+python "$R/scripts/gate_no_new_schema_synonym_2026_08_23.py" >/dev/null || { echo "REFUSED: a new spelling of a concept that already has one (scripts/gate_no_new_schema_synonym_2026_08_23.py)"; exit 1; }

@@ -38,7 +38,21 @@ import subprocess
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-REF = "origin/main"
+
+# THE WORKTREE BY DEFAULT, NOT origin/main -- AND THIS WAS WRONG FOR A DAY.
+#
+# It read `origin/main` and was then wired into PRE-COMMIT, where it validated the PREVIOUS
+# PUSH and could not see the commit being made. Planting a dead link in `index.html` and
+# running it produced exit 0: the gate was structurally incapable of catching the defect it
+# was placed there to catch.
+#
+# Same family as composed-versus-stored: the instrument was pointed at a different copy of the
+# thing than the one being changed. A gate in the commit path must read what is being
+# committed; `--ref origin/main` remains available for auditing what is delivered.
+REF = None
+for _i, _a in enumerate(sys.argv):
+    if _a == "--ref" and _i + 1 < len(sys.argv):
+        REF = sys.argv[_i + 1]
 OUT = os.path.join(REPO, "outputs", "linked_target_resolution_2026_08_23.json")
 
 HUBS = ["index.html", "audit_table.html", "portfolio_pools.html", "auto-gallery.html",
@@ -57,8 +71,23 @@ def git(*a):
 
 
 def tree():
-    out = git("ls-tree", "-r", "--name-only", REF).stdout.decode("utf-8", "replace")
-    files = set(out.split("\n"))
+    """Every .html that exists, from the worktree unless a ref was named."""
+    if REF:
+        out = git("ls-tree", "-r", "--name-only", REF).stdout.decode("utf-8", "replace")
+        files = set(out.split("\n"))
+    else:
+        # Tracked files, plus anything present on disk at depth <= 1. A page added in the
+        # commit under test resolves; a page linked and absent does not.
+        out = git("ls-files").stdout.decode("utf-8", "replace")
+        files = set(f for f in out.split("\n") if f.strip())
+        for n in os.listdir(REPO):
+            if n.endswith(".html"):
+                files.add(n)
+        rdir = os.path.join(REPO, "retired")
+        if os.path.isdir(rdir):
+            for n in os.listdir(rdir):
+                if n.endswith(".html"):
+                    files.add("retired/" + n)
     root = set(f for f in files if f.endswith(".html") and "/" not in f)
     retired = set(f.split("/")[-1] for f in files
                   if f.startswith("retired/") and f.endswith(".html"))
@@ -67,10 +96,16 @@ def tree():
 
 def dead_links(hub, files, root):
     """Targets this hub links that do not resolve, as (target, kind)."""
-    t = git("show", "%s:%s" % (REF, hub))
-    if t.returncode:
-        return None
-    text = t.stdout.decode("utf-8", "replace")
+    if REF:
+        t = git("show", "%s:%s" % (REF, hub))
+        if t.returncode:
+            return None
+        text = t.stdout.decode("utf-8", "replace")
+    else:
+        fp = os.path.join(REPO, hub)
+        if not os.path.isfile(fp):
+            return None
+        text = io.open(fp, encoding="utf-8", errors="replace").read()
     out, total = [], set()
     for m in LINK.finditer(text):
         tgt = m.group(1)
