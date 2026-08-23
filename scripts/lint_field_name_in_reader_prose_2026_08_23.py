@@ -100,9 +100,23 @@ def findings(html):
 def main():
     sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 
-    mv = git("show", "%s:MAVACAMTEN_HCM_REVIEW.html" % REF).stdout.decode("utf-8", "replace")
+    # THE POSITIVE CONTROL IS PINNED TO A COMMIT, NOT TO THE LIVE CORPUS.
+    #
+    # It was keyed to MAVACAMTEN at `origin/main`, which held `bar:` when this probe was
+    # written. THAT CONTROL DIES THE MOMENT THE FIX IS DELIVERED: the defect it points at is
+    # the defect this lint exists to remove, so a successful rollout would have made the
+    # control fail and the lint refuse every run thereafter -- the same shape as a selector
+    # keyed to the defect, arriving through the control rather than the selection.
+    #
+    # `a2091846a` is a delivered commit where the construction is present and always will be.
+    # A corpus positive must be pinned to a REVISION, or it evaporates with the thing it
+    # proves the probe can see.
+    CONTROL_REV = "a2091846a"
+    mv = git("show", "%s:MAVACAMTEN_HCM_REVIEW.html" % CONTROL_REV).stdout.decode(
+        "utf-8", "replace")
     if not mv:
-        sys.exit("REFUSED: the control page is not readable at %s" % REF)
+        sys.exit("REFUSED: the pinned control page is not readable at %s. Without a positive "
+                 "this lint cannot report an absence." % CONTROL_REV)
     mv_hits = findings(mv)
     require_controls(
         "field_name_in_prose",
@@ -145,6 +159,44 @@ def main():
     print("THE BRACES ARE NOT THE DEFECT AND NEVER WERE. A probe that looks for them measures")
     print("the remedy rather than the symptom, and can only agree with whoever wrote the")
     print("remedy. This one is keyed to what a reader meets.")
+
+    # A RATCHET, AND THE REASON IT IS A RATCHET RATHER THAN A ZERO.
+    #
+    # THIS FILE HAD NO `sys.exit` ON ITS FINDING AT ALL. It printed 231 occurrences and exited
+    # 0, and it had just been wired into pre-push behind `|| exit 1` -- a gate that cannot
+    # fail, written inside the work of making the gates real. `lint_gate_can_fail.py` exists
+    # for exactly this and does not cover `lint_*` names.
+    #
+    # It blocks on an INCREASE rather than on any nonzero count because the 231 are a standing
+    # decision of Mahmood's: the lead-ins are applied but the corpus is not yet rebuilt, so the
+    # delivered pages still carry them. A gate demanding zero today would block every commit
+    # until the rollout lands, and a gate that must be bypassed daily is a gate that gets
+    # bypassed permanently. The baseline falls as the rebuild delivers; it may never rise.
+    base_path = os.path.join(REPO, "scripts", "baselines",
+                             "field_name_in_prose_baseline.json")
+    total = sum(tokens.values())
+    if os.path.isfile(base_path):
+        prev = json.load(io.open(base_path, encoding="utf-8")).get("occurrences")
+    else:
+        prev = total
+        if not os.path.isdir(os.path.dirname(base_path)):
+            os.makedirs(os.path.dirname(base_path))
+        json.dump({"occurrences": total, "recorded": "2026-08-23",
+                   "why": ("Field names delivered to readers at the moment the lead-in map "
+                           "landed. Falls as the corpus is rebuilt; must never rise.")},
+                  io.open(base_path, "w", encoding="utf-8"), indent=1)
+        print("")
+        print("baseline recorded at %d occurrence(s)" % total)
+    if total > prev:
+        sys.exit("REFUSED: field names in reader-facing prose rose from %d to %d. The map is "
+                 "`ssot/field_lead_ins.json` and BOTH producers read it -- the projector's "
+                 "`_flatten_container` and the bookkeeping writer's `_flat`. A new bare key "
+                 "means a third producer, or a key with no entry in the map."
+                 % (prev, total))
+    if total < prev:
+        print("")
+        print("BASELINE FALLS %d -> %d. Update scripts/baselines/field_name_in_prose_baseline"
+              ".json to hold the gate at the new floor." % (prev, total))
 
     if not os.path.isdir(os.path.dirname(OUT)):
         os.makedirs(os.path.dirname(OUT))

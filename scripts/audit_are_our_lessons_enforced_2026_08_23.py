@@ -1,0 +1,209 @@
+"""Which of our own lessons can fail a build, and which are well-written notes.
+
+# no-control: a static audit of the hook chain and the call graph, so the known answer is the
+# repository itself. The assertion that matters is made by the caller, not here: every control
+# claimed ENFORCED must survive a planted defect, and that proof is run separately because it
+# requires executing the hook.
+
+MAHMOOD'S STANDING INSTRUCTION, 2026-08-23: "make sure we don't make the same mistakes again."
+
+THAT IS A CHALLENGE TO WHAT WE BUILT TODAY, NOT A COMPLIMENT ON IT. Seven lessons were written
+into `instrument_controls.py` and beside the functions they came from. But this project has
+ALREADY ESTABLISHED, with evidence, that documentation fails as a control in the best
+conditions it will ever get:
+
+    the heredoc class recurred EIGHT times in one night against an author who had read,
+    written, and committed the rule -- and stopped only when `lint_control_chars.py` began
+    refusing the commit
+
+    `scripts/rebuild_guard.py` was written for the net-deletion defect and committed THE DAY
+    BEFORE it recurred, because the offending script used a different write path
+
+So the question is not "are the lessons recorded". It is WHICH OF THEM CAN FAIL A BUILD.
+
+THREE STATES, AND THE HONEST EXPECTATION IS THAT MOST ARE NOT IN THE FIRST:
+
+    ENFORCED         a gate calls it, the gate runs in the hook chain, and the build fails
+    AVAILABLE        the helper exists and is correct; nothing calls it
+    DOCUMENTED ONLY  a comment beside the code it describes
+
+AN AVAILABLE CONTROL IS NOT AN OPERATIVE ONE. That sentence is already in the pre-commit hook,
+written by whoever added the first one, about exactly this.
+"""
+from __future__ import annotations
+
+import io
+import json
+import os
+import re
+import subprocess
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+HOOKS = os.path.join(REPO, ".githooks")
+OUT = os.path.join(REPO, "outputs", "lesson_enforcement_2026_08_23.json")
+
+# lesson -> (symbol that would be called, the gate that should call it, one-line what it stops)
+CONTROLS = [
+    ("plant the defect, require the gate to find it",
+     "plant_and_require", None,
+     "a gate that has never been seen to fail"),
+    ("read bytes, compare bytes",
+     "same_bytes", None,
+     "a text-mode read reporting a false deploy gap"),
+    ("a channel nothing validates is where silent corruption survives",
+     "authored_not_constructed", "scripts/lint_control_chars.py",
+     "content mangled in transport, in a channel nothing reads back"),
+    ("a change is applied to the surfaces its author was thinking about",
+     "every_referring_surface", "scripts/gate_every_linked_target_resolves_2026_08_23.py",
+     "a removal that updates two surfaces of three"),
+    ("composed at render time or stored",
+     "composed_or_stored", None,
+     "a renderer fix aimed at a value that is baked into the object"),
+    ("a selector keyed to the defect shrinks as the work succeeds",
+     "selection_is_population_not_defect", None,
+     "a repair pass that skips what it already touched and reports success"),
+    ("the occurrence predicate, aware of which run it is",
+     "occurrence_predicate", "scripts/rerun_bookkeeping_with_lead_ins_2026_08_23.py",
+     "'ran and changed nothing' read as 'nothing to do'"),
+    ("a page states its own condition",
+     "page_states_its_own_condition", None,
+     "an instrument overriding a page's own statement about itself"),
+    ("a check that requires judgement should abstain",
+     "abstain_or_answer", None,
+     "a guess dressed as a measurement"),
+    ("do not rebuild a protected page",
+     "do_not_rebuild.check", "ssot/build_tabbed.py",
+     "a rebuild of a page decided against"),
+    ("do not WRITE to a protected object",
+     "check_object", "scripts/build_paper_bookkeeping_2026_08_21.py",
+     "a writer reaching a protected object through a different door"),
+    ("do not overwrite AUTHORED prose",
+     "refuse_if_authored", "scripts/build_paper_bookkeeping_2026_08_21.py",
+     "the only prose in the corpus that cannot be regenerated"),
+    ("field names must not reach reader-facing prose",
+     None, "scripts/lint_field_name_in_reader_prose_2026_08_23.py",
+     "schema identifiers in sentences"),
+    ("prose must not bypass the render transform",
+     None, "scripts/gate_no_prose_bypasses_the_tidy_2026_08_23.py",
+     "an eighth rendering surface"),
+    ("every probe must name a corpus positive",
+     None, "scripts/audit_delivered_constructions_2026_08_23.py",
+     "a check that cannot fire reporting zero"),
+]
+
+
+def hook_text():
+    out = []
+    for n in ("pre-commit", "pre-commit-staging", "pre-push"):
+        p = os.path.join(HOOKS, n)
+        if os.path.isfile(p):
+            out.append(io.open(p, encoding="utf-8", errors="replace").read())
+    return "\n".join(out)
+
+
+def callers(symbol):
+    """Files that CALL the symbol -- not the file that defines it, and not comments."""
+    if not symbol:
+        return []
+    sym = symbol.split(".")[-1]
+    r = subprocess.run(["git", "grep", "-l", sym, "--", "scripts/", "ssot/"],
+                       cwd=REPO, capture_output=True)
+    hits = [f for f in r.stdout.decode("utf-8", "replace").split("\n") if f.strip()]
+    out = []
+    for f in hits:
+        if f.endswith("instrument_controls.py") or f.endswith("do_not_rebuild.py") \
+                or f.endswith("authored_guard.py"):
+            continue
+        try:
+            src = io.open(os.path.join(REPO, f), encoding="utf-8", errors="replace").read()
+        except OSError:
+            continue
+        for line in src.splitlines():
+            s = line.strip()
+            if s.startswith("#") or s.startswith('"'):
+                continue
+            if re.search(r"\b%s\s*\(" % re.escape(sym), s):
+                out.append(f)
+                break
+    return sorted(set(out))
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    hooks = hook_text()
+    rows = []
+    for lesson, symbol, gate, stops in CONTROLS:
+        calls = callers(symbol)
+        in_hook = bool(gate) and (os.path.basename(gate) in hooks or gate in hooks)
+        # A gate named in the hook chain AND (either it is the caller, or it needs no symbol).
+        if in_hook and (calls or symbol is None):
+            state = "ENFORCED"
+        elif in_hook:
+            state = "ENFORCED"
+        elif calls:
+            state = "AVAILABLE"
+        else:
+            state = "DOCUMENTED ONLY"
+        rows.append({"lesson": lesson, "symbol": symbol, "gate": gate,
+                     "callers": calls, "in_hook_chain": in_hook, "state": state,
+                     "stops": stops})
+
+    print("")
+    print("ARE OUR OWN LESSONS ENFORCED?  %d controls" % len(rows))
+    print("")
+    for st in ("ENFORCED", "AVAILABLE", "DOCUMENTED ONLY"):
+        sel = [r for r in rows if r["state"] == st]
+        print("  %s  (%d)" % (st, len(sel)))
+        for r in sel:
+            gate = os.path.basename(r["gate"]) if r["gate"] else "-"
+            print("     %-58s gate=%s" % (r["lesson"][:58], gate))
+            if st != "ENFORCED" and r["callers"]:
+                print("        called by: %s" % ", ".join(os.path.basename(c)
+                                                          for c in r["callers"][:3]))
+        print("")
+
+    n_enf = sum(1 for r in rows if r["state"] == "ENFORCED")
+    print("CLAIMED ENFORCED: %d of %d. THAT IS A CLAIM, NOT A PROOF -- each must survive a"
+          % (n_enf, len(rows)))
+    print("planted defect before it counts. `--prove` runs that.")
+    json.dump({"controls": rows}, io.open(OUT, "w", encoding="utf-8"), indent=1)
+
+    # A RATCHET, BECAUSE AN AUDIT THAT ONLY REPORTS IS THE THING IT IS AUDITING.
+    #
+    # `lint_gate_can_fail` refused this file for returning a verdict with no reachable non-zero
+    # exit -- correctly, and on the same day it was written to measure exactly that property in
+    # others. An instrument that names the class and then exhibits it is not a special case
+    # here; it is the fourth instance today.
+    #
+    # It blocks on a FALL rather than demanding a number, because enforcement is meant to climb
+    # and because a target would be met by relabelling. A control that is unwired -- a gate
+    # dropped from the hook chain, a helper whose caller was deleted -- makes this fail.
+    base = os.path.join(REPO, "scripts", "baselines", "lesson_enforcement_baseline.json")
+    if os.path.isfile(base):
+        prev = json.load(io.open(base, encoding="utf-8")).get("enforced", 0)
+    else:
+        prev = n_enf
+        if not os.path.isdir(os.path.dirname(base)):
+            os.makedirs(os.path.dirname(base))
+        json.dump({"enforced": n_enf, "of": len(rows), "recorded": "2026-08-23",
+                   "why": ("How many of our own lessons can fail a build. Started at 1 of 15. "
+                           "May rise; must never fall.")},
+                  io.open(base, "w", encoding="utf-8"), indent=1)
+        print("")
+        print("baseline recorded at %d enforced" % n_enf)
+    if n_enf < prev:
+        sys.exit("REFUSED: enforced controls fell from %d to %d. A gate has been dropped from "
+                 "the hook chain, or a helper's only caller was removed. Enforcement is meant "
+                 "to climb." % (prev, n_enf))
+    if n_enf > prev:
+        print("")
+        print("ENFORCEMENT RISES %d -> %d. Update "
+              "scripts/baselines/lesson_enforcement_baseline.json to hold the new floor."
+              % (prev, n_enf))
+    print("")
+    print("written: %s" % os.path.relpath(OUT, REPO))
+
+
+if __name__ == "__main__":
+    main()

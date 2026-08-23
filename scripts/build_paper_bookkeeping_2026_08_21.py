@@ -300,7 +300,13 @@ def introduction(obj):
                      if (b or {}).get("comparator")), None)
 
     parts = []
-    parts.append("This review asks: %s" % (q if q.endswith("?") else q + "."))
+    # TERMINAL PUNCTUATION IS NOT ONLY "?". This tested for a question mark and appended a full
+    # stop otherwise, so a question already ending in a full stop got a second one: "... which
+    # is not what the withdrawal on this page said.. It examines 2 randomised trials ...", on
+    # ~20 objects. Found by the grammar-seam gate on its first real run, and it predates the
+    # lead-in work entirely -- nothing had ever looked at the joins.
+    parts.append("This review asks: %s"
+                 % (q if q.rstrip().endswith(("?", ".", "!")) else q + "."))
     # "IT POOLS 3 RANDOMISED TRIALS" ON A PAGE WHOSE THESIS IS THAT THEY CANNOT BE COMBINED.
     #
     # mavacamten-hcm exists to say its three trials register three unrelated primaries and are
@@ -331,9 +337,13 @@ def introduction(obj):
         # clause, in a third place, and it would have survived fixing the other two.
         parts.append(("The outcome%s pooled %s %s." if _pooled_any else
                       "The outcome%s sought %s %s.")
+                     # STRIPPED BEFORE JOINING. An outcome name carrying trailing whitespace
+                     # -- "Percentage of Observed Participants With Outcome " -- met the
+                     # appended full stop and produced "... With Outcome ." on pcsk9. A stored
+                     # value is not guaranteed tidy, and a join is the wrong place to assume it.
                      % ("" if len(names) == 1 else "s",
                         "is" if len(names) == 1 else "are",
-                        "; ".join(names[:6])))
+                        "; ".join(str(n).strip() for n in names[:6])))
     prov = _flat(obj.get("provenance"))
     if prov:
         parts.append("Every count and denominator behind those estimates is read as follows. "

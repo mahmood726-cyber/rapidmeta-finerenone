@@ -254,5 +254,11 @@ if [ "$STATUS" -ne 0 ]; then
     exit 1
 fi
 
+
+# FIELD NAMES IN READER-FACING PROSE. ~45s over 157 delivered pages, so it runs here rather
+# than on every commit. Its positive control is MAVACAMTEN's `bar:`, found by a person reading
+# the page -- not a fixture written by whoever wrote the fix.
+python "$(git rev-parse --show-toplevel)/scripts/lint_field_name_in_reader_prose_2026_08_23.py" >/dev/null || { echo "[pre-push] REFUSED: a schema identifier reaches reader-facing prose (scripts/lint_field_name_in_reader_prose_2026_08_23.py)"; exit 1; }
+
 echo "[pre-push] Regression check PASS on $COUNT page(s). Proceeding with push."
 exit 0

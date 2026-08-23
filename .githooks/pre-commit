@@ -181,3 +181,22 @@ python "$R/scripts/audit_class_mechanisation.py" --gate >/dev/null || { echo "RE
 # CLASS 55. The ten arm-role contradictions an object states against itself are baselined;
 # an eleventh refuses. Not a clearance -- FOURIER's swapped arms still carry their counts.
 python "$R/scripts/lint_arm_roles_contradict_the_object.py" --gate >/dev/null || { echo "REFUSED: a NEW arm-role contradiction (scripts/lint_arm_roles_contradict_the_object.py --gate). Establish the contrast from the REGISTRATION before changing anything."; exit 1; }
+
+# ---- 2026-08-23: THE FOUR GATES BUILT TODAY WERE NOT IN THIS FILE ------------------------
+# An audit of our own controls returned ENFORCED 1 of 15. Every gate written today sat in the
+# DOCUMENTED-ONLY column -- including the one guarding the eighth rendering surface closed the
+# same morning. The fix was written, its gate was written, and the gate was never called: the
+# exact class the day was about, committed inside the remedy for it.
+
+# PROSE MUST NOT BYPASS THE RENDER TRANSFORM. Two render points now (paper panel, card
+# callable); the gate proves itself against a mutant of each before it reports.
+python "$R/scripts/gate_no_prose_bypasses_the_tidy_2026_08_23.py" >/dev/null || { echo "REFUSED: a prose render point does not apply the transform (scripts/gate_no_prose_bypasses_the_tidy_2026_08_23.py)"; exit 1; }
+
+# GRAMMAR SEAMS IN STORED PROSE. A change that alters the SHAPE of generated text invalidates
+# every join around it, and the joins are invisible in a diff of the generator. Found 111
+# semicolon seams, 19 double full stops and a space-before-period on its first real run.
+python "$R/scripts/gate_no_grammar_seam_in_stored_prose_2026_08_23.py" >/dev/null || { echo "REFUSED: a punctuation seam in stored prose (scripts/gate_no_grammar_seam_in_stored_prose_2026_08_23.py)"; exit 1; }
+
+# EVERY LINKED TARGET RESOLVES. A removal that updates two surfaces of three is how
+# audit_table.html came to carry 569 links to pages deliberately deleted eleven weeks earlier.
+python "$R/scripts/gate_every_linked_target_resolves_2026_08_23.py" >/dev/null || { echo "REFUSED: the front page links a target that does not resolve (scripts/gate_every_linked_target_resolves_2026_08_23.py)"; exit 1; }

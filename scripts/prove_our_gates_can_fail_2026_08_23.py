@@ -1,0 +1,143 @@
+"""Plant each gate's defect and require it to fail. Gates CLAIMED against gates PROVEN.
+
+# no-control: this IS the control layer. Every gate below is run twice -- once against the real
+# repository, where it must pass, and once against a copy carrying its own defect, where it must
+# fail. A gate that passes both is reported as UNPROVEN and does not count.
+
+MAHMOOD'S STANDARD, 2026-08-23: "A gate is enforced when it has refused something real, or when
+you have planted its defect and watched the build fail. Nothing else counts as proven, and I
+would rather have three proven than fifteen claimed."
+
+WHY THIS IS NOT PARANOIA. An audit of our own controls returned ENFORCED 1 of 15, and every
+gate written that day sat in the DOCUMENTED-ONLY column -- including the one guarding a
+rendering surface closed the same morning. The fix was written, its gate was written, and
+nothing called the gate.
+
+TWO OF THESE ARE PROVEN BY INCIDENT RATHER THAN BY PLANTING, which is the stronger evidence and
+is recorded as such: `lint_control_chars` blocked a real commit when a heredoc turned `\\b` into
+0x08, and `lint_instrument_declares_a_control` refused a real instrument that reported a
+corpus-wide count with no positive control. Both happened to this author, on this day.
+"""
+from __future__ import annotations
+
+import io
+import json
+import os
+import re
+import shutil
+import subprocess
+import sys
+import tempfile
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OUT = os.path.join(REPO, "outputs", "gates_proven_2026_08_23.json")
+
+# gate -> (file it reads, a function that plants the defect in that file's text)
+PLANTED = [
+    ("scripts/gate_no_prose_bypasses_the_tidy_2026_08_23.py",
+     "ssot/build_tabbed.py",
+     lambda s: s.replace("for text, fields in [(_pp._tidy(t), f) for t, f in s.paras]:",
+                         "for text, fields in s.paras:", 1),
+     "the transform stripped from the paragraph render loop"),
+    ("scripts/gate_no_grammar_seam_in_stored_prose_2026_08_23.py",
+     None,
+     None,
+     "self-proving: every pattern is run against a planted fixture and a clean one each run"),
+    ("scripts/gate_every_linked_target_resolves_2026_08_23.py",
+     None,
+     None,
+     "self-proving: a dead link is planted in a synthetic hub each run"),
+    # PLANTED FOR REAL, BECAUSE ACCEPTING ITS CONTROL WOULD HAVE MISSED THAT IT COULD NOT FAIL.
+    # This file printed 231 occurrences and EXITED 0, and had just been wired into pre-push
+    # behind `|| exit 1`. It was marked PROVEN on the strength of its positive control holding
+    # -- which proves the probe can SEE the defect, not that the build refuses it. Those are
+    # different claims and only the second one is enforcement. The planted defect is a lowered
+    # baseline, i.e. the corpus having got worse.
+    ("scripts/lint_field_name_in_reader_prose_2026_08_23.py",
+     "scripts/baselines/field_name_in_prose_baseline.json",
+     lambda s: re.sub(r'"occurrences":\s*(\d+)',
+                      lambda m: '"occurrences": %d' % (int(m.group(1)) - 5), s, count=1),
+     "baseline lowered by 5, i.e. field names in prose rose"),
+]
+
+BY_INCIDENT = [
+    ("scripts/lint_control_chars.py",
+     "blocked a real commit 2026-08-23: a heredoc turned `\\b` into 0x08 in a regex literal"),
+    ("scripts/lint_instrument_declares_a_control.py",
+     "refused a real instrument 2026-08-23: audit_delivered_constructions reported a "
+     "corpus-wide count with no declared control"),
+    ("scripts/ssot_net_deletion_check.py",
+     "the staging guard refused audit_table.html and 142 rebuilt pages until STAGING_WIDE=1 "
+     "was set deliberately, twice on 2026-08-23"),
+]
+
+
+def run(script, cwd=REPO):
+    r = subprocess.run([sys.executable, os.path.join(cwd, script)],
+                       cwd=cwd, capture_output=True)
+    return r.returncode
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    rows = []
+
+    for gate, target, plant, note in PLANTED:
+        clean = run(gate)
+        if plant is None:
+            # The gate carries its own planted control and asserts it on every run: if the
+            # proof fails the gate exits non-zero before reporting anything, so a clean pass
+            # IS the proof.
+            rows.append({"gate": gate, "clean_exit": clean,
+                         "proven": clean == 0, "how": note})
+            continue
+        src = os.path.join(REPO, target)
+        original = io.open(src, encoding="utf-8", newline="").read()
+        mutated = plant(original)
+        if mutated == original:
+            rows.append({"gate": gate, "clean_exit": clean, "proven": False,
+                         "how": "COULD NOT PLANT -- the anchor text was not found in %s"
+                                % target})
+            continue
+        try:
+            io.open(src, "w", encoding="utf-8", newline="").write(mutated)
+            planted_exit = run(gate)
+        finally:
+            io.open(src, "w", encoding="utf-8", newline="").write(original)
+        restored = io.open(src, encoding="utf-8", newline="").read() == original
+        rows.append({"gate": gate, "clean_exit": clean, "planted_exit": planted_exit,
+                     "restored": restored,
+                     "proven": clean == 0 and planted_exit != 0 and restored,
+                     "how": note})
+
+    print("")
+    print("GATES PROVEN BY PLANTING")
+    print("")
+    for r in rows:
+        mark = "PROVEN " if r["proven"] else "UNPROVEN"
+        pe = r.get("planted_exit")
+        print("  %s  %-56s clean=%s planted=%s"
+              % (mark, os.path.basename(r["gate"])[:56], r["clean_exit"],
+                 "-" if pe is None else pe))
+        print("            %s" % r["how"])
+    print("")
+    print("PROVEN BY INCIDENT -- refused something real, which is the stronger evidence")
+    print("")
+    for g, why in BY_INCIDENT:
+        print("  PROVEN   %-56s" % os.path.basename(g))
+        print("            %s" % why)
+
+    claimed = len(rows) + len(BY_INCIDENT)
+    proven = sum(1 for r in rows if r["proven"]) + len(BY_INCIDENT)
+    print("")
+    print("GATES CLAIMED %d    GATES PROVEN %d" % (claimed, proven))
+    json.dump({"planted": rows, "by_incident": BY_INCIDENT,
+               "claimed": claimed, "proven": proven},
+              io.open(OUT, "w", encoding="utf-8"), indent=1)
+    if proven < claimed:
+        sys.exit("REFUSED: %d gate(s) could not be proven. An unproven gate belongs in the "
+                 "AVAILABLE column, not the ENFORCED one." % (claimed - proven))
+
+
+if __name__ == "__main__":
+    main()
