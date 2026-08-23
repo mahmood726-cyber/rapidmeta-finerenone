@@ -449,16 +449,37 @@ def output_card(canon, p):
     # each one means, so nothing is left to a dash.
     notes, seen = [], {}
 
-    def _cert(oid):
-        g = ga.resolve(canon, oid)
-        txt = g["comment"]
-        if not txt:
-            return p(g["cell"])
-        key = txt
-        if key not in seen:
-            seen[key] = len(notes) + 1
+    def _note(txt):
+        """Register a footnote and return its number. Deduped by TEXT, so a caveat two
+        outcomes share is printed once and pointed at twice."""
+        if txt not in seen:
+            seen[txt] = len(notes) + 1
             notes.append(txt)
-        return "%s<sup>%d</sup>" % (p(g["cell"]), seen[key])
+        return seen[txt]
+
+    def _cert(oid):
+        # TWO NOTES ARE POSSIBLE ON ONE CELL and they are different in kind: what the
+        # certainty rating IS, and what the established estimand does NOT cover.
+        #
+        # THE CAVEAT LIVES HERE BECAUSE THIS IS THE SURFACE EVERY PAGE HAS. It was first
+        # attached to the "Effect scale" row in build_app_v2, which renders on 44 of the
+        # 131 pages whose objects hold the caveat -- so a third of the population, and the
+        # rollout found it by rebuilding three pages and watching one come out without it.
+        # The Summary of findings and its Certainty column render on 131 of 131. Measured,
+        # not assumed, after the same class of mistake had already been made once tonight
+        # at the level of the object field.
+        g = ga.resolve(canon, oid)
+        blk = ((canon.get("results") or {}).get("by_outcome") or {}).get(oid) or {}
+        marks = []
+        if g["comment"]:
+            marks.append(_note(g["comment"]))
+        cav = blk.get("estimand_established_does_not_cover_the_contrast_2026_08_20")
+        if cav:
+            marks.append(_note(str(cav)))
+        if not marks:
+            return p(g["cell"])
+        return "%s%s" % (p(g["cell"]),
+                         "".join("<sup>%d</sup>" % m for m in marks))
 
     for oid, r in ((canon.get("results") or {}).get("by_outcome") or {}).items():
         # THE THIRD SITE OF THE SAME BARE next(), AND THE THIRD BUILD IT KILLED.
