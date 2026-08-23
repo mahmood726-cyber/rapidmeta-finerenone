@@ -1284,6 +1284,36 @@ def _outcome_section(canon, oid, p, e):
             # patient global assessment. The object was honest; the renderer read the
             # wrong field. FIFTH instance of the generator class -- prose asserting a
             # property the generator never verified against the object.
+            # AND THE CAVEAT THE OBJECT ALREADY CARRIES ABOUT WHAT THIS FLAG DOES NOT
+            # COVER. 125 objects hold
+            # `estimand_established_does_not_cover_the_contrast_2026_08_20` -- 157
+            # occurrences -- and it reached ZERO delivered pages. It says, in the
+            # corpus's own words, that the flag records every trial measuring the SAME
+            # QUANTITY and records NOTHING about what that quantity was measured
+            # AGAINST: whether the comparators are of one kind, whether each comparison
+            # was randomised, whether it was concurrent.
+            #
+            # That is not a footnote. It is the exact distinction that made the
+            # attr-pn withdrawal necessary -- a pool whose `estimand_established` was
+            # TRUE and correct while two of its three contrasts were against borrowed
+            # historical controls. A reader who meets "pooled" beside an established
+            # estimand and never meets this sentence is being told the stronger half of
+            # what the object knows.
+            #
+            # Rendered from the object's own stored text, never restated here, and only
+            # where the object holds it.
+            + (row("What the established estimand does NOT cover",
+                   e(str(res["estimand_established_does_not_cover_the_contrast_2026_08_20"])))
+               # KEYED TO WHERE THE TEXT IS HELD, NOT TO THE FLAG BEING TRUE.
+               # The first version of this required `estimand_established is True` as
+               # well, because the caveat opens "READ THIS BESIDE `estimand_established`".
+               # That pairing exists on 7 outcomes. The caveat is held on 156. So the
+               # selector reached 4% of its own subject -- a selector keyed to a form
+               # the corpus does not use, found by counting rather than by reading one
+               # page. The sentence is true in all three flag states and is MORE worth
+               # showing where the flag is absent, not less.
+               if res.get("estimand_established_does_not_cover_the_contrast_2026_08_20")
+               else "")
             + row("Effect scale",
                   (f"pooled on the {e(outcome.get('effect_scale', 'natural'))} scale"
                    if res.get("estimand_established") is True else
