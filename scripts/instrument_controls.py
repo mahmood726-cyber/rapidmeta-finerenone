@@ -196,6 +196,43 @@ def scan_covers_what_it_emits(function_name, own_literals_matched, callee_render
         "it emits." % (what, function_name))
 
 
+def reads_the_copy_being_changed(instrument, reads_surface, changed_surface, what):
+    """AN INSTRUMENT MUST READ THE COPY THAT IS BEING CHANGED -- and "which copy" is a question
+    with a wrong answer that looks identical.
+
+    THE INCIDENT, 2026-08-23. `gate_every_linked_target_resolves` read `origin/main` and was
+    wired into PRE-COMMIT. It therefore validated the PREVIOUS PUSH on every commit: a dead
+    link introduced in the change under test was invisible to it, and a dead link planted in
+    `index.html` produced exit 0. The gate was structurally incapable of catching the defect it
+    had been placed there to catch, while printing a clean, detailed, entirely accurate report
+    about a different copy of the corpus.
+
+    THAT IS WHAT MAKES THIS CLASS EXPENSIVE: the output is not wrong. Every number in it is
+    true of the thing it read. Only the thing it read is the wrong one, and nothing in the
+    report says so.
+
+    THE SURFACES THIS CORPUS HAS, AND THEY ARE NOT INTERCHANGEABLE:
+        the worktree      what is being committed
+        HEAD              what was last committed
+        origin/main       what is delivered -- the Pages deploy ref
+        the served bytes  what a reader actually receives
+
+    Same family as `composed_or_stored`: there, a fix aimed at the renderer when the value was
+    baked into the object; here, a check aimed at the delivered copy when the change was in the
+    worktree. Both are "right instrument, wrong copy".
+
+    THE RESOLUTION IS NOT TO PICK ONE. It is to make the choice EXPLICIT at the call site --
+    the linked-target gate now reads the worktree by default and takes `--ref origin/main` for
+    delivery auditing. Same instrument, two surfaces, chosen rather than defaulted.
+    """
+    if reads_surface == changed_surface:
+        return
+    raise ControlFailed(
+        "REFUSED: %s reads %s while the change under test is in %s. Its report will be "
+        "accurate about the wrong copy, and nothing in the output will say so."
+        % (instrument, reads_surface, changed_surface))
+
+
 def control_is_keyed_to_something_stable(control_reads, work_changes, what):
     """A CONTROL MUST BE KEYED TO SOMETHING THE WORK DOES NOT CHANGE -- a fixture, a frozen
     copy, or a property of the instrument -- NEVER to the corpus state the work is altering.

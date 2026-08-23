@@ -20,6 +20,24 @@ THE DISTINCTION THAT MATTERS, AND IT IS THE ONE THE CORPUS ALREADY DEMONSTRATES:
 MAVACAMTEN, `Risk of bias method` reads "Not recorded -- no per-domain RoB-2 assessment exists
 yet" because it projects, while `Study selection process` asserts two independent screeners on
 a page whose own text says no screening log is recorded. Same table, same page, one honest.
+
+THIS GATE DEMANDS ZERO. IT IS NOT A RATCHET AND MUST NOT BE "IMPROVED" INTO ONE.
+------------------------------------------------------------------------------
+Most gates in this repository ratchet -- they block on an INCREASE rather than on a nonzero
+count -- and they are right to, because the thing they count has a legitimate nonzero value:
+field names in prose are a standing decision pending a rebuild, restraint candidates are
+disagreements to adjudicate, arm-role contradictions are baselined instances awaiting a source
+read. A ratchet is the correct shape when zero is not currently achievable and the goal is to
+stop the number climbing.
+
+A SENTENCE ASSERTING THAT A PROCEDURE WAS CARRIED OUT HAS NO TOLERABLE FLOOR. There is no
+number of false method claims that is acceptable-for-now: each one, on each page that renders
+it, states that an act was performed. The corpus is at zero, so the gate can demand zero
+without blocking anyone's work -- and if a future run finds this inconvenient, the answer is to
+project the row or refuse it by name, not to baseline it.
+
+Consistency with the other gates is NOT a reason to convert this one. The gates differ because
+the things they count differ.
 """
 from __future__ import annotations
 

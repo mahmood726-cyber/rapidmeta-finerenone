@@ -2471,7 +2471,25 @@ def project(obj, journal="generic", length="standard"):
                     s.add(obj, _rc[_f].strip(), _src)
         _ea = _sa.get("each_disagreement")
         if isinstance(_ea, list) and _ea:
-            s.add(obj, "Every disagreement, named: %s." % "; ".join(str(x) for x in _ea),
+            # OUTCOME IDENTIFIERS INSIDE A COMPOSITE KEY. These entries are stored as
+            # `NCT03036124__cvdeath_or_whf_first D1: assessor 1 SOME_CONCERNS ...`, and the
+            # schema identifier reached the page inside a trial-plus-outcome key. Where the
+            # object stores a name for that outcome the name is substituted; where it does not,
+            # the identifier stands and is NOT dressed up as a label, because a missing label
+            # is a missing field.
+            def _name_ids(txt):
+                out = str(txt)
+                for _o in (obj.get("outcomes") or []):
+                    if not isinstance(_o, dict):
+                        continue
+                    _oid, _nm = _o.get("id"), _o.get("name")
+                    if _oid and isinstance(_nm, str) and _nm.strip() and _oid in out:
+                        out = out.replace("__" + _oid, " on %s" % _nm.strip())
+                        out = re.sub(r"(?<![\w-])%s(?![\w-])" % re.escape(_oid),
+                                     _nm.strip(), out)
+                return out
+            s.add(obj, "Every disagreement, named: %s."
+                  % "; ".join(_name_ids(x) for x in _ea),
                   ["risk_of_bias.%s.each_disagreement" % _k])
         _td = _sa.get("the_three_disagreements")
         if isinstance(_td, dict):
