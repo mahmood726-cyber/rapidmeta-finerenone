@@ -128,7 +128,11 @@ def resolve(canon, oid):
     res = ((canon.get("results") or {}).get("by_outcome") or {})
     gbo = ((canon.get("grade") or {}).get("by_outcome") or {})
     blk = _at(res, oid)
-    pooled = blk.get("pooled") or {}
+    # `or {}` IS NOT A TYPE GUARD. A non-dict `pooled` -- an int, a string -- survives
+    # it and raises on the next `.get`. Latent today: no object holds one. "Latent, not
+    # firing" is the exact phrase the zero-drop defect wore the day before it fired.
+    pooled = blk.get("pooled")
+    pooled = pooled if isinstance(pooled, dict) else {}
 
     s_blk = _at(gbo, oid)
     t_blk = blk.get("grade") if isinstance(blk.get("grade"), dict) else {}
@@ -166,6 +170,17 @@ def resolve(canon, oid):
         return out
 
     lvl = s_lvl or t_lvl
+    # A LEVEL MUST BE ONE OF THE FOUR. A stored `certainty: 3` normalised to "3" and
+    # rendered as the cell value -- a fifth state, arriving through the one path the
+    # four-state gate cannot see, because the gate reads what this returns. An
+    # unrecognised level is NOT a rating and is not silently shown as one.
+    if lvl and lvl not in LEVELS:
+        out.update(state="DISAGREEMENT", cell=CELL_SEE_COMMENT,
+                   comment=("A certainty value is stored for this outcome that is not "
+                            "one of the four GRADE levels: %r. It is not shown as a "
+                            "rating, because a value this scheme does not define is "
+                            "not a rating whatever it is stored as." % (lvl,)))
+        return out
     if not lvl:
         out.update(state="NOT_ASSESSED", cell=CELL_SEE_COMMENT,
                    comment=NOT_ASSESSED_TEXT)
