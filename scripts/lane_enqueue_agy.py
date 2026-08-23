@@ -62,23 +62,26 @@ def wording_lanes():
             reason = pl.get("withdrawn_reason")
             if not reason or len(str(reason)) < 200:
                 continue
+            # THE WHOLE OBJECT, BECAUSE THE ASSERTION HAS TO BE EARNED.
+            #
+            # This built a packet from a FIXED LIST of fields and then told the reviewer
+            # nothing was withheld. That is worse than not asserting completeness at all: it
+            # is a false assurance, and the reviewer acted on it exactly as instructed. 11 of
+            # the first agy wording lanes returned REJECT on reasoning of the form "the
+            # provided evidence contains none of these registry strings" -- and the strings
+            # were on the object, outside my field list. The write-up in
+            # PACKET-COMPLETENESS-2026-08-23.md says to name every field the text relies on
+            # and assert each is present; the first implementation of it did not do that step.
+            #
+            # Naming the fields a free-prose withdrawal relies on is not mechanisable -- it
+            # quotes whatever it needs. So the packet is the OBJECT, entire. stdin carries it;
+            # there is no size limit to trade against honesty here.
             packet = {
-                "topic": t, "outcome": oid,
-                "what_the_row_names": next((x.get("name") for x in (o.get("outcomes") or [])
-                                            if x.get("id") == oid), None),
-                "k": blk.get("k"),
-                "previous_estimate": pl.get("previous_values"),
-                "contributing_trials": [
-                    {k: tr.get(k) for k in
-                     ("id", "name", "nct", "arms", "registration_declared_contrasts",
-                      "registration_contrasts_read_utc")}
-                    for tr in (o.get("inputs") or {}).get("trials") or []],
-                "comparator_type": blk.get("comparator_type"),
-                "estimand_established": blk.get("estimand_established"),
-                "poolable_reason": blk.get("poolable_reason"),
+                "topic": t, "outcome_under_review": oid,
                 "THE_WITHDRAWAL_TEXT_TO_REVIEW": reason,
                 "THE_NOTE": pl.get("withdrawn_note"),
                 "OTHER_GROUNDS_RECORDED": pl.get("and_a_second_independent_ground"),
+                "THE_COMPLETE_OBJECT_THIS_TEXT_WAS_WRITTEN_FROM": o,
             }
             body = (PACKET + """You are reviewing ONE withdrawal text, cold. The house rule
 it must satisfy: a stated reason asserts exactly what the evidence supports -- NO MORE, and
@@ -97,6 +100,11 @@ Answer these, briefly, in under 400 words total:
    contrasts, does the reason follow? Could the same packet support a DIFFERENT reason that
    has not been given?
 5. VERDICT: ACCEPT / ACCEPT WITH CHANGES (list them) / REJECT (say why).
+
+NOTE ON THE PACKET: it contains the ENTIRE canonical object this text was written from,
+under THE_COMPLETE_OBJECT_THIS_TEXT_WAS_WRITTEN_FROM -- every field at every depth, not a
+selection. So "the packet does not contain X" is now a strong statement: if a value is not
+in there, it is not on the object either. Search it before saying anything is missing.
 
 --- THE PACKET, AS JSON ---
 """ + json.dumps(packet, indent=1, ensure_ascii=False))

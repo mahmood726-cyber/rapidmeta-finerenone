@@ -92,10 +92,18 @@ def _spawn(engine, prompt_path, out_path):
     exe = _bin(engine)
     cmd = [exe, "exec", "--skip-git-repo-check", "-"] if engine == "codex" else [exe]
     fh = io.open(out_path, "wb")
+    # NO DETACHED_PROCESS. `codex` is codex.cmd, a BATCH FILE, and a batch file launched
+    # detached produced a live process that wrote nothing at all: 0 bytes after ten minutes
+    # while agy -- a real .exe on the same daemon, same transport -- returned normally. The
+    # same prompt file through the same `codex exec -` in the foreground answered in under
+    # four minutes, which is what separated the transport from the launch flags.
+    #
+    # The daemon is already detached from any shell by nohup, so its children do not need to
+    # be detached from IT. A new process group is kept so a stall can be killed without
+    # taking the daemon with it.
     kw = {}
     if os.name == "nt":
-        kw["creationflags"] = (subprocess.CREATE_NEW_PROCESS_GROUP
-                               | getattr(subprocess, "DETACHED_PROCESS", 0x00000008))
+        kw["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
     else:
         kw["start_new_session"] = True
     # STDIN IS THE PROMPT FILE ITSELF, NOT A PIPE THIS PROCESS FEEDS.
