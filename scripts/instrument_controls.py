@@ -196,6 +196,58 @@ def scan_covers_what_it_emits(function_name, own_literals_matched, callee_render
         "it emits." % (what, function_name))
 
 
+def accurate_about_the_wrong_thing(instrument, question_answered, question_asked, what):
+    """A CHECK CAN BE ACCURATE AND STILL WORTHLESS IF IT IS ACCURATE ABOUT THE WRONG THING --
+    and that failure is invisible precisely because NOTHING IS WRONG WITH THE CHECK.
+
+    THE PAIR THAT MAKES THE POINT, both from one recovery on 2026-08-23. Neither is a repeat of
+    the earlier lessons; both are new places for the same shape, and together they say it better
+    than either does alone.
+
+    (1) AN IDEMPOTENCY GUARD KEYED TO A TOKEN IS SATISFIED BY ANY OCCURRENCE OF THAT TOKEN,
+        INCLUDING YOUR OWN DOCUMENTATION OF THE THING YOU ARE ABOUT TO ADD.
+
+        A script added `import field_aliases as _aliases` to `build_app_v2.py`, guarded by
+
+            if "field_aliases" not in src:
+
+        The string WAS present -- in the comment written minutes earlier explaining what the
+        alias map is for. The guard concluded the import existed and skipped it. It was
+        perfectly accurate: `field_aliases` does appear in that file. It answered "does this
+        word occur" when the question was "does this symbol resolve".
+
+        AN IDEMPOTENCY CHECK MUST TEST FOR THE EFFECT, NOT FOR A STRING THAT WOULD ACCOMPANY
+        IT. Here: import the module and check the attribute binds, or parse the AST for an
+        Import node -- not grep for the name.
+
+    (2) VERIFYING A BUILD BY IMPORTING ITS MODULE IS NOT VERIFYING A BUILD.
+
+        `python -c "import build_app_v2"` returned success. It was TRUE: the module imports.
+        But a `NameError` on an undefined global fires at CALL time, so the defect was invisible
+        at import and the builder died on the first real page -- four failures, zero built.
+
+        This is the strongest instance of the family because the verification was CORRECT ABOUT
+        A DIFFERENT THING. There was no bug in the check.
+
+    THE FAMILY, AND IT IS THE LARGEST ONE HERE:
+
+        reads_the_copy_being_changed   worktree vs HEAD vs origin/main vs served bytes
+        THIS, EXTENDED                 the LEVEL as well as the copy: module vs call,
+                                       page vs object, name vs binding, token vs effect
+        composed_or_stored             render-time vs baked into the data
+        a probe keyed to what the fix removed rather than to what a reader meets
+
+    THE QUESTION TO ASK OF ANY GREEN CHECK: what exactly did this establish, and is that the
+    thing I needed established? A check that cannot answer the second half is decoration.
+    """
+    if question_answered == question_asked:
+        return
+    raise ControlFailed(
+        "REFUSED: %s established %r, but the question is %r. The result may be entirely "
+        "accurate and still worthless: nothing is wrong with the check, only with what it is "
+        "about." % (instrument, question_answered, question_asked))
+
+
 def reads_the_copy_being_changed(instrument, reads_surface, changed_surface, what):
     """AN INSTRUMENT MUST READ THE COPY THAT IS BEING CHANGED -- and "which copy" is a question
     with a wrong answer that looks identical.
@@ -216,6 +268,19 @@ def reads_the_copy_being_changed(instrument, reads_surface, changed_surface, wha
         HEAD              what was last committed
         origin/main       what is delivered -- the Pages deploy ref
         the served bytes  what a reader actually receives
+
+    AND THE SAME MISTAKE HAS A LEVEL AXIS AS WELL AS A COPY AXIS. "Which copy" is only half of
+    it; "which level" is the other, and it produced the worse failure on the same day:
+
+        module vs call     `import build_app_v2` succeeded while the builder died on the first
+                           page, because a NameError on an undefined global fires at CALL time
+        name vs binding    `if "field_aliases" not in src` was satisfied by a COMMENT
+                           mentioning the module, so the import was never added
+        page vs object     a projector fix could not reach a value baked into the object
+        object vs render   a field present in the data that no surface renders
+
+    Both axes produce the same signature: a green check that is entirely accurate about
+    something adjacent. See `accurate_about_the_wrong_thing`.
 
     Same family as `composed_or_stored`: there, a fix aimed at the renderer when the value was
     baked into the object; here, a check aimed at the delivered copy when the change was in the

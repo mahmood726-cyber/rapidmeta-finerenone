@@ -253,15 +253,15 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Eligibility criteria</th><td>not recorded on the page this object was extracted from</td></tr>
     <tr><th scope='col'>Information sources</th><td>0 source layers, listed on the <a href="#extract">Extraction tab</a></td></tr>
     <tr><th scope='col'>Search strategy</th><td>The executed strings, datetimes, filters and hit counts are on the <a href="#search">Search tab</a></td></tr>
-    <tr><th scope='col'>Study selection process</th><td>Two independent screeners of different model families, title/abstract then full text, with named human adjudication</td></tr>
-    <tr><th scope='col'>Number of screeners</th><td>Two, cross-family. Two instances of one model is one screener run twice and its agreement statistic is meaningless</td></tr>
-    <tr><th scope='col'>Data extraction items</th><td>Registry id, primary publication, year, design, population, arms, the analysed denominator and the randomised total SEPARATELY, per-arm event counts, and the published effect with its interval and its stated level</td></tr>
+    <tr><th scope='col'>Study selection process</th><td><em>Not recorded &mdash; no screening record was recoverable from the page this object was extracted from, so who screened and how cannot be stated</em></td></tr>
+    <tr><th scope='col'>Number of screeners</th><td><em>Not recorded &mdash; this object records no screener count</em></td></tr>
+    <tr><th scope='col'>Data extraction items</th><td>Extracted per trial on this object: registry id; primary publication; arms; per-arm counts and the published effect. Fields not listed here were not extracted.</td></tr>
     <tr><th scope='col'>Outcomes and prioritisation</th><td>Multiple trial-declared outcomes: Percent Change From Baseline in LDL-C | Percent Change From Baseline in Low Density Lipoprotein-cholesterol (LDL-C) at 12 Weeks</td></tr>
     <tr><th scope='col'>Risk of bias method</th><td><em>Not recorded &mdash; no per-domain RoB-2 assessment exists yet</em></td></tr>
-    <tr><th scope='col'>Synthesis methods</th><td>Random effects on the log scale; REML headline; HKSJ reported alongside; leave-one-out and an estimator comparison, all pre-specified before the search</td></tr>
-    <tr><th scope='col'>Subgroup analyses</th><td><em>Not recorded &mdash; none pre-specified. At this k any contrast would be underpowered and post hoc, and none will later be presented as though planned</em></td></tr>
-    <tr><th scope='col'>Meta-bias assessment</th><td>Funnel, Egger and Peters, each reported as a computed value with the caveat that below about ten studies they have almost no power</td></tr>
-    <tr><th scope='col'>Certainty assessment</th><td>GRADE, all five domains, on the <a href="#report">Certainty tab</a></td></tr>
+    <tr><th scope='col'>Synthesis methods</th><td><em>Not recorded &mdash; no outcome on this object carries a pooled estimate, so no synthesis method was applied</em></td></tr>
+    <tr><th scope='col'>Subgroup analyses</th><td><em>Not recorded &mdash; this object records no subgroup-analysis field at all, so whether any were prespecified is UNKNOWN -- which is not the same as none having been</em></td></tr>
+    <tr><th scope='col'>Meta-bias assessment</th><td><em>Not recorded &mdash; no funnel, Egger or Peters value is held on this object, so no meta-bias assessment is claimed</em></td></tr>
+    <tr><th scope='col'>Certainty assessment</th><td><em>Not recorded &mdash; no GRADE record was recoverable from the page this object was extracted from</em></td></tr>
     <tr><th scope='col'>Funding</th><td><em>Not recorded &mdash; no funding statement is recorded for this review</em></td></tr>
     <tr><th scope='col'>Competing interests</th><td><em>Not recorded &mdash; no declaration is recorded</em></td></tr>
     <tr><th scope='col'>Built</th><td>2026-08-17T12:06Z</td></tr>
@@ -316,7 +316,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
 <div class='card'>
   <h2 id="extract-pooled-result">Pooled result</h2>
-  <div class='absent-state' role='note'><strong>Estimate withdrawn.</strong> THE ENDPOINTS AGREE AND THE MEASURE IS WRONG. Both registrations declare a CONTINUOUS primary -- NCT00309738 &#x27;Percent Change From Baseline in LDL-C&#x27; and NCT00309777 &#x27;Percent Change From Baseline in Low Density Lipoprotein-cholesterol (LDL-C) at 12 Weeks&#x27;, read from ClinicalTrials.gov on 2026-08-18 -- and this object stored an ODDS RATIO for each and pooled them to OR 1.2237 (0.8423-1.7778). AN ODDS RATIO REQUIRES A DICHOTOMY AND A PERCENT CHANGE FROM BASELINE HAS NONE. This is the defect that withdrew BOCOCIZUMAB_LIPID in this corpus, and it is the same shape: the trials agree about what was measured, and the synthesis disagrees with both of them about how to measure it. THE PROVENANCE IS ABSENT AS WELL, by the object&#x27;s own admission: each per-trial row records &#x27;The point estimate and interval shown here are DERIVED, not read ... No source document was consulted and no source sentence is recorded&#x27;, and outcome_definition was null on both trials. So the withdrawn value rested on an extractor recovery with no source sentence behind it. AUTHORITY: Cochrane Handbook 6.5 (2024) section 6 governs the choice of effect measure for a continuous outcome, and MECIR Box 10.10.a C62 requires that &#x27;participants, interventions, comparisons and outcomes&#x27; be sufficiently similar to give a clinically meaningful answer -- an odds ratio on a continuous endpoint is not an answer to the question the trials asked. WHAT REPLACES IT, and it is a real analysis rather than a gap: a MEAN DIFFERENCE synthesis of percent change in LDL-C at 12 weeks, which both trials support and both registered. It needs each trial&#x27;s least-squares mean difference read from its results record -- A SOURCE STEP NOT TAKEN HERE -- and is recorded as owed rather than estimated.</div>
+  <div class='absent-state' role='note'><strong>Estimate withdrawn.</strong> The endpoints agree and the measure is wrong. Both registrations declare a continuous primary -- NCT00309738 &#x27;Percent Change From Baseline in LDL-C&#x27; and NCT00309777 &#x27;Percent Change From Baseline in Low Density Lipoprotein-cholesterol (LDL-C) at 12 Weeks&#x27;, read from ClinicalTrials.gov on 2026-08-18 -- and this object stored an odds ratio for each and pooled them to OR 1.2237 (0.8423-1.7778). An odds ratio requires a dichotomy and a percent change from baseline has none. This is the defect that withdrew BOCOCIZUMAB_LIPID in this corpus, and it is the same shape: the trials agree about what was measured, and the synthesis disagrees with both of them about how to measure it. The provenance is ABSENT as well, by the object&#x27;s own admission: each per-trial row records &#x27;The point estimate and interval shown here are derived, not read ... No source document was consulted and no source sentence is recorded&#x27;, and outcome_definition was null on both trials. So the withdrawn value rested on an extractor recovery with no source sentence behind it. Authority: Cochrane Handbook 6.5 (2024) section 6 governs the choice of effect measure for a continuous outcome, and mecir Box 10.10.a C62 requires that &#x27;participants, interventions, comparisons and outcomes&#x27; be sufficiently similar to give a clinically meaningful answer -- an odds ratio on a continuous endpoint is not an answer to the question the trials asked. What replaces it, and it is a real analysis rather than a gap: a mean difference synthesis of percent change in LDL-C at 12 weeks, which both trials support and both registered. It needs each trial&#x27;s least-squares mean difference read from its results record -- a source STEP not taken here -- and is recorded as owed rather than estimated.</div>
   <p>Multiple trial-declared outcomes: Percent Change From Baseline in LDL-C | Percent Change From Baseline in Low Density Lipoprotein-cholesterol (LDL-C) at 12 Weeks. k = 2.</p>
 </div>
 
@@ -351,7 +351,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
 <div class='card'>
   <h3 id="extract-the-methods-rule-governing-this-decision">The methods rule governing this decision</h3>
-  <p><strong>Decision:</strong> NOT RECORDED - no methods decision was recoverable from the page</p>
+  <p><strong>Decision:</strong> Not recorded - no methods decision was recoverable from the page</p>
   <p><strong>Cochrane Handbook sections:</strong> </p>
   <p>not recorded on the page this object was extracted from</p>
 </div>
@@ -516,8 +516,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2-converted-from-extractor</td></tr>
     <tr><th scope='col'>Object last updated</th><td>2026-08-17T12:06Z</td></tr>
-    <tr><th scope='col'>Page generated</th><td>2026-08-23 04:23 UTC</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>216aa30f0</code>. The standard this page was built to is NOT ESTABLISHED: this object carries no <code>build_stamp</code>, so the version above is the standard that exists now, not the one this page was built against.</td></tr>
+    <tr><th scope='col'>Page generated</th><td>2026-08-23 11:47 UTC</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>2cd6ea1cc</code>. The standard this page was built to is NOT ESTABLISHED: this object carries no <code>build_stamp</code>, so the version above is the standard that exists now, not the one this page was built against.</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
@@ -564,7 +564,7 @@ The outcome sought is Multiple trial-declared outcomes: Percent Change From Base
 <li><code>manuscript.introduction</code></li>
 </ol></details>
 <h3 id="paper-methods-search">Methods — search</h3>
-<p>Primary trials. No bibliographic search for primary trials was run. The 2 included trials were identified by reading named registrations on the dates recorded on each entry; what verifies this object: not recorded on the page this object was extracted from. what is not claimed: not recorded on the page this object was extracted from. bar: not recorded on the page this object was extracted from.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Primary trials. No bibliographic search for primary trials was run. The 2 included trials were identified by reading named registrations on the dates recorded on each entry. The basis on which this object was verified is not recorded. What this object does not claim is not recorded. The bar this object had to clear is not recorded.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <div class='absent-state' role='note'><strong>Refused:</strong> the entire search description<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
 <li><code>bookkeeping_2026_08_21.the_search_its_date_and_its_databases</code></li>
@@ -639,7 +639,7 @@ The outcome sought is Multiple trial-declared outcomes: Percent Change From Base
 <h3 id="paper-limitations">Limitations</h3>
 <p>Known limitation of the screen: not recorded on the page this object was extracted from<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>Eligible trials that do not contribute: not recorded on the page this object was extracted from<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<p>What is not claimed: not recorded on the page this object was extracted from<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<p>What this object does not claim is not recorded.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (3)</summary><ol class='prov-list'>
 <li><code>screening.known_limitation</code></li>
 <li><code>eligible_but_not_contributing.note</code></li>
