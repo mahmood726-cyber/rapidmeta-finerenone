@@ -230,7 +230,18 @@
       ]
      }
     ],
-    "registration_counts_read_utc": "2026-08-18"
+    "registration_counts_read_utc": "2026-08-18",
+    "registered_secondaries": [
+     "Norfolk Quality of Life-Diabetic Neuropathy (Norfolk QoL-DN) Questionnaire",
+     "Neurological Impairment Score-Weakness (NIS-W) Score",
+     "Rasch-built Overall Disability Scale (R-ODS) Score",
+     "Timed 10-meter Walk Test (10-MWT, Gait Speed)",
+     "Modified Body Mass Index (mBMI)",
+     "Autonomic Symptoms Questionnaire (Composite Autonomic Symptom Score [COMPASS 31])"
+    ],
+    "registered_other_outcomes": [],
+    "all_ranks_read_utc": "2026-08-23",
+    "all_ranks_read_source": "https://clinicaltrials.gov/api/v2/studies/NCT01960348?fields=protocolSection.outcomesModule"
    },
    {
     "id": "NCT03759379",
@@ -319,7 +330,20 @@
       ]
      }
     ],
-    "registration_counts_read_utc": "2026-08-18"
+    "registration_counts_read_utc": "2026-08-18",
+    "registered_secondaries": [
+     "Change From Baseline in Norfolk Quality of Life-Diabetic Neuropathy (Norfolk QoL-DN) Total Score at Month 9 Between the Vutrisiran Group (HELIOS-A) and the External Placebo Comparator Group [APOLLO (NCT01960348)]",
+     "Change From Baseline in the Timed 10-Meter Walk Test (10-MWT) at Month 9 Between the Vutrisiran Group (HELIOS-A) and the External Placebo Comparator Group [APOLLO (NCT01960348)]",
+     "Change From Baseline in the Modified Neurologic Impairment Score +7 (mNIS+7) at Month 18 Between the Vutrisiran Group (HELIOS-A) and the External Placebo Comparator Group [APOLLO (NCT01960348)]",
+     "Change From Baseline in Norfolk QoL-DN Total Score at Month 18 Between the Vutrisiran Group (HELIOS-A) and the External Placebo Comparator Group [APOLLO (NCT01960348)]",
+     "Change From Baseline in the 10-MWT at Month 18 Between the Vutrisiran Group (HELIOS-A) and the External Placebo Comparator Group [APOLLO (NCT01960348)]",
+     "Change From Baseline in the Modified Body Mass Index (mBMI) at Month 18 Between the Vutrisiran Group (HELIOS-A) and the External Placebo Comparator Group [APOLLO (NCT01960348)]",
+     "Change From Baseline in the Rasch-Built Overall Disability Scale (R-ODS) at Month 18 Between the Vutrisiran Group (HELIOS-A) and the External Placebo Comparator Group [APOLLO (NCT01960348)]",
+     "Percent Reduction in Serum Transthyretin (TTR) Levels Through Month 18 Between the Vutrisiran Group (HELIOS-A) and the Patisiran Group (HELIOS-A)"
+    ],
+    "registered_other_outcomes": [],
+    "all_ranks_read_utc": "2026-08-23",
+    "all_ranks_read_source": "https://clinicaltrials.gov/api/v2/studies/NCT03759379?fields=protocolSection.outcomesModule"
    },
    {
     "id": "NCT04136184",
@@ -481,7 +505,17 @@
      "AND_THE_STORED_EFFECT_IS_NOT_THE_RANDOMISED_CONTRAST": "The primary outcome's own description on the registry, verbatim: 'As pre-specified in the protocol, the efficacy of eplontersen was to be assessed by comparing participants enrolled in the eplontersen arm only with the external placebo group. There was no statistical comparison planned between the inotersen arm and the eplontersen-treated/external placebo group arms.' The external placebo group is the placebo cohort of NEURO-TTR, NCT01737398 -- A DIFFERENT TRIAL. So the value this review pools is a NON-RANDOMISED comparison against a historical control, and the randomised comparison this trial made has no planned statistical test at all.",
      "quote_primary_outcome": "Change From Baseline in Modified Neuropathy Impairment Score Plus 7 (mNIS+7) at Week 66",
      "url": "https://clinicaltrials.gov/study/NCT04136184"
-    }
+    },
+    "registered_secondaries": [
+     "Change From Baseline in Norfolk QOL-DN at Week 35",
+     "Change From Baseline in Neuropathy Symptom and Change (NSC) Score at Weeks 35 and 66",
+     "Change From Baseline in the Physical Component Summary (PCS) Score of the 36-Item Short Form Survey (SF-36) at Week 65",
+     "Change From Baseline in Polyneuropathy Disability (PND) Score at Week 65",
+     "Change From Baseline in Modified Body Mass Index (mBMI) at Week 65"
+    ],
+    "registered_other_outcomes": [],
+    "all_ranks_read_utc": "2026-08-23",
+    "all_ranks_read_source": "https://clinicaltrials.gov/api/v2/studies/NCT04136184?fields=protocolSection.outcomesModule"
    }
   ]
  },
@@ -575,10 +609,25 @@
     ],
     "pooled": {
      "measure": "MD",
-     "point": -25.11,
-     "ci_low": -34.87,
-     "ci_high": -15.35,
-     "ci_level": 95
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "ci_level": 95,
+     "previous_values": [
+      {
+       "measure": "MD",
+       "point": -25.11,
+       "ci_low": -34.87,
+       "ci_high": -15.35,
+       "ci_level": 95
+      }
+     ],
+     "withdrawn": true,
+     "withdrawn_reason": "TWO OF THE THREE CONTRIBUTING TRIALS ARE NOT MEASURED AGAINST A RANDOMISED CONCURRENT CONTROL, so the pooled mean difference is not an estimate of the quantity this row names. This is read from the contrasts each registration declares, held on this object since 2026-08-18 and quoted here in the registry's own words. APOLLO (NCT01960348) declares [\"Patisiran (ALN-TTR02)\", \"Placebo\"] -- a within-trial randomised comparison, and the only one in this pool. HELIOS-A (NCT03759379) declares [\"External Placebo Comparator (APOLLO)\", \"Vutrisiran + Vutrisiran (HELIOS-A)\"]: its own two arms are vutrisiran and patisiran, and the placebo it is differenced against is APOLLO's. NEURO-TTRansform (NCT04136184) declares [\"Eplontersen\", \"External Placebo\"] and [\"Eplontersen\", \"Placebo External Control\"]: the borrowed group is NEURO-TTR's. A borrowed historical control is not a randomised concurrent control. The difference is not one of precision or of heterogeneity -- two of three inputs answer a different question from the one this row asks.",
+     "withdrawn_note": "THE OBJECT ALREADY HELD EVERY FACT IN THIS WITHDRAWAL. Nothing was discovered today and no new reading of the evidence was made; what changed is that the row stops asserting an estimate the object's own fields say it cannot support. The same object records the arithmetic consequence, in its own words: \"THE SAME 77 PATIENTS CONTROL TWO OF THESE THREE CONTRASTS. ... APOLLO's placebo controls both the APOLLO row and the HELIOS-A row, and k = 3 counts two independent control arms as three.\" It also holds the note this withdrawal turns over, written on 2026-08-18 in defence of the pool's estimand: \"AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and only one is a finding: this pool was never shown to be unsound, only never checked.\" It has now been checked, and what the check found is in the CONTRASTS, not in the measurement. `estimand_established` is TRUE here and stays true -- all three trials measure change from baseline in mNIS+7 -- because it certifies the measurement and never the contrast, which is this object's own distinction in `estimand_established_does_not_cover_the_contrast_2026_08_20`.",
+     "no_repair_is_proposed": "NO REPAIRED ESTIMATE IS OFFERED, AND THAT IS A DECISION RATHER THAN AN OMISSION. Re-pooling on HELIOS-A's real randomised contrast -- vutrisiran versus patisiran, which is what its own arms are -- would ask how two active drugs compare, not how either compares with placebo. Restricting to randomised concurrent comparisons on this instrument leaves APOLLO alone, k = 1. Moving to the network the published literature already uses is a third review. Each is a decision about a published number and belongs to Mahmood, not to this script.",
+     "card_note": "two of the three contributing trials are differenced against a BORROWED historical control rather than a randomised concurrent one; APOLLO is the only within-trial randomised comparison in the pool",
+     "why_reading_every_rank_does_not_change_this": "READING EVERY RANK DOES NOT DISSOLVE THIS REFUSAL, AND THAT IS WHY THE RANKS ARE RECORDED RATHER THAN TREATED AS AN ANSWER. The obstacle on this topic is the COMPARATOR, not the outcome: two of the three contributing contrasts are measured against a BORROWED historical control rather than a randomised concurrent one. A comparator is a property of the trial's DESIGN, so it is the same at every rank -- reading NEURO-TTRansform's secondaries cannot make its comparator randomised, and reading HELIOS-A's cannot give it the placebo arm it does not have. This is the opposite shape from the two refusals that turned into pools when the question was asked properly (sglt2-hf, apixaban-vte-prophylaxis): there the obstacle lived in WHICH outcome was compared, and a different outcome dissolved it. Here it lives in WHAT the outcome is compared against, and no outcome can."
     },
     "what_a_reader_must_carry": "THE POOLED MEAN DIFFERENCE AVERAGES ACROSS FOLLOW-UP DURATIONS. A reader should not read it as the effect at any one timepoint. The per-trial rows carry their own timepoints and are the more interpretable quantity.",
     "source_page_pooled": true,

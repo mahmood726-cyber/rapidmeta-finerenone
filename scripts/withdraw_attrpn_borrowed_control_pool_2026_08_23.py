@@ -1,0 +1,205 @@
+"""attr-pn-review / primary: withdraw the pooled mean difference. Borrowed controls.
+
+# no-control: an edit, not a detector. Its controls are asserted inline and the run REFUSES
+# rather than writes if any fails: the object must currently publish the point being
+# withdrawn, the previous values must be preserved verbatim, the registration-declared
+# contrasts quoted must be the ones the object holds, and no key may be lost.
+
+WHY THE ROW IS NOT AN ESTIMATE OF WHAT IT NAMES. Two of the three contributing trials are
+not measured against a randomised concurrent control, and the object has recorded this in
+the registry's own words since 2026-08-18, in `registration_declared_contrasts`:
+
+    APOLLO           NCT01960348   [["Patisiran (ALN-TTR02)", "Placebo"]]
+    HELIOS-A         NCT03759379   [["External Placebo Comparator (APOLLO)",
+                                     "Vutrisiran + Vutrisiran (HELIOS-A)"]]
+    NEURO-TTRansform NCT04136184   [["Eplontersen", "External Placebo"],
+                                    ["Eplontersen", "Placebo External Control"]]
+                                   -- registration_contrasts_read_utc: 2026-08-18
+
+A borrowed historical control is not a randomised concurrent control. The row is named as a
+pooled mean difference between treatment and control; on two of three contrasts there was
+no randomised allocation to the control being differenced against. So the pooled number is
+not an estimate of the quantity the row names -- not because it is imprecise, and not
+because the trials are heterogeneous, but because two of its three inputs answer a
+different question from the one the row asks.
+
+WE ARE NOT CORRECTING THE CORPUS. WE ARE MAKING IT SAY WHAT IT ALREADY RECORDED. Every
+fact in the withdrawal below is quoted from a field this object already held. The object
+also already held the arithmetic consequence, in `THE_POOL_IS_REFERRED_2026_08_21`:
+
+    "THE SAME 77 PATIENTS CONTROL TWO OF THESE THREE CONTRASTS. ... APOLLO's placebo
+     controls both the APOLLO row and the HELIOS-A row, and k = 3 counts two independent
+     control arms as three."
+
+and its own 18 August note on what was and was not established:
+
+    "AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and only one is a
+     finding: this pool was never shown to be unsound, only never checked."
+
+That note was written to defend the pool's *estimand*, and it is quoted here because it is
+the sentence this withdrawal turns over: the pool has now been checked, and what the check
+found is in the contrasts rather than in the measurement. `estimand_established` is TRUE
+and remains true -- all three trials measure change from baseline in mNIS+7 -- and it
+certifies the MEASUREMENT, never the CONTRAST. That distinction is the object's own, in
+`estimand_established_does_not_cover_the_contrast_2026_08_20`.
+
+NO REPAIR IS PROPOSED, AND THAT IS DELIBERATE. Re-pooling on HELIOS-A's real randomised
+contrast -- vutrisiran versus patisiran, which is what its own arms are -- asks a different
+question: how two active drugs compare, not how either compares with placebo. Dropping to
+APOLLO alone gives k = 1. Moving to the network the published literature uses is a third
+review. All three are decisions about a published number and they are Mahmood's to
+commission. What is not optional is that the row stops asserting an estimate it cannot
+support.
+
+THE ROW STAYS. A withdrawn estimate with its reason beside it is a finding; a deleted row
+is a gap that makes no claim.
+"""
+from __future__ import annotations
+
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+OBJ = os.path.join(REPO, "ssot", "attr-pn-review", "attr-pn-review.json")
+TOPIC, OID = "attr-pn-review", "primary"
+TODAY = "2026-08-23"
+
+# The point this withdrawal is about, asserted rather than assumed. If the object no longer
+# publishes it, something else has happened here and this script must not run blind.
+EXPECT = {"measure": "MD", "point": -25.11, "ci_low": -34.87, "ci_high": -15.35}
+
+WITHDRAWN_REASON = (
+    "TWO OF THE THREE CONTRIBUTING TRIALS ARE NOT MEASURED AGAINST A RANDOMISED CONCURRENT "
+    "CONTROL, so the pooled mean difference is not an estimate of the quantity this row "
+    "names. This is read from the contrasts each registration declares, held on this object "
+    "since 2026-08-18 and quoted here in the registry's own words. APOLLO (NCT01960348) "
+    "declares [\"Patisiran (ALN-TTR02)\", \"Placebo\"] -- a within-trial randomised "
+    "comparison, and the only one in this pool. HELIOS-A (NCT03759379) declares [\"External "
+    "Placebo Comparator (APOLLO)\", \"Vutrisiran + Vutrisiran (HELIOS-A)\"]: its own two arms "
+    "are vutrisiran and patisiran, and the placebo it is differenced against is APOLLO's. "
+    "NEURO-TTRansform (NCT04136184) declares [\"Eplontersen\", \"External Placebo\"] and "
+    "[\"Eplontersen\", \"Placebo External Control\"]: the borrowed group is NEURO-TTR's. A "
+    "borrowed historical control is not a randomised concurrent control. The difference is "
+    "not one of precision or of heterogeneity -- two of three inputs answer a different "
+    "question from the one this row asks.")
+
+WITHDRAWN_NOTE = (
+    "THE OBJECT ALREADY HELD EVERY FACT IN THIS WITHDRAWAL. Nothing was discovered today and "
+    "no new reading of the evidence was made; what changed is that the row stops asserting "
+    "an estimate the object's own fields say it cannot support. The same object records the "
+    "arithmetic consequence, in its own words: \"THE SAME 77 PATIENTS CONTROL TWO OF THESE "
+    "THREE CONTRASTS. ... APOLLO's placebo controls both the APOLLO row and the HELIOS-A "
+    "row, and k = 3 counts two independent control arms as three.\" It also holds the note "
+    "this withdrawal turns over, written on 2026-08-18 in defence of the pool's estimand: "
+    "\"AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and only one is a "
+    "finding: this pool was never shown to be unsound, only never checked.\" It has now been "
+    "checked, and what the check found is in the CONTRASTS, not in the measurement. "
+    "`estimand_established` is TRUE here and stays true -- all three trials measure change "
+    "from baseline in mNIS+7 -- because it certifies the measurement and never the contrast, "
+    "which is this object's own distinction in "
+    "`estimand_established_does_not_cover_the_contrast_2026_08_20`.")
+
+NO_REPAIR = (
+    "NO REPAIRED ESTIMATE IS OFFERED, AND THAT IS A DECISION RATHER THAN AN OMISSION. "
+    "Re-pooling on HELIOS-A's real randomised contrast -- vutrisiran versus patisiran, which "
+    "is what its own arms are -- would ask how two active drugs compare, not how either "
+    "compares with placebo. Restricting to randomised concurrent comparisons on this "
+    "instrument leaves APOLLO alone, k = 1. Moving to the network the published literature "
+    "already uses is a third review. Each is a decision about a published number and belongs "
+    "to Mahmood, not to this script.")
+
+CARD_NOTE = ("two of the three contributing trials are differenced against a BORROWED "
+             "historical control rather than a randomised concurrent one; APOLLO is the only "
+             "within-trial randomised comparison in the pool")
+
+
+def count_keys(x):
+    if isinstance(x, dict):
+        return len(x) + sum(count_keys(v) for v in x.values())
+    if isinstance(x, list):
+        return sum(count_keys(v) for v in x)
+    return 0
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    apply = "--apply" in sys.argv
+    raw = io.open(OBJ, encoding="utf-8", newline="").read()
+    obj = json.loads(raw)
+    before = count_keys(obj)
+    blk = ((obj.get("results") or {}).get("by_outcome") or {}).get(OID) or {}
+    pooled = blk.get("pooled") or {}
+
+    if pooled.get("withdrawn"):
+        sys.exit("REFUSED: %s/%s is already withdrawn. Nothing to do, and re-running would "
+                 "stack a second withdrawal record on the first." % (TOPIC, OID))
+    for k, v in EXPECT.items():
+        if pooled.get(k) != v:
+            sys.exit("REFUSED: this row does not hold the estimate this withdrawal is "
+                     "about (%s is %r, expected %r). The object has moved and the reason "
+                     "below may no longer describe it." % (k, pooled.get(k), v))
+
+    # CONTROL: the contrasts quoted in the reason must be the ones the object holds. A
+    # withdrawal that quotes a field is only honest if the field still says that.
+    want = {
+        "NCT01960348": [["Patisiran (ALN-TTR02)", "Placebo"]],
+        "NCT03759379": [["External Placebo Comparator (APOLLO)",
+                         "Vutrisiran + Vutrisiran (HELIOS-A)"]],
+        "NCT04136184": [["Eplontersen", "External Placebo"],
+                        ["Eplontersen", "Placebo External Control"]],
+    }
+    for tr in (obj.get("inputs") or {}).get("trials") or []:
+        nct = tr.get("nct") or tr.get("id")
+        if nct in want and tr.get("registration_declared_contrasts") != want[nct]:
+            sys.exit("REFUSED: %s's registration_declared_contrasts are %r, not the %r this "
+                     "withdrawal quotes. A withdrawal that misquotes its own object is worse "
+                     "than none." % (nct, tr.get("registration_declared_contrasts"),
+                                     want[nct]))
+        if nct in want and tr.get("registration_contrasts_read_utc") != "2026-08-18":
+            sys.exit("REFUSED: %s's contrasts were read on %r, not 2026-08-18. The date is "
+                     "quoted in the withdrawal and must be the object's own."
+                     % (nct, tr.get("registration_contrasts_read_utc")))
+
+    new = dict(pooled)
+    new["previous_values"] = [dict(pooled)]        # verbatim, before anything is nulled
+    for k in ("point", "ci_low", "ci_high"):
+        new[k] = None
+    new["withdrawn"] = True
+    new["withdrawn_reason"] = WITHDRAWN_REASON
+    new["withdrawn_note"] = WITHDRAWN_NOTE
+    new["no_repair_is_proposed"] = NO_REPAIR
+    new["card_note"] = CARD_NOTE
+
+    print("")
+    print("attr-pn-review / primary")
+    print("")
+    print("   was       %s %s (%s to %s)" % (pooled.get("measure"), pooled.get("point"),
+                                             pooled.get("ci_low"), pooled.get("ci_high")))
+    print("   now       WITHDRAWN, row kept, previous values preserved verbatim")
+    print("   ground    two of three contrasts are against a BORROWED historical control")
+    print("")
+    for nct, c in sorted(want.items()):
+        print("   %-14s %s" % (nct, json.dumps(c, ensure_ascii=False)))
+    print("")
+    print("   randomised concurrent comparisons in this pool:   1 of 3   (APOLLO)")
+    print("")
+    if not apply:
+        print("   dry run -- pass --apply to write")
+        return
+    blk["pooled"] = new
+    after = count_keys(obj)
+    if after < before:
+        sys.exit("REFUSED: the object lost keys (%d -> %d). Nothing written."
+                 % (before, after))
+    nl = "\r\n" if "\r\n" in raw else "\n"
+    body = json.dumps(obj, indent=1, ensure_ascii=False) + "\n"
+    io.open(OBJ, "w", encoding="utf-8", newline="").write(
+        body.replace("\n", nl) if nl != "\n" else body)
+    print("   keys %d -> %d (net-additive)" % (before, after))
+    print("   written: %s" % os.path.relpath(OBJ, REPO))
+
+
+if __name__ == "__main__":
+    main()

@@ -656,7 +656,6 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </div>
   </section>
 <!--end-analysis-->  <section class="panel" id="pn-report"><span id="report"></span>
-  <div class="absent-state" role="note"><strong>Partially held.</strong> Part of the reporting record is held and is shown below. No GRADE certainty rating is carried, so the certainty column is left as an em dash rather than guessed.</div>
   <p class='toc'><strong>In this section:</strong> <a href="#report-summary-of-findings">Summary of findings</a> &middot; <a href="#report-reproducibility-artifact">Reproducibility artifact</a></p>
 <div class='card'>
   <h3 id="report-summary-of-findings">Summary of findings</h3>
@@ -664,9 +663,12 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <caption>Table 8. Summary of findings</caption>
 
     <tr><th>Outcome</th><th>k</th><th>Pooled effect</th><th>Certainty</th></tr>
-    <tr><td>Multiple trial-declared outcomes: HF Hospitalizations and CV Death | Number of Deaths</td><td class='num'>4</td><td class='num'>not pooled</td><td>&mdash;</td></tr>
-    <tr><td>cardiovascular death or hospitalisation for heart failure</td><td class='num'>2</td><td class='num'>not pooled</td><td>&mdash;</td></tr>
+    <tr><td>Multiple trial-declared outcomes: HF Hospitalizations and CV Death | Number of Deaths</td><td class='num'>4</td><td class='num'>not pooled</td><td>See comment<sup>1</sup></td></tr>
+    <tr><td>cardiovascular death or hospitalisation for heart failure</td><td class='num'>2</td><td class='num'>not pooled</td><td>See comment<sup>1</sup></td></tr>
   </table></div>
+  <ol class='sof-notes' style='font-size:0.86em;margin:0.6em 0 0 1.2em;'>
+    <li>The pooled estimate for this outcome has been WITHDRAWN, so there is no estimate for a certainty rating to be about. Any rating this object still carries for this outcome was made about the withdrawn estimate and is not shown beside it.</li>
+  </ol>
 </div>
 <div class='card'>
   <h3 id="report-reproducibility-artifact">Reproducibility artifact</h3>
@@ -677,8 +679,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2-converted-from-extractor</td></tr>
     <tr><th scope='col'>Object last updated</th><td>2026-08-17T12:06Z</td></tr>
-    <tr><th scope='col'>Page generated</th><td>2026-08-23 14:55 UTC</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>f1abd38ce</code>. The standard this page was built to is NOT ESTABLISHED: this object carries no <code>build_stamp</code>, so the version above is the standard that exists now, not the one this page was built against.</td></tr>
+    <tr><th scope='col'>Page generated</th><td>2026-08-23 20:11 UTC</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>d48b4de31</code>. The standard this page was built to is NOT ESTABLISHED: this object carries no <code>build_stamp</code>, so the version above is the standard that exists now, not the one this page was built against.</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
@@ -765,10 +767,10 @@ The outcomes sought are Multiple trial-declared outcomes: HF Hospitalizations an
 </ol></details>
 <h3 id="paper-results">Results</h3>
 <p>Multiple trial-declared outcomes: HF Hospitalizations and CV Death | Number of Deaths. These 4 trials are not pooled, and the reason is stated rather than the outcome being quietly omitted: Withdrawn 2026-08-18. A composite pooled with trials that registered functional endpoints. Registered primaries read from ClinicalTrials.gov on 2026-08-18: AFFIRM-AHF (NCT02937454) &#x27;HF Hospitalizations and CV Death&#x27;; Ironman (NCT02642562) &#x27;CV mortality or hospitalisation for worsening heart failure&#x27;; CONFIRM-HF (NCT01453608) &#x27;change in six minute walk test from baseline to week 24&#x27;; FAIR-HF (NCT00520780) &#x27;self-reported patient global assessment and nyha functional status&#x27;. Two trials contribute an event composite; the other two registered functional endpoints, and this object carried event counts for them (33/152 and 17/304) that are not their registered primaries. A composite pooled with something else entirely. Replaced, not merely withdrawn -- see the harmonised k=2 block.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<div class='absent-state' role='note'><strong>Refused:</strong> the reason the pool over cardiovascular death or hospitalisation for heart failure is declined<sup class='prov-ref' title='source 2 for this section'>2</sup></div>
+<p>Cardiovascular death or hospitalisation for heart failure. These 2 trials are not pooled, and the reason is stated rather than the outcome being quietly omitted: Withdrawn 2026-08-18, hours after it was built. Correcting an arm inversion in the ironman row changed this pool from RR 0.7987 (0.7490-0.8517) with I2=0% to RR 0.976 (0.624-1.527) with I2=97.9%, and the two trials now point in opposite directions: affirm-ahf 0.776, ironman 1.225. Ironman favouring the control arm contradicts the published trial. Combined with the fact that NCT02642562 posts no results section at all -- so these counts did not come from the registry and this object never recorded where they did -- the ironman row cannot be relied on in either direction. A pool at I2=97.9% built on an unattributed row whose direction contradicts its own trial is not an estimate. Withdrawn until the ironman counts are sourced.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
-<li><code>outcomes[id=primary].name, results.by_outcome.primary.poolable_reason</code></li>
-<li><code>results.by_outcome.harmonised_cvdeath_or_hfh.poolable_reason</code></li>
+<li><code>outcomes[id=primary].name, results.by_outcome.primary.pooled.withdrawn_reason</code></li>
+<li><code>outcomes[id=harmonised_cvdeath_or_hfh].name, results.by_outcome.harmonised_cvdeath_or_hfh.pooled.withdrawn_reason</code></li>
 </ol></details>
 <h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
 <p>No second, independent risk-of-bias assessment is recorded for this topic. The judgements were made once. Stated so that single assessment is not mistaken for agreement between two.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>

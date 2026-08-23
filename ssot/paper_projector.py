@@ -122,12 +122,61 @@ def _drafted(obj, section):
     return [(ck, cv, path) for _n, ck, cv, path in sorted(out)]
 
 
+def _withdrawn_points(obj):
+    """Every pooled point this object has WITHDRAWN, as the strings prose would print.
+
+    `previous_values` is a LIST on some objects and a DICT on others, and reading it as
+    one shape raises on the other. Both are accepted rather than one being declared
+    correct, because nothing here is authorised to migrate a schema.
+    """
+    out = []
+    for _oid, blk in ((obj.get("results") or {}).get("by_outcome") or {}).items():
+        if not isinstance(blk, dict):
+            continue
+        pl = blk.get("pooled") or {}
+        if not pl.get("withdrawn"):
+            continue
+        prev = pl.get("previous_values") or []
+        if isinstance(prev, dict):
+            prev = [prev]
+        for pv in prev:
+            if isinstance(pv, dict) and pv.get("point") is not None:
+                out.append("%g" % pv["point"])
+    return out
+
+
 def _add_drafts(s, obj, section):
+    # A STORED DRAFT CANNOT BE REACHED BY A PROJECTOR FIX, AND BOTH LOOK THE SAME ON THE
+    # PAGE. These passages are prose held on the object, with the estimate BAKED INTO the
+    # sentence rather than substituted at render time. So withdrawing a pooled estimate
+    # nulls the point, prints the withdrawal notice, and leaves the Discussion still
+    # saying "That is the estimate" about the number that was just taken down.
+    #
+    # MEASURED, NOT ASSUMED. Only three withdrawn pools in the corpus record a previous
+    # point at all; the other hundred record none, so there is no number to leak. Two of
+    # those three still asserted it in prose -- attr-pn-review, and SGLT2_HF_REVIEW,
+    # whose OWN `withdrawn_note` documents this exact lesson and was written believing it
+    # closed. The object was corrected. The stored prose was not.
+    #
+    # NOTHING HERE REWRITES THE PROSE. Deciding what a draft should say once its estimate
+    # is gone is the author's, and these passages are explicitly his to replace. What is
+    # not his to supply is the fact that the sentence predates the withdrawal, so the
+    # marker carries it and the number stops being asserted as current.
     n = 0
+    gone = _withdrawn_points(obj)
     for ck, cv, path in _drafted(obj, section):
+        body = cv.get("draft", "") or ""
+        stale = sorted({g for g in gone if g in body})
         # ONE SHORT MARKER, SENTENCE CASE, ONCE PER PASSAGE. The marker was longer than
         # some of the sentences it marked, shouted, and repeated for every claim.
-        if s.add(obj, "[Draft] %s" % cv.get("draft", ""), [path]):
+        mark = "[Draft] "
+        if stale:
+            mark = ("[Draft, SUPERSEDED] This passage was written before the pooled "
+                    "estimate it quotes (%s) was withdrawn, and it is shown unaltered "
+                    "rather than quietly edited or dropped. The withdrawal and its "
+                    "reason are in Results. The number below is NOT this review's "
+                    "current estimate. " % ", ".join(stale))
+        if s.add(obj, "%s%s" % (mark, body), [path]):
             n += 1
     return n
 
@@ -1988,7 +2037,49 @@ def project(obj, journal="generic", length="standard"):
 
     for oid, blk in declined:
         name = outcome_text(obj, oid) or None
-        reason = blk.get("poolable_reason")
+        # A DECLINED POOL HAS ITS REASON IN ONE OF TWO FIELDS, AND THIS READ ONE.
+        #
+        # `poolable_reason` says why a pool was not built. `pooled.withdrawn_reason`
+        # says why one that WAS built has been taken down. On 91 of 103 withdrawn
+        # pooled outcomes the two hold identical text and nothing was wrong. On the
+        # rest they diverge, and reading only the first is a page that does not say
+        # what it knows:
+        #
+        #   fcm-hf-review / harmonised_cvdeath_or_hfh holds a substantive
+        #   `withdrawn_reason` -- an arm inversion in the IRONMAN row moved the pool
+        #   from RR 0.7987 (I2=0%) to RR 0.976 (I2=97.9%) with the two trials pointing
+        #   in OPPOSITE directions -- and NO `poolable_reason`. The sentence was
+        #   refused, so FCM_HF_REVIEW.html printed no reason at all while the object
+        #   held one. That is the withheld-withdrawal-reason class.
+        #
+        # NEITHER FIELD WINS, BECAUSE NEITHER IS RELIABLY THE LATER ONE. On
+        # incretin-hfpef-review the `poolable_reason` CORRECTS the `withdrawn_reason`:
+        # the withdrawal text still says the page had no index card at all, and the
+        # correction records that the card existed and published HR 0.41 (0.22 to 0.79)
+        # but was invisible because a scan matched card links with [A-Z0-9_]+\.html,
+        # which cannot match the lowercase p in HFpEF. Preferring `withdrawn_reason`
+        # there would have re-published a sentence the object had already retracted.
+        # On colchicine-cvd-coronary the withdrawal text is a POINTER -- "no shared
+        # estimand -- see poolable_reason" -- and the substance is in the other field.
+        #
+        # So both are printed when both exist and they differ, attributed to the field
+        # each came from. A reader meeting two accounts of the same withdrawal is
+        # better served than one meeting whichever account the code happened to read.
+        _pool = blk.get("pooled") or {}
+        _pr = (blk.get("poolable_reason") or "").strip()
+        _wr = (_pool.get("withdrawn_reason") or "").strip() if _pool.get("withdrawn") else ""
+        _fields = []
+        if _pr and _wr and _pr != _wr:
+            reason = ("%s  AND, RECORDED SEPARATELY ON THE WITHDRAWAL ITSELF: %s"
+                      % (_pr, _wr))
+            _fields = ["results.by_outcome.%s.poolable_reason" % oid,
+                       "results.by_outcome.%s.pooled.withdrawn_reason" % oid]
+        elif _wr:
+            reason = _wr
+            _fields = ["results.by_outcome.%s.pooled.withdrawn_reason" % oid]
+        else:
+            reason = _pr or None
+            _fields = ["results.by_outcome.%s.poolable_reason" % oid]
         if not name:
             s.refusals.append(("the declined-pool sentence for `%s` -- no registered outcome "
                                "text is held" % oid, ["outcomes[id=%s].name" % oid]))
@@ -1997,11 +2088,13 @@ def project(obj, journal="generic", length="standard"):
             s.paras.append(("%s. These %s trials are NOT pooled, and the reason is stated "
                             "rather than the outcome being quietly omitted: %s"
                             % (name[0].upper() + name[1:], blk.get("k", "?"), reason),
-                            ["outcomes[id=%s].name" % oid,
-                             "results.by_outcome.%s.poolable_reason" % oid]))
+                            ["outcomes[id=%s].name" % oid] + _fields))
         else:
-            s.refusals.append(("the reason the pool over %s is declined" % name,
-                               ["results.by_outcome.%s.poolable_reason" % oid]))
+            s.refusals.append(("the reason the pool over %s is declined -- NEITHER "
+                               "`poolable_reason` NOR `pooled.withdrawn_reason` is held"
+                               % name,
+                               ["results.by_outcome.%s.poolable_reason" % oid,
+                                "results.by_outcome.%s.pooled.withdrawn_reason" % oid]))
 
         # A DECLINED POOL CAN STILL CARRY A REFERRAL AND A FINDING, AND UNTIL NOW NEITHER
         # RENDERED HERE.
