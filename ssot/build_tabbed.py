@@ -59,6 +59,18 @@ import wysiwyg as wy          # noqa: E402
 
 NL = pj.NL
 
+
+def _page_generated_utc():
+    """When THIS build ran -- distinct from the object's `built` date.
+
+    The artifact showed only the object's date and called it "Built". A page regenerated today
+    from an object stamped thirteen days ago displayed the older date, and was diagnosed as
+    stale twice on that basis.
+    """
+    import datetime
+    return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M UTC")
+
+
 def _v(x, absent="—", limit=None):
     """Escape a value for HTML, rendering ABSENCE as a dash rather than as the word "None".
 
@@ -452,7 +464,11 @@ def output_card(canon, p):
         ("Permalink", ("<a href='%s'>%s</a>" % (e(c0["permalink"]), e(c0["permalink"])))
          if c0.get("permalink") else ""),
         ("Schema", _v((canon.get("schema_version", "")))),
-        ("Built", _v((canon.get("built", "")))),
+        # THE OBJECT'S DATE, LABELLED AS THE OBJECT'S DATE. Read as "when this page was
+        # generated" by two people on the same night, one of whom concluded a page rebuilt
+        # minutes earlier was thirteen days stale and relayed it.
+        ("Object last updated", _v((canon.get("built", "")))),
+        ("Page generated", _v((_page_generated_utc()))),
         # BUILD STAMP. The generator commit this page was produced from, in the
         # served bytes.
         #
@@ -477,9 +493,21 @@ def output_card(canon, p):
         # The commit cannot say it on its own: the bar is written down in a
         # different file from the generator, so two pages built by the same
         # commit can be built against two different versions of it.
-        ("Generator build", "<code>%s</code>%s, built to STANDARD v%s"
-                            % (e(_generator_stamp()[0]), e(_generator_stamp()[1]),
-                               _v((_standard_version())))),
+        # THE STANDARD CLAUSE IS DROPPED WHERE IT CANNOT BE SUBSTANTIATED.
+        #
+        # `_standard_version()` is the standard that exists NOW. On an object with no
+        # `build_stamp` the page's own footer says the standard it was built to CANNOT BE
+        # ESTABLISHED -- and the footer is right. Printing a version there was the artifact
+        # asserting what the footer denies, on the one surface that promises "everything a
+        # third party needs to rebuild this page".
+        ("Generator build",
+         ("<code>%s</code>%s, built to STANDARD v%s"
+          % (e(_generator_stamp()[0]), e(_generator_stamp()[1]), _v((_standard_version()))))
+         if isinstance(canon.get("build_stamp"), dict) and canon["build_stamp"] else
+         ("<code>%s</code>%s. The standard this page was built to is NOT ESTABLISHED: this "
+          "object carries no <code>build_stamp</code>, so the version above is the standard "
+          "that exists now, not the one this page was built against."
+          % (e(_generator_stamp()[0]), e(_generator_stamp()[1])))),
         ("Statistical engine", p((first.get("cross_engine") or {}).get("engine", ""))),
     ], "Everything a third party needs to rebuild this page. Each figure on the "
        "Analysis tab downloads as an SVG carrying exactly the values shown.")
@@ -678,7 +706,14 @@ def _projected_paper_html(canon):
             return ("<sup class='prov-ref' title='source %d for this section'>%d</sup>"
                     % (len(sources), len(sources)))
 
-        for text, fields in s.paras:
+        # TIDIED HERE, WHERE IT CANNOT BE BYPASSED.
+        #
+        # `Section.add` tidied; SEVEN other paths appended straight to `paras` and did not --
+        # eligibility criteria, referrals, findings, refusals, table cells, the stamp note.
+        # Each was fixed in turn and the next one was found by reading a page. Rendering is
+        # the one place every paragraph must pass through, so the transform belongs here and
+        # the per-site calls become redundant rather than load-bearing.
+        for text, fields in [(_pp._tidy(t), f) for t, f in s.paras]:
             # A MARKER AFTER A VERBATIM BLOCK IS A NUMBER IN THE OUTPUT. The R model results
             # end "0.7636 0.7062 0.8258 0.7062 0.8258" and a trailing superscript 2 renders
             # as a SIXTH COLUMN a reader could take for data. Preformatted text -- anything

@@ -1,0 +1,98 @@
+"""Built pages and linked pages must reconcile, and every page in one and not the other is named.
+
+# no-control: the two sets are read from the two files that define them -- PAGE_MAP.json and
+# index.html -- so a synthetic case would only restate set arithmetic. The control is that the
+# gate refuses when the reconciliation does not close, and the closing identity is asserted
+# rather than printed: built-and-linked must equal the sum of its named classes.
+
+THE OCCURRENCE PREDICATE, APPLIED TO REACHABILITY. This project's rule is that a thing which
+does not reach a reader has not been delivered. Two lists decide that here and NEITHER KNOWS
+ABOUT THE OTHER:
+
+    ssot/PAGE_MAP.json   what gets built
+    index.html           what a reader can reach
+
+`index.html` is NOT generated from PAGE_MAP. Nothing writes it; `project_index_cards.py`
+rewrites cards that already exist and never adds one. So the lists diverge silently by
+construction, and the divergence is invisible from either side.
+
+WHAT IT COST. Every rate this project has published -- 156 built, 141 rebuilt, 28 of 28, 7 of
+34 -- was computed over the built set, while a reader arriving at the index meets 579 pages of
+which 423 are the legacy application. The figures were not wrong; they were against a
+denominator nobody had stated. That is the criticism this project makes of published
+meta-analyses, made of its own numbers.
+
+THIS GATE DOES NOT DEMAND THE LISTS MATCH. A page may legitimately be built and unlinked, or
+linked and unbuilt. It demands that every such page BE NAMED, and that the arithmetic close.
+"""
+import io
+import json
+import os
+import re
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CLASSES = os.path.join(REPO, "outputs", "reader_facing_classes_2026_08_23.json")
+
+
+def sets():
+    built = set(json.load(io.open(os.path.join(REPO, "ssot", "PAGE_MAP.json"),
+                                  encoding="utf-8")))
+    h = io.open(os.path.join(REPO, "index.html"), encoding="utf-8", errors="replace").read()
+    linked = set(os.path.basename(m.group(1))
+                 for m in re.finditer(r'href="([^"#?]+\.html)', h))
+    return built, linked
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    built, linked = sets()
+    both = built & linked
+    orphans = sorted(built - linked)
+    unbuilt = sorted(linked - built)
+
+    print("")
+    print("THREE POPULATIONS, AND EVERY FIGURE MUST NAME WHICH IT IS AGAINST")
+    print("")
+    print("   built            (PAGE_MAP)                 %4d" % len(built))
+    print("   linked           (index.html)               %4d" % len(linked))
+    print("   built AND linked (reachable and generated)  %4d" % len(both))
+    print("")
+    print("   built, NOT linked -- a reader cannot reach these   %4d" % len(orphans))
+    print("   linked, NOT built -- this project does not make these %3d" % len(unbuilt))
+    print("")
+
+    if os.path.isfile(CLASSES):
+        c = json.load(io.open(CLASSES, encoding="utf-8"))
+        ssot, tomb, unc = set(c["ssot"]), set(c["tombstone"]), set(c["unclassifiable"])
+        parts = {"SSOT-generated": len(both & ssot),
+                 "retired tombstone": len(both & tomb),
+                 "authored / unclassifiable": len(both & unc),
+                 "legacy": len(both & set(c["legacy"]))}
+        print("   OF THE %d BUILT AND LINKED:" % len(both))
+        for k, v in parts.items():
+            print("      %-32s %4d" % (k, v))
+        total = sum(parts.values())
+        if total != len(both):
+            sys.exit("REFUSED: the reconciliation does not close -- %d built-and-linked pages "
+                     "but %d accounted for by class. %d page(s) are in neither."
+                     % (len(both), total, len(both) - total))
+        print("      %-32s %4d  == built AND linked" % ("sum", total))
+    print("")
+    print("BUILT BUT NOT REACHABLE FROM THE INDEX, BY NAME:")
+    for n in orphans:
+        print("   %s" % n)
+    print("")
+    print("Neither list is generated from the other and this gate does not require them to")
+    print("match. It requires that a page in one and not the other be NAMED, and that the")
+    print("arithmetic close. A page built and unreachable is work that reached nobody; a page")
+    print("reachable and unbuilt is a reader meeting something this project did not make.")
+    json.dump({"built": sorted(built), "linked_count": len(linked),
+               "orphans": orphans, "linked_not_built": len(unbuilt)},
+              io.open(os.path.join(REPO, "outputs",
+                                   "built_linked_reconciliation_2026_08_23.json"),
+                      "w", encoding="utf-8"), indent=1)
+
+
+if __name__ == "__main__":
+    main()

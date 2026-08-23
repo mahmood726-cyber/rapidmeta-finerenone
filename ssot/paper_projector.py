@@ -1096,6 +1096,49 @@ def _lc_first(nm):
     return nm[0].lower() + nm[1:]
 
 
+
+# ---------------------------------------------------------------------------------------
+# DID A POOL ACTUALLY HAPPEN? One predicate, consulted by every surface that speaks about it.
+# ---------------------------------------------------------------------------------------
+
+_NULL_MARKERS = {"", "none", "not applicable", "n/a", "na", "not recorded", "unknown",
+                 "not stated", "null", "nan", "-", "--"}
+
+
+def _is_value(v):
+    """A field that resolves is not the same as a field that holds a value.
+
+    `estimator_used` holds the STRING "not applicable" on the not-poolable pages, so every
+    path-resolves check passed and the manuscript announced "the not applicable estimator".
+    A PATH THAT RESOLVES TO A NULL-MARKER IS NOT A BACKED CLAIM.
+    """
+    if v is None:
+        return False
+    if isinstance(v, str):
+        return v.strip().lower() not in _NULL_MARKERS
+    return True
+
+
+def _pool_occurred(blk):
+    """True only where this outcome carries a pooled estimate a reader can see.
+
+    Not "is there a model field". Not "does the estimator path resolve". The question every
+    sentence about pooling depends on is whether a pool was performed and published, and that
+    is answered by the pooled point itself.
+    """
+    if not isinstance(blk, dict):
+        return False
+    p = blk.get("pooled")
+    if not isinstance(p, dict):
+        return False
+    return p.get("point") is not None and not p.get("withdrawn")
+
+
+def _any_pool_occurred(obj):
+    return any(_pool_occurred(b)
+               for b in ((obj.get("results") or {}).get("by_outcome") or {}).values())
+
+
 def _i2_words(i2):
     """A plain-English band for I-squared. Handbook 10.10.2 gives overlapping ranges and
     warns against a mechanical reading, so the words are DELIBERATELY loose and the number
@@ -1481,7 +1524,11 @@ def project(obj, journal="generic", length="standard"):
     s = Section("methods_synthesis", "Methods — synthesis")
     for oid, blk in (get(obj, "results.by_outcome") or {}).items():
         model, est = blk.get("model"), blk.get("estimator_used") or blk.get("estimator")
-        if model and est:
+        # THE SAME PREDICATE THE ABSTRACT NOW USES. This section already refused where the
+        # fields were absent; it still asserted where they held a NULL-MARKER, which is how
+        # "a random-effects model was fitted with the not applicable estimator" reached a page
+        # whose own title says NOT POOLABLE.
+        if _pool_occurred(blk) and _is_value(model) and _is_value(est):
             # THE OUTCOME'S NAME, NOT ITS KEY. This read "For cvdeath_or_whf_first, a random
             # model was fitted" -- a database key as the subject of an English sentence. The
             # key is still reachable: it is in this paragraph's source list.
@@ -1490,10 +1537,17 @@ def project(obj, journal="generic", length="standard"):
                             ["results.by_outcome.%s.model" % oid,
                              "results.by_outcome.%s.estimator_used" % oid]))
         else:
-            s.refusals.append(("the model/estimator sentence for %s" % oid,
+            _why = ("no pooled estimate was produced for this outcome, so no model was "
+                    "fitted and none is described"
+                    if not _pool_occurred(blk) else
+                    "the model or estimator is recorded as a null marker rather than a value")
+            s.refusals.append(("the model/estimator sentence for %s -- %s"
+                               % (_outcome_words(obj, oid), _why),
                                [p for p, v in (("results.by_outcome.%s.model" % oid, model),
-                                               ("results.by_outcome.%s.estimator_used" % oid, est))
-                                if not v]))
+                                               ("results.by_outcome.%s.estimator_used" % oid,
+                                                est))
+                                if not _is_value(v)]
+                               or ["results.by_outcome.%s.pooled.point" % oid]))
     cl = get(obj, "config.confidence_level")
     if cl:
         s.paras.append(("Intervals are %s%% confidence intervals." % cl,
@@ -1964,8 +2018,13 @@ def project(obj, journal="generic", length="standard"):
             # and was then cut mid-word at 300 characters.
             _elig_own = _own_sentence(_elig)
         _mfields.append("screening.eligibility")
-    _model = _first_by_outcome(obj, ("model",))
-    _est = _first_by_outcome(obj, ("estimator_used",))
+    # THE ABSTRACT GOES THROUGH THE SAME PREDICATE, NOT A SECOND GUARD. On MALARIA_ACT the
+    # synthesis section refused this sentence and the abstract asserted it, four sections
+    # apart, from the same field.
+    _model = _first_by_outcome(obj, ("model",)) if _any_pool_occurred(obj) else None
+    _est = _first_by_outcome(obj, ("estimator_used",)) if _any_pool_occurred(obj) else None
+    _model = _model if _is_value(_model) else None
+    _est = _est if _is_value(_est) else None
     if _model or _est:
         _mparts.append("estimates were pooled under %s%s"
                        % (_model_words(_model) if _model else "the recorded model",

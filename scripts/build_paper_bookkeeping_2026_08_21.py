@@ -70,6 +70,45 @@ GUIDANCE = {
 }
 
 
+def _flat(v):
+    """A stored value as prose. NEVER `str()` a container into a manuscript.
+
+    `str(obj.get("verification_basis") or "")` put this, verbatim, into MAVACAMTEN's
+    Methods -- search paragraph on a page built 2026-08-18:
+
+        {'what_verifies_this_object': 'ClinicalTrials.gov protocol records, read 2026-08-18',
+         'what_is_not_claimed': 'that any per-trial count was checked against a results
+         record', 'families': [], 'bar': 'not recorded on the page this object was built from'}
+
+    `verification_basis` is a STRING on most objects and a MAPPING on some. The string path was
+    the one written and tested; the mapping path reached a reader as a Python repr. This is the
+    container-repr class recurring in the one file added to fix the reading experience.
+    """
+    if v is None:
+        return ""
+    if isinstance(v, str):
+        return v.strip()
+    if isinstance(v, (int, float)):
+        return str(v)
+    if isinstance(v, (list, tuple)):
+        parts = [_flat(x) for x in v]
+        parts = [x for x in parts if x]
+        if not parts:
+            return ""
+        return ", ".join(parts[:-1]) + (" and " + parts[-1] if len(parts) > 1 else parts[0])
+    if isinstance(v, dict):
+        bits = []
+        for k, val in v.items():
+            if str(k).startswith("_"):
+                continue
+            t = _flat(val)
+            if t:
+                bits.append("%s: %s%s" % (str(k).replace("_", " "), t,
+                                          "" if t.endswith((".", "?", "!")) else "."))
+        return " ".join(bits)
+    return ""
+
+
 def g(o, path, default=None):
     cur = o
     for part in path.split("."):
@@ -225,18 +264,40 @@ def introduction(obj):
 
     parts = []
     parts.append("This review asks: %s" % (q if q.endswith("?") else q + "."))
-    base = "It pools %d randomised trial%s" % (k, "" if k == 1 else "s")
+    # "IT POOLS 3 RANDOMISED TRIALS" ON A PAGE WHOSE THESIS IS THAT THEY CANNOT BE COMBINED.
+    #
+    # mavacamten-hcm exists to say its three trials register three unrelated primaries and are
+    # not poolable; its Introduction announced a pool anyway. malaria-act read "It pools 0
+    # randomised trials, against not applicable." The verb was unconditional -- the same defect
+    # as the abstract's Methods sentence, in a second section, from the same field.
+    _pooled_any = any(
+        isinstance((b or {}).get("pooled"), dict)
+        and (b or {}).get("pooled", {}).get("point") is not None
+        and not (b or {}).get("pooled", {}).get("withdrawn")
+        for b in pools.values())
+    if _pooled_any:
+        base = "It pools %d randomised trial%s" % (k, "" if k == 1 else "s")
+    elif k:
+        base = ("It examines %d randomised trial%s and DOES NOT POOL THEM"
+                % (k, "" if k == 1 else "s"))
+    else:
+        base = "It identifies no trial that can be pooled"
     if n:
         base += " comprising %s participants as registered" % format(n, ",")
-    if comp:
+    if comp and str(comp).strip().lower() not in (
+            "", "none", "not applicable", "n/a", "not recorded", "unknown"):
         base += ", against %s" % comp
     parts.append(base + ".")
     if names:
-        parts.append("The outcome%s pooled %s %s."
+        # THE THIRD SURFACE ASSERTING A POOL. "The outcome pooled is ..." on a page that
+        # pools nothing is the same defect as the Methods sentence and the "It pools N"
+        # clause, in a third place, and it would have survived fixing the other two.
+        parts.append(("The outcome%s pooled %s %s." if _pooled_any else
+                      "The outcome%s sought %s %s.")
                      % ("" if len(names) == 1 else "s",
                         "is" if len(names) == 1 else "are",
                         "; ".join(names[:6])))
-    prov = str(obj.get("provenance") or "").strip()
+    prov = _flat(obj.get("provenance"))
     if prov:
         parts.append("Every count and denominator behind those estimates is read as follows. "
                      + (prov if prov.endswith(".") else prov + "."))
@@ -282,8 +343,8 @@ def bookkeeping(obj, topic):
             scr = d
             break
     halves = []
-    prov = str(obj.get("provenance") or "")
-    vb = str(obj.get("verification_basis") or "")
+    prov = _flat(obj.get("provenance"))
+    vb = _flat(obj.get("verification_basis"))
     inc = included_studies(obj)
     if inc:
         dates = sorted({r["read_utc"] for r in inc if r["read_utc"]})
