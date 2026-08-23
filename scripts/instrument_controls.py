@@ -161,6 +161,44 @@ def plant_and_require(instrument, detector, clean_case, planted_case):
                      "fired" if detector(clean_case) else "stayed quiet"))
 
 
+def every_referring_surface(target, surfaces_checked, surfaces_that_reference, what):
+    """A CHANGE IS APPLIED TO THE SURFACES ITS AUTHOR WAS THINKING ABOUT, AND NOT TO THE ONE
+    THEY WERE NOT. Enumerate the referring surfaces and ASSERT them; never remember them.
+
+    THREE INSTANCES OF ONE CLASS, ALL FOUND ON 2026-08-23:
+
+      1. A DELETION VALIDATED ON TWO SURFACES OUT OF THREE. Commit 2a011cdfe removed 519
+         single-trial AUTO apps on a correct and documented principle -- k=1 is not a
+         meta-analysis -- and its own message records updating `index.html` cards (47) and
+         `sitemap.xml` entries (520). It did not touch `audit_table.html`. Eleven weeks later
+         the index has ZERO dead links and the audit table has 569: two rows in five of the
+         surface a sceptical reader opens first point at nothing.
+
+      2. THE POOLING CLAIM fixed in Methods-synthesis and left standing in the Abstract.
+
+      3. GRADE LIVING IN TWO PLACES -- `results.*.grade` and `grade.by_outcome` -- with each
+         rendered surface reading a different one, so a reader met whichever location the
+         panel they were looking at happened to consult.
+
+    THE COMMON SHAPE: the author had a mental list of surfaces, acted on all of it, and the
+    list was incomplete. Nothing failed. Every check passed. The work was CORRECT and the
+    coverage was not, which is why review does not catch this class -- there is no error to
+    see, only an absence, and the absence is somewhere nobody was looking.
+
+    THE GENERAL FORM, AND IT IS A CHECK RATHER THAN A HABIT: when a record is removed or
+    changed, ENUMERATE every surface that references it -- by searching for references, not by
+    recalling them -- and assert that each was handled. A remembered list is the failure mode
+    itself.
+    """
+    missed = sorted(set(surfaces_that_reference) - set(surfaces_checked))
+    if not missed:
+        return
+    raise ControlFailed(
+        "REFUSED: %s was changed on %d surface(s) but %d surface(s) still reference it and "
+        "were not handled: %s. This is the class where the work is correct and the coverage "
+        "is not -- %s." % (target, len(surfaces_checked), len(missed), ", ".join(missed), what))
+
+
 NOT_ASSESSABLE = "NOT_ASSESSABLE"
 
 
