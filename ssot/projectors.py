@@ -89,8 +89,10 @@ PARTIAL_STATE = {
  "analysis": ("Part of the analysis is held and is shown below. No pooled estimate is carried "
               "for the outcomes shown."),
  "report":   ("Part of the reporting record is held and is shown below. No GRADE certainty "
-              "rating is carried, so the certainty column is left as an em dash rather than "
-              "guessed."),
+              "rating is carried, so the certainty column reads See comment and the comment "
+              "says that no assessment was made. It is NOT left as an em dash: an em dash "
+              "is not a value in Cochrane's certainty scheme, and a cell that says nothing "
+              "reads as nothing to report rather than not assessed."),
  "protocol": ("Part of the protocol record is held and is shown below. The registration and "
               "amendment history that would complete it are not carried on this object."),
 }
@@ -231,7 +233,16 @@ def report_certainty_unrated(body):
             cells.append(m.group(1).strip())
     if not cells:
         return False
-    return all(c in ("&mdash;", "—", "") for c in cells)
+    # BOTH SPELLINGS OF "UNRATED", because the corpus holds both at once.
+    #
+    # This tested for an em dash only. The certainty column no longer emits one -- it
+    # emits "See comment" with the reason underneath -- so on a REBUILT page this would
+    # have returned False forever, and its zero would have meant "the marker cannot fire"
+    # rather than "no page has this defect". That is the reading a zero must never have.
+    #
+    # Pages delivered before the four-state column still carry em dashes until they are
+    # rebuilt, so the old spelling stays recognised rather than being replaced.
+    return all(c in ("&mdash;", "\u2014", "", "See comment") for c in cells)
 
 
 REQUIRED_TABS = ("protocol", "search", "screen", "extract", "analysis", "report",

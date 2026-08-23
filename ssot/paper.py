@@ -19,6 +19,14 @@ build, and the placeholder-leak family has reached readers on this corpus before
 """
 import re
 
+# THE ONE PLACE CERTAINTY IS RESOLVED. A tolerant import because this module is loaded
+# both from inside ssot/ (bare name) and as a package member.
+try:
+    import grade_authority as _ga
+except ImportError:  # pragma: no cover -- package import path
+    from . import grade_authority as _ga
+
+
 NL = "\n"
 
 
@@ -101,7 +109,12 @@ def build_tokens(canon, res, oid):
         "df": _fmt(het.get("df")),
         "n_total": "{:,}".format(n_total) if n_total else None,
         "n_records": _fmt(len(corpus)) if corpus else None,
-        "certainty": g.get("certainty"),
+        # THE SAME RESOLVER THE PAGE USES. This token read `results.*.grade` only, so a
+        # manuscript could say "not rated" about an outcome the structured record rated,
+        # on the one surface a reader is most likely to quote.
+        "certainty": _ga.resolve(canon, oid)["cell"],
+        "certainty_state": _ga.resolve(canon, oid)["state"],
+        "certainty_comment": _ga.resolve(canon, oid)["comment"],
         "estimator": res.get("estimator_used") or res.get("estimator"),
         "min_point": _fmt(min(pts)) if pts else None,
         "max_point": _fmt(max(pts)) if pts else None,

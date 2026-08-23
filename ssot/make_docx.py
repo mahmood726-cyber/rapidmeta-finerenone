@@ -61,6 +61,7 @@ pan = res.get("panels") or {}
 
 sys.path.insert(0, os.path.join("F:", os.sep, "rapidmeta-ssot-shell", "ssot"))
 import projectors as _PJ  # noqa: E402
+import grade_authority as _GA  # noqa: E402
 
 
 def n(x):
@@ -769,8 +770,12 @@ if g.get("domains"):
           [[k.replace("_", " ").capitalize(), v.get("rating", ""),
             (v.get("basis_in_sources") or "")[:400]]
            for k, v in g["domains"].items()])
-    doc.add_paragraph("Overall certainty: %s. %s"
-                      % (g.get("certainty", ""), g.get("certainty_derivation", "")))
+    # THE SAME RESOLVER THE PAGE AND THE MANUSCRIPT USE. This paragraph read
+    # `results.*.grade` alone, so a .docx could print an empty overall certainty for an
+    # outcome the structured record rated -- and a Word file is the copy that leaves the
+    # site and stops being re-checkable.
+    _gg = _GA.resolve(d, OID)
+    doc.add_paragraph("Overall certainty: %s. %s" % (_gg["cell"], _gg["comment"]))
 
 # --- RoB-2 ----------------------------------------------------------------
 rb = d.get("rob2") or {}

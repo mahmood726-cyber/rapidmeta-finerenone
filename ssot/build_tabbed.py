@@ -10,6 +10,7 @@ Usage:  python ssot/build_tabbed.py <object.json> <out.html>
 import html
 import json
 import os
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -52,6 +53,7 @@ def _round_base_fmt():
 
 _round_base_fmt()
 import projectors as pj
+import grade_authority as ga          # noqa: E402  THE ONE PLACE CERTAINTY IS RESOLVED
 import paper_projector as _pp           # noqa: E402
 import projectors2 as p2
 import paper as pp
@@ -151,6 +153,8 @@ def paper_studio(canon, res, p):
     sens = res.get("sensitivity") or {}
     ce = res.get("cross_engine") or {}
     o = canon["outcomes"][0]
+    # RESOLVED ONCE, for this draft's outcome, through the one authority.
+    _g0 = ga.resolve(canon, o["id"])
     ks = res.get("k_status") or {}
     meas = _v((pooled.get("measure", "")))
 
@@ -176,10 +180,13 @@ def paper_studio(canon, res, p):
                 pj.fmt(het.get("i2")), pj.fmt(het.get("tau2"))))
         + li("Robustness", p(sens.get("leave_one_out_finding", "")))
         + li("Cross-engine check", p(ce.get("agreement", "")))
+        # SAME RESOLVER AS THE TABLE. This line read `results.*.grade` directly, so a draft
+        # could omit the Certainty bullet entirely on a topic whose structured record held a
+        # rating -- and an omitted bullet is an absence a writer cannot see.
         + li("Certainty",
-             ("GRADE certainty: %s. %s" % (p(g["certainty"]),
-                                           p(g.get("certainty_derivation", ""))))
-             if g.get("certainty") else "")
+             (("GRADE certainty: %s. %s" % (p(_g0["cell"]), p(_g0["comment"])))
+              if _g0["state"] == "RATED" else
+              ("%s %s" % (p(_g0["cell"]), p(_g0["comment"])))))
         + li("What this review could not settle", p(sc.get("known_limitation", "")))
         + li("Introduction and Discussion",
              "Not written here. The object holds no background or interpretation, "
@@ -194,8 +201,9 @@ def paper_studio(canon, res, p):
              ("Trials pooled", "k = %s" % pj.fmt(res.get("k")))]
     if het.get("i2") is not None:
         snips.append(("Heterogeneity", "I-squared %s%%" % pj.fmt(het["i2"])))
-    if g.get("certainty"):
-        snips.append(("Certainty", "GRADE certainty: %s" % _v((g["certainty"]))))
+    # The chip carries the resolved cell, so a writer inserting it cannot insert a
+    # rating the certainty column does not show.
+    snips.append(("Certainty", "GRADE certainty: %s" % _v((_g0["cell"]))))
     chips = "".join('    <button type="button" class="chip" data-ins="%s">%s'
                     '</button>%s' % (v, k, NL) for k, v in snips)
 
@@ -425,6 +433,33 @@ def panels_card(res, p):
 
 def output_card(canon, p):
     sof = ""
+    # THE CERTAINTY COLUMN HAS FOUR STATES AND NONE OF THEM IS AN EM DASH.
+    #
+    # This cell used to read `results.*.grade.certainty` and print `&mdash;` when it was
+    # absent -- one of the two places a rating can live, and the emptier one: across the
+    # corpus that location holds 7 ratings where the structured record holds 26. So a
+    # reader met a dash on 21 pooled outcomes that HAD been assessed, and on sglt2-hf met
+    # "high" beside "not pooled", because the only outcome the table rated was the one
+    # whose estimate had been WITHDRAWN.
+    #
+    # An em dash is not a Cochrane certainty state. It says nothing, which a reader can
+    # read as "nothing to report" rather than "not assessed" -- and those are the two
+    # readings that must never be confusable here. `ga.resolve` returns exactly one of
+    # RATED / NOT_ASSESSED / WITHDRAWN_POOL / DISAGREEMENT, and the notes below carry what
+    # each one means, so nothing is left to a dash.
+    notes, seen = [], {}
+
+    def _cert(oid):
+        g = ga.resolve(canon, oid)
+        txt = g["comment"]
+        if not txt:
+            return p(g["cell"])
+        key = txt
+        if key not in seen:
+            seen[key] = len(notes) + 1
+            notes.append(txt)
+        return "%s<sup>%d</sup>" % (p(g["cell"]), seen[key])
+
     for oid, r in ((canon.get("results") or {}).get("by_outcome") or {}).items():
         # THE THIRD SITE OF THE SAME BARE next(), AND THE THIRD BUILD IT KILLED.
         #
@@ -461,7 +496,7 @@ def output_card(canon, p):
                     #
                     # The test is now "is a number present", not "is the number true".
                     if pl.get("point") is not None else "not pooled"),
-                   p(g["certainty"]) if g.get("certainty") else "&mdash;", NL))
+                   _cert(oid), NL))
     reg = canon.get("registration") or {}
     c0 = (reg.get("commits") or [{}])[0]
     first = next(iter(((canon.get("results") or {}).get("by_outcome") or {}).values()), {})
@@ -519,10 +554,23 @@ def output_card(canon, p):
         ("Statistical engine", p((first.get("cross_engine") or {}).get("engine", ""))),
     ], "Everything a third party needs to rebuild this page. Each figure on the "
        "Analysis tab downloads as an SVG carrying exactly the values shown.")
+    # THE FOOTNOTES ARE NOT DECORATION. A downgrade with its reason removed is a letter,
+    # and "See comment" with no comment is worse than the dash it replaced. Every superscript
+    # emitted above resolves to one of these, and the table refuses to render if one does not.
+    used = set(int(n) for n in re.findall(r"<sup>(\d+)</sup>", sof)) if sof else set()
+    if used != set(range(1, len(notes) + 1)):
+        sys.exit("REFUSED: the certainty column emitted markers %s for %d note(s). A "
+                 "superscript that resolves to nothing is a footnote a reader cannot read."
+                 % (sorted(used), len(notes)))
+    foot = ""
+    if notes:
+        foot = ("  <ol class='sof-notes' style='font-size:0.86em;margin:0.6em 0 0 1.2em;'>%s%s"
+                "  </ol>%s"
+                % (NL, "".join("    <li>%s</li>%s" % (p(t), NL) for t in notes), NL))
     return ("<div class='card'>%s  <h3>Summary of findings</h3>%s  <table>%s"
             "    <tr><th>Outcome</th><th>k</th><th>Pooled effect</th>"
-            "<th>Certainty</th></tr>%s%s  </table>%s</div>%s"
-            % (NL, NL, NL, NL, sof, NL, NL)) + repro
+            "<th>Certainty</th></tr>%s%s  </table>%s%s</div>%s"
+            % (NL, NL, NL, NL, sof, NL, foot, NL)) + repro
 
 
 # WHERE THE DOCUMENT MODEL AND THE .docx COME FROM.
