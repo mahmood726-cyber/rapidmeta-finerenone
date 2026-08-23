@@ -161,6 +161,70 @@ def plant_and_require(instrument, detector, clean_case, planted_case):
                      "fired" if detector(clean_case) else "stayed quiet"))
 
 
+def scan_covers_what_it_emits(function_name, own_literals_matched, callee_renders, what):
+    """A LITERAL CAN LIVE ONE CALL AWAY, AND A SCAN OF A FUNCTION'S OWN BODY IS NOT A SCAN OF
+    WHAT IT EMITS. Same family as `composed_or_stored`, one level up.
+
+    THE INCIDENT, 2026-08-23. An audit was written to find procedural sentences asserted from
+    literals rather than projected from fields. It filtered to "functions that emit markup" by
+    looking for HTML tags among each function's OWN string constants -- and missed
+    `protocol_card`, THE FUNCTION IT WAS WRITTEN FOR. That function holds only the sentences;
+    it returns `kv_card(...)`, and the tags live in the callee.
+
+    The hand-classified control caught it, which is the only reason it was caught: a scan that
+    cannot see the known instance cannot be trusted to report an absence.
+
+    THE FAMILY THIS BELONGS TO, now six deep in one day: the fix, the probe, or the scan lands
+    where the author was looking rather than where the text is produced.
+
+        composed at render time, or stored          -- the value was baked into the object
+        one render point of two                     -- seven panels used a different callable
+        two surfaces of three de-indexed            -- audit_table.html was never touched
+        a probe keyed to what the fix removed       -- braces, not field names
+        a selector keyed to the defect              -- shrank as the work succeeded
+        a scan of a body, not of what it emits      -- THIS ONE
+
+    THE CHECK: when classifying functions by what they render, ask whether rendering happens
+    HERE or in something this calls. If a function's content is handed to a builder, the scan
+    must follow the call or key on the handoff, not on tags.
+    """
+    if own_literals_matched or callee_renders:
+        return
+    raise ControlFailed(
+        "REFUSED: %s classified `%s` as non-emitting on the strength of its own literals, but "
+        "it hands its content to a renderer. A scan of a function's body is not a scan of what "
+        "it emits." % (what, function_name))
+
+
+def match_on_the_meaning_bearing_part(matcher, known_differing_pair, what):
+    """WHEN MATCHING NAMES, MATCH ON THE PART THAT CARRIES THE MEANING -- and prove it against
+    a pair you already know differs.
+
+    THE INCIDENT, 2026-08-23. A sweep for "one concept stored under two key names" tested
+    lexical closeness by SHARED PREFIX. `dual_screening` and `duplicate_screening` share
+    exactly two leading characters, "du". The concept is in the SUFFIX: a synonym pair is
+    usually two different qualifiers on the same noun, and the noun comes last.
+
+    The sweep therefore missed the one pair that had already been established by hand, and the
+    control refused before any count was printed. Without that control it would have reported
+    a clean-looking list that omitted its own founding case.
+
+    SAME FAMILY AS `selection_is_population_not_defect`: a rule keyed to the convenient end of
+    the data rather than to the part that decides the answer. A prefix is where string
+    comparison starts, which is why it gets used; it is not where the meaning lives.
+
+    THE CHECK: any name-matching rule must be run against a pair whose answer is already known
+    -- ideally one that is SIMILAR in the dimension being tested and DIFFERENT in the one that
+    matters -- before it is allowed to report.
+    """
+    a, b = known_differing_pair
+    if matcher(a, b):
+        return
+    raise ControlFailed(
+        "REFUSED: %s does not match %r and %r, which are known to name one concept. The rule "
+        "is keyed to a part of the name that does not carry the meaning." % (what, a, b))
+
+
 def selection_is_population_not_defect(selected, population, defect_matched, what):
     """A SELECTOR KEYED TO THE DEFECT IS A SELECTOR THAT SHRINKS AS THE WORK SUCCEEDS, AND ITS
     SUCCESS SIGNAL IS COMPUTED OVER THE SURVIVORS.

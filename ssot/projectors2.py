@@ -15,6 +15,268 @@ from projectors import (NL, e, fmt, kv_card, fig, scatter_svg, rows_svg,
                         not_computable_svg, GRADE_DOMAINS)
 
 
+# =========================================================================================
+# TABLE 1's PROCEDURAL ROWS, PROJECTED. Each was a hardcoded constant asserting that an act
+# was carried out, on every page that rendered it, whatever the object held.
+#
+# THE INHERITANCE TRAP THIS PROJECT PREDICTED AND THOUGHT IT HAD PREVENTED. ARNI holds the
+# timestamps (protocol committed 11:27:47Z, first query attempted 12:19:18Z) and the named
+# adjudication that make these sentences TRUE OF ARNI. They were copied to every page as
+# constants. On MAVACAMTEN the table asserted "two independent screeners ... with named human
+# adjudication" while the same page said "No screening log is recorded for this review", and
+# asserted "all pre-specified before the search" beside "Refused: the claim that the review
+# methods were prespecified".
+#
+# ONE ROW IN THE SAME TABLE ALREADY DID IT PROPERLY: `Risk of bias method` projects and
+# degrades to "Not recorded -- no per-domain RoB-2 assessment exists yet". The fix was
+# available and sitting two rows away.
+#
+# NO DEFAULTS. Where a field does not exist the output is a refusal naming what is missing --
+# never a plausible sentence about what a review of this kind usually does.
+# =========================================================================================
+
+def _dupe(canon):
+    """The screening record, under EITHER of the two names the corpus uses for it.
+
+    ARNI stores `screening.dual_screening`; SGLT2 stores `screening.duplicate_screening`. Same
+    concept, two keys, and a projection reading only one of them refuses on the page that
+    actually HAS the record -- which is how the first version of this fix reported "no
+    screening record" for the one object holding a named adjudicator. The divergence is a
+    finding in its own right and is reported rather than silently absorbed.
+    """
+    sc = canon.get("screening") or {}
+    for k in ("duplicate_screening", "dual_screening"):
+        v = sc.get(k)
+        if isinstance(v, dict) and v:
+            return v
+    return {}
+
+
+def _attest(canon, which):
+    return ((canon.get("attestations") or {}).get(which)) or {}
+
+
+def _extraction_items(canon, na):
+    """What was ACTUALLY extracted on this object, not what the schema allows.
+
+    THE ROW I FIRST DEFENDED AND THEN WITHDREW. It listed "Registry id, primary publication,
+    year, design, population, arms, the analysed denominator and the randomised total
+    SEPARATELY, per-arm event counts, and the published effect with its interval and its
+    stated level" -- as a constant, on every page.
+
+    Listing schema fields is not claiming a procedure ran, which is why I first left it in.
+    But measured against the corpus it describes a schema THE OBJECTS DO NOT IMPLEMENT:
+
+        registry id            137 / 137
+        primary publication     59 / 137
+        arms                    58 / 137
+        per-arm event counts    59 / 137
+        published effect        59 / 137
+        design                  24 / 137
+        year                    12 / 137
+
+    Only the registry id is universal. On 78 objects the row asserts per-arm event counts and a
+    published effect that are not there, and on 125 it asserts a year. So it is false about the
+    extraction on most of the corpus, and it belongs with the six.
+    """
+    trials = ((canon.get("inputs") or {}).get("trials")) or []
+    if not trials:
+        return na("this object holds no trial records, so nothing was extracted per trial")
+    keys = set()
+    for t in trials:
+        if isinstance(t, dict):
+            keys |= set(t.keys())
+    present = []
+    for label, alts in (("registry id", ("nct", "trial_id", "id", "registry_id")),
+                        ("primary publication", ("pmid", "citation")),
+                        ("year", ("year",)),
+                        ("design", ("design",)),
+                        ("arms", ("arms", "arms_as_registered")),
+                        ("per-arm counts and the published effect", ("by_outcome",)),
+                        ("the randomised total, separately from the analysed denominator",
+                         ("enrolled", "registration_enrolment"))):
+        if any(a in keys for a in alts):
+            present.append(label)
+    if not present:
+        return na("no extractable field is present on this object's trial records")
+    return ("Extracted per trial on this object: %s. Fields not listed here were not extracted."
+            % "; ".join(present))
+
+
+def _selection_process(canon, p, na):
+    """Who screened, from the record of screening -- or a refusal naming its absence."""
+    d = _dupe(canon)
+    att = _attest(canon, "screening")
+    status = str(d.get("status") or "")
+    done = d.get("performed") is True or status.upper().startswith("COMPLETE")
+    if done:
+        fam = d.get("families")
+        who = ""
+        if isinstance(fam, dict) and fam:
+            who = " (%s)" % p("; ".join("%s: %s" % (k, v) for k, v in fam.items()))
+        # THE ADJUDICATOR, FROM WHEREVER THIS OBJECT RECORDS ONE -- and NOT claimed otherwise.
+        # The constant said "with named human adjudication" on every page; ARNI is the object
+        # that actually holds a name, and it holds it under `adjudication.adjudicator` while
+        # the attestation block's `by` is null.
+        adjr = ((d.get("adjudication") or {}).get("adjudicator")
+                or att.get("by"))
+        when = ((d.get("adjudication") or {}).get("date_utc") or att.get("date_utc"))
+        if adjr:
+            adj = ", adjudicated by %s%s" % (p(str(adjr)),
+                                             " on %s" % p(str(when)) if when else "")
+        else:
+            adj = ", with disagreements NOT adjudicated" if "unadjudicated" in status.lower() \
+                else ""
+        return "Two independent screens were run%s%s." % (who, adj)
+    if isinstance(d, dict) and d.get("performed") is False:
+        why = d.get("why")
+        return ("A second independent screen was NOT run. %s"
+                % p(str(why)) if why else
+                "A second independent screen was NOT run for this review.")
+    if ((canon.get("absent_from_source") or {}).get("screening")):
+        return na("no screening record was recoverable from the page this object was "
+                  "extracted from, so who screened and how cannot be stated")
+    return na("this object holds no screening record, so the selection process cannot be "
+              "described")
+
+
+def _screener_count(canon, na):
+    """How many screeners, counted -- never asserted."""
+    d = _dupe(canon)
+    fam = d.get("families") if isinstance(d, dict) else None
+    if isinstance(fam, dict) and fam:
+        return ("%d, of different model families. Two instances of one model is one screener "
+                "run twice and its agreement statistic is meaningless." % len(fam))
+    if isinstance(d, dict) and d.get("performed") is False:
+        return "One. No second independent screen was run."
+    return na("this object records no screener count")
+
+
+def _synthesis_methods(canon, na):
+    """The model and estimator actually used, and prespecification only if recorded."""
+    cfg = canon.get("config") or {}
+    blocks = [b for b in ((canon.get("results") or {}).get("by_outcome") or {}).values()
+              if isinstance(b, dict)]
+    # ONLY BLOCKS THAT ACTUALLY POOLED. MAVACAMTEN holds model="random-effects" and
+    # estimator="not pooled -- the estimate is withdrawn" with pooled.point null, so reading
+    # the fields without the predicate produced "Pooled with random-effects-effects not pooled
+    # -- the estimate is withdrawn estimator" on a page that pools nothing. `_pool_occurred` is
+    # the same predicate the manuscript uses; the two surfaces must not disagree about whether
+    # a pool happened.
+    pooled_blocks = [b for b in blocks
+                     if isinstance(b.get("pooled"), dict)
+                     and b["pooled"].get("point") is not None
+                     and not b["pooled"].get("withdrawn")]
+    if not pooled_blocks:
+        return na("no outcome on this object carries a pooled estimate, so no synthesis "
+                  "method was applied")
+
+    def _norm(v):
+        # "random" and "random-effects" are the same model under two spellings and both occur
+        # on SGLT2, which produced "random, random-effects-effects".
+        s = str(v).strip().lower()
+        return s[:-len("-effects")] if s.endswith("-effects") else s
+
+    models = sorted({_norm(b["model"]) for b in pooled_blocks if b.get("model")})
+    ests = sorted({str(b["estimator"]).strip() for b in pooled_blocks
+                   if b.get("estimator")
+                   and str(b["estimator"]).strip().lower() not in
+                   ("", "not applicable", "n/a", "none", "not recorded")
+                   and "not pooled" not in str(b["estimator"]).lower()})
+    if not models and cfg.get("model"):
+        models = [_norm(cfg["model"])]
+    if not models and not ests:
+        return na("this object records no model or estimator, so no synthesis method can be "
+                  "stated")
+    bits = []
+    if models:
+        bits.append("%s-effects" % ", ".join(models))
+    if ests:
+        bits.append("with the %s estimator" % ", ".join(ests))
+    if cfg.get("scale"):
+        bits.append("on the %s scale" % str(cfg["scale"]))
+    out = "Pooled under " + " ".join(bits) + "."
+    # PRESPECIFICATION IS A SEPARATE CLAIM AND IS ONLY MADE WHERE THE OBJECT RECORDS IT.
+    # "all pre-specified before the search" was asserted on pages whose own Paper panel argues
+    # that writing such a sentence would invalidate every other refusal on the page.
+    pre = (canon.get("protocol") or {}).get("prespecified")
+    if pre is True:
+        out += " These methods were prespecified before the search."
+        if (canon.get("registration") or {}).get("ordering", {}).get(
+                "protocol_committed_utc"):
+            out += (" Protocol committed %s."
+                    % canon["registration"]["ordering"]["protocol_committed_utc"])
+    elif pre is False:
+        out += (" These methods were NOT prespecified before the search, and are not "
+                "presented as though they were.")
+    else:
+        out += (" Whether they were prespecified is not recorded on this object.")
+    return out
+
+
+def _subgroup_analyses(canon, p, na):
+    """THREE STATES, NOT TWO. This row is why a hardcoded REFUSAL is as dangerous as a
+    hardcoded assertion.
+
+    It read "none pre-specified. At this k any contrast would be underpowered and post hoc,
+    and none will later be presented as though planned" -- on EVERY page, without checking.
+    On any object that DID prespecify a subgroup, that publishes a review misreporting its own
+    protocol. A refusal nobody checks is still a claim, and refusals escape scrutiny precisely
+    because they look like caution.
+
+    The collapse it fixes is absent-reads-as-zero in prose: "none were prespecified" and "no
+    record is held" are different states and the old sentence said the first for both.
+    """
+    sub = canon.get("subgroup_analyses")
+    if sub is None:
+        sub = (canon.get("protocol") or {}).get("subgroup_analyses")
+    if isinstance(sub, (list, tuple)) and sub:
+        return ("Prespecified: %s."
+                % p("; ".join(str(s) for s in sub)))
+    if isinstance(sub, str) and sub.strip():
+        return p(sub)
+    if sub in ([], {}) or (canon.get("protocol") or {}).get(
+            "subgroup_analyses_none_prespecified") is True:
+        return ("None were prespecified. Any contrast at this k would be underpowered and "
+                "post hoc, and none is presented as though planned.")
+    return na("this object records no subgroup-analysis field at all, so whether any were "
+              "prespecified is UNKNOWN -- which is not the same as none having been")
+
+
+def _meta_bias(canon, na):
+    """Only claimed where a computed value exists."""
+    blocks = ((canon.get("results") or {}).get("by_outcome") or {})
+    found = sorted({k for b in blocks.values() if isinstance(b, dict)
+                    for k in b if k.lower() in ("egger", "peters", "funnel",
+                                                "publication_bias", "small_study")})
+    if found:
+        return ("Reported as computed values (%s), with the caveat that below about ten "
+                "studies these have almost no power." % ", ".join(found))
+    return na("no funnel, Egger or Peters value is held on this object, so no meta-bias "
+              "assessment is claimed")
+
+
+def _certainty_method(canon, na):
+    """GRADE only where a GRADE record exists, counted."""
+    g = canon.get("grade") or {}
+    by = g.get("by_outcome") or {}
+    if isinstance(by, dict) and by:
+        appr = g.get("approach")
+        return ("GRADE, recorded for %d outcome(s)%s. The ratings are on the "
+                "<a href=\"#report\">Certainty tab</a>."
+                % (len(by), " (%s)" % appr if appr else ""))
+    tbl = [b for b in ((canon.get("results") or {}).get("by_outcome") or {}).values()
+           if isinstance(b, dict) and isinstance(b.get("grade"), dict)
+           and b["grade"].get("certainty")]
+    if tbl:
+        return ("GRADE, recorded for %d outcome(s) in the results block. The ratings are on "
+                "the <a href=\"#report\">Certainty tab</a>." % len(tbl))
+    if ((canon.get("absent_from_source") or {}).get("grade")):
+        return na("no GRADE record was recoverable from the page this object was extracted "
+                  "from")
+    return na("no GRADE record is held on this object, so no certainty assessment is claimed")
+
+
 def protocol_card(canon, p):
     """The registration pack, PROSPERO field set.
 
@@ -35,30 +297,18 @@ def protocol_card(canon, p):
          % len(canon.get("sources") or {})),
         ("Search strategy", "The executed strings, datetimes, filters and hit "
                             "counts are on the <a href=\"#search\">Search tab</a>"),
-        ("Study selection process", "Two independent screeners of different model "
-         "families, title/abstract then full text, with named human adjudication"),
-        ("Number of screeners", "Two, cross-family. Two instances of one model is "
-         "one screener run twice and its agreement statistic is meaningless"),
-        ("Data extraction items", "Registry id, primary publication, year, design, "
-         "population, arms, the analysed denominator and the randomised total "
-         "SEPARATELY, per-arm event counts, and the published effect with its "
-         "interval and its stated level"),
+        ("Study selection process", _selection_process(canon, p, na)),
+        ("Number of screeners", _screener_count(canon, na)),
+        ("Data extraction items", _extraction_items(canon, na)),
         ("Outcomes and prioritisation",
          "; ".join(p(o["name"]) for o in canon.get("outcomes", []))),
         ("Risk of bias method", p(canon["risk_of_bias_verdict"])
          if canon.get("risk_of_bias_verdict") else
          na("no per-domain RoB-2 assessment exists yet")),
-        ("Synthesis methods", "Random effects on the log scale; REML headline; "
-         "HKSJ reported alongside; leave-one-out and an estimator comparison, all "
-         "pre-specified before the search"),
-        ("Subgroup analyses", na(
-            "none pre-specified. At this k any contrast would be underpowered and "
-            "post hoc, and none will later be presented as though planned")),
-        ("Meta-bias assessment", "Funnel, Egger and Peters, each reported as a "
-         "computed value with the caveat that below about ten studies they have "
-         "almost no power"),
-        ("Certainty assessment", "GRADE, all five domains, on the "
-         "<a href=\"#report\">Certainty tab</a>"),
+        ("Synthesis methods", _synthesis_methods(canon, na)),
+        ("Subgroup analyses", _subgroup_analyses(canon, p, na)),
+        ("Meta-bias assessment", _meta_bias(canon, na)),
+        ("Certainty assessment", _certainty_method(canon, na)),
         ("Confidence level", "%s%%" % fmt(cfg.get("confidence_level"))
          if cfg.get("confidence_level") else ""),
         ("Funding", na("no funding statement is recorded for this review")),

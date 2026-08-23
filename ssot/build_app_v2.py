@@ -707,7 +707,18 @@ def _outcome_section(canon, oid, p, e):
         headline = (
             "<div class='card'>" + NL + "  <h2>Pooled result</h2>" + NL
             + "  <div class='absent-state' role='note'><strong>Estimate withdrawn.</strong> "
-            + p(pooled.get("withdrawn_reason") or "No reason recorded.") + "</div>" + NL
+            # READ EVERY SPELLING. `withdrawn_reason` is one of three names this corpus uses
+            # for the same field -- `absent_reason` on 10 objects and `withdrawn_because` on 3
+            # -- and reading only the canonical one printed "No reason recorded." on 17 pages
+            # that DO record a reason, several of them substantive: "0 of 4 eligible trials
+            # have posted results to ClinicalTrials.gov. Two are needed before an estimate."
+            #
+            # A page withholding the reason an estimate was withdrawn is the single thing this
+            # project exists to not do, and it was doing it silently because the reader read
+            # one name. The alias map is `ssot/field_aliases.py`; per-site alternates would
+            # drift, so nothing lists spellings here.
+            + p(_aliases.get(pooled, "withdrawal_reason") or "No reason recorded.")
+            + "</div>" + NL
             + ("  <p><small>" + p(pooled["withdrawn_note"]) + "</small></p>" + NL
                if pooled.get("withdrawn_note") else "")
             # BOTH SHAPES, AND NEVER A SILENT "n/a".

@@ -1,0 +1,177 @@
+"""An eighth spelling of a known concept must announce itself. Frozen at seven pairs.
+
+# no-control: the planted control is run every invocation -- a synthetic object carrying an
+# unknown spelling of a frozen concept must be detected, and one carrying only known spellings
+# must not be. The gate refuses to report on real data unless both hold.
+
+WHY FROZEN RATHER THAN FORBIDDEN. Seven key concepts in this corpus are stored under more than
+one name, and one value is stored under two spellings:
+
+    screening_record    duplicate_screening / dual_screening
+    withdrawal_reason   withdrawn_reason / absent_reason / withdrawn_because
+    trial_identifier    id / trial_id / registry_id
+    registration_read   registration_read_utc / read_utc
+    comparator          comparator_type / comparator / comparator_kind
+    authority           handbook_authority / methodological_authority
+    topic_state         topic_state / state
+    model (VALUE)       "random-effects" / "random"
+
+Unifying them is a data change over 155 objects and it is Mahmood's decision, not this gate's.
+What this gate does is stop the set GROWING: a NINTH spelling appearing under one of these
+parents means a new surface will read one name and publish an absence that is not real.
+
+THE COST OF ARRIVING BY ACCIDENT. This class was found twice by accident and once by sweep --
+and the sweep only ran because it was asked for. `dual_screening` cost a projection that
+reported "no screening record" for the ONE object holding a named adjudicator, and
+`absent_reason` was printing "No reason recorded." on 17 pages that record a substantive
+reason. Neither announced itself; both were found by someone reading an instance.
+"""
+from __future__ import annotations
+
+import collections
+import glob
+import io
+import json
+import os
+import sys
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(REPO, "ssot"))
+import field_aliases as FA                                    # noqa: E402
+
+# parent path (as walked) -> the concept whose spellings are frozen there
+WATCHED = {
+    ".screening": "screening_record",
+    ".results.by_outcome.primary.pooled": "withdrawal_reason",
+}
+
+# NOT WATCHED, AND THE REASON MATTERS MORE THAN THE OMISSION.
+#
+# `.inputs.trials[]` / registration_read was watched and produced three false positives on
+# 115, 88 and 61 objects: `all_ranks_read_utc`, `registration_counts_read_utc` and
+# `registration_contrasts_read_utc`. THOSE ARE DISTINCT READS WITH DISTINCT TIMESTAMPS, not
+# spellings of one field -- the corpus records WHEN each kind of registry read happened, by
+# design. Every one of them ends `_read_utc`, so the suffix heuristic cannot discriminate
+# here: the shared ending is a TYPE (a timestamp) rather than a concept.
+#
+# `.outcomes[]` / comparator is omitted for the same reason at lower confidence: I have not
+# established that `comparator` and `comparator_kind` name one concept rather than two.
+#
+# A gate watching a concept it cannot discriminate produces noise that gets bypassed, and a
+# gate bypassed daily is a gate bypassed permanently. Two verified concepts that refuse
+# correctly beat four that cry wolf.
+NOT_WATCHED_WHY = {
+    ".inputs.trials[]": ("registration_read -- `_read_utc` is a type suffix shared by "
+                         "several genuinely distinct timestamps"),
+    ".outcomes[]": ("comparator -- not established that comparator/comparator_kind name one "
+                    "concept"),
+}
+
+# Keys that share a suffix with a frozen spelling and mean something ELSE. `stands_because` is
+# the reason an estimate STANDS -- the opposite of `withdrawn_because`. Sharing "_because"
+# says nothing about meaning, which is the prefix mistake in another costume.
+NOT_SYNONYMS = {"stands_because", "not_withdrawn_because"}
+
+
+def walk(x, path=""):
+    if isinstance(x, dict):
+        for k, v in x.items():
+            yield path, str(k)
+            yield from walk(v, path + "." + str(k))
+    elif isinstance(x, list):
+        for v in x[:40]:
+            yield from walk(v, path + "[]")
+
+
+def unknown_spellings(obj):
+    """Keys under a watched parent that LOOK like a spelling of its concept but are not known.
+
+    A key is a candidate spelling when it shares five or more TRAILING characters with a known
+    one -- the suffix carries the noun, which is the part that names the concept. Matching on
+    the prefix missed `dual_screening` against `duplicate_screening`, which share two.
+    """
+    # CO-OCCURRENCE IS THE DISCRIMINATOR AND I DROPPED IT MOVING THIS FROM THE SWEEP.
+    #
+    # The sweep's rule was: lexically close AND NEVER CO-OCCURRING. Two names for one concept
+    # never appear together, because an object stores the concept once. Two names for DIFFERENT
+    # concepts routinely share a suffix and appear side by side.
+    #
+    # Without it this gate flagged `all_ranks_read_utc`, `registration_counts_read_utc` and
+    # `registration_contrasts_read_utc` -- three DISTINCT timestamps recording three distinct
+    # reads, all sitting beside `registration_read_utc` in the same trial -- and
+    # `stands_because`, which is the OPPOSITE of `withdrawn_because`: the reason an estimate
+    # STANDS. Sharing "_because" says nothing about meaning.
+    #
+    # Same class as matching on the prefix: the rule was keyed to the part that was easy to
+    # compute rather than the part that decides the answer.
+    siblings = collections.defaultdict(set)
+    for parent, key in walk(obj):
+        siblings[parent].add(key)
+
+    out = []
+    for parent, key in walk(obj):
+        concept = WATCHED.get(parent)
+        if not concept:
+            continue
+        known = FA.KEY_ALIASES.get(concept, ())
+        if key in known or key in NOT_SYNONYMS:
+            continue
+        here = siblings[parent]
+        if any(k in here for k in known):
+            continue                    # co-occurs with a known spelling -> a sibling
+        for k in known:
+            n = 0
+            for a, b in zip(reversed(key), reversed(k)):
+                if a != b:
+                    break
+                n += 1
+            if n >= 5:
+                out.append((parent, key, concept, k))
+                break
+    return out
+
+
+def prove():
+    planted = {"screening": {"triplicate_screening": {"performed": True}}}
+    clean = {"screening": {"duplicate_screening": {"performed": True}}}
+    if not unknown_spellings(planted):
+        sys.exit("PROOF FAILED: a planted eighth spelling (`triplicate_screening`) was not "
+                 "detected. Nothing reported.")
+    if unknown_spellings(clean):
+        sys.exit("PROOF FAILED: a known spelling (`duplicate_screening`) was flagged as new. "
+                 "Nothing reported.")
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    prove()
+    found = collections.defaultdict(list)
+    n = 0
+    for p in sorted(glob.glob(os.path.join(REPO, "ssot", "*", "*.json"))):
+        t = os.path.basename(os.path.dirname(p))
+        if os.path.basename(p) != t + ".json":
+            continue
+        try:
+            obj = json.load(io.open(p, encoding="utf-8"))
+        except ValueError:
+            continue
+        n += 1
+        for parent, key, concept, like in unknown_spellings(obj):
+            found[(concept, key)].append(t)
+
+    print("NEW SCHEMA SYNONYMS, %d object(s)   (control: passed -- a planted eighth spelling "
+          "is detected, a known one is not)" % n)
+    if not found:
+        print("   none. The seven frozen concepts carry only their known spellings.")
+        return
+    for (concept, key), topics in sorted(found.items()):
+        print("   %-22s NEW SPELLING %-28s on %d object(s): %s"
+              % (concept, key, len(topics), ", ".join(topics[:4])))
+    sys.exit("REFUSED: %d new spelling(s) of a frozen concept. Add it to "
+             "`ssot/field_aliases.py` so every reader tolerates it, or rename it in the "
+             "objects -- but a surface reading one name will publish an absence that is not "
+             "real." % len(found))
+
+
+if __name__ == "__main__":
+    main()
