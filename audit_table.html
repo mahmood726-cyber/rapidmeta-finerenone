@@ -26,7 +26,7 @@
 <header>
 <h1>rapidmeta-finerenone — Data-integrity index</h1>
 <div style="color:#94a3b8;font-size:13px;">
-  944 meta-analysis reviews · audit-classified across 15 rounds (deterministic + multi-agent + AACT + PubMed + PMC)
+  846 meta-analysis reviews · audit-classified across 15 rounds (deterministic + multi-agent + AACT + PubMed + PMC)
   · <a href="what_changed.html">what changed →</a>
   · <a href="outputs/extraction_audit/FINAL_INTEGRITY_REPORT_V2.md">methodology (FINAL_INTEGRITY_REPORT_V2.md)</a>
 </div>
@@ -35,23 +35,34 @@
 </div>
 <div class="summary-row">
   <div class="summary-card" style="border-left:3px solid #16a34a;">
-    <div class="num">823</div>
+    <div class="num">742</div>
     <div class="label">Trustworthy</div>
   </div>
   <div class="summary-card" style="border-left:3px solid #ca8a04;">
-    <div class="num">86</div>
+    <div class="num">73</div>
     <div class="label">Low concern</div>
   </div>
   <div class="summary-card" style="border-left:3px solid #ea580c;">
-    <div class="num">27</div>
+    <div class="num">26</div>
     <div class="label">Manual review</div>
   </div>
   <div class="summary-card" style="border-left:3px solid #7f1d1d;">
-    <div class="num">8</div>
+    <div class="num">5</div>
     <div class="label">Quarantined</div>
   </div>
 </div>
 </header>
+
+<div style="margin:0 24px 18px;padding:12px 14px;background:#1e293b;border-left:3px solid #ea580c;color:#cbd5e1;font-size:13px;max-width:96ch;">
+  <strong>97 rows were withdrawn from this table.</strong> Each described a page that no longer resolves, so the row could be read but not checked. They are kept in full — band, score, event and recorded reason — at
+  <a href="withdrawn_audit_rows.html">withdrawn audit rows</a>.
+  <div style="margin-top:8px;color:#94a3b8;">
+    47 traced to the 2026-06-07 removal of 519 single-trial (k=1) apps, which was a hard delete and retained nothing;
+    <strong style="color:#fca5a5;">29 were found CONTAMINATED</strong> on 2026-07-06 and moved to <code>removed/</code>;
+    18 and 3 came from the two halves of the 2026-07-07 pivotal-sourcing pass.
+    80 of the 97 were still showing a green INTERNAL CHECKS PASSED badge, 12 of them among the contaminated.
+  </div>
+</div>
 
 <div class="controls">
   <input id="search" type="text" placeholder="Filter by review name…" oninput="filterRows()">
@@ -201,28 +212,6 @@
       
     </td>
   </tr>
-<tr data-band="OK" data-name="bimagrumab_obesity_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="BIMAGRUMAB_OBESITY_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">BIMAGRUMAB_OBESITY_AUTO_REVIEW</a>
-      <a href="BIMAGRUMAB_OBESITY_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="buratio_nk_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="BURATIO_NK_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">BURATIO_NK_AUTO_REVIEW</a>
-      <a href="BURATIO_NK_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="cabotegravir_hiv_art_review" data-score="0.000">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -232,28 +221,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="CABOTEGRAVIR_HIV_ART_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">CABOTEGRAVIR_HIV_ART_REVIEW</a>
       
-    </td>
-  </tr>
-<tr data-band="OK" data-name="cabotegravir_hiv_tx_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="CABOTEGRAVIR_HIV_TX_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">CABOTEGRAVIR_HIV_TX_AUTO_REVIEW</a>
-      <a href="CABOTEGRAVIR_HIV_TX_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="calcipotriene_psoriasis_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="CALCIPOTRIENE_PSORIASIS_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">CALCIPOTRIENE_PSORIASIS_AUTO_REVIEW</a>
-      <a href="CALCIPOTRIENE_PSORIASIS_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="cangrelor_pci_review" data-score="0.000">
@@ -267,17 +234,6 @@
       
     </td>
   </tr>
-<tr data-band="OK" data-name="carfilzomib_mm_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="CARFILZOMIB_MM_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">CARFILZOMIB_MM_AUTO_REVIEW</a>
-      <a href="CARFILZOMIB_MM_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="cdk46_mbc_review" data-score="0.000">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -286,17 +242,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">3</td>
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="CDK46_MBC_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">CDK46_MBC_REVIEW</a>
-      
-    </td>
-  </tr>
-<tr data-band="OK" data-name="cholera_ocv_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="CHOLERA_OCV_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">CHOLERA_OCV_REVIEW</a>
       
     </td>
   </tr>
@@ -309,17 +254,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="COLCHICINE_CVD_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">COLCHICINE_CVD_REVIEW</a>
       
-    </td>
-  </tr>
-<tr data-band="OK" data-name="crizanlizumab_scd_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="CRIZANLIZUMAB_SCD_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">CRIZANLIZUMAB_SCD_AUTO_REVIEW</a>
-      <a href="CRIZANLIZUMAB_SCD_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="cvncov_covid19_auto_review" data-score="0.000">
@@ -355,28 +289,6 @@
       <a href="DALFAMPRIDINE_MULTIPLE_SCLEROSIS_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
-<tr data-band="OK" data-name="dapagliflozin_ckd_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="DAPAGLIFLOZIN_CKD_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">DAPAGLIFLOZIN_CKD_AUTO_REVIEW</a>
-      <a href="DAPAGLIFLOZIN_CKD_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="dapagliflozin_hfpef_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="DAPAGLIFLOZIN_HFPEF_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">DAPAGLIFLOZIN_HFPEF_AUTO_REVIEW</a>
-      <a href="DAPAGLIFLOZIN_HFPEF_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="daprodustat_anaemia_auto_review" data-score="0.000">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -386,17 +298,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="DAPRODUSTAT_ANAEMIA_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">DAPRODUSTAT_ANAEMIA_AUTO_REVIEW</a>
       <a href="DAPRODUSTAT_ANAEMIA_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="darolutamide_prostate_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="DAROLUTAMIDE_PROSTATE_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">DAROLUTAMIDE_PROSTATE_AUTO_REVIEW</a>
-      <a href="DAROLUTAMIDE_PROSTATE_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="dasabuvir_chronic_hepatitis_auto_review" data-score="0.000">
@@ -419,28 +320,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="DASABUVIR_HEPATITIS_C_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">DASABUVIR_HEPATITIS_C_AUTO_REVIEW</a>
       <a href="DASABUVIR_HEPATITIS_C_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="degludec_insulin_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="DEGLUDEC_INSULIN_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">DEGLUDEC_INSULIN_AUTO_REVIEW</a>
-      <a href="DEGLUDEC_INSULIN_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="dengue_vaccine_tak003_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="DENGUE_VACCINE_TAK003_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">DENGUE_VACCINE_TAK003_AUTO_REVIEW</a>
-      <a href="DENGUE_VACCINE_TAK003_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="deruxtecan_nonsmall_cell_auto_review" data-score="0.000">
@@ -485,39 +364,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="DORAVIRINE_HIV_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">DORAVIRINE_HIV_REVIEW</a>
       
-    </td>
-  </tr>
-<tr data-band="OK" data-name="dupilumab_asthma_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="DUPILUMAB_ASTHMA_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">DUPILUMAB_ASTHMA_AUTO_REVIEW</a>
-      <a href="DUPILUMAB_ASTHMA_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="dupilumab_eoe_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="DUPILUMAB_EOE_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">DUPILUMAB_EOE_AUTO_REVIEW</a>
-      <a href="DUPILUMAB_EOE_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="durvalumab_lung_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="DURVALUMAB_LUNG_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">DURVALUMAB_LUNG_AUTO_REVIEW</a>
-      <a href="DURVALUMAB_LUNG_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="ebola_vaccine_review" data-score="0.000">
@@ -586,17 +432,6 @@
       <a href="ETRIPAMIL_PAROXYSMAL_SUPRAVENTRICU_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
-<tr data-band="OK" data-name="evolocumab_lipid_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="EVOLOCUMAB_LIPID_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">EVOLOCUMAB_LIPID_AUTO_REVIEW</a>
-      <a href="EVOLOCUMAB_LIPID_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="evolocumab_mixed_dyslipidemia_auto_review" data-score="0.000">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -639,28 +474,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="FEZOLINETANT_HOT_FLASHES_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">FEZOLINETANT_HOT_FLASHES_AUTO_REVIEW</a>
       <a href="FEZOLINETANT_HOT_FLASHES_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="filgotinib_uc_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="FILGOTINIB_UC_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">FILGOTINIB_UC_AUTO_REVIEW</a>
-      <a href="FILGOTINIB_UC_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="fremanezumab_migraine_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="FREMANEZUMAB_MIGRAINE_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">FREMANEZUMAB_MIGRAINE_AUTO_REVIEW</a>
-      <a href="FREMANEZUMAB_MIGRAINE_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="gepotidacin_urinary_tract_auto_review" data-score="0.000">
@@ -707,17 +520,6 @@
       
     </td>
   </tr>
-<tr data-band="OK" data-name="ibrutinib_cll_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="IBRUTINIB_CLL_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">IBRUTINIB_CLL_AUTO_REVIEW</a>
-      <a href="IBRUTINIB_CLL_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="ibrutinib_small_lymphocytic_auto_review" data-score="0.000">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -751,17 +553,6 @@
       <a href="IDALOPIRDINE_ALZHEIMERS_DISEASE_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
-<tr data-band="OK" data-name="isavuconazole_fungal_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="ISAVUCONAZOLE_FUNGAL_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">ISAVUCONAZOLE_FUNGAL_AUTO_REVIEW</a>
-      <a href="ISAVUCONAZOLE_FUNGAL_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="karxt_scz_review" data-score="0.000">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -771,50 +562,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="KARXT_SCZ_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">KARXT_SCZ_REVIEW</a>
       
-    </td>
-  </tr>
-<tr data-band="OK" data-name="linaclotide_ibs_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="LINACLOTIDE_IBS_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">LINACLOTIDE_IBS_AUTO_REVIEW</a>
-      <a href="LINACLOTIDE_IBS_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="liraglutide_obesity_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="LIRAGLUTIDE_OBESITY_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">LIRAGLUTIDE_OBESITY_AUTO_REVIEW</a>
-      <a href="LIRAGLUTIDE_OBESITY_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="lubiprostone_cic_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="LUBIPROSTONE_CIC_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">LUBIPROSTONE_CIC_AUTO_REVIEW</a>
-      <a href="LUBIPROSTONE_CIC_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="luspatercept_beta_thal_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="LUSPATERCEPT_BETA_THAL_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">LUSPATERCEPT_BETA_THAL_AUTO_REVIEW</a>
-      <a href="LUSPATERCEPT_BETA_THAL_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="malaria_act_review" data-score="0.000">
@@ -872,17 +619,6 @@
       
     </td>
   </tr>
-<tr data-band="OK" data-name="midostaurin_aml_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="MIDOSTAURIN_AML_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">MIDOSTAURIN_AML_AUTO_REVIEW</a>
-      <a href="MIDOSTAURIN_AML_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="migraine_acute_review" data-score="0.000">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -905,17 +641,6 @@
       
     </td>
   </tr>
-<tr data-band="OK" data-name="molnupiravir_covid_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="MOLNUPIRAVIR_COVID_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">MOLNUPIRAVIR_COVID_AUTO_REVIEW</a>
-      <a href="MOLNUPIRAVIR_COVID_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="nabiximols_advanced_cancer_auto_review" data-score="0.000">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -925,17 +650,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="NABIXIMOLS_ADVANCED_CANCER_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">NABIXIMOLS_ADVANCED_CANCER_AUTO_REVIEW</a>
       <a href="NABIXIMOLS_ADVANCED_CANCER_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="ocrelizumab_ms_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="OCRELIZUMAB_MS_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">OCRELIZUMAB_MS_AUTO_REVIEW</a>
-      <a href="OCRELIZUMAB_MS_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="ombitasvir_chronic_hepatitis_auto_review" data-score="0.000">
@@ -1092,17 +806,6 @@
       
     </td>
   </tr>
-<tr data-band="OK" data-name="proposed_rheumatoid_arthritis_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">4</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="PROPOSED_RHEUMATOID_ARTHRITIS_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">PROPOSED_RHEUMATOID_ARTHRITIS_AUTO_REVIEW</a>
-      <a href="PROPOSED_RHEUMATOID_ARTHRITIS_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="risankizumab_crohns_disease_auto_review" data-score="0.000">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -1114,17 +817,6 @@
       <a href="RISANKIZUMAB_CROHNS_DISEASE_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
-<tr data-band="OK" data-name="rivaroxaban_peripheral_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="RIVAROXABAN_PERIPHERAL_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">RIVAROXABAN_PERIPHERAL_AUTO_REVIEW</a>
-      <a href="RIVAROXABAN_PERIPHERAL_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="rivaroxaban_vasc_review" data-score="0.000">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -1134,17 +826,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="RIVAROXABAN_VASC_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">RIVAROXABAN_VASC_REVIEW</a>
       
-    </td>
-  </tr>
-<tr data-band="OK" data-name="romiplostim_itp_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="ROMIPLOSTIM_ITP_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">ROMIPLOSTIM_ITP_AUTO_REVIEW</a>
-      <a href="ROMIPLOSTIM_ITP_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="rsv_vaccine_older_review" data-score="0.000">
@@ -1167,17 +848,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="RUSFERTIDE_PV_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">RUSFERTIDE_PV_REVIEW</a>
       
-    </td>
-  </tr>
-<tr data-band="OK" data-name="ruxolitinib_vitiligo_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="RUXOLITINIB_VITILIGO_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">RUXOLITINIB_VITILIGO_AUTO_REVIEW</a>
-      <a href="RUXOLITINIB_VITILIGO_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="sam_simplified_protocol_review" data-score="0.000">
@@ -1257,17 +927,6 @@
       
     </td>
   </tr>
-<tr data-band="OK" data-name="sildenafil_pah_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="SILDENAFIL_PAH_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">SILDENAFIL_PAH_AUTO_REVIEW</a>
-      <a href="SILDENAFIL_PAH_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="sirukumab_arthritis_rheumatoid_auto_review" data-score="0.000">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -1345,39 +1004,6 @@
       
     </td>
   </tr>
-<tr data-band="OK" data-name="tirzepatide_nash_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="TIRZEPATIDE_NASH_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">TIRZEPATIDE_NASH_AUTO_REVIEW</a>
-      <a href="TIRZEPATIDE_NASH_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="tocilizumab_covid_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="TOCILIZUMAB_COVID_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">TOCILIZUMAB_COVID_AUTO_REVIEW</a>
-      <a href="TOCILIZUMAB_COVID_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="trastuzumab_deruxtecan_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="TRASTUZUMAB_DERUXTECAN_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">TRASTUZUMAB_DERUXTECAN_AUTO_REVIEW</a>
-      <a href="TRASTUZUMAB_DERUXTECAN_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="tyvac_typhoid_review" data-score="0.000">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -1387,28 +1013,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="TYVAC_TYPHOID_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">TYVAC_TYPHOID_REVIEW</a>
       
-    </td>
-  </tr>
-<tr data-band="OK" data-name="umeclidinium_vilanterol_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="UMECLIDINIUM_VILANTEROL_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">UMECLIDINIUM_VILANTEROL_AUTO_REVIEW</a>
-      <a href="UMECLIDINIUM_VILANTEROL_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="upadacitinib_as_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="UPADACITINIB_AS_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">UPADACITINIB_AS_AUTO_REVIEW</a>
-      <a href="UPADACITINIB_AS_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="upadacitinib_crohns_disease_auto_review" data-score="0.000">
@@ -1453,39 +1057,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="VUTRISIRAN_ATTR_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">VUTRISIRAN_ATTR_REVIEW</a>
       
-    </td>
-  </tr>
-<tr data-band="OK" data-name="zanubrutinib_lymphoma_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="ZANUBRUTINIB_LYMPHOMA_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">ZANUBRUTINIB_LYMPHOMA_AUTO_REVIEW</a>
-      <a href="ZANUBRUTINIB_LYMPHOMA_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="zavegepant_migraine_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="ZAVEGEPANT_MIGRAINE_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">ZAVEGEPANT_MIGRAINE_AUTO_REVIEW</a>
-      <a href="ZAVEGEPANT_MIGRAINE_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="zirconium_hyperkalemia_auto_review" data-score="0.000">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.000</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">2</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="ZIRCONIUM_HYPERKALEMIA_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">ZIRCONIUM_HYPERKALEMIA_AUTO_REVIEW</a>
-      <a href="ZIRCONIUM_HYPERKALEMIA_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="glp1_cvot_review" data-score="0.005">
@@ -1664,17 +1235,6 @@
       
     </td>
   </tr>
-<tr data-band="OK" data-name="bpal_mdrtb_review" data-score="0.017">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.017</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">3</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="BPAL_MDRTB_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">BPAL_MDRTB_REVIEW</a>
-      
-    </td>
-  </tr>
 <tr data-band="OK" data-name="cart_mm_review" data-score="0.017">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -1760,28 +1320,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">3</td>
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="UPADACITINIB_CD_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">UPADACITINIB_CD_REVIEW</a>
-      
-    </td>
-  </tr>
-<tr data-band="OK" data-name="fragility_fracture_review" data-score="0.020">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.020</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">5</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="FRAGILITY_FRACTURE_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">FRAGILITY_FRACTURE_REVIEW</a>
-      
-    </td>
-  </tr>
-<tr data-band="OK" data-name="sglt2_broad_outcomes_nma_review" data-score="0.020">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.020</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">10</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="SGLT2_BROAD_OUTCOMES_NMA_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">SGLT2_BROAD_OUTCOMES_NMA_REVIEW</a>
       
     </td>
   </tr>
@@ -2423,28 +1961,6 @@
       <a href="ANIFROLUMAB_LUPUS_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
-<tr data-band="OK" data-name="anifrolumab_sle_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">2</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="ANIFROLUMAB_SLE_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">ANIFROLUMAB_SLE_AUTO_REVIEW</a>
-      <a href="ANIFROLUMAB_SLE_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="anifrolumab_sle_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">2</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="ANIFROLUMAB_SLE_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">ANIFROLUMAB_SLE_REVIEW</a>
-      
-    </td>
-  </tr>
 <tr data-band="OK" data-name="apixaban_acs_auto_review" data-score="0.050">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -2465,17 +1981,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="APIXABAN_AF_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">APIXABAN_AF_AUTO_REVIEW</a>
       <a href="APIXABAN_AF_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="apixaban_cancer_vte_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="APIXABAN_CANCER_VTE_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">APIXABAN_CANCER_VTE_AUTO_REVIEW</a>
-      <a href="APIXABAN_CANCER_VTE_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="apixaban_vte_auto_review" data-score="0.050">
@@ -3292,17 +2797,6 @@
       <a href="CAPLACIZUMAB_TTP_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
-<tr data-band="OK" data-name="capmatinib_lung_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">2</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="CAPMATINIB_LUNG_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">CAPMATINIB_LUNG_AUTO_REVIEW</a>
-      <a href="CAPMATINIB_LUNG_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="casirivimab_covid_auto_review" data-score="0.050">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -3424,17 +2918,6 @@
       <a href="CINRYZE_HAE_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
-<tr data-band="OK" data-name="ciprofloxacin_uti_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">2</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="CIPROFLOXACIN_UTI_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">CIPROFLOXACIN_UTI_AUTO_REVIEW</a>
-      <a href="CIPROFLOXACIN_UTI_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="cladribine_ms_auto_review" data-score="0.050">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -3512,17 +2995,6 @@
       <a href="DABIGATRAN_VTE_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
-<tr data-band="OK" data-name="dabrafenib_melanoma_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">2</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="DABRAFENIB_MELANOMA_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">DABRAFENIB_MELANOMA_AUTO_REVIEW</a>
-      <a href="DABRAFENIB_MELANOMA_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="daclatasvir_hcv_auto_review" data-score="0.050">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -3589,17 +3061,6 @@
       <a href="DARIDOREXANT_INSOMNIA_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
-<tr data-band="OK" data-name="darunavir_hiv_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">2</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="DARUNAVIR_HIV_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">DARUNAVIR_HIV_AUTO_REVIEW</a>
-      <a href="DARUNAVIR_HIV_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="deferoxamine_iron_auto_review" data-score="0.050">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -3609,17 +3070,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="DEFEROXAMINE_IRON_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">DEFEROXAMINE_IRON_AUTO_REVIEW</a>
       <a href="DEFEROXAMINE_IRON_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="delafloxacin_infection_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="DELAFLOXACIN_INFECTION_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">DELAFLOXACIN_INFECTION_AUTO_REVIEW</a>
-      <a href="DELAFLOXACIN_INFECTION_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="delamanid_tb_auto_review" data-score="0.050">
@@ -3642,28 +3092,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="DELANDISTROGENE_DMD_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">DELANDISTROGENE_DMD_AUTO_REVIEW</a>
       <a href="DELANDISTROGENE_DMD_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="delgocitinib_ad_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">4</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="DELGOCITINIB_AD_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">DELGOCITINIB_AD_AUTO_REVIEW</a>
-      <a href="DELGOCITINIB_AD_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="delgocitinib_hand_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">4</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="DELGOCITINIB_HAND_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">DELGOCITINIB_HAND_AUTO_REVIEW</a>
-      <a href="DELGOCITINIB_HAND_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="denosumab_bone_met_auto_review" data-score="0.050">
@@ -3752,17 +3180,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="DINUTUXIMAB_NEUROBLASTOMA_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">DINUTUXIMAB_NEUROBLASTOMA_AUTO_REVIEW</a>
       <a href="DINUTUXIMAB_NEUROBLASTOMA_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="dolutegravir_hiv_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="DOLUTEGRAVIR_HIV_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">DOLUTEGRAVIR_HIV_AUTO_REVIEW</a>
-      <a href="DOLUTEGRAVIR_HIV_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="donanemab_ad_auto_review" data-score="0.050">
@@ -4071,17 +3488,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="ELUXADOLINE_IBSD_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">ELUXADOLINE_IBSD_AUTO_REVIEW</a>
       <a href="ELUXADOLINE_IBSD_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="elvitegravir_hiv_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">4</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="ELVITEGRAVIR_HIV_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">ELVITEGRAVIR_HIV_AUTO_REVIEW</a>
-      <a href="ELVITEGRAVIR_HIV_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="emicizumab_hema_auto_review" data-score="0.050">
@@ -4645,17 +4051,6 @@
       <a href="GOSERELIN_PROSTATE_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
-<tr data-band="OK" data-name="granisetron_cinv_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">2</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="GRANISETRON_CINV_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">GRANISETRON_CINV_AUTO_REVIEW</a>
-      <a href="GRANISETRON_CINV_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="guanfacine_adhd_auto_review" data-score="0.050">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -4810,17 +4205,6 @@
       <a href="INCLISIRAN_HOFH_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
-<tr data-band="OK" data-name="inclisiran_lipid_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="INCLISIRAN_LIPID_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">INCLISIRAN_LIPID_AUTO_REVIEW</a>
-      <a href="INCLISIRAN_LIPID_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="inclisiran_lipid_kidney_auto_review" data-score="0.050">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -4907,17 +4291,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="INOTERSEN_HATTR_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">INOTERSEN_HATTR_AUTO_REVIEW</a>
       <a href="INOTERSEN_HATTR_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="ipilimumab_renal_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">2</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="IPILIMUMAB_RENAL_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">IPILIMUMAB_RENAL_AUTO_REVIEW</a>
-      <a href="IPILIMUMAB_RENAL_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="iptacopan_igan_review" data-score="0.050">
@@ -5228,17 +4601,6 @@
       <a href="LINEZOLID_MRSA_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
-<tr data-band="OK" data-name="linezolid_tb_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">2</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="LINEZOLID_TB_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">LINEZOLID_TB_AUTO_REVIEW</a>
-      <a href="LINEZOLID_TB_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="lisinopril_htn_auto_review" data-score="0.050">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -5259,17 +4621,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="LIXISENATIDE_T2D_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">LIXISENATIDE_T2D_AUTO_REVIEW</a>
       <a href="LIXISENATIDE_T2D_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="loratadine_rhin_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">3</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="LORATADINE_RHIN_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">LORATADINE_RHIN_AUTO_REVIEW</a>
-      <a href="LORATADINE_RHIN_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="lumasiran_ph1_auto_review" data-score="0.050">
@@ -5690,17 +5041,6 @@
       <a href="NIVOLUMAB_HCC_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
-<tr data-band="OK" data-name="nivolumab_rcc_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="NIVOLUMAB_RCC_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">NIVOLUMAB_RCC_AUTO_REVIEW</a>
-      <a href="NIVOLUMAB_RCC_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="nusinersen_sma_auto_review" data-score="0.050">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -5765,28 +5105,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="OLANZAPINE_BIPOLAR_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">OLANZAPINE_BIPOLAR_AUTO_REVIEW</a>
       <a href="OLANZAPINE_BIPOLAR_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="olanzapine_cinv_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">3</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="OLANZAPINE_CINV_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">OLANZAPINE_CINV_AUTO_REVIEW</a>
-      <a href="OLANZAPINE_CINV_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="olaparib_breast_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="OLAPARIB_BREAST_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">OLAPARIB_BREAST_AUTO_REVIEW</a>
-      <a href="OLAPARIB_BREAST_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="olaparib_gastric_auto_review" data-score="0.050">
@@ -5999,17 +5317,6 @@
       <a href="OSIMERTINIB_ADJUVANT_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
-<tr data-band="OK" data-name="osimertinib_egfr_nsclc_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="OSIMERTINIB_EGFR_NSCLC_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">OSIMERTINIB_EGFR_NSCLC_AUTO_REVIEW</a>
-      <a href="OSIMERTINIB_EGFR_NSCLC_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="osimertinib_lung_auto_review" data-score="0.050">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -6098,17 +5405,6 @@
       <a href="PASIREOTIDE_ACROMEGALY_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
-<tr data-band="OK" data-name="pasireotide_cushing_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">3</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="PASIREOTIDE_CUSHING_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">PASIREOTIDE_CUSHING_AUTO_REVIEW</a>
-      <a href="PASIREOTIDE_CUSHING_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="patisiran_attr_pn_auto_review" data-score="0.050">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -6184,17 +5480,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="PEGLOTICASE_GOUT_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">PEGLOTICASE_GOUT_AUTO_REVIEW</a>
       <a href="PEGLOTICASE_GOUT_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="pembrolizumab_bladder_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="PEMBROLIZUMAB_BLADDER_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">PEMBROLIZUMAB_BLADDER_AUTO_REVIEW</a>
-      <a href="PEMBROLIZUMAB_BLADDER_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="pembrolizumab_head_neck_auto_review" data-score="0.050">
@@ -6404,17 +5689,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="PPSV23_VACCINE_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">PPSV23_VACCINE_AUTO_REVIEW</a>
       <a href="PPSV23_VACCINE_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="prader_human_gh_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">2</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="PRADER_HUMAN_GH_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">PRADER_HUMAN_GH_AUTO_REVIEW</a>
-      <a href="PRADER_HUMAN_GH_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="prevnar15_pneumo_auto_review" data-score="0.050">
@@ -6835,28 +6109,6 @@
       <a href="ROTAVIRUS_VACCINE_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
-<tr data-band="OK" data-name="roxadustat_anemia_ckd_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">2</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="ROXADUSTAT_ANEMIA_CKD_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">ROXADUSTAT_ANEMIA_CKD_AUTO_REVIEW</a>
-      <a href="ROXADUSTAT_ANEMIA_CKD_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="roxadustat_renal_anemia_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">2</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="ROXADUSTAT_RENAL_ANEMIA_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">ROXADUSTAT_RENAL_ANEMIA_AUTO_REVIEW</a>
-      <a href="ROXADUSTAT_RENAL_ANEMIA_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="rozanolixizumab_mg_auto_review" data-score="0.050">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -6877,28 +6129,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="RSVPREF3_VACCINE_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">RSVPREF3_VACCINE_AUTO_REVIEW</a>
       <a href="RSVPREF3_VACCINE_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="rsv_vaccine_arexvy_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="RSV_VACCINE_AREXVY_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">RSV_VACCINE_AREXVY_AUTO_REVIEW</a>
-      <a href="RSV_VACCINE_AREXVY_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="rucaparib_ovarian_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">1</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="RUCAPARIB_OVARIAN_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">RUCAPARIB_OVARIAN_AUTO_REVIEW</a>
-      <a href="RUCAPARIB_OVARIAN_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="rucaparib_prostate2_auto_review" data-score="0.050">
@@ -7341,17 +6571,6 @@
       <a href="TANEZUMAB_OA_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
-<tr data-band="OK" data-name="tavr_lowrisk_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">3</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="TAVR_LOWRISK_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">TAVR_LOWRISK_REVIEW</a>
-      
-    </td>
-  </tr>
 <tr data-band="OK" data-name="tecovirimat_mpox_auto_review" data-score="0.050">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -7438,17 +6657,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="THIAMINE_SEPSIS_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">THIAMINE_SEPSIS_AUTO_REVIEW</a>
       <a href="THIAMINE_SEPSIS_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="ticagrelor_stroke_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">2</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="TICAGRELOR_STROKE_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">TICAGRELOR_STROKE_AUTO_REVIEW</a>
-      <a href="TICAGRELOR_STROKE_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="tigecycline_infection_auto_review" data-score="0.050">
@@ -7605,17 +6813,6 @@
       <a href="UPADACITINIB_PSA_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
-<tr data-band="OK" data-name="upadacitinib_ra_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">5</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="UPADACITINIB_RA_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">UPADACITINIB_RA_AUTO_REVIEW</a>
-      <a href="UPADACITINIB_RA_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="upadacitinib_uc_auto_review" data-score="0.050">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -7691,17 +6888,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="VAMOROLONE_DMD_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">VAMOROLONE_DMD_REVIEW</a>
       <a href="VAMOROLONE_DMD_REVIEW_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
-    </td>
-  </tr>
-<tr data-band="OK" data-name="vancomycin_cdi_auto_review" data-score="0.050">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.050</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">4</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="VANCOMYCIN_CDI_AUTO_FULL_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">VANCOMYCIN_CDI_AUTO_REVIEW</a>
-      <a href="VANCOMYCIN_CDI_AUTO_FULL_REVIEW.html" title="Full interactive RapidMeta dashboard (editable extraction, screening, RoB, live re-pool, WebR)" style="color:#34d399;text-decoration:none;font-size:11px;margin-left:10px;">⧉ full dashboard</a>
     </td>
   </tr>
 <tr data-band="OK" data-name="vandetanib_lung_auto_review" data-score="0.050">
@@ -8342,17 +7528,6 @@
       
     </td>
   </tr>
-<tr data-band="OK" data-name="hiv_tb_coinfection_art_timing_review" data-score="0.133">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.133</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">3</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="HIV_TB_COINFECTION_ART_TIMING_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">HIV_TB_COINFECTION_ART_TIMING_REVIEW</a>
-      
-    </td>
-  </tr>
 <tr data-band="OK" data-name="polycythemia_vera_review" data-score="0.133">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -8394,17 +7569,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">10</td>
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="MYELOFIBROSIS_NEW_JAKI_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">MYELOFIBROSIS_NEW_JAKI_REVIEW</a>
-      
-    </td>
-  </tr>
-<tr data-band="OK" data-name="stroke_thrombectomy_broad_review" data-score="0.141">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.141</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">11</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="STROKE_THROMBECTOMY_BROAD_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">STROKE_THROMBECTOMY_BROAD_REVIEW</a>
       
     </td>
   </tr>
@@ -8507,17 +7671,6 @@
       
     </td>
   </tr>
-<tr data-band="OK" data-name="lupus_new_biologics_review" data-score="0.161">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.161</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">9</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="LUPUS_NEW_BIOLOGICS_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">LUPUS_NEW_BIOLOGICS_REVIEW</a>
-      
-    </td>
-  </tr>
 <tr data-band="OK" data-name="sma_treatments_broad_review" data-score="0.163">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -8592,17 +7745,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">4</td>
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="BEMPEDOIC_ACID_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">BEMPEDOIC_ACID_REVIEW</a>
-      
-    </td>
-  </tr>
-<tr data-band="OK" data-name="hfpef_drugs_nma_review" data-score="0.175">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.175</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">10</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="HFpEF_DRUGS_NMA_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">HFpEF_DRUGS_NMA_REVIEW</a>
       
     </td>
   </tr>
@@ -8681,17 +7823,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="SCLC_IO_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">SCLC_IO_REVIEW</a>
       
-    </td>
-  </tr>
-<tr data-band="QUARANTINE" data-name="oab_beta3_nma_review" data-score="0.193">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#7f1d1d;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #fbbf24;">QUARANTINED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.193</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">5</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="OAB_BETA3_NMA_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">OAB_BETA3_NMA_REVIEW</a>
-      <span style="color:#fbbf24;font-size:10px;margin-left:8px;">★ banner</span>
     </td>
   </tr>
 <tr data-band="OK" data-name="mm_bispecific_trispecific_review" data-score="0.199">
@@ -8790,17 +7921,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">3</td>
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="ICU_SEDATION_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">ICU_SEDATION_REVIEW</a>
-      
-    </td>
-  </tr>
-<tr data-band="OK" data-name="mds_new_agents_review" data-score="0.200">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.200</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">7</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="MDS_NEW_AGENTS_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">MDS_NEW_AGENTS_REVIEW</a>
       
     </td>
   </tr>
@@ -9046,17 +8166,6 @@
       
     </td>
   </tr>
-<tr data-band="QUARANTINE" data-name="epilepsy_new_aeds_review" data-score="0.263">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#7f1d1d;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #fbbf24;">QUARANTINED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.263</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">10</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="EPILEPSY_NEW_AEDS_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">EPILEPSY_NEW_AEDS_REVIEW</a>
-      <span style="color:#fbbf24;font-size:10px;margin-left:8px;">★ banner</span>
-    </td>
-  </tr>
 <tr data-band="OK" data-name="hemophilia_factor_prophylaxis_review" data-score="0.263">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #15803d;">INTERNAL CHECKS PASSED</span>
@@ -9233,17 +8342,6 @@
       
     </td>
   </tr>
-<tr data-band="LOW_CONCERN" data-name="ich_mis_hematoma_nma_review" data-score="0.307">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.307</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">7</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="ICH_MIS_HEMATOMA_NMA_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">ICH_MIS_HEMATOMA_NMA_REVIEW</a>
-      
-    </td>
-  </tr>
 <tr data-band="LOW_CONCERN" data-name="mis_colectomy_vs_open_nma_review" data-score="0.307">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
@@ -9255,17 +8353,6 @@
       
     </td>
   </tr>
-<tr data-band="LOW_CONCERN" data-name="pbc_new_agents_review" data-score="0.312">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.312</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">7</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="PBC_NEW_AGENTS_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">PBC_NEW_AGENTS_REVIEW</a>
-      
-    </td>
-  </tr>
 <tr data-band="LOW_CONCERN" data-name="copd_biologics_broad_review" data-score="0.314">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
@@ -9274,17 +8361,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">7</td>
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="COPD_BIOLOGICS_BROAD_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">COPD_BIOLOGICS_BROAD_REVIEW</a>
-      
-    </td>
-  </tr>
-<tr data-band="LOW_CONCERN" data-name="sepsis_resuscitation_review" data-score="0.317">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.317</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">3</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="SEPSIS_RESUSCITATION_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">SEPSIS_RESUSCITATION_REVIEW</a>
       
     </td>
   </tr>
@@ -9354,17 +8430,6 @@
       
     </td>
   </tr>
-<tr data-band="LOW_CONCERN" data-name="stroke_thrombectomy_late_nma_review" data-score="0.335">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.335</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">10</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="STROKE_THROMBECTOMY_LATE_NMA_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">STROKE_THROMBECTOMY_LATE_NMA_REVIEW</a>
-      
-    </td>
-  </tr>
 <tr data-band="LOW_CONCERN" data-name="eosinophilic_diseases_broad_review" data-score="0.336">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
@@ -9406,17 +8471,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">5</td>
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="OMEGA3_HIGHDOSE_CV_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">OMEGA3_HIGHDOSE_CV_REVIEW</a>
-      
-    </td>
-  </tr>
-<tr data-band="LOW_CONCERN" data-name="rna_interference_broad_nma_review" data-score="0.342">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.342</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">10</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="RNA_INTERFERENCE_BROAD_NMA_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">RNA_INTERFERENCE_BROAD_NMA_REVIEW</a>
       
     </td>
   </tr>
@@ -9574,17 +8628,6 @@
       
     </td>
   </tr>
-<tr data-band="LOW_CONCERN" data-name="melanoma_neoadjuvant_review" data-score="0.392">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.392</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">10</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="MELANOMA_NEOADJUVANT_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">MELANOMA_NEOADJUVANT_REVIEW</a>
-      
-    </td>
-  </tr>
 <tr data-band="LOW_CONCERN" data-name="bladder_urothel_frontline_io_nma_review" data-score="0.400">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
@@ -9604,17 +8647,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">6</td>
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="RSV_PROPHY_INFANT_BROAD_NMA_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">RSV_PROPHY_INFANT_BROAD_NMA_REVIEW</a>
-      
-    </td>
-  </tr>
-<tr data-band="LOW_CONCERN" data-name="antifungal_newer_resistant_review" data-score="0.405">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.405</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">10</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="ANTIFUNGAL_NEWER_RESISTANT_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">ANTIFUNGAL_NEWER_RESISTANT_REVIEW</a>
       
     </td>
   </tr>
@@ -9706,17 +8738,6 @@
       
     </td>
   </tr>
-<tr data-band="LOW_CONCERN" data-name="t1d_closed_loop_nma_review" data-score="0.422">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.422</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">9</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="T1D_CLOSED_LOOP_NMA_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">T1D_CLOSED_LOOP_NMA_REVIEW</a>
-      
-    </td>
-  </tr>
 <tr data-band="LOW_CONCERN" data-name="bariatric_rygb_vs_sg_review" data-score="0.425">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
@@ -9737,17 +8758,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="CABG_VS_PCI_LEFT_MAIN_NMA_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">CABG_VS_PCI_LEFT_MAIN_NMA_REVIEW</a>
       
-    </td>
-  </tr>
-<tr data-band="QUARANTINE" data-name="epilepsy_new_agents_nma_review" data-score="0.428">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#7f1d1d;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #fbbf24;">QUARANTINED</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.428</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">9</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="EPILEPSY_NEW_AGENTS_NMA_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">EPILEPSY_NEW_AGENTS_NMA_REVIEW</a>
-      <span style="color:#fbbf24;font-size:10px;margin-left:8px;">★ banner</span>
     </td>
   </tr>
 <tr data-band="LOW_CONCERN" data-name="sbrt_prostate_local_nma_review" data-score="0.429">
@@ -9849,17 +8859,6 @@
       
     </td>
   </tr>
-<tr data-band="LOW_CONCERN" data-name="trop2_adc_broad_review" data-score="0.440">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.440</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">10</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="TROP2_ADC_BROAD_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">TROP2_ADC_BROAD_REVIEW</a>
-      
-    </td>
-  </tr>
 <tr data-band="LOW_CONCERN" data-name="hep_d_bulevirtide_nma_review" data-score="0.442">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
@@ -9915,17 +8914,6 @@
       
     </td>
   </tr>
-<tr data-band="LOW_CONCERN" data-name="prostate_parp_hrr_broad_review" data-score="0.456">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.456</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">8</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="PROSTATE_PARP_HRR_BROAD_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">PROSTATE_PARP_HRR_BROAD_REVIEW</a>
-      
-    </td>
-  </tr>
 <tr data-band="LOW_CONCERN" data-name="normothermic_transplant_nma_review" data-score="0.458">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
@@ -9934,17 +8922,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">6</td>
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="NORMOTHERMIC_TRANSPLANT_NMA_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">NORMOTHERMIC_TRANSPLANT_NMA_REVIEW</a>
-      
-    </td>
-  </tr>
-<tr data-band="LOW_CONCERN" data-name="endometriosis_new_gnrh_nma_review" data-score="0.463">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.463</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">8</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="ENDOMETRIOSIS_NEW_GNRH_NMA_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">ENDOMETRIOSIS_NEW_GNRH_NMA_REVIEW</a>
       
     </td>
   </tr>
@@ -10058,17 +9035,6 @@
       
     </td>
   </tr>
-<tr data-band="LOW_CONCERN" data-name="hcc_local_therapy_nma_review" data-score="0.475">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.475</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">2</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="HCC_LOCAL_THERAPY_NMA_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">HCC_LOCAL_THERAPY_NMA_REVIEW</a>
-      
-    </td>
-  </tr>
 <tr data-band="LOW_CONCERN" data-name="pediatric_obesity_glp1_nma_review" data-score="0.475">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
@@ -10146,17 +9112,6 @@
       
     </td>
   </tr>
-<tr data-band="LOW_CONCERN" data-name="cholangio_targeted_nma_review" data-score="0.490">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#ca8a04;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #a16207;">LOW CONCERN</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.490</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">7</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="CHOLANGIO_TARGETED_NMA_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">CHOLANGIO_TARGETED_NMA_REVIEW</a>
-      
-    </td>
-  </tr>
 <tr data-band="MANUAL_REVIEW" data-name="dermatomyositis_nma_review" data-score="0.500">
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <span style="display:inline-block;background:#ea580c;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #c2410c;">MANUAL REVIEW</span>
@@ -10198,17 +9153,6 @@
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">4</td>
     <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
       <a href="PFIC_CHOLESTATIC_PRURITUS_NMA_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">PFIC_CHOLESTATIC_PRURITUS_NMA_REVIEW</a>
-      
-    </td>
-  </tr>
-<tr data-band="MANUAL_REVIEW" data-name="sbrt_oligomets_nma_review" data-score="0.500">
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <span style="display:inline-block;background:#ea580c;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:0.04em;border:1px solid #c2410c;">MANUAL REVIEW</span>
-    </td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#cbd5e1;font-family:JetBrains Mono,monospace;font-size:11px;">0.500</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;color:#94a3b8;text-align:right;">9</td>
-    <td style="padding:6px 10px;border-bottom:1px solid #1f2a44;">
-      <a href="SBRT_OLIGOMETS_NMA_REVIEW.html" style="color:#7dd3fc;text-decoration:none;font-family:JetBrains Mono,monospace;font-size:12px;">SBRT_OLIGOMETS_NMA_REVIEW</a>
       
     </td>
   </tr>
@@ -10487,6 +9431,10 @@
 </ul></section>
 
 <footer>
+<div style="color:#cbd5e1;margin-bottom:10px;">
+  <strong>97 rows are not in this table.</strong> Each described a page that no longer resolves. They are retained in full at
+  <a href="withdrawn_audit_rows.html">withdrawn_audit_rows.html</a> — with the band each was showing, the deletion event it traces to, and the reason recorded at the time. 29 of them were found CONTAMINATED on 2026-07-06; that finding outlives the page it is about.
+</div>
 Generated by <code>scripts/build_review_index.py</code> from
 <code>outputs/extraction_audit/fabrication_risk_scores.json</code>.
 For methodology and per-round logs, see
