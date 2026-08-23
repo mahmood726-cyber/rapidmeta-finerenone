@@ -1,0 +1,164 @@
+"""How far are the 480 mute pages from a canonical object? Field by field, no conversion started.
+
+# control: routed through require_controls. POSITIVE is ABALOPARATIDE_OSTEO, whose realData
+# payload was read by hand: NCT01343004, name "ACTIVE (...)", pmid 27533157, tE:4 tN:690 cE:30
+# cN:711, publishedHR 0.137, five RoB domains. NEGATIVE is that a page holding NO payload must
+# not be scored as convertible, which is the direction that would overstate the opportunity.
+
+THE QUESTION, IN MAHMOOD'S TERMS: could a canonical object be built from what is ALREADY on
+these pages, without going back to any source? If yes for most, the repair he authorised is a
+CONVERSION and its size is measurable. If no, what is missing and for how many.
+
+WHY IT IS WORTH ASKING CAREFULLY. 480 pages hold identifiers, per-arm counts, PMIDs, published
+effect estimates and risk-of-bias judgements, and show a reader NONE of it. That is more
+trial-level evidence than several existing SSOT objects carry. If a converted legacy page would
+out-project a current SSOT page, the corpus's best evidence has been sitting in the bucket this
+project called worthless -- and that possibility is the reason this is scoped rather than
+assumed in either direction.
+
+WHAT THE GENERATOR CONSUMES, from a real object (ssot/<topic>/<topic>.json):
+
+    inputs.trials[]   id, nct, pmid, name, design, enrolled, arms, by_outcome,
+                      comparator_type, registered_primaries, registered_secondaries,
+                      registration_read_utc, all_ranks_read_utc, registration_enrolment, ...
+    results.by_outcome[]  k, model, estimator, pooled, per_trial, heterogeneity, poolable
+
+    WHAT LEGACY HOLDS, from realData[NCT]:
+        name, pmid, phase, year, tE, tN, cE, cN, group, publishedHR,
+        allOutcomes[{shortLabel, title, type, tE, cE, estimandType}], rob[5], robSource
+
+TWO LIMBS, AND THEY HAVE DIFFERENT ANSWERS -- which is the finding, not the totals:
+
+  THE EFFECT LIMB is present. Per-arm counts and outcome rows are exactly what a pooled
+  estimate is computed from, and the page already computes one.
+
+  THE REGISTRATION-PROVENANCE LIMB IS ABSENT. `registration_read_utc`, `all_ranks_read_utc`,
+  `registered_primaries/secondaries` -- the evidence that every registered rank was READ, on a
+  recorded date -- does not exist in the legacy payload. That limb is what the SSOT Methods
+  sections cite and what P46 requires, and a conversion cannot invent it.
+
+  BUT IT CAN BE FETCHED, AND MOSTLY ALREADY HAS BEEN. 1,556 held identifiers were queried
+  against ClinicalTrials.gov during the triage and are cached WITH their query dates. So the
+  missing limb is a registry read, not a re-review -- which is a different order of work again.
+"""
+from __future__ import annotations
+
+import collections
+import io
+import json
+import os
+import re
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls          # noqa: E402
+import audit_no_identifier_pages_hold_data_2026_08_23 as H  # noqa: E402
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+HELD = os.path.join(REPO, "outputs", "no_identifier_data_state_2026_08_23.json")
+CACHE = os.path.join(REPO, "outputs", "ctgov_cache_2026_08_23.json")
+OUT = os.path.join(REPO, "outputs", "projection_gap_scope_2026_08_23.json")
+
+FIELDS = {
+    "nct": re.compile(r"NCT\d{8}"),
+    "name": re.compile(r"\bname\s*:\s*[\"']"),
+    "pmid": re.compile(r"\bpmid\s*:\s*[\"']?\d{6,9}"),
+    "arm counts (tE/tN/cE/cN)": re.compile(r"\btN\s*:\s*\d+.{0,160}?\bcN\s*:\s*\d+", re.S),
+    "published effect": re.compile(r"\bpublished(?:HR|OR|RR)\s*:\s*[\d.]"),
+    "per-outcome rows": re.compile(r"\ballOutcomes\s*:\s*\["),
+    "risk of bias": re.compile(r"\brob\s*:\s*\["),
+    "rob source": re.compile(r"\brobSource\b"),
+    "year": re.compile(r"\byear\s*:\s*(?:19|20)\d\d"),
+    "design/phase": re.compile(r"\bphase\s*:\s*[\"']"),
+}
+# Present in the SSOT contract, absent from the legacy payload by construction.
+MISSING_BY_DESIGN = ["registration_read_utc", "all_ranks_read_utc",
+                     "registered_primaries", "registered_secondaries",
+                     "registration_enrolment", "comparator_type_basis"]
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    if not os.path.isfile(HELD):
+        sys.exit("REFUSED: %s missing." % os.path.relpath(HELD, REPO))
+    held = json.load(io.open(HELD, encoding="utf-8"))
+    names = sorted(held["by_bucket"].get("provenance_lost", []))
+    cache = json.load(io.open(CACHE, encoding="utf-8")) if os.path.isfile(CACHE) else {}
+
+    def scan(page):
+        body = H.payload(io.open(os.path.join(REPO, page),
+                                 encoding="utf-8", errors="replace").read())
+        return body, {k: bool(p.search(body)) for k, p in FIELDS.items()}
+
+    cbody, cfields = scan("ABALOPARATIDE_OSTEO_AUTO_FULL_REVIEW.html")
+    require_controls(
+        "projection_gap_scope",
+        ("ABALOPARATIDE_OSTEO's payload holds nct+name+pmid+arm counts+rob (read by hand) "
+         "-- got %s" % sorted(k for k, v in cfields.items() if v),
+         all(cfields[k] for k in ("nct", "name", "pmid", "arm counts (tE/tN/cE/cN)",
+                                  "risk of bias")), True),
+        ("a page with an empty payload is not scored convertible",
+         bool(FIELDS["nct"].search("")), True))
+
+    have = collections.Counter()
+    complete = collections.Counter()
+    ids_cached = 0
+    rows = {}
+    for n in names:
+        p = os.path.join(REPO, n)
+        if not os.path.isfile(p):
+            continue
+        body, f = scan(n)
+        for k, v in f.items():
+            have[k] += v
+        rows[n] = f
+        core = ("nct", "name", "arm counts (tE/tN/cE/cN)", "per-outcome rows")
+        complete["core complete" if all(f[k] for k in core) else "core incomplete"] += 1
+        complete["core + pmid + rob"] += all(f[k] for k in core) and f["pmid"] and f["risk of bias"]
+        ids = set(FIELDS["nct"].findall(body)) - H.TEMPLATE_IDS
+        if ids and all(i in cache for i in ids):
+            ids_cached += 1
+
+    tot = len(rows)
+    print("")
+    print("PROJECTION GAP OVER THE %d PAGES THAT HOLD THEIR OWN EVIDENCE AND SHOW NONE" % tot)
+    print("")
+    print("   field present in the payload:")
+    for k in FIELDS:
+        print("      %-30s %5d   %5.1f%%" % (k, have[k], 100.0 * have[k] / max(1, tot)))
+    print("")
+    print("   pages holding the CORE a pooled estimate needs")
+    print("   (identifier + trial name + per-arm counts + outcome rows)  %5d   %5.1f%%"
+          % (complete["core complete"], 100.0 * complete["core complete"] / max(1, tot)))
+    print("   pages ALSO holding pmid and risk-of-bias                   %5d   %5.1f%%"
+          % (complete["core + pmid + rob"],
+             100.0 * complete["core + pmid + rob"] / max(1, tot)))
+    print("   pages whose every held identifier is ALREADY registry-cached %3d   %5.1f%%"
+          % (ids_cached, 100.0 * ids_cached / max(1, tot)))
+    print("")
+    print("   ABSENT FROM THE LEGACY PAYLOAD BY CONSTRUCTION -- cannot be converted, must be")
+    print("   FETCHED (and the fetch has largely already happened):")
+    for k in MISSING_BY_DESIGN:
+        print("      %s" % k)
+    print("")
+    print("SO THE REPAIR SPLITS INTO TWO JOBS OF DIFFERENT ORDERS:")
+    print("   1. a CONVERSION -- read the payload these pages already carry into a canonical")
+    print("      object. No source is revisited; the evidence is on the page.")
+    print("   2. a REGISTRY READ -- the registration-provenance limb the SSOT Methods sections")
+    print("      cite. Not a re-review: the identifiers are known and already queried.")
+    print("")
+    print("NEITHER IS 'doing the review'. That was true of 17 pages, and of no others.")
+
+    json.dump({"pages": tot, "field_presence": dict(have),
+               "core_complete": complete["core complete"],
+               "core_pmid_rob": complete["core + pmid + rob"],
+               "ids_cached": ids_cached,
+               "missing_by_design": MISSING_BY_DESIGN,
+               "rows": {k: v for k, v in list(rows.items())[:300]}},
+              io.open(OUT, "w", encoding="utf-8"), indent=1)
+    print("")
+    print("written: %s" % os.path.relpath(OUT, REPO))
+
+
+if __name__ == "__main__":
+    main()

@@ -161,6 +161,40 @@ def plant_and_require(instrument, detector, clean_case, planted_case):
                      "fired" if detector(clean_case) else "stayed quiet"))
 
 
+NOT_ASSESSABLE = "NOT_ASSESSABLE"
+
+
+def abstain_or_answer(can_decide, verdict, what):
+    """A CHECK THAT REQUIRES JUDGEMENT SHOULD BE BUILT TO ABSTAIN, NOT TO GUESS.
+
+    THE ASYMMETRY THAT UNDERLIES EVERY WITHDRAWAL OF 2026-08-23, and it is the general rule:
+
+        THE ABSENCE LIMB NEEDS NO JUDGEMENT. "Does NCT01084557 exist" is answered by the
+        registry's own 404, re-queried live. There is nothing to interpret, so the number is
+        publishable: 57 pages cite identifiers that do not exist.
+
+        THE DONOR LIMB NEEDS A CONCEPT MATCH. "Is this the RIGHT trial for this page" requires
+        knowing that ALS is Amyotrophic Lateral Sclerosis, that NSCLC is Non-Small Cell Lung
+        Cancer, that MCI-186 is edaravone and VEGF Trap-Eye is aflibercept. That needs a real
+        ontology or a person. It was implemented as SUBSTRING OVERLAP and produced 727 of 745,
+        then 149 of 602. Both withdrawn.
+
+    THE PATTERN, NAMED SO IT IS RECOGNISABLE NEXT TIME: A HEURISTIC KEYED TO SOMETHING
+    CONVENIENT RATHER THAN TO THE THING BEING ASKED. Substring overlap against registry text
+    was never a test of "is this the right trial". It was a test of "do these strings happen to
+    share characters", which is a different question that happens to be easy to compute. The
+    convenience is what makes it seductive and the mismatch is invisible in the output, because
+    a wrong verdict looks exactly like a right one.
+
+    So when a check cannot decide, it returns NOT_ASSESSABLE and SAYS SO. That is not a
+    failure to deliver -- an abstention is information, and a guess dressed as a measurement
+    costs more than silence. Roughly a third of this run's value was in refusing to answer.
+    """
+    if can_decide:
+        return verdict
+    return NOT_ASSESSABLE
+
+
 def page_states_its_own_condition(page_says, instrument_says, what, page):
     """WHEN A PAGE STATES ITS OWN CONDITION AND THE INSTRUMENT DISAGREES, THE PAGE IS THE
     EVIDENCE AND THE INSTRUMENT IS THE HYPOTHESIS.
