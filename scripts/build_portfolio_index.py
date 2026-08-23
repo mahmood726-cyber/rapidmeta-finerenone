@@ -25,6 +25,9 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="repla
 
 REPO = Path(__file__).resolve().parent.parent
 
+sys.path.insert(0, str(REPO / "ssot"))
+from placeholder_provenance import apply_to_row as _pp_withdraw   # noqa: E402
+
 NCT_RE = re.compile(r"'(NCT\d{8})'\s*:")
 TITLE_RE = re.compile(r"<title[^>]*>(.*?)</title>", re.IGNORECASE | re.DOTALL)
 REDIRECT_RE = re.compile(r'http-equiv=.{0,10}refresh', re.IGNORECASE)
@@ -124,7 +127,17 @@ def main():
                     row["tau2"] = r.get("tau2")
                     row["PI_low"] = r.get("PI_low_OR")
                     row["PI_high"] = r.get("PI_high_OR")
+                    row["regenerated_from"] = r.get("regenerated_from")
                     n_with_r += 1
+                    # AN ESTIMATE BUILT FROM PLACEHOLDER INPUTS IS NOT PUBLISHED HERE.
+                    #
+                    # `regenerate_catastrophic_sidecars.R:111` writes hand-chosen hazard
+                    # ratios -- "Substitute placeholder HRs ... these will be flagged for
+                    # human verification" -- and they were never flagged. They were pooled,
+                    # copied into this index and rendered on dashboard.html under "Pooled OR
+                    # (95% CI)". THE ROW SURVIVES and carries the reason; the estimate does
+                    # not. See ssot/placeholder_provenance.py for which reason applies where.
+                    _pp_withdraw(row)
             except Exception:
                 pass
 

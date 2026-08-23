@@ -22,7 +22,21 @@ if (dir.exists(user_lib)) .libPaths(c(user_lib, .libPaths()))
 suppressMessages(library(metafor))
 
 # ---- helpers ----------------------------------------------------------------
-emit_sidecar <- function(path, label, trials, ncts = NULL, pmids = NULL) {
+emit_sidecar <- function(path, label, trials, ncts = NULL, pmids = NULL,
+                         provenance = NULL) {
+  # PROVENANCE IS REQUIRED AND HAS NO DEFAULT.
+  #
+  # A default is exactly how every sidecar this script emits came to claim
+  # "curated_publishedHR_via_metafor_<v>" -- including FGFR_INHIBITORS_SOLID, whose own
+  # comment says its hazard ratios are placeholders written by hand. The field that answers
+  # "where did this number come from" answered it flatteringly and wrongly, on four topics,
+  # all four of which reached dashboard.html under "Pooled OR (95% CI)".
+  if (is.null(provenance) || !nzchar(provenance)) {
+    stop(sprintf(
+      paste0("REFUSED: emit_sidecar(%s) was given no provenance. State where these effects ",
+             "came from. A flattering default is how placeholder numbers came to carry a ",
+             "curated-publication label."), label))
+  }
   # trials: data.frame with name, hr, lci, uci
   trials$yi  <- log(trials$hr)
   trials$lci_log <- log(trials$lci)
@@ -58,7 +72,17 @@ emit_sidecar <- function(path, label, trials, ncts = NULL, pmids = NULL) {
     sprintf('  "PI_high_OR": %.6f,', pi_hi),
     '  "pi_df_convention": "t_{k-1}_Cochrane_v6.5",',
     '  "method": "REML+HKSJ",',
-    sprintf('  "regenerated_from": "curated_publishedHR_via_metafor_%s",',
+    # PROVENANCE IS PASSED IN, NOT ASSERTED. This line hardcoded
+    # "curated_publishedHR_via_metafor_<v>" on EVERY sidecar this script emits -- including
+    # the one whose own comment, 50 lines below, says its hazard ratios are placeholders
+    # written by hand. So the field asserting where the numbers came from said "curated
+    # published HR" about numbers nobody curated.
+    #
+    # A WRONG ESTIMATE CAN BE CAUGHT BY SOMEONE WHO LOOKS; A PROVENANCE STRING THAT LIES
+    # REMOVES THE REASON TO LOOK. That is the worse of the two defects, and it is why the
+    # caller must now state the source per sidecar rather than inherit a flattering default.
+    sprintf('  "regenerated_from": "%s",', provenance),
+    sprintf('  "regenerated_from_metafor": "%s",',
             as.character(packageVersion("metafor"))),
     sprintf('  "regenerated_on": "%s",', Sys.Date()),
     '  "trials": ['

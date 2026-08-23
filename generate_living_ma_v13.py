@@ -32,6 +32,44 @@ OUTPUT_BASE = os.environ.get(
 # JS CODE BUILDERS
 # ═══════════════════════════════════════════════════════════
 
+
+# Markers the v13 template MUST carry, and markers that prove the file has been replaced by
+# SSOT-projector output. Both directions are checked because either alone is weaker.
+_TEMPLATE_MUST_HAVE = ("window.RapidMeta", "RapidMeta.state", "tab-btn")
+_TEMPLATE_MUST_NOT_HAVE = ("Sources for this section", "Reproducibility artifact",
+                           "<strong>Refused:</strong>")
+
+
+def _refuse_wrong_template(template):
+    """Refuse BEFORE generating if TEMPLATE_PATH is not the template this generator expects.
+
+    THE LIVE FOOTGUN, FOUND 2026-08-23. `TEMPLATE_PATH` defaults to `FINERENONE_REVIEW.html`,
+    and the SSOT projector has since REBUILT that file: it now carries "Sources for this
+    section", "Reproducibility artifact" and none of the v13 markers. A run today would read a
+    template it was not written against and produce something from it silently, with a blast
+    radius of the 1,314 pages this generator has produced.
+
+    That is the composed-versus-stored class at generator scale -- the code is unchanged and
+    correct, and the thing it reads is no longer what it thinks it is.
+
+    REFUSE RATHER THAN PIN. Pinning to a committed copy would keep the generator working while
+    hiding that its default input has been repurposed; refusing makes the next operator decide
+    which template they mean. `LIVINGMA_TEMPLATE_PATH` names one explicitly.
+    """
+    missing = [m for m in _TEMPLATE_MUST_HAVE if m not in template]
+    foreign = [m for m in _TEMPLATE_MUST_NOT_HAVE if m in template]
+    if not missing and not foreign:
+        return
+    raise SystemExit(
+        "REFUSED: %s is not the v13 template.\n"
+        "  missing v13 markers : %s\n"
+        "  carries SSOT markers: %s\n\n"
+        "  FINERENONE_REVIEW.html was rebuilt by the SSOT projector, so the default template\n"
+        "  path now points at projector output. Nothing has been generated.\n"
+        "  Name the template you mean:  LIVINGMA_TEMPLATE_PATH=<path> ...\n"
+        % (TEMPLATE_PATH, ", ".join(missing) or "none", ", ".join(foreign) or "none"))
+
+
 def escape_js(s):
     """Escape a string for embedding inside a JS single-quoted string literal
     that itself lives inside an HTML <script> block.
@@ -665,6 +703,7 @@ def generate_app(cfg, output_dir=None):
 
     with open(TEMPLATE_PATH, 'r', encoding='utf-8') as f:
         template = f.read()
+    _refuse_wrong_template(template)
 
 
     # Staging-profile hook — load verified per-topic data from parallel swarm
