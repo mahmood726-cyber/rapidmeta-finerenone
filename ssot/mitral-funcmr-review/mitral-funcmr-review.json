@@ -898,13 +898,13 @@
     "arms": [
      {
       "label": "Control Group",
-      "role": "treatment",
+      "role": "control",
       "events": 139,
       "participants": 255
      },
      {
       "label": "Device Group",
-      "role": "control",
+      "role": "treatment",
       "events": 170,
       "participants": 250
      }
@@ -1146,5 +1146,37 @@
   "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 3 included trials were identified by reading named registrations on the dates recorded on each entry. This object's verification rests on ClinicalTrials.gov protocol records, read 2026-08-18. This review does not claim that any per-trial count was checked against a results record. The bar this object had to clear is not recorded.",
   "whether_this_review_was_prospectively_registered": "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.",
   "that_two_assessors_disagreed_and_where": "NO SECOND, INDEPENDENT RISK-OF-BIAS ASSESSMENT IS RECORDED FOR THIS TOPIC. The judgements were made once. Stated so that single assessment is not mistaken for agreement between two."
- }
+ },
+ "arm_role_corrections": [
+  {
+   "date": "2026-08-23",
+   "what_changed": "the `role` VALUE on 2 arm(s). No key added, none removed, no count, label, event or participant number touched.",
+   "corrected_from": "the ClinicalTrials.gov registration arm-group TYPE, matched to the object's arm by exact LABEL, with the object's participant count required to equal the registration's started count wherever the object held one.",
+   "not_corrected_from": "the drug name. Reading these by plausibility would invert NEURO-TTRansform (NCT04136184, attr-pn-review) the other way -- it compares eplontersen against a historical placebo group with inotersen as a reference, and that object's refusal to auto-correct is an asset.",
+   "consequence_for_published_numbers": "NONE. This object publishes no number computed from these arms.",
+   "arms": [
+    {
+     "nct": "NCT02444338",
+     "trial": "RESHAPE-HF2",
+     "label": "Control Group",
+     "was": "treatment",
+     "now": "control",
+     "registry_type": "ACTIVE_COMPARATOR",
+     "registry_started_n": null,
+     "object_participants": 255
+    },
+    {
+     "nct": "NCT02444338",
+     "trial": "RESHAPE-HF2",
+     "label": "Device Group",
+     "was": "control",
+     "now": "treatment",
+     "registry_type": "EXPERIMENTAL",
+     "registry_started_n": null,
+     "object_participants": 250
+    }
+   ],
+   "source": "https://clinicaltrials.gov/api/v2/studies/NCT02444338?fields=protocolSection.armsInterventionsModule,resultsSection.participantFlowModule"
+  }
+ ]
 }

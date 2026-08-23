@@ -1,0 +1,277 @@
+"""Six arm pairs record the placebo as the treatment. Corrected from the REGISTRATION.
+
+# no-control: an edit, not a detector. Its controls are asserted inline and the run REFUSES
+# rather than writes if any fails: the object's arm label must match a registration arm-group
+# label EXACTLY, that group's registry type must be unambiguous, the object must currently
+# hold the role this correction claims is wrong, no key may be added or lost anywhere in the
+# object, and where the object holds participant counts they must equal the registration's.
+
+WHAT IS WRONG. `evolocumab-dyslipidemia-review` records FOURIER (NCT01764633) as
+
+    {"label": "Placebo",    "role": "treatment", "events": 429, "participants": 13780}
+    {"label": "Evolocumab", "role": "control",   "events": 378, "participants": 13784}
+
+The registration settles it without reference to what the drugs are called: `Placebo` is
+the arm group typed PLACEBO_COMPARATOR and `Evolocumab` is typed EXPERIMENTAL, and the
+participant-flow module starts 13,780 in the first and 13,784 in the second -- the same two
+numbers the object holds, against the same two labels. So these rows correspond to those
+groups and the roles on them are the wrong way round.
+
+THE POPULATION IS SIX, NOT ONE. A sweep for arms whose label reads as a control while their
+role reads as a treatment returns six across four objects, and every one was then checked
+against its registration rather than against its label:
+
+    evolocumab-dyslipidemia-review          FOURIER NCT01764633      PLACEBO_COMPARATOR
+                                            OSLER-2 NCT01854918      ACTIVE_COMPARATOR
+    evolocumab-mixed-dyslipidemia-auto-...  HUA TUO NCT03433755      PLACEBO_COMPARATOR
+    icosapent-lipid-auto-full-review        MARINE  NCT01047683      PLACEBO_COMPARATOR
+                                            ANCHOR  NCT01047501      PLACEBO_COMPARATOR
+    mitral-funcmr-review                    RESHAPE-HF2 NCT02444338  ACTIVE_COMPARATOR
+
+WHY NOT FROM THE DRUG NAME, WHICH WOULD HAVE BEEN QUICKER AND IS WRONG. `attr-pn-review`
+records NEURO-TTRansform (NCT04136184) as `Inotersen` = treatment and `Eplontersen` =
+control. Read by plausibility -- eplontersen is the agent under study, so eplontersen must
+be the treatment -- that pair would be "corrected" into an inversion. It is an
+external-comparator trial: eplontersen is compared against the historical placebo group of
+NEURO-TTR, with inotersen as a reference. The object's refusal to auto-correct there is an
+ASSET, and this script is built so that it cannot be spent: nothing is changed unless a
+registration arm group with the SAME LABEL carries an unambiguous type.
+
+WHAT THIS DOES NOT CHANGE, STATED AS PLAINLY AS THE DEFECT. No published number on any of
+the four objects derives from these roles, and the reason differs per object rather than
+being one blanket claim:
+
+    evolocumab-dyslipidemia-review          pooled estimate WITHDRAWN -- no number published
+    evolocumab-mixed-dyslipidemia           pooled estimate WITHDRAWN
+    mitral-funcmr-review                    pooled estimate WITHDRAWN
+    icosapent-lipid-auto-full-review        PUBLISHES -25.84, from stored per-trial LS mean
+                                            percent changes. Its mislabelled arms hold
+                                            `participants: null, events: null`, so no
+                                            quantity could have been computed from them.
+
+So this is a DESCRIPTION defect, not an inversion. One caveat that is not cosmetic:
+RESHAPE-HF2's arms DO hold counts (control 139/255, device 170/250) and its pool is
+withdrawn rather than absent. `arm_roles.the_pair()` is the corpus's direction mechanism and
+reads `role`; if that pool is ever restored and computed from arms, the current labelling
+would invert it. Correcting now removes a latent inversion rather than tidying a label.
+
+NET-ADDITIVE. Only the VALUE of `role` changes. Every key in every object is counted before
+and after and the run refuses on any difference.
+"""
+from __future__ import annotations
+
+import io
+import json
+import os
+import sys
+import urllib.request
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+API = ("https://clinicaltrials.gov/api/v2/studies/%s?fields="
+       "protocolSection.armsInterventionsModule,resultsSection.participantFlowModule")
+CACHE = os.path.join(REPO, "outputs", "arm_role_registration_reads_2026_08_23.json")
+READ_UTC = "2026-08-23"
+
+# The registry TYPE vocabulary, mapped to the role this project stores. Anything not in
+# here is ambiguous and stops the run for that arm rather than being guessed.
+TYPE_TO_ROLE = {
+    "EXPERIMENTAL": "treatment",
+    "ACTIVE_COMPARATOR": "control",
+    "PLACEBO_COMPARATOR": "control",
+    "SHAM_COMPARATOR": "control",
+    "NO_INTERVENTION": "control",
+}
+
+# topic -> nct. The trials to check. Membership here does NOT authorise a change: the
+# registration read does, and an arm whose label does not match a registration group is
+# left exactly as it is.
+TARGETS = {
+    "evolocumab-dyslipidemia-review": ["NCT01764633", "NCT01854918"],
+    "evolocumab-mixed-dyslipidemia-auto-full-review": ["NCT03433755"],
+    "icosapent-lipid-auto-full-review": ["NCT01047683", "NCT01047501"],
+    "mitral-funcmr-review": ["NCT02444338"],
+}
+
+# THE ONE THAT MUST NOT MOVE. Named, so a later run that starts changing it is loud.
+MUST_NOT_MOVE = ("attr-pn-review", "NCT04136184")
+
+
+def count_keys(x):
+    """Every key at every depth. A net-deletion check needs a total, not a top-level one."""
+    if isinstance(x, dict):
+        return len(x) + sum(count_keys(v) for v in x.values())
+    if isinstance(x, list):
+        return sum(count_keys(v) for v in x)
+    return 0
+
+
+def fetch(nct):
+    with urllib.request.urlopen(API % nct, timeout=90) as r:
+        d = json.load(r)
+    groups = {}
+    for g in (((d.get("protocolSection") or {}).get("armsInterventionsModule") or {})
+              .get("armGroups") or []):
+        groups[str(g.get("label", "")).strip()] = str(g.get("type", "")).strip().upper()
+    started = {}
+    pf = (d.get("resultsSection") or {}).get("participantFlowModule") or {}
+    titles = {g.get("id"): str(g.get("title", "")).strip() for g in pf.get("groups") or []}
+    for per in pf.get("periods") or []:
+        for m in per.get("milestones") or []:
+            if str(m.get("type", "")).upper().startswith("START"):
+                for a in m.get("achievements") or []:
+                    started.setdefault(titles.get(a.get("groupId"), ""), a.get("numSubjects"))
+                break
+        break
+    return {"arm_groups": groups, "started": started, "read_utc": READ_UTC,
+            "source": API % nct}
+
+
+def load_reads(ncts, refresh):
+    reads = {}
+    if os.path.isfile(CACHE) and not refresh:
+        reads = json.load(io.open(CACHE, encoding="utf-8"))
+    missing = [n for n in ncts if n not in reads]
+    for n in missing:
+        try:
+            reads[n] = fetch(n)
+        except Exception as exc:  # network, not logic
+            sys.exit("REFUSED: could not read the registration for %s (%s). This script "
+                     "corrects FROM THE REGISTRATION and will not fall back to the label."
+                     % (n, exc))
+    if missing:
+        json.dump(reads, io.open(CACHE, "w", encoding="utf-8"), indent=1)
+    return reads
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    apply = "--apply" in sys.argv
+    ncts = sorted({n for v in TARGETS.values() for n in v})
+    reads = load_reads(ncts, "--refresh" in sys.argv)
+
+    planned, refused, unchanged = [], [], 0
+    for topic, want in sorted(TARGETS.items()):
+        p = os.path.join(REPO, "ssot", topic, topic + ".json")
+        if not os.path.isfile(p):
+            refused.append((topic, "-", "object not on disk"))
+            continue
+        raw = io.open(p, encoding="utf-8", newline="").read()
+        obj = json.loads(raw)
+        before = count_keys(obj)
+        changed = []
+        for tr in (obj.get("inputs") or {}).get("trials") or []:
+            nct = tr.get("nct") or tr.get("id")
+            if nct not in want:
+                continue
+            reg = reads.get(nct) or {}
+            groups, started = reg.get("arm_groups") or {}, reg.get("started") or {}
+            for arm in tr.get("arms") or []:
+                lab = str(arm.get("label", "")).strip()
+                if lab not in groups:
+                    refused.append((topic, nct,
+                                    "arm %r matches no registration arm group -- left as is"
+                                    % lab))
+                    continue
+                rtype = groups[lab]
+                if rtype not in TYPE_TO_ROLE:
+                    refused.append((topic, nct,
+                                    "arm %r has registry type %r, which this script does "
+                                    "not map -- left as is" % (lab, rtype)))
+                    continue
+                should = TYPE_TO_ROLE[rtype]
+                have = str(arm.get("role") or "").strip().lower()
+                # CONTROL: where the object holds a count, it must equal the registration's,
+                # or these rows are not the groups they look like and nothing is touched.
+                n_obj, n_reg = arm.get("participants"), started.get(lab)
+                if n_obj is not None and n_reg is not None and str(n_obj) != str(n_reg):
+                    refused.append((topic, nct,
+                                    "arm %r holds n=%s but the registration started n=%s -- "
+                                    "these are not the same group, nothing changed"
+                                    % (lab, n_obj, n_reg)))
+                    continue
+                if have == should:
+                    unchanged += 1
+                    continue
+                changed.append({"nct": nct, "trial": tr.get("name"), "label": lab,
+                                "was": have, "now": should, "registry_type": rtype,
+                                "registry_started_n": n_reg,
+                                "object_participants": n_obj})
+                if apply:
+                    arm["role"] = should
+        if not changed:
+            continue
+        if apply:
+            # NET-ADDITIVE PROVENANCE. The correction says where it came from, on the object.
+            obj.setdefault("arm_role_corrections", []).append({
+                "date": READ_UTC,
+                "what_changed": "the `role` VALUE on %d arm(s). No key added, none removed, "
+                                "no count, label, event or participant number touched."
+                                % len(changed),
+                "corrected_from": "the ClinicalTrials.gov registration arm-group TYPE, matched "
+                                  "to the object's arm by exact LABEL, with the object's "
+                                  "participant count required to equal the registration's "
+                                  "started count wherever the object held one.",
+                "not_corrected_from": "the drug name. Reading these by plausibility would "
+                                      "invert NEURO-TTRansform (%s, %s) the other way -- it "
+                                      "compares eplontersen against a historical placebo "
+                                      "group with inotersen as a reference, and that "
+                                      "object's refusal to auto-correct is an asset."
+                                      % (MUST_NOT_MOVE[1], MUST_NOT_MOVE[0]),
+                "consequence_for_published_numbers": "NONE. This object publishes no number "
+                                                     "computed from these arms.",
+                "arms": changed,
+                "source": (reads.get(changed[0]["nct"]) or {}).get("source"),
+            })
+            after = count_keys(obj)
+            # `arm_role_corrections` is the only addition; nothing may be lost.
+            if after < before:
+                sys.exit("REFUSED: %s lost keys (%d -> %d). Nothing written."
+                         % (topic, before, after))
+            # NEWLINE PRESERVED FROM THE FILE, NOT FROM THE PLATFORM.
+            #
+            # Written without `newline=""`, Python translates every "\n" to os.linesep,
+            # which on Windows is CRLF. The first run of this script did exactly that and
+            # turned a FIVE-VALUE change into a 2,452-line diff on a 1,200-line file --
+            # every line rewritten, the real change invisible inside it. Nothing was lost,
+            # and that is not the point: a diff nobody can read is a review nobody can do.
+            nl = "\r\n" if "\r\n" in raw else "\n"
+            body = json.dumps(obj, indent=1, ensure_ascii=False) + "\n"
+            io.open(p, "w", encoding="utf-8", newline="").write(
+                body.replace("\n", nl) if nl != "\n" else body)
+        planned.append((topic, changed, before))
+
+    print("")
+    print("ARM ROLES THAT CONTRADICT THEIR REGISTRATION%s"
+          % ("" if apply else "   (dry run -- pass --apply to write)"))
+    print("")
+    total = 0
+    for topic, changed, before in planned:
+        print("   %s" % topic)
+        for c in changed:
+            total += 1
+            print("      %-14s %-30s %-9s -> %-9s   registry %s%s"
+                  % (c["nct"], (c["label"] or "")[:30], c["was"] or "(none)", c["now"],
+                     c["registry_type"],
+                     "  n=%s" % c["registry_started_n"] if c["registry_started_n"] else ""))
+    print("")
+    print("   arms corrected                      %4d" % total)
+    print("   arms already agreeing with registry %4d" % unchanged)
+    print("   arms left alone, with the reason    %4d" % len(refused))
+    for t, n, why in refused:
+        print("      %-46s %-14s %s" % (t[:46], n, why))
+    print("")
+    # THE ONE THAT MUST NOT MOVE, asserted rather than trusted.
+    p = os.path.join(REPO, "ssot", MUST_NOT_MOVE[0], MUST_NOT_MOVE[0] + ".json")
+    if os.path.isfile(p):
+        o = json.load(io.open(p, encoding="utf-8"))
+        for tr in (o.get("inputs") or {}).get("trials") or []:
+            if (tr.get("nct") or tr.get("id")) == MUST_NOT_MOVE[1]:
+                got = [(a.get("label"), a.get("role")) for a in tr.get("arms") or []]
+                print("   NEURO-TTRansform, untouched and asserted: %s" % got)
+                if dict(got).get("Eplontersen") != "control":
+                    sys.exit("REFUSED: NEURO-TTRansform's arms moved. That pair is an "
+                             "external-comparator design and must not be 'corrected'.")
+
+
+if __name__ == "__main__":
+    main()

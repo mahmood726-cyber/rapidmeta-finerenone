@@ -476,13 +476,13 @@
     "arms": [
      {
       "label": "Placebo Q2W",
-      "role": "treatment",
+      "role": "control",
       "events": null,
       "participants": null
      },
      {
       "label": "Evolocumab 420 mg QM",
-      "role": "control",
+      "role": "treatment",
       "events": null,
       "participants": null
      }
@@ -1100,5 +1100,37 @@
   "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 2 included trials were identified by reading named registrations on the dates recorded on each entry. The basis on which this object was verified is not recorded. What this object does not claim is not recorded. The bar this object had to clear is not recorded.",
   "whether_this_review_was_prospectively_registered": "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.",
   "that_two_assessors_disagreed_and_where": "NO SECOND, INDEPENDENT RISK-OF-BIAS ASSESSMENT IS RECORDED FOR THIS TOPIC. The judgements were made once. Stated so that single assessment is not mistaken for agreement between two."
- }
+ },
+ "arm_role_corrections": [
+  {
+   "date": "2026-08-23",
+   "what_changed": "the `role` VALUE on 2 arm(s). No key added, none removed, no count, label, event or participant number touched.",
+   "corrected_from": "the ClinicalTrials.gov registration arm-group TYPE, matched to the object's arm by exact LABEL, with the object's participant count required to equal the registration's started count wherever the object held one.",
+   "not_corrected_from": "the drug name. Reading these by plausibility would invert NEURO-TTRansform (NCT04136184, attr-pn-review) the other way -- it compares eplontersen against a historical placebo group with inotersen as a reference, and that object's refusal to auto-correct is an asset.",
+   "consequence_for_published_numbers": "NONE. This object publishes no number computed from these arms.",
+   "arms": [
+    {
+     "nct": "NCT03433755",
+     "trial": "HUA TUO",
+     "label": "Placebo Q2W",
+     "was": "treatment",
+     "now": "control",
+     "registry_type": "PLACEBO_COMPARATOR",
+     "registry_started_n": "42",
+     "object_participants": null
+    },
+    {
+     "nct": "NCT03433755",
+     "trial": "HUA TUO",
+     "label": "Evolocumab 420 mg QM",
+     "was": "control",
+     "now": "treatment",
+     "registry_type": "EXPERIMENTAL",
+     "registry_started_n": "80",
+     "object_participants": null
+    }
+   ],
+   "source": "https://clinicaltrials.gov/api/v2/studies/NCT03433755?fields=protocolSection.armsInterventionsModule,resultsSection.participantFlowModule"
+  }
+ ]
 }
