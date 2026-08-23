@@ -416,6 +416,118 @@ _DICT_REPR = re.compile(r"\{'[^']+':\s*(?:'|\[|\{)")
 _LIST_REPR = re.compile(r"\['[^']*'(?:,\s*'[^']*')*\]")
 
 
+_LEAD_INS = None
+
+
+def _lead_ins():
+    """The key -> English lead-in map, loaded from data rather than written in code.
+
+    Mahmood's decision, 2026-08-23: field names get a proper English lead-in, not a refusal.
+    The map lives in `ssot/field_lead_ins.json` so a key can be given a sentence without a
+    code change, and so the reasoning for each one is readable next to it.
+    """
+    global _LEAD_INS
+    if _LEAD_INS is None:
+        import json as _json
+        import os as _os
+        p = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "field_lead_ins.json")
+        try:
+            _LEAD_INS = _json.load(io.open(p, encoding="utf-8"))
+        except Exception:
+            _LEAD_INS = {"by_key": {}, "cascade_steps": {}, "_refused": {}}
+    return _LEAD_INS
+
+
+def _outcome_label(obj, oid):
+    """The outcome's NAME, read from where the object stores it. `None` if it stores none.
+
+    THE OUTCOME-IDENTIFIER LEAK, Mahmood's decision of 2026-08-23: an identifier standing
+    where a label belongs becomes the outcome's actual name. `outcomes[]` holds `id` and
+    `name`, so the lookup is a lookup and not a guess.
+
+    RETURNS None RATHER THAN THE ID WHEN NO NAME IS STORED, and callers say so. A missing
+    label is a MISSING FIELD, not a rendering choice, and printing the identifier while
+    calling it a label would be the same substitution this change exists to remove.
+    """
+    for o in (obj.get("outcomes") or []):
+        if isinstance(o, dict) and o.get("id") == oid:
+            nm = o.get("name")
+            return nm if isinstance(nm, str) and nm.strip() else None
+    return None
+
+
+_NOT_RECORDED = ("not recorded", "not available", "not stated", "no record",
+                 "not established", "not captured")
+
+
+def _lead_in_has_value(v):
+    """Absence test for the LEAD-IN ONLY -- deliberately not `_is_value`.
+
+    `_is_value` tests exact membership of `_NULL_MARKERS` and gates POOLING decisions. The
+    corpus's absence markers here are long sentences -- "not recorded on the page this object
+    was extracted from", 35 of 39 `bar` values -- so an exact-set test calls them present and
+    the lead-in produces a sentence about nothing: "The bar this object had to clear was: not
+    recorded on the page this object was built from."
+
+    Widening `_is_value` to catch them would change what counts as a backed claim for pooling,
+    which is not a presentation decision and is not this change's to make. So the wider test is
+    scoped to this one use.
+    """
+    if not _is_value(v):
+        return False
+    s = str(v).strip().lower()
+    return not any(s.startswith(p) for p in _NOT_RECORDED)
+
+
+def _lead_in(key, value):
+    """One flattened pair as an English sentence, or the bare key if we cannot say what it is.
+
+    A KEY WITH NO ENTRY IS LEFT VISIBLE ON PURPOSE. A fluent wrong sentence is worse than a
+    field name: the field name is obviously unfinished and the sentence is not. `families` is
+    refused this way -- it appears under two containers with two meanings and the flattened
+    text does not say which, so a lead-in would be a confident false statement about how the
+    review was screened.
+    """
+    spec = (_lead_ins().get("by_key") or {}).get(key)
+    if not spec:
+        return "%s: %s%s" % (key.replace("_", " "), value,
+                            "" if value.endswith((".", "?", "!")) else ".")
+    form = spec.get("present") if _lead_in_has_value(value) else spec.get("absent")
+    if not form:
+        return "%s: %s." % (key.replace("_", " "), value)
+    out = form % _embed(value) if "%s" in form else form
+    return out if out.endswith((".", "?", "!")) else out + "."
+
+
+# SENTENCE OPENERS THAT MUST LOSE THEIR CAPITAL WHEN EMBEDDED MID-SENTENCE, BY NAME.
+#
+# The stored values were written as standalone sentences, so many begin with a capital. Dropped
+# into a lead-in they produced "This review does not claim That any event count was checked".
+# A BLANKET LOWERCASE IS WRONG: the same field holds "ClinicalTrials.gov protocol records", and
+# lowercasing by rule turns a proper noun into "clinicalTrials.gov". The general shape of that
+# mistake is a rule inferred from one example and applied to a population -- so this is a list.
+_EMBED_LC = {"that", "the", "a", "an", "no", "any", "every", "it", "this", "these", "those",
+             "whether", "all", "none", "some", "both", "neither", "each", "there", "we",
+             "nothing", "not"}
+
+
+def _embed(value):
+    """A stored value prepared to sit INSIDE a sentence rather than to be one.
+
+    Two defects this removes, both measured in the delivered corpus after the lead-ins landed:
+    16 double full stops ("... at every registered rank.. This review does not claim ...") from
+    a value that already ended in a period meeting a template that supplies one; and a
+    capitalised opener mid-clause ("does not claim That any event count ...").
+    """
+    v = str(value).strip().rstrip(".").strip()
+    if not v:
+        return v
+    first = re.split(r"[^A-Za-z]", v, 1)[0]
+    if first.lower() in _EMBED_LC and first[:1].isupper():
+        v = v[:1].lower() + v[1:]
+    return v
+
+
 def _flatten_container(text):
     """A Python container reaching rendered prose is the container-repr class.
 
@@ -530,8 +642,7 @@ def _flatten_container(text):
                 _v = _raw[1:-1]
             _v = _v.strip()
             if _v:
-                bits.append('%s: %s%s' % (_k.replace('_', ' '), _v,
-                                          '' if _v.endswith(('.', '?', '!')) else '.'))
+                bits.append(_lead_in(_k, _v))
         out.append(' '.join(bits))
         i = j
     return "".join(out)
@@ -1707,8 +1818,16 @@ def project(obj, journal="generic", length="standard"):
                 "Certainty of evidence was rated per pooled outcome rather than in a single "
                 "review-level block, and %d outcome(s) carry a rating: %s. Each rating is "
                 "about its own estimand and about nothing else. %s"
-                % (len(per), "; ".join("%s %s" % (o, str(g2.get("certainty")).upper())
-                                       for o, g2 in per),
+                # THE OUTCOME'S NAME, NOT ITS IDENTIFIER. This read "3 outcome(s) carry a
+                # rating: hfcv_total LOW; hfcv_first LOW" -- schema keys in a sentence about
+                # certainty. Where the object stores no name the identifier is shown AND
+                # named as unlabelled, because a missing label is a missing field.
+                % (len(per), "; ".join(
+                    "%s %s" % (_outcome_label(obj, o)
+                               or ("the outcome recorded as %s, for which this object stores "
+                                   "no name" % o),
+                               str(g2.get("certainty")).upper())
+                    for o, g2 in per),
                    next((str(g2.get("what_this_certainty_is_about")) for _, g2 in per
                          if g2.get("what_this_certainty_is_about")), "")),
                 ["results.by_outcome.%s.grade" % o for o, _ in per]))
@@ -1925,13 +2044,22 @@ def project(obj, journal="generic", length="standard"):
     _auth_lim = _manuscript_prose(obj, "limitations")
     if _auth_lim:
         s.add(obj, _auth_lim, ["manuscript.limitations"])
+    # THE SECOND SOURCE OF FIELD NAMES IN PROSE, and it is deliberate label construction
+    # rather than a container repr -- which is why a probe aimed at `_flatten_container`
+    # alone would have left `What is not claimed:` standing on 65 pages. Where the map has a
+    # sentence for the key, the sentence is used; otherwise the label form remains, visibly
+    # unfinished.
     for field, lead in (("screening.known_limitation", "Known limitation of the screen"),
                         ("eligible_but_not_contributing.note",
                          "Eligible trials that do not contribute"),
                         ("verification_basis.what_is_not_claimed", "What is not claimed")):
         v = get(obj, field)
         if isinstance(v, str):
-            s.paras.append(("%s: %s" % (lead, v), [field]))
+            key = field.rsplit(".", 1)[-1]
+            txt = (_lead_in(key, v.strip())
+                   if (_lead_ins().get("by_key") or {}).get(key)
+                   else "%s: %s" % (lead, v))
+            s.paras.append((txt, [field]))
     cc = get(obj, "claims_corrected")
     if isinstance(cc, list) and cc:
         s.paras.append(("%d claim(s) previously made about this review were corrected and the "

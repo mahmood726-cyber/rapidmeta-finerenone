@@ -161,6 +161,122 @@ def plant_and_require(instrument, detector, clean_case, planted_case):
                      "fired" if detector(clean_case) else "stayed quiet"))
 
 
+def selection_is_population_not_defect(selected, population, defect_matched, what):
+    """A SELECTOR KEYED TO THE DEFECT IS A SELECTOR THAT SHRINKS AS THE WORK SUCCEEDS, AND ITS
+    SUCCESS SIGNAL IS COMPUTED OVER THE SURVIVORS.
+
+    THE INCIDENT, 2026-08-23. A repair pass selected objects by the defect -- stored prose
+    containing `what verifies this object:` and its siblings -- and rewrote 48 of them. A second
+    pass was then needed to correct a punctuation seam the first pass had introduced. It used
+    the SAME selector. By then the defect was gone from 46 of the 49, so the selector matched
+    only the 3 objects still carrying a refused key.
+
+    IT REPORTED SUCCESS. Every object it selected did change, so the occurrence predicate
+    passed, the counts closed, and 46 objects kept the seam. The success signal was computed
+    over the survivors of the very filter that was wrong.
+
+    THIS IS NOT ONLY ABOUT REPAIR SCRIPTS. Any run that finds its work by looking for the
+    problem has this shape: a linter fixing what it can still detect, a migration selecting
+    un-migrated rows, a retry queue holding only failures. The moment the operation partially
+    succeeds, the population and the selector diverge, and the run cannot see what it already
+    touched.
+
+    THE REMEDY: define the POPULATION independently of the defect -- "objects that hold this
+    writer's output", not "objects that hold its broken output" -- and read that definition
+    from THE SAME SOURCE the fix reads, so the two cannot drift. Then let the occurrence
+    predicate decide per item whether anything changed.
+    """
+    missed = len(population) - len(selected)
+    if missed <= 0:
+        return
+    raise ControlFailed(
+        "REFUSED: %s selected %d item(s) but the population is %d. %d were skipped, and %d of "
+        "the selected matched the defect -- which means the selector is keyed to the defect "
+        "and has shrunk as the work succeeded. Its success signal would be computed over the "
+        "survivors." % (what, len(selected), len(population), missed, defect_matched))
+
+
+def occurrence_predicate(first_application, changed, unchanged, defects_remaining, what):
+    """THE OCCURRENCE PREDICATE, AWARE OF WHICH RUN IT IS. Mahmood's correction, 2026-08-23.
+
+    The rule as originally imposed -- "assert per item that the operation actually changed
+    something, so 'ran and changed nothing' is distinguishable from 'never ran'" -- is TRUE OF A
+    FIRST PASS AND FALSE OF A REPEAT. On a verification re-run the correct outcome is that
+    nothing changes, and a predicate that demands change refuses a corpus that is already
+    right. That happened: the re-run reported 48 objects "expected to change and did not" while
+    every one of them was correct, and the only way through was to verify against the defect
+    directly.
+
+    SO THE DISCRIMINATOR DEPENDS ON THE RUN:
+
+        FIRST APPLICATION   assert CHANGED. An item that did not change was not reached, and
+                            "not reached" is indistinguishable from "nothing to do" without it.
+        VERIFICATION PASS   assert UNCHANGED **and** DEFECT-FREE. Unchanged alone proves
+                            nothing -- a run that never executed is also unchanged. The
+                            discriminator is the DEFECT COUNT, not the change count.
+
+    Both runs are still separating the same two states. Only the evidence differs.
+    """
+    if first_application:
+        if unchanged:
+            raise ControlFailed(
+                "REFUSED: %s is a FIRST APPLICATION and %d item(s) did not change. That is "
+                "'ran and changed nothing', which is indistinguishable from 'never ran'."
+                % (what, unchanged))
+        return
+    if defects_remaining:
+        raise ControlFailed(
+            "REFUSED: %s is a VERIFICATION PASS and %d defect(s) remain. Unchanged is only "
+            "reassuring when the defect count is zero -- a run that never executed is also "
+            "unchanged." % (what, defects_remaining))
+    if changed:
+        raise ControlFailed(
+            "REFUSED: %s is a VERIFICATION PASS and %d item(s) CHANGED. Either the previous "
+            "application was incomplete or this run is not idempotent; both need saying before "
+            "the result is trusted." % (what, changed))
+
+
+def composed_or_stored(rendered_string, render_time_sources, stored_sources, what):
+    """BEFORE FIXING A RENDERED STRING, ESTABLISH WHETHER IT IS COMPOSED AT RENDER TIME OR
+    STORED. A projector fix cannot reach a baked value, and both look identical on the page.
+
+    THE INCIDENT, AND IT IS THE FOURTH OF ITS FAMILY IN ONE NIGHT. The container-repr leak was
+    fixed in `paper_projector._flatten_container`, the fix was unit-tested and correct, and
+    MAVACAMTEN was rebuilt to prove it. The page came back with the SAME THREE HITS:
+
+        "... what verifies this object: ClinicalTrials.gov protocol records, read 2026-08-18.
+         what is not claimed: that any per-trial count was checked against a results record.
+         bar: not recorded on the page this object was built from."
+
+    The projector renders a STORED STRING. The `key: value` text is written into the object at
+    `bookkeeping_2026_08_21.the_search_its_date_and_its_databases` by a DIFFERENT function --
+    `scripts/build_paper_bookkeeping_2026_08_21.py::_flat` -- and had been sitting in the JSON
+    since 2026-08-21. I FIXED THE RENDERER AND THE DEFECT WAS IN THE WRITER.
+
+    THE FAMILY, ALL FOUR FOUND ON 2026-08-22/23, AND THE COMMON SHAPE IS THAT THE FIX LANDS
+    WHERE THE AUTHOR WAS LOOKING RATHER THAN WHERE THE TEXT IS PRODUCED:
+
+        * a probe searched for BRACES, which is what the fix removed, so it could only agree
+          with whoever wrote the fix
+        * the transform was placed on the PAPER panel's loop while seven other panels rendered
+          through a different callable
+        * a de-indexing updated `index.html` and `sitemap.xml` and not `audit_table.html`
+        * a renderer was fixed while the string was baked into the object by a writer
+
+    THE CHECK: for a rendered string you intend to change, enumerate BOTH the paths that
+    compose it at render time and the fields that may already hold it, and say which one you
+    are fixing. A rebuild that changes nothing is the signature of getting this wrong -- and it
+    is silent, because a page that was never going to change looks exactly like a page that had
+    nothing to fix.
+    """
+    if render_time_sources or stored_sources:
+        return
+    raise ControlFailed(
+        "REFUSED: %r is to be changed but neither a render-time path nor a stored field has "
+        "been identified for it (%s). A fix aimed at the wrong one produces a rebuild that "
+        "changes nothing, silently." % (rendered_string[:60], what))
+
+
 def every_referring_surface(target, surfaces_checked, surfaces_that_reference, what):
     """A CHANGE IS APPLIED TO THE SURFACES ITS AUTHOR WAS THINKING ABOUT, AND NOT TO THE ONE
     THEY WERE NOT. Enumerate the referring surfaces and ASSERT them; never remember them.

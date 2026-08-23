@@ -32,6 +32,7 @@ OVERRIDE, DELIBERATE AND LOUD. `REBUILD_ANYWAY=<page name>` permits exactly that
 prints why it was protected. There is no blanket override: a variable that unlocks the whole
 list is a variable that gets exported once and forgotten.
 """
+import io
 import os
 import sys
 
@@ -76,3 +77,58 @@ def check(out_path):
         "  This check runs BEFORE the build, so nothing has been written.\n"
         "  To proceed deliberately for this one page:  REBUILD_ANYWAY=%s <command>\n"
         "  There is no blanket override." % (name, why, name))
+
+
+def _topic_to_page():
+    """topic dir name -> delivered page name, from PAGE_MAP."""
+    import json
+    m = os.path.join(os.path.dirname(os.path.abspath(__file__)), "PAGE_MAP.json")
+    try:
+        pm = json.load(io.open(m, encoding="utf-8"))
+    except Exception:
+        return {}
+    out = {}
+    if isinstance(pm, dict):
+        for page, obj in pm.items():
+            out[os.path.basename(os.path.dirname(str(obj)))] = page
+    return out
+
+
+def check_object(path_or_topic):
+    """Refuse before a WRITE if this object backs a protected page.
+
+    THE GAP THIS CLOSES, FOUND 2026-08-23 AND IT WOULD HAVE DESTROYED AUTHORED WORK.
+
+    `check()` above takes an OUT_PATH -- a page -- so it guards the BUILDER. It does not guard
+    the WRITERS, which take an object path and never see a page name.
+    `scripts/build_paper_bookkeeping_2026_08_21.py` writes `manuscript.references`
+    UNCONDITIONALLY (`man["references"] = refs`, no guard) while guarding `introduction` two
+    lines later -- so one field in one function is careful and the other is not.
+
+    Run with `--all`, it would have replaced ARNI's five authored references with a
+    projection. `do_not_rebuild` did not stop it BECAUSE THAT LIST GUARDED THE BUILDER AND THE
+    WRITE CAME THROUGH A DIFFERENT DOOR. That is the same class as the de-indexing that
+    updated index.html and sitemap.xml and not audit_table.html: a protection applied to the
+    surfaces its author was thinking about.
+
+    A guard that depends on the operator remembering to pass the right arguments is not a
+    guard, so this refuses on its own.
+    """
+    t = str(path_or_topic)
+    topic = t
+    if os.path.sep in t or "/" in t:
+        topic = os.path.basename(os.path.dirname(t.replace("/", os.path.sep)))
+    page = _topic_to_page().get(topic)
+    why = PAGES.get(page) if page else None
+    if not why:
+        return False
+    if os.environ.get("REBUILD_ANYWAY", "").strip() == page:
+        sys.stderr.write(
+            "[do-not-rebuild] OVERRIDDEN for object %s (page %s). Protected because: %s\n"
+            % (topic, page, why))
+        return False
+    sys.exit(
+        "REFUSED: the object `%s` backs %s, which is on the do-not-rebuild list.\n\n  %s\n\n"
+        "  This check runs BEFORE the write, so nothing has been changed.\n"
+        "  To proceed deliberately:  REBUILD_ANYWAY=%s <command>\n"
+        "  There is no blanket override." % (topic, page, why, page))

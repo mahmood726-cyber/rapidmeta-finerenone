@@ -47,6 +47,9 @@ import sys
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO, "ssot"))
 import atomic_write                                            # noqa: E402
+import paper_projector as _pp                                  # noqa: E402
+import do_not_rebuild as _dnr                                  # noqa: E402
+import authored_guard as _ag                                  # noqa: E402
 
 _q = importlib.util.spec_from_file_location(
     "p46_queue", os.path.join(REPO, "scripts", "p46_queue.py"))
@@ -103,10 +106,44 @@ def _flat(v):
                 continue
             t = _flat(val)
             if t:
-                bits.append("%s: %s%s" % (str(k).replace("_", " "), t,
-                                          "" if t.endswith((".", "?", "!")) else "."))
+                # THE SAME MAP THE PROJECTOR READS -- `ssot/field_lead_ins.json`, via
+                # `paper_projector._lead_in`. ONE SOURCE, DELIBERATELY.
+                #
+                # This function and `_flatten_container` produce the same shape from the same
+                # containers, and for two days only one of them was fixed: the projector's
+                # flattener was corrected and MAVACAMTEN still rendered `bar:` because THIS
+                # writer had baked the text into the object. If the two can hold different
+                # maps they will drift, which is the two-locations problem that produced the
+                # GRADE disagreement on 23 of 34 pooled outcomes.
+                bits.append(_pp._lead_in(str(k), t))
         return " ".join(bits)
     return ""
+
+
+def _join_clause(tail):
+    """Attach a flattened block to a clause with the punctuation the tail actually needs.
+
+    THE SEAM, AND IT APPEARED THE MOMENT THE LEAD-INS LANDED. The join was hardcoded as
+    `"; " + tail.rstrip(".")`, which was right while `_flat` produced a lowercase key --
+    "... on each entry; what verifies this object: ...". With English lead-ins the tail is a
+    capitalised SENTENCE, so the same join produced:
+
+        "... on the dates recorded on each entry; This object's verification rests on ..."
+
+    A semicolon followed by a capital is wrong either way round: a full stop before a sentence,
+    or a lowercase continuation after a semicolon. `.rstrip(".")` compounded it by removing the
+    sentence's own terminator.
+
+    So the connector is chosen from the TAIL rather than fixed: a sentence gets a full stop and
+    keeps its punctuation; a lowercase fragment keeps the semicolon it was written for. Returns
+    "." alone when there is no tail, so the head still ends as a sentence.
+    """
+    t = (tail or "").strip()
+    if not t:
+        return "."
+    if t[:1].isupper():
+        return ". " + (t if t.endswith((".", "?", "!")) else t + ".")
+    return "; " + t.rstrip(".") + "."
 
 
 def g(o, path, default=None):
@@ -350,11 +387,11 @@ def bookkeeping(obj, topic):
         dates = sorted({r["read_utc"] for r in inc if r["read_utc"]})
         halves.append(
             "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The %d "
-            "included trial%s %s identified by reading named registration%s on %s%s."
+            "included trial%s %s identified by reading named registration%s on %s%s"
             % (len(inc), "" if len(inc) == 1 else "s",
                "was" if len(inc) == 1 else "were", "" if len(inc) == 1 else "s",
                " and ".join(dates) if dates else "the dates recorded on each entry",
-               "; " + (vb or prov).rstrip(".") if (vb or prov) else ""))
+               _join_clause(vb or prov)))
     if scr:
         halves.append(
             "PUBLISHED SYNTHESES. %s, executed %s. Query as executed: %s. It matched %s "
@@ -449,6 +486,11 @@ def main():
         # `setdefault` RETURNS AN EXISTING NULL. Twelve topics hold `manuscript: null`, so
         # `setdefault("manuscript", {})` handed back None, the isinstance guard skipped them,
         # and the run reported 16 of 28 while printing no reason for the other 12.
+        # THE GUARD, IMPORTED RATHER THAN REMEMBERED. `man["references"] = refs`
+        # below is UNCONDITIONAL, so a `--all` run over an authored object replaces
+        # written argument with a projection. `do_not_rebuild` guarded the BUILDER and
+        # this write came through a different door.
+        _dnr.check_object(path)
         man = obj.get("manuscript")
         if not isinstance(man, dict):
             man = {}
@@ -456,6 +498,11 @@ def main():
 
         refs = references(obj)
         if refs:
+            # AUTHORED PROSE IS THE ONE THING HERE THAT CANNOT BE REGENERATED. This assignment
+            # was unconditional while `introduction` below was guarded -- one field careful and
+            # the next not, in the same function.
+            _ag.refuse_if_authored(man, "references", topic,
+                                   "build_paper_bookkeeping_2026_08_21")
             man["references"] = refs
             n_ref += 1
         else:
@@ -463,6 +510,8 @@ def main():
 
         intro = introduction(obj)
         if intro and not str(man.get("introduction") or "").strip():
+            _ag.refuse_if_authored(man, "introduction", topic,
+                                   "build_paper_bookkeeping_2026_08_21")
             man["introduction"] = intro
             n_int += 1
 

@@ -1,0 +1,63 @@
+{
+ "_README": [
+  "ENGLISH LEAD-INS FOR FIELD KEYS THAT REACH READER-FACING PROSE.",
+  "",
+  "Mahmood's decision, 2026-08-23: field names get a proper English lead-in rather than a",
+  "refusal. The prior state put schema identifiers in sentences -- 'what verifies this",
+  "object: ClinicalTrials.gov protocol records, read 2026-08-18. bar: not recorded on the",
+  "page this object was built from.' -- which reads as a data structure with its punctuation",
+  "filed off.",
+  "",
+  "THE GOVERNING CONSTRAINT: A LEAD-IN MUST NOT ASSERT MORE THAN THE FIELD HOLDS.",
+  "`what_verifies_this_object` becomes 'This object's verification rests on X', which is the",
+  "field's own claim in English. It must NOT become 'the data were verified', which asserts",
+  "an act nobody recorded.",
+  "",
+  "TWO FORMS PER KEY, BECAUSE MOST VALUES ARE NULL MARKERS. 35 of 39 `bar` values read 'not",
+  "recorded on the page this object was extracted from'. A single template would produce",
+  "'The bar for verification was: not recorded on the page this object was extracted from',",
+  "which is a sentence about nothing. `absent` is used when the value is a null marker, and",
+  "it states the ABSENCE as the fact -- the house rule that a stated absence is a decision",
+  "and an omitted field reads as an oversight.",
+  "",
+  "KEYS THIS FILE DELIBERATELY DOES NOT COVER are listed in `_refused` with the reason. A",
+  "fluent wrong sentence is worse than a visible field name: a field name is obviously",
+  "unfinished, and a wrong lead-in is not."
+ ],
+
+ "by_key": {
+  "what_verifies_this_object": {
+   "present": "This object's verification rests on %s.",
+   "absent": "The basis on which this object was verified is not recorded.",
+   "note": "The field names what the verification rests on. It does not record that any check was performed, so the lead-in says 'rests on' and not 'was verified against'."
+  },
+  "what_is_not_claimed": {
+   "present": "This review does not claim %s.",
+   "absent": "What this object does not claim is not recorded.",
+   "note": "A LIMITATION, AND THE LEAD-IN MUST KEEP IT ONE. Values begin 'that ...', so 'This review does not claim that any per-trial count was checked against a results record' is a plain statement that the check was not done. It is deliberately not softened to 'it should be noted that' or any caveat form."
+  },
+  "bar": {
+   "present": "The bar this object had to clear was: %s",
+   "absent": "The bar this object had to clear is not recorded.",
+   "note": "`verification_basis.bar` is the threshold for verification. Its one populated form reads 'Both families must find no defect in the object. A finding about the validator is not a finding about the object and does not block.' -- a criterion, so the lead-in names it as one."
+  },
+  "post_hoc": {
+   "present": "The eligibility criteria were derived after the review was carried out rather than specified in advance.",
+   "absent": "Whether the eligibility criteria were specified in advance is not recorded.",
+   "note": "`screening.eligibility_provenance.post_hoc` is a BOOLEAN and its value is not the sentence -- the KEY is the claim. Rendered only when true; when false the sibling `predefined` carries the positive statement. Value is ignored by the renderer for this key."
+  }
+ },
+
+ "cascade_steps": {
+  "_note": "Names of the sources checked in `inputs.trials[].by_outcome.<oid>.cascade.checked`. Confirmed against `source_tier`, which takes the values 'registry' and 'primary_oa'.",
+  "primary_oa": "the primary publication",
+  "prior_meta": "a prior meta-analysis",
+  "registry": "the trial registry",
+  "regulator_fda": "the FDA review documents",
+  "regulator_ema": "the EMA assessment report"
+ },
+
+ "_refused": {
+  "families": "REFUSED BY NAME, 8 occurrences, and listed for Mahmood rather than guessed. The key appears under TWO containers with two different meanings -- `verification_basis.families` (a list, usually empty) and `screening.duplicate_screening.families` (a mapping of screener to vendor, e.g. codex -> openai, agy -> google). Both are sayable in English; which one a given rendered occurrence came from is NOT recoverable from the flattened text, and a lead-in naming the wrong one would be a fluent false statement about how the review was screened. Needs a decision per container, or a renderer that carries the path."
+ }
+}
