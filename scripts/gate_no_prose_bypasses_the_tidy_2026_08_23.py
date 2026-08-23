@@ -39,6 +39,19 @@ BUILDER = os.path.join(REPO, "ssot", "build_tabbed.py")
 RENDER_LOOP = re.compile(r"for\s+text,\s*fields\s+in\s+(.+?):")
 TIDIED = re.compile(r"_tidy\s*\(")
 
+# THE SECOND RENDER POINT, ADDED 2026-08-23 AFTER AN EIGHTH SURFACE WAS FOUND.
+#
+# The loop above renders the PAPER panel. The protocol, search, screening, extraction,
+# analysis, report and statistics panels do not go through it -- their card builders are
+# handed a callable `p` and everything they put on the page passes through THAT. So the
+# corpus carried `ELIGIBILITY turns` in `pn-protocol` and `pn-extract` for a day after the
+# construction was reported closed, and a full corpus rebuild did not remove it: the
+# projector was still emitting it.
+#
+# A SECOND RENDER POINT THAT NOTHING GUARDS IS HOW AN EIGHTH SURFACE BECOMES A NINTH.
+CARD_RENDER = re.compile(
+    r"def p\(s, scope=None\):.*?\n\s*return\s+(.+?)\n", re.S)
+
 
 def check(src):
     """-> (ok, reason). The render loop exists exactly once and applies the transform."""
@@ -53,7 +66,18 @@ def check(src):
     if not TIDIED.search(loops[0]):
         return False, ("the paragraph render loop does not apply the transform -- prose "
                        "appended by any path reaches the page untouched: %r" % loops[0][:80])
-    return True, "the render loop applies the transform"
+    cards = CARD_RENDER.findall(src)
+    if not cards:
+        return False, ("the card render callable `p` was not found -- every non-paper panel "
+                       "renders through it, so its absence means this gate is guarding one "
+                       "surface and blind to seven")
+    untidied_cards = [c for c in cards if not TIDIED.search(c)]
+    if untidied_cards:
+        return False, ("the card render callable does not apply the transform -- the "
+                       "protocol, search, screening, extraction, analysis, report and "
+                       "statistics panels reach the page untouched: %r"
+                       % untidied_cards[0][:90])
+    return True, "both render points apply the transform"
 
 
 def prove():
@@ -67,8 +91,19 @@ def prove():
     if mok:
         sys.exit("PROOF FAILED: a source with the transform REMOVED from the render loop "
                  "still passes. This gate cannot detect the thing it exists to detect.")
-    print("PROOF PASSED: the real source passes and a source with the transform removed from")
-    print("the render loop fails -- %s" % mwhy)
+    # THE SECOND MUTANT. One control per render point: a gate proven on the paper loop alone
+    # would have passed happily through the whole day the card path was emitting untidied
+    # prose, which is exactly what happened before this limb existed.
+    mutant2 = CARD_RENDER.sub(
+        "def p(s, scope=None):\n        return e_(G.render(canon, s, scope))\n",
+        src, count=1)
+    m2ok, _ = check(mutant2)
+    if m2ok:
+        sys.exit("PROOF FAILED: a source with the transform REMOVED from the card render "
+                 "callable still passes. That is the eighth surface, undetected.")
+    print("PROOF PASSED on BOTH render points: the real source passes; a source with the")
+    print("transform stripped from the paragraph loop fails; and one with it stripped from")
+    print("the card callable fails -- %s" % mwhy)
 
 
 def main():

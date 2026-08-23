@@ -1127,7 +1127,32 @@ def build(canon):
         return html.escape("—" if x is None else str(x))
 
     def p(s, scope=None):
-        return e_(G.render(canon, s, scope))
+        # THE SECOND RENDER POINT. `_tidy` was placed on the PAPER panel's paragraph loop on
+        # 2026-08-22 and the construction it removes went on standing in the protocol and
+        # extraction panels, because those render through HERE instead -- this callable is
+        # handed to every card builder in projectors.py and projectors2.py.
+        #
+        # THE ROLLOUT DID NOT FIX IT AND COULD NOT. `ELIGIBILITY turns` stood on four pages
+        # before the 2026-08-23 rebuild and on the same four after, now carrying the current
+        # generator: a rollout is not a remedy for a defect the projector still emits. The
+        # diagnostic is one sentence on delivered SGLT2_HF_REVIEW, where the heading is tidied
+        # and the body beside it is not, inches apart:
+        #
+        #     "... Eligibility criteria ELIGIBILITY turns on population, intervention and
+        #      comparator ..."
+        #
+        # THE PLACEMENT IS THE POINT, NOT THE PATCH. Six individually-fixed bypasses did not
+        # close this class on the paper panel; one render-point placement closed all thirty
+        # append sites. The same argument applies here and the same mistake is available: the
+        # string lives in FOUR different object fields (screening.eligibility, two under
+        # screening_of_remainder, and results.*.handbook.conformance) rendered by different
+        # cards, so fixing it per-field would leave the next field standing.
+        #
+        # TIDIED BEFORE ESCAPING, and with the table-cell tokens protected: `p` feeds table
+        # cells as well as prose, and lowercasing HELD or WITHDRAWN in a verdict column would
+        # turn a recorded state into an adjective -- the loss of meaning that scoping this
+        # protection was introduced to prevent.
+        return e_(_pp._tidy(G.render(canon, s, scope), protect=_pp._CELL_TOKENS))
 
     parts = []
     # AN OBJECT WITH NO `results` KEY AT ALL IS NOT A CRASH.
