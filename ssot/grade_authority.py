@@ -110,13 +110,25 @@ def _at(container, oid):
 
 
 def _grounds(blk):
-    """Whatever this location recorded as its reason, without paraphrase."""
+    """EVERY reason this location recorded, without paraphrase and without a pick.
+
+    THIS RETURNED THE FIRST MATCH AND DROPPED THE REST, which quietly contradicted the one
+    claim this module makes about grounds. A block holding both `certainty_derivation` and
+    `steps` came back as the derivation alone -- and on iv-iron-hf the derivation is the
+    one-line summary while `steps` carries the per-domain reasoning that the whole
+    both-locations argument rests on. So the function that exists to prove nothing is
+    dropped was itself dropping the more informative half.
+
+    Found by an outside model reading this file cold, with the file supplied in full so it
+    had no reason to guess.
+    """
     if not blk:
         return None
+    out = {}
     for k in ("certainty_derivation", "steps", "domains", "reason", "basis_in_sources"):
         if blk.get(k):
-            return {k: blk[k]}
-    return None
+            out[k] = blk[k]
+    return out or None
 
 
 def resolve(canon, oid):
@@ -150,7 +162,18 @@ def resolve(canon, oid):
     if pooled.get("withdrawn"):
         out.update(state="WITHDRAWN_POOL", cell=CELL_SEE_COMMENT,
                    comment=WITHDRAWN_TEXT)
-        if s_lvl or t_lvl:
+        # BOTH CARRIED RATINGS, NOT ONE. `s_lvl or t_lvl` named the structured value and
+        # attributed it correctly -- but where the two locations carried DIFFERENT levels
+        # for the withdrawn estimate, the other one vanished. The withdrawn branch returns
+        # before the disagreement check by design, so a divergence here is never reported
+        # anywhere else: this was the only place it could have been said, and it was not.
+        if s_lvl and t_lvl and s_lvl != t_lvl:
+            out["comment"] += (
+                " The two locations carried DIFFERENT ratings for this withdrawn estimate: "
+                "%s in %s and %s in %s. Both are recorded here rather than one being chosen, "
+                "and neither is shown in the certainty column."
+                % (LEVELS.get(s_lvl, s_lvl), STRUCTURED, LEVELS.get(t_lvl, t_lvl), TABLE))
+        elif s_lvl or t_lvl:
             out["comment"] += (
                 " The rating it carried was %s, held in %s; it is recorded here rather than "
                 "shown in the certainty column." %
@@ -200,6 +223,20 @@ def resolve(canon, oid):
 
 def _footnote(lvl, s_blk, t_blk, both):
     """What was downgraded, from the record that holds it. Never a paraphrase of the level."""
+    # `elif` HERE MADE THE SENTENCE BELOW FALSE IN THE SENTENCE THAT SAYS IT.
+    #
+    # This read: if the structured record has downgrades, use them, OTHERWISE fall back to
+    # the table's derivation. So whenever both locations rated -- the exact case this
+    # footnote exists to describe -- the table's recorded reason was dropped, while the
+    # footnote went on to assert "neither is dropped: both are carried on this object and
+    # shown in the certainty record". On iv-iron-hf the reader met that claim with the
+    # table's grounds absent.
+    #
+    # Two cold reviewers from different vendors found the same class independently in one
+    # night: GPT-5 in `_grounds`, which returned the first matching key and dropped the
+    # rest, and Gemini here, quoting the docstring against the `elif`. The convergence is
+    # the finding: a module whose whole argument is "nothing is dropped" had dropped
+    # something at both levels it operates on.
     bits = []
     steps = s_blk.get("steps") if isinstance(s_blk.get("steps"), list) else []
     down = [st for st in steps
@@ -209,13 +246,15 @@ def _footnote(lvl, s_blk, t_blk, both):
                     % (s_blk.get("started_at", "HIGH"),
                        ", ".join(str(st.get("domain", "?")).replace("_", " ")
                                  for st in down)))
-    elif t_blk.get("certainty_derivation"):
-        bits.append(str(t_blk["certainty_derivation"]).strip().rstrip(".") + ".")
+    if t_blk.get("certainty_derivation"):
+        bits.append("The summary-of-findings record derives it as: %s."
+                    % str(t_blk["certainty_derivation"]).strip().rstrip("."))
     if both:
-        bits.append("Both stored locations rate this outcome %s. Their recorded GROUNDS are "
-                    "not the same text and neither is dropped: both are carried on this "
-                    "object and shown in the certainty record."
-                    % LEVELS.get(lvl, lvl))
+        bits.append("Both stored locations rate this outcome %s, and their recorded GROUNDS "
+                    "are not the same text. Both are stated above rather than one being "
+                    "chosen, because the two can differ in KIND -- one recording what the "
+                    "trials were found to be, the other recording what could not be "
+                    "established about them." % LEVELS.get(lvl, lvl))
     if not bits:
         bits.append("Rated %s. The record does not carry which domains were downgraded, "
                     "and none is inferred here." % LEVELS.get(lvl, lvl))
