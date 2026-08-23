@@ -227,6 +227,19 @@ def abstain_or_answer(can_decide, verdict, what):
     So when a check cannot decide, it returns NOT_ASSESSABLE and SAYS SO. That is not a
     failure to deliver -- an abstention is information, and a guess dressed as a measurement
     costs more than silence. Roughly a third of this run's value was in refusing to answer.
+
+    THE AUTHOR OF THIS LESSON BROKE IT AGAIN WITHIN THE HOUR, in a disposable one-line waiter,
+    where nobody would have looked: `ps -W | grep rollout_corpus` never matches because that
+    shell's `ps` does not print command lines, so the negation was true on the first pass and
+    the waiter announced "ROLLOUT FINISHED" while the rollout was still building pages. It
+    would have reported a rebuild complete at 90 of 157. WRITING A RULE DOWN DOES NOT
+    IMMUNISE YOU AGAINST IT -- which is the strongest available evidence that this class is
+    structural and not carelessness.
+
+    IT WAS CAUGHT BY A DIFFERENT RULE, NOT BY THIS ONE: a lock file is an artefact, a running
+    process is a fact -- so the process list was checked and the process was alive. THE RULES
+    COVER EACH OTHER AND NO SINGLE ONE IS SUFFICIENT. Do not expect to be saved by the rule
+    that names the mistake you are making; expect to be saved by a different one.
     """
     if can_decide:
         return verdict
