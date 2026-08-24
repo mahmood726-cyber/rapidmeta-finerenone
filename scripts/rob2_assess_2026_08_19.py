@@ -29,11 +29,15 @@ THE FIVE DOMAINS, and the evidence each is judged from HERE:
         judged from: blinding, whether the endpoint text says ADJUDICATED, and whether the
         components are objective (death, hospitalisation) or assessor-dependent.
   D5 selection of the reported result
-        judged from: `endpoint_rank_in_its_own_trial`. THIS PROJECT HAS UNUSUALLY GOOD EVIDENCE
-        HERE and it cuts against us as often as for us: a result taken from a SECONDARY rank,
-        selected by us because it harmonises across trials, is exactly the situation D5 exists
-        to flag. It is flagged. A review that recovered a pool from secondary endpoints and
-        then rated D5 low would be marking its own homework.
+        JUDGED FROM THE TRIAL'S OWN SELECTION, NOT FROM OURS -- see `_d5`, which declares the
+        position and cites the section it rests on. An earlier version of this paragraph said
+        the opposite, and said it confidently: that a result taken from a SECONDARY rank,
+        selected by US because it harmonises across trials, "is exactly the situation D5
+        exists to flag. It is flagged." That was a position on a contested question, taken
+        without declaring that the question was contested, and it is withdrawn.
+        OUR OWN SELECTION IS STILL A RISK AND IT IS STILL REPORTED -- as a DECLARATION beside
+        the estimate (`our_selection_declared_not_rated`), never as a domain judgement, which
+        would misdescribe a property of this review as a property of the trial.
 
 NO OVERALL JUDGEMENT IS SYNTHESISED WHERE ANY DOMAIN IS NO INFORMATION. RoB 2's algorithm maps
 domain judgements to an overall one, but an overall rating computed over unknowns would present
@@ -137,31 +141,164 @@ def _d4(blk, blinded):
     return (LOW if (objective and (blinded or adjudicated)) else SOME), q, ev
 
 
+D5_POSITION = (
+    "DOMAIN 5 ASSESSES THE TRIAL'S SELECTION AMONG ITS OWN RESULTS, NOT THIS REVIEW'S "
+    "SELECTION AMONG THE TRIAL'S REPORTED RESULTS. Cochrane Handbook 6.5.1 section 8.7 "
+    "scopes domain 5 to selective reporting BY THE TRIAL AUTHORS; selection performed by a "
+    "review in assembling its synthesis is a review-level matter and RoB 2 has no domain "
+    "for it, because the tool assesses trials and not reviews. This review's own selection "
+    "among the results a trial reported is therefore DECLARED beside the estimate and is "
+    "NOT folded into any domain judgement. Folding it in would record a property of this "
+    "review as though it were a property of the trial, which is a factual error about the "
+    "trial in the accusing direction.")
+
+D5_POSITION_WITHDRAWN = (
+    "An earlier version of this function implemented the opposite position WITHOUT "
+    "DECLARING IT: it set signalling question 5.2 to PROBABLY_YES whenever the result used "
+    "here sat at SECONDARY or OTHER rank, on the ground that the rank was chosen by this "
+    "review -- while stating in its own evidence text that the selection was 'the "
+    "reviewers', not the trialists''. That is question 5.2 answered about the reviewers and "
+    "then attributed to the trial. It reached 4 stored records, all in `iv-iron-hf`, and "
+    "reached ZERO bytes of any delivered page. It is withdrawn here, and the withdrawal is "
+    "recorded rather than the code quietly changing under an unchanged docstring.")
+
+
+def _selection_declaration(blk, row=None):
+    """PROJECT this review's own selection from what the object already holds. NEVER RATE IT.
+
+    THIS IS A PROJECTION AND A LOOKUP, NOT A JUDGEMENT. It reads one stored field,
+    `endpoint_rank_in_its_own_trial`, and reports what it says. Where the field is absent
+    the state is COULD_NOT_DETERMINE and the absence is named as A MISSING FIELD, because
+    the alternative -- writing a sentence about which result was selected and why, from an
+    object that records neither -- is invention with a declaration's authority.
+
+    THREE STATES, NEVER TWO. A row whose rank field is missing is not a row where no
+    selection happened. It is a row where the selection is unrecorded.
+
+    THE CORPUS RECORDS THIS RANK ON TWO LAYERS AND THE FIRST VERSION OF THIS READ ONE.
+    `inputs.trials[].by_outcome[]` is what the assessor walks; `results.by_outcome[].per_trial[]`
+    is what the page renders. Reading only the first declared 11 of 29 records
+    COULD_NOT_DETERMINE while the object held the answer one layer away -- and one of the 11
+    was `alirocumab-lipid` / NCT01507831, a genuine SECONDARY, so a real selection risk was
+    reported as unknown. That is the worst available direction for this particular error.
+
+    Both layers are now read. Where both hold a value they are COMPARED, not merged: the
+    layers agree on all 14 records where both are present today, and an instrument that
+    silently prefers one would not tell anybody the day they stop agreeing.
+    """
+    rank = blk.get("endpoint_rank_in_its_own_trial")
+    row_rank = (row or {}).get("endpoint_rank_in_its_own_trial")
+    d = {"assessed_by_rob2": False,
+         "why_not_rated": (
+             "This is a selection made by THIS REVIEW. Under the position declared in "
+             "`D5_POSITION` it is reported and not rated, because RoB 2 assesses trials.")}
+    if rank is not None and row_rank is not None and str(rank).strip() != str(row_rank).strip():
+        d["state"] = "LAYERS_DISAGREE"
+        d["read_from"] = "both layers, which do not agree"
+        d["rank_verbatim_inputs_layer"] = rank
+        d["rank_verbatim_rendered_layer"] = row_rank
+        d["statement"] = (
+            "THIS OBJECT RECORDS TWO DIFFERENT ANSWERS to which of the trial's results this "
+            "row uses. The layer the assessor walks says %r; the layer the page renders says "
+            "%r. NO DECLARATION IS COMPOSED FROM EITHER. One of them is wrong and this "
+            "instrument cannot tell which, so it reports the disagreement, which is a finding "
+            "about the object rather than a statement about the trial."
+            % (str(rank)[:200], str(row_rank)[:200]))
+        return d
+    if rank is None and row_rank is not None:
+        rank, layer = row_rank, ("results.by_outcome[].per_trial[] -- the layer the page "
+                                 "renders; absent from the layer the assessor walks")
+    elif rank is not None and row_rank is None:
+        layer = ("inputs.trials[].by_outcome[] -- the layer the assessor walks; absent from "
+                 "the layer the page renders")
+    elif rank is not None:
+        layer = "both layers, which agree"
+    else:
+        layer = None
+    if rank is not None:
+        d["read_from"] = layer
+    if rank is None:
+        d["state"] = "COULD_NOT_DETERMINE"
+        d["statement"] = (
+            "WHICH OF THE TRIAL'S RESULTS THIS ROW USES IS NOT RECORDED ON THIS OBJECT. The "
+            "field that would say so, `endpoint_rank_in_its_own_trial`, is absent from this "
+            "result's block. That is a MISSING FIELD, reported as missing. It is not a "
+            "statement that no selection was made, and no statement about the selection is "
+            "composed from anything else.")
+        d["missing_field"] = ("endpoint_rank_in_its_own_trial, absent from BOTH layers that "
+                              "carry it: inputs.trials[].by_outcome[] and "
+                              "results.by_outcome[].per_trial[]")
+        return d
+    low = str(rank).strip().lower()
+    # The corpus writes this rank two ways -- a bare token and a sentence. Both are read.
+    # Matching only one attributed 23 of the trials' own primary endpoints to this review's
+    # selection in a sibling instrument; the bare token is matched EXACTLY because
+    # "SECONDARY -- this trial's only primary outcome is ..." contains the word "primary".
+    theirs = low in ("primary", "primary endpoint", "primary outcome") or "own primary" in low
+    d["rank_verbatim"] = rank
+    if theirs:
+        d["state"] = "NO_SELECTION_BY_THIS_REVIEW"
+        d["statement"] = (
+            "THE RESULT ON THIS ROW IS THE TRIAL'S OWN PRIMARY, as the object records its "
+            "rank: %r. This review selected no result the trial did not itself designate "
+            "first, so there is nothing on this axis to declare." % rank)
+        return d
+    d["state"] = "SELECTED_BY_THIS_REVIEW"
+    d["statement"] = (
+        "THE RESULT ON THIS ROW IS NOT THE TRIAL'S OWN PRIMARY. The object records its rank "
+        "in its own trial as: %r. This review used it because it is the quantity that "
+        "harmonises across the trials pooled here. THAT CHOICE IS OURS, it carries a real "
+        "risk that a differently-chosen result would give a different answer, and it is "
+        "stated here rather than rated, because rating it under domain 5 would record it as "
+        "something the trial did." % rank)
+    d["what_would_bound_it"] = (
+        "Extracting every result this trial reports for this outcome domain and showing what "
+        "the pool does under each. That is not held for any trial in this object, so the "
+        "size of this risk is UNMEASURED rather than small.")
+    return d
+
+
 def _d5(blk):
-    """SELECTION OF THE REPORTED RESULT -- where this project's evidence is strongest, and
-    where it most often counts AGAINST the review rather than for it."""
-    rank = (blk.get("endpoint_rank_in_its_own_trial") or "").upper()
+    """SELECTION OF THE REPORTED RESULT -- THE TRIAL'S SELECTION. The position is declared in
+    `D5_POSITION`; the position this replaces is recorded in `D5_POSITION_WITHDRAWN`.
+
+    All three signalling questions are emitted, including 5.3, which no earlier version
+    collected at all. An uncollected question that is simply absent is indistinguishable
+    from one that was answered reassuringly; emitted as NO_INFORMATION it is neither.
+    """
     q, ev = {}, []
-    # The first signalling question asks whether the analysis was per a PRE-SPECIFIED plan. We
-    # do not hold any trial's statistical analysis plan, so this is NO INFORMATION -- always,
-    # and stating it is not a formality: it is the reason D5 cannot reach LOW here.
+    # 5.1 -- was the analysis per a PRE-SPECIFIED plan. No trial's statistical analysis plan
+    # is held, so this is NO INFORMATION, always. Stating it is not a formality: it is the
+    # reason D5 cannot reach LOW here, and the reason is a fact about our reach.
     q["analysed_per_prespecified_plan"] = "NO_INFORMATION"
-    ev.append("No trial's statistical analysis plan is held, so whether this analysis was "
-              "pre-specified cannot be established. D5 therefore cannot reach LOW.")
-    if not rank:
-        q["selected_from_multiple_eligible_measurements"] = "NO_INFORMATION"
-        return NOINFO, q, ev
-    q["selected_from_multiple_eligible_measurements"] = (
-        "PROBABLY_YES" if "SECONDARY" in rank or "OTHER" in rank else "PROBABLY_NO")
-    if "SECONDARY" in rank or "OTHER" in rank:
-        ev.append("THE RESULT USED HERE IS AT %s RANK IN ITS OWN TRIAL. It was selected by "
-                  "this review because it harmonises across trials -- which is exactly the "
-                  "situation D5 exists to flag, and it is flagged rather than argued away. "
-                  "The selection is documented in the object and is the reviewers', not the "
-                  "trialists'." % rank)
-        return SOME, q, ev
-    ev.append("The result used here is the trial's own registered PRIMARY, so no selection "
-              "among ranks was made by this review.")
+    ev.append("No trial's statistical analysis plan or protocol is held, so whether this "
+              "analysis followed a pre-specified plan cannot be established. D5 therefore "
+              "cannot reach LOW, and that is a bound on our access rather than a finding "
+              "about the trial.")
+    # 5.2 -- did THE TRIAL select this result from among multiple eligible MEASUREMENTS, on
+    # the basis of the results. The object holds what the trial REGISTERED; it does not hold
+    # what the trial REPORTED for this outcome domain, and the question turns on the gap
+    # between those two. Answering it would be a reading of the trial's report that nobody
+    # has done, so it is NO INFORMATION and the missing input is named.
+    q["trial_selected_from_multiple_eligible_measurements"] = "NO_INFORMATION"
+    ev.append("Whether THE TRIAL selected this result from among several measurements it "
+              "could have reported for this outcome domain is not established. The object "
+              "holds the trial's REGISTERED outcome list; it does not hold which of those "
+              "the trial's own report presents, and the question turns on that gap. "
+              "Establishing it requires reading the trial's report against its "
+              "registration -- work that has not been done for any trial here.")
+    # 5.3 -- did THE TRIAL select from among multiple eligible ANALYSES. Not collected
+    # anywhere in this corpus. Emitted so that its absence is visible.
+    q["trial_selected_from_multiple_eligible_analyses"] = "NO_INFORMATION"
+    ev.append("Whether THE TRIAL selected this result from among several eligible analyses "
+              "of the same data is not collected anywhere in this corpus for any trial. It "
+              "is emitted as NO INFORMATION rather than omitted, because an omitted "
+              "question cannot be told apart from a reassuringly answered one.")
+    ev.append(D5_POSITION)
+    # Table 14 of the tool. No answer is Y/PY, so the HIGH rows (5.2 Y/PY, or 5.3 Y/PY) do
+    # not fire; 5.1 is not Y/PY, so LOW is unavailable. SOME CONCERNS is what the table
+    # gives. This is the same value the withdrawn implementation returned on both of its
+    # branches -- it was accidentally right for this position and wrong for its own.
     return SOME, q, ev
 
 
@@ -170,6 +307,17 @@ def assess(topic):
     with io.open(p, encoding="utf-8") as fh:
         obj = json.load(fh)
     out = {}
+    # THE RENDERED LAYER, INDEXED SO THE DECLARATION CAN READ IT TOO. The rank this review's
+    # selection turns on is recorded on two layers: the one walked below, and the `per_trial`
+    # rows the page actually renders. Reading only the first reported 11 of 29 records as
+    # "not recorded" while the object held the answer here.
+    rendered_rows = {}
+    for _oid, _b in ((obj.get("results") or {}).get("by_outcome") or {}).items():
+        for _r in ((_b or {}).get("per_trial") or []):
+            if isinstance(_r, dict):
+                for _k in (_r.get("nct"), _r.get("trial_id")):
+                    if _k:
+                        rendered_rows[(_oid, _k)] = _r
     pooled_ids = {oid for oid, b in ((obj.get("results") or {}).get("by_outcome") or {}).items()
                   if ((b or {}).get("pooled") or {}).get("point") is not None}
     for t in ((obj.get("inputs") or {}).get("trials") or []):
@@ -199,6 +347,12 @@ def assess(topic):
                      % ", ".join(blockers)) if blockers else
                     "Synthesised from the five domain judgements, none of which is NO_INFORMATION."),
                 "contributes_to_a_pooled_estimate": oid in pooled_ids,
+                # OUR OWN SELECTION, DECLARED AND NOT RATED. It sits at RECORD level rather
+                # than inside `domains` deliberately: a reader or a downstream projector that
+                # walks `domains` must not be able to pick this up as a sixth domain, and a
+                # tally over domain judgements must not be able to count it as one.
+                "our_selection_declared_not_rated": _selection_declaration(
+                    blk, rendered_rows.get((oid, ident)) or rendered_rows.get((oid, t.get("id")))),
             }
     return out
 
@@ -234,6 +388,20 @@ def main():
             row += " %s=%-3d" % (k[:4], tally.get(d + ":" + k, 0))
         print(row)
     payload = {"assessed_utc": "2026-08-19", "authority": AUTHORITY,
+               # THE D5 RULE, CARRIED IN THE ARTEFACT AND NOT ONLY IN THE SOURCE. A position
+               # taken in a docstring is a position the reader of the output cannot see.
+               "d5_scope_rule": {
+                   "position": D5_POSITION,
+                   "handbook_section": "8.7",
+                   "review_level_selection_goes_to": (
+                       "Chapter 13 (assessing risk of bias due to missing results in a "
+                       "synthesis) for the synthesis-level question, and to an explicit "
+                       "DECLARATION beside each affected estimate for the per-result "
+                       "question, which is `our_selection_declared_not_rated` on every "
+                       "record below."),
+                   "position_withdrawn": D5_POSITION_WITHDRAWN,
+                   "decided_by": "Mahmood, 2026-08-24, on escalation E1 from the RoB 2 lane.",
+               },
                "default_rule": ("A domain that cannot be judged from the registration and the "
                                 "published report is NO_INFORMATION, never LOW. Low-by-default "
                                 "asserts a fact; high-by-default invents a defect."),
