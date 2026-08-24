@@ -1,1182 +1,1182 @@
 {
- "app_id": "mitral-funcmr-review",
- "schema_version": "2-authored-from-source",
- "title": "Transcatheter repair for functional mitral regurgitation",
- "question": "Three trials of transcatheter mitral repair in functional regurgitation, registering three different composites at two different time horizons.",
- "built": "2026-08-18T00:00Z",
- "build_mode": "AUTHORED",
- "_estimand_rule": "Every endpoint definition below was READ FROM THE REGISTRY, word for word, when this withdrawal was RE-VERIFIED on 2026-08-18.",
- "source_links_enforced": true,
- "source_links_enforced_means": "every trial row carries its registration link",
- "cited_total": null,
- "completeness_statement": "not recorded on the page this object was built from",
- "verification_basis": {
-  "what_verifies_this_object": "ClinicalTrials.gov protocol records, read 2026-08-18",
-  "what_is_not_claimed": "that any per-trial count was checked against a results record",
-  "families": [],
-  "bar": "not recorded on the page this object was built from"
- },
- "methodological_authority": {
-  "reference": "not recorded on the page this object was built from",
-  "version": "not recorded on the page this object was built from",
-  "version_checked_on": "not recorded on the page this object was built from",
-  "version_checked_how": "not recorded on the page this object was built from",
-  "version_note": "not recorded on the page this object was built from",
-  "scope_of_this_rule": "not recorded on the page this object was built from",
-  "url": "not recorded on the page this object was built from",
-  "note": "not recorded on the page this object was built from"
- },
- "config": {
-  "model": "random-effects",
-  "method": "not pooled -- withdrawn",
-  "scale": "log"
- },
- "screening": {
-  "search_note": "not recorded on the page this object was built from",
-  "eligibility": "not recorded on the page this object was built from",
-  "known_limitation": "not recorded on the page this object was built from"
- },
- "screening_names_unresolved": [],
- "eligible_but_not_contributing": {
-  "note": "All included registrations carry a row in this object.",
-  "studies": []
- },
- "reconciliation": {
-  "why_this_step_exists": "not recorded on the page this object was built from",
-  "clean": null,
-  "clean_because": "not recorded on the page this object was built from",
-  "trial_list_diffs": [],
-  "matches": [],
-  "corrections": [],
-  "unresolved": []
- },
- "claims_corrected": [
-  {
-   "claim": "Not poolable -- COAPT vs MITRA-FR: different measures, endpoints and timepoints",
-   "where": "index.html card",
-   "what_it_actually_is": "correct, but naming two of the three trials on the page",
-   "evidence": "RESHAPE-HF2 (NCT02444338) is included and registers a third distinct composite plus a continuous KCCQ primary",
-   "corrected_to": "not poolable, with all three registered primaries quoted",
-   "on": "2026-08-18"
-  }
- ],
- "scope_decisions": {},
- "conversion_note": "AUTHORED, not converted. This topic's estimate was withdrawn BEFORE the current detector set existed; the withdrawal was re-verified against the registry on 2026-08-18.",
- "sources": {},
- "outcomes": [
-  {
-   "id": "primary",
-   "name": "Three different registered composites, at 12 and at 24 months",
-   "definition": "NOT ONE DEFINITION, and the page has always said so. COAPT registers a device-safety primary AND an effectiveness primary; MITRA-FR registers all-cause mortality with unplanned heart-failure hospitalisation at 12 months; RESHAPE-HF2 registers THREE primaries including a continuous quality-of-life score.",
-   "definition_note": "Authored on re-verification of a NOT-POOLABLE verdict that was already correct and is now sourced.",
-   "measure": "OR",
-   "effect_scale": "log",
-   "type": "primary",
-   "estimand": {
-    "id": "primary",
-    "family": "first or recurrent event",
-    "model": "random-effects"
-   },
-   "comparator": "guideline-directed medical therapy",
-   "comparator_type": "active",
-   "direction_of_benefit": "lower is better",
-   "null_value": 1
-  }
- ],
- "inputs": {
-  "trials": [
-   {
-    "id": "NCT01626079",
-    "name": "COAPT",
-    "nct": "NCT01626079",
-    "pmid": null,
-    "arms": [
-     {
-      "label": "MitraClip System",
-      "role": "treatment",
-      "events": 151,
-      "participants": 302
-     },
-     {
-      "label": "COAPT CAS Group",
-      "role": "control",
-      "events": 212,
-      "participants": 312
-     }
-    ],
-    "arms_as_the_registry_lists_them": "'MitraClip System', 'Control Group', 'COAPT CAS Group'",
-    "by_outcome": {
-     "primary": {
-      "effect": {
-       "measure": "OR",
-       "scale": "log",
-       "point": null,
-       "ci_low": null,
-       "ci_high": null,
-       "ci_level": 95,
-       "derived_from": "not carried forward -- the estimate is withdrawn",
-       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
-      },
-      "provenance": {
-       "tag": "REGISTRY-READ",
-       "source_quotes": [],
-       "quote_note": "the endpoint definition is verbatim from the registry"
-      },
-      "source_url": "https://clinicaltrials.gov/study/NCT01626079",
-      "analysed": {
-       "treatment": 302,
-       "control": 312
-      },
-      "outcome_definition": "Primary Effectiveness Endpoint",
-      "outcome_definition_source": {
-       "time_frame": "24 months",
-       "description_verbatim": "Recurrent HF hospitalizations (HFH) through 24 months, analyzed when the last subject completes 12-month follow-up",
-       "endpoint_rank": "PRIMARY -- primaryOutcomes[1] on this registration",
-       "source": "registry",
-       "source_field": "protocolSection.outcomesModule.primaryOutcomes[1]",
-       "source_url": "https://clinicaltrials.gov/study/NCT01626079",
-       "read_utc": "2026-08-18",
-       "components_as_the_registry_states_them": "the registered PRIMARY EFFECTIVENESS endpoint. This registration also declares a PRIMARY SAFETY endpoint -- 'Percentage of Participants With Freedom From Device Related Complications at 12 Months' -- so it carries two primaries of opposite kind.",
-       "analysis_set_as_the_registry_states_it": "24 months. Note that the safety primary is measured at 12 months and the effectiveness primary at 24, within one registration."
-      }
-     }
-    },
-    "registration_primary_counts": {
-     "title": "Primary Effectiveness Endpoint",
-     "treatment_events": 92.0,
-     "control_events": 151.0,
-     "treatment_n": 302.0,
-     "control_n": 312.0,
-     "note": "arm order as the registry lists it; a swapped pair would show as a mismatch rather than a silent pass"
-    },
-    "registration_other_outcome_counts": [
-     {
-      "title": "Primary Effectiveness Endpoint",
-      "type": "PRIMARY",
-      "counts": [
-       160.0,
-       283.0
-      ]
-     },
-     {
-      "title": "Primary Effectiveness Endpoint",
-      "type": "PRIMARY",
-      "counts": [
-       92.0,
-       151.0
-      ]
-     },
-     {
-      "title": "Number of Deaths at 12 Months (All Cause Mortality)",
-      "type": "SECONDARY",
-      "counts": [
-       57.0,
-       70.0
-      ]
-     },
-     {
-      "title": "Number of Participants With Mitral Regurgitation Severity Grade of 2+ or Lower at 12 Months",
-      "type": "SECONDARY",
-      "counts": [
-       199.0,
-       82.0
-      ]
-     },
-     {
-      "title": "Change in Distance Walked on the 6 Minute Walk Test (6MWT Distance or 6MWD)",
-      "type": "SECONDARY",
-      "counts": [
-       -2.17,
-       -60.2
-      ]
-     },
-     {
-      "title": "Change in Quality of Life (QoL) as Measured by the Kansas City Cardiomyopathy Questionnaire (KCCQ)",
-      "type": "SECONDARY",
-      "counts": [
-       12.5,
-       -3.6
-      ]
-     },
-     {
-      "title": "Change in Left Ventricular End Diastolic Volume (LVEDV)",
-      "type": "SECONDARY",
-      "counts": [
-       -3.71,
-       17.06
-      ]
-     },
-     {
-      "title": "Number of Participants With New York Heart Association (NYHA) Functional Class I/II",
-      "type": "SECONDARY",
-      "counts": [
-       171.0,
-       115.0
-      ]
-     },
-     {
-      "title": "Recurrent Hospitalizations - All Cause",
-      "type": "SECONDARY",
-      "counts": [
-       474.0,
-       610.0
-      ]
-     },
-     {
-      "title": "Kaplan-Meier Freedom From All-cause Mortality",
-      "type": "SECONDARY",
-      "counts": [
-       83.0,
-       125.0
-      ]
-     },
-     {
-      "title": "MR Severity Grade",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       302.0,
-       311.0
-      ]
-     },
-     {
-      "title": "MR Severity Grade",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       286.0,
-       257.0
-      ]
-     },
-     {
-      "title": "MR Severity Grade",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       240.0,
-       218.0
-      ]
-     },
-     {
-      "title": "MR Severity Grade",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       210.0,
-       175.0
-      ]
-     },
-     {
-      "title": "MR Severity Grade",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       167.0,
-       126.0
-      ]
-     },
-     {
-      "title": "MR Severity Grade",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       120.0,
-       74.0
-      ]
-     },
-     {
-      "title": "MR Severity Grade",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       80.0,
-       49.0
-      ]
-     },
-     {
-      "title": "MR Severity Grade",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       57.0,
-       46.0
-      ]
-     },
-     {
-      "title": "Effective Regurgitant Orifice Area",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       0.41,
-       0.4
-      ]
-     },
-     {
-      "title": "Effective Regurgitant Orifice Area",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       0.14,
-       0.23
-      ]
-     },
-     {
-      "title": "Effective Regurgitant Orifice Area",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       0.22,
-       0.25
-      ]
-     },
-     {
-      "title": "Effective Regurgitant Orifice Area",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       0.18,
-       0.26
-      ]
-     },
-     {
-      "title": "Effective Regurgitant Orifice Area",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       0.15,
-       0.25
-      ]
-     },
-     {
-      "title": "Effective Regurgitant Orifice Area",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       0.18,
-       0.18
-      ]
-     },
-     {
-      "title": "Effective Regurgitant Orifice Area",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       0.14,
-       0.19
-      ]
-     },
-     {
-      "title": "Effective Regurgitant Orifice Area",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       0.15,
-       0.15
-      ]
-     },
-     {
-      "title": "Regurgitant Volume",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       28.8,
-       25.01
-      ]
-     },
-     {
-      "title": "Regurgitant Volume",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       20.04,
-       25.97
-      ]
-     },
-     {
-      "title": "Regurgitant Volume",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       23.6,
-       32.59
-      ]
-     },
-     {
-      "title": "Regurgitant Volume",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       21.61,
-       27.76
-      ]
-     },
-     {
-      "title": "Regurgitant Volume",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       21.48,
-       32.96
-      ]
-     },
-     {
-      "title": "Regurgitant Volume",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       18.8,
-       24.65
-      ]
-     },
-     {
-      "title": "Regurgitant Volume",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       18.36,
-       23.0
-      ]
-     },
-     {
-      "title": "Regurgitant Volume",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       21.11,
-       18.78
-      ]
-     },
-     {
-      "title": "Regurgitant Fraction",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       38.24,
-       34.81
-      ]
-     },
-     {
-      "title": "Regurgitant Fraction",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       31.0,
-       35.29
-      ]
-     },
-     {
-      "title": "Regurgitant Fraction",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       34.14,
-       42.2
-      ]
-     },
-     {
-      "title": "Regurgitant Fraction",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       32.15,
-       37.8
-      ]
-     },
-     {
-      "title": "Regurgitant Fraction",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       34.29,
-       41.79
-      ]
-     },
-     {
-      "title": "Regurgitant Fraction",
-      "type": "OTHER_PRE_SPECIFIED",
-      "counts": [
-       31.0,
-       38.71
-      ]
-     }
-    ],
-    "registration_counts_read_utc": "2026-08-18",
-    "registered_primaries": [
-     "Primary Safety Endpoint - Percentage of Participants With Freedom From Device Related Complications at 12 Months",
-     "Primary Effectiveness Endpoint"
-    ],
-    "registered_secondaries": [
-     "Recurrent Heart Failure (HF) Hospitalization (COAPT CAS Study Analysis)",
-     "New York Heart Association (NYHA) Functional Class (COAPT CAS Study Analysis)",
-     "New York Heart Association (NYHA) Functional Class (COAPT CAS Study Analysis)",
-     "Quality of Life (QOL) (COAPT CAS Study Analysis) Quality of Life (QoL) as Measured by the Kansas City Cardiomyopathy Questionnaire (KCCQ)",
-     "Quality of Life (QOL) (COAPT CAS Study Analysis) Quality of Life (QoL) as Measured by the Kansas City Cardiomyopathy Questionnaire (KCCQ)",
-     "Six Minute Walk Test (6MWT Distance or 6MWD) (COAPT CAS Study Analysis)",
-     "Six Minute Walk Test (6MWT Distance or 6MWD) (COAPT CAS Study Analysis)",
-     "Mitral Regurgitation (MR) Severity (COAPT CAS Study Analysis)",
-     "Mitral Regurgitation (MR) Severity (COAPT CAS Study Analysis)",
-     "Major and/or Life Threatening Bleeding (COAPT CAS Study Analysis)",
-     "Major and/or Life Threatening Bleeding (COAPT CAS Study Analysis)",
-     "Major Vascular Complications (COAPT CAS Study Analysis)",
-     "Major Vascular Complications (COAPT CAS Study Analysis)",
-     "Renal Complication With Requirement for Dialysis (COAPT CAS Study Analysis)",
-     "Renal Complication With Requirement for Dialysis (COAPT CAS Study Analysis)",
-     "Transient Ischemic Attack (TIA) (COAPT CAS Study Analysis)",
-     "Transient Ischemic Attack (TIA) (COAPT CAS Study Analysis)",
-     "Stroke (COAPT CAS Study Analysis)",
-     "Stroke (COAPT CAS Study Analysis)",
-     "Myocardial Infarction (MI) (COAPT CAS Study Analysis)",
-     "Myocardial Infarction (MI) (COAPT CAS Study Analysis)",
-     "Death and Primary Cause of Death (COAPT CAS Study Analysis)",
-     "Death and Primary Cause of Death (COAPT CAS Study Analysis)",
-     "Percentage of Patients Free From the Composite of All-cause Death, Stroke, MI, or Non-elective Cardiovascular Surgery for Device Related Complications in the Device Group",
-     "Number of Deaths at 12 Months (All Cause Mortality)",
-     "Number of Participants With Mitral Regurgitation Severity Grade of 2+ or Lower at 12 Months",
-     "Change in Distance Walked on the 6 Minute Walk Test (6MWT Distance or 6MWD)",
-     "Change in Quality of Life (QoL) as Measured by the Kansas City Cardiomyopathy Questionnaire (KCCQ)",
-     "Change in Left Ventricular End Diastolic Volume (LVEDV)",
-     "Number of Participants With New York Heart Association (NYHA) Functional Class I/II",
-     "Recurrent Hospitalizations - All Cause",
-     "Death or HF Hospitalization Within 24 Months (Finkelstein-Schoenfeld Analysis of All-Cause Death or Recurrent HF Hospitalization Through 24 Months)",
-     "Death and Primary Cause of Death (COAPT CAS Study Analysis)",
-     "Death and Primary Cause of Death (COAPT CAS Study Analysis)",
-     "Death and Primary Cause of Death (COAPT CAS Study Analysis)",
-     "Death and Primary Cause of Death (COAPT CAS Study Analysis)",
-     "Myocardial Infarction (MI) (COAPT CAS Study Analysis)",
-     "Myocardial Infarction (MI) (COAPT CAS Study Analysis)",
-     "Myocardial Infarction (MI) (COAPT CAS Study Analysis)",
-     "Myocardial Infarction (MI) (COAPT CAS Study Analysis)",
-     "Stroke (COAPT CAS Study Analysis)",
-     "Stroke (COAPT CAS Study Analysis)",
-     "Stroke (COAPT CAS Study Analysis)",
-     "Stroke (COAPT CAS Study Analysis)",
-     "Recurrent Heart Failure (HF) Hospitalization (COAPT CAS Study Analysis)",
-     "Recurrent Heart Failure (HF) Hospitalization (COAPT CAS Study Analysis)",
-     "Recurrent Heart Failure (HF) Hospitalization (COAPT CAS Study Analysis)",
-     "Recurrent Heart Failure (HF) Hospitalization (COAPT CAS Study Analysis)",
-     "Kaplan-Meier Freedom From All-cause Mortality"
-    ],
-    "registered_other_outcomes": [
-     "Device or Procedure-Related Adverse Events",
-     "Implant Rate",
-     "Device Procedure Time",
-     "Total Procedure Time",
-     "Device Time",
-     "Fluoroscopy Duration",
-     "MR Severity Grade",
-     "MR Severity Grade",
-     "MR Severity Grade",
-     "MR Severity Grade",
-     "MR Severity Grade",
-     "MR Severity Grade",
-     "MR Severity Grade",
-     "MR Severity Grade",
-     "Effective Regurgitant Orifice Area",
-     "Effective Regurgitant Orifice Area",
-     "Effective Regurgitant Orifice Area",
-     "Effective Regurgitant Orifice Area",
-     "Effective Regurgitant Orifice Area",
-     "Effective Regurgitant Orifice Area",
-     "Effective Regurgitant Orifice Area",
-     "Effective Regurgitant Orifice Area",
-     "Regurgitant Volume",
-     "Regurgitant Volume",
-     "Regurgitant Volume",
-     "Regurgitant Volume",
-     "Regurgitant Volume",
-     "Regurgitant Volume",
-     "Regurgitant Volume",
-     "Regurgitant Volume",
-     "Regurgitant Fraction",
-     "Regurgitant Fraction",
-     "Regurgitant Fraction",
-     "Regurgitant Fraction",
-     "Regurgitant Fraction",
-     "Regurgitant Fraction",
-     "Regurgitant Fraction",
-     "Regurgitant Fraction",
-     "Left Ventricle End Diastolic Volume (LVEDV)",
-     "Left Ventricle End Diastolic Volume (LVEDV)",
-     "Left Ventricle End Diastolic Volume (LVEDV)",
-     "Left Ventricle End Diastolic Volume (LVEDV)",
-     "Left Ventricle End Diastolic Volume (LVEDV)",
-     "Left Ventricle End Diastolic Volume (LVEDV)",
-     "Left Ventricle End Diastolic Volume (LVEDV)",
-     "Left Ventricle End Diastolic Volume (LVEDV)",
-     "Left Ventricular End Systolic Volume (LVESV)",
-     "Left Ventricular End Systolic Volume (LVESV)",
-     "Left Ventricular End Systolic Volume (LVESV)",
-     "Left Ventricular End Systolic Volume (LVESV)",
-     "Left Ventricular End Systolic Volume (LVESV)",
-     "Left Ventricular End Systolic Volume (LVESV)",
-     "Left Ventricular End Systolic Volume (LVESV)",
-     "Left Ventricular End Systolic Volume (LVESV)",
-     "Left Ventricular End Diastolic Dimension (LVEDD)",
-     "Left Ventricular End Diastolic Dimension (LVEDD)",
-     "Left Ventricular End Diastolic Dimension (LVEDD)",
-     "Left Ventricular End Diastolic Dimension (LVEDD)",
-     "Left Ventricular End Diastolic Dimension (LVEDD)",
-     "Left Ventricular End Diastolic Dimension (LVEDD)",
-     "Left Ventricular End Diastolic Dimension (LVEDD)",
-     "Left Ventricular End Diastolic Dimension (LVEDD)",
-     "Left Ventricular End Systolic Dimension (LVESD)",
-     "Left Ventricular End Systolic Dimension (LVESD)",
-     "Left Ventricular End Systolic Dimension (LVESD)",
-     "Left Ventricular End Systolic Dimension (LVESD)",
-     "Left Ventricular End Systolic Dimension (LVESD)",
-     "Left Ventricular End Systolic Dimension (LVESD)",
-     "Left Ventricular End Systolic Dimension (LVESD)",
-     "Left Ventricular End Systolic Dimension (LVESD)",
-     "Left Ventricular Ejection Fraction (LVEF)",
-     "Left Ventricular Ejection Fraction (LVEF)",
-     "Left Ventricular Ejection Fraction (LVEF)",
-     "Left Ventricular Ejection Fraction (LVEF)",
-     "Left Ventricular Ejection Fraction (LVEF)",
-     "Left Ventricular Ejection Fraction (LVEF)",
-     "Left Ventricular Ejection Fraction (LVEF)",
-     "Left Ventricular Ejection Fraction (LVEF)",
-     "Right Ventricular Systolic Pressure (RVSP)",
-     "Right Ventricular Systolic Pressure (RVSP)",
-     "Right Ventricular Systolic Pressure (RVSP)",
-     "Right Ventricular Systolic Pressure (RVSP)",
-     "Right Ventricular Systolic Pressure (RVSP)",
-     "Right Ventricular Systolic Pressure (RVSP)",
-     "Right Ventricular Systolic Pressure (RVSP)",
-     "Right Ventricular Systolic Pressure (RVSP)",
-     "Mitral Valve Area",
-     "Mitral Valve Area",
-     "Mitral Valve Area",
-     "Mitral Valve Area",
-     "Mitral Valve Area",
-     "Mitral Valve Area",
-     "Mitral Valve Area",
-     "Mitral Valve Area",
-     "Mean Mitral Valve Gradient",
-     "Mean Mitral Valve Gradient",
-     "Mean Mitral Valve Gradient",
-     "Mean Mitral Valve Gradient",
-     "Mean Mitral Valve Gradient",
-     "Mean Mitral Valve Gradient",
-     "Mean Mitral Valve Gradient",
-     "Mean Mitral Valve Gradient",
-     "Systolic Anterior Motion of the Mitral Valve (Present or Absent)",
-     "Systolic Anterior Motion of the Mitral Valve (Present or Absent)",
-     "Systolic Anterior Motion of the Mitral Valve (Present or Absent)",
-     "Systolic Anterior Motion of the Mitral Valve (Present or Absent)",
-     "Systolic Anterior Motion of the Mitral Valve (Present or Absent)",
-     "Systolic Anterior Motion of the Mitral Valve (Present or Absent)",
-     "Systolic Anterior Motion of the Mitral Valve (Present or Absent)",
-     "Systolic Anterior Motion of the Mitral Valve (Present or Absent)",
-     "Cardiac Output",
-     "Cardiac Output",
-     "Cardiac Output",
-     "Cardiac Output",
-     "Cardiac Output",
-     "Cardiac Output",
-     "Cardiac Output",
-     "Cardiac Output",
-     "Forward Stroke Volume",
-     "Forward Stroke Volume",
-     "Forward Stroke Volume",
-     "Forward Stroke Volume",
-     "Forward Stroke Volume",
-     "Forward Stroke Volume",
-     "Forward Stroke Volume",
-     "Forward Stroke Volume",
-     "Kaplan-Meier Freedom From the Components of the Primary Safety Composite",
-     "Kaplan-Meier Freedom From the Components of the Primary Safety Composite",
-     "Kaplan-Meier Freedom From the Components of the Primary Safety Composite",
-     "Kaplan-Meier Freedom From the Components of the Primary Safety Composite",
-     "Kaplan-Meier Freedom From the Components of the Primary Safety Composite",
-     "Kaplan-Meier Freedom From the Primary Safety Composite",
-     "Kaplan-Meier Freedom From the Primary Safety Composite",
-     "Kaplan-Meier Freedom From the Primary Safety Composite",
-     "Kaplan-Meier Freedom From the Primary Safety Composite",
-     "Kaplan-Meier Freedom From All-cause Mortality",
-     "Kaplan-Meier Freedom From All-cause Mortality",
-     "Kaplan-Meier Freedom From All-cause Mortality",
-     "Kaplan-Meier Freedom From All-cause Mortality",
-     "Kaplan-Meier Freedom From Cardiovascular Mortality",
-     "Kaplan-Meier Freedom From Cardiovascular Mortality",
-     "Kaplan-Meier Freedom From Cardiovascular Mortality",
-     "Kaplan-Meier Freedom From Cardiovascular Mortality",
-     "Kaplan-Meier Freedom From Cardiovascular Mortality",
-     "Kaplan-Meier Freedom From the First HF Related Hospitalization",
-     "Kaplan-Meier Freedom From the First HF Related Hospitalization",
-     "Kaplan-Meier Freedom From the First HF Related Hospitalization",
-     "Kaplan-Meier Freedom From the First HF Related Hospitalization",
-     "Kaplan-Meier Freedom From the First HF Related Hospitalization",
-     "Kaplan-Meier Freedom From the First Cardiovascular Hospitalization",
-     "Kaplan-Meier Freedom From the First Cardiovascular Hospitalization",
-     "Kaplan-Meier Freedom From the First Cardiovascular Hospitalization",
-     "Kaplan-Meier Freedom From the First Cardiovascular Hospitalization",
-     "Kaplan-Meier Freedom From the First Cardiovascular Hospitalization",
-     "Kaplan-Meier Freedom From the First HF Related Hospitalization or All-cause Mortality",
-     "Kaplan-Meier Freedom From the First HF Related Hospitalization or All-cause Mortality",
-     "Kaplan-Meier Freedom From the First HF Related Hospitalization or All-cause Mortality",
-     "Kaplan-Meier Freedom From the First HF Related Hospitalization or All-cause Mortality",
-     "Kaplan-Meier Freedom From the First HF Related Hospitalization or All-cause Mortality",
-     "NYHA Functional Class",
-     "NYHA Functional Class",
-     "NYHA Functional Class",
-     "NYHA Functional Class",
-     "NYHA Functional Class",
-     "NYHA Functional Class",
-     "NYHA Functional Class",
-     "NYHA Functional Class",
-     "Six-Minute Walk Test Distance (6MWD)",
-     "6MWD",
-     "6MWD",
-     "6MWD",
-     "6MWD",
-     "Change in 6MWD From Baseline",
-     "Change in 6MWD From Baseline",
-     "Change in 6MWD From Baseline",
-     "Change in 6MWD From Baseline",
-     "Kansas City Cardiomyopathy Questionnaire (KCCQ) QoL Scores",
-     "KCCQ QoL Scores",
-     "KCCQ QoL Scores",
-     "KCCQ QoL Scores",
-     "KCCQ QoL Scores",
-     "Change in KCCQ QoL Scores From Baseline",
-     "Change in KCCQ QoL Scores From Baseline",
-     "Change in KCCQ QoL Scores From Baseline",
-     "Change in KCCQ QoL Scores From Baseline",
-     "SF-36 QoL Scores",
-     "SF-36 QoL Scores",
-     "SF-36 QoL Scores",
-     "SF-36 QoL Scores",
-     "SF-36 QoL Scores",
-     "Change in SF-36 QoL Scores From Baseline",
-     "Change in SF-36 QoL Scores From Baseline",
-     "Change in SF-36 QoL Scores From Baseline",
-     "Change in SF-36 QoL Scores From Baseline",
-     "Mitral Valve Surgery (Including Type of Surgery), New Use of CRT, New Use of Single or Dual Chamber Pacemaker, Permanent LVAD Implant, Heart Transplant, Additional MitraClip Device Intervention in Device Group",
-     "De Novo MitraClip Device Intervention in Control Group",
-     "Responder Analysis for 6MWD",
-     "Responder Analysis for 6MWD",
-     "Responder Analysis for LVEDV Index",
-     "Responder Analysis for LVEDV Index",
-     "Responder Analysis for LVEDV Index",
-     "Responder Analysis for LVEDV Index",
-     "Responder Analysis for LVEDV Index",
-     "Responder Analysis for QoL (KCCQ)",
-     "Responder Analysis for QoL (KCCQ)",
-     "Each Subscale for QoL (KCCQ)",
-     "Each Subscale for QoL (KCCQ)",
-     "Length of Index Hospitalization for MitraClip Procedure (Device Group)",
-     "Number of Hospitalizations and Reason for Hospitalization (i.e. Heart Failure, Cardiovascular, Non-cardiovascular)",
-     "Number of Hospitalizations and Reason for Hospitalization (i.e. Heart Failure, Cardiovascular, Non-cardiovascular)",
-     "Number of Days Alive and Out of Hospital",
-     "Number of Days Alive and Out of Hospital",
-     "Number of Days Alive and Out of Hospital",
-     "Number of Days Alive and Out of Hospital",
-     "Number of Days Alive and Out of Hospital",
-     "Number of Days Hospitalized From the \"Treatment\" Visit",
-     "Number of Days Hospitalized From the \"Treatment\" Visit",
-     "Number of Days Hospitalized From the \"Treatment\" Visit",
-     "Number of Days Hospitalized From the \"Treatment\" Visit",
-     "Number of Days Hospitalized From the \"Treatment\" Visit",
-     "Proportion of Alive Time in Hospital",
-     "Proportion of Alive Time in Hospital",
-     "Proportion of Alive Time in Hospital",
-     "Proportion of Alive Time in Hospital",
-     "Proportion of Alive Time in Hospital",
-     "Proportion of Subjects Living in the Baseline Location",
-     "Proportion of Subjects Living in the Baseline Location",
-     "Proportion of Subjects Living in the Baseline Location",
-     "Proportion of Subjects Living in the Baseline Location",
-     "Proportion of Subjects Living in the Baseline Location",
-     "Mitral Valve Replacement Rates",
-     "Mitral Valve Replacement Rates",
-     "Mitral Valve Replacement Rates",
-     "Mitral Valve Replacement Rates",
-     "Mitral Valve Replacement Rates",
-     "New Onset of Permanent Atrial Fibrillation",
-     "New Onset of Permanent Atrial Fibrillation",
-     "New Onset of Permanent Atrial Fibrillation",
-     "New Onset of Permanent Atrial Fibrillation",
-     "New Onset of Permanent Atrial Fibrillation",
-     "Mitral Stenosis",
-     "Mitral Stenosis",
-     "Mitral Stenosis",
-     "Mitral Stenosis",
-     "Mitral Stenosis",
-     "Clinically Significant Atrial Septal Defect (ASD) That Requires Intervention",
-     "Clinically Significant Atrial Septal Defect (ASD) That Requires Intervention",
-     "Clinically Significant Atrial Septal Defect (ASD) That Requires Intervention",
-     "Clinically Significant Atrial Septal Defect (ASD) That Requires Intervention",
-     "Clinically Significant Atrial Septal Defect (ASD) That Requires Intervention",
-     "Device-related Complications in Device Group Subjects and Control Group Subjects Who Undergo the MitraClip Procedure",
-     "Brain Natriuretic Peptide (BNP) or N-terminal Prohormone of Brain Natriuretic Peptide (NT-proBNP Levels)",
-     "BNP or NT-proBNP Levels",
-     "BNP or NT-proBNP Levels",
-     "Modified Rankin Scale Score",
-     "Modified Rankin Scale Score",
-     "Modified Rankin Scale Score",
-     "Modified Rankin Scale Score",
-     "Major Bleeding",
-     "Prolonged Ventilation",
-     "Average Dosages of Guideline Directed Medical Therapy (GDMT)",
-     "Average Dosages of GDMT",
-     "Average Dosages of GDMT",
-     "Average Dosages of GDMT",
-     "Average Dosages of GDMT",
-     "Average Dosages of GDMT",
-     "Average Dosages of GDMT",
-     "Average Dosages of GDMT",
-     "The Number of Subjects With Changes in GDMT Dosage From Baseline",
-     "The Number of Subjects With Changes in GDMT Dosage From Baseline to 6 Months",
-     "The Number of Subjects With Changes in GDMT Dosage From Baseline and 12 Months",
-     "The Number of Subjects With Changes in GDMT Dosage From Baseline and 24 Months",
-     "The Number and Reasons for Any Changes in GDMT and GDMT Dosage From Baseline",
-     "The Number and Reasons for Any Changes in GDMT and GDMT Dosage From Baseline",
-     "The Number and Reasons for Any Changes in GDMT and GDMT Dosage From Baseline",
-     "The Number of Subjects With Change in GDMT From Baseline That Result in a Greater Than 100% Increase or Greater Than 50% Decrease in Dose",
-     "The Number of Subjects With Any Changes in GDMT From Baseline That Result in a Greater Than 100% Increase or Greater Than 50% Decrease in Dose",
-     "The Number of Subjects With Any Changes in GDMT From Baseline That Result in a Greater Than 100% Increase or Greater Than 50% Decrease in Dose",
-     "The Number of Subjects With Any Changes in GDMT From Baseline That Result in a Greater Than 100% Increase or Greater Than 50% Decrease in Dose",
-     "The Number and Reasons for Any Changes in GDMT From Baseline That Result in a Greater Than 100% Increase or Greater Than 50% Decrease in Dose",
-     "The Number and Reasons for Any Changes in GDMT From Baseline That Result in a Greater Than 100% Increase or Greater Than 50% Decrease in Dose",
-     "The Number and Reasons for Any Changes in GDMT From Baseline That Result in a Greater Than 100% Increase or Greater Than 50% Decrease in Dose",
-     "Cardiopulmonary Exercise (CPX) Testing",
-     "Cardiopulmonary Exercise (CPX) Testing",
-     "Cardiopulmonary Exercise (CPX) Testing: Mean Changes in Peak VO2",
-     "Health Economic Data"
-    ],
-    "all_ranks_read_utc": "2026-08-18"
-   },
-   {
-    "id": "NCT01920698",
-    "name": "MITRA-FR",
-    "nct": "NCT01920698",
-    "pmid": null,
-    "arms": [
-     {
-      "label": "MitraClip Device",
-      "role": "treatment",
-      "events": 83,
-      "participants": 152
-     },
-     {
-      "label": "Control",
-      "role": "control",
-      "events": 78,
-      "participants": 155
-     }
-    ],
-    "arms_as_the_registry_lists_them": "'MitraClip Device', 'Control'",
-    "by_outcome": {
-     "primary": {
-      "effect": {
-       "measure": "OR",
-       "scale": "log",
-       "point": null,
-       "ci_low": null,
-       "ci_high": null,
-       "ci_level": 95,
-       "derived_from": "not carried forward -- the estimate is withdrawn",
-       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
-      },
-      "provenance": {
-       "tag": "REGISTRY-READ",
-       "source_quotes": [],
-       "quote_note": "the endpoint definition is verbatim from the registry"
-      },
-      "source_url": "https://clinicaltrials.gov/study/NCT01920698",
-      "analysed": {
-       "treatment": 152,
-       "control": 155
-      },
-      "outcome_definition": "All-cause mortality and unplanned hospitalizations for heart failure",
-      "outcome_definition_source": {
-       "time_frame": "1 year",
-       "description_verbatim": "no description registered",
-       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
-       "source": "registry",
-       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
-       "source_url": "https://clinicaltrials.gov/study/NCT01920698",
-       "read_utc": "2026-08-18",
-       "components_as_the_registry_states_them": "ALL-CAUSE MORTALITY and unplanned hospitalisations for heart failure. A two-component composite whose death component is ALL-CAUSE.",
-       "analysis_set_as_the_registry_states_it": "12 months -- HALF the horizon of the other two trials."
-      }
-     }
-    },
-    "registration_counts_read_utc": "2026-08-18",
-    "registered_primaries": [
-     "All-cause mortality and unplanned hospitalizations for heart failure"
-    ],
-    "registered_secondaries": [
-     "All-cause mortality, cardiac mortality",
-     "Survival with no major cardiovascular events",
-     "Serious Adverse Events",
-     "Change in Quality of Life score as measured by the European Quality of Life-5 Dimensions instrument.",
-     "Change in functional evaluation",
-     "Change in echocardiographic evaluation between baseline at 6, 12 and 24 months.",
-     "Change in biomarkers (BNP levels, creatinine) at 6 months and 12 months",
-     "Cost-effectiveness of each strategy at 12 months"
-    ],
-    "registered_other_outcomes": [],
-    "all_ranks_read_utc": "2026-08-18"
-   },
-   {
-    "id": "NCT02444338",
-    "name": "RESHAPE-HF2",
-    "nct": "NCT02444338",
-    "pmid": null,
-    "arms": [
-     {
-      "label": "Control Group",
-      "role": "control",
-      "events": 139,
-      "participants": 255
-     },
-     {
-      "label": "Device Group",
-      "role": "treatment",
-      "events": 170,
-      "participants": 250
-     }
-    ],
-    "arms_as_the_registry_lists_them": "'Control Group', 'Device Group'",
-    "by_outcome": {
-     "primary": {
-      "effect": {
-       "measure": "OR",
-       "scale": "log",
-       "point": null,
-       "ci_low": null,
-       "ci_high": null,
-       "ci_level": 95,
-       "derived_from": "not carried forward -- the estimate is withdrawn",
-       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
-      },
-      "provenance": {
-       "tag": "REGISTRY-READ",
-       "source_quotes": [],
-       "quote_note": "the endpoint definition is verbatim from the registry"
-      },
-      "source_url": "https://clinicaltrials.gov/study/NCT02444338",
-      "analysed": {
-       "treatment": 255,
-       "control": 250
-      },
-      "outcome_definition": "Composite rate of recurrent heart failure hospitalizations and cardiovascular (CV) death within 24 months",
-      "outcome_definition_source": {
-       "time_frame": "24 months",
-       "description_verbatim": "Composite rate of recurrent heart failure hospitalizations and cardiovascular (CV) death within 24 months",
-       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
-       "source": "registry",
-       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
-       "source_url": "https://clinicaltrials.gov/study/NCT02444338",
-       "read_utc": "2026-08-18",
-       "components_as_the_registry_states_them": "THREE registered primaries: (1) composite rate of RECURRENT heart-failure hospitalisations and CARDIOVASCULAR death within 24 months; (2) rate of TOTAL, first and recurrent, HF hospitalisations within 24 months; (3) CHANGE IN QUALITY OF LIFE, the KCCQ overall score, at 12 months -- a CONTINUOUS outcome.",
-       "analysis_set_as_the_registry_states_it": "24 months for the two event primaries, 12 months for the quality-of-life primary. Its first primary counts RECURRENT events, not first events."
-      }
-     }
-    },
-    "registration_counts_read_utc": "2026-08-18",
-    "registered_primaries": [
-     "Composite rate of recurrent heart failure hospitalizations and cardiovascular (CV) death within 24 months",
-     "Rate of total (first and recurrent) HF hospitalizations within 24 months",
-     "Change in quality of life (i.e. overall KCCQ score) from baseline to 12 months"
-    ],
-    "registered_secondaries": [
-     "Percentage of patients with mitral regurgitation grade of 2+ or lower at 12 months as assessed by the Echocardiography Core Laboratory",
-     "Change in 6 Minute Walking Test distance from baseline to 12 months",
-     "All-cause mortality during all available follow-up",
-     "Rate of total (first and recurrent) hospitalizations for any cause within 24 months",
-     "Percentage of patients in NYHA function class I/II at 12 months"
-    ],
-    "registered_other_outcomes": [],
-    "all_ranks_read_utc": "2026-08-18"
-   }
-  ]
- },
- "results": {
-  "by_outcome": {
-   "primary": {
-    "k": 3,
-    "estimand_id": "primary",
+  "app_id": "mitral-funcmr-review",
+  "schema_version": "2-authored-from-source",
+  "title": "Transcatheter repair for functional mitral regurgitation",
+  "question": "Three trials of transcatheter mitral repair in functional regurgitation, registering three different composites at two different time horizons.",
+  "built": "2026-08-18T00:00Z",
+  "build_mode": "AUTHORED",
+  "_estimand_rule": "Every endpoint definition below was READ FROM THE REGISTRY, word for word, when this withdrawal was RE-VERIFIED on 2026-08-18.",
+  "source_links_enforced": true,
+  "source_links_enforced_means": "every trial row carries its registration link",
+  "cited_total": null,
+  "completeness_statement": "not recorded on the page this object was built from",
+  "verification_basis": {
+    "what_verifies_this_object": "ClinicalTrials.gov protocol records, read 2026-08-18",
+    "what_is_not_claimed": "that any per-trial count was checked against a results record",
+    "families": [],
+    "bar": "not recorded on the page this object was built from"
+  },
+  "methodological_authority": {
+    "reference": "not recorded on the page this object was built from",
+    "version": "not recorded on the page this object was built from",
+    "version_checked_on": "not recorded on the page this object was built from",
+    "version_checked_how": "not recorded on the page this object was built from",
+    "version_note": "not recorded on the page this object was built from",
+    "scope_of_this_rule": "not recorded on the page this object was built from",
+    "url": "not recorded on the page this object was built from",
+    "note": "not recorded on the page this object was built from"
+  },
+  "config": {
     "model": "random-effects",
-    "estimator": "not pooled -- the estimate is withdrawn",
-    "estimator_used": "none",
-    "handbook": {
-     "decision": "not recorded on the page this object was built from",
-     "sections": [],
-     "conformance": "not recorded on the page this object was built from"
-    },
-    "comparator_type": "active",
-    "favours": null,
-    "poolable": false,
-    "poolable_reason": "NOT POOLABLE, AND THE REGISTRY NOW SAYS WHY IN THE TRIALS' OWN WORDS. The three registrations declare three different primary outcomes at two different horizons. MITRA-FR registers 'All-cause mortality and unplanned hospitalizations for heart failure' AT 12 MONTHS. RESHAPE-HF2 registers a 'Composite rate of RECURRENT heart failure hospitalizations and CARDIOVASCULAR (CV) death WITHIN 24 MONTHS' -- cardiovascular death, not all-cause, and RECURRENT events rather than first events, which is a different counting rule altogether. COAPT registers a primary EFFECTIVENESS endpoint at 24 months AND a primary SAFETY endpoint, 'Freedom From Device Related Complications', at 12 months. A twelve-month all-cause composite, a twenty-four-month recurrent-event cardiovascular composite, and a device-safety proportion are three quantities, not one. AND RESHAPE-HF2 REGISTERS A CONTINUOUS PRIMARY AS WELL -- change in the KCCQ overall score at 12 months -- which no count-derived odds ratio can carry at all. THE ORIGINAL CARD NAMED ONLY TWO OF THE THREE TRIALS. It contrasted COAPT with MITRA-FR and did not mention RESHAPE-HF2, which is on the page and which adds the third distinct composite and the continuous primary. The verdict was right and its evidence was incomplete.",
-    "pool_uniformity": {
-     "effect_measure": [
-      "NOT ESTABLISHED",
-      "a count-derived odds ratio across trials registering first-event, recurrent-event and continuous primaries"
-     ],
-     "estimand": [
-      "REFUTED",
-      "three trials, three different composites, two horizons, and one continuous primary among them"
-     ]
-    },
-    "heterogeneity": null,
-    "heterogeneity_status": "not recorded on the page this object was built from",
-    "grade": null,
-    "cross_engine": null,
-    "sensitivity": null,
-    "single_study_ref": null,
-    "per_trial": [],
-    "pooled": {
-     "measure": "OR",
-     "point": null,
-     "ci_low": null,
-     "ci_high": null,
-     "ci_level": 95,
-     "scale": "log",
-     "withdrawn": true,
-     "withdrawn_reason": "NOT POOLABLE, AND THE REGISTRY NOW SAYS WHY IN THE TRIALS' OWN WORDS. The three registrations declare three different primary outcomes at two different horizons. MITRA-FR registers 'All-cause mortality and unplanned hospitalizations for heart failure' AT 12 MONTHS. RESHAPE-HF2 registers a 'Composite rate of RECURRENT heart failure hospitalizations and CARDIOVASCULAR (CV) death WITHIN 24 MONTHS' -- cardiovascular death, not all-cause, and RECURRENT events rather than first events, which is a different counting rule altogether. COAPT registers a primary EFFECTIVENESS endpoint at 24 months AND a primary SAFETY endpoint, 'Freedom From Device Related Complications', at 12 months. A twelve-month all-cause composite, a twenty-four-month recurrent-event cardiovascular composite, and a device-safety proportion are three quantities, not one. AND RESHAPE-HF2 REGISTERS A CONTINUOUS PRIMARY AS WELL -- change in the KCCQ overall score at 12 months -- which no count-derived odds ratio can carry at all. THE ORIGINAL CARD NAMED ONLY TWO OF THE THREE TRIALS. It contrasted COAPT with MITRA-FR and did not mention RESHAPE-HF2, which is on the page and which adds the third distinct composite and the continuous primary. The verdict was right and its evidence was incomplete.",
-     "withdrawn_note": "WHAT THIS DOES NOT ESTABLISH: NOT that transcatheter mitral repair does not help in functional mitral regurgitation, and NOT that COAPT and MITRA-FR disagreeing was a mistake by either. Those two trials enrolled different populations and measured different things over different horizons, which is the leading published explanation for their divergence and is visible directly in their registrations. The trials here measure heart-failure hospitalisation, death and quality of life on three different definitions, and nothing on this page estimates a single quantity across them. WHAT IS CONFIRMED: the NOT-POOLABLE verdict was correct before this re-verification and is correct after it -- this is the one topic in the cardiology set that reached the right answer without a detector, by a human noticing that two headline numbers were not comparable. All three identities are correct. THE REPLACEMENT QUESTION IS PARKED: RESHAPE-HF2 and COAPT share a 24-month horizon and both count heart-failure hospitalisation, so a synthesis restricted to that component is conceivable -- but one counts recurrent events and the other first events, and reconciling those is an estimand decision needing each trial's own results record.",
-     "withdrawn_on": "2026-08-18",
-     "reverification": "RE-VERIFIED 2026-08-18. VERDICT: NOT POOLABLE, CONFIRMED and SHARPENED. The card's contrast of COAPT against MITRA-FR is correct and incomplete: RESHAPE-HF2 is on the page, adds a third composite counting RECURRENT cardiovascular events over 24 months, and registers a CONTINUOUS quality-of-life primary as well.",
-     "card_note": "NOT POOLABLE, confirmed against the registry and sharpened: three trials, three different registered composites, two horizons (12 and 24 months), all-cause versus cardiovascular death, FIRST versus RECURRENT events -- and RESHAPE-HF2, which the old card did not mention, also registers a CONTINUOUS KCCQ primary"
-    },
-    "source_page_pooled": false,
-    "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
-    "estimand_established": null,
-    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
-    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
-   }
-  }
- },
- "manuscript": {
-  "references": {
-   "_what": "A reference list, assembled from this object's own fields. Distinct from `sources`, which records the provenance LAYER each fact was read at; this is what a reader would look up.",
-   "included_studies": [
+    "method": "not pooled -- withdrawn",
+    "scale": "log"
+  },
+  "screening": {
+    "search_note": "not recorded on the page this object was built from",
+    "eligibility": "not recorded on the page this object was built from",
+    "known_limitation": "not recorded on the page this object was built from"
+  },
+  "screening_names_unresolved": [],
+  "eligible_but_not_contributing": {
+    "note": "All included registrations carry a row in this object.",
+    "studies": []
+  },
+  "reconciliation": {
+    "why_this_step_exists": "not recorded on the page this object was built from",
+    "clean": null,
+    "clean_because": "not recorded on the page this object was built from",
+    "trial_list_diffs": [],
+    "matches": [],
+    "corrections": [],
+    "unresolved": []
+  },
+  "claims_corrected": [
     {
-     "registration": "NCT01626079",
-     "label": "",
-     "registry": "ClinicalTrials.gov",
-     "url": "https://clinicaltrials.gov/study/NCT01626079",
-     "read_utc": ""
-    },
-    {
-     "registration": "NCT01920698",
-     "label": "",
-     "registry": "ClinicalTrials.gov",
-     "url": "https://clinicaltrials.gov/study/NCT01920698",
-     "read_utc": ""
-    },
-    {
-     "registration": "NCT02444338",
-     "label": "",
-     "registry": "ClinicalTrials.gov",
-     "url": "https://clinicaltrials.gov/study/NCT02444338",
-     "read_utc": ""
+      "claim": "Not poolable -- COAPT vs MITRA-FR: different measures, endpoints and timepoints",
+      "where": "index.html card",
+      "what_it_actually_is": "correct, but naming two of the three trials on the page",
+      "evidence": "RESHAPE-HF2 (NCT02444338) is included and registers a third distinct composite plus a continuous KCCQ primary",
+      "corrected_to": "not poolable, with all three registered primaries quoted",
+      "on": "2026-08-18"
     }
-   ],
-   "published_syntheses_compared_against": [],
-   "_published_syntheses_note": "No published synthesis is listed here. The comparison section states its own denominator and why nothing citable was appraised. ",
-   "methods_guidance_and_software": [
+  ],
+  "scope_decisions": {},
+  "conversion_note": "AUTHORED, not converted. This topic's estimate was withdrawn BEFORE the current detector set existed; the withdrawal was re-verified against the registry on 2026-08-18.",
+  "sources": {},
+  "outcomes": [
     {
-     "cited_for": "the reporting guideline this manuscript is written against",
-     "citation": "Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71"
+      "id": "primary",
+      "name": "Three different registered composites, at 12 and at 24 months",
+      "definition": "NOT ONE DEFINITION, and the page has always said so. COAPT registers a device-safety primary AND an effectiveness primary; MITRA-FR registers all-cause mortality with unplanned heart-failure hospitalisation at 12 months; RESHAPE-HF2 registers THREE primaries including a continuous quality-of-life score.",
+      "definition_note": "Authored on re-verification of a NOT-POOLABLE verdict that was already correct and is now sourced.",
+      "measure": "OR",
+      "effect_scale": "log",
+      "type": "primary",
+      "estimand": {
+        "id": "primary",
+        "family": "first or recurrent event",
+        "model": "random-effects"
+      },
+      "comparator": "guideline-directed medical therapy",
+      "comparator_type": "active",
+      "direction_of_benefit": "lower is better",
+      "null_value": 1
     }
-   ]
+  ],
+  "inputs": {
+    "trials": [
+      {
+        "id": "NCT01626079",
+        "name": "COAPT",
+        "nct": "NCT01626079",
+        "pmid": null,
+        "arms": [
+          {
+            "label": "MitraClip System",
+            "role": "treatment",
+            "events": 151,
+            "participants": 302
+          },
+          {
+            "label": "COAPT CAS Group",
+            "role": "control",
+            "events": 212,
+            "participants": 312
+          }
+        ],
+        "arms_as_the_registry_lists_them": "'MitraClip System', 'Control Group', 'COAPT CAS Group'",
+        "by_outcome": {
+          "primary": {
+            "effect": {
+              "measure": "OR",
+              "scale": "log",
+              "point": null,
+              "ci_low": null,
+              "ci_high": null,
+              "ci_level": 95,
+              "derived_from": "not carried forward -- the estimate is withdrawn",
+              "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+            },
+            "provenance": {
+              "tag": "REGISTRY-READ",
+              "source_quotes": [],
+              "quote_note": "the endpoint definition is verbatim from the registry"
+            },
+            "source_url": "https://clinicaltrials.gov/study/NCT01626079",
+            "analysed": {
+              "treatment": 302,
+              "control": 312
+            },
+            "outcome_definition": "Primary Effectiveness Endpoint",
+            "outcome_definition_source": {
+              "time_frame": "24 months",
+              "description_verbatim": "Recurrent HF hospitalizations (HFH) through 24 months, analyzed when the last subject completes 12-month follow-up",
+              "endpoint_rank": "PRIMARY -- primaryOutcomes[1] on this registration",
+              "source": "registry",
+              "source_field": "protocolSection.outcomesModule.primaryOutcomes[1]",
+              "source_url": "https://clinicaltrials.gov/study/NCT01626079",
+              "read_utc": "2026-08-18",
+              "components_as_the_registry_states_them": "the registered PRIMARY EFFECTIVENESS endpoint. This registration also declares a PRIMARY SAFETY endpoint -- 'Percentage of Participants With Freedom From Device Related Complications at 12 Months' -- so it carries two primaries of opposite kind.",
+              "analysis_set_as_the_registry_states_it": "24 months. Note that the safety primary is measured at 12 months and the effectiveness primary at 24, within one registration."
+            }
+          }
+        },
+        "registration_primary_counts": {
+          "title": "Primary Effectiveness Endpoint",
+          "treatment_events": 92.0,
+          "control_events": 151.0,
+          "treatment_n": 302.0,
+          "control_n": 312.0,
+          "note": "arm order as the registry lists it; a swapped pair would show as a mismatch rather than a silent pass"
+        },
+        "registration_other_outcome_counts": [
+          {
+            "title": "Primary Effectiveness Endpoint",
+            "type": "PRIMARY",
+            "counts": [
+              160.0,
+              283.0
+            ]
+          },
+          {
+            "title": "Primary Effectiveness Endpoint",
+            "type": "PRIMARY",
+            "counts": [
+              92.0,
+              151.0
+            ]
+          },
+          {
+            "title": "Number of Deaths at 12 Months (All Cause Mortality)",
+            "type": "SECONDARY",
+            "counts": [
+              57.0,
+              70.0
+            ]
+          },
+          {
+            "title": "Number of Participants With Mitral Regurgitation Severity Grade of 2+ or Lower at 12 Months",
+            "type": "SECONDARY",
+            "counts": [
+              199.0,
+              82.0
+            ]
+          },
+          {
+            "title": "Change in Distance Walked on the 6 Minute Walk Test (6MWT Distance or 6MWD)",
+            "type": "SECONDARY",
+            "counts": [
+              -2.17,
+              -60.2
+            ]
+          },
+          {
+            "title": "Change in Quality of Life (QoL) as Measured by the Kansas City Cardiomyopathy Questionnaire (KCCQ)",
+            "type": "SECONDARY",
+            "counts": [
+              12.5,
+              -3.6
+            ]
+          },
+          {
+            "title": "Change in Left Ventricular End Diastolic Volume (LVEDV)",
+            "type": "SECONDARY",
+            "counts": [
+              -3.71,
+              17.06
+            ]
+          },
+          {
+            "title": "Number of Participants With New York Heart Association (NYHA) Functional Class I/II",
+            "type": "SECONDARY",
+            "counts": [
+              171.0,
+              115.0
+            ]
+          },
+          {
+            "title": "Recurrent Hospitalizations - All Cause",
+            "type": "SECONDARY",
+            "counts": [
+              474.0,
+              610.0
+            ]
+          },
+          {
+            "title": "Kaplan-Meier Freedom From All-cause Mortality",
+            "type": "SECONDARY",
+            "counts": [
+              83.0,
+              125.0
+            ]
+          },
+          {
+            "title": "MR Severity Grade",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              302.0,
+              311.0
+            ]
+          },
+          {
+            "title": "MR Severity Grade",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              286.0,
+              257.0
+            ]
+          },
+          {
+            "title": "MR Severity Grade",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              240.0,
+              218.0
+            ]
+          },
+          {
+            "title": "MR Severity Grade",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              210.0,
+              175.0
+            ]
+          },
+          {
+            "title": "MR Severity Grade",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              167.0,
+              126.0
+            ]
+          },
+          {
+            "title": "MR Severity Grade",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              120.0,
+              74.0
+            ]
+          },
+          {
+            "title": "MR Severity Grade",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              80.0,
+              49.0
+            ]
+          },
+          {
+            "title": "MR Severity Grade",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              57.0,
+              46.0
+            ]
+          },
+          {
+            "title": "Effective Regurgitant Orifice Area",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              0.41,
+              0.4
+            ]
+          },
+          {
+            "title": "Effective Regurgitant Orifice Area",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              0.14,
+              0.23
+            ]
+          },
+          {
+            "title": "Effective Regurgitant Orifice Area",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              0.22,
+              0.25
+            ]
+          },
+          {
+            "title": "Effective Regurgitant Orifice Area",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              0.18,
+              0.26
+            ]
+          },
+          {
+            "title": "Effective Regurgitant Orifice Area",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              0.15,
+              0.25
+            ]
+          },
+          {
+            "title": "Effective Regurgitant Orifice Area",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              0.18,
+              0.18
+            ]
+          },
+          {
+            "title": "Effective Regurgitant Orifice Area",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              0.14,
+              0.19
+            ]
+          },
+          {
+            "title": "Effective Regurgitant Orifice Area",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              0.15,
+              0.15
+            ]
+          },
+          {
+            "title": "Regurgitant Volume",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              28.8,
+              25.01
+            ]
+          },
+          {
+            "title": "Regurgitant Volume",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              20.04,
+              25.97
+            ]
+          },
+          {
+            "title": "Regurgitant Volume",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              23.6,
+              32.59
+            ]
+          },
+          {
+            "title": "Regurgitant Volume",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              21.61,
+              27.76
+            ]
+          },
+          {
+            "title": "Regurgitant Volume",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              21.48,
+              32.96
+            ]
+          },
+          {
+            "title": "Regurgitant Volume",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              18.8,
+              24.65
+            ]
+          },
+          {
+            "title": "Regurgitant Volume",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              18.36,
+              23.0
+            ]
+          },
+          {
+            "title": "Regurgitant Volume",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              21.11,
+              18.78
+            ]
+          },
+          {
+            "title": "Regurgitant Fraction",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              38.24,
+              34.81
+            ]
+          },
+          {
+            "title": "Regurgitant Fraction",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              31.0,
+              35.29
+            ]
+          },
+          {
+            "title": "Regurgitant Fraction",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              34.14,
+              42.2
+            ]
+          },
+          {
+            "title": "Regurgitant Fraction",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              32.15,
+              37.8
+            ]
+          },
+          {
+            "title": "Regurgitant Fraction",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              34.29,
+              41.79
+            ]
+          },
+          {
+            "title": "Regurgitant Fraction",
+            "type": "OTHER_PRE_SPECIFIED",
+            "counts": [
+              31.0,
+              38.71
+            ]
+          }
+        ],
+        "registration_counts_read_utc": "2026-08-18",
+        "registered_primaries": [
+          "Primary Safety Endpoint - Percentage of Participants With Freedom From Device Related Complications at 12 Months",
+          "Primary Effectiveness Endpoint"
+        ],
+        "registered_secondaries": [
+          "Recurrent Heart Failure (HF) Hospitalization (COAPT CAS Study Analysis)",
+          "New York Heart Association (NYHA) Functional Class (COAPT CAS Study Analysis)",
+          "New York Heart Association (NYHA) Functional Class (COAPT CAS Study Analysis)",
+          "Quality of Life (QOL) (COAPT CAS Study Analysis) Quality of Life (QoL) as Measured by the Kansas City Cardiomyopathy Questionnaire (KCCQ)",
+          "Quality of Life (QOL) (COAPT CAS Study Analysis) Quality of Life (QoL) as Measured by the Kansas City Cardiomyopathy Questionnaire (KCCQ)",
+          "Six Minute Walk Test (6MWT Distance or 6MWD) (COAPT CAS Study Analysis)",
+          "Six Minute Walk Test (6MWT Distance or 6MWD) (COAPT CAS Study Analysis)",
+          "Mitral Regurgitation (MR) Severity (COAPT CAS Study Analysis)",
+          "Mitral Regurgitation (MR) Severity (COAPT CAS Study Analysis)",
+          "Major and/or Life Threatening Bleeding (COAPT CAS Study Analysis)",
+          "Major and/or Life Threatening Bleeding (COAPT CAS Study Analysis)",
+          "Major Vascular Complications (COAPT CAS Study Analysis)",
+          "Major Vascular Complications (COAPT CAS Study Analysis)",
+          "Renal Complication With Requirement for Dialysis (COAPT CAS Study Analysis)",
+          "Renal Complication With Requirement for Dialysis (COAPT CAS Study Analysis)",
+          "Transient Ischemic Attack (TIA) (COAPT CAS Study Analysis)",
+          "Transient Ischemic Attack (TIA) (COAPT CAS Study Analysis)",
+          "Stroke (COAPT CAS Study Analysis)",
+          "Stroke (COAPT CAS Study Analysis)",
+          "Myocardial Infarction (MI) (COAPT CAS Study Analysis)",
+          "Myocardial Infarction (MI) (COAPT CAS Study Analysis)",
+          "Death and Primary Cause of Death (COAPT CAS Study Analysis)",
+          "Death and Primary Cause of Death (COAPT CAS Study Analysis)",
+          "Percentage of Patients Free From the Composite of All-cause Death, Stroke, MI, or Non-elective Cardiovascular Surgery for Device Related Complications in the Device Group",
+          "Number of Deaths at 12 Months (All Cause Mortality)",
+          "Number of Participants With Mitral Regurgitation Severity Grade of 2+ or Lower at 12 Months",
+          "Change in Distance Walked on the 6 Minute Walk Test (6MWT Distance or 6MWD)",
+          "Change in Quality of Life (QoL) as Measured by the Kansas City Cardiomyopathy Questionnaire (KCCQ)",
+          "Change in Left Ventricular End Diastolic Volume (LVEDV)",
+          "Number of Participants With New York Heart Association (NYHA) Functional Class I/II",
+          "Recurrent Hospitalizations - All Cause",
+          "Death or HF Hospitalization Within 24 Months (Finkelstein-Schoenfeld Analysis of All-Cause Death or Recurrent HF Hospitalization Through 24 Months)",
+          "Death and Primary Cause of Death (COAPT CAS Study Analysis)",
+          "Death and Primary Cause of Death (COAPT CAS Study Analysis)",
+          "Death and Primary Cause of Death (COAPT CAS Study Analysis)",
+          "Death and Primary Cause of Death (COAPT CAS Study Analysis)",
+          "Myocardial Infarction (MI) (COAPT CAS Study Analysis)",
+          "Myocardial Infarction (MI) (COAPT CAS Study Analysis)",
+          "Myocardial Infarction (MI) (COAPT CAS Study Analysis)",
+          "Myocardial Infarction (MI) (COAPT CAS Study Analysis)",
+          "Stroke (COAPT CAS Study Analysis)",
+          "Stroke (COAPT CAS Study Analysis)",
+          "Stroke (COAPT CAS Study Analysis)",
+          "Stroke (COAPT CAS Study Analysis)",
+          "Recurrent Heart Failure (HF) Hospitalization (COAPT CAS Study Analysis)",
+          "Recurrent Heart Failure (HF) Hospitalization (COAPT CAS Study Analysis)",
+          "Recurrent Heart Failure (HF) Hospitalization (COAPT CAS Study Analysis)",
+          "Recurrent Heart Failure (HF) Hospitalization (COAPT CAS Study Analysis)",
+          "Kaplan-Meier Freedom From All-cause Mortality"
+        ],
+        "registered_other_outcomes": [
+          "Device or Procedure-Related Adverse Events",
+          "Implant Rate",
+          "Device Procedure Time",
+          "Total Procedure Time",
+          "Device Time",
+          "Fluoroscopy Duration",
+          "MR Severity Grade",
+          "MR Severity Grade",
+          "MR Severity Grade",
+          "MR Severity Grade",
+          "MR Severity Grade",
+          "MR Severity Grade",
+          "MR Severity Grade",
+          "MR Severity Grade",
+          "Effective Regurgitant Orifice Area",
+          "Effective Regurgitant Orifice Area",
+          "Effective Regurgitant Orifice Area",
+          "Effective Regurgitant Orifice Area",
+          "Effective Regurgitant Orifice Area",
+          "Effective Regurgitant Orifice Area",
+          "Effective Regurgitant Orifice Area",
+          "Effective Regurgitant Orifice Area",
+          "Regurgitant Volume",
+          "Regurgitant Volume",
+          "Regurgitant Volume",
+          "Regurgitant Volume",
+          "Regurgitant Volume",
+          "Regurgitant Volume",
+          "Regurgitant Volume",
+          "Regurgitant Volume",
+          "Regurgitant Fraction",
+          "Regurgitant Fraction",
+          "Regurgitant Fraction",
+          "Regurgitant Fraction",
+          "Regurgitant Fraction",
+          "Regurgitant Fraction",
+          "Regurgitant Fraction",
+          "Regurgitant Fraction",
+          "Left Ventricle End Diastolic Volume (LVEDV)",
+          "Left Ventricle End Diastolic Volume (LVEDV)",
+          "Left Ventricle End Diastolic Volume (LVEDV)",
+          "Left Ventricle End Diastolic Volume (LVEDV)",
+          "Left Ventricle End Diastolic Volume (LVEDV)",
+          "Left Ventricle End Diastolic Volume (LVEDV)",
+          "Left Ventricle End Diastolic Volume (LVEDV)",
+          "Left Ventricle End Diastolic Volume (LVEDV)",
+          "Left Ventricular End Systolic Volume (LVESV)",
+          "Left Ventricular End Systolic Volume (LVESV)",
+          "Left Ventricular End Systolic Volume (LVESV)",
+          "Left Ventricular End Systolic Volume (LVESV)",
+          "Left Ventricular End Systolic Volume (LVESV)",
+          "Left Ventricular End Systolic Volume (LVESV)",
+          "Left Ventricular End Systolic Volume (LVESV)",
+          "Left Ventricular End Systolic Volume (LVESV)",
+          "Left Ventricular End Diastolic Dimension (LVEDD)",
+          "Left Ventricular End Diastolic Dimension (LVEDD)",
+          "Left Ventricular End Diastolic Dimension (LVEDD)",
+          "Left Ventricular End Diastolic Dimension (LVEDD)",
+          "Left Ventricular End Diastolic Dimension (LVEDD)",
+          "Left Ventricular End Diastolic Dimension (LVEDD)",
+          "Left Ventricular End Diastolic Dimension (LVEDD)",
+          "Left Ventricular End Diastolic Dimension (LVEDD)",
+          "Left Ventricular End Systolic Dimension (LVESD)",
+          "Left Ventricular End Systolic Dimension (LVESD)",
+          "Left Ventricular End Systolic Dimension (LVESD)",
+          "Left Ventricular End Systolic Dimension (LVESD)",
+          "Left Ventricular End Systolic Dimension (LVESD)",
+          "Left Ventricular End Systolic Dimension (LVESD)",
+          "Left Ventricular End Systolic Dimension (LVESD)",
+          "Left Ventricular End Systolic Dimension (LVESD)",
+          "Left Ventricular Ejection Fraction (LVEF)",
+          "Left Ventricular Ejection Fraction (LVEF)",
+          "Left Ventricular Ejection Fraction (LVEF)",
+          "Left Ventricular Ejection Fraction (LVEF)",
+          "Left Ventricular Ejection Fraction (LVEF)",
+          "Left Ventricular Ejection Fraction (LVEF)",
+          "Left Ventricular Ejection Fraction (LVEF)",
+          "Left Ventricular Ejection Fraction (LVEF)",
+          "Right Ventricular Systolic Pressure (RVSP)",
+          "Right Ventricular Systolic Pressure (RVSP)",
+          "Right Ventricular Systolic Pressure (RVSP)",
+          "Right Ventricular Systolic Pressure (RVSP)",
+          "Right Ventricular Systolic Pressure (RVSP)",
+          "Right Ventricular Systolic Pressure (RVSP)",
+          "Right Ventricular Systolic Pressure (RVSP)",
+          "Right Ventricular Systolic Pressure (RVSP)",
+          "Mitral Valve Area",
+          "Mitral Valve Area",
+          "Mitral Valve Area",
+          "Mitral Valve Area",
+          "Mitral Valve Area",
+          "Mitral Valve Area",
+          "Mitral Valve Area",
+          "Mitral Valve Area",
+          "Mean Mitral Valve Gradient",
+          "Mean Mitral Valve Gradient",
+          "Mean Mitral Valve Gradient",
+          "Mean Mitral Valve Gradient",
+          "Mean Mitral Valve Gradient",
+          "Mean Mitral Valve Gradient",
+          "Mean Mitral Valve Gradient",
+          "Mean Mitral Valve Gradient",
+          "Systolic Anterior Motion of the Mitral Valve (Present or Absent)",
+          "Systolic Anterior Motion of the Mitral Valve (Present or Absent)",
+          "Systolic Anterior Motion of the Mitral Valve (Present or Absent)",
+          "Systolic Anterior Motion of the Mitral Valve (Present or Absent)",
+          "Systolic Anterior Motion of the Mitral Valve (Present or Absent)",
+          "Systolic Anterior Motion of the Mitral Valve (Present or Absent)",
+          "Systolic Anterior Motion of the Mitral Valve (Present or Absent)",
+          "Systolic Anterior Motion of the Mitral Valve (Present or Absent)",
+          "Cardiac Output",
+          "Cardiac Output",
+          "Cardiac Output",
+          "Cardiac Output",
+          "Cardiac Output",
+          "Cardiac Output",
+          "Cardiac Output",
+          "Cardiac Output",
+          "Forward Stroke Volume",
+          "Forward Stroke Volume",
+          "Forward Stroke Volume",
+          "Forward Stroke Volume",
+          "Forward Stroke Volume",
+          "Forward Stroke Volume",
+          "Forward Stroke Volume",
+          "Forward Stroke Volume",
+          "Kaplan-Meier Freedom From the Components of the Primary Safety Composite",
+          "Kaplan-Meier Freedom From the Components of the Primary Safety Composite",
+          "Kaplan-Meier Freedom From the Components of the Primary Safety Composite",
+          "Kaplan-Meier Freedom From the Components of the Primary Safety Composite",
+          "Kaplan-Meier Freedom From the Components of the Primary Safety Composite",
+          "Kaplan-Meier Freedom From the Primary Safety Composite",
+          "Kaplan-Meier Freedom From the Primary Safety Composite",
+          "Kaplan-Meier Freedom From the Primary Safety Composite",
+          "Kaplan-Meier Freedom From the Primary Safety Composite",
+          "Kaplan-Meier Freedom From All-cause Mortality",
+          "Kaplan-Meier Freedom From All-cause Mortality",
+          "Kaplan-Meier Freedom From All-cause Mortality",
+          "Kaplan-Meier Freedom From All-cause Mortality",
+          "Kaplan-Meier Freedom From Cardiovascular Mortality",
+          "Kaplan-Meier Freedom From Cardiovascular Mortality",
+          "Kaplan-Meier Freedom From Cardiovascular Mortality",
+          "Kaplan-Meier Freedom From Cardiovascular Mortality",
+          "Kaplan-Meier Freedom From Cardiovascular Mortality",
+          "Kaplan-Meier Freedom From the First HF Related Hospitalization",
+          "Kaplan-Meier Freedom From the First HF Related Hospitalization",
+          "Kaplan-Meier Freedom From the First HF Related Hospitalization",
+          "Kaplan-Meier Freedom From the First HF Related Hospitalization",
+          "Kaplan-Meier Freedom From the First HF Related Hospitalization",
+          "Kaplan-Meier Freedom From the First Cardiovascular Hospitalization",
+          "Kaplan-Meier Freedom From the First Cardiovascular Hospitalization",
+          "Kaplan-Meier Freedom From the First Cardiovascular Hospitalization",
+          "Kaplan-Meier Freedom From the First Cardiovascular Hospitalization",
+          "Kaplan-Meier Freedom From the First Cardiovascular Hospitalization",
+          "Kaplan-Meier Freedom From the First HF Related Hospitalization or All-cause Mortality",
+          "Kaplan-Meier Freedom From the First HF Related Hospitalization or All-cause Mortality",
+          "Kaplan-Meier Freedom From the First HF Related Hospitalization or All-cause Mortality",
+          "Kaplan-Meier Freedom From the First HF Related Hospitalization or All-cause Mortality",
+          "Kaplan-Meier Freedom From the First HF Related Hospitalization or All-cause Mortality",
+          "NYHA Functional Class",
+          "NYHA Functional Class",
+          "NYHA Functional Class",
+          "NYHA Functional Class",
+          "NYHA Functional Class",
+          "NYHA Functional Class",
+          "NYHA Functional Class",
+          "NYHA Functional Class",
+          "Six-Minute Walk Test Distance (6MWD)",
+          "6MWD",
+          "6MWD",
+          "6MWD",
+          "6MWD",
+          "Change in 6MWD From Baseline",
+          "Change in 6MWD From Baseline",
+          "Change in 6MWD From Baseline",
+          "Change in 6MWD From Baseline",
+          "Kansas City Cardiomyopathy Questionnaire (KCCQ) QoL Scores",
+          "KCCQ QoL Scores",
+          "KCCQ QoL Scores",
+          "KCCQ QoL Scores",
+          "KCCQ QoL Scores",
+          "Change in KCCQ QoL Scores From Baseline",
+          "Change in KCCQ QoL Scores From Baseline",
+          "Change in KCCQ QoL Scores From Baseline",
+          "Change in KCCQ QoL Scores From Baseline",
+          "SF-36 QoL Scores",
+          "SF-36 QoL Scores",
+          "SF-36 QoL Scores",
+          "SF-36 QoL Scores",
+          "SF-36 QoL Scores",
+          "Change in SF-36 QoL Scores From Baseline",
+          "Change in SF-36 QoL Scores From Baseline",
+          "Change in SF-36 QoL Scores From Baseline",
+          "Change in SF-36 QoL Scores From Baseline",
+          "Mitral Valve Surgery (Including Type of Surgery), New Use of CRT, New Use of Single or Dual Chamber Pacemaker, Permanent LVAD Implant, Heart Transplant, Additional MitraClip Device Intervention in Device Group",
+          "De Novo MitraClip Device Intervention in Control Group",
+          "Responder Analysis for 6MWD",
+          "Responder Analysis for 6MWD",
+          "Responder Analysis for LVEDV Index",
+          "Responder Analysis for LVEDV Index",
+          "Responder Analysis for LVEDV Index",
+          "Responder Analysis for LVEDV Index",
+          "Responder Analysis for LVEDV Index",
+          "Responder Analysis for QoL (KCCQ)",
+          "Responder Analysis for QoL (KCCQ)",
+          "Each Subscale for QoL (KCCQ)",
+          "Each Subscale for QoL (KCCQ)",
+          "Length of Index Hospitalization for MitraClip Procedure (Device Group)",
+          "Number of Hospitalizations and Reason for Hospitalization (i.e. Heart Failure, Cardiovascular, Non-cardiovascular)",
+          "Number of Hospitalizations and Reason for Hospitalization (i.e. Heart Failure, Cardiovascular, Non-cardiovascular)",
+          "Number of Days Alive and Out of Hospital",
+          "Number of Days Alive and Out of Hospital",
+          "Number of Days Alive and Out of Hospital",
+          "Number of Days Alive and Out of Hospital",
+          "Number of Days Alive and Out of Hospital",
+          "Number of Days Hospitalized From the \"Treatment\" Visit",
+          "Number of Days Hospitalized From the \"Treatment\" Visit",
+          "Number of Days Hospitalized From the \"Treatment\" Visit",
+          "Number of Days Hospitalized From the \"Treatment\" Visit",
+          "Number of Days Hospitalized From the \"Treatment\" Visit",
+          "Proportion of Alive Time in Hospital",
+          "Proportion of Alive Time in Hospital",
+          "Proportion of Alive Time in Hospital",
+          "Proportion of Alive Time in Hospital",
+          "Proportion of Alive Time in Hospital",
+          "Proportion of Subjects Living in the Baseline Location",
+          "Proportion of Subjects Living in the Baseline Location",
+          "Proportion of Subjects Living in the Baseline Location",
+          "Proportion of Subjects Living in the Baseline Location",
+          "Proportion of Subjects Living in the Baseline Location",
+          "Mitral Valve Replacement Rates",
+          "Mitral Valve Replacement Rates",
+          "Mitral Valve Replacement Rates",
+          "Mitral Valve Replacement Rates",
+          "Mitral Valve Replacement Rates",
+          "New Onset of Permanent Atrial Fibrillation",
+          "New Onset of Permanent Atrial Fibrillation",
+          "New Onset of Permanent Atrial Fibrillation",
+          "New Onset of Permanent Atrial Fibrillation",
+          "New Onset of Permanent Atrial Fibrillation",
+          "Mitral Stenosis",
+          "Mitral Stenosis",
+          "Mitral Stenosis",
+          "Mitral Stenosis",
+          "Mitral Stenosis",
+          "Clinically Significant Atrial Septal Defect (ASD) That Requires Intervention",
+          "Clinically Significant Atrial Septal Defect (ASD) That Requires Intervention",
+          "Clinically Significant Atrial Septal Defect (ASD) That Requires Intervention",
+          "Clinically Significant Atrial Septal Defect (ASD) That Requires Intervention",
+          "Clinically Significant Atrial Septal Defect (ASD) That Requires Intervention",
+          "Device-related Complications in Device Group Subjects and Control Group Subjects Who Undergo the MitraClip Procedure",
+          "Brain Natriuretic Peptide (BNP) or N-terminal Prohormone of Brain Natriuretic Peptide (NT-proBNP Levels)",
+          "BNP or NT-proBNP Levels",
+          "BNP or NT-proBNP Levels",
+          "Modified Rankin Scale Score",
+          "Modified Rankin Scale Score",
+          "Modified Rankin Scale Score",
+          "Modified Rankin Scale Score",
+          "Major Bleeding",
+          "Prolonged Ventilation",
+          "Average Dosages of Guideline Directed Medical Therapy (GDMT)",
+          "Average Dosages of GDMT",
+          "Average Dosages of GDMT",
+          "Average Dosages of GDMT",
+          "Average Dosages of GDMT",
+          "Average Dosages of GDMT",
+          "Average Dosages of GDMT",
+          "Average Dosages of GDMT",
+          "The Number of Subjects With Changes in GDMT Dosage From Baseline",
+          "The Number of Subjects With Changes in GDMT Dosage From Baseline to 6 Months",
+          "The Number of Subjects With Changes in GDMT Dosage From Baseline and 12 Months",
+          "The Number of Subjects With Changes in GDMT Dosage From Baseline and 24 Months",
+          "The Number and Reasons for Any Changes in GDMT and GDMT Dosage From Baseline",
+          "The Number and Reasons for Any Changes in GDMT and GDMT Dosage From Baseline",
+          "The Number and Reasons for Any Changes in GDMT and GDMT Dosage From Baseline",
+          "The Number of Subjects With Change in GDMT From Baseline That Result in a Greater Than 100% Increase or Greater Than 50% Decrease in Dose",
+          "The Number of Subjects With Any Changes in GDMT From Baseline That Result in a Greater Than 100% Increase or Greater Than 50% Decrease in Dose",
+          "The Number of Subjects With Any Changes in GDMT From Baseline That Result in a Greater Than 100% Increase or Greater Than 50% Decrease in Dose",
+          "The Number of Subjects With Any Changes in GDMT From Baseline That Result in a Greater Than 100% Increase or Greater Than 50% Decrease in Dose",
+          "The Number and Reasons for Any Changes in GDMT From Baseline That Result in a Greater Than 100% Increase or Greater Than 50% Decrease in Dose",
+          "The Number and Reasons for Any Changes in GDMT From Baseline That Result in a Greater Than 100% Increase or Greater Than 50% Decrease in Dose",
+          "The Number and Reasons for Any Changes in GDMT From Baseline That Result in a Greater Than 100% Increase or Greater Than 50% Decrease in Dose",
+          "Cardiopulmonary Exercise (CPX) Testing",
+          "Cardiopulmonary Exercise (CPX) Testing",
+          "Cardiopulmonary Exercise (CPX) Testing: Mean Changes in Peak VO2",
+          "Health Economic Data"
+        ],
+        "all_ranks_read_utc": "2026-08-18"
+      },
+      {
+        "id": "NCT01920698",
+        "name": "MITRA-FR",
+        "nct": "NCT01920698",
+        "pmid": null,
+        "arms": [
+          {
+            "label": "MitraClip Device",
+            "role": "treatment",
+            "events": 83,
+            "participants": 152
+          },
+          {
+            "label": "Control",
+            "role": "control",
+            "events": 78,
+            "participants": 155
+          }
+        ],
+        "arms_as_the_registry_lists_them": "'MitraClip Device', 'Control'",
+        "by_outcome": {
+          "primary": {
+            "effect": {
+              "measure": "OR",
+              "scale": "log",
+              "point": null,
+              "ci_low": null,
+              "ci_high": null,
+              "ci_level": 95,
+              "derived_from": "not carried forward -- the estimate is withdrawn",
+              "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+            },
+            "provenance": {
+              "tag": "REGISTRY-READ",
+              "source_quotes": [],
+              "quote_note": "the endpoint definition is verbatim from the registry"
+            },
+            "source_url": "https://clinicaltrials.gov/study/NCT01920698",
+            "analysed": {
+              "treatment": 152,
+              "control": 155
+            },
+            "outcome_definition": "All-cause mortality and unplanned hospitalizations for heart failure",
+            "outcome_definition_source": {
+              "time_frame": "1 year",
+              "description_verbatim": "no description registered",
+              "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+              "source": "registry",
+              "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+              "source_url": "https://clinicaltrials.gov/study/NCT01920698",
+              "read_utc": "2026-08-18",
+              "components_as_the_registry_states_them": "ALL-CAUSE MORTALITY and unplanned hospitalisations for heart failure. A two-component composite whose death component is ALL-CAUSE.",
+              "analysis_set_as_the_registry_states_it": "12 months -- HALF the horizon of the other two trials."
+            }
+          }
+        },
+        "registration_counts_read_utc": "2026-08-18",
+        "registered_primaries": [
+          "All-cause mortality and unplanned hospitalizations for heart failure"
+        ],
+        "registered_secondaries": [
+          "All-cause mortality, cardiac mortality",
+          "Survival with no major cardiovascular events",
+          "Serious Adverse Events",
+          "Change in Quality of Life score as measured by the European Quality of Life-5 Dimensions instrument.",
+          "Change in functional evaluation",
+          "Change in echocardiographic evaluation between baseline at 6, 12 and 24 months.",
+          "Change in biomarkers (BNP levels, creatinine) at 6 months and 12 months",
+          "Cost-effectiveness of each strategy at 12 months"
+        ],
+        "registered_other_outcomes": [],
+        "all_ranks_read_utc": "2026-08-18"
+      },
+      {
+        "id": "NCT02444338",
+        "name": "RESHAPE-HF2",
+        "nct": "NCT02444338",
+        "pmid": null,
+        "arms": [
+          {
+            "label": "Control Group",
+            "role": "control",
+            "events": 139,
+            "participants": 255
+          },
+          {
+            "label": "Device Group",
+            "role": "treatment",
+            "events": 170,
+            "participants": 250
+          }
+        ],
+        "arms_as_the_registry_lists_them": "'Control Group', 'Device Group'",
+        "by_outcome": {
+          "primary": {
+            "effect": {
+              "measure": "OR",
+              "scale": "log",
+              "point": null,
+              "ci_low": null,
+              "ci_high": null,
+              "ci_level": 95,
+              "derived_from": "not carried forward -- the estimate is withdrawn",
+              "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+            },
+            "provenance": {
+              "tag": "REGISTRY-READ",
+              "source_quotes": [],
+              "quote_note": "the endpoint definition is verbatim from the registry"
+            },
+            "source_url": "https://clinicaltrials.gov/study/NCT02444338",
+            "analysed": {
+              "treatment": 255,
+              "control": 250
+            },
+            "outcome_definition": "Composite rate of recurrent heart failure hospitalizations and cardiovascular (CV) death within 24 months",
+            "outcome_definition_source": {
+              "time_frame": "24 months",
+              "description_verbatim": "Composite rate of recurrent heart failure hospitalizations and cardiovascular (CV) death within 24 months",
+              "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+              "source": "registry",
+              "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+              "source_url": "https://clinicaltrials.gov/study/NCT02444338",
+              "read_utc": "2026-08-18",
+              "components_as_the_registry_states_them": "THREE registered primaries: (1) composite rate of RECURRENT heart-failure hospitalisations and CARDIOVASCULAR death within 24 months; (2) rate of TOTAL, first and recurrent, HF hospitalisations within 24 months; (3) CHANGE IN QUALITY OF LIFE, the KCCQ overall score, at 12 months -- a CONTINUOUS outcome.",
+              "analysis_set_as_the_registry_states_it": "24 months for the two event primaries, 12 months for the quality-of-life primary. Its first primary counts RECURRENT events, not first events."
+            }
+          }
+        },
+        "registration_counts_read_utc": "2026-08-18",
+        "registered_primaries": [
+          "Composite rate of recurrent heart failure hospitalizations and cardiovascular (CV) death within 24 months",
+          "Rate of total (first and recurrent) HF hospitalizations within 24 months",
+          "Change in quality of life (i.e. overall KCCQ score) from baseline to 12 months"
+        ],
+        "registered_secondaries": [
+          "Percentage of patients with mitral regurgitation grade of 2+ or lower at 12 months as assessed by the Echocardiography Core Laboratory",
+          "Change in 6 Minute Walking Test distance from baseline to 12 months",
+          "All-cause mortality during all available follow-up",
+          "Rate of total (first and recurrent) hospitalizations for any cause within 24 months",
+          "Percentage of patients in NYHA function class I/II at 12 months"
+        ],
+        "registered_other_outcomes": [],
+        "all_ranks_read_utc": "2026-08-18"
+      }
+    ]
   },
-  "introduction": "This review asks: Three trials of transcatheter mitral repair in functional regurgitation, registering three different composites at two different time horizons.\n\nIt examines 3 randomised trials and DOES NOT POOL THEM, against guideline-directed medical therapy.\n\nThe outcome sought is Three different registered composites, at 12 and at 24 months.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace."
- },
- "risk_of_bias_verdict": null,
- "carried_contrasts": [],
- "absent_from_source": {
-  "protocol": "No protocol record was recoverable from the page.",
-  "search": "No search strategy was recoverable from the page.",
-  "screening": "No screening log was recoverable from the page.",
-  "rob2": "No risk-of-bias assessment was recoverable from the page.",
-  "grade": "No certainty rating was recoverable from the page.",
-  "sources": "Every ENDPOINT DEFINITION on this page is verbatim from the trial's own ClinicalTrials.gov record and carries a resolvable link. The per-trial counts are the page's own and carry no quoted source sentence."
- },
- "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over.",
- "display_change_announced": [
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  "results": {
+    "by_outcome": {
+      "primary": {
+        "k": 3,
+        "estimand_id": "primary",
+        "model": "random-effects",
+        "estimator": "not pooled -- the estimate is withdrawn",
+        "estimator_used": "none",
+        "handbook": {
+          "decision": "not recorded on the page this object was built from",
+          "sections": [],
+          "conformance": "not recorded on the page this object was built from"
+        },
+        "comparator_type": "active",
+        "favours": null,
+        "poolable": false,
+        "poolable_reason": "NOT POOLABLE, AND THE REGISTRY NOW SAYS WHY IN THE TRIALS' OWN WORDS. The three registrations declare three different primary outcomes at two different horizons. MITRA-FR registers 'All-cause mortality and unplanned hospitalizations for heart failure' AT 12 MONTHS. RESHAPE-HF2 registers a 'Composite rate of RECURRENT heart failure hospitalizations and CARDIOVASCULAR (CV) death WITHIN 24 MONTHS' -- cardiovascular death, not all-cause, and RECURRENT events rather than first events, which is a different counting rule altogether. COAPT registers a primary EFFECTIVENESS endpoint at 24 months AND a primary SAFETY endpoint, 'Freedom From Device Related Complications', at 12 months. A twelve-month all-cause composite, a twenty-four-month recurrent-event cardiovascular composite, and a device-safety proportion are three quantities, not one. AND RESHAPE-HF2 REGISTERS A CONTINUOUS PRIMARY AS WELL -- change in the KCCQ overall score at 12 months -- which no count-derived odds ratio can carry at all. THE ORIGINAL CARD NAMED ONLY TWO OF THE THREE TRIALS. It contrasted COAPT with MITRA-FR and did not mention RESHAPE-HF2, which is on the page and which adds the third distinct composite and the continuous primary. The verdict was right and its evidence was incomplete.",
+        "pool_uniformity": {
+          "effect_measure": [
+            "NOT ESTABLISHED",
+            "a count-derived odds ratio across trials registering first-event, recurrent-event and continuous primaries"
+          ],
+          "estimand": [
+            "REFUTED",
+            "three trials, three different composites, two horizons, and one continuous primary among them"
+          ]
+        },
+        "heterogeneity": null,
+        "heterogeneity_status": "not recorded on the page this object was built from",
+        "grade": null,
+        "cross_engine": null,
+        "sensitivity": null,
+        "single_study_ref": null,
+        "per_trial": [],
+        "pooled": {
+          "measure": "OR",
+          "point": null,
+          "ci_low": null,
+          "ci_high": null,
+          "ci_level": 95,
+          "scale": "log",
+          "withdrawn": true,
+          "withdrawn_reason": "NOT POOLABLE, AND THE REGISTRY NOW SAYS WHY IN THE TRIALS' OWN WORDS. The three registrations declare three different primary outcomes at two different horizons. MITRA-FR registers 'All-cause mortality and unplanned hospitalizations for heart failure' AT 12 MONTHS. RESHAPE-HF2 registers a 'Composite rate of RECURRENT heart failure hospitalizations and CARDIOVASCULAR (CV) death WITHIN 24 MONTHS' -- cardiovascular death, not all-cause, and RECURRENT events rather than first events, which is a different counting rule altogether. COAPT registers a primary EFFECTIVENESS endpoint at 24 months AND a primary SAFETY endpoint, 'Freedom From Device Related Complications', at 12 months. A twelve-month all-cause composite, a twenty-four-month recurrent-event cardiovascular composite, and a device-safety proportion are three quantities, not one. AND RESHAPE-HF2 REGISTERS A CONTINUOUS PRIMARY AS WELL -- change in the KCCQ overall score at 12 months -- which no count-derived odds ratio can carry at all. THE ORIGINAL CARD NAMED ONLY TWO OF THE THREE TRIALS. It contrasted COAPT with MITRA-FR and did not mention RESHAPE-HF2, which is on the page and which adds the third distinct composite and the continuous primary. The verdict was right and its evidence was incomplete.",
+          "withdrawn_note": "WHAT THIS DOES NOT ESTABLISH: NOT that transcatheter mitral repair does not help in functional mitral regurgitation, and NOT that COAPT and MITRA-FR disagreeing was a mistake by either. Those two trials enrolled different populations and measured different things over different horizons, which is the leading published explanation for their divergence and is visible directly in their registrations. The trials here measure heart-failure hospitalisation, death and quality of life on three different definitions, and nothing on this page estimates a single quantity across them. WHAT IS CONFIRMED: the NOT-POOLABLE verdict was correct before this re-verification and is correct after it -- this is the one topic in the cardiology set that reached the right answer without a detector, by a human noticing that two headline numbers were not comparable. All three identities are correct. THE REPLACEMENT QUESTION IS PARKED: RESHAPE-HF2 and COAPT share a 24-month horizon and both count heart-failure hospitalisation, so a synthesis restricted to that component is conceivable -- but one counts recurrent events and the other first events, and reconciling those is an estimand decision needing each trial's own results record.",
+          "withdrawn_on": "2026-08-18",
+          "reverification": "RE-VERIFIED 2026-08-18. VERDICT: NOT POOLABLE, CONFIRMED and SHARPENED. The card's contrast of COAPT against MITRA-FR is correct and incomplete: RESHAPE-HF2 is on the page, adds a third composite counting RECURRENT cardiovascular events over 24 months, and registers a CONTINUOUS quality-of-life primary as well.",
+          "card_note": "NOT POOLABLE, confirmed against the registry and sharpened: three trials, three different registered composites, two horizons (12 and 24 months), all-cause versus cardiovascular death, FIRST versus RECURRENT events -- and RESHAPE-HF2, which the old card did not mention, also registers a CONTINUOUS KCCQ primary"
+        },
+        "source_page_pooled": false,
+        "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+        "estimand_established": null,
+        "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+        "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+      }
+    }
   },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  "manuscript": {
+    "references": {
+      "_what": "A reference list, assembled from this object's own fields. Distinct from `sources`, which records the provenance LAYER each fact was read at; this is what a reader would look up.",
+      "included_studies": [
+        {
+          "registration": "NCT01626079",
+          "label": "",
+          "registry": "ClinicalTrials.gov",
+          "url": "https://clinicaltrials.gov/study/NCT01626079",
+          "read_utc": ""
+        },
+        {
+          "registration": "NCT01920698",
+          "label": "",
+          "registry": "ClinicalTrials.gov",
+          "url": "https://clinicaltrials.gov/study/NCT01920698",
+          "read_utc": ""
+        },
+        {
+          "registration": "NCT02444338",
+          "label": "",
+          "registry": "ClinicalTrials.gov",
+          "url": "https://clinicaltrials.gov/study/NCT02444338",
+          "read_utc": ""
+        }
+      ],
+      "published_syntheses_compared_against": [],
+      "_published_syntheses_note": "No published synthesis is listed here. The comparison section states its own denominator and why nothing citable was appraised. ",
+      "methods_guidance_and_software": [
+        {
+          "cited_for": "the reporting guideline this manuscript is written against",
+          "citation": "Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71"
+        }
+      ]
+    },
+    "introduction": "This review asks: Three trials of transcatheter mitral repair in functional regurgitation, registering three different composites at two different time horizons.\n\nIt examines 3 randomised trials and DOES NOT POOL THEM, against guideline-directed medical therapy.\n\nThe outcome sought is Three different registered composites, at 12 and at 24 months.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace."
   },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  "risk_of_bias_verdict": null,
+  "carried_contrasts": [],
+  "absent_from_source": {
+    "protocol": "No protocol record was recoverable from the page.",
+    "search": "No search strategy was recoverable from the page.",
+    "screening": "No screening log was recoverable from the page.",
+    "rob2": "No risk-of-bias assessment was recoverable from the page.",
+    "grade": "No certainty rating was recoverable from the page.",
+    "sources": "Every ENDPOINT DEFINITION on this page is verbatim from the trial's own ClinicalTrials.gov record and carries a resolvable link. The per-trial counts are the page's own and carry no quoted source sentence."
   },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  }
- ],
- "bookkeeping_2026_08_21": {
-  "_what": "The five reporting claims a PRISMA-2020 manuscript needs that are FETCHABLE rather than argued -- each derived from a field here, or stated as an honest absence.",
-  "which_limbs_this_review_refuses": "Of the four properties this project requires of a completed topic, 0 are held (none) and 4 are refused with the obstacle named in the evidence (comparison denominator, grade per pool, model output verbatim, rob per result).",
-  "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 3 included trials were identified by reading named registrations on the dates recorded on each entry. This object's verification rests on ClinicalTrials.gov protocol records, read 2026-08-18. This review does not claim that any per-trial count was checked against a results record. The bar this object had to clear is not recorded.",
-  "whether_this_review_was_prospectively_registered": "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.",
-  "that_two_assessors_disagreed_and_where": "NO SECOND, INDEPENDENT RISK-OF-BIAS ASSESSMENT IS RECORDED FOR THIS TOPIC. The judgements were made once. Stated so that single assessment is not mistaken for agreement between two."
- },
- "arm_role_corrections": [
-  {
-   "date": "2026-08-23",
-   "what_changed": "the `role` VALUE on 2 arm(s). No key added, none removed, no count, label, event or participant number touched.",
-   "corrected_from": "the ClinicalTrials.gov registration arm-group TYPE, matched to the object's arm by exact LABEL, with the object's participant count required to equal the registration's started count wherever the object held one.",
-   "not_corrected_from": "the drug name. Reading these by plausibility would invert NEURO-TTRansform (NCT04136184, attr-pn-review) the other way -- it compares eplontersen against a historical placebo group with inotersen as a reference, and that object's refusal to auto-correct is an asset.",
-   "consequence_for_published_numbers": "NONE. This object publishes no number computed from these arms.",
-   "arms": [
+  "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over.",
+  "display_change_announced": [
     {
-     "nct": "NCT02444338",
-     "trial": "RESHAPE-HF2",
-     "label": "Control Group",
-     "was": "treatment",
-     "now": "control",
-     "registry_type": "ACTIVE_COMPARATOR",
-     "registry_started_n": null,
-     "object_participants": 255
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
     },
     {
-     "nct": "NCT02444338",
-     "trial": "RESHAPE-HF2",
-     "label": "Device Group",
-     "was": "control",
-     "now": "treatment",
-     "registry_type": "EXPERIMENTAL",
-     "registry_started_n": null,
-     "object_participants": 250
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
     }
-   ],
-   "source": "https://clinicaltrials.gov/api/v2/studies/NCT02444338?fields=protocolSection.armsInterventionsModule,resultsSection.participantFlowModule"
-  }
- ]
+  ],
+  "bookkeeping_2026_08_21": {
+    "_what": "The five reporting claims a PRISMA-2020 manuscript needs that are FETCHABLE rather than argued -- each derived from a field here, or stated as an honest absence.",
+    "which_limbs_this_review_refuses": "Of the four properties this project requires of a completed topic, 0 are held (none) and 4 are refused with the obstacle named in the evidence (comparison denominator, grade per pool, model output verbatim, rob per result).",
+    "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 3 included trials were identified by reading named registrations on the dates recorded on each entry. This object's verification rests on ClinicalTrials.gov protocol records, read 2026-08-18. This review does not claim that any per-trial count was checked against a results record. The bar this object had to clear is not recorded.",
+    "whether_this_review_was_prospectively_registered": "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.",
+    "that_two_assessors_disagreed_and_where": "NO SECOND, INDEPENDENT RISK-OF-BIAS ASSESSMENT IS RECORDED FOR THIS TOPIC. The judgements were made once. Stated so that single assessment is not mistaken for agreement between two."
+  },
+  "arm_role_corrections": [
+    {
+      "date": "2026-08-23",
+      "what_changed": "the `role` VALUE on 2 arm(s). No key added, none removed, no count, label, event or participant number touched.",
+      "corrected_from": "the ClinicalTrials.gov registration arm-group TYPE, matched to the object's arm by exact LABEL, with the object's participant count required to equal the registration's started count wherever the object held one.",
+      "not_corrected_from": "the drug name. Reading these by plausibility would invert NEURO-TTRansform (NCT04136184, attr-pn-review) the other way -- it compares eplontersen against a historical placebo group with inotersen as a reference, and that object's refusal to auto-correct is an asset.",
+      "consequence_for_published_numbers": "NONE. This object publishes no number computed from these arms.",
+      "arms": [
+        {
+          "nct": "NCT02444338",
+          "trial": "RESHAPE-HF2",
+          "label": "Control Group",
+          "was": "treatment",
+          "now": "control",
+          "registry_type": "ACTIVE_COMPARATOR",
+          "registry_started_n": null,
+          "object_participants": 255
+        },
+        {
+          "nct": "NCT02444338",
+          "trial": "RESHAPE-HF2",
+          "label": "Device Group",
+          "was": "control",
+          "now": "treatment",
+          "registry_type": "EXPERIMENTAL",
+          "registry_started_n": null,
+          "object_participants": 250
+        }
+      ],
+      "source": "https://clinicaltrials.gov/api/v2/studies/NCT02444338?fields=protocolSection.armsInterventionsModule,resultsSection.participantFlowModule"
+    }
+  ]
 }

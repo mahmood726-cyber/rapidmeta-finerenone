@@ -850,8 +850,24 @@ class Section(object):
         """Emit `text` only if EVERY field it cites resolves. Otherwise record the refusal."""
         missing = [f for f in fields if get(obj, f) is None]
         if missing:
-            self.refusals.append((_tidy(text)[:70] + ("..." if len(text) > 70 else ""),
-                                  missing))
+            # A REFUSAL WITH NO SUBJECT IS THE DEFECT THIS BRANCH USED TO SHIP.
+            # `text` is composed by the caller from the very fields being checked, so when
+            # the field is absent the caller often hands us the empty string -- and the
+            # page then rendered a bare "Refused:" with nothing after it, 2 times on each
+            # of 145 pages. That is worse than silence: this project's whole contract with
+            # a reader is that an absent section is named, so the reader can tell an absent
+            # procedure from an unmentioned one. A refusal that names nothing breaks
+            # exactly that promise while looking like it is keeping it.
+            #
+            # NAMING THE SECTION IS NOT INVENTING CONTENT. The heading is already on the
+            # page directly above; repeating it in the refusal asserts nothing the object
+            # does not already say, and the missing field is still listed as the evidence.
+            what = _tidy(text)
+            what = what[:70] + ("..." if len(what) > 70 else "")
+            if not what.strip():
+                what = "the %s section -- nothing on this object composes it" % (
+                    (self.heading or self.key or "unnamed").strip().lower())
+            self.refusals.append((what, missing))
             return False
         # EVERY PARAGRAPH IS TIDIED HERE, which is the whole point of doing it here.
         self.paras.append((_tidy(text), list(fields)))

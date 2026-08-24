@@ -1,565 +1,565 @@
 {
- "app_id": "evolocumab-dyslipidemia-review",
- "schema_version": "2-authored-from-source",
- "title": "Evolocumab in dyslipidaemia",
- "question": "What did these two trials measure? One registers a cardiovascular composite and the other registers adverse events.",
- "built": "2026-08-18T00:00Z",
- "build_mode": "AUTHORED",
- "_estimand_rule": "Every endpoint definition below was READ FROM THE REGISTRY, word for word, when this withdrawal was RE-VERIFIED on 2026-08-18.",
- "source_links_enforced": true,
- "source_links_enforced_means": "every trial row carries its registration link",
- "cited_total": null,
- "completeness_statement": "not recorded on the page this object was built from",
- "verification_basis": {
-  "what_verifies_this_object": "ClinicalTrials.gov protocol records, read 2026-08-18",
-  "what_is_not_claimed": "that any per-trial count was checked against a results record",
-  "families": [],
-  "bar": "not recorded on the page this object was built from"
- },
- "methodological_authority": {
-  "reference": "not recorded on the page this object was built from",
-  "version": "not recorded on the page this object was built from",
-  "version_checked_on": "not recorded on the page this object was built from",
-  "version_checked_how": "not recorded on the page this object was built from",
-  "version_note": "not recorded on the page this object was built from",
-  "scope_of_this_rule": "not recorded on the page this object was built from",
-  "url": "not recorded on the page this object was built from",
-  "note": "not recorded on the page this object was built from"
- },
- "config": {
-  "model": "random-effects",
-  "method": "not pooled -- withdrawn",
-  "scale": "log"
- },
- "screening": {
-  "search_note": "not recorded on the page this object was built from",
-  "eligibility": "not recorded on the page this object was built from",
-  "known_limitation": "not recorded on the page this object was built from"
- },
- "screening_names_unresolved": [],
- "eligible_but_not_contributing": {
-  "note": "All included registrations carry a row in this object.",
-  "studies": []
- },
- "reconciliation": {
-  "why_this_step_exists": "not recorded on the page this object was built from",
-  "clean": null,
-  "clean_because": "not recorded on the page this object was built from",
-  "trial_list_diffs": [],
-  "matches": [],
-  "corrections": [],
-  "unresolved": []
- },
- "claims_corrected": [],
- "scope_decisions": {},
- "conversion_note": "AUTHORED, not converted. This topic's estimate was withdrawn BEFORE the current detector set existed; the withdrawal was re-verified against the registry on 2026-08-18.",
- "sources": {},
- "outcomes": [
-  {
-   "id": "primary",
-   "name": "A cardiovascular composite in one trial and ADVERSE EVENTS in the other",
-   "definition": "NOT ONE DEFINITION. FOURIER registers a five-component cardiovascular composite. OSLER-2 registers 'Number of Participants With Adverse Events'.",
-   "definition_note": "Authored on re-verification of a withdrawal made before the current detectors existed.",
-   "measure": "OR",
-   "effect_scale": "log",
-   "type": "primary",
-   "estimand": {
-    "id": "primary",
-    "family": "first event",
-    "model": "random-effects"
-   },
-   "comparator": "placebo",
-   "comparator_type": "placebo",
-   "direction_of_benefit": "lower is better",
-   "null_value": 1
-  }
- ],
- "inputs": {
-  "trials": [
-   {
-    "id": "NCT01764633",
-    "name": "FOURIER",
-    "nct": "NCT01764633",
-    "pmid": null,
-    "arms": [
-     {
-      "label": "Placebo",
-      "role": "control",
-      "events": 429,
-      "participants": 13780
-     },
-     {
-      "label": "Evolocumab",
-      "role": "treatment",
-      "events": 378,
-      "participants": 13784
-     }
-    ],
-    "arms_as_the_registry_lists_them": "'Placebo', 'Evolocumab'",
-    "by_outcome": {
-     "primary": {
-      "effect": {
-       "measure": "OR",
-       "scale": "log",
-       "point": null,
-       "ci_low": null,
-       "ci_high": null,
-       "ci_level": 95,
-       "derived_from": "not carried forward -- the estimate is withdrawn",
-       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
-      },
-      "provenance": {
-       "tag": "REGISTRY-READ",
-       "source_quotes": [],
-       "quote_note": "the endpoint definition is verbatim from the registry"
-      },
-      "source_url": "https://clinicaltrials.gov/study/NCT01764633",
-      "analysed": {
-       "treatment": 13780,
-       "control": 13784
-      },
-      "outcome_definition": "Time to Cardiovascular Death, Myocardial Infarction, Hospitalization for Unstable Angina, Stroke, or Coronary Revascularization",
-      "outcome_definition_source": {
-       "time_frame": "Events that occurred from randomization to the last confirmed survival status date; the median duration of follow-up was 26 months. KM estimates at 6, 12, 18, 24, 30 and 36 months are reported.",
-       "description_verbatim": "All deaths and potential endpoint events were adjudicated by an independent external Clinical Events Committee (CEC) led by the Thrombolysis in Myocardial Infarction (TIMI) Study Group, using standardized definitions based on the \"Standardized Definitions for Cardiovascular and Stroke End Point Events in Clinical Trials and the Third Universal Definition of Myocardial Infarction\".\n\nTime to cardiovascular death, myocardial infarction, stroke, hospitalization for unstable angina, or coronary revascularization was defined as the time from randomization to the first occurrence of any component of the composite endpoint and was analyzed using Kaplan-Meier (KM) survival analysis. KM estimates of the percentage of participants with an event are reported. Participants with no event were censored based on last non-fatal potential endpoint collection date.",
-       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
-       "source": "registry",
-       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
-       "source_url": "https://clinicaltrials.gov/study/NCT01764633",
-       "read_utc": "2026-08-18",
-       "components_as_the_registry_states_them": "cardiovascular death; myocardial infarction; stroke; hospitalisation for unstable angina; CORONARY REVASCULARIZATION. An EFFICACY composite.",
-       "analysis_set_as_the_registry_states_it": "Time to first occurrence, median follow-up 26 months. NOTE: the counts stored on this page, 429 and 378, are NOT this trial's primary-composite counts, which are 1,344 and 1,563. And the arm sizes are the wrong way round: 13,784 is the evolocumab arm and 13,780 the placebo arm."
-      }
-     }
-    },
-    "registration_primary_counts": {
-     "title": "Time to Cardiovascular Death, Myocardial Infarction, Hospitalization for Unstable Angina, Stroke, or Coronary Revascularization",
-     "treatment_events": 55.46,
-     "control_events": 47.910000000000004,
-     "treatment_n": 13780.0,
-     "control_n": 13784.0,
-     "note": "arm order as the registry lists it; a swapped pair would show as a mismatch rather than a silent pass"
-    },
-    "registration_other_outcome_counts": [
-     {
-      "title": "Time to Cardiovascular Death, Myocardial Infarction, Hospitalization for Unstable Angina, Stroke, or Coronary Revascularization",
-      "type": "PRIMARY",
-      "counts": [
-       55.46,
-       47.910000000000004
-      ]
-     },
-     {
-      "title": "Time to Cardiovascular Death, Myocardial Infarction, or Stroke",
-      "type": "SECONDARY",
-      "counts": [
-       35.79,
-       29.07
-      ]
-     },
-     {
-      "title": "Time to Cardiovascular Death",
-      "type": "SECONDARY",
-      "counts": [
-       8.360000000000001,
-       8.62
-      ]
-     },
-     {
-      "title": "Time to All Cause Death",
-      "type": "SECONDARY",
-      "counts": [
-       14.41,
-       14.940000000000001
-      ]
-     },
-     {
-      "title": "Time to First Myocardial Infarction",
-      "type": "SECONDARY",
-      "counts": [
-       22.69,
-       16.96
-      ]
-     },
-     {
-      "title": "Time to First Stroke",
-      "type": "SECONDARY",
-      "counts": [
-       9.2,
-       7.3100000000000005
-      ]
-     },
-     {
-      "title": "Time to First Coronary Revascularization",
-      "type": "SECONDARY",
-      "counts": [
-       34.43,
-       27.25
-      ]
-     },
-     {
-      "title": "Time to Cardiovascular Death or First Hospitalization for Worsening Heart Failure",
-      "type": "SECONDARY",
-      "counts": [
-       14.310000000000002,
-       14.0
-      ]
-     },
-     {
-      "title": "Time to First Ischemic Fatal or Non-Fatal Stroke or Transient Ischemic Attack",
-      "type": "SECONDARY",
-      "counts": [
-       10.440000000000001,
-       8.29
-      ]
-     }
-    ],
-    "registration_counts_read_utc": "2026-08-18",
-    "registered_primaries": [
-     "Time to Cardiovascular Death, Myocardial Infarction, Hospitalization for Unstable Angina, Stroke, or Coronary Revascularization"
-    ],
-    "registered_secondaries": [
-     "Time to Cardiovascular Death, Myocardial Infarction, or Stroke",
-     "Time to Cardiovascular Death",
-     "Time to All Cause Death",
-     "Time to First Myocardial Infarction",
-     "Time to First Stroke",
-     "Time to First Coronary Revascularization",
-     "Time to Cardiovascular Death or First Hospitalization for Worsening Heart Failure",
-     "Time to First Ischemic Fatal or Non-Fatal Stroke or Transient Ischemic Attack"
-    ],
-    "registered_other_outcomes": [],
-    "all_ranks_read_utc": "2026-08-18",
-    "arm_roles_contradicted_by_this_object_2026_08_20": {
-     "class": "A",
-     "detector": "scripts/lint_arm_roles_contradict_the_object.py",
-     "finding": "FOURIER's TREATMENT arm is labelled 'Placebo' and its CONTROL arm 'Evolocumab'. A placebo is not an intervention, so the roles are inverted. THESE ARMS CARRY EVENT COUNTS -- 429/13780 on the row called treatment and 378/13784 on the row called control -- so anything recomputed from them inverts with the roles. Not swapped here: that is a published-number decision.",
-     "NOT_CORRECTED": "The roles are NOT swapped. A swap changes what this object says the trial did, and where arms carry counts it inverts anything recomputed from them. Establishing a contrast is done from the registration, not from what the drug names make obvious -- which is exactly what attr-pn-review's NEURO-TTRansform row turned out to disprove."
-    }
-   },
-   {
-    "id": "NCT01854918",
-    "name": "OSLER-2",
-    "nct": "NCT01854918",
-    "pmid": null,
-    "arms": [
-     {
-      "label": "Standard of Care",
-      "role": "control",
-      "events": 519,
-      "participants": 1227
-     },
-     {
-      "label": "Evolocumab + Standard of Care",
-      "role": "treatment",
-      "events": 1070,
-      "participants": 2454
-     }
-    ],
-    "arms_as_the_registry_lists_them": "'Standard of Care', 'Evolocumab + Standard of Care'",
-    "by_outcome": {
-     "primary": {
-      "effect": {
-       "measure": "OR",
-       "scale": "log",
-       "point": null,
-       "ci_low": null,
-       "ci_high": null,
-       "ci_level": 95,
-       "derived_from": "not carried forward -- the estimate is withdrawn",
-       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
-      },
-      "provenance": {
-       "tag": "REGISTRY-READ",
-       "source_quotes": [],
-       "quote_note": "the endpoint definition is verbatim from the registry"
-      },
-      "source_url": "https://clinicaltrials.gov/study/NCT01854918",
-      "analysed": {
-       "treatment": 1227,
-       "control": 2454
-      },
-      "outcome_definition": "Number of Participants With Adverse Events",
-      "outcome_definition_source": {
-       "time_frame": "48 weeks in the SOC-controlled period and up to 2 years in the All-IP period",
-       "description_verbatim": "Adverse event (AE) severity assessments were made using National Cancer Institute Common Terminology Criteria for Adverse Events (CTCAE) grading, version 4.0, where grade 1 = mild AE, grade 2 = moderate AE, Grade 3 = severe AE, grade 4 = life-threatening AE and Grade 5 = death due to AE.",
-       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
-       "source": "registry",
-       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
-       "source_url": "https://clinicaltrials.gov/study/NCT01854918",
-       "read_utc": "2026-08-18",
-       "components_as_the_registry_states_them": "NUMBER OF PARTICIPANTS WITH ADVERSE EVENTS. That is the whole of the registered primary. There is no cardiovascular component, no efficacy component, and no composite.",
-       "analysis_set_as_the_registry_states_it": "An open-label extension study. Its arm sizes here, 1,227 against 2,454, are a 1:2 allocation, not the 1:1 the other trial has."
-      }
-     }
-    },
-    "registration_other_outcome_counts": [
-     {
-      "title": "Number of Participants With Adverse Events",
-      "type": "PRIMARY",
-      "counts": [
-       1555.0,
-       3279.0,
-       2086.0,
-       3977.0
-      ]
-     },
-     {
-      "title": "Percent Change From Baseline in LDL-C at Weeks 48 and 104",
-      "type": "SECONDARY",
-      "counts": [
-       -42.53,
-       -101.9
-      ]
-     },
-     {
-      "title": "Change From Baseline in LDL-C at Weeks 48 and 104",
-      "type": "SECONDARY",
-      "counts": [
-       -66.0,
-       -136.0
-      ]
-     }
-    ],
-    "registration_counts_read_utc": "2026-08-18",
-    "registered_primaries": [
-     "Number of Participants With Adverse Events"
-    ],
-    "registered_secondaries": [
-     "Percent Change From Baseline in LDL-C at Weeks 48 and 104",
-     "Change From Baseline in LDL-C at Weeks 48 and 104"
-    ],
-    "registered_other_outcomes": [],
-    "all_ranks_read_utc": "2026-08-18"
-   }
-  ]
- },
- "results": {
-  "by_outcome": {
-   "primary": {
-    "k": 2,
-    "estimand_id": "primary",
+  "app_id": "evolocumab-dyslipidemia-review",
+  "schema_version": "2-authored-from-source",
+  "title": "Evolocumab in dyslipidaemia",
+  "question": "What did these two trials measure? One registers a cardiovascular composite and the other registers adverse events.",
+  "built": "2026-08-18T00:00Z",
+  "build_mode": "AUTHORED",
+  "_estimand_rule": "Every endpoint definition below was READ FROM THE REGISTRY, word for word, when this withdrawal was RE-VERIFIED on 2026-08-18.",
+  "source_links_enforced": true,
+  "source_links_enforced_means": "every trial row carries its registration link",
+  "cited_total": null,
+  "completeness_statement": "not recorded on the page this object was built from",
+  "verification_basis": {
+    "what_verifies_this_object": "ClinicalTrials.gov protocol records, read 2026-08-18",
+    "what_is_not_claimed": "that any per-trial count was checked against a results record",
+    "families": [],
+    "bar": "not recorded on the page this object was built from"
+  },
+  "methodological_authority": {
+    "reference": "not recorded on the page this object was built from",
+    "version": "not recorded on the page this object was built from",
+    "version_checked_on": "not recorded on the page this object was built from",
+    "version_checked_how": "not recorded on the page this object was built from",
+    "version_note": "not recorded on the page this object was built from",
+    "scope_of_this_rule": "not recorded on the page this object was built from",
+    "url": "not recorded on the page this object was built from",
+    "note": "not recorded on the page this object was built from"
+  },
+  "config": {
     "model": "random-effects",
-    "estimator": "not pooled -- the estimate is withdrawn",
-    "estimator_used": "none",
-    "handbook": {
-     "decision": "not recorded on the page this object was built from",
-     "sections": [],
-     "conformance": "not recorded on the page this object was built from"
-    },
-    "comparator_type": "placebo",
-    "favours": null,
-    "poolable": false,
-    "poolable_reason": "ONE TRIAL REGISTERS A CARDIOVASCULAR COMPOSITE AND THE OTHER REGISTERS ADVERSE EVENTS, AND THE REGISTRY SAYS SO IN FOUR WORDS. OSLER-2's registered primary outcome is, verbatim and in its entirety, 'Number of Participants With Adverse Events'. FOURIER's is a five-component composite of cardiovascular death, myocardial infarction, stroke, hospitalisation for unstable angina and coronary revascularization. An adverse-event tally and an efficacy composite are not the same event, they are not measured for the same purpose, and for a lipid-lowering drug they do not move together. SEPARATELY, AND IT SHARPENS THE ORIGINAL REASON: the counts this page holds for FOURIER, 429 and 378, ARE NOT ITS PRIMARY-COMPOSITE COUNTS, which are 1,344 and 1,563. AND THE ARM SIZES ARE INVERTED -- 13,784 is FOURIER's evolocumab arm and 13,780 its placebo arm, and this page has them the other way round. So the row is wrong in its numerator, its denominator assignment and its endpoint at once.",
-    "pool_uniformity": {
-     "effect_measure": [
-      "NOT ESTABLISHED",
-      "an odds ratio derived from counts, on a page pooling an efficacy composite with an adverse-event tally"
-     ],
-     "estimand": [
-      "REFUTED",
-      "one trial registers a cardiovascular composite and the other registers adverse events"
-     ]
-    },
-    "heterogeneity": null,
-    "heterogeneity_status": "not recorded on the page this object was built from",
-    "grade": null,
-    "cross_engine": null,
-    "sensitivity": null,
-    "single_study_ref": null,
-    "per_trial": [],
-    "pooled": {
-     "measure": "OR",
-     "point": null,
-     "ci_low": null,
-     "ci_high": null,
-     "ci_level": 95,
-     "scale": "log",
-     "withdrawn": true,
-     "withdrawn_reason": "ONE TRIAL REGISTERS A CARDIOVASCULAR COMPOSITE AND THE OTHER REGISTERS ADVERSE EVENTS, AND THE REGISTRY SAYS SO IN FOUR WORDS. OSLER-2's registered primary outcome is, verbatim and in its entirety, 'Number of Participants With Adverse Events'. FOURIER's is a five-component composite of cardiovascular death, myocardial infarction, stroke, hospitalisation for unstable angina and coronary revascularization. An adverse-event tally and an efficacy composite are not the same event, they are not measured for the same purpose, and for a lipid-lowering drug they do not move together. SEPARATELY, AND IT SHARPENS THE ORIGINAL REASON: the counts this page holds for FOURIER, 429 and 378, ARE NOT ITS PRIMARY-COMPOSITE COUNTS, which are 1,344 and 1,563. AND THE ARM SIZES ARE INVERTED -- 13,784 is FOURIER's evolocumab arm and 13,780 its placebo arm, and this page has them the other way round. So the row is wrong in its numerator, its denominator assignment and its endpoint at once.",
-     "withdrawn_note": "WHAT THIS DOES NOT ESTABLISH: NOT that evolocumab is unsafe, and NOT that it is ineffective. The trials here measure a cardiovascular composite in one case and any adverse event in the other, and nothing on this page estimates the question its title implies. WHAT IS CONFIRMED: the original withdrawal was RIGHT and its stated reason -- 'adverse-event and efficacy endpoints pooled' -- is exactly what the two registrations say. Both identities are correct. FOURIER's own primary result is established elsewhere in this corpus and is not in question here. THE REPLACEMENT QUESTION IS PARKED: FOURIER alone carries a defensible cardiovascular estimate, and reporting one trial as a synthesis is a decision about what this page is for.",
-     "withdrawn_on": "2026-08-18",
-     "reverification": "RE-VERIFIED 2026-08-18. VERDICT: CONFIRMED and SHARPENED. The stated reason survives -- OSLER-2's registered primary is literally an adverse-event count -- and re-verification added two faults the original reason did not name: FOURIER's stored counts are not its primary-composite counts, and its arm sizes are inverted.",
-     "card_note": "CONFIRMED and sharpened: OSLER-2's registered primary is, in full, 'Number of Participants With Adverse Events'; FOURIER's is a five-component cardiovascular composite. Re-verification also found FOURIER's stored counts are not its primary's, and its arm sizes are inverted"
-    },
-    "source_page_pooled": false,
-    "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
-    "estimand_established": null,
-    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
-    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
-   }
-  }
- },
- "manuscript": {
-  "references": {
-   "_what": "A reference list, assembled from this object's own fields. Distinct from `sources`, which records the provenance LAYER each fact was read at; this is what a reader would look up.",
-   "included_studies": [
+    "method": "not pooled -- withdrawn",
+    "scale": "log"
+  },
+  "screening": {
+    "search_note": "not recorded on the page this object was built from",
+    "eligibility": "not recorded on the page this object was built from",
+    "known_limitation": "not recorded on the page this object was built from"
+  },
+  "screening_names_unresolved": [],
+  "eligible_but_not_contributing": {
+    "note": "All included registrations carry a row in this object.",
+    "studies": []
+  },
+  "reconciliation": {
+    "why_this_step_exists": "not recorded on the page this object was built from",
+    "clean": null,
+    "clean_because": "not recorded on the page this object was built from",
+    "trial_list_diffs": [],
+    "matches": [],
+    "corrections": [],
+    "unresolved": []
+  },
+  "claims_corrected": [],
+  "scope_decisions": {},
+  "conversion_note": "AUTHORED, not converted. This topic's estimate was withdrawn BEFORE the current detector set existed; the withdrawal was re-verified against the registry on 2026-08-18.",
+  "sources": {},
+  "outcomes": [
     {
-     "registration": "NCT01764633",
-     "label": "",
-     "registry": "ClinicalTrials.gov",
-     "url": "https://clinicaltrials.gov/study/NCT01764633",
-     "read_utc": ""
-    },
-    {
-     "registration": "NCT01854918",
-     "label": "",
-     "registry": "ClinicalTrials.gov",
-     "url": "https://clinicaltrials.gov/study/NCT01854918",
-     "read_utc": ""
+      "id": "primary",
+      "name": "A cardiovascular composite in one trial and ADVERSE EVENTS in the other",
+      "definition": "NOT ONE DEFINITION. FOURIER registers a five-component cardiovascular composite. OSLER-2 registers 'Number of Participants With Adverse Events'.",
+      "definition_note": "Authored on re-verification of a withdrawal made before the current detectors existed.",
+      "measure": "OR",
+      "effect_scale": "log",
+      "type": "primary",
+      "estimand": {
+        "id": "primary",
+        "family": "first event",
+        "model": "random-effects"
+      },
+      "comparator": "placebo",
+      "comparator_type": "placebo",
+      "direction_of_benefit": "lower is better",
+      "null_value": 1
     }
-   ],
-   "published_syntheses_compared_against": [],
-   "_published_syntheses_note": "No published synthesis is listed here. The comparison section states its own denominator and why nothing citable was appraised. ",
-   "methods_guidance_and_software": [
-    {
-     "cited_for": "the reporting guideline this manuscript is written against",
-     "citation": "Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71"
+  ],
+  "inputs": {
+    "trials": [
+      {
+        "id": "NCT01764633",
+        "name": "FOURIER",
+        "nct": "NCT01764633",
+        "pmid": null,
+        "arms": [
+          {
+            "label": "Placebo",
+            "role": "control",
+            "events": 429,
+            "participants": 13780
+          },
+          {
+            "label": "Evolocumab",
+            "role": "treatment",
+            "events": 378,
+            "participants": 13784
+          }
+        ],
+        "arms_as_the_registry_lists_them": "'Placebo', 'Evolocumab'",
+        "by_outcome": {
+          "primary": {
+            "effect": {
+              "measure": "OR",
+              "scale": "log",
+              "point": null,
+              "ci_low": null,
+              "ci_high": null,
+              "ci_level": 95,
+              "derived_from": "not carried forward -- the estimate is withdrawn",
+              "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+            },
+            "provenance": {
+              "tag": "REGISTRY-READ",
+              "source_quotes": [],
+              "quote_note": "the endpoint definition is verbatim from the registry"
+            },
+            "source_url": "https://clinicaltrials.gov/study/NCT01764633",
+            "analysed": {
+              "treatment": 13780,
+              "control": 13784
+            },
+            "outcome_definition": "Time to Cardiovascular Death, Myocardial Infarction, Hospitalization for Unstable Angina, Stroke, or Coronary Revascularization",
+            "outcome_definition_source": {
+              "time_frame": "Events that occurred from randomization to the last confirmed survival status date; the median duration of follow-up was 26 months. KM estimates at 6, 12, 18, 24, 30 and 36 months are reported.",
+              "description_verbatim": "All deaths and potential endpoint events were adjudicated by an independent external Clinical Events Committee (CEC) led by the Thrombolysis in Myocardial Infarction (TIMI) Study Group, using standardized definitions based on the \"Standardized Definitions for Cardiovascular and Stroke End Point Events in Clinical Trials and the Third Universal Definition of Myocardial Infarction\".\n\nTime to cardiovascular death, myocardial infarction, stroke, hospitalization for unstable angina, or coronary revascularization was defined as the time from randomization to the first occurrence of any component of the composite endpoint and was analyzed using Kaplan-Meier (KM) survival analysis. KM estimates of the percentage of participants with an event are reported. Participants with no event were censored based on last non-fatal potential endpoint collection date.",
+              "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+              "source": "registry",
+              "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+              "source_url": "https://clinicaltrials.gov/study/NCT01764633",
+              "read_utc": "2026-08-18",
+              "components_as_the_registry_states_them": "cardiovascular death; myocardial infarction; stroke; hospitalisation for unstable angina; CORONARY REVASCULARIZATION. An EFFICACY composite.",
+              "analysis_set_as_the_registry_states_it": "Time to first occurrence, median follow-up 26 months. NOTE: the counts stored on this page, 429 and 378, are NOT this trial's primary-composite counts, which are 1,344 and 1,563. And the arm sizes are the wrong way round: 13,784 is the evolocumab arm and 13,780 the placebo arm."
+            }
+          }
+        },
+        "registration_primary_counts": {
+          "title": "Time to Cardiovascular Death, Myocardial Infarction, Hospitalization for Unstable Angina, Stroke, or Coronary Revascularization",
+          "treatment_events": 55.46,
+          "control_events": 47.910000000000004,
+          "treatment_n": 13780.0,
+          "control_n": 13784.0,
+          "note": "arm order as the registry lists it; a swapped pair would show as a mismatch rather than a silent pass"
+        },
+        "registration_other_outcome_counts": [
+          {
+            "title": "Time to Cardiovascular Death, Myocardial Infarction, Hospitalization for Unstable Angina, Stroke, or Coronary Revascularization",
+            "type": "PRIMARY",
+            "counts": [
+              55.46,
+              47.910000000000004
+            ]
+          },
+          {
+            "title": "Time to Cardiovascular Death, Myocardial Infarction, or Stroke",
+            "type": "SECONDARY",
+            "counts": [
+              35.79,
+              29.07
+            ]
+          },
+          {
+            "title": "Time to Cardiovascular Death",
+            "type": "SECONDARY",
+            "counts": [
+              8.360000000000001,
+              8.62
+            ]
+          },
+          {
+            "title": "Time to All Cause Death",
+            "type": "SECONDARY",
+            "counts": [
+              14.41,
+              14.940000000000001
+            ]
+          },
+          {
+            "title": "Time to First Myocardial Infarction",
+            "type": "SECONDARY",
+            "counts": [
+              22.69,
+              16.96
+            ]
+          },
+          {
+            "title": "Time to First Stroke",
+            "type": "SECONDARY",
+            "counts": [
+              9.2,
+              7.3100000000000005
+            ]
+          },
+          {
+            "title": "Time to First Coronary Revascularization",
+            "type": "SECONDARY",
+            "counts": [
+              34.43,
+              27.25
+            ]
+          },
+          {
+            "title": "Time to Cardiovascular Death or First Hospitalization for Worsening Heart Failure",
+            "type": "SECONDARY",
+            "counts": [
+              14.310000000000002,
+              14.0
+            ]
+          },
+          {
+            "title": "Time to First Ischemic Fatal or Non-Fatal Stroke or Transient Ischemic Attack",
+            "type": "SECONDARY",
+            "counts": [
+              10.440000000000001,
+              8.29
+            ]
+          }
+        ],
+        "registration_counts_read_utc": "2026-08-18",
+        "registered_primaries": [
+          "Time to Cardiovascular Death, Myocardial Infarction, Hospitalization for Unstable Angina, Stroke, or Coronary Revascularization"
+        ],
+        "registered_secondaries": [
+          "Time to Cardiovascular Death, Myocardial Infarction, or Stroke",
+          "Time to Cardiovascular Death",
+          "Time to All Cause Death",
+          "Time to First Myocardial Infarction",
+          "Time to First Stroke",
+          "Time to First Coronary Revascularization",
+          "Time to Cardiovascular Death or First Hospitalization for Worsening Heart Failure",
+          "Time to First Ischemic Fatal or Non-Fatal Stroke or Transient Ischemic Attack"
+        ],
+        "registered_other_outcomes": [],
+        "all_ranks_read_utc": "2026-08-18",
+        "arm_roles_contradicted_by_this_object_2026_08_20": {
+          "class": "A",
+          "detector": "scripts/lint_arm_roles_contradict_the_object.py",
+          "finding": "FOURIER's TREATMENT arm is labelled 'Placebo' and its CONTROL arm 'Evolocumab'. A placebo is not an intervention, so the roles are inverted. THESE ARMS CARRY EVENT COUNTS -- 429/13780 on the row called treatment and 378/13784 on the row called control -- so anything recomputed from them inverts with the roles. Not swapped here: that is a published-number decision.",
+          "NOT_CORRECTED": "The roles are NOT swapped. A swap changes what this object says the trial did, and where arms carry counts it inverts anything recomputed from them. Establishing a contrast is done from the registration, not from what the drug names make obvious -- which is exactly what attr-pn-review's NEURO-TTRansform row turned out to disprove."
+        }
+      },
+      {
+        "id": "NCT01854918",
+        "name": "OSLER-2",
+        "nct": "NCT01854918",
+        "pmid": null,
+        "arms": [
+          {
+            "label": "Standard of Care",
+            "role": "control",
+            "events": 519,
+            "participants": 1227
+          },
+          {
+            "label": "Evolocumab + Standard of Care",
+            "role": "treatment",
+            "events": 1070,
+            "participants": 2454
+          }
+        ],
+        "arms_as_the_registry_lists_them": "'Standard of Care', 'Evolocumab + Standard of Care'",
+        "by_outcome": {
+          "primary": {
+            "effect": {
+              "measure": "OR",
+              "scale": "log",
+              "point": null,
+              "ci_low": null,
+              "ci_high": null,
+              "ci_level": 95,
+              "derived_from": "not carried forward -- the estimate is withdrawn",
+              "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+            },
+            "provenance": {
+              "tag": "REGISTRY-READ",
+              "source_quotes": [],
+              "quote_note": "the endpoint definition is verbatim from the registry"
+            },
+            "source_url": "https://clinicaltrials.gov/study/NCT01854918",
+            "analysed": {
+              "treatment": 1227,
+              "control": 2454
+            },
+            "outcome_definition": "Number of Participants With Adverse Events",
+            "outcome_definition_source": {
+              "time_frame": "48 weeks in the SOC-controlled period and up to 2 years in the All-IP period",
+              "description_verbatim": "Adverse event (AE) severity assessments were made using National Cancer Institute Common Terminology Criteria for Adverse Events (CTCAE) grading, version 4.0, where grade 1 = mild AE, grade 2 = moderate AE, Grade 3 = severe AE, grade 4 = life-threatening AE and Grade 5 = death due to AE.",
+              "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+              "source": "registry",
+              "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+              "source_url": "https://clinicaltrials.gov/study/NCT01854918",
+              "read_utc": "2026-08-18",
+              "components_as_the_registry_states_them": "NUMBER OF PARTICIPANTS WITH ADVERSE EVENTS. That is the whole of the registered primary. There is no cardiovascular component, no efficacy component, and no composite.",
+              "analysis_set_as_the_registry_states_it": "An open-label extension study. Its arm sizes here, 1,227 against 2,454, are a 1:2 allocation, not the 1:1 the other trial has."
+            }
+          }
+        },
+        "registration_other_outcome_counts": [
+          {
+            "title": "Number of Participants With Adverse Events",
+            "type": "PRIMARY",
+            "counts": [
+              1555.0,
+              3279.0,
+              2086.0,
+              3977.0
+            ]
+          },
+          {
+            "title": "Percent Change From Baseline in LDL-C at Weeks 48 and 104",
+            "type": "SECONDARY",
+            "counts": [
+              -42.53,
+              -101.9
+            ]
+          },
+          {
+            "title": "Change From Baseline in LDL-C at Weeks 48 and 104",
+            "type": "SECONDARY",
+            "counts": [
+              -66.0,
+              -136.0
+            ]
+          }
+        ],
+        "registration_counts_read_utc": "2026-08-18",
+        "registered_primaries": [
+          "Number of Participants With Adverse Events"
+        ],
+        "registered_secondaries": [
+          "Percent Change From Baseline in LDL-C at Weeks 48 and 104",
+          "Change From Baseline in LDL-C at Weeks 48 and 104"
+        ],
+        "registered_other_outcomes": [],
+        "all_ranks_read_utc": "2026-08-18"
+      }
+    ]
+  },
+  "results": {
+    "by_outcome": {
+      "primary": {
+        "k": 2,
+        "estimand_id": "primary",
+        "model": "random-effects",
+        "estimator": "not pooled -- the estimate is withdrawn",
+        "estimator_used": "none",
+        "handbook": {
+          "decision": "not recorded on the page this object was built from",
+          "sections": [],
+          "conformance": "not recorded on the page this object was built from"
+        },
+        "comparator_type": "placebo",
+        "favours": null,
+        "poolable": false,
+        "poolable_reason": "ONE TRIAL REGISTERS A CARDIOVASCULAR COMPOSITE AND THE OTHER REGISTERS ADVERSE EVENTS, AND THE REGISTRY SAYS SO IN FOUR WORDS. OSLER-2's registered primary outcome is, verbatim and in its entirety, 'Number of Participants With Adverse Events'. FOURIER's is a five-component composite of cardiovascular death, myocardial infarction, stroke, hospitalisation for unstable angina and coronary revascularization. An adverse-event tally and an efficacy composite are not the same event, they are not measured for the same purpose, and for a lipid-lowering drug they do not move together. SEPARATELY, AND IT SHARPENS THE ORIGINAL REASON: the counts this page holds for FOURIER, 429 and 378, ARE NOT ITS PRIMARY-COMPOSITE COUNTS, which are 1,344 and 1,563. AND THE ARM SIZES ARE INVERTED -- 13,784 is FOURIER's evolocumab arm and 13,780 its placebo arm, and this page has them the other way round. So the row is wrong in its numerator, its denominator assignment and its endpoint at once.",
+        "pool_uniformity": {
+          "effect_measure": [
+            "NOT ESTABLISHED",
+            "an odds ratio derived from counts, on a page pooling an efficacy composite with an adverse-event tally"
+          ],
+          "estimand": [
+            "REFUTED",
+            "one trial registers a cardiovascular composite and the other registers adverse events"
+          ]
+        },
+        "heterogeneity": null,
+        "heterogeneity_status": "not recorded on the page this object was built from",
+        "grade": null,
+        "cross_engine": null,
+        "sensitivity": null,
+        "single_study_ref": null,
+        "per_trial": [],
+        "pooled": {
+          "measure": "OR",
+          "point": null,
+          "ci_low": null,
+          "ci_high": null,
+          "ci_level": 95,
+          "scale": "log",
+          "withdrawn": true,
+          "withdrawn_reason": "ONE TRIAL REGISTERS A CARDIOVASCULAR COMPOSITE AND THE OTHER REGISTERS ADVERSE EVENTS, AND THE REGISTRY SAYS SO IN FOUR WORDS. OSLER-2's registered primary outcome is, verbatim and in its entirety, 'Number of Participants With Adverse Events'. FOURIER's is a five-component composite of cardiovascular death, myocardial infarction, stroke, hospitalisation for unstable angina and coronary revascularization. An adverse-event tally and an efficacy composite are not the same event, they are not measured for the same purpose, and for a lipid-lowering drug they do not move together. SEPARATELY, AND IT SHARPENS THE ORIGINAL REASON: the counts this page holds for FOURIER, 429 and 378, ARE NOT ITS PRIMARY-COMPOSITE COUNTS, which are 1,344 and 1,563. AND THE ARM SIZES ARE INVERTED -- 13,784 is FOURIER's evolocumab arm and 13,780 its placebo arm, and this page has them the other way round. So the row is wrong in its numerator, its denominator assignment and its endpoint at once.",
+          "withdrawn_note": "WHAT THIS DOES NOT ESTABLISH: NOT that evolocumab is unsafe, and NOT that it is ineffective. The trials here measure a cardiovascular composite in one case and any adverse event in the other, and nothing on this page estimates the question its title implies. WHAT IS CONFIRMED: the original withdrawal was RIGHT and its stated reason -- 'adverse-event and efficacy endpoints pooled' -- is exactly what the two registrations say. Both identities are correct. FOURIER's own primary result is established elsewhere in this corpus and is not in question here. THE REPLACEMENT QUESTION IS PARKED: FOURIER alone carries a defensible cardiovascular estimate, and reporting one trial as a synthesis is a decision about what this page is for.",
+          "withdrawn_on": "2026-08-18",
+          "reverification": "RE-VERIFIED 2026-08-18. VERDICT: CONFIRMED and SHARPENED. The stated reason survives -- OSLER-2's registered primary is literally an adverse-event count -- and re-verification added two faults the original reason did not name: FOURIER's stored counts are not its primary-composite counts, and its arm sizes are inverted.",
+          "card_note": "CONFIRMED and sharpened: OSLER-2's registered primary is, in full, 'Number of Participants With Adverse Events'; FOURIER's is a five-component cardiovascular composite. Re-verification also found FOURIER's stored counts are not its primary's, and its arm sizes are inverted"
+        },
+        "source_page_pooled": false,
+        "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+        "estimand_established": null,
+        "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+        "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+      }
     }
-   ]
   },
-  "introduction": "This review asks: What did these two trials measure? One registers a cardiovascular composite and the other registers adverse events.\n\nIt examines 2 randomised trials and DOES NOT POOL THEM, against placebo.\n\nThe outcome sought is A cardiovascular composite in one trial and ADVERSE EVENTS in the other.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace."
- },
- "risk_of_bias_verdict": null,
- "carried_contrasts": [],
- "absent_from_source": {
-  "protocol": "No protocol record was recoverable from the page.",
-  "search": "No search strategy was recoverable from the page.",
-  "screening": "No screening log was recoverable from the page.",
-  "rob2": "No risk-of-bias assessment was recoverable from the page.",
-  "grade": "No certainty rating was recoverable from the page.",
-  "sources": "Every ENDPOINT DEFINITION on this page is verbatim from the trial's own ClinicalTrials.gov record and carries a resolvable link. The per-trial counts are the page's own and carry no quoted source sentence."
- },
- "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over.",
- "display_change_announced": [
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  "manuscript": {
+    "references": {
+      "_what": "A reference list, assembled from this object's own fields. Distinct from `sources`, which records the provenance LAYER each fact was read at; this is what a reader would look up.",
+      "included_studies": [
+        {
+          "registration": "NCT01764633",
+          "label": "",
+          "registry": "ClinicalTrials.gov",
+          "url": "https://clinicaltrials.gov/study/NCT01764633",
+          "read_utc": ""
+        },
+        {
+          "registration": "NCT01854918",
+          "label": "",
+          "registry": "ClinicalTrials.gov",
+          "url": "https://clinicaltrials.gov/study/NCT01854918",
+          "read_utc": ""
+        }
+      ],
+      "published_syntheses_compared_against": [],
+      "_published_syntheses_note": "No published synthesis is listed here. The comparison section states its own denominator and why nothing citable was appraised. ",
+      "methods_guidance_and_software": [
+        {
+          "cited_for": "the reporting guideline this manuscript is written against",
+          "citation": "Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71"
+        }
+      ]
+    },
+    "introduction": "This review asks: What did these two trials measure? One registers a cardiovascular composite and the other registers adverse events.\n\nIt examines 2 randomised trials and DOES NOT POOL THEM, against placebo.\n\nThe outcome sought is A cardiovascular composite in one trial and ADVERSE EVENTS in the other.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace."
   },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  "risk_of_bias_verdict": null,
+  "carried_contrasts": [],
+  "absent_from_source": {
+    "protocol": "No protocol record was recoverable from the page.",
+    "search": "No search strategy was recoverable from the page.",
+    "screening": "No screening log was recoverable from the page.",
+    "rob2": "No risk-of-bias assessment was recoverable from the page.",
+    "grade": "No certainty rating was recoverable from the page.",
+    "sources": "Every ENDPOINT DEFINITION on this page is verbatim from the trial's own ClinicalTrials.gov record and carries a resolvable link. The per-trial counts are the page's own and carry no quoted source sentence."
   },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  }
- ],
- "bookkeeping_2026_08_21": {
-  "_what": "The five reporting claims a PRISMA-2020 manuscript needs that are FETCHABLE rather than argued -- each derived from a field here, or stated as an honest absence.",
-  "which_limbs_this_review_refuses": "Of the four properties this project requires of a completed topic, 0 are held (none) and 4 are refused with the obstacle named in the evidence (comparison denominator, grade per pool, model output verbatim, rob per result).",
-  "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 2 included trials were identified by reading named registrations on the dates recorded on each entry. This object's verification rests on ClinicalTrials.gov protocol records, read 2026-08-18. This review does not claim that any per-trial count was checked against a results record. The bar this object had to clear is not recorded.",
-  "whether_this_review_was_prospectively_registered": "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.",
-  "that_two_assessors_disagreed_and_where": "NO SECOND, INDEPENDENT RISK-OF-BIAS ASSESSMENT IS RECORDED FOR THIS TOPIC. The judgements were made once. Stated so that single assessment is not mistaken for agreement between two."
- },
- "arm_role_corrections": [
-  {
-   "date": "2026-08-23",
-   "what_changed": "the `role` VALUE on 4 arm(s). No key added, none removed, no count, label, event or participant number touched.",
-   "corrected_from": "the ClinicalTrials.gov registration arm-group TYPE, matched to the object's arm by exact LABEL, with the object's participant count required to equal the registration's started count wherever the object held one.",
-   "not_corrected_from": "the drug name. Reading these by plausibility would invert NEURO-TTRansform (NCT04136184, attr-pn-review) the other way -- it compares eplontersen against a historical placebo group with inotersen as a reference, and that object's refusal to auto-correct is an asset.",
-   "consequence_for_published_numbers": "NONE. This object publishes no number computed from these arms.",
-   "arms": [
+  "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over.",
+  "display_change_announced": [
     {
-     "nct": "NCT01764633",
-     "trial": "FOURIER",
-     "label": "Placebo",
-     "was": "treatment",
-     "now": "control",
-     "registry_type": "PLACEBO_COMPARATOR",
-     "registry_started_n": "13780",
-     "object_participants": 13780
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
     },
     {
-     "nct": "NCT01764633",
-     "trial": "FOURIER",
-     "label": "Evolocumab",
-     "was": "control",
-     "now": "treatment",
-     "registry_type": "EXPERIMENTAL",
-     "registry_started_n": "13784",
-     "object_participants": 13784
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
     },
     {
-     "nct": "NCT01854918",
-     "trial": "OSLER-2",
-     "label": "Standard of Care",
-     "was": "treatment",
-     "now": "control",
-     "registry_type": "ACTIVE_COMPARATOR",
-     "registry_started_n": "1227",
-     "object_participants": 1227
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
     },
     {
-     "nct": "NCT01854918",
-     "trial": "OSLER-2",
-     "label": "Evolocumab + Standard of Care",
-     "was": "control",
-     "now": "treatment",
-     "registry_type": "EXPERIMENTAL",
-     "registry_started_n": "2454",
-     "object_participants": 2454
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
     }
-   ],
-   "source": "https://clinicaltrials.gov/api/v2/studies/NCT01764633?fields=protocolSection.armsInterventionsModule,resultsSection.participantFlowModule"
-  }
- ]
+  ],
+  "bookkeeping_2026_08_21": {
+    "_what": "The five reporting claims a PRISMA-2020 manuscript needs that are FETCHABLE rather than argued -- each derived from a field here, or stated as an honest absence.",
+    "which_limbs_this_review_refuses": "Of the four properties this project requires of a completed topic, 0 are held (none) and 4 are refused with the obstacle named in the evidence (comparison denominator, grade per pool, model output verbatim, rob per result).",
+    "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 2 included trials were identified by reading named registrations on the dates recorded on each entry. This object's verification rests on ClinicalTrials.gov protocol records, read 2026-08-18. This review does not claim that any per-trial count was checked against a results record. The bar this object had to clear is not recorded.",
+    "whether_this_review_was_prospectively_registered": "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.",
+    "that_two_assessors_disagreed_and_where": "NO SECOND, INDEPENDENT RISK-OF-BIAS ASSESSMENT IS RECORDED FOR THIS TOPIC. The judgements were made once. Stated so that single assessment is not mistaken for agreement between two."
+  },
+  "arm_role_corrections": [
+    {
+      "date": "2026-08-23",
+      "what_changed": "the `role` VALUE on 4 arm(s). No key added, none removed, no count, label, event or participant number touched.",
+      "corrected_from": "the ClinicalTrials.gov registration arm-group TYPE, matched to the object's arm by exact LABEL, with the object's participant count required to equal the registration's started count wherever the object held one.",
+      "not_corrected_from": "the drug name. Reading these by plausibility would invert NEURO-TTRansform (NCT04136184, attr-pn-review) the other way -- it compares eplontersen against a historical placebo group with inotersen as a reference, and that object's refusal to auto-correct is an asset.",
+      "consequence_for_published_numbers": "NONE. This object publishes no number computed from these arms.",
+      "arms": [
+        {
+          "nct": "NCT01764633",
+          "trial": "FOURIER",
+          "label": "Placebo",
+          "was": "treatment",
+          "now": "control",
+          "registry_type": "PLACEBO_COMPARATOR",
+          "registry_started_n": "13780",
+          "object_participants": 13780
+        },
+        {
+          "nct": "NCT01764633",
+          "trial": "FOURIER",
+          "label": "Evolocumab",
+          "was": "control",
+          "now": "treatment",
+          "registry_type": "EXPERIMENTAL",
+          "registry_started_n": "13784",
+          "object_participants": 13784
+        },
+        {
+          "nct": "NCT01854918",
+          "trial": "OSLER-2",
+          "label": "Standard of Care",
+          "was": "treatment",
+          "now": "control",
+          "registry_type": "ACTIVE_COMPARATOR",
+          "registry_started_n": "1227",
+          "object_participants": 1227
+        },
+        {
+          "nct": "NCT01854918",
+          "trial": "OSLER-2",
+          "label": "Evolocumab + Standard of Care",
+          "was": "control",
+          "now": "treatment",
+          "registry_type": "EXPERIMENTAL",
+          "registry_started_n": "2454",
+          "object_participants": 2454
+        }
+      ],
+      "source": "https://clinicaltrials.gov/api/v2/studies/NCT01764633?fields=protocolSection.armsInterventionsModule,resultsSection.participantFlowModule"
+    }
+  ]
 }

@@ -1,521 +1,521 @@
 {
- "app_id": "rivaroxaban-acs-review",
- "schema_version": "2-authored-from-source",
- "title": "Rivaroxaban after acute coronary syndrome",
- "question": "Which endpoint do these two trials contribute? One registers a bleeding primary AND an efficacy primary and the page does not say which it used.",
- "built": "2026-08-18T00:00Z",
- "build_mode": "AUTHORED",
- "_estimand_rule": "Every endpoint definition below was READ FROM THE REGISTRY, word for word, when this withdrawal was RE-VERIFIED on 2026-08-18.",
- "source_links_enforced": true,
- "source_links_enforced_means": "every trial row carries its registration link",
- "cited_total": null,
- "completeness_statement": "not recorded on the page this object was built from",
- "verification_basis": {
-  "what_verifies_this_object": "ClinicalTrials.gov protocol records, read 2026-08-18",
-  "what_is_not_claimed": "that any per-trial count was checked against a results record",
-  "families": [],
-  "bar": "not recorded on the page this object was built from"
- },
- "methodological_authority": {
-  "reference": "not recorded on the page this object was built from",
-  "version": "not recorded on the page this object was built from",
-  "version_checked_on": "not recorded on the page this object was built from",
-  "version_checked_how": "not recorded on the page this object was built from",
-  "version_note": "not recorded on the page this object was built from",
-  "scope_of_this_rule": "not recorded on the page this object was built from",
-  "url": "not recorded on the page this object was built from",
-  "note": "not recorded on the page this object was built from"
- },
- "config": {
-  "model": "random-effects",
-  "method": "not pooled -- withdrawn",
-  "scale": "log"
- },
- "screening": {
-  "search_note": "not recorded on the page this object was built from",
-  "eligibility": "not recorded on the page this object was built from",
-  "known_limitation": "not recorded on the page this object was built from"
- },
- "screening_names_unresolved": [],
- "eligible_but_not_contributing": {
-  "note": "All included registrations carry a row in this object.",
-  "studies": []
- },
- "reconciliation": {
-  "why_this_step_exists": "not recorded on the page this object was built from",
-  "clean": null,
-  "clean_because": "not recorded on the page this object was built from",
-  "trial_list_diffs": [],
-  "matches": [],
-  "corrections": [],
-  "unresolved": []
- },
- "claims_corrected": [],
- "scope_decisions": {},
- "conversion_note": "AUTHORED, not converted. This topic's estimate was withdrawn BEFORE the current detector set existed; the withdrawal was re-verified against the registry on 2026-08-18.",
- "sources": {},
- "outcomes": [
-  {
-   "id": "primary",
-   "name": "Undeclared: one trial registers both a bleeding primary and an efficacy primary",
-   "definition": "ATLAS ACS TIMI 46 registers TWO primary outcomes -- a bleeding one and an efficacy one -- and this page does not record which it took. ATLAS ACS 2 registers a cardiovascular composite.",
-   "definition_note": "Authored on re-verification. The ambiguity is the finding.",
-   "measure": "OR",
-   "effect_scale": "log",
-   "type": "primary",
-   "estimand": {
-    "id": "primary",
-    "family": "first event",
-    "model": "random-effects"
-   },
-   "comparator": "placebo",
-   "comparator_type": "placebo",
-   "direction_of_benefit": "lower is better",
-   "null_value": 1
-  }
- ],
- "inputs": {
-  "trials": [
-   {
-    "id": "NCT00402597",
-    "name": "ATLAS ACS TIMI 46",
-    "nct": "NCT00402597",
-    "pmid": null,
-    "arms": [
-     {
-      "label": "001",
-      "role": "treatment",
-      "events": 18,
-      "participants": 1153
-     },
-     {
-      "label": "003",
-      "role": "control",
-      "events": 11,
-      "participants": 307
-     }
-    ],
-    "arms_as_the_registry_lists_them": "'001', '002', '003'",
-    "by_outcome": {
-     "primary": {
-      "effect": {
-       "measure": "OR",
-       "scale": "log",
-       "point": null,
-       "ci_low": null,
-       "ci_high": null,
-       "ci_level": 95,
-       "derived_from": "not carried forward -- the estimate is withdrawn",
-       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
-      },
-      "provenance": {
-       "tag": "REGISTRY-READ",
-       "source_quotes": [],
-       "quote_note": "the endpoint definition is verbatim from the registry"
-      },
-      "source_url": "https://clinicaltrials.gov/study/NCT00402597",
-      "analysed": {
-       "treatment": 1153,
-       "control": 307
-      },
-      "outcome_definition": "Thrombolysis in Myocardial Infarction (TIMI) Clinically Significant Bleeding Events (Primary Safety)",
-      "outcome_definition_source": {
-       "time_frame": "Day 1 to Day 210",
-       "description_verbatim": "The number of patients with a first occurrence of a TIMI clinically significant bleeding event that occurred from the time of randomization to the time of the last patient contact. TIMI clinically significant bleeding events included TIMI minor bleeding events, TIMI major bleeding events, or any bleeding that required medical attention.",
-       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
-       "source": "registry",
-       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
-       "source_url": "https://clinicaltrials.gov/study/NCT00402597",
-       "read_utc": "2026-08-18",
-       "components_as_the_registry_states_them": "TIMI CLINICALLY SIGNIFICANT BLEEDING -- registered as the PRIMARY SAFETY outcome. This registration ALSO declares a primary EFFICACY outcome: 'The Composite Endpoint of All Cause Death, Myocardial Infarction (Including Repeat MI), Stroke, or Severe Recurrent Ischemia Requiring Revascularization'. TWO primaries, opposite directions of benefit, and this page records neither as its choice.",
-       "analysis_set_as_the_registry_states_it": "Arm sizes on this page are 1,153 against 307 -- a ratio of nearly four to one. That is not a randomised comparison; it is what pooling several dose strata against one comparator stratum looks like."
-      }
-     }
-    },
-    "registration_primary_counts": {
-     "title": "Thrombolysis in Myocardial Infarction (TIMI) Clinically Significant Bleeding Events (Primary Safety)",
-     "treatment_events": 36.0,
-     "control_events": 17.0,
-     "treatment_n": 1153.0,
-     "control_n": 307.0,
-     "note": "arm order as the registry lists it; a swapped pair would show as a mismatch rather than a silent pass"
-    },
-    "registration_other_outcome_counts": [
-     {
-      "title": "Thrombolysis in Myocardial Infarction (TIMI) Clinically Significant Bleeding Events (Primary Safety)",
-      "type": "PRIMARY",
-      "counts": [
-       36.0,
-       17.0,
-       109.0,
-       43.0
-      ]
-     },
-     {
-      "title": "The Composite Endpoint of All Cause Death, Myocardial Infarction (MI) (Including Repeat MI), Stroke (Ischemic, Hemorrhagic or Unknown), or Severe Recurrent Ischemia Requiring Revascularization (Primary Efficacy)",
-      "type": "PRIMARY",
-      "counts": [
-       83.0,
-       23.0,
-       55.0,
-       27.0
-      ]
-     },
-     {
-      "title": "The Composite Endpoint of Death (All Cause), Myocardial Infarction (MI) (or Repeat MI), or Stroke",
-      "type": "SECONDARY",
-      "counts": [
-       66.0,
-       18.0,
-       40.0,
-       21.0
-      ]
-     },
-     {
-      "title": "The Composite Endpoint of Cardiovascular Death, Myocardial Infarction (MI), or Stroke",
-      "type": "SECONDARY",
-      "counts": [
-       63.0,
-       18.0,
-       40.0,
-       21.0
-      ]
-     },
-     {
-      "title": "The Number of Deaths (All Cause)",
-      "type": "SECONDARY",
-      "counts": [
-       18.0,
-       11.0,
-       9.0,
-       4.0
-      ]
-     },
-     {
-      "title": "The Composite Endpoint of Death (All Cause), MI (or reMI), Stroke, Severe Recurrent Ischemia Requiring Revascularization, or Thrombolysis in Myocardial Infarction (TIMI) (Major or Minor Bleeding) to Assess the Net Clinical Benefit",
-      "type": "SECONDARY",
-      "counts": [
-       88.0,
-       24.0,
-       71.0,
-       35.0
-      ]
-     }
-    ],
-    "registration_counts_read_utc": "2026-08-18",
-    "registered_primaries": [
-     "Thrombolysis in Myocardial Infarction (TIMI) Clinically Significant Bleeding Events (Primary Safety)",
-     "The Composite Endpoint of All Cause Death, Myocardial Infarction (MI) (Including Repeat MI), Stroke (Ischemic, Hemorrhagic or Unknown), or Severe Recurrent Ischemia Requiring Revascularization (Primary Efficacy)"
-    ],
-    "registered_secondaries": [
-     "The Composite Endpoint of Death (All Cause), Myocardial Infarction (MI) (or Repeat MI), or Stroke",
-     "The Composite Endpoint of Cardiovascular Death, Myocardial Infarction (MI), or Stroke",
-     "The Number of Deaths (All Cause)",
-     "The Composite Endpoint of Death (All Cause), MI (or reMI), Stroke, Severe Recurrent Ischemia Requiring Revascularization, or Thrombolysis in Myocardial Infarction (TIMI) (Major or Minor Bleeding) to Assess the Net Clinical Benefit"
-    ],
-    "registered_other_outcomes": [],
-    "all_ranks_read_utc": "2026-08-18"
-   },
-   {
-    "id": "NCT00809965",
-    "name": "ATLAS ACS 2",
-    "nct": "NCT00809965",
-    "pmid": null,
-    "arms": [
-     {
-      "label": "Rivaroxaban 2.5 mg bid",
-      "role": "treatment",
-      "events": 390,
-      "participants": 5125
-     },
-     {
-      "label": "Placebo",
-      "role": "control",
-      "events": 363,
-      "participants": 5115
-     }
-    ],
-    "arms_as_the_registry_lists_them": "'Rivaroxaban 2.5 mg bid', 'Rivaroxaban 5 mg bid', 'Placebo'",
-    "by_outcome": {
-     "primary": {
-      "effect": {
-       "measure": "OR",
-       "scale": "log",
-       "point": null,
-       "ci_low": null,
-       "ci_high": null,
-       "ci_level": 95,
-       "derived_from": "not carried forward -- the estimate is withdrawn",
-       "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
-      },
-      "provenance": {
-       "tag": "REGISTRY-READ",
-       "source_quotes": [],
-       "quote_note": "the endpoint definition is verbatim from the registry"
-      },
-      "source_url": "https://clinicaltrials.gov/study/NCT00809965",
-      "analysed": {
-       "treatment": 5125,
-       "control": 5115
-      },
-      "outcome_definition": "The Percentage of Patients With the Composite Endpoint of Cardiovascular Death, Myocardial Infarction, or Stroke",
-      "outcome_definition_source": {
-       "time_frame": "From the time of randomization (Day 1) up to completion of the treatment phase (Month 6)",
-       "description_verbatim": "The percentage of patients with the first occurrence of the composite of death, myocardial infarction, or stroke. The statistical analysis was based on the time from randomization to the first occurrence of the event while on treatment.",
-       "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
-       "source": "registry",
-       "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
-       "source_url": "https://clinicaltrials.gov/study/NCT00809965",
-       "read_utc": "2026-08-18",
-       "components_as_the_registry_states_them": "cardiovascular death; myocardial infarction; stroke. An EFFICACY composite.",
-       "analysis_set_as_the_registry_states_it": "Registered as a PERCENTAGE of patients, analysed from randomisation to first occurrence WHILE ON TREATMENT. NOTE: the counts stored here, 390 against 363, favour the COMPARATOR -- the opposite direction to this trial's registered primary result, which is another sign the row is not carrying the registered efficacy endpoint."
-      }
-     }
-    },
-    "registration_primary_counts": {
-     "title": "The Percentage of Patients With the Composite Endpoint of Cardiovascular Death, Myocardial Infarction, or Stroke",
-     "treatment_events": 7.4,
-     "control_events": 6.1,
-     "treatment_n": 5113.0,
-     "control_n": 5114.0,
-     "note": "arm order as the registry lists it; a swapped pair would show as a mismatch rather than a silent pass"
-    },
-    "registration_other_outcome_counts": [
-     {
-      "title": "The Percentage of Patients With the Composite Endpoint of Cardiovascular Death, Myocardial Infarction, or Stroke",
-      "type": "PRIMARY",
-      "counts": [
-       7.4,
-       6.1,
-       6.1
-      ]
-     },
-     {
-      "title": "The Percentage of Patients With the Composite of All Cause Death, Myocardial Infarction, or Stroke",
-      "type": "SECONDARY",
-      "counts": [
-       7.5,
-       6.3,
-       6.3
-      ]
-     },
-     {
-      "title": "The Percentage of Patients With the Composite of Cardiovascular Death, Myocardial Infarction, Ischemic Stroke, or TIMI Major Bleeding Event Not Associated With Coronary Artery Bypass Graft Surgery",
-      "type": "SECONDARY",
-      "counts": [
-       7.6,
-       7.1,
-       7.2
-      ]
-     },
-     {
-      "title": "The Percentage of Patients With the Composite of Cardiovascular Death, Myocardial Infarction, Stroke, or Severe Recurrent Ischemia Requiring Revascularization",
-      "type": "SECONDARY",
-      "counts": [
-       9.4,
-       8.5,
-       8.2
-      ]
-     },
-     {
-      "title": "The Percentage of Patients With the Composite of Cardiovascular Death, Myocardial Infarction, Stroke, or Severe Recurrent Ischemia Leading to Hospitalization",
-      "type": "SECONDARY",
-      "counts": [
-       8.7,
-       7.3,
-       7.6
-      ]
-     }
-    ],
-    "registration_counts_read_utc": "2026-08-18",
-    "registered_primaries": [
-     "The Percentage of Patients With the Composite Endpoint of Cardiovascular Death, Myocardial Infarction, or Stroke"
-    ],
-    "registered_secondaries": [
-     "The Percentage of Patients With the Composite of All Cause Death, Myocardial Infarction, or Stroke",
-     "The Percentage of Patients With the Composite of Cardiovascular Death, Myocardial Infarction, Ischemic Stroke, or TIMI Major Bleeding Event Not Associated With Coronary Artery Bypass Graft Surgery",
-     "The Percentage of Patients With the Composite of Cardiovascular Death, Myocardial Infarction, Stroke, or Severe Recurrent Ischemia Requiring Revascularization",
-     "The Percentage of Patients With the Composite of Cardiovascular Death, Myocardial Infarction, Stroke, or Severe Recurrent Ischemia Leading to Hospitalization"
-    ],
-    "registered_other_outcomes": [],
-    "all_ranks_read_utc": "2026-08-18"
-   }
-  ]
- },
- "results": {
-  "by_outcome": {
-   "primary": {
-    "k": 2,
-    "estimand_id": "primary",
+  "app_id": "rivaroxaban-acs-review",
+  "schema_version": "2-authored-from-source",
+  "title": "Rivaroxaban after acute coronary syndrome",
+  "question": "Which endpoint do these two trials contribute? One registers a bleeding primary AND an efficacy primary and the page does not say which it used.",
+  "built": "2026-08-18T00:00Z",
+  "build_mode": "AUTHORED",
+  "_estimand_rule": "Every endpoint definition below was READ FROM THE REGISTRY, word for word, when this withdrawal was RE-VERIFIED on 2026-08-18.",
+  "source_links_enforced": true,
+  "source_links_enforced_means": "every trial row carries its registration link",
+  "cited_total": null,
+  "completeness_statement": "not recorded on the page this object was built from",
+  "verification_basis": {
+    "what_verifies_this_object": "ClinicalTrials.gov protocol records, read 2026-08-18",
+    "what_is_not_claimed": "that any per-trial count was checked against a results record",
+    "families": [],
+    "bar": "not recorded on the page this object was built from"
+  },
+  "methodological_authority": {
+    "reference": "not recorded on the page this object was built from",
+    "version": "not recorded on the page this object was built from",
+    "version_checked_on": "not recorded on the page this object was built from",
+    "version_checked_how": "not recorded on the page this object was built from",
+    "version_note": "not recorded on the page this object was built from",
+    "scope_of_this_rule": "not recorded on the page this object was built from",
+    "url": "not recorded on the page this object was built from",
+    "note": "not recorded on the page this object was built from"
+  },
+  "config": {
     "model": "random-effects",
-    "estimator": "not pooled -- the estimate is withdrawn",
-    "estimator_used": "none",
-    "handbook": {
-     "decision": "not recorded on the page this object was built from",
-     "sections": [],
-     "conformance": "not recorded on the page this object was built from"
-    },
-    "comparator_type": "placebo",
-    "favours": null,
-    "poolable": false,
-    "poolable_reason": "THIS PAGE DOES NOT SAY WHICH ENDPOINT IT POOLED, AND ONE OF ITS TWO TRIALS REGISTERS TWO PRIMARIES POINTING IN OPPOSITE DIRECTIONS. ATLAS ACS TIMI 46 declares a primary SAFETY outcome, 'Thrombolysis in Myocardial Infarction (TIMI) Clinically Significant Bleeding Events', AND a primary EFFICACY outcome, 'The Composite Endpoint of All Cause Death, Myocardial Infarction (Including Repeat MI), Stroke, or Severe Recurrent Ischemia Requiring Revascularization'. For an anticoagulant those move in opposite directions, and the object records no choice between them -- so the pooled quantity is undefined before any arithmetic begins. TWO FURTHER FAULTS THE REGISTRY EXPOSES. ATLAS ACS TIMI 46'S ARM SIZES HERE ARE 1,153 AGAINST 307, a ratio of nearly four to one, which is not a randomised comparison but the signature of several dose strata pooled against one comparator stratum -- the same shape found on APPRAISE-1 in this pass. AND ATLAS ACS 2'S STORED COUNTS, 390 against 363, FAVOUR THE COMPARATOR, which is the opposite direction to that trial's registered efficacy result -- a further sign the row is not carrying the endpoint the page implies.",
-    "pool_uniformity": {
-     "effect_measure": [
-      "NOT ESTABLISHED",
-      "a percentage and a count-derived odds ratio, on a page whose endpoint choice is undeclared"
-     ],
-     "estimand": [
-      "REFUTED",
-      "one trial registers both a bleeding and an efficacy primary and the object records no choice between them"
-     ]
-    },
-    "heterogeneity": null,
-    "heterogeneity_status": "not recorded on the page this object was built from",
-    "grade": null,
-    "cross_engine": null,
-    "sensitivity": null,
-    "single_study_ref": null,
-    "per_trial": [],
-    "pooled": {
-     "measure": "OR",
-     "point": null,
-     "ci_low": null,
-     "ci_high": null,
-     "ci_level": 95,
-     "scale": "log",
-     "withdrawn": true,
-     "withdrawn_reason": "THIS PAGE DOES NOT SAY WHICH ENDPOINT IT POOLED, AND ONE OF ITS TWO TRIALS REGISTERS TWO PRIMARIES POINTING IN OPPOSITE DIRECTIONS. ATLAS ACS TIMI 46 declares a primary SAFETY outcome, 'Thrombolysis in Myocardial Infarction (TIMI) Clinically Significant Bleeding Events', AND a primary EFFICACY outcome, 'The Composite Endpoint of All Cause Death, Myocardial Infarction (Including Repeat MI), Stroke, or Severe Recurrent Ischemia Requiring Revascularization'. For an anticoagulant those move in opposite directions, and the object records no choice between them -- so the pooled quantity is undefined before any arithmetic begins. TWO FURTHER FAULTS THE REGISTRY EXPOSES. ATLAS ACS TIMI 46'S ARM SIZES HERE ARE 1,153 AGAINST 307, a ratio of nearly four to one, which is not a randomised comparison but the signature of several dose strata pooled against one comparator stratum -- the same shape found on APPRAISE-1 in this pass. AND ATLAS ACS 2'S STORED COUNTS, 390 against 363, FAVOUR THE COMPARATOR, which is the opposite direction to that trial's registered efficacy result -- a further sign the row is not carrying the endpoint the page implies.",
-     "withdrawn_note": "WHAT THIS DOES NOT ESTABLISH: NOT that rivaroxaban after acute coronary syndrome is ineffective, and NOT that it is unsafe. The trials here measure bleeding in one registered primary and ischaemic events in another, and nothing on this page estimates the question its title implies. WHAT IS CONFIRMED: both trial identities are correct, and the original withdrawal was RIGHT. Its stated reason -- 'bleeding and efficacy endpoints pooled' -- is SUPPORTED here, unlike on APIXABAN_ACS where the same wording was refuted: ATLAS ACS TIMI 46 genuinely registers both. THE REPLACEMENT QUESTION IS PARKED: a synthesis is possible on the efficacy composite alone, but it needs each trial's registered efficacy counts read from source, which the protocol-only endpoint does not return.",
-     "withdrawn_on": "2026-08-18",
-     "reverification": "RE-VERIFIED 2026-08-18. VERDICT: CONFIRMED and SHARPENED. Unlike APIXABAN_ACS, where identical card wording was refuted, this trial really does register both a bleeding and an efficacy primary. Re-verification added two faults: a four-to-one arm ratio that is not a randomised comparison, and stored counts favouring the comparator against the registered result's direction.",
-     "card_note": "CONFIRMED and sharpened: ATLAS ACS TIMI 46 registers BOTH a bleeding primary and an efficacy primary and this page records no choice between them, so the pooled quantity is undefined. Its arms here are 1,153 against 307 -- not a randomised comparison"
-    },
-    "source_page_pooled": false,
-    "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
-    "estimand_established": null,
-    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
-    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. On attr-pn-review the flag is TRUE and correct while the pool combines patisiran against its own saline placebo, vutrisiran against PATISIRAN, and eplontersen against the placebo cohort of a DIFFERENT TRIAL. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
-   }
-  }
- },
- "manuscript": {
-  "references": {
-   "_what": "A reference list, assembled from this object's own fields. Distinct from `sources`, which records the provenance LAYER each fact was read at; this is what a reader would look up.",
-   "included_studies": [
+    "method": "not pooled -- withdrawn",
+    "scale": "log"
+  },
+  "screening": {
+    "search_note": "not recorded on the page this object was built from",
+    "eligibility": "not recorded on the page this object was built from",
+    "known_limitation": "not recorded on the page this object was built from"
+  },
+  "screening_names_unresolved": [],
+  "eligible_but_not_contributing": {
+    "note": "All included registrations carry a row in this object.",
+    "studies": []
+  },
+  "reconciliation": {
+    "why_this_step_exists": "not recorded on the page this object was built from",
+    "clean": null,
+    "clean_because": "not recorded on the page this object was built from",
+    "trial_list_diffs": [],
+    "matches": [],
+    "corrections": [],
+    "unresolved": []
+  },
+  "claims_corrected": [],
+  "scope_decisions": {},
+  "conversion_note": "AUTHORED, not converted. This topic's estimate was withdrawn BEFORE the current detector set existed; the withdrawal was re-verified against the registry on 2026-08-18.",
+  "sources": {},
+  "outcomes": [
     {
-     "registration": "NCT00402597",
-     "label": "",
-     "registry": "ClinicalTrials.gov",
-     "url": "https://clinicaltrials.gov/study/NCT00402597",
-     "read_utc": ""
-    },
-    {
-     "registration": "NCT00809965",
-     "label": "",
-     "registry": "ClinicalTrials.gov",
-     "url": "https://clinicaltrials.gov/study/NCT00809965",
-     "read_utc": ""
+      "id": "primary",
+      "name": "Undeclared: one trial registers both a bleeding primary and an efficacy primary",
+      "definition": "ATLAS ACS TIMI 46 registers TWO primary outcomes -- a bleeding one and an efficacy one -- and this page does not record which it took. ATLAS ACS 2 registers a cardiovascular composite.",
+      "definition_note": "Authored on re-verification. The ambiguity is the finding.",
+      "measure": "OR",
+      "effect_scale": "log",
+      "type": "primary",
+      "estimand": {
+        "id": "primary",
+        "family": "first event",
+        "model": "random-effects"
+      },
+      "comparator": "placebo",
+      "comparator_type": "placebo",
+      "direction_of_benefit": "lower is better",
+      "null_value": 1
     }
-   ],
-   "published_syntheses_compared_against": [],
-   "_published_syntheses_note": "No published synthesis is listed here. The comparison section states its own denominator and why nothing citable was appraised. ",
-   "methods_guidance_and_software": [
-    {
-     "cited_for": "the reporting guideline this manuscript is written against",
-     "citation": "Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71"
+  ],
+  "inputs": {
+    "trials": [
+      {
+        "id": "NCT00402597",
+        "name": "ATLAS ACS TIMI 46",
+        "nct": "NCT00402597",
+        "pmid": null,
+        "arms": [
+          {
+            "label": "001",
+            "role": "treatment",
+            "events": 18,
+            "participants": 1153
+          },
+          {
+            "label": "003",
+            "role": "control",
+            "events": 11,
+            "participants": 307
+          }
+        ],
+        "arms_as_the_registry_lists_them": "'001', '002', '003'",
+        "by_outcome": {
+          "primary": {
+            "effect": {
+              "measure": "OR",
+              "scale": "log",
+              "point": null,
+              "ci_low": null,
+              "ci_high": null,
+              "ci_level": 95,
+              "derived_from": "not carried forward -- the estimate is withdrawn",
+              "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+            },
+            "provenance": {
+              "tag": "REGISTRY-READ",
+              "source_quotes": [],
+              "quote_note": "the endpoint definition is verbatim from the registry"
+            },
+            "source_url": "https://clinicaltrials.gov/study/NCT00402597",
+            "analysed": {
+              "treatment": 1153,
+              "control": 307
+            },
+            "outcome_definition": "Thrombolysis in Myocardial Infarction (TIMI) Clinically Significant Bleeding Events (Primary Safety)",
+            "outcome_definition_source": {
+              "time_frame": "Day 1 to Day 210",
+              "description_verbatim": "The number of patients with a first occurrence of a TIMI clinically significant bleeding event that occurred from the time of randomization to the time of the last patient contact. TIMI clinically significant bleeding events included TIMI minor bleeding events, TIMI major bleeding events, or any bleeding that required medical attention.",
+              "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+              "source": "registry",
+              "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+              "source_url": "https://clinicaltrials.gov/study/NCT00402597",
+              "read_utc": "2026-08-18",
+              "components_as_the_registry_states_them": "TIMI CLINICALLY SIGNIFICANT BLEEDING -- registered as the PRIMARY SAFETY outcome. This registration ALSO declares a primary EFFICACY outcome: 'The Composite Endpoint of All Cause Death, Myocardial Infarction (Including Repeat MI), Stroke, or Severe Recurrent Ischemia Requiring Revascularization'. TWO primaries, opposite directions of benefit, and this page records neither as its choice.",
+              "analysis_set_as_the_registry_states_it": "Arm sizes on this page are 1,153 against 307 -- a ratio of nearly four to one. That is not a randomised comparison; it is what pooling several dose strata against one comparator stratum looks like."
+            }
+          }
+        },
+        "registration_primary_counts": {
+          "title": "Thrombolysis in Myocardial Infarction (TIMI) Clinically Significant Bleeding Events (Primary Safety)",
+          "treatment_events": 36.0,
+          "control_events": 17.0,
+          "treatment_n": 1153.0,
+          "control_n": 307.0,
+          "note": "arm order as the registry lists it; a swapped pair would show as a mismatch rather than a silent pass"
+        },
+        "registration_other_outcome_counts": [
+          {
+            "title": "Thrombolysis in Myocardial Infarction (TIMI) Clinically Significant Bleeding Events (Primary Safety)",
+            "type": "PRIMARY",
+            "counts": [
+              36.0,
+              17.0,
+              109.0,
+              43.0
+            ]
+          },
+          {
+            "title": "The Composite Endpoint of All Cause Death, Myocardial Infarction (MI) (Including Repeat MI), Stroke (Ischemic, Hemorrhagic or Unknown), or Severe Recurrent Ischemia Requiring Revascularization (Primary Efficacy)",
+            "type": "PRIMARY",
+            "counts": [
+              83.0,
+              23.0,
+              55.0,
+              27.0
+            ]
+          },
+          {
+            "title": "The Composite Endpoint of Death (All Cause), Myocardial Infarction (MI) (or Repeat MI), or Stroke",
+            "type": "SECONDARY",
+            "counts": [
+              66.0,
+              18.0,
+              40.0,
+              21.0
+            ]
+          },
+          {
+            "title": "The Composite Endpoint of Cardiovascular Death, Myocardial Infarction (MI), or Stroke",
+            "type": "SECONDARY",
+            "counts": [
+              63.0,
+              18.0,
+              40.0,
+              21.0
+            ]
+          },
+          {
+            "title": "The Number of Deaths (All Cause)",
+            "type": "SECONDARY",
+            "counts": [
+              18.0,
+              11.0,
+              9.0,
+              4.0
+            ]
+          },
+          {
+            "title": "The Composite Endpoint of Death (All Cause), MI (or reMI), Stroke, Severe Recurrent Ischemia Requiring Revascularization, or Thrombolysis in Myocardial Infarction (TIMI) (Major or Minor Bleeding) to Assess the Net Clinical Benefit",
+            "type": "SECONDARY",
+            "counts": [
+              88.0,
+              24.0,
+              71.0,
+              35.0
+            ]
+          }
+        ],
+        "registration_counts_read_utc": "2026-08-18",
+        "registered_primaries": [
+          "Thrombolysis in Myocardial Infarction (TIMI) Clinically Significant Bleeding Events (Primary Safety)",
+          "The Composite Endpoint of All Cause Death, Myocardial Infarction (MI) (Including Repeat MI), Stroke (Ischemic, Hemorrhagic or Unknown), or Severe Recurrent Ischemia Requiring Revascularization (Primary Efficacy)"
+        ],
+        "registered_secondaries": [
+          "The Composite Endpoint of Death (All Cause), Myocardial Infarction (MI) (or Repeat MI), or Stroke",
+          "The Composite Endpoint of Cardiovascular Death, Myocardial Infarction (MI), or Stroke",
+          "The Number of Deaths (All Cause)",
+          "The Composite Endpoint of Death (All Cause), MI (or reMI), Stroke, Severe Recurrent Ischemia Requiring Revascularization, or Thrombolysis in Myocardial Infarction (TIMI) (Major or Minor Bleeding) to Assess the Net Clinical Benefit"
+        ],
+        "registered_other_outcomes": [],
+        "all_ranks_read_utc": "2026-08-18"
+      },
+      {
+        "id": "NCT00809965",
+        "name": "ATLAS ACS 2",
+        "nct": "NCT00809965",
+        "pmid": null,
+        "arms": [
+          {
+            "label": "Rivaroxaban 2.5 mg bid",
+            "role": "treatment",
+            "events": 390,
+            "participants": 5125
+          },
+          {
+            "label": "Placebo",
+            "role": "control",
+            "events": 363,
+            "participants": 5115
+          }
+        ],
+        "arms_as_the_registry_lists_them": "'Rivaroxaban 2.5 mg bid', 'Rivaroxaban 5 mg bid', 'Placebo'",
+        "by_outcome": {
+          "primary": {
+            "effect": {
+              "measure": "OR",
+              "scale": "log",
+              "point": null,
+              "ci_low": null,
+              "ci_high": null,
+              "ci_level": 95,
+              "derived_from": "not carried forward -- the estimate is withdrawn",
+              "derivation_note": "The counts above are what the page held for this trial. The endpoint definition beside them is verbatim from the registry, and is what the withdrawal turns on."
+            },
+            "provenance": {
+              "tag": "REGISTRY-READ",
+              "source_quotes": [],
+              "quote_note": "the endpoint definition is verbatim from the registry"
+            },
+            "source_url": "https://clinicaltrials.gov/study/NCT00809965",
+            "analysed": {
+              "treatment": 5125,
+              "control": 5115
+            },
+            "outcome_definition": "The Percentage of Patients With the Composite Endpoint of Cardiovascular Death, Myocardial Infarction, or Stroke",
+            "outcome_definition_source": {
+              "time_frame": "From the time of randomization (Day 1) up to completion of the treatment phase (Month 6)",
+              "description_verbatim": "The percentage of patients with the first occurrence of the composite of death, myocardial infarction, or stroke. The statistical analysis was based on the time from randomization to the first occurrence of the event while on treatment.",
+              "endpoint_rank": "PRIMARY -- primaryOutcomes[0] on this registration",
+              "source": "registry",
+              "source_field": "protocolSection.outcomesModule.primaryOutcomes[0]",
+              "source_url": "https://clinicaltrials.gov/study/NCT00809965",
+              "read_utc": "2026-08-18",
+              "components_as_the_registry_states_them": "cardiovascular death; myocardial infarction; stroke. An EFFICACY composite.",
+              "analysis_set_as_the_registry_states_it": "Registered as a PERCENTAGE of patients, analysed from randomisation to first occurrence WHILE ON TREATMENT. NOTE: the counts stored here, 390 against 363, favour the COMPARATOR -- the opposite direction to this trial's registered primary result, which is another sign the row is not carrying the registered efficacy endpoint."
+            }
+          }
+        },
+        "registration_primary_counts": {
+          "title": "The Percentage of Patients With the Composite Endpoint of Cardiovascular Death, Myocardial Infarction, or Stroke",
+          "treatment_events": 7.4,
+          "control_events": 6.1,
+          "treatment_n": 5113.0,
+          "control_n": 5114.0,
+          "note": "arm order as the registry lists it; a swapped pair would show as a mismatch rather than a silent pass"
+        },
+        "registration_other_outcome_counts": [
+          {
+            "title": "The Percentage of Patients With the Composite Endpoint of Cardiovascular Death, Myocardial Infarction, or Stroke",
+            "type": "PRIMARY",
+            "counts": [
+              7.4,
+              6.1,
+              6.1
+            ]
+          },
+          {
+            "title": "The Percentage of Patients With the Composite of All Cause Death, Myocardial Infarction, or Stroke",
+            "type": "SECONDARY",
+            "counts": [
+              7.5,
+              6.3,
+              6.3
+            ]
+          },
+          {
+            "title": "The Percentage of Patients With the Composite of Cardiovascular Death, Myocardial Infarction, Ischemic Stroke, or TIMI Major Bleeding Event Not Associated With Coronary Artery Bypass Graft Surgery",
+            "type": "SECONDARY",
+            "counts": [
+              7.6,
+              7.1,
+              7.2
+            ]
+          },
+          {
+            "title": "The Percentage of Patients With the Composite of Cardiovascular Death, Myocardial Infarction, Stroke, or Severe Recurrent Ischemia Requiring Revascularization",
+            "type": "SECONDARY",
+            "counts": [
+              9.4,
+              8.5,
+              8.2
+            ]
+          },
+          {
+            "title": "The Percentage of Patients With the Composite of Cardiovascular Death, Myocardial Infarction, Stroke, or Severe Recurrent Ischemia Leading to Hospitalization",
+            "type": "SECONDARY",
+            "counts": [
+              8.7,
+              7.3,
+              7.6
+            ]
+          }
+        ],
+        "registration_counts_read_utc": "2026-08-18",
+        "registered_primaries": [
+          "The Percentage of Patients With the Composite Endpoint of Cardiovascular Death, Myocardial Infarction, or Stroke"
+        ],
+        "registered_secondaries": [
+          "The Percentage of Patients With the Composite of All Cause Death, Myocardial Infarction, or Stroke",
+          "The Percentage of Patients With the Composite of Cardiovascular Death, Myocardial Infarction, Ischemic Stroke, or TIMI Major Bleeding Event Not Associated With Coronary Artery Bypass Graft Surgery",
+          "The Percentage of Patients With the Composite of Cardiovascular Death, Myocardial Infarction, Stroke, or Severe Recurrent Ischemia Requiring Revascularization",
+          "The Percentage of Patients With the Composite of Cardiovascular Death, Myocardial Infarction, Stroke, or Severe Recurrent Ischemia Leading to Hospitalization"
+        ],
+        "registered_other_outcomes": [],
+        "all_ranks_read_utc": "2026-08-18"
+      }
+    ]
+  },
+  "results": {
+    "by_outcome": {
+      "primary": {
+        "k": 2,
+        "estimand_id": "primary",
+        "model": "random-effects",
+        "estimator": "not pooled -- the estimate is withdrawn",
+        "estimator_used": "none",
+        "handbook": {
+          "decision": "not recorded on the page this object was built from",
+          "sections": [],
+          "conformance": "not recorded on the page this object was built from"
+        },
+        "comparator_type": "placebo",
+        "favours": null,
+        "poolable": false,
+        "poolable_reason": "THIS PAGE DOES NOT SAY WHICH ENDPOINT IT POOLED, AND ONE OF ITS TWO TRIALS REGISTERS TWO PRIMARIES POINTING IN OPPOSITE DIRECTIONS. ATLAS ACS TIMI 46 declares a primary SAFETY outcome, 'Thrombolysis in Myocardial Infarction (TIMI) Clinically Significant Bleeding Events', AND a primary EFFICACY outcome, 'The Composite Endpoint of All Cause Death, Myocardial Infarction (Including Repeat MI), Stroke, or Severe Recurrent Ischemia Requiring Revascularization'. For an anticoagulant those move in opposite directions, and the object records no choice between them -- so the pooled quantity is undefined before any arithmetic begins. TWO FURTHER FAULTS THE REGISTRY EXPOSES. ATLAS ACS TIMI 46'S ARM SIZES HERE ARE 1,153 AGAINST 307, a ratio of nearly four to one, which is not a randomised comparison but the signature of several dose strata pooled against one comparator stratum -- the same shape found on APPRAISE-1 in this pass. AND ATLAS ACS 2'S STORED COUNTS, 390 against 363, FAVOUR THE COMPARATOR, which is the opposite direction to that trial's registered efficacy result -- a further sign the row is not carrying the endpoint the page implies.",
+        "pool_uniformity": {
+          "effect_measure": [
+            "NOT ESTABLISHED",
+            "a percentage and a count-derived odds ratio, on a page whose endpoint choice is undeclared"
+          ],
+          "estimand": [
+            "REFUTED",
+            "one trial registers both a bleeding and an efficacy primary and the object records no choice between them"
+          ]
+        },
+        "heterogeneity": null,
+        "heterogeneity_status": "not recorded on the page this object was built from",
+        "grade": null,
+        "cross_engine": null,
+        "sensitivity": null,
+        "single_study_ref": null,
+        "per_trial": [],
+        "pooled": {
+          "measure": "OR",
+          "point": null,
+          "ci_low": null,
+          "ci_high": null,
+          "ci_level": 95,
+          "scale": "log",
+          "withdrawn": true,
+          "withdrawn_reason": "THIS PAGE DOES NOT SAY WHICH ENDPOINT IT POOLED, AND ONE OF ITS TWO TRIALS REGISTERS TWO PRIMARIES POINTING IN OPPOSITE DIRECTIONS. ATLAS ACS TIMI 46 declares a primary SAFETY outcome, 'Thrombolysis in Myocardial Infarction (TIMI) Clinically Significant Bleeding Events', AND a primary EFFICACY outcome, 'The Composite Endpoint of All Cause Death, Myocardial Infarction (Including Repeat MI), Stroke, or Severe Recurrent Ischemia Requiring Revascularization'. For an anticoagulant those move in opposite directions, and the object records no choice between them -- so the pooled quantity is undefined before any arithmetic begins. TWO FURTHER FAULTS THE REGISTRY EXPOSES. ATLAS ACS TIMI 46'S ARM SIZES HERE ARE 1,153 AGAINST 307, a ratio of nearly four to one, which is not a randomised comparison but the signature of several dose strata pooled against one comparator stratum -- the same shape found on APPRAISE-1 in this pass. AND ATLAS ACS 2'S STORED COUNTS, 390 against 363, FAVOUR THE COMPARATOR, which is the opposite direction to that trial's registered efficacy result -- a further sign the row is not carrying the endpoint the page implies.",
+          "withdrawn_note": "WHAT THIS DOES NOT ESTABLISH: NOT that rivaroxaban after acute coronary syndrome is ineffective, and NOT that it is unsafe. The trials here measure bleeding in one registered primary and ischaemic events in another, and nothing on this page estimates the question its title implies. WHAT IS CONFIRMED: both trial identities are correct, and the original withdrawal was RIGHT. Its stated reason -- 'bleeding and efficacy endpoints pooled' -- is SUPPORTED here, unlike on APIXABAN_ACS where the same wording was refuted: ATLAS ACS TIMI 46 genuinely registers both. THE REPLACEMENT QUESTION IS PARKED: a synthesis is possible on the efficacy composite alone, but it needs each trial's registered efficacy counts read from source, which the protocol-only endpoint does not return.",
+          "withdrawn_on": "2026-08-18",
+          "reverification": "RE-VERIFIED 2026-08-18. VERDICT: CONFIRMED and SHARPENED. Unlike APIXABAN_ACS, where identical card wording was refuted, this trial really does register both a bleeding and an efficacy primary. Re-verification added two faults: a four-to-one arm ratio that is not a randomised comparison, and stored counts favouring the comparator against the registered result's direction.",
+          "card_note": "CONFIRMED and sharpened: ATLAS ACS TIMI 46 registers BOTH a bleeding primary and an efficacy primary and this page records no choice between them, so the pooled quantity is undefined. Its arms here are 1,153 against 307 -- not a randomised comparison"
+        },
+        "source_page_pooled": false,
+        "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+        "estimand_established": null,
+        "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+        "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+      }
     }
-   ]
   },
-  "introduction": "This review asks: Which endpoint do these two trials contribute? One registers a bleeding primary AND an efficacy primary and the page does not say which it used.\n\nIt examines 2 randomised trials and DOES NOT POOL THEM, against placebo.\n\nThe outcome sought is Undeclared: one trial registers both a bleeding primary and an efficacy primary.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace."
- },
- "risk_of_bias_verdict": null,
- "carried_contrasts": [],
- "absent_from_source": {
-  "protocol": "No protocol record was recoverable from the page.",
-  "search": "No search strategy was recoverable from the page.",
-  "screening": "No screening log was recoverable from the page.",
-  "rob2": "No risk-of-bias assessment was recoverable from the page.",
-  "grade": "No certainty rating was recoverable from the page.",
-  "sources": "Every ENDPOINT DEFINITION on this page is verbatim from the trial's own ClinicalTrials.gov record and carries a resolvable link. The per-trial counts are the page's own and carry no quoted source sentence."
- },
- "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over.",
- "display_change_announced": [
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  "manuscript": {
+    "references": {
+      "_what": "A reference list, assembled from this object's own fields. Distinct from `sources`, which records the provenance LAYER each fact was read at; this is what a reader would look up.",
+      "included_studies": [
+        {
+          "registration": "NCT00402597",
+          "label": "",
+          "registry": "ClinicalTrials.gov",
+          "url": "https://clinicaltrials.gov/study/NCT00402597",
+          "read_utc": ""
+        },
+        {
+          "registration": "NCT00809965",
+          "label": "",
+          "registry": "ClinicalTrials.gov",
+          "url": "https://clinicaltrials.gov/study/NCT00809965",
+          "read_utc": ""
+        }
+      ],
+      "published_syntheses_compared_against": [],
+      "_published_syntheses_note": "No published synthesis is listed here. The comparison section states its own denominator and why nothing citable was appraised. ",
+      "methods_guidance_and_software": [
+        {
+          "cited_for": "the reporting guideline this manuscript is written against",
+          "citation": "Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71"
+        }
+      ]
+    },
+    "introduction": "This review asks: Which endpoint do these two trials contribute? One registers a bleeding primary AND an efficacy primary and the page does not say which it used.\n\nIt examines 2 randomised trials and DOES NOT POOL THEM, against placebo.\n\nThe outcome sought is Undeclared: one trial registers both a bleeding primary and an efficacy primary.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace."
   },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  "risk_of_bias_verdict": null,
+  "carried_contrasts": [],
+  "absent_from_source": {
+    "protocol": "No protocol record was recoverable from the page.",
+    "search": "No search strategy was recoverable from the page.",
+    "screening": "No screening log was recoverable from the page.",
+    "rob2": "No risk-of-bias assessment was recoverable from the page.",
+    "grade": "No certainty rating was recoverable from the page.",
+    "sources": "Every ENDPOINT DEFINITION on this page is verbatim from the trial's own ClinicalTrials.gov record and carries a resolvable link. The per-trial counts are the page's own and carry no quoted source sentence."
   },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-  },
-  {
-   "date": "2026-08-21",
-   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-   "what_changed": "references built, introduction written, bookkeeping claims 4",
-   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  "all_ranks_captured_2026_08_18": "Registered outcomes captured at EVERY rank -- primary, secondary and other -- by re-reading each registration on 2026-08-18. Previously only primaries were recorded, which made this topic's withdrawal UNTESTABLE for proportionality: the SGLT2 failure lived one rank down and we had not kept one rank down. The read date is stamped FOR THIS READ, not carried over.",
+  "display_change_announced": [
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    },
+    {
+      "date": "2026-08-21",
+      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+      "what_changed": "references built, introduction written, bookkeeping claims 4",
+      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+    }
+  ],
+  "bookkeeping_2026_08_21": {
+    "_what": "The five reporting claims a PRISMA-2020 manuscript needs that are FETCHABLE rather than argued -- each derived from a field here, or stated as an honest absence.",
+    "which_limbs_this_review_refuses": "Of the four properties this project requires of a completed topic, 0 are held (none) and 4 are refused with the obstacle named in the evidence (comparison denominator, grade per pool, model output verbatim, rob per result).",
+    "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 2 included trials were identified by reading named registrations on the dates recorded on each entry. This object's verification rests on ClinicalTrials.gov protocol records, read 2026-08-18. This review does not claim that any per-trial count was checked against a results record. The bar this object had to clear is not recorded.",
+    "whether_this_review_was_prospectively_registered": "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.",
+    "that_two_assessors_disagreed_and_where": "NO SECOND, INDEPENDENT RISK-OF-BIAS ASSESSMENT IS RECORDED FOR THIS TOPIC. The judgements were made once. Stated so that single assessment is not mistaken for agreement between two."
   }
- ],
- "bookkeeping_2026_08_21": {
-  "_what": "The five reporting claims a PRISMA-2020 manuscript needs that are FETCHABLE rather than argued -- each derived from a field here, or stated as an honest absence.",
-  "which_limbs_this_review_refuses": "Of the four properties this project requires of a completed topic, 0 are held (none) and 4 are refused with the obstacle named in the evidence (comparison denominator, grade per pool, model output verbatim, rob per result).",
-  "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 2 included trials were identified by reading named registrations on the dates recorded on each entry. This object's verification rests on ClinicalTrials.gov protocol records, read 2026-08-18. This review does not claim that any per-trial count was checked against a results record. The bar this object had to clear is not recorded.",
-  "whether_this_review_was_prospectively_registered": "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.",
-  "that_two_assessors_disagreed_and_where": "NO SECOND, INDEPENDENT RISK-OF-BIAS ASSESSMENT IS RECORDED FOR THIS TOPIC. The judgements were made once. Stated so that single assessment is not mistaken for agreement between two."
- }
 }
