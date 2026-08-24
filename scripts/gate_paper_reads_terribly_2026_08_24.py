@@ -43,6 +43,15 @@ is verification theatre, and this repo has shipped one: a pre-push hook that pri
 that MUST trip it and a fragment that MUST NOT, and a control mismatch is a hard exit
 before a single page is read.
 
+TWO KNOWN FALSE-POSITIVE MODES, CONSTRUCTED BY AN ADVERSARIAL PASS AND KEPT ON PURPOSE.
+A page that DISCUSSES this vocabulary rather than using it will block: a sentence quoting
+"the clinical quantity this page pools" to explain the defect trips HOLLOW_NOUN, and a
+sentence saying "unlike attr-pn-review, this review does not combine patisiran against its
+own saline placebo" trips FOREIGN_TOPIC. Both are accepted, because no delivered systematic
+review should be discussing this generator's placeholder vocabulary -- if one ever does, it
+is a page worth a human look. Narrowing either check to avoid them would cost false
+negatives on the defect itself, and a missed defect is what six rounds of this already cost.
+
 Exit 1 on any BLOCK. That is the point of it.
 """
 import io
@@ -89,10 +98,12 @@ FOREIGN_EXAMPLES = (
 # cell or sentence is left alone: that is the whole distinction, and 366 legitimate own-slot
 # uses depend on it.
 SENTINEL_SPLICE = re.compile(
-    r"[a-z,] +(?:not recorded|not available|not stated|no record|not established|"
-    r"not captured) on the page this object was (?:extracted|built) from")
+    r"[a-z0-9,;:)\]] +(?:not recorded|not available|not stated|no record|"
+    r"not established|not captured) +on the page this object was "
+    r"(?:extracted|built) from")
 
-EMPTY_REFUSAL = re.compile(r"<strong>\s*Refused:\s*</strong>\s*(?:<sup[^>]*>.*?</sup>)?\s*"
+EMPTY_REFUSAL = re.compile(r"<strong>\s*Refused:\s*</strong>(?:\s|&nbsp;|&#160;| )*"
+                           r"(?:<sup[^>]*>.*?</sup>)?(?:\s|&nbsp;|&#160;| )*"
                            r"(?:</div>|<)", re.I)
 
 # "The outcome sought is the clinical quantity this page pools." The circularity is NOT a
@@ -185,6 +196,9 @@ CONTROLS = (
      "<div class='absent-state'><strong>Refused:</strong> <sup>1</sup></div>"),
     ("EMPTY_REFUSAL", False,
      "<div class='absent-state'><strong>Refused:</strong> the keyword list<sup>1</sup></div>"),
+    # An entity rather than a space is still an empty refusal to a reader.
+    ("EMPTY_REFUSAL", True,
+     "<div class='absent-state'><strong>Refused:</strong>&nbsp;<sup>1</sup></div>"),
     ("HOLLOW_NOUN", True,
      "<p>Figure 1. Forest plot -- the clinical quantity this page pools.</p>"),
     ("HOLLOW_NOUN", False,
@@ -200,6 +214,11 @@ CONTROLS = (
     ("SENTINEL_SPLICE", True,
      "<p>It identifies no trial that can be pooled, against not recorded on the page "
      "this object was extracted from.</p>"),
+    # THE COLON-PREFIXED FORM. An adversarial pass constructed this and then found 72 of
+    # them live on 38 delivered pages; the first pattern anchored on `[a-z,]` and saw none.
+    ("SENTINEL_SPLICE", True,
+     "<p>Known limitation of the screen: not recorded on the page this object was "
+     "extracted from</p>"),
     ("SENTINEL_SPLICE", False,
      "<td>not recorded on the page this object was extracted from</td>"),
     # THE FALSE POSITIVE THE FIRST DRAFT PRODUCED, KEPT AS A CONTROL. A header cell and its

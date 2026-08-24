@@ -546,6 +546,33 @@ def _lead_in_has_value(v):
 _prose_has_value = _lead_in_has_value
 
 
+# A MARKER STANDING ALONE IS FINE; A SENTENCE BUILT AROUND ONE IS NOT.
+#
+# "Comparator | not recorded on the page this object was extracted from" in its own table
+# cell is honest and a reader understands it -- 366 such uses on this corpus, all correct.
+# The defect is a marker with prose in front of it on the same line, where a value belongs:
+#
+#     "Known limitation of the screen: not recorded on the page this object was extracted from"
+#     "It examines 4 randomised trials and does not pool them, against not recorded on ..."
+#     "Methodological decisions follow not recorded on the page this object was built from"
+#
+# THE SEPARATOR SET IS THE WHOLE CHECK AND IT IS WHY THIS EXISTS. A first version anchored
+# on `[a-z,]` plus a literal space and therefore missed every COLON-prefixed lead-in --
+# 72 instances on 38 pages, found only when an adversarial pass went looking for the sites
+# the first pass had not enumerated. `\x20` and not `\s`: `\s` matches a newline, and a
+# table header adjacent to its value cell then reads as one spliced sentence.
+_SENTINEL_TAIL = ("not recorded", "not available", "not stated", "no record",
+                  "not established", "not captured")
+_SPLICED_SENTINEL = re.compile(
+    r"[a-z0-9,;:)\]]\x20+(?:%s)\x20+on the page this object was (?:extracted|built) from"
+    % "|".join(_SENTINEL_TAIL), re.I)
+
+
+def _splices_a_sentinel(text):
+    """True when `text` composes a sentence around an absence marker."""
+    return bool(text) and bool(_SPLICED_SENTINEL.search(str(text)))
+
+
 def _lead_in(key, value):
     """One flattened pair as an English sentence, or the bare key if we cannot say what it is.
 
@@ -865,7 +892,21 @@ class Section(object):
         self.refusals = []       # [(what was not written, which field was absent)]
 
     def add(self, obj, text, fields):
-        """Emit `text` only if EVERY field it cites resolves. Otherwise record the refusal."""
+        """Emit `text` only if EVERY field it cites resolves. Otherwise record the refusal.
+
+        AND NEVER EMIT A SENTENCE BUILT AROUND AN ABSENCE MARKER. See `_splices_a_sentinel`
+        below: this is the LAST line, not the first. The per-site guards are still the
+        right fix and are still there; this exists because I fixed four sites Codex found
+        and declared the class closed, and an adversarial pass found 72 more instances live
+        on 38 pages in a form none of those four guards covered. A defect population is
+        bounded by where you looked, and the way to stop paying that repeatedly is a check
+        that does not depend on having enumerated the sites.
+        """
+        if _splices_a_sentinel(text):
+            self.refusals.append(
+                ("a sentence that would have been composed around an absence marker -- the "
+                 "field it needed records only that it was never recorded", list(fields)))
+            return False
         missing = [f for f in fields if get(obj, f) is None]
         if missing:
             # A REFUSAL WITH NO SUBJECT IS THE DEFECT THIS BRANCH USED TO SHIP.
@@ -2051,7 +2092,7 @@ def project(obj, journal="generic", length="standard"):
             # a property of iterating a dict, not of an argument -- and a reader who meets
             # the same paragraph four times stops reading it the first time.
             status = blk.get("heterogeneity_status")
-            if status:
+            if _prose_has_value(status):
                 if status in _het_caveats_said:
                     ht += (" The caveat recorded above for %s applies here too."
                            % _het_caveats_said[status])
@@ -2197,7 +2238,7 @@ def project(obj, journal="generic", length="standard"):
                          "Eligible trials that do not contribute"),
                         ("verification_basis.what_is_not_claimed", "What is not claimed")):
         v = get(obj, field)
-        if isinstance(v, str):
+        if isinstance(v, str) and _prose_has_value(v):
             key = field.rsplit(".", 1)[-1]
             txt = (_lead_in(key, v.strip())
                    if (_lead_ins().get("by_key") or {}).get(key)

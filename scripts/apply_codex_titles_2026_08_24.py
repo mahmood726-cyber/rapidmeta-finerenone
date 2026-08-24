@@ -95,6 +95,11 @@ def main():
         print("    %-40s %s" % (slug, why))
     for slug, old, new in applied[:60]:
         print("    %-38s %-26s -> %s" % (slug, old[:26], new))
+    # A DRY RUN THAT WRITES IS NOT A DRY RUN. The docstring above promises `--apply`
+    # writes and the default does not; this ledger was being written on both paths.
+    # Caught by an adversarial review of my own commits, filed under "overreach".
+    if not apply_:
+        return 0
     with io.open(os.path.join(REPO, "outputs",
                               "codex_titles_applied_2026_08_24.json"), "w",
                  encoding="utf-8") as fh:
