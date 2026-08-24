@@ -944,6 +944,68 @@ _ENUM_ENGLISH = {
     "REG_CTGOV": "the ClinicalTrials.gov registration",
     "PUBLISHED_SYNTHESIS_SCREEN": "the screen of published syntheses",
 }
+
+# The four RoB 2 verdicts as a reader meets them. Note that `HIGH` and `LOW` are stored bare,
+# WITHOUT the `_RISK` suffix that `_ENUM_ENGLISH` above expects -- which is precisely how a
+# HIGH judgement stayed invisible to a summariser looking for the phrase "high risk of bias".
+_ROB_WORDS = {
+    "HIGH": "high risk of bias",
+    "SOME_CONCERNS": "some concerns",
+    "NO_INFORMATION": "no information",
+    "LOW": "low risk of bias",
+}
+
+
+def _rob_distribution(obj):
+    """The stored risk-of-bias verdicts, counted. Returns (counts, n, unit-word).
+
+    READS THE JUDGEMENTS. Does not read prose, and cannot be fooled by a sentence that
+    discusses a verdict without being one.
+
+    Per-RESULT overall verdicts are preferred, because "assessed at the level of each
+    reported result" is the claim the summary makes and the overall verdict is what that
+    level holds. Only where no overall verdict exists does this fall back to per-domain
+    judgements, and it says which it counted so the two can never be confused: four results
+    and twenty domains are different denominators for the same assessment, and reporting one
+    under the other's name is how "3 of 4 results at HIGH" became invisible.
+    """
+    rob = obj.get("risk_of_bias")
+    if not isinstance(rob, dict):
+        return {}, 0, ""
+
+    def norm(v):
+        t = str(v or "").strip().upper().replace(" ", "_")
+        if t in ("HIGH_RISK", "HIGH_RISK_OF_BIAS"):
+            t = "HIGH"
+        if t in ("LOW_RISK", "LOW_RISK_OF_BIAS"):
+            t = "LOW"
+        return t if t in _ROB_WORDS else ""
+
+    overalls, domains = [], []
+    for _oid, per in (rob.get("by_outcome") or {}).items():
+        if not isinstance(per, dict):
+            continue
+        for _rid, rec in per.items():
+            if not isinstance(rec, dict):
+                continue
+            v = norm(rec.get("overall") or rec.get("rating"))
+            if v:
+                overalls.append(v)
+            for _dn, d in (rec.get("domains") or {}).items():
+                if isinstance(d, dict):
+                    dv = norm(d.get("judgement"))
+                    if dv:
+                        domains.append(dv)
+
+    chosen, unit = (overalls, "results") if overalls else (domains, "domain judgements")
+    if not chosen:
+        return {}, 0, ""
+    counts = {}
+    for v in chosen:
+        counts[v] = counts.get(v, 0) + 1
+    return counts, len(chosen), (unit if len(chosen) != 1 else unit.rstrip("s"))
+
+
 _ROB_DOMAIN_ENGLISH = {
     "D1": "the randomisation process",
     "D2": "deviations from the intended intervention",
@@ -1999,24 +2061,60 @@ def _fit_to_budget(secs, obj):
         if s.key not in _SUMMARISE:
             continue
         if s.key == "risk_of_bias":
-            verdicts = []
-            for _t, _f in s.paras:
-                verdicts += re.findall(r"\b(high risk of bias|some concerns|low risk of bias"
-                                       r"|no information)\b", str(_t), re.I)
-            if verdicts:
-                counts = {}
-                for v in verdicts:
-                    counts[v.lower()] = counts.get(v.lower(), 0) + 1
-                parts = ", ".join("%d at %s" % (n, k) for k, n in
-                                  sorted(counts.items(), key=lambda kv: -kv[1]))
+            # THIS COUNTED THE PROSE, AND THE PROSE IS NOT THE JUDGEMENTS.
+            #
+            # The previous version regex-matched the rendered paragraphs of this section for
+            # "high risk of bias|some concerns|low risk of bias|no information" and reported
+            # the tally as the review's finding. It was wrong in both directions at once, and
+            # the error had a fixed sign:
+            #
+            #   IT COUNTED SENTENCES ABOUT JUDGING. This corpus states its own rule as "A
+            #   domain that cannot be judged ... is NO_INFORMATION, never SOME_CONCERNS. A
+            #   rating of SOME CONCERNS with no explanation reads as a judgement against the
+            #   trial" -- method text, counted as verdicts.
+            #
+            #   IT COULD NOT SEE A HIGH JUDGEMENT AT ALL. Judgements are stored as the token
+            #   `HIGH`; the regex wanted the phrase "high risk of bias". Nothing writes that
+            #   phrase in passing, while "some concerns" and "no information" appear freely
+            #   in any discussion of method -- so the count inflated the reassuring
+            #   categories and silently dropped the alarming one.
+            #
+            # Measured live before the fix: sotagliflozin-hf stores HIGH for 3 of its 4
+            # results and published "8 at some concerns, 7 at no information, 1 at low risk
+            # of bias"; tigecycline-ciai stores HIGH for 3 of 3 and published "11 at no
+            # information, 8 at some concerns". Both told a reader that NO result was at high
+            # risk of bias. Understating risk of bias is the one direction a summary must
+            # never fail in, and a phrase count fails in exactly that direction every time.
+            #
+            # So the distribution is READ FROM THE STORED JUDGEMENTS. If none can be read the
+            # section refuses, rather than reporting a tally nothing supports.
+            counts, n_results, unit = _rob_distribution(obj)
+            if counts:
+                order = ("HIGH", "SOME_CONCERNS", "NO_INFORMATION", "LOW")
+                parts = ", ".join("%d at %s" % (counts[k], _ROB_WORDS[k])
+                                  for k in order if counts.get(k))
                 keep_fields = sorted({f for _t, fs in s.paras for f in fs})
-                s.paras = [("Risk of bias was assessed with RoB 2 at the level of each "
-                            "reported result: %s. The per-domain judgements for every "
-                            "result are recorded with the extracted data." % parts,
-                            keep_fields or ["risk_of_bias"])]
+                lead = ("Risk of bias was assessed with RoB 2 at the level of each reported "
+                        "result. Across the %d %s assessed: %s."
+                        % (n_results, unit, parts))
+                # THE WORST JUDGEMENT LEADS THE LIST, which is why there is no second
+                # sentence restating it. A first draft added "3 of those 4 are at HIGH risk
+                # of bias" after a list already opening "3 at high risk of bias", and on
+                # tigecycline that read "3 at high risk of bias. 3 of those 3 are at HIGH
+                # risk of bias." Emphasis by repetition is the defect five reviewers named in
+                # these papers; ordering carries it without saying anything twice.
+                if counts.get("HIGH") == n_results and n_results > 1:
+                    lead += (" No result escaped that judgement.")
+                lead += (" The per-domain judgements behind them are recorded with the "
+                         "extracted data.")
+                s.paras = [(lead, keep_fields or ["risk_of_bias"])]
                 s.tables = []
                 removed.append("risk_of_bias enumeration (%d judgements summarised)"
-                               % len(verdicts))
+                               % sum(counts.values()))
+            else:
+                s.paras = []
+                s.tables = []
+                s.refusals.append(("the risk-of-bias distribution", ["risk_of_bias"]))
         elif s.key == "published_comparison" and len(s.paras) > 1:
             s.paras = s.paras[:1]
             s.tables = []
