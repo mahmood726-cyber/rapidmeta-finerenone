@@ -140,6 +140,53 @@ for this outcome … Rated down one level because unassessed is not low"*, while
 holds RoB for all three outcomes. The stored GRADE derivation is stale. Correcting it changes
 a certainty rating's justification and possibly the rating — Mahmood's judgement.
 
+---
+
+## Round 3 — the A/B sample: a group-B page (withdrawn pool, no live pool)
+
+`ABLATION_AF_HEART_FAILURE_REVIEW.html`, 2,817 words. Three personas (google family).
+
+| Persona | Verdict |
+|---|---|
+| sceptic | **ours decisively better** |
+| student | **ours decisively better** |
+| editor | **ours desk-rejected**, comparator sent for review |
+
+The same 2–1 shape as the A page, so the split is not specific to group A.
+
+**But this panel judged a stale page**, and the record says so rather than banking the result:
+the editor quoted `P19_promotion_reaches_derived_blocks` — an identifier fixed hours earlier.
+The page on disk had been built at 22:39, before the fix; the projector emitted none. The
+verdict is about an artefact, not the current page.
+
+**Process rule from it: panel only freshly-built pages, or record the build time beside the
+verdict.** A page and its generator drift apart the moment a fix lands, and a panel cannot
+tell.
+
+Corpus rebuilt; **0 of 149 delivered Paper tabs now carry a build-property identifier in
+reader prose** (provenance disclosures excluded, since a reader only meets those by opening
+them). The identifier survives on a *conformance tab*, which is a machine-readable property
+table and the right place for it.
+
+### The finding worth keeping from the B page
+
+The editor gave "no clinical advance" as a desk-reject reason and quoted, as its evidence,
+**the honesty paragraph I added yesterday**:
+
+> *"It provides no clinical advance because it explicitly omits actionable data, stating
+> 'What this review does not give a clinician: the number of events in each arm, any absolute
+> effect or number needed to treat and any measure of harm.'"*
+
+That sentence exists because five blind reviewers said they could not act on these reviews
+and had to work out why for themselves. Stating it plainly is right for the medical student
+who has to check the page. **To an editor it reads as an admission that the paper has no
+contribution.**
+
+Both readings are correct, and they are not reconcilable by wording. It is the same tension
+as the provenance apparatus, one level up: the disclosure that earns trust from a checker is
+the disclosure that costs standing with a gatekeeper. Recorded, not resolved — the resolution
+is a decision about who these pages are for, and that is Mahmood's.
+
 ### An honest problem with the instrument
 
 **Both flips were within the same model family**, so they are run-to-run variance, not family
