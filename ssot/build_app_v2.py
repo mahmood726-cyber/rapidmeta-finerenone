@@ -30,6 +30,18 @@ ALIASES = {"res": "results", "cfg": "config", "rm": "removed_citations",
 
 
 
+_NOT_RECORDED_PREFIXES = ("not recorded", "not available", "not stated", "no record",
+                          "not established", "not captured")
+
+
+def _recorded(v):
+    """False for None, blank, and any string that opens with an absence marker."""
+    if v is None:
+        return False
+    s = str(v).strip()
+    return bool(s) and not any(s.lower().startswith(x) for x in _NOT_RECORDED_PREFIXES)
+
+
 def _finding_block(res, key, role, p, nl):
     """Render a narrative finding on an estimate -- EVERY field the object holds.
 
@@ -1117,14 +1129,28 @@ def _outcome_section(canon, oid, p, e):
     # reader would have to go looking for the authority behind the number in
     # front of them.
     hb = ""
-    if res.get("handbook"):
-        h = res["handbook"]
+    h = res.get("handbook") or {}
+    # ABSENCE MARKERS ARE NOT VALUES, ON THIS TAB EITHER. `paper_projector` learned this
+    # twice today -- at four composition sites, then structurally in `Section.add` after an
+    # adversarial pass found 72 more the four guards did not cover. THIS FILE RENDERS A
+    # DIFFERENT TAB and inherited neither, so the Extraction tab still printed a card whose
+    # whole subject is a methods rule while asserting one that was never recorded:
+    # "Decision: not recorded on the page this object was built from", above an empty
+    # sections line. `res.get("handbook")` is truthy on the dict and every line inside was
+    # emitted unconditionally.
+    #
+    # The card exists to carry the RULE. With neither the decision nor the conformance
+    # recorded there is no rule to carry, and the heading on its own asserts one.
+    if h and (_recorded(h.get("decision")) or _recorded(h.get("conformance"))):
         hb = (f"<div class='card'>\n  <h3>The methods rule governing this "
               f"decision</h3>\n"
-              f"  <p><strong>Decision:</strong> {p(h['decision'])}</p>\n"
-              f"  <p><strong>Cochrane Handbook sections:</strong> "
-              f"{e(', '.join(str(x) for x in h['sections']))}</p>\n"
-              f"  <p>{p(h['conformance'])}</p>\n"
+              + (f"  <p><strong>Decision:</strong> {p(h['decision'])}</p>\n"
+                 if _recorded(h.get("decision")) else "")
+              + (f"  <p><strong>Cochrane Handbook sections:</strong> "
+                 f"{e(', '.join(str(x) for x in h['sections']))}</p>\n"
+                 if h.get("sections") else "")
+              + (f"  <p>{p(h['conformance'])}</p>\n"
+                 if _recorded(h.get("conformance")) else "")
               + ((f"  <p><small><strong>An objection raised repeatedly in "
                   f"review, and why it is not upheld:</strong> "
                   f"{p(h['recurring_objection_and_why_it_is_not_upheld'])}"
