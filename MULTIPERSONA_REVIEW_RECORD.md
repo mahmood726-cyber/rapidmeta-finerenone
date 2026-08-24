@@ -92,8 +92,67 @@ solvable tension: provenance in reader language rather than dotted identifiers.
 
 ### Changes made in response
 
-*(none yet — round 1 findings are recorded here before anything is changed, so that round 2
-measures the change rather than the enthusiasm for it)*
+1. **Half the editor's complaint was my extractor, not the page.**
+   `results.by_outcome.harmonised_cvdeath_or_hhf.POOL_FINDINGS_2026_08_21` lives inside a
+   collapsed `<details>` element — 19 of them on the page — which a reader only meets if they
+   open it. **The extractor flattened the disclosure**, so the editor judged a document no
+   reader sees. The fix I was about to make was to strip the provenance apparatus: the single
+   feature the student, sceptic and methodologist each named as their reason for preferring
+   this page to a published *Lancet* paper. Fixed in the harness, not the page.
+2. **The other half was real.** `k_cascade` did appear outside any disclosure, inside a dump
+   of our own build-property identifiers published as prose. Two causes: a "Properties held:
+   N, by name — …" line that printed every identifier, and `_english_properties`, whose map
+   is keyed on space-separated phrases (`"rob per result"`) while objects store
+   `P18_restatement_is_reproducible` — so it matched nothing and returned its input untouched.
+   Now normalised **by shape** first, then mapped. 0 pages still emit an identifier.
+
+---
+
+## Round 2 — same page, rebuilt, families rotated
+
+| Persona | Family (r1 → r2) | Verdict r1 → r2 |
+|---|---|---|
+| student | google → **openai** | ours → **ours** |
+| sceptic | google → **openai** | ours → **ours** |
+| editor | google → **openai** | desk-reject → **desk-reject** |
+| specialist | google → google | comparator → **ours** *(flipped)* |
+| methodologist | google → google | ours → **comparator** *(flipped)* |
+
+**Still 3–2 to our page.** The presentation complaint moved from primary to secondary — no
+field-path quotes appear in round 2's editor verdict at all — and the editor's reasons became
+substantive instead.
+
+### What round 2 found that round 1 could not
+
+**The page said a pool was withdrawn and then drew it.** The editor:
+
+> *"It says the four-trial pool 'mixed the two definitions' and 'remains withdrawn', yet still
+> shows 'Figure 1. Forest plot … k = 4'. That is not review-ready."*
+
+Confirmed against the object: `cvdeath_or_whf_first` is `withdrawn=True, pooled=None`, and
+both a forest and a funnel were drawn for it. A forest plot **is** the pooled claim in picture
+form; the funnel was worse, since its bounds are drawn *from* the pooled estimate. Fixed —
+and it survived the earlier prose fix because that fix was applied where the defect was
+noticed rather than everywhere the property has to hold.
+
+**Found and not fixed:** the certainty table says *"No result-level RoB 2 assessment exists
+for this outcome … Rated down one level because unassessed is not low"*, while the object now
+holds RoB for all three outcomes. The stored GRADE derivation is stale. Correcting it changes
+a certainty rating's justification and possibly the rating — Mahmood's judgement.
+
+### An honest problem with the instrument
+
+**Both flips were within the same model family**, so they are run-to-run variance, not family
+effects. And round 1's rotation did not actually happen: the `only=` reindexing bug meant the
+re-run personas landed back on google, so **round 1 was effectively single-family**.
+
+Two consequences, and they matter more than either round's score:
+
+- A **single round's persona verdict is not stable enough to act on by itself.** Act on the
+  specific, checkable findings — a withdrawn pool with a forest plot is true or false
+  regardless of who says it — and treat the A/B preference as a weak signal.
+- The 3–2 in both rounds is **the same score from different voters**, which is a coincidence
+  worth stating rather than a stable result worth quoting.
 
 ---
 
