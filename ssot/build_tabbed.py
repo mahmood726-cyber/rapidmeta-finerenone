@@ -700,8 +700,24 @@ def _generator_stamp():
     if _STAMP_CACHE is not None:
         return _STAMP_CACHE
     import subprocess
+    # THE LIST THAT WAS MISSING THE MODULE THAT WRITES THE MANUSCRIPT.
+    #
+    # `paper_projector.py` -- 3,500 lines, and the source of every sentence in the Paper
+    # panel -- was NOT watched, so neither half of this stamp saw it: the sha did not move
+    # when the projector changed, and DIRTY never fired when it was uncommitted.
+    #
+    # THE CONSEQUENCE IS LIVE ON PUBLIC PAGES. POSACONAZOLE_FUNGAL_AUTO_FULL_REVIEW is
+    # served today stamped `fd88f9751`, while paper_projector.py changed in three commits
+    # after that -- including the ones that produced the manuscript on that very page. A
+    # third party checking out the stamp gets a different projector and cannot reproduce
+    # what they are reading. That is a reproducibility claim that fails silently, which is
+    # worse than no claim, and it is exactly what the DIRTY suffix exists to prevent.
+    #
+    # `statement.py` joins it for the same reason: it now renders the whole Paper panel for
+    # the 113 topics that hold no poolable evidence.
     gen = ["ssot/projectors.py", "ssot/projectors2.py", "ssot/build_tabbed.py",
-           "ssot/build_app_v2.py", "ssot/wysiwyg.py", "ssot/paper.py"]
+           "ssot/build_app_v2.py", "ssot/wysiwyg.py", "ssot/paper.py",
+           "ssot/paper_projector.py", "ssot/statement.py"]
     root = os.path.dirname(HERE)
     try:
         sha = subprocess.run(["git", "-C", root, "log", "-1", "--format=%h", "--", *gen],
