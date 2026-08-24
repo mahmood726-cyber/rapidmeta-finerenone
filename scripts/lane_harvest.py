@@ -27,6 +27,8 @@ import re
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import packet_transport as pt  # noqa: E402
 OUT = os.path.join(REPO, "outputs", "lanes", "out")
 LEDGER = os.path.join(REPO, "outputs", "lanes", "harvest.json")
 
@@ -50,6 +52,18 @@ NOANSWER = re.compile(r"I'?m sorry|can'?t complete|cannot complete|"
 
 def classify(text):
     """The verdict where one was asked for; otherwise the strongest claim actually made."""
+    # AN ANSWER WRITTEN OVER A TRUNCATED INPUT IS NOT A RESULT, WHATEVER IT SAYS.
+    #
+    # Two lanes came back reporting the vendor had cut 295,594 bytes off a 487,175-byte
+    # packet. One of them still contained the word ACCEPT further up. Classified on its
+    # tail alone it would have been counted CLEAN -- a transport failure banked as
+    # evidence that the object is sound. The opposite direction is just as bad: a defect
+    # claimed over a hole is the six-fabrication-accusations failure again.
+    #
+    # So this outranks every other branch, including the empty-string one.
+    ok, dropped = pt.output_is_trustworthy(text)
+    if not ok:
+        return "INPUT_TRUNCATED"
     if not text.strip():
         return "NO_ANSWER"
     if NOANSWER.search(text):
@@ -101,7 +115,7 @@ def main():
     print("   spawn failures      %5s" % st.get("failed", "?"))
     print("")
     print("WHAT THE RETURNED LANES SAY  (output files seen: %d)" % len(rows))
-    for k in ("CLAIMS_DEFECT", "CLEAN", "COULD_NOT_DETERMINE", "NO_ANSWER"):
+    for k in ("INPUT_TRUNCATED", "CLAIMS_DEFECT", "CLEAN", "COULD_NOT_DETERMINE", "NO_ANSWER"):
         print("   %-22s %5d" % (k, tally.get(k, 0)))
     print("")
     print("   CLAIMS_DEFECT is UNVERIFIED. Nothing here checks a claim against the")

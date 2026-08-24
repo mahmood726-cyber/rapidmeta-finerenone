@@ -17,6 +17,8 @@ import os
 import sys
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import packet_transport as pt  # noqa: E402
 QUEUE = os.path.join(REPO, "outputs", "lanes", "queue")
 PROMPTS = os.path.join(REPO, "outputs", "lanes", "prompts")
 
@@ -34,6 +36,12 @@ accusation costs as much here as a missed defect.
 
 
 def write(name, body):
+    # THE ASSERTION IS CHOSEN FROM THE SIZE THAT WILL BE SENT, NOT WRITTEN BY HAND.
+    # A packet too large to arrive whole gets an honest warning instead of a false
+    # reassurance; see scripts/packet_transport.py for the measurement behind the
+    # threshold and for why a softened assertion would be the worst of the three.
+    if body.startswith(PACKET):
+        body = pt.assertion_for(len(body.encode("utf-8"))) + body[len(PACKET):]
     os.makedirs(QUEUE, exist_ok=True)
     os.makedirs(PROMPTS, exist_ok=True)
     pp = os.path.join(PROMPTS, name + ".txt")
