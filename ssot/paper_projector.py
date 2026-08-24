@@ -88,9 +88,60 @@ def _bookkeeping(obj, field):
     return v.strip(), ["%s.%s" % (k, field)]
 
 
+# INTERNAL PROPERTY NAMES, TRANSLATED ONCE, WHERE THEY REACH A READER.
+#
+# Two blind reviewers from DIFFERENT model families independently quoted the same sentence
+# as one of the page's three worst passages:
+#
+#   "Of the four properties this project requires of a completed topic, 0 are held (none)
+#    and 4 are refused with the obstacle named in the evidence (comparison denominator,
+#    grade per pool, model output verbatim, rob per result)."
+#
+#   "Pure software debugging jargon that a clinical reader cannot parse. Terms like
+#    'rob per result' expose internal data validation states rather than describing
+#    clinical research methods."
+#
+# `rob per result` is a key. It is not English, and a clinical reader has no route to it.
+# The four appear on 148 pages each. Translating them is not inventing content: each phrase
+# below says exactly what the identifier already means, in words a reviewer can read.
+#
+# DECLARED AND ENUMERATED, like every other vocabulary in this file: an identifier not on
+# this list is left exactly as it is rather than guessed at.
+_PROPERTY_ENGLISH = {
+    "rob per result":
+        "a risk-of-bias judgement for each reported result",
+    "grade per pool":
+        "a GRADE certainty rating for each pooled outcome",
+    "model output verbatim":
+        "the statistical model's output, quoted as it was produced",
+    "comparison denominator":
+        "the number of published syntheses this review was compared against",
+    "k cascade":
+        "the count of records at each stage of screening",
+}
+
+
+def _english_properties(text):
+    """Replace internal property identifiers with what they mean, longest first."""
+    if not text:
+        return text
+    out = str(text)
+    for key in sorted(_PROPERTY_ENGLISH, key=len, reverse=True):
+        # The boundary is a LOOKAROUND, not a word-boundary escape: sent through a
+        # shell heredoc that escape arrived here as a literal BACKSPACE byte (0x08),
+        # the pattern matched nothing, and this function returned its input unchanged
+        # while inspect.getsource printed code that looked correct. That is the class
+        # .githooks/pre-push runs lint_control_chars.py for, and whose own comment
+        # records it recurring eight times in one night against an author who had read
+        # the rule. This was the ninth.
+        out = re.sub(r"(?<![\w-])%s(?![\w-])" % re.escape(key),
+                     _PROPERTY_ENGLISH[key], out, flags=re.I)
+    return out
+
+
 def _add_bookkeeping(s, obj, field):
     t, src = _bookkeeping(obj, field)
-    return bool(t) and s.add(obj, t, src)
+    return bool(t) and s.add(obj, _english_properties(t), src)
 
 
 def _drafted(obj, section):
@@ -3032,7 +3083,8 @@ def project(obj, journal="generic", length="standard"):
     if isinstance(ref, list) and ref:
         s.add(obj, "This review refuses %d of the page standard's properties, by name: %s. "
                    "A refused property is a completed outcome with a stated reason, not an "
-                   "omission." % (len(ref), ", ".join(str(x) for x in ref)),
+                   "omission." % (len(ref),
+                                  ", ".join(_english_properties(str(x)) for x in ref)),
               ["build_stamp.refusing"])
     else:
         s.refusals.append(("the list of refused properties", ["build_stamp.refusing"]))
