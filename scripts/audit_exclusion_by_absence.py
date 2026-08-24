@@ -57,11 +57,20 @@ import sys
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# CLAIM 2, cold lane, CONFIRMED and LIVE (+37 corpus-wide guards).
+# The character class cannot cross a comma, so the pattern matched
+# `if not x.get("k"):` and MISSED `if not x.get("k", []):` -- the commoner form. A
+# selector keyed to a shape the corpus does not always write, reporting a smaller
+# population as if it were the whole one. One optional call-with-arguments closes it.
 NEG_GUARD = re.compile(
-    r"if\s+(?:not\s+[\w\.\[\]\(\)'\"]+|[\w\.\[\]\(\)'\"]+\s+is\s+None|"
+    r"if\s+(?:not\s+[\w\.\[\]\(\)'\"]+(?:\([^)]*\))?|[\w\.\[\]\(\)'\"]+\s+is\s+None|"
     r"[\w\.\[\]\(\)'\"]+\s*==\s*(?:None|\[\]|\{\}|0|''|\"\")|"
     r"len\([^)]+\)\s*==\s*0)\s*:")
-EXIT = re.compile(r"^\s*(continue|break|return|raise)\b|excluded\.append|skip", re.M)
+# CLAIM 5, cold lane, CONFIRMED. Bare `skip` matched INSIDE identifiers, so
+# `skip_reason = "kept"` -- a line that skips nothing -- counted as an excluding
+# action. Latent on the ratcheted population and worth 18 false positives on the
+# wider sweep.
+EXIT = re.compile(r"^\s*(continue|break|return|raise)\b|excluded\.append|\bskip\b(?!_)", re.M)
 
 # Exclusion reasons in the objects, phrased as an absence.
 ABSENCE_TEXT = re.compile(
@@ -91,7 +100,12 @@ def code_sweep():
                 for i, ln in enumerate(lines):
                     if not NEG_GUARD.search(ln):
                         continue
-                    nxt = "\n".join(lines[i + 1:i + 3])
+                    # CLAIM 6, cold lane, CONFIRMED and LIVE (+16). Two lines was too short: a
+                    # guard whose body logs, counts, then continues read as not-excluding. Five
+                    # lines is still a window and still arbitrary; recorded as a measured choice
+                    # rather than a derived one, and what it adds enters the baseline UNEXAMINED
+                    # and labelled so.
+                    nxt = "\n".join(lines[i + 1:i + 6])
                     if EXIT.search(nxt):
                         hits.append((os.path.relpath(fp, REPO).replace("\\", "/"),
                                      i + 1, ln.strip()[:88]))
@@ -114,7 +128,17 @@ def object_sweep():
         except Exception:
             continue
         objects += 1
-        exc = ((obj.get("screening") or {}).get("excluded")) or []
+        # CLAIM 7, cold lane, CONFIRMED and LATENT (0 objects carry a non-list here).
+        # `or []` turned an explicit scalar 0 -- and "", and {} -- into an empty list
+        # indistinguishable from a missing key. Zero conflated with absent, the named
+        # shape. Three states now: absent, a list, or something else that is a data
+        # defect and should be visible rather than smoothed away.
+        _raw = (obj.get("screening") or {}).get("excluded")
+        if _raw is None or isinstance(_raw, list):
+            exc = _raw or []
+        else:
+            malformed_excluded.append((fp, type(_raw).__name__))
+            exc = []
         for e in exc:
             if not isinstance(e, dict):
                 continue
@@ -150,8 +174,21 @@ def object_sweep():
 # something from a corpus-wide pass.
 # ---------------------------------------------------------------------------------------
 
+# CLAIM 4, cold lane, CONFIRMED and LATENT: `Path(...).glob(...)` was unrecognised.
+# Zero occurrences under scripts/ today, so it moves no number -- added because the
+# hole is real and costs nothing, not because it found anything.
+#
+# CLAIM 3, cold lane, CONFIRMED AS MECHANISM AND REFUTED AS CONSEQUENCE. DELIBERATELY
+# NOT APPLIED. It observed that a bare `pages` also matches a LOCAL variable sharing
+# the name, and proposed requiring a real iteration source. True of the regex, and the
+# fix would be a regression: tightening drops 36 entries and every one sampled is a
+# genuine corpus pass -- `for key, obj in dia.find_trial_objects(html)`, `for path in
+# objects()`, and two `for pg in pages` whose `pages` is a manifest file-list and a log
+# naming every skipped page. Right about the regex, wrong about this corpus. Applying
+# it unread would have blinded the gate to 36 real corpus loops in the name of
+# precision -- a false alarm in the DISMISSING direction, which retires working checks.
 CORPUS_LOOP = re.compile(
-    r"for\s+\w+.*\bin\b.*(?:glob\.glob\(|os\.listdir\(|os\.walk\(|PAGE_MAP|apps\b|"
+    r"for\s+\w+.*\bin\b.*(?:glob\.glob\(|os\.listdir\(|os\.walk\(|PAGE_MAP|Path\([^)]*\)\.(?:glob|rglob)\(|apps\b|"
     r"topics\b|objects\b|pages\b)")
 
 BASELINE = os.path.join(REPO, "scripts", "baselines", "exclusion_by_absence_baseline.json")
@@ -192,7 +229,7 @@ def corpus_wide_subset():
                         continue
                     if not NEG_GUARD.search(ln):
                         continue
-                    nxt = "\n".join(lines[i + 1:i + 3])
+                    nxt = "\n".join(lines[i + 1:i + 6])
                     if EXIT.search(nxt):
                         out.append((rel, i + 1, stack[-1][1], ln.strip()[:76]))
     return out
@@ -255,8 +292,11 @@ def ratchet(subset, write_if_missing=True):
 def main():
     files, hits = code_sweep()
     objects, reasons = object_sweep()
-    if files == 0 and objects == 0:
-        print("NOT_ASSESSABLE: read no files and no objects.")
+    # CLAIM 1, cold lane, CONFIRMED. `files == 0` could never be true: the sweep walks
+    # scripts/, and this file lives there, so it always reads at least itself. An
+    # instrument that counts itself cannot report that it read nothing.
+    if files <= 1 and objects == 0:
+        print("NOT_ASSESSABLE: read nothing but this script itself, and no objects.")
         return 2
 
     print("python files read                            %d" % files)
