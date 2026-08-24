@@ -513,8 +513,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2-converted-from-extractor</td></tr>
     <tr><th scope='col'>Object last updated</th><td>2026-08-17T12:06Z</td></tr>
-    <tr><th scope='col'>Page generated</th><td>2026-08-24 21:00 UTC</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>fd2efc96f</code>. The standard this page was built to is NOT ESTABLISHED: this object carries no <code>build_stamp</code>, so the version above is the standard that exists now, not the one this page was built against.</td></tr>
+    <tr><th scope='col'>Page generated</th><td>2026-08-24 21:27 UTC</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>fd2efc96f</code> (uncommitted generator changes -- NOT REPRODUCIBLE from this stamp alone). The standard this page was built to is NOT ESTABLISHED: this object carries no <code>build_stamp</code>, so the version above is the standard that exists now, not the one this page was built against.</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
@@ -568,10 +568,8 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </ol></details>
 <h3 id="paper-results">Results</h3>
 <p>Multiple trial-declared outcomes: Percent Change From Baseline in LDL-C | Percent Change From Baseline in Low Density Lipoprotein-cholesterol (LDL-C) at 12 Weeks. These 2 trials are not pooled, and the reason is stated rather than the outcome being quietly omitted: The endpoints agree and the measure is wrong. Both registrations declare a continuous primary -- NCT00309738 &#x27;Percent Change From Baseline in LDL-C&#x27; and NCT00309777 &#x27;Percent Change From Baseline in Low Density Lipoprotein-cholesterol (LDL-C) at 12 Weeks&#x27;, read from ClinicalTrials.gov on 2026-08-18 -- and this object stored an odds ratio for each and pooled them to OR 1.2237 (0.8423-1.7778). An odds ratio requires a dichotomy and a percent change from baseline has none. This is the defect that withdrew BOCOCIZUMAB_LIPID in this corpus, and it is the same shape: the trials agree about what was measured, and the synthesis disagrees with both of them about how to measure it. The provenance is absent as well, by the object&#x27;s own admission: each per-trial row records &#x27;The point estimate and interval shown here are derived, not read ... No source document was consulted and no source sentence is recorded&#x27;, and outcome_definition was null on both trials. So the withdrawn value rested on an extractor recovery with no source sentence behind it. Authority: Cochrane Handbook 6.5 (2024) section 6 governs the choice of effect measure for a continuous outcome, and mecir Box 10.10.a C62 requires that &#x27;participants, interventions, comparisons and outcomes&#x27; be sufficiently similar to give a clinically meaningful answer -- an odds ratio on a continuous endpoint is not an answer to the question the trials asked. What replaces it, and it is a real analysis rather than a gap: a mean difference synthesis of percent change in LDL-C at 12 weeks, which both trials support and both registered. It needs each trial&#x27;s least-squares mean difference read from its results record -- a source STEP not taken here -- and is recorded as owed rather than estimated.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>What each trial reporting it found, separately and not combined: odds ratio 1.21 (0.642 to 2.27) in NCT00309738; and odds ratio 1.23 (0.776 to 1.96) in NCT00309777.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>outcomes[id=primary].name, results.by_outcome.primary.pooled.withdrawn_reason</code></li>
-<li><code>results.by_outcome.primary.per_trial</code></li>
 </ol></details>
 <h3 id="paper-disagreements-between-sources">Disagreements between sources</h3>
 <p>not recorded on the page this object was extracted from<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
@@ -581,7 +579,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <li><code>reconciliation.clean_because</code></li>
 </ol></details>
 <h3 id="paper-limitations">Limitations</h3>
-<p>What this review does not give a clinician: the number of events in each arm, any absolute effect or number needed to treat, how long participants were followed and any measure of harm. A relative effect cannot be turned into the benefit or the risk facing one patient without them, so this review can support a judgement about what these trials found and not a judgement about what to do.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>What this review does not give a clinician: the number of events in each arm, any absolute effect or number needed to treat and any measure of harm. A relative effect cannot be turned into the benefit or the risk facing one patient without them, so this review can support a judgement about what these trials found and not a judgement about what to do.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>results.by_outcome</code></li>
 </ol></details>
@@ -653,9 +651,9 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 </ol></details>
 <h3 id="paper-trial-characteristics">Trial characteristics</h3>
 <div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<sup class='prov-ref' title='source 1 for this section'>1</sup></caption>
-<tr><th>Registration</th><th>Trial</th><th>Participants</th><th>Randomised</th><th>Design</th></tr>
-<tr><td>NCT00309738</td><td>Eriksson 2011</td><td>not recorded on the page this object was extracted from</td><td>not extracted</td><td>Pitavastatin 4 mg QD (treatment, n=233) vs Simvastatin 40 mg QD (control, n=119) [+2 further fields recorded on the object]</td></tr>
-<tr><td>NCT00309777</td><td>Ose 2009</td><td>not recorded on the page this object was extracted from</td><td>not extracted</td><td>Pitavastatin 2 mg (treatment, n=311) vs Simvastatin 40 mg (control, n=107) [+2 further fields recorded on the object]</td></tr>
+<tr><th>Registration</th><th>Trial</th><th>Participants</th><th>Randomised</th><th>Primary outcome measured over</th><th>Design</th></tr>
+<tr><td>NCT00309738</td><td>Eriksson 2011</td><td>not recorded on the page this object was extracted from</td><td>not extracted</td><td>12 weeks</td><td>Pitavastatin 4 mg QD (treatment, n=233) vs Simvastatin 40 mg QD (control, n=119) [+2 further fields recorded on the object]</td></tr>
+<tr><td>NCT00309777</td><td>Ose 2009</td><td>not recorded on the page this object was extracted from</td><td>not extracted</td><td>Baseline to 12 weeks</td><td>Pitavastatin 2 mg (treatment, n=311) vs Simvastatin 40 mg (control, n=107) [+2 further fields recorded on the object]</td></tr>
 </table></div>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>inputs.trials</code></li>

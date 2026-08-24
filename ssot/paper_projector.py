@@ -1111,7 +1111,7 @@ def _clinical_gaps(obj):
         # depending on where the eye lands.
         gaps.append("any absolute effect or number needed to treat")
     if not any_key(trials, ("follow_up", "median_follow_up", "duration",
-                            "follow_up_months")):
+                            "follow_up_months", "registered_primary_timeframe")):
         gaps.append("how long participants were followed")
     if not (obj.get("harms") or obj.get("adverse_events")
             or any("adverse" in str(o.get("name", "")).lower()
@@ -1151,6 +1151,24 @@ def _trial_population(obj, nct, trial):
             t = " ".join(str(r.get("population") or "").split())
             if t and t not in seen:
                 seen.append(t)
+    # THE REGISTRY'S OWN CONDITION LIST, where no summary exists. 18 pooled results were
+    # delivered with NO population on any contributing row, which is what made it impossible
+    # for anyone -- including the student checking us -- to judge whether the pool combined
+    # patients who belong together. Registry wording is worse prose and better evidence: a
+    # reader can open the registration and find the same words, which they cannot do with a
+    # summary written here.
+    if not seen:
+        for blk in ((obj.get("results") or {}).get("by_outcome") or {}).values():
+            if not isinstance(blk, dict):
+                continue
+            for r in blk.get("per_trial") or []:
+                if not isinstance(r, dict):
+                    continue
+                if str(r.get("nct") or r.get("trial_id") or "").strip() != str(nct).strip():
+                    continue
+                c = " ".join(str(r.get("registered_conditions") or "").split())
+                if c and c not in seen:
+                    seen.append("registered condition: " + c)
     if not seen:
         return "not recorded"
     # ONE TRIAL, ONE POPULATION. Where results disagree about who was studied that is
@@ -3016,8 +3034,40 @@ def project(obj, journal="generic", length="standard"):
             #
             # Reported per trial, never combined, because not combining them is the whole
             # point of the paragraph above.
-            _rows = [r for r in (blk.get("per_trial") or [])
-                     if isinstance(r, dict) and r.get("point") is not None]
+            #
+            # BUT NEVER FOR A POOL THAT WAS RETRACTED, and the distinction is the reason
+            # this branch is not simply "print the numbers":
+            #
+            #   NEVER POOLED  -- one trial reports the outcome, or the trials measure
+            #                    different things. Each estimate is valid FOR ITS OWN TRIAL,
+            #                    and withholding it is the absurdity quoted above.
+            #
+            #   WITHDRAWN     -- a pool WAS computed, someone examined it, and it was
+            #                    retracted. On 22 outcomes across this corpus that retraction
+            #                    still leaves per-trial rows behind, and on some of them the
+            #                    retraction is that THE MEASURE ITSELF IS INVALID:
+            #                    netarsudil records "A HAZARD RATIO OVER A CONTINUOUS
+            #                    PRESSURE"; pitavastatin "THE ENDPOINTS AGREE AND THE MEASURE
+            #                    IS WRONG"; bococizumab an odds ratio derived from an
+            #                    undocumented dichotomisation of a percent change. Where the
+            #                    measure is the defect, the per-trial estimates carry the
+            #                    SAME defective measure -- so re-publishing them beside the
+            #                    retraction hands a reader the retracted quantity in
+            #                    component form.
+            #
+            # A FIRST ATTEMPT TRIED TO TELL THE TWO APART BY READING THE REASON for phrases
+            # like "MEASURE IS THE DEFECT". It caught 1 of the 3 cases and missed netarsudil
+            # and pitavastatin outright -- the vocabulary-standing-in-for-a-rule failure this
+            # repository has now hit four times. `withdrawn` is a PROPERTY the object states
+            # about itself; the phrasing of a reason is not.
+            #
+            # So: a retraction is reported as a retraction, with its reason in full, and the
+            # components stay on the Extraction tab where the whole record lives.
+            _pooled = blk.get("pooled") or {}
+            _retracted = bool(_pooled.get("withdrawn") or _pooled.get("withdrawn_reason"))
+            _rows = [] if _retracted else [
+                r for r in (blk.get("per_trial") or [])
+                if isinstance(r, dict) and r.get("point") is not None]
             if _rows:
                 _bits = []
                 for r in _rows:
@@ -4243,11 +4293,17 @@ def project(obj, journal="generic", length="standard"):
         # and a reader asked both. `population` is the per-trial text; where a trial holds
         # none, the per-result rows often do, and that is read rather than left blank.
         s.add_table(obj, "Characteristics of every trial contributing to this review",
-                    ["Registration", "Trial", "Participants", "Randomised", "Design"],
+                    ["Registration", "Trial", "Participants", "Randomised",
+                     "Primary outcome measured over", "Design"],
                     [[nct, str(t.get("name") or ""),
                       _trial_population(obj, nct, t),
                       str(t.get("enrolled") or t.get("registration_enrolment")
                           or t.get("n") or t.get("n_total") or "not extracted"),
+                      # THE REGISTRY'S OWN WORDS FOR THE TIME FRAME, not a parsed duration.
+                      # "up to 5 years" is not 5 years and "Mean follow up of 4 years" is not
+                      # a median; normalising them would hand a student a tidy number they
+                      # cannot check against the source it came from.
+                      str(t.get("registered_primary_timeframe") or "not recorded"),
                       _own_sentence(t.get("design")) or _arms_text(
                           t.get("comparison") or t.get("arms"))]
                      for nct, t in sorted(by_id.items())],

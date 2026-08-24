@@ -145,7 +145,14 @@ def main():
             if len(rows) < 2:
                 continue
             pooled_total += 1
-            named = [x for x in (norm(r.get("population")) for r in rows) if x]
+            # POPULATION, OR THE REGISTRY'S OWN CONDITION LIST WHERE NO SUMMARY EXISTS.
+            # Reading only `population` kept reporting 18 pools as unrecorded after the
+            # registered conditions had been written onto their rows -- a measurement that
+            # cannot see a fix is a measurement that will keep reporting a defect that is
+            # gone, which is the same class of error as one that cannot see a defect at all.
+            named = [x for x in ((norm(r.get("population"))
+                                  or norm(r.get("registered_conditions")))
+                                 for r in rows) if x]
             # THREE STATES, EACH COUNTED AS ITSELF. The earlier form skipped the
             # no-population case with `if not named: continue`, which reads as "these do
             # not matter" when in fact they are the LARGEST group and the reason this
