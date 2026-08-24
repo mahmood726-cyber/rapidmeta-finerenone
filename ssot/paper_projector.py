@@ -1713,10 +1713,20 @@ def project(obj, journal="generic", length="standard"):
         def _dflt(key, fallback):
             v = d.get(key)
             return fallback if v is None else v
-        txt = ("%s %s on %s with the query, verbatim: %s. It returned %s record(s)."
-               % (verb, _dflt("database", "an unnamed source"),
-                  _dflt("date_executed", "(no date recorded)"),
-                  q, _dflt("records_returned", "an unrecorded number of")))
+        # A NON-EXECUTED SEARCH REPORTED AS AN EXECUTED ONE IS A FALSE METHODS CLAIM.
+        # The stored query on seven pages is literally "Not executed for this topic", and
+        # this sentence wrapped it as: "Searches were executed in PubMed on 2026-08-19 with
+        # the query, verbatim: Not executed for this topic. It returned an unrecorded number
+        # of record(s)." The page claims a search it also says did not happen, and
+        # overstates its own bibliographic coverage to any reader who skims the Methods.
+        if not _prose_has_value(q) or str(q).strip().lower().startswith("not executed"):
+            txt = ("No search was executed against %s for this topic."
+                   % _dflt("database", "this source"))
+        else:
+            txt = ("%s %s on %s with the query, verbatim: %s. It returned %s record(s)."
+                   % (verb, _dflt("database", "an unnamed source"),
+                      _dflt("date_executed", "(no date recorded)"),
+                      q, _dflt("records_returned", "an unrecorded number of")))
         # A QUERY THAT MISSED AN INCLUDED TRIAL IS PART OF THE METHODS, NOT AN EMBARRASSMENT
         # TO OMIT. The object records it; the manuscript states it.
         if d.get("DEFECT_FOUND"):
@@ -2427,14 +2437,24 @@ def project(obj, journal="generic", length="standard"):
                        % (_model_words(_model) if _model else "the recorded model",
                           " with the %s estimator" % _v_str(_est) if _est else ""))
         _mfields.append("results.by_outcome")
+    # A TOOL NAME IS NOT AN ASSESSMENT, AND AN APPROACH NAME IS NOT A RATING.
+    #
+    # `risk_of_bias.tool` holding the string "RoB 2" says which instrument WOULD be used.
+    # It does not establish that anyone applied it. Nine pages carried the abstract sentence
+    # "risk of bias was assessed with RoB 2; and certainty was rated with GRADE" while the
+    # SAME PAGE said "No per-domain RoB-2 assessment is stored" and "Risk-of-bias traffic
+    # light -- not computable". That is the defect this whole project exists to prevent,
+    # committed in its own abstract: a methods claim with nothing behind it.
+    #
+    # The claim now requires the ASSESSMENT to exist, not merely its label.
     _tool = get(obj, "risk_of_bias.tool")
-    if _tool is not None:
+    if _tool is not None and get(obj, "risk_of_bias.by_outcome") is not None:
         _mparts.append("risk of bias was assessed with %s" % _v_str(_tool))
-        _mfields.append("risk_of_bias.tool")
+        _mfields.append("risk_of_bias.by_outcome")
     _gr = get(obj, "grade.approach")
-    if _gr is not None:
+    if _gr is not None and get(obj, "grade.by_outcome") is not None:
         _mparts.append("certainty was rated with %s" % _v_str(_gr))
-        _mfields.append("grade.approach")
+        _mfields.append("grade.by_outcome")
     if _mparts:
         s.add(obj, "Methods. %s." % _sentence_join(_mparts), _mfields)
         # THE ELIGIBILITY PARAGRAPH DOES NOT BELONG IN THE ABSTRACT. An abstract must stand
@@ -2833,7 +2853,21 @@ def project(obj, journal="generic", length="standard"):
     # s.tables)` refusal stopped firing, and six topics lost a refusal that was
     # true -- delivery 26 -> 20. A bookkeeping claim belongs in the section; it
     # must not be the thing that decides the section has content.
-    _add_bookkeeping(s, obj, "that_two_assessors_disagreed_and_where")
+    # ONLY WHERE THERE IS AN ASSESSMENT TO SAY THAT ABOUT.
+    #
+    # This line reads "No second, independent risk-of-bias assessment is recorded for this
+    # topic. The judgements were made once." On a topic that HAS a single assessment that is
+    # exactly right and worth saying. On a topic with NO assessment at all it asserts that
+    # judgements exist, and the same page then lists "the risk-of-bias assessment" among the
+    # items not reported. A blind reviewer quoted both halves back as the document
+    # contradicting itself, and it was right: `risk_of_bias` is absent on posaconazole-fungal
+    # and the sentence still claimed judgements had been made.
+    #
+    # The consolidation is what made it visible -- the two statements used to sit twenty
+    # refusal blocks apart. Collapsing them into one view did not create the contradiction,
+    # it stopped hiding it.
+    if get(obj, "risk_of_bias") is not None:
+        _add_bookkeeping(s, obj, "that_two_assessors_disagreed_and_where")
     secs.append(s)
 
     # ---- DISAGREEMENTS BETWEEN SOURCES -------------------------------------------------

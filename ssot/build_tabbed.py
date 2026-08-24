@@ -816,7 +816,19 @@ def _projected_paper_html(canon):
            "nothing, the section says so by name</strong> rather than being left out, so a "
            "procedure that was not carried out can be told from one that simply was never "
            "mentioned.</p>"]
+    # A SECTION THAT IS NOTHING BUT A REFUSAL DOES NOT GET A HEADING. A heading promises
+    # content; "Discussion" followed only by "Refused: the Discussion" promises and then
+    # withdraws in two lines. Its absence is named once, in the table at the end.
+    _deferred = []
+
+    def _has_body(sec):
+        return bool(sec.paras or getattr(sec, "tables", []) or getattr(sec, "figures", []))
+
     for s in secs:
+        if not _has_body(s):
+            for what, missing in s.refusals:
+                _deferred.append((s.heading, _pp._tidy(what), list(missing)))
+            continue
         out.append("<h3>%s</h3>" % e(s.heading))
         # THE PROVENANCE COLUMN. Every paragraph, table and refusal in this section used to
         # carry its field path INSIDE the flow -- "<p>text<br><small>&larr;
@@ -889,9 +901,13 @@ def _projected_paper_html(canon):
         # paragraph never touched them -- and a refusal is a full sentence a reader reads:
         # "Background is ARGUMENT -- why this question matters". Two blind copy-edit reads
         # flagged the surviving capitals and both were reading refusal text.
+        # REFUSALS NO LONGER INTERRUPT THE PAPER. They are collected and rendered once,
+        # at the end, in "Not reported in this record". Readers counted 30, 22 and 14
+        # "Refused:" blocks on single pages and every one of them described the result as
+        # an audit log rather than a manuscript. Nothing is dropped: each refusal keeps its
+        # article area, its item, its reason and its source fields.
         for what, missing in s.refusals:
-            out.append("<div class='absent-state' role='note'><strong>Refused:</strong> "
-                       "%s%s</div>" % (e(_pp._tidy(what)), _mark(missing)))
+            _deferred.append((s.heading, _pp._tidy(what), list(missing)))
         if sources:
             # COLLAPSED, CLOSED BY DEFAULT. NOTHING IS REMOVED -- every field path is still
             # here and still one action away.
@@ -911,8 +927,56 @@ def _projected_paper_html(canon):
             for src in sources:
                 out.append("<li><code>%s</code></li>" % e(src))
             out.append("</ol></details>")
+    # ---- NOT REPORTED IN THIS RECORD --------------------------------------------------
+    #
+    # LAST, AND DELIBERATELY. This is an audit trail, not part of the scientific argument,
+    # and a reader should be able to read the paper once without being interrupted by it.
+    # It is not optional and not collapsed: a reader who wants to know what is missing must
+    # be able to see that the list exists without opening anything.
+    if _deferred:
+        out.append("<h3 id='paper-not-reported'>Not reported in this record</h3>")
+        out.append("<p>The items below were not written because the record does not hold "
+                   "what they would be composed from. They are named here so that an "
+                   "absence is not mistaken for an omission.</p>")
+        out.append("<table><caption>Items not reported, and why</caption>")
+        out.append("<tr><th>Article area</th><th>Item not reported</th><th>Reason</th></tr>")
+        for area, what, missing in _deferred:
+            item, reason = _split_refusal(what)
+            out.append("<tr><td>%s</td><td>%s</td><td>%s</td></tr>"
+                       % (e(area), e(item), e(reason)))
+        out.append("</table>")
     out.append("</div>")
     return NL.join(out)
+
+
+def _split_refusal(what):
+    """Split a stored refusal into (item, reason).
+
+    The corpus writes these as one string carrying both -- "the keyword list -- a content
+    gap; no keywords are recorded and inventing them would be indexing this review under
+    terms nobody chose". A table wants them apart, and the separator the corpus actually
+    uses is " -- " first and ". " second. Where there is no separator the whole string is
+    the item and the reason column says so rather than being left blank, because an empty
+    cell under a filled header asserts a comparison with nothing behind it.
+    """
+    s = (what or "").strip()
+    # SENTENCE BOUNDARY FIRST, THEN THE DASH. Trying " -- " first split
+    # "the Background sentence of the abstract. Background is argument -- why this question
+    # matters" in the MIDDLE of its second sentence, so the item column ended
+    # "...abstract. Background is argument" and the reason opened "Why this question
+    # matters". The first full stop is the real boundary between what was not written and
+    # why; the dash is only the boundary when there is no full stop at all, as in
+    # "the keyword list -- a content gap; no keywords are recorded".
+    for sep in (". ", " -- ", " — "):
+        if sep in s:
+            item, reason = s.split(sep, 1)
+            item = item.strip().rstrip(".,;:")
+            reason = reason.strip()
+            if item and reason:
+                return item[0].upper() + item[1:], reason[0].upper() + reason[1:]
+    if not s:
+        return "An unnamed item", "No reason was recorded with this refusal."
+    return s[0].upper() + s[1:], "No further reason is recorded."
 
 
 def _paper_panel(canon):
