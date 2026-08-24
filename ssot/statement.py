@@ -149,9 +149,77 @@ def _trials(obj):
             continue
         nct = str(t.get("nct") or t.get("registration") or "").strip()
         if nct:
-            out.append((nct, (t.get("label") or "").strip(),
-                        str(t.get("registry") or "").strip()))
+            # `label` FIRST WAS THE WRONG FIELD. This corpus stores the trial's name under
+            # `name` -- SOLOIST-WHF, SPRINT, CLEAR-Outcomes -- and `label` is mostly absent,
+            # so 74 trials across 19 pages rendered the fallback "title not recorded in the
+            # registry read". That fallback is not merely blank, it is a false claim ABOUT
+            # THE REGISTRY: it tells a reader the registration carried no title when in fact
+            # we read the wrong key. `registration_brief_title` is the registry's own words
+            # and is taken before giving up.
+            #
+            # The identical mistake was made twice more in one evening -- a prototype report
+            # reading `label`, and a field census guessing `n_randomised` for `enrolled` --
+            # so the rule earned here is: when a value looks absent corpus-wide, print the
+            # observed key list before believing it.
+            name = (str(t.get("name") or "").strip()
+                    or str(t.get("label") or "").strip()
+                    or str(t.get("registration_brief_title") or "").strip())
+            out.append((nct, name, str(t.get("registry") or "").strip()))
     return out
+
+
+def _outcome_name(obj, oid):
+    """The registered outcome text for `oid`, or the id if none is held."""
+    for o in (obj.get("outcomes") or []):
+        if isinstance(o, dict) and o.get("id") == oid:
+            nm = " ".join(str(o.get("name") or "").split())
+            if nm:
+                return nm
+    return str(oid)
+
+
+def _rows_with_point(obj):
+    """Every per-trial row carrying a point estimate, with its outcome id."""
+    out = []
+    for oid, blk in ((obj.get("results") or {}).get("by_outcome") or {}).items():
+        if not isinstance(blk, dict):
+            continue
+        for r in blk.get("per_trial") or []:
+            if isinstance(r, dict) and r.get("point") is not None:
+                out.append((oid, r))
+    return out
+
+
+def _per_trial_estimates(obj):
+    """(trial, outcome, result) for every estimate that carries an interval.
+
+    ONLY WITH AN INTERVAL. A point estimate alone cannot be weighed by a reader and cannot
+    be compared with one that has an interval sitting beside it in the same table.
+    """
+    out = []
+    for oid, r in _rows_with_point(obj):
+        lo, hi = r.get("ci_low"), r.get("ci_high")
+        if lo is None or hi is None:
+            continue
+        who = str(r.get("nct") or r.get("trial_id") or "").strip() or "trial not named"
+        measure = str(r.get("measure") or "").strip()
+        try:
+            est = "%s %.2f (%s%% CI %.2f to %.2f)" % (
+                measure or "estimate", float(r["point"]),
+                r.get("ci_level") or 95, float(lo), float(hi))
+        except (TypeError, ValueError):
+            continue
+        out.append((who, _outcome_name(obj, oid), est.strip()))
+    return out
+
+
+def _bare_point_count(obj):
+    """How many estimates are held with no interval, and so are not shown."""
+    n = 0
+    for _oid, r in _rows_with_point(obj):
+        if r.get("ci_low") is None or r.get("ci_high") is None:
+            n += 1
+    return n
 
 
 def _why_not_pooled(obj):
@@ -252,6 +320,41 @@ def statement_html(obj, e):
     else:
         out.append("<p><strong>What was found.</strong> No registered trial was "
                    "identified for this question.</p>")
+
+    # WHAT THE TRIALS FOUND, WHERE THEY FOUND ANYTHING.
+    #
+    # A STATEMENT THAT NOTHING WAS POOLED IS NOT A LICENCE TO WITHHOLD WHAT WAS MEASURED.
+    # Four topics reach this page holding a readable estimate -- bempedoic-acid-review
+    # carries CLEAR-Outcomes at HR 0.87 (0.79 to 0.96) and intensive-bp-review carries
+    # SPRINT at HR 0.75 (0.64 to 0.89) -- and every one of them published "no result is
+    # pooled" with the number nowhere on the page. The manuscript layer had the identical
+    # defect on unpooled outcomes and two blind reader families called it out in the same
+    # words: you found the trial, you assessed it, and then you refused to report what it
+    # said because you could not combine it.
+    #
+    # Not poolable and not findable are different states. This page exists to report the
+    # first without ever implying the second.
+    ests = _per_trial_estimates(obj)
+    if ests:
+        out.append("<p><strong>What the trials found.</strong> No estimate below is "
+                   "combined with any other; each is the result of a single trial, "
+                   "reported as that trial reported it.</p>")
+        out.append("<table><tr><th>Trial</th><th>Outcome</th><th>Result</th></tr>")
+        for who, what, est in ests:
+            out.append("<tr><td>%s</td><td>%s</td><td>%s</td></tr>"
+                       % (e(who), e(what), e(est)))
+        out.append("</table>")
+    n_bare = _bare_point_count(obj)
+    if n_bare:
+        # A POINT ESTIMATE WITH NO INTERVAL IS NOT A RESULT A READER CAN USE, and
+        # antimalarial-act holds one recorded as RR 0.00 -- an arm with no events. Printing
+        # "0.00" beside intervals that others carry invites it to be read as a real and
+        # extraordinary effect. It is counted and named instead of shown.
+        out.append("<p><small>%d further per-trial %s recorded without a confidence "
+                   "interval and %s not shown here, because a point estimate with no "
+                   "interval cannot be weighed.</small></p>"
+                   % (n_bare, "estimate is" if n_bare == 1 else "estimates are",
+                      "is" if n_bare == 1 else "are"))
 
     # THE FINDING, AND IT IS THE POINT OF THE PAGE.
     out.append("<p><strong>Why no result is pooled.</strong> %s</p>"

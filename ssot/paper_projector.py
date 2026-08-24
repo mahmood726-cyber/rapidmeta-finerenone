@@ -807,6 +807,22 @@ _KEEP_CAPS = {
     "LOW", "HIGH", "MODERATE",
 
     "CERTAINTY", "PROSPERO", "REFUSED", "WITHDRAWN", "PENDING",
+
+    # CLINICAL ACRONYMS A READER OF THIS CORPUS ALREADY KNOWS.
+    #
+    # Measured, not guessed: 45 occurrences across ~14 pages were reaching readers in lower
+    # case -- "mace", "vte", "nyha", "sglt2", and on one cardiology page "barc Type 2, 3,
+    # or 5", which a blind reviewer quoted back while rejecting the paper. The case pass is
+    # right to lowercase a shouted English word and wrong to touch these, and it cannot
+    # tell them apart without being told which is which.
+    #
+    # `OR`, `PE`, `PRO` and `AS` are deliberately NOT here. Each is also an ordinary word,
+    # and keeping them in capitals would shout an English word on every page that used it
+    # -- the opposite defect, and a commoner one.
+    "MACE", "VTE", "DVT", "NYHA", "LVEF", "EGFR", "TIMI", "GUSTO", "STEMI", "NSTEMI",
+    "CABG", "ACS", "DAPT", "BARC", "KCCQ", "SGLT2", "PCSK9", "ARNI", "MRA", "ARB", "ACEI",
+    "ESRD", "AKI", "DKA", "BNP", "CRP", "ICU", "ARDS", "COPD", "RSV", "HPV", "BCG",
+    "SBP", "DBP", "INR", "BMI", "ALT", "AST", "TEAE", "QALY", "ICER", "SUCRA",
     # NOT function words. `IS`, `THE`, `AND`, `A` were in this set at first and the
     # result was "A Disagreement rate IS meaningless without THE facts" -- half-shouted,
     # which reads worse than the shouting did. Inside a run being de-emphasised, a
@@ -954,6 +970,161 @@ _ROB_WORDS = {
     "NO_INFORMATION": "no information",
     "LOW": "low risk of bias",
 }
+
+
+def _title_reference(obj):
+    """A short way to refer back to a title too long to repeat, or None.
+
+    THREE TOPICS CARRY A TITLE THAT IS A PIPE-JOINED LIST OF REGISTRY OUTCOME NAMES --
+    "Multiple trial-declared outcomes: Participants With Any Event From the Composite of
+    Death From Vascular Causes, Myocardial Infarction (MI), and Stroke | Number of Subjects
+    Reaching the Composite Endpoint of ... | Number of Participants With barc Type 2, 3, or
+    5". The title itself is honest: those trials really did declare different outcomes, and
+    naming them all is the finding. What is not honest is repeating fifty words of it SEVEN
+    TIMES down one page, which is what a blind reviewer counted before rejecting it: "A
+    human would define the endpoints once and subsequently refer to them as the composite
+    outcomes."
+
+    So the title is stated in full, once, where a title belongs. Everywhere else refers to
+    it. The reference COUNTS the parts rather than characterising them, because counting is
+    something the string supports and summarising is not -- calling three different
+    composites "the composite outcome" would assert the very sameness this review exists to
+    deny.
+    """
+    t = " ".join(str(get(obj, "title") or "").split())
+    if not t:
+        return None
+    parts = [p.strip() for p in t.split("|") if p.strip()]
+    if len(parts) > 1:
+        return ("the %s trial-declared outcomes named in the title"
+                % _NUMBER_WORDS.get(len(parts), str(len(parts))))
+    if len(t.split()) > 25:
+        return "the review question stated in the title"
+    return None
+
+
+_NUMBER_WORDS = {2: "two", 3: "three", 4: "four", 5: "five", 6: "six", 7: "seven",
+                 8: "eight", 9: "nine", 10: "ten"}
+
+
+def _state_a_long_title_once(secs, obj):
+    """Replace every repeat of an over-long title with a short reference to it.
+
+    Runs after composition, so it catches the title wherever it reached -- the abstract's
+    question, the introduction, a results lead, a figure legend -- without each of those
+    sites having to know it was doing it. Several of them interpolate the title through the
+    `question` field rather than directly, so a fix applied at the composition sites would
+    have missed exactly the ones a reader complained about.
+    """
+    ref = _title_reference(obj)
+    if not ref:
+        return secs
+    full = " ".join(str(get(obj, "title") or "").split())
+
+    # MATCHED CASE-INSENSITIVELY, BECAUSE THE TIDY HAS ALREADY BEEN OVER IT. The stored
+    # title for acs-antiplatelet-review says "BARC Type 2, 3, or 5"; by the time it reaches
+    # a paragraph the case pass has written "barc". An exact match therefore found the
+    # title NOWHERE on the page it was repeated across seven times -- a substitution keyed
+    # to the raw field cannot see text that a later pass has legitimately altered.
+    pat = re.compile(re.escape(full), re.I)
+    seen = [False]                       # the first occurrence is the title itself
+
+    def fix(text):
+        if not pat.search(text):
+            return text
+        if not seen[0]:
+            seen[0] = True
+            m = pat.search(text)
+            head, kept, tail = text[:m.start()], text[m.start():m.end()], text[m.end():]
+            return head + kept + pat.sub(ref, tail)
+        return pat.sub(ref, text)
+
+    for s in secs:
+        s.paras = [(fix(t), f) for t, f in s.paras]
+        s.tables = [(fix(cap), hdrs, [[fix(str(c)) for c in row] for row in rows], f)
+                    for cap, hdrs, rows, f in s.tables]
+    return secs
+
+
+def _clinical_gaps(obj):
+    """The things a clinician needs that this object does not hold. Measured per topic.
+
+    MEASURED, NOT LISTED. A fixed sentence saying "no harms, no absolute effects, no
+    follow-up" would be true of most of this corpus and false of the rest, and a claimed
+    absence that is not real is the same defect as a real absence that goes unclaimed -- a
+    prototype of this report told readers "No certainty rating is held for these outcomes"
+    on a topic that rated every outcome, because it probed the wrong key. So each clause is
+    checked against the object and appears only if the field is genuinely empty.
+
+    The four here are the four that five blind reviewers, across two model families,
+    independently said stopped them acting on the review.
+    """
+    trials = [t for t in ((obj.get("inputs") or {}).get("trials") or [])
+              if isinstance(t, dict)]
+    blks = [b for b in ((obj.get("results") or {}).get("by_outcome") or {}).values()
+            if isinstance(b, dict)]
+    rows = [r for b in blks for r in (b.get("per_trial") or []) if isinstance(r, dict)]
+
+    def any_key(dicts, keys):
+        return any(d.get(k) not in (None, "", [], {}) for d in dicts for k in keys)
+
+    gaps = []
+    if not any_key(rows, ("events_int", "events_ctrl", "e_int", "e_ctrl", "events",
+                          "n_events", "treatment_evaluable", "control_evaluable")):
+        gaps.append("the number of events in each arm")
+    if not any_key(blks, ("absolute", "risk_difference", "nnt", "absolute_effect",
+                          "control_risk", "baseline_risk", "cer")):
+        # A LIST ITEM CANNOT CARRY ITS OWN "and so" -- inside `_and_list` it rendered as
+        # "any absolute effect, and so no number needed to treat, how long participants
+        # were followed and any measure of harm", which reads as four items or five
+        # depending on where the eye lands.
+        gaps.append("any absolute effect or number needed to treat")
+    if not any_key(trials, ("follow_up", "median_follow_up", "duration",
+                            "follow_up_months")):
+        gaps.append("how long participants were followed")
+    if not (obj.get("harms") or obj.get("adverse_events")
+            or any("adverse" in str(o.get("name", "")).lower()
+                   or "harm" in str(o.get("name", "")).lower()
+                   or "safety" in str(o.get("name", "")).lower()
+                   for o in (obj.get("outcomes") or []) if isinstance(o, dict))):
+        gaps.append("any measure of harm")
+    return gaps
+
+
+def _trial_population(obj, nct, trial):
+    """Who this trial studied, in its own words. Never invented, never inferred.
+
+    The population is held in two places and neither is reliably populated: per trial
+    (`inputs.trials[].population`, 5 of 50 topics) and per RESULT
+    (`results.by_outcome[].per_trial[].population`, 24 of 50). The per-result text is the
+    richer of the two -- "adults with type 2 diabetes, chronic kidney disease with an
+    estimated glomerular filtration rate of 25 to 60, and cardiovascular risk; heart failure
+    was NOT an entry requirement" -- so where a trial record holds nothing, the result rows
+    for that same registration are read instead.
+
+    Rows are matched by NCT and nothing else. Matching by position is how a population
+    description ends up under the wrong trial, and a wrong population is worse than none.
+    """
+    own = " ".join(str(trial.get("population") or "").split())
+    if own:
+        return own
+    seen = []
+    for blk in ((obj.get("results") or {}).get("by_outcome") or {}).values():
+        if not isinstance(blk, dict):
+            continue
+        for r in blk.get("per_trial") or []:
+            if not isinstance(r, dict):
+                continue
+            if str(r.get("nct") or r.get("trial_id") or "").strip() != str(nct).strip():
+                continue
+            t = " ".join(str(r.get("population") or "").split())
+            if t and t not in seen:
+                seen.append(t)
+    if not seen:
+        return "not recorded"
+    # ONE TRIAL, ONE POPULATION. Where results disagree about who was studied that is
+    # itself worth a reader's attention, so both are shown rather than the first taken.
+    return seen[0] if len(seen) == 1 else " / ".join(seen)
 
 
 def _rob_distribution(obj):
@@ -1976,7 +2147,14 @@ def _length_budget(obj):
 # What a review is FOR. These sections are never dropped to make room; if the budget is
 # tight they are what the budget is spent on.
 _ESSENTIAL = {"title", "abstract", "intro", "methods_search", "methods_synthesis",
-              "results", "limitations", "conclusions", "references"}
+              "results", "limitations", "conclusions", "references",
+              # WHO WAS STUDIED IS WHAT A REVIEW IS FOR. Five blind reviewers read a
+              # sotagliflozin paper that never once said "type 2 diabetes", and named the
+              # omission before anything else: "You defined the endpoints down to the
+              # statistical estimand but completely forgot the patients." The population
+              # was in the object the whole time and this section carries it. A budget
+              # that can delete the patients is spending on the wrong things.
+              "trial_characteristics"}
 
 # Dropped FIRST and in this order when over budget. Evidenced rather than chosen: every
 # item here was named by a blind reviewer as something that should not be in a journal
@@ -2131,10 +2309,22 @@ def _fit_to_budget(secs, obj):
 
     # 5. Still over? Drop remaining non-essential sections in reverse document order --
     #    the back matter a reader reaches last.
+    #
+    # "EMPTY" ONCE MEANT `not s.paras`, AND A TABLE IS NOT A PARAGRAPH. `Section.state`
+    # already defines the property correctly -- WRITTEN when paras OR tables OR figures --
+    # and this loop contradicted it, so every table-only section was deletable AND the
+    # removal log recorded the deletion as "empty section X" while the section held its
+    # table. On sotagliflozin-hf that silently deleted `trial_characteristics`, the table
+    # carrying who was studied and how many were randomised, then wrote a false reason for
+    # it into our own build log. Who was studied was the single most-cited omission when
+    # five blind reviewers read these papers: it had been built correctly and thrown away,
+    # and the log said it was never there.
+    #
+    # Using the class's own predicate means the two cannot disagree again.
     for s in reversed(list(secs)):
         if _words(secs) <= budget:
             break
-        if s.key not in _ESSENTIAL and not s.paras:
+        if s.key not in _ESSENTIAL and s.state == REFUSED:
             secs.remove(s)
             removed.append("empty section %s" % s.key)
     return secs, budget, removed
@@ -2749,12 +2939,51 @@ def project(obj, journal="generic", length="standard"):
             if _k in (0, "0"):
                 lead = ("%s. No trial on this review contributes an estimate for this "
                         "outcome, so nothing is pooled" % (name[0].upper() + name[1:]))
+            elif _k in (1, "1"):
+                # "THESE 1 TRIALS" was ungrammatical on every single-trial outcome, and a
+                # single-trial outcome is the commonest reason a pool is declined.
+                lead = ("%s. Only one trial reports this outcome, so nothing is pooled"
+                        % (name[0].upper() + name[1:]))
             else:
                 lead = ("%s. These %s trials are not pooled"
                         % (name[0].upper() + name[1:], _k if _k is not None else "?"))
             s.paras.append(("%s, and the reason is stated rather than the outcome being "
                             "quietly omitted: %s" % (lead, reason),
                             ["outcomes[id=%s].name" % oid] + _fields))
+            # AND THEN THE NUMBER, WHICH THIS USED TO WITHHOLD.
+            #
+            # Declining to pool is not a reason to withhold what the trials found. The
+            # estimates are held -- 28 of the 50 topics with any readable estimate have at
+            # least one on an outcome that was never pooled -- and a reader met the reason
+            # for the silence and never the result behind it. Both blind families called
+            # this out, one of them exactly: "You asked the question, you found the trial,
+            # you assessed its bias, and then you refused to report the numbers because you
+            # couldn't pool them. That is absurd."
+            #
+            # Reported per trial, never combined, because not combining them is the whole
+            # point of the paragraph above.
+            _rows = [r for r in (blk.get("per_trial") or [])
+                     if isinstance(r, dict) and r.get("point") is not None]
+            if _rows:
+                _bits = []
+                for r in _rows:
+                    _who = str(r.get("nct") or r.get("trial_id") or "").strip()
+                    _est = ci_prose(r)
+                    _bits.append("%s %s%s" % (measure_words(r.get("measure")), _est,
+                                              (" in %s" % _who) if _who else ""))
+                # ONE TRIAL IS NOT "EACH ON ITS OWN, NOT COMBINED WITH THE OTHERS". A first
+                # draft said exactly that on a single-trial outcome, which is the commonest
+                # case this branch handles -- the plural apparatus has to go when there is
+                # nothing to be plural about.
+                if len(_rows) == 1:
+                    s.paras.append(
+                        ("The trial that did report it found %s." % _bits[0],
+                         ["results.by_outcome.%s.per_trial" % oid]))
+                else:
+                    s.paras.append(
+                        ("What each trial reporting it found, separately and not combined: "
+                         "%s." % _sentence_join(_bits),
+                         ["results.by_outcome.%s.per_trial" % oid]))
         else:
             s.refusals.append(("the reason the pool over %s is declined -- NEITHER "
                                "`poolable_reason` NOR `pooled.withdrawn_reason` is held"
@@ -2824,6 +3053,47 @@ def project(obj, journal="generic", length="standard"):
         s.paras.append(("%d claim(s) previously made about this review were corrected and the "
                         "corrections are retained on the object rather than overwritten."
                         % len(cc), ["claims_corrected"]))
+    # WHAT A CLINICIAN WOULD NEED AND WILL NOT FIND HERE, NAMED.
+    #
+    # Five blind reviewers, both model families, independently reached the same place: they
+    # could read the review, they believed it, and they could not act on it. "I cannot
+    # prescribe a drug without absolute risk reductions"; "You gave me benefits without
+    # harms, and relative metrics without absolute context." Every one of them worked that
+    # out for themselves from what was missing.
+    #
+    # A document that states its own insufficiency is more useful than one that leaves a
+    # reader to discover it, and this costs a paragraph. It is the same principle that makes
+    # a withdrawn pool worth publishing: the absence is a finding, and it is stated where it
+    # will be read rather than inferred from a gap.
+    #
+    # Measured, not assumed -- each clause appears only when the field really is absent
+    # across this object, so a topic that later gains harms or follow-up stops claiming to
+    # lack them.
+    # ONLY WHERE THERE IS A RESULT FOR THE GAPS TO BE GAPS IN.
+    #
+    # A first version emitted this on every topic, including four that hold NO TRIAL AT
+    # ALL, and `lint_manuscript_whole_document` refused it correctly: `trial_characteristics`
+    # refuses for want of `inputs.trials` on those pages while this paragraph cited
+    # `inputs.trials` as a field it had used. Two sections of one document disagreeing about
+    # whether a field exists.
+    #
+    # The deeper error was citing a field as a SOURCE when the paragraph is about that
+    # field being EMPTY. A review with nothing to report does not need a paragraph on what
+    # its reporting fails to give a clinician -- it gives nothing, and says so where that
+    # belongs. So this speaks only where an estimate exists, and cites only the outcome
+    # block it actually read.
+    _has_estimate = any(
+        r.get("point") is not None
+        for b in (get(obj, "results.by_outcome") or {}).values() if isinstance(b, dict)
+        for r in (b.get("per_trial") or []) if isinstance(r, dict))
+    _gaps = _clinical_gaps(obj) if _has_estimate else []
+    if _gaps:
+        s.paras.append(
+            ("What this review does not give a clinician: %s. A relative effect cannot be "
+             "turned into the benefit or the risk facing one patient without them, so this "
+             "review can support a judgement about what these trials found and not a "
+             "judgement about what to do." % _and_list(_gaps),
+             ["results.by_outcome"]))
     if not s.paras:
         s.refusals.append(("the limitations section", ["screening.known_limitation"]))
     secs.append(s)
@@ -3853,11 +4123,26 @@ def project(obj, journal="generic", length="standard"):
     s = Section("trial_characteristics", "Trial characteristics")
     by_id, unjoinable = _trials_by_identity(obj)
     if by_id:
+        # "Participants" READ `n` AND `n_total`, AND THIS CORPUS STORES `enrolled`.
+        #
+        # So the column printed "not extracted" for 28 of the 50 topics that hold the
+        # number -- 1,222 and 10,584 sat in `enrolled` on sotagliflozin-hf while the table
+        # declared both unknown. A field census written for this same repair made the
+        # identical mistake in its first pass, guessing `n_randomised` and reporting 0/50
+        # for a field the majority of topics carry. Guessing a key name and reporting the
+        # miss as an absence is one error, not two, and it is the one to watch for here.
+        #
+        # WHO and HOW MANY are now separate columns, because they are separate questions
+        # and a reader asked both. `population` is the per-trial text; where a trial holds
+        # none, the per-result rows often do, and that is read rather than left blank.
         s.add_table(obj, "Characteristics of every trial contributing to this review",
-                    ["Registration", "Trial", "Arms", "Participants"],
+                    ["Registration", "Trial", "Participants", "Randomised", "Design"],
                     [[nct, str(t.get("name") or ""),
-                      _arms_text(t.get("comparison") or t.get("arms")),
-                      str(t.get("n") or t.get("n_total") or "not extracted")]
+                      _trial_population(obj, nct, t),
+                      str(t.get("enrolled") or t.get("registration_enrolment")
+                          or t.get("n") or t.get("n_total") or "not extracted"),
+                      _own_sentence(t.get("design")) or _arms_text(
+                          t.get("comparison") or t.get("arms"))]
                      for nct, t in sorted(by_id.items())],
                     ["inputs.trials"])
     else:
@@ -4060,6 +4345,8 @@ def project(obj, journal="generic", length="standard"):
     # requires seeing the whole document, so this cannot be a decision each section makes
     # about itself -- that is exactly how 7,241 words accumulated, every one of them
     # locally justified.
+    # BEFORE the budget, so the words this frees are words the budget can spend elsewhere.
+    secs = _state_a_long_title_once(secs, obj)
     secs, _budget, _removed = _fit_to_budget(secs, obj)
     return _in_reading_order(secs)
 

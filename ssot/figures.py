@@ -66,10 +66,54 @@ def _svg_px(svg):
             float(h.group(1)) if h else 400.0)
 
 
+def _cache_path(svg, workdir):
+    """Where a raster of THIS EXACT SVG lives, and whether it is already there.
+
+    CONTENT-ADDRESSED, AND THAT MATTERS TWICE.
+
+    SPEED. Every figure launches a cold headless Chrome: 21 seconds on this machine at
+    best, up to the 90-second timeout at worst. A page carries several figures, so a full
+    rebuild of 162 pages runs to roughly nine hours with the Python process idle
+    throughout -- all of it waiting for a browser to redraw pictures that have not
+    changed. An edit to the manuscript layer does not alter a forest plot, so in such a
+    rebuild nearly every raster is byte-identical to the one already on disk.
+
+    CORRECTNESS. `rasterise` names its output by STEM -- the figure's position on the
+    page -- and therefore must delete any existing PNG first, because a Chrome run that
+    fails silently leaves the PREVIOUS figure's raster at that path to be returned as this
+    one's. The comment below records that this was found by adversarial review, and the
+    delete is a sound guard. Naming the file by the SHA-256 of the SVG that produced it
+    REMOVES the hazard instead of guarding against it: a raster keyed to its own source
+    cannot be another figure's, whatever fails.
+
+    So this is not a shortcut bolted onto a fragile path. It is the safer naming, which
+    happens also to be fast.
+    """
+    sha = hashlib.sha256(svg.encode("utf-8")).hexdigest()[:32]
+    cdir = os.path.join(workdir, "_raster_cache")
+    try:
+        os.makedirs(cdir, exist_ok=True)
+    except OSError:
+        return None, None
+    p = os.path.join(cdir, sha + ".png")
+    return p, (p if os.path.exists(p) and os.path.getsize(p) > 0 else None)
+
+
 def rasterise(svg, browser, workdir, stem):
     """SVG string -> PNG path at SCALE. Returns None if the browser is absent."""
     if not browser:
         return None
+
+    # A RASTER OF THIS EXACT SVG, IF ONE HAS ALREADY BEEN DRAWN.
+    #
+    # A hit requires the SVG bytes to match, so this cannot serve a stale or a wrong
+    # figure: any change to the plot changes the SVG, changes the hash, and misses.
+    # Nothing is cached until it has passed the non-empty and blankness checks below, so
+    # a cached file is one that already satisfied them.
+    _cpath, _hit = _cache_path(svg, workdir)
+    if _hit:
+        return _hit
+
     w, h = _svg_px(svg)
     # White ground, not transparent: a transparent PNG flattened by a journal's
     # converter can come out black, and line art on black is invisible.
@@ -128,6 +172,15 @@ def rasterise(svg, browser, workdir, stem):
     # RENDERED figure is blank. A bug in the blankness test previously discarded a good
     # figure and the page then told the reader the topic had none. Any other exception
     # is ours and must be loud.
+
+    # ONLY NOW IS IT CACHED -- after non-empty and after not-blank. Caching before these
+    # checks would make a bad raster permanent and serve it to every later build, which is
+    # a worse failure than the slow path it replaces.
+    if _cpath:
+        try:
+            shutil.copyfile(pp, _cpath)
+        except OSError:
+            pass          # a cache that cannot be written is a slow build, not a wrong one
     return pp
 
 
