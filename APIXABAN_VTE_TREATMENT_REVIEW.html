@@ -273,12 +273,10 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <!--end-protocol--> <section class="panel" id="pn-search">
 <div class="absent-state" role="note"><strong>Partially held.</strong> The executed query is held on this object and is shown below. Its YIELD is not: the record does not carry the identifiers this query returned, so the number of records and their disposition cannot be shown and the table below is empty for that reason.</div>
 <div class='card'>
-  <h3>ClinicalTrials.gov API v2</h3>
+  <h3></h3>
   <p><small>Query as executed:</small></p>
   <pre>Executed 2026-08-19 against ClinicalTrials.gov API v2, raw. query.cond=&quot;venous thromboembolism OR deep vein thrombosis OR pulmonary embolism&quot;; query.intr=&quot;apixaban&quot;; filter.advanced=AREA[StudyType]INTERVENTIONAL -- NO PHASE FILTER. 82 records, returned == totalCount, nextPageToken null.</pre>
   <div class='tscroll'><table>
-    <caption>Table 2. ClinicalTrials.gov API v2</caption>
-
   </table></div>
 </div>
 <div class='card'>
@@ -286,7 +284,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Query as executed:</small></p>
   <pre>same terms with filter.advanced=... AND AREA[Phase](PHASE3 OR PHASE4)</pre>
   <div class='tscroll'><table>
-    <caption>Table 3. ClinicalTrials.gov API v2 -- first query, recorded because it missed</caption>
+    <caption>Table 2. ClinicalTrials.gov API v2 -- first query, recorded because it missed</caption>
 
   </table></div>
 </div>
@@ -295,7 +293,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <p><small>Query as executed:</small></p>
   <pre>apixaban AND venous thromboembolism</pre>
   <div class='tscroll'><table>
-    <caption>Table 4. PubMed (ncbi e-utilities esearch)</caption>
+    <caption>Table 3. PubMed (ncbi e-utilities esearch)</caption>
 
   </table></div>
 </div>
@@ -669,7 +667,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <h2 id="extract-extracted-values-and-where-each-came-fro">Extracted values, and where each came from</h2>
   <p>One row per extracted value. Every row carries the value, the verbatim sentence it was read from, a resolvable link to the source, and whether the number was read or derived. Where any of those is absent the row says so rather than omitting the value.</p>
   <div class='tscroll'><table>
-    <caption>Table 5. Extracted values, and where each came from</caption>
+    <caption>Table 4. Extracted values, and where each came from</caption>
 
     <tr><th>Trial / outcome</th><th>Value as extracted</th><th>Verbatim source sentence</th><th>Source links</th><th>Read or derived</th></tr>
     <tr><td>CARAVAGGIO<br><small>recurrent_vte</small></td><td><strong>RR 0.699</strong> (95% CI 0.452 to 1.08)</td><td><blockquote><small>&ldquo;Recurrent Venous Thromboembolism&rdquo;</small></blockquote><blockquote><small>&ldquo;posted COUNT_OF_PARTICIPANTS, OG000 Apixaban = 32 of 576, OG001 Dalteparin = 46 of 579&rdquo;</small></blockquote></td><td><a href='https://clinicaltrials.gov/study/NCT03045406' rel='noopener'>NCT03045406</a></td><td><strong>READ</strong> from the source as printed<br><small>The risk ratio and its interval are DERIVED from the arm-level counts, which are READ. Neither the ratio nor the interval is claimed to appear in any source.</small></td></tr>
@@ -680,7 +678,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h2 id="extract-sources">Sources</h2>
   <div class='tscroll'><table>
-    <caption>Table 6. Sources</caption>
+    <caption>Table 5. Sources</caption>
 
     <tr><th>Layer</th><th>Source</th><th>How it was obtained</th></tr>
   </table></div>
@@ -691,10 +689,9 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h3 id="extract-what-was-measured">What was measured</h3>
   <div class='tscroll'><table>
-    <caption>Table 7. What was measured</caption>
+    <caption>Table 6. What was measured</caption>
 
-    <tr><th>Comparator</th><td>another anticoagulant</td></tr>
-    <tr><th>Estimand</th><td>binary risk &mdash; random-effects, REML</td></tr>
+    <tr><th>Estimand</th><td>binary risk &mdash; </td></tr>
     <tr><th>Unit of analysis</th><td>participant, first recurrent event</td></tr>
     <tr><th>Case definition</th><td>recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term</td></tr>
     <tr><th>Effect scale</th><td>combined on the log scale; ESTIMAND UNIFORMITY NOT ESTABLISHED -- the contributing trials have not been shown to measure the same quantity</td></tr>
@@ -703,7 +700,7 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h2 id="extract-pooled-result">Pooled result</h2>
   <p class='num'>RR 0.7763 (0.3437 to 1.753), 95% interval</p>
-  <p>Recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term. random-effects, estimator REML, k = 3.</p>
+  <p>Recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term. , estimator , k = 3.</p>
   <p><small>&tau;&sup2; 0 &middot; I&sup2; 0% &middot; Q 1.257 on 2 df</small></p>
   <p><strong>Favours: neither -- the interval spans the null</strong></p>
   <p><small>computed; tau-squared is 0 and at k=3 that is an estimate from almost no information, which is why the interval is Knapp-Hartung on 2 degrees of freedom rather than a normal one</small></p>
@@ -714,13 +711,13 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class="card">
   <h3 id="extract-contributing-trials">Contributing trials</h3>
   <div class='tscroll'><table>
-    <caption>Table 8. Contributing trials</caption>
+    <caption>Table 7. Contributing trials</caption>
 
     <tr><th>Trial</th><th>Analysed<br><small>treatment / control</small></th>
         <th>RR (95% CI), or events</th>
         <th>Source of this cell</th></tr>
-    <tr><td>Caravaggio<br><small>NCT03045406 &middot; PRIMARY outcome</small></td><td class='num'>576 / 579</td><td class='num'>0.6993 (0.4521 to 1.082)</td><td><small>registry_posted_results: Recurrent Venous Thromboembolism<br><q>Recurrent Venous Thromboembolism</q><br><q>posted COUNT_OF_PARTICIPANTS, OG000 Apixaban = 32 of 576, OG001 Dalteparin = 46 of 579</q></small></td></tr>
-    <tr><td>Cobrra<br><small>NCT03266783 &middot; SECONDARY outcome</small></td><td class='num'>1345 / 1355</td><td class='num'>1.079 (0.5231 to 2.227)</td><td><small>registry_posted_results: Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) Events<br><q>Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) Events</q><br><q>posted COUNT_OF_PARTICIPANTS, OG000 Apixaban Group = 15 of 1345, OG001 Rivaroxaban Group = 14 of 1355</q></small></td></tr>
+    <tr><td><br><small>NCT03045406 &middot; PRIMARY outcome</small></td><td class='num'>576 / 579</td><td class='num'>0.6993 (0.4521 to 1.082)</td><td><small>registry_posted_results: <br><q>Recurrent Venous Thromboembolism</q><br><q>posted COUNT_OF_PARTICIPANTS, OG000 Apixaban = 32 of 576, OG001 Dalteparin = 46 of 579</q></small></td></tr>
+    <tr><td><br><small>NCT03266783 &middot; SECONDARY outcome</small></td><td class='num'>1345 / 1355</td><td class='num'>1.079 (0.5231 to 2.227)</td><td><small>registry_posted_results: Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) Events<br><q>Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) Events</q><br><q>posted COUNT_OF_PARTICIPANTS, OG000 Apixaban Group = 15 of 1345, OG001 Rivaroxaban Group = 14 of 1355</q></small></td></tr>
     <tr><td>Japanese acute DVT/PE study<br><small>NCT01780987 &middot; SECONDARY outcome</small></td><td class='num'>38 / 40</td><td class='num'>0.3504 (0.0147 to 8.347)</td><td><small>registry_posted_results: Number of Participants With Adjudicated Recurrent Symptomatic Venous Thromboembolism (VTE) [Nonfatal Deep Venous Thrombosis (DVT) or Nonfatal Pulmonary Embolism (PE)]<br><q>Number of Participants With Adjudicated Recurrent Symptomatic Venous Thromboembolism (VTE) [Nonfatal Deep Venous Thrombosis (DVT) or Nonfatal Pulmonary Embolism (PE)]</q><br><q>posted measurement, OG000 Apixaban = 0 of 38, OG001 UFH/Warfarin = 1 of 40</q></small></td></tr>
   </table></div>
   <p><small>The death term is part of the definition and not a detail. Five of the eleven trials register a primary composite carrying one, and they do not carry the same one: Amplify counts VTE-related death, AMPLIFY-EXT counts ALL-CAUSE death. Same sponsor, same programme, sequential trials, names differing by a hyphenated suffix.</small></p>
@@ -732,21 +729,21 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   saying what was COUNTED, and only the second one licenses a pool. Read from the registry on 2026-08-19. Follow the
   registration link to disagree with any row.</small></p>
   <div class='tscroll'><table>
-    <caption>Table 9. Endpoint definitions, read from the registry</caption>
+    <caption>Table 8. Endpoint definitions, read from the registry</caption>
 
     <tr><th>Trial</th><th>Rank in its own trial</th>
         <th>Registered outcome measure</th>
         <th>Description, verbatim</th><th>Analysis set / window</th></tr>
-    <tr><td><strong>CARAVAGGIO</strong><br><small><a href="https://clinicaltrials.gov/study/NCT03045406" rel="noopener">NCT03045406</a></small></td><td>&mdash;</td><td>Recurrent Venous Thromboembolism</td><td>no description is recorded in this registry field</td><td>—</td></tr>
-    <tr><td><strong>COBRRA</strong><br><small><a href="https://clinicaltrials.gov/study/NCT03266783" rel="noopener">NCT03266783</a></small></td><td>&mdash;</td><td>Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) Events</td><td>no description is recorded in this registry field</td><td>—</td></tr>
-    <tr><td><strong>Japanese acute DVT/PE study</strong><br><small><a href="https://clinicaltrials.gov/study/NCT01780987" rel="noopener">NCT01780987</a></small></td><td>&mdash;</td><td>Number of Participants With Adjudicated Recurrent Symptomatic Venous Thromboembolism (VTE) [Nonfatal Deep Venous Thrombosis (DVT) or Nonfatal Pulmonary Embolism (PE)]</td><td>no description is recorded in this registry field</td><td>—</td></tr>
+    <tr><td><strong>CARAVAGGIO</strong><br><small><a href="https://clinicaltrials.gov/study/NCT03045406" rel="noopener">NCT03045406</a></small></td><td>&mdash;</td><td></td><td>no description is recorded in this registry field</td><td></td></tr>
+    <tr><td><strong>COBRRA</strong><br><small><a href="https://clinicaltrials.gov/study/NCT03266783" rel="noopener">NCT03266783</a></small></td><td>&mdash;</td><td>Number of Participants With Adjudicated Recurrent Venous Thromboembolism (VTE) Events</td><td>no description is recorded in this registry field</td><td></td></tr>
+    <tr><td><strong>Japanese acute DVT/PE study</strong><br><small><a href="https://clinicaltrials.gov/study/NCT01780987" rel="noopener">NCT01780987</a></small></td><td>&mdash;</td><td>Number of Participants With Adjudicated Recurrent Symptomatic Venous Thromboembolism (VTE) [Nonfatal Deep Venous Thrombosis (DVT) or Nonfatal Pulmonary Embolism (PE)]</td><td>no description is recorded in this registry field</td><td></td></tr>
   </table></div>
 </div>
 <div class='card'>
   <h3 id="extract-leave-one-out-sensitivity">Leave-one-out sensitivity</h3>
   <p>Does the reported estimate depend on any one of the three trials? At k=3 that is not a formality: the largest contributor is more than seven times the size of the other two together.</p>
   <div class='tscroll'><table>
-    <caption>Table 10. Leave-one-out sensitivity</caption>
+    <caption>Table 9. Leave-one-out sensitivity</caption>
 
     <tr><th>Cohort omitted</th><th>k</th><th>RR (95% CI)</th></tr>
     <tr><td>CARAVAGGIO</td><td class='num'>2</td><td class='num'>1.021 (0.0105 to 99.38)</td></tr>
@@ -911,10 +908,10 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h3 id="report-summary-of-findings">Summary of findings</h3>
   <div class='tscroll'><table>
-    <caption>Table 11. Summary of findings</caption>
+    <caption>Table 10. Summary of findings</caption>
 
     <tr><th>Outcome</th><th>k</th><th>Pooled effect</th><th>Certainty</th></tr>
-    <tr><td>Recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term</td><td class='num'>3</td><td class='num'>RR 0.776 (0.344 to 1.75)</td><td>Very low<sup>1</sup></td></tr>
+    <tr><td>Recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term</td><td class='num'>3</td><td class='num'>RR 0.776 (0.344 to 1.75)</td><td><sup>1</sup></td></tr>
   </table></div>
   <ol class='sof-notes' style='font-size:0.86em;margin:0.6em 0 0 1.2em;'>
     <li>Rated down from HIGH for risk of bias, indirectness, imprecision.</li>
@@ -923,14 +920,14 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
 <div class='card'>
   <h3 id="report-reproducibility-artifact">Reproducibility artifact</h3>
   <div class='tscroll'><table>
-    <caption>Table 12. Reproducibility artifact</caption>
+    <caption>Table 11. Reproducibility artifact</caption>
 
     <tr><th scope='col'>Canonical object</th><td><code>—</code></td></tr>
     <tr><th scope='col'>Registered at</th><td><code>—</code> —</td></tr>
     <tr><th scope='col'>Schema</th><td>2</td></tr>
     <tr><th scope='col'>Object last updated</th><td>2026-08-19</td></tr>
-    <tr><th scope='col'>Page generated</th><td>2026-08-24 14:06 UTC</td></tr>
-    <tr><th scope='col'>Generator build</th><td><code>e4813bcec</code> (uncommitted generator changes -- NOT REPRODUCIBLE from this stamp alone), built to STANDARD v1</td></tr>
+    <tr><th scope='col'>Page generated</th><td>2026-08-24 20:59 UTC</td></tr>
+    <tr><th scope='col'>Generator build</th><td><code>fd2efc96f</code>, built to STANDARD v1</td></tr>
   </table></div>
   <p><small>Everything a third party needs to rebuild this page. Each figure on the Analysis tab downloads as an SVG carrying exactly the values shown.</small></p>
 </div>
@@ -938,85 +935,75 @@ both; downloaded files are always generated light for print.">&#9681; theme</lab
   <h3 id="report-other-recorded-qualifications">Other recorded qualifications</h3>
   <p><small>Statements this review records about the limits of what it establishes, which are not shown elsewhere on this page. They are reproduced from the object verbatim and are not summarised.</small></p>
   <div class='tscroll'><table>
-    <caption>Table 13. Other recorded qualifications</caption>
+    <caption>Table 12. Other recorded qualifications</caption>
 
-    <tr><th>Why empty is a result and not a blank</th><td>The boundary criterion assigns every trial to exactly one of the two reviews, so the intersection is empty by construction and the emptiness is computed rather than left as a bare `[]`. P17. The corpus-level consequence is the good one: summing k across these two topics does not double-count, which is the opposite of the ablation split&#x27;s situation.</td></tr>
-    <tr><th>What asking it bought and what it did not</th><td>It bought the review its entire pool. All three contributing results were found by asking at every rank: two of the three are secondary outcomes in trials whose registered primary is a bleeding endpoint, so a review reading primaries only would have reported that they contribute nothing. It did not buy poolability: eight trials answered yes and five of the eight still do not pool, each for a named reason. The prophylaxis half of this pair ran the identical discipline and its poolable set went 3 -&gt; 8. Here it went 8 -&gt; 3. The method has no direction -- asking is not a way of finding more trials, it is a way of finding out.</td></tr>
+    <tr><th>Why empty is a result and not a blank</th><td>The boundary criterion assigns every trial to exactly one of the two reviews, so the intersection is empty by construction and the emptiness is computed rather than left as a bare `[]`. The corpus-level consequence is the good one: summing k across these two topics does not double-count, which is the opposite of the ablation split&#x27;s situation.</td></tr>
+    <tr><th>What asking it bought and what it did not</th><td>It bought the review its entire pool. All three contributing results were found by asking at every rank: two of the three are secondary outcomes in trials whose registered primary is a bleeding endpoint, so a review reading primaries only would have reported that they contribute nothing. It did not buy poolability: eight trials answered yes and five of the eight still do not pool, each for a named reason. The prophylaxis half of this pair ran the identical discipline and its poolable set went 3 -&gt; 8. The method has no direction -- asking is not a way of finding more trials, it is a way of finding out.</td></tr>
     <tr><th>What it does not establish</th><td>Not that either pool is correct -- both were judged by reading endpoint definitions, and that judgement stands or falls on its own. Not that the direction is unpredictable in general; two instances are two instances. What it establishes is narrow and it is the thing that was missing: The procedure has no built-in direction, demonstrated rather than asserted.</td></tr>
-    <tr><th>Interval method superseded</th><td>Paule-Mandel with a floored Knapp-Hartung interval on k-1 df, the same as the pool itself. At k=2 that is t on one degree of freedom, whose critical value is 12.7 -- which is why these intervals are enormous and why they should be.</td></tr>
-    <tr><th>Refused because</th><td>Three of the eight register a bleeding endpoint as their primary -- cobrra, covet and the Japanese study. Pooling &#x27;each trial&#x27;s own primary&#x27; would average a harm against a benefit, and the pooled quantity would have no direction: a risk ratio below one would mean fewer thromboses in five trials and fewer bleeds in three. This is the only declined pool in this file that is refused as incomputable rather than computed and set aside, and the reason is stated so a reader can check that it is a reason and not a preference.</td></tr>
-    <tr><th>What was refused</th><td>reconstructing a recurrent-VTE-alone estimand for amplify and AMPLIFY-EXT by summing the components they post separately</td></tr>
-    <tr><th>Why refused</th><td>The components sum to 61 and 76 against a posted composite of 59 and 71. A composite counts a participant&#x27;s first event; its components count participants. Summing them would have manufactured 2 and 5 events that the trial&#x27;s own adjudication does not record, and the manufactured events fall in the comparator arm at more than twice the rate they fall in the apixaban arm -- so the derivation is not merely imprecise, it is biased in the direction that flatters the drug.</td></tr>
+    <tr><th></th><td>Paule-Mandel with a floored Knapp-Hartung interval on k-1 df, the same as the pool itself. At k=2 that is t on one degree of freedom, whose critical value is 12.7 -- which is why these intervals are enormous and why they should be.</td></tr>
+    <tr><th></th><td>Three of the eight register a bleeding endpoint as their primary -- cobrra, covet and the Japanese study. Pooling &#x27;each trial&#x27;s own primary&#x27; would average a harm against a benefit, and the pooled quantity would have no direction: a risk ratio below one would mean fewer thromboses in five trials and fewer bleeds in three. This is the only declined pool in this file that is refused as incomputable rather than computed and set aside, and the reason is stated so a reader can check that it is a reason and not a preference.</td></tr>
+    <tr><th></th><td>reconstructing a recurrent-VTE-alone estimand for amplify and AMPLIFY-EXT by summing the components they post separately</td></tr>
+    <tr><th></th><td>The components sum to 61 and 76 against a posted composite of 59 and 71. A composite counts a participant&#x27;s first event; its components count participants. Summing them would have manufactured 2 and 5 events that the trial&#x27;s own adjudication does not record, and the manufactured events fall in the comparator arm at more than twice the rate they fall in the apixaban arm -- so the derivation is not merely imprecise, it is biased in the direction that flatters the drug.</td></tr>
     <tr><th>What it does not establish</th><td>Nothing about whether either pool is coherent. P36 stands unchanged: the coherence judgements in this file were made by reading definitions and would be identical if every I2 came out zero.</td></tr>
-    <tr><th>Why absent</th><td>k=3 and a pool was computed -- it is on this page -- but not by a model call this object can quote. There is no R session, no printed output and no package version, so P6 refuses on the quotation and not on the synthesis. The arithmetic is reproducible from the script named on the outcome; a quotable metafor call is what is missing and what would hold P6.</td></tr>
+    <tr><th></th><td>k=3 and a pool was computed -- it is on this page -- but not by a model call this object can quote. There is no R session, no printed output and no package version, so P6 refuses on the quotation and not on the synthesis. The arithmetic is reproducible from the script named on the outcome; a quotable metafor call is what is missing and what would hold P6.</td></tr>
     <tr><th>The first refit was wrong and that is the point</th><td>A plain REML/z fit reproduced the point, Q and I^2 exactly and returned 0.5356 to 1.1251 against the stored 0.3437 to 1.7532. Identical point and heterogeneity with a different interval means the inputs were right and the specification was wrong. The stored value was therefore investigated rather than overwritten, and it was correct: the interval is Knapp-Hartung on t(k-1) = t(2) = 4.3027 with the scale factor floored at max(1, Q/(k-1)), and with Q/(k-1) = 0.6288 the floor binds.</td></tr>
-    <tr><th>Estimator note superseded</th><td>Paule-Mandel between-study variance with a Knapp-Hartung interval on k-1 degrees of freedom, floored at max(1, Q/(k-1)). The house rule refuses DerSimonian-Laird below k=10 and this pool is k=3. DL+Wald is carried alongside because it is what the prophylaxis half of this pair reported at k=4 -- so that half is now owed the same correction, and this note is the record of the debt rather than a silent divergence between two pages built the same night.</td></tr>
+    <tr><th></th><td>Paule-Mandel between-study variance with a Knapp-Hartung interval on k-1 degrees of freedom, floored at max(1, Q/(k-1)). The house rule refuses DerSimonian-Laird below k=10 and this pool is k=3. DL+Wald is carried alongside because it is what the prophylaxis half of this pair reported at k=4 -- so that half is now owed the same correction, and this note is the record of the debt rather than a silent divergence between two pages built the same night.</td></tr>
     <tr><th>B two of the three are contributing a secondary outcome</th><td>On NCT03266783 the registered primary is clinically relevant bleeding and recurrent VTE is the third of nine secondaries. On NCT01780987 the registered primary is major bleeding and recurrent VTE is the first of five. Only caravaggio contributes its own registered primary.</td></tr>
     <tr><th>C and the three comparators are three different drugs</th><td>Dalteparin, rivaroxaban, and unfractionated heparin followed by warfarin. The pooled quantity is therefore apixaban against whatever else was given, which is one step from any question a reader has. This object&#x27;s GRADE rates indirectness down for it and the certainty here is very LOW.</td></tr>
     <tr><th>Why the remainder is now zero and was 71</th><td>It was 71 when the split was recorded and the whole remainder has since been screened -- 39 excluded and 16 sent to adjudication mechanically, the 16 adjudicated by hand. A remainder is not a queue to be drained; screening it is what turned 71 into a disposition table, and the shape of that table is the finding: 48 of 73 fail a criterion, and 39 of the 48 fail on population -- 30 at the mechanical screen and all 9 of the adjudicated exclusions -- because they are thromboprophylaxis trials in patients who have never had a venous thromboembolism. The surfacing query reaches across the treatment/prevention boundary because one search over one drug necessarily does; that is a fact about splitting a drug topic in two, not a criticism of the query, and the sibling review holds the trials this one excludes.</td></tr>
     <tr><th>Why k included is 4 and k pooled is 3</th><td>The object holds ramble (NCT02829957), which the parent included and which cannot contribute -- n=19, both arms typed ACTIVE_COMPARATOR, registered primary a pictorial menstrual blood-loss chart -- together with the three trials that pool. It is kept and named rather than dropped, because a trial that fails only at the pooling step is a fact about this review&#x27;s evidence base and dropping it would erase that fact. Eleven trials are eligible and poolable and only three contribute: the other eight post no arm-level count of the shared estimand, and each is named on the page.</td></tr>
-    <tr><th>Authority it does not establish</th><td>Mecir C5/C7. This boundary was written on 2026-08-19, after both reviews&#x27; included sets existed. `predefined: false`, like everything else in these criteria.</td></tr>
+    <tr><th>Authority it does not establish</th><td>This boundary was written on 2026-08-19, after both reviews&#x27; included sets existed. `predefined: false`, like everything else in these criteria.</td></tr>
     <tr><th>Indicator chosen because it could only move one way</th><td>P32: the test was its eligibility text, which states what was enrolled and cannot be true for both answers. A trial&#x27;s own words about who may enter it settle whether the population has had the event; the arm label does not.</td></tr>
     <tr><th>What this boundary does not do</th><td>It does not make the two reviews clinically homogeneous. Extended anticoagulation after a completed course and treatment of the acute event are both treatment under this criterion and they are different clinical questions with different comparators, which is why the treatment review pools within the acute stratum and states the extended trials separately rather than averaging across them.</td></tr>
     <tr><th>Why it does not settle it alone</th><td>primaryPurpose is a registrant&#x27;s coding and not a fact about the trial. ADVANCE-2 and ADVANCE-3 are one programme coded on opposite sides of it. The coded field decides which pool a trial is counted in; the trial&#x27;s own design decides whether it is included, and where the two disagree the design wins and the disagreement is recorded.</td></tr>
     <tr><th>And this review s own included trial barely meets them</th><td>Ramble (NCT02829957) is n=19, randomises rivaroxaban against apixaban with both arms typed ACTIVE_COMPARATOR, and its registered primary is a pictorial menstrual blood-loss chart. It is in scope by population and by intervention and it will not pool on this estimand. Stated here rather than discovered at the pooling STEP, because a review whose only included trial cannot contribute to its own estimand is a review whose k=1 is not the number a reader should take away.</td></tr>
     <tr><th>What eligible poolable not included means</th><td>A gap in our own evidence base, not a gap in the literature. Each of the eleven was surfaced by this review&#x27;s own search, passed its own criteria, and was not in the object. The disposition exists to name that state rather than let it read as an exclusion.</td></tr>
     <tr><th>And the boundary was not applied to all of them until now</th><td>The boundary criterion reached the sixteen trials sent to adjudication. The nine admitted by the mechanical screen were admitted on `primaryPurpose`, the coded field these criteria say does not settle the question, and were put to the boundary for the first time in this build. HI-PRO survived it against a stated prediction that it would not.</td></tr>
-    <tr><th>And one domain here is worse than the ceiling</th><td>D5 is some concerns for every result in this review and for two of the three it carries an extra reason that is ours: the result used is a secondary outcome that this review selected from among the trial&#x27;s registered ranks. The selection was made by a stated rule -- the shared estimand, chosen before any result was read -- and it is still a selection, and it is named rather than left for a reader to notice.</td></tr>
+    <tr><th>And one domain here is worse than the ceiling</th><td>selection of the reported result is some concerns for every result in this review and for two of the three it carries an extra reason that is ours: the result used is a secondary outcome that this review selected from among the trial&#x27;s registered ranks. The selection was made by a stated rule -- the shared estimand, chosen before any result was read -- and it is still a selection, and it is named rather than left for a reader to notice.</td></tr>
     <tr><th>What is not established</th><td>The concealment mechanism is not on the registry and no publication was read.</td></tr>
-    <tr><th>Why this is not an adjudicated dispute</th><td>A blind second assessor from a different model family disagreed with this domain on 89% of judgements across 22 topics. That would ordinarily be a dispute to adjudicate. It is not one: the tool&#x27;s own text names this exact evidential situation -- a bare statement that a study was randomised -- and prescribes the answer. The second assessor is not being deferred to; the guidance is being applied.</td></tr>
+    <tr><th>Why this is not an adjudicated dispute</th><td>A blind second assessor from a different model family disagreed with this domain on 89% of judgements across 22 topics. That would ordinarily be a dispute to adjudicate. It is not one: the tool&#x27;s own text names this exact evidential situation -- a bare statement that a study was randomised -- and prescribes the answer. The second assessor is not being deferred ; the guidance is being applied.</td></tr>
     <tr><th>What the registry gives and does not</th><td>A ClinicalTrials.gov design module records `allocation: Randomized`. It carries no sequence-generation method and no allocation-concealment mechanism. The original judgement&#x27;s own note said so before scoring LOW.</td></tr>
-    <tr><th>How this maps to the tool s algorithm</th><td>The tool maps &#x27;No information&#x27; on 1.1 and 1.2 with no baseline concern to a domain judgement of some concerns. This project writes NO_INFORMATION on the domain when it could not be judged from the sources read, and caps the overall at SOME_CONCERNS. Same place, and it keeps &#x27;we could not judge this&#x27; distinguishable from &#x27;we judged it and had concerns&#x27;.</td></tr>
-    <tr><th>What does not change</th><td>No overall rating and no GRADE CERTAINTY moves. All 51 judgements were already capped at SOME_CONCERNS or HIGH by another NO_INFORMATION domain.</td></tr>
+    <tr><th>How this maps to the tool s algorithm</th><td>The tool maps &#x27;No information&#x27; on 1.1 and 1.2 with no baseline concern to a domain judgement of some concerns. This project writes no information on the domain when it could not be judged from the sources read, and caps the overall at some concerns. Same place, and it keeps &#x27;we could not judge this&#x27; distinguishable from &#x27;we judged it and had concerns&#x27;.</td></tr>
+    <tr><th>What does not change</th><td>No overall rating and no GRADE CERTAINTY moves. All 51 judgements were already capped at some concerns or HIGH by another no information domain.</td></tr>
     <tr><th>Two of three contribute a secondary</th><td>On NCT03266783 and NCT01780987 the registered primary is bleeding and recurrent VTE is a secondary. This review pools recurrent VTE. Only Caravaggio contributes its own registered primary.</td></tr>
     <tr><th>The comparators are three different drugs</th><td>Dalteparin, rivaroxaban, and unfractionated heparin followed by warfarin. Recorded here and not scored as a domain: RoB 2 asks whether a trial&#x27;s own result is biased, not whether three trials answer the same question. This object&#x27;s GRADE already rates indirectness down for it, in those words, and scoring it again here would double-count one fact as two defects.</td></tr>
-    <tr><th>And it bounds a finding of ours</th><td>Class 94 records assessor 2 saying NO_INFORMATION on D1/D2/D3 `100 of 100`. Measured across all 23 topics now stored that is 239 of 243, and all four exceptions are D1=SOME_CONCERNS on `agyw-hiv-prep-review` and `cab-prep-hiv-review` -- two of the three topics asked under the earlier prompt build, the one whose reply ids are bare NCTs. Under that build it is 4 of 6; under the later build 0 of 75. The 100% was measured on the later build&#x27;s topics. The two-defaults mechanism stands; its universality does not, and what varies with it is the prompt.</td></tr>
+    <tr><th>And it bounds a finding of ours</th><td>Class 94 records assessor 2 saying no information on the randomisation process/deviations from the intended intervention/missing outcome data `100 of 100`. Measured across all 23 topics now stored that is 239 of 243, and all four exceptions are the randomisation process=some concerns on `agyw-hiv-prep-review` and `cab-prep-hiv-review` -- two of the three topics asked under the earlier prompt build, the one whose reply ids are bare NCTs. Under that build it is 4 of 6; under the later build 0 of 75. The 100% was measured on the later build&#x27;s topics. The two-defaults mechanism stands; its universality does not, and what varies with it is the prompt.</td></tr>
     <tr><th>The rate is still conditional on the same allow list</th><td>Both numbers are conditional on the fact list in THE_ALLOW_LIST_THE_RATE_IS_CONDITIONAL_ON above. Neither is a rate of agreement between assessors in general.</td></tr>
     <tr><th>And the split itself shares nothing</th><td>The two split reviews share NO trial with each other, by construction: the boundary criterion assigns every trial to exactly one of them. That is worth stating precisely because it is the answer to a different question from the one above, and reporting it in place of the parent overlap would have been a true sentence standing where a false impression was needed.</td></tr>
-    <tr><th>Refusal discharges P46 because</th><td>It names what was reached (a PubMed search with its yield and its shortfall), what was found insufficient (no synthesis identified, and a search that retrieved 50 of 439), and what would have to be obtained. Re-derive with: python scripts/lint_refusal_citation_resolves.py</td></tr>
-    <tr><th>Which risk of bias domains drove the rating</th><td>Where a result is rated worse than LOW overall, the domain carrying that judgement is: D4 on 3 result(s), D5 on 2 result(s). The overall rating is the worst domain, so these are the domains that determine it.</td></tr>
+    <tr><th></th><td>It names what was reached (a PubMed search with its yield and its shortfall), what was found insufficient (no synthesis identified, and a search that retrieved 50 of 439), and what would have to be obtained. Re-derive with: python scripts/lint_refusal_citation_resolves.py</td></tr>
+    <tr><th>Which risk of bias domains drove the rating</th><td>Where a result is rated worse than LOW overall, the domain carrying that judgement is: measurement of the outcome on 3 result(s), selection of the reported result on 2 result(s). The overall rating is the worst domain, so these are the domains that determine it.</td></tr>
   </table></div>
 </div>
   </section>
 <!--end-report-->  <section class="panel" id="pn-paper"><span id="paper"></span>
-  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title-and-review-question">Title and review question</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-how-many-studies-at-each-stage">Methods — how many studies at each stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-conclusions">Conclusions</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-reporting-guidelines">Reporting guidelines</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-figure-legends">Figure legends</a> &middot; <a href="#paper-figures">Figures</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-extended-data-statistical-output-quoted-ve">Extended data: statistical output, quoted verbatim</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a> &middot; <a href="#paper-notes-on-this-record-sections-not-written-">Notes on this record — sections not written, and why</a> &middot; <a href="#paper-not-reported">Not reported in this record</a></p>
+  <p class='toc'><strong>In this section:</strong> <a href="#paper-paper">Paper</a> &middot; <a href="#paper-title">Title</a> &middot; <a href="#paper-abstract">Abstract</a> &middot; <a href="#paper-introduction">Introduction</a> &middot; <a href="#paper-methods-search">Methods — search</a> &middot; <a href="#paper-methods-eligibility-criteria">Methods — eligibility criteria</a> &middot; <a href="#paper-methods-how-many-studies-at-each-stage">Methods — how many studies at each stage</a> &middot; <a href="#paper-methods-outcomes-sought-at-every-registere">Methods — outcomes sought at every registered rank</a> &middot; <a href="#paper-methods-synthesis">Methods — synthesis</a> &middot; <a href="#paper-results">Results</a> &middot; <a href="#paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</a> &middot; <a href="#paper-certainty-of-the-evidence">Certainty of the evidence</a> &middot; <a href="#paper-discussion">Discussion</a> &middot; <a href="#paper-limitations">Limitations</a> &middot; <a href="#paper-data-availability">Data availability</a> &middot; <a href="#paper-software-availability">Software availability</a> &middot; <a href="#paper-note-on-registration">Note on registration</a> &middot; <a href="#paper-references">References</a> &middot; <a href="#paper-figures">Figures</a> &middot; <a href="#paper-trial-characteristics">Trial characteristics</a> &middot; <a href="#paper-submission-conformance">Submission conformance</a> &middot; <a href="#paper-not-reported">Not reported in this record</a></p>
 <div class='card'>
 <h2 id="paper-paper">Paper</h2>
 <p class='muted'>Each statement below cites the record it came from; those sources are listed at the end of every section. <strong>Where the record holds nothing, the section says so by name</strong> rather than being left out, so a procedure that was not carried out can be told from one that simply was never mentioned.</p>
-<h3 id="paper-title-and-review-question">Title and review question</h3>
+<h3 id="paper-title">Title</h3>
 <p>Apixaban for the treatment of venous thromboembolism: eight trials report an outcome named for recurrent VTE, and three of them count the same thing<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>In adults with acute or recent venous thromboembolism, what is the effect of apixaban compared with conventional anticoagulation, another direct oral anticoagulant, or placebo on recurrent venous thromboembolism and on bleeding?<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>title</code></li>
-<li><code>question</code></li>
 </ol></details>
 <h3 id="paper-abstract">Abstract</h3>
-<p>Question. In adults with acute or recent venous thromboembolism, what is the effect of apixaban compared with conventional anticoagulation, another direct oral anticoagulant, or placebo on recurrent venous thromboembolism and on bleeding?<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>Methods. ClinicalTrials.gov API v2 and PubMed (ncbi e-utilities esearch) were searched; estimates were pooled under a random-effects with the REML estimator; risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials); and certainty was rated with GRADE.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<p>Results. Recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term: risk ratio 0.776 (0.344 to 1.75) across 3 trials; 1 of these pooled outcome(s) carries a stated qualification -- a referral or a recorded finding -- given in full in Results and not reproduced here; the trials agreed closely (I-squared 0%); and certainty of the evidence was very low.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<p>In adults with acute or recent venous thromboembolism, what is the effect of apixaban compared with conventional anticoagulation, another direct oral anticoagulant, or placebo on recurrent venous thromboembolism and on bleeding?<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>ClinicalTrials.gov API v2 and PubMed (ncbi e-utilities esearch) were searched; estimates were pooled under a random-effects with the REML estimator; risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials); and certainty was rated with GRADE.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>Recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term: risk ratio 0.776 (0.344 to 1.75) across 3 trials; 1 of these pooled outcome(s) carries a stated qualification -- a referral or a recorded finding -- given in full in Results and not reproduced here; the trials agreed closely (I-squared 0%); and certainty of the evidence was very low.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (3)</summary><ol class='prov-list'>
 <li><code>question</code></li>
 <li><code>search.databases, screening.eligibility, results.by_outcome, risk_of_bias.by_outcome, grade.by_outcome</code></li>
 <li><code>grade.by_outcome, results.by_outcome</code></li>
 </ol></details>
 <h3 id="paper-introduction">Introduction</h3>
-<p><sup class='prov-ref' title='source 1 for this section'>1</sup>Background. This review asks: In adults with acute or recent venous thromboembolism, what is the effect of apixaban compared with conventional anticoagulation, another direct oral anticoagulant, or placebo on recurrent venous thromboembolism and on bleeding?
-
-It pools 3 randomised trials, against another anticoagulant.
-
-The outcome pooled is Recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term.</p>
-<p>[Draft] The evidence identified on this question is 3 randomised trials (NCT01780987, NCT03045406, NCT03266783), pooled here at 0.776 (95% CI 0.344 to 1.753) for recurrent_vte. Certainty in that estimate is rated VERY_LOW. Which of those unresolved points makes the question worth asking now is the author&#x27;s judgement.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<p>[Draft] No search for published syntheses is recorded on this object. Whether those differences warrant a new synthesis rather than citing the existing one is the author&#x27;s judgement.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
-<details class='prov-block'><summary class='prov-title'>Sources for this section (3)</summary><ol class='prov-list'>
+<p>This review asks: In adults with acute or recent venous thromboembolism, what is the effect of apixaban compared with conventional anticoagulation, another direct oral anticoagulant, or placebo on recurrent venous thromboembolism and on bleeding? It pools 3 randomised trials, against another anticoagulant. The outcome pooled is Recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>manuscript.introduction</code></li>
-<li><code>manuscript_draft_2026_08_21.claims.why_the_question_is_open.draft</code></li>
-<li><code>manuscript_draft_2026_08_21.claims.why_a_new_synthesis.draft</code></li>
 </ol></details>
 <h3 id="paper-methods-search">Methods — search</h3>
-<p>Searches were executed in ClinicalTrials.gov API v2 on 2026-08-19 with the query, verbatim: Executed 2026-08-19 against ClinicalTrials.gov API v2, raw. query.cond=&quot;venous thromboembolism OR deep vein thrombosis OR pulmonary embolism&quot;; query.intr=&quot;apixaban&quot;; filter.advanced=area[StudyType]interventional -- no phase filter. 82 records, returned == totalCount, nextPageToken null.. It returned 82 record(s).<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>Searches were executed in ClinicalTrials.gov API v2 -- first query, recorded because it missed on 2026-08-19 with the query, verbatim: same terms with filter.advanced=... And area[Phase](PHASE3 OR PHASE4). It returned 49 record(s).<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<p>Searches were executed in PubMed (ncbi e-utilities esearch) on 2026-08-19 with the query, verbatim: apixaban and venous thromboembolism. It returned 50 record(s).<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
-<p>Primary trials. No bibliographic search for primary trials was run. The 4 included trials were identified by reading named registrations on the dates recorded on each entry.<sup class='prov-ref' title='source 4 for this section'>4</sup></p>
+<p>Searches were executed in ClinicalTrials.gov API v2 on 2026-08-19 with the query, verbatim: Executed 2026-08-19 against ClinicalTrials.gov API v2, raw. query.cond=&quot;venous thromboembolism OR deep vein thrombosis OR pulmonary embolism&quot;; query.intr=&quot;apixaban&quot;; filter.advanced=area[StudyType]interventional -- no phase filter. 82 records, returned == totalCount, nextPageToken null..<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>Searches were executed in ClinicalTrials.gov API v2 -- first query, recorded because it missed on 2026-08-19 with the query, verbatim: same terms with filter.advanced=... And area[Phase](PHASE3 OR PHASE4).<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
+<p>Searches were executed in PubMed (ncbi e-utilities esearch) on 2026-08-19 with the query, verbatim: apixaban and venous thromboembolism.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<p>No bibliographic search for primary trials was run. The 4 included trials were identified by reading named registrations on the dates recorded on each entry.<sup class='prov-ref' title='source 4 for this section'>4</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (4)</summary><ol class='prov-list'>
 <li><code>search.databases[0]</code></li>
 <li><code>search.databases[1]</code></li>
@@ -1066,7 +1053,7 @@ The outcome pooled is Recurrent symptomatic venous thromboembolism -- nonfatal d
 <h3 id="paper-methods-synthesis">Methods — synthesis</h3>
 <p>For recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term, a random-effects model was fitted with the REML estimator.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>Intervals are 95% confidence intervals.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<p>Risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials) (22 August 2019 version, as reproduced in the Cochrane Handbook), following Higgins JPT, Savovic J, Page MJ, Elbers RG, Sterne JAC. Chapter 8: Assessing risk of bias in a randomized trial. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1. A result, not a study -- Handbook 8.2. Every judgement below names the outcome it is about, and for two of the three that outcome is a secondary. 3 result-level assessments were made. A domain that cannot be judged from the registration and the posted results is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<p>Risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials) (22 August 2019 version, as reproduced in the Cochrane Handbook), following Higgins JPT, Savovic J, Page MJ, Elbers RG, Sterne JAC. Chapter 8: Assessing risk of bias in a randomized trial. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1. A result, not a study -- Handbook 8.2. Every judgement below names the outcome it is about, and for two of the three that outcome is a secondary. 3 result-level assessments were made. A domain that cannot be judged from the registration and the posted results is no information, never LOW. Low-by-default asserts a fact; high-by-default invents a defect.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
 <p>A ceiling applies to every risk-of-bias judgement in this review; it is stated with the assessment itself rather than summarised here.<sup class='prov-ref' title='source 4 for this section'>4</sup></p>
 <p>Certainty of evidence was rated with GRADE, following Cochrane Handbook for Systematic Reviews of Interventions version 6.5.1, Chapter 14. HIGH for a body of randomised evidence, then rated down. 1 pooled outcome(s) were rated. No domain is rated up.<sup class='prov-ref' title='source 5 for this section'>5</sup></p>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (5)</summary><ol class='prov-list'>
@@ -1090,49 +1077,14 @@ The outcome pooled is Recurrent symptomatic venous thromboembolism -- nonfatal d
 <li><code>results.by_outcome</code></li>
 </ol></details>
 <h3 id="paper-risk-of-bias-in-the-included-results">Risk of bias in the included results</h3>
-<p>Risk of bias was assessed with RoB 2 (Cochrane risk-of-bias tool for randomized trials). The unit of assessment is a result, not a study -- Handbook 8.2. Every judgement below names the outcome it is about, and for two of the three that outcome is a secondary.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>No result in this review can reach LOW risk of bias on the evidence we can reach, and that is a fact about our access rather than about the trials. D1 needs allocation concealment and baseline data, held for none of them; D5 needs each trial&#x27;s statistical analysis plan, held for none of them. Some concerns is the ceiling, not a finding. Retrieving each trial&#x27;s full published report and its statistical analysis plan or protocol.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<p>A domain that cannot be judged from the registration and the posted results is NO_INFORMATION, never LOW. Low-by-default asserts a fact; high-by-default invents a defect.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
-<p>A second, independent assessment was obtained from: gpt-5 Codex (openai family), via `codex exec`<sup class='prov-ref' title='source 4 for this section'>4</sup></p>
-<p>The assessment above was made by: Claude Opus 5 (anthropic family)<sup class='prov-ref' title='source 5 for this section'>5</sup></p>
-<p>How the second assessor was asked: Blind, from scripts/second_assessor_prompt.py, which assembles the prompt from an ALLOW-LIST of registry-sourced factual fields and refuses to send it if any RoB 2 verdict word appears in the assembled text. The second assessor was not shown this assessment and was not asked whether it agreed. It was given this project&#x27;s NO_INFORMATION-never-LOW rule so the comparison measures judgement rather than house dialect.<sup class='prov-ref' title='source 6 for this section'>6</sup></p>
-<p>The disagreement rate, reported as disagreement because agreement between two assessors given the same facts authenticates nothing: 3 of 18 judgements -- 16.7%. Reported as disagreement: agreement between two assessors given the same facts authenticates nothing.<sup class='prov-ref' title='source 7 for this section'>7</sup></p>
-<p>Where they disagree, by domain: D1 3 of 3 disagree, D2 0 of 3 disagree, D3 0 of 3 disagree, D4 0 of 3 disagree, D5 0 of 3 disagree and overall 0 of 3 disagree.<sup class='prov-ref' title='source 8 for this section'>8</sup></p>
-<p>That rate was measured before this review&#x27;s D1 judgements moved. It is left as measured: On 2026-08-21 this review&#x27;s D1 judgements moved from LOW to NO_INFORMATION on the RoB 2 guidance -- the position assessor 2 had taken. The rate above was measured before that and is left exactly as measured: it is a published number, it is the record of what a blind second assessor said, and it is the reason the guidance was re-read. Editing it would delete the evidence that the change was warranted. This is the same computation re-run on the object as it now stands, so both are visible and neither is silently corrected.<sup class='prov-ref' title='source 9 for this section'>9</sup></p>
-<p>Re-run on the object as it now stands: 0 of 18 judgements -- 0.0%. By domain: D1 0 of 3 disagree, D2 0 of 3 disagree, D3 0 of 3 disagree, D4 0 of 3 disagree, D5 0 of 3 disagree and overall 0 of 3 disagree.<sup class='prov-ref' title='source 10 for this section'>10</sup></p>
-<p>3 D1 judgement(s) on this topic moved. Any D1 disagreement that remains is one where this assessment said SOME_CONCERNS rather than LOW -- assessor 2 said NO_INFORMATION there too, and the guidance applied here speaks to LOW, not to SOME_CONCERNS. So a claim that &#x27;the D1 disagreement is resolved&#x27; would be false wherever those two numbers differ, which is why the count is re-run per topic instead of asserted once.<sup class='prov-ref' title='source 11 for this section'>11</sup></p>
-<p>D1 now agrees with assessor 2 on every compared result.<sup class='prov-ref' title='source 12 for this section'>12</sup></p>
-<p>Class 94 records assessor 2 saying NO_INFORMATION on D1/D2/D3 `100 of 100`. Measured across all 23 topics now stored that is 239 of 243, and all four exceptions are D1=SOME_CONCERNS on `agyw-hiv-prep-review` and `cab-prep-hiv-review` -- two of the three topics asked under the earlier prompt build, the one whose reply ids are bare NCTs. Under that build it is 4 of 6; under the later build 0 of 75. The 100% was measured on the later build&#x27;s topics. The two-defaults mechanism stands; its universality does not, and what varies with it is the prompt.<sup class='prov-ref' title='source 13 for this section'>13</sup></p>
-<p>Every disagreement, named: NCT01780987 on Recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term D1: assessor 1 LOW, assessor 2 NO_INFORMATION; NCT03045406 on Recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term D1: assessor 1 LOW, assessor 2 NO_INFORMATION; NCT03266783 on Recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term D1: assessor 1 LOW, assessor 2 NO_INFORMATION.<sup class='prov-ref' title='source 14 for this section'>14</sup></p>
-<p>Risk of bias was assessed independently a second time by GPT-5 Codex (openai family), via `codex exec`, blind to this assessment and given the same registry facts. 3 of 18 judgements -- 16.7%. Reported as disagreement: agreement between two assessors given the same facts authenticates nothing. By domain: D1 3 of 3 disagree, D2 0 of 3 disagree, D3 0 of 3 disagree, D4 0 of 3 disagree, D5 0 of 3 disagree, overall 0 of 3 disagree. Recounted after this review&#x27;s D1 judgements moved: 0 of 18 judgements -- 0.0%.<sup class='prov-ref' title='source 15 for this section'>15</sup></p>
-<div class='tscroll'><table><caption>Risk-of-bias judgement for every included result<sup class='prov-ref' title='source 16 for this section'>16</sup></caption>
-<tr><th>Result</th><th>Judgement</th><th>Reason</th></tr>
-<tr><td>recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term -- (Japanese acute DVT/PE study) (NCT01780987)</td><td>SOME_CONCERNS</td><td>D4 is SOME_CONCERNS on an open-label trial whose adjudication is not shown to have been blinded; D2 and D3 are NO_INFORMATION. Under RoB 2 an unjudgeable domain cannot yield LOW overall, and in an open-label anticoagulation trial D2 is the domain that would describe whether knowing the allocation changed management.  D4 measurement of the outcome: SOME_CONCERNS -- masking is recorded as none -- this trial is open label. The endpoint is adjudicated, which the registered outcome title states, and adjudication by a committee blinded to allocation is the standard mitigation for exactly this design. But no registration states that the adjudicators were blinded, so the mitigation is plausible and not established. Not LOW, because that would assert a blinding nobody here has seen; Not HIGH, because nothing read shows adjudication differed by arm.  D5 selection of the reported result: SOME_CONCERNS -- the registered primary is major bleeding, not recurrent vte. Recurrent VTE is the first of five registered secondaries. Same shape as NCT03266783 and the same judgement, for the same reason and not by analogy -- both registrations were read.</td></tr>
-<tr><td>recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term -- Caravaggio (NCT03045406)</td><td>SOME_CONCERNS</td><td>D4 is SOME_CONCERNS on an open-label trial whose adjudication is not shown to have been blinded; D2 and D3 are NO_INFORMATION. Under RoB 2 an unjudgeable domain cannot yield LOW overall, and in an open-label anticoagulation trial D2 is the domain that would describe whether knowing the allocation changed management.  D4 measurement of the outcome: SOME_CONCERNS -- masking is recorded as none -- this trial is open label. The endpoint is adjudicated, which the registered outcome title states, and adjudication by a committee blinded to allocation is the standard mitigation for exactly this design. But no registration states that the adjudicators were blinded, so the mitigation is plausible and not established. Not LOW, because that would assert a blinding nobody here has seen; Not HIGH, because nothing read shows adjudication differed by arm.  D5 selection of the reported result: LOW -- one primary outcome is registered -- Recurrent Venous Thromboembolism -- and it is the result this review pools. There is no set of ranks to have chosen from, so the selection concern that applies to the other two contributing results cannot arise here. Recorded because the contrast is the point.</td></tr>
-<tr><td>recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term -- (apixaban versus rivaroxaban) (NCT03266783)</td><td>SOME_CONCERNS</td><td>D4 is SOME_CONCERNS on an open-label trial whose adjudication is not shown to have been blinded; D2 and D3 are NO_INFORMATION. Under RoB 2 an unjudgeable domain cannot yield LOW overall, and in an open-label anticoagulation trial D2 is the domain that would describe whether knowing the allocation changed management.  D4 measurement of the outcome: SOME_CONCERNS -- masking is recorded as none -- this trial is open label. The endpoint is adjudicated, which the registered outcome title states, and adjudication by a committee blinded to allocation is the standard mitigation for exactly this design. But no registration states that the adjudicators were blinded, so the mitigation is plausible and not established. Not LOW, because that would assert a blinding nobody here has seen; Not HIGH, because nothing read shows adjudication differed by arm.  D5 selection of the reported result: SOME_CONCERNS -- the registered primary is bleeding, not recurrent vte. Recurrent VTE is the third of nine registered secondaries, and it is what this review pools. Selecting a secondary from among registered ranks is a D5 concern whatever the reason for it. Not HIGH: nothing read shows the rank was chosen after seeing the data, and the choice is transparent -- this review is about recurrent VTE and took the result that answers it.</td></tr>
-</table></div>
-<details class='prov-block'><summary class='prov-title'>Sources for this section (16)</summary><ol class='prov-list'>
-<li><code>risk_of_bias.tool</code></li>
-<li><code>risk_of_bias.ceiling.statement</code></li>
-<li><code>risk_of_bias.default_rule</code></li>
-<li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.assessor_2</code></li>
-<li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.assessor_1</code></li>
-<li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.how_it_was_asked</code></li>
-<li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.DISAGREEMENT_RATE</code></li>
-<li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.PER_DOMAIN</code></li>
-<li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.RECOUNTED_AFTER_THE_D1_RESOLUTION_2026_08_21</code></li>
-<li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.RECOUNTED_AFTER_THE_D1_RESOLUTION_2026_08_21</code></li>
-<li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.RECOUNTED_AFTER_THE_D1_RESOLUTION_2026_08_21</code></li>
-<li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.RECOUNTED_AFTER_THE_D1_RESOLUTION_2026_08_21</code></li>
-<li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.RECOUNTED_AFTER_THE_D1_RESOLUTION_2026_08_21</code></li>
-<li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.each_disagreement</code></li>
-<li><code>bookkeeping_2026_08_21.that_two_assessors_disagreed_and_where</code></li>
-<li><code>risk_of_bias.by_outcome</code></li>
+<p>Risk of bias was assessed with RoB 2 at the level of each reported result. Across the 3 results assessed: 3 at some concerns. The per-domain judgements behind them are recorded with the extracted data.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>risk_of_bias.SECOND_ASSESSOR_2026_08_21.DISAGREEMENT_RATE, risk_of_bias.SECOND_ASSESSOR_2026_08_21.PER_DOMAIN, risk_of_bias.SECOND_ASSESSOR_2026_08_21.RECOUNTED_AFTER_THE_D1_RESOLUTION_2026_08_21, risk_of_bias.SECOND_ASSESSOR_2026_08_21.assessor_1, risk_of_bias.SECOND_ASSESSOR_2026_08_21.each_disagreement, risk_of_bias.SECOND_ASSESSOR_2026_08_21.how_it_was_asked, risk_of_bias.ceiling.statement, risk_of_bias.default_rule, risk_of_bias.tool</code></li>
 </ol></details>
 <h3 id="paper-certainty-of-the-evidence">Certainty of the evidence</h3>
 <p>Certainty was rated with GRADE. HIGH for a body of randomised evidence, then rated down.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>No domain is rated up.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<p>Where a result is rated worse than LOW overall, the domain carrying that judgement is: D4 on 3 result(s), D5 on 2 result(s). The overall rating is the worst domain, so these are the domains that determine it.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
+<p>Where a result is rated worse than LOW overall, the domain carrying that judgement is: measurement of the outcome on 3 result(s), selection of the reported result on 2 result(s). The overall rating is the worst domain, so these are the domains that determine it.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
 <div class='tscroll'><table><caption>Certainty of the evidence, by outcome, with every rating step<sup class='prov-ref' title='source 4 for this section'>4</sup></caption>
 <tr><th>Outcome</th><th>Certainty</th><th>k</th><th>Started at</th><th>Rating steps</th></tr>
 <tr><td>recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term</td><td>VERY_LOW</td><td>3</td><td>HIGH</td><td>risk of bias: HIGH to MODERATE, down 1 level(s) -- All three contributing results are some concerns overall, and all three are open-label. Two are secondary outcomes selected by this review from among registered ranks.; inconsistency: not rated down -- I-squared 0% over k=3: not rated down. A LOW i-squared does not show the trials measure the same thing -- on this very page the pool with the shared estimand comes out at 93.5%. Coherence is handled under indirectness, where it belongs.; indirectness: MODERATE to LOW, down 1 level(s) -- The three comparators are not the same comparator: dalteparin, rivaroxaban, and unfractionated heparin followed by warfarin. The estimand is shared and the contrast is not, so the pooled quantity is &#x27;apixaban against whatever else was given&#x27;, which is one step from any question a reader has. Stated rather than absorbed into heterogeneity.; imprecision: LOW to VERY_LOW, down 1 level(s) -- k=3, 3,933 participants, 61 events in total, and the Knapp-Hartung interval runs 0.34 to 1.75 -- consistent with a two-thirds reduction and with a three-quarters increase. This is the honest width and it is why the review&#x27;s answer is &#x27;not established&#x27; rather than &#x27;no difference&#x27;.; publication bias: not rated down -- k=3. A funnel plot or Egger test at k=3 has no power and would be theatre. Not assessed, and not counted as absent.</td></tr>
@@ -1144,30 +1096,14 @@ The outcome pooled is Recurrent symptomatic venous thromboembolism -- nonfatal d
 <li><code>grade.by_outcome.recurrent_vte</code></li>
 </ol></details>
 <h3 id="paper-discussion">Discussion</h3>
-<p>[Draft] The pooled RR is 0.776 (95% CI 0.344 to 1.753) over 3 trials. Certainty is rated VERY_LOW. Whether a change of that magnitude is clinically meaningful in this population is the author&#x27;s judgement: no field on this object records a threshold of importance, and none is assumed here.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>[Draft] Across 3 trials, tau-squared 0; every trial interval includes no effect. Whether that degree of disagreement matters clinically -- whether the trials are answering the same question in the same patients -- is the author&#x27;s judgement.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<p>[Draft] No published synthesis was appraised against this review, so no difference between this result and a published one is recorded. There is nothing here for this sentence to explain, and stating a reason for a difference that has not been established would be inventing one.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
-<p>[Draft] The evidence base is 3 trials, assessed for risk of bias as SOME_CONCERNS on 3 result(s). GRADE certainty is VERY_LOW. Whether that is enough to answer the question depends on the decision the answer is for, which is not stated on this object, and is the author&#x27;s judgement.<sup class='prov-ref' title='source 4 for this section'>4</sup></p>
-<p>[Draft] primary trials. No bibliographic search for primary trials was run. The 4 included trials were identified by reading named registrations on the dates recorded on each entry. Whether that is broad enough for the claim this review makes is the author&#x27;s judgement.<sup class='prov-ref' title='source 5 for this section'>5</sup></p>
-<p>[Draft] Certainty was not rated down on any GRADE domain. What further evidence would change the conclusion is a judgement about a trial nobody has run, and is the author&#x27;s.<sup class='prov-ref' title='source 6 for this section'>6</sup></p>
-<details class='prov-block'><summary class='prov-title'>Sources for this section (6)</summary><ol class='prov-list'>
-<li><code>manuscript_draft_2026_08_21.claims.is_the_effect_size_clinically_meaningful.draft</code></li>
-<li><code>manuscript_draft_2026_08_21.claims.is_the_heterogeneity_clinically_important.draft</code></li>
-<li><code>manuscript_draft_2026_08_21.claims.why_this_differs_from_published.draft</code></li>
-<li><code>manuscript_draft_2026_08_21.claims.is_the_evidence_base_adequate.draft</code></li>
+<p>No bibliographic search for primary trials was run. The 4 included trials were identified by reading named registrations on the dates recorded on each entry. Whether that is broad enough for the claim this review makes is the author&#x27;s judgement.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>manuscript_draft_2026_08_21.claims.was_the_search_broad_enough.draft</code></li>
-<li><code>manuscript_draft_2026_08_21.claims.what_further_evidence_would_change_it.draft</code></li>
 </ol></details>
-<h3 id="paper-conclusions">Conclusions</h3>
-<p>[Draft] Across 3 randomised trials, RR was 0.776 (95% CI 0.344 to 1.753) for recurrent_vte. Certainty in that estimate is VERY_LOW. That is the estimate. What the evidence shows -- stated as a finding rather than as a number -- is the author&#x27;s sentence.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>[Draft] What a clinician should do differently on this evidence -- the estimate and certainty stated above -- is a recommendation, not a measurement. No field on this object can back one, and none is drafted. It is the author&#x27;s sentence.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<p>[Draft] What a payer, guideline or programme should do on this evidence -- the estimate and certainty stated above -- is a recommendation, not a measurement. No field on this object can back one, and none is drafted. It is the author&#x27;s sentence.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
-<p>[Draft] What should be studied next on this evidence -- the estimate and certainty stated above -- is a recommendation, not a measurement. No field on this object can back one, and none is drafted. It is the author&#x27;s sentence.<sup class='prov-ref' title='source 4 for this section'>4</sup></p>
-<details class='prov-block'><summary class='prov-title'>Sources for this section (4)</summary><ol class='prov-list'>
-<li><code>manuscript_draft_2026_08_21.claims.what_the_evidence_shows.draft</code></li>
-<li><code>manuscript_draft_2026_08_21.claims.implication_for_practice.draft</code></li>
-<li><code>manuscript_draft_2026_08_21.claims.implication_for_policy.draft</code></li>
-<li><code>manuscript_draft_2026_08_21.claims.implication_for_research.draft</code></li>
+<h3 id="paper-limitations">Limitations</h3>
+<p>What this review does not give a clinician: the number of events in each arm, any absolute effect or number needed to treat, how long participants were followed and any measure of harm. A relative effect cannot be turned into the benefit or the risk facing one patient without them, so this review can support a judgement about what these trials found and not a judgement about what to do.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
+<li><code>results.by_outcome</code></li>
 </ol></details>
 <h3 id="paper-data-availability">Data availability</h3>
 <p>Every trial in this review is keyed to a registration identifier, verified by live fetch of the raw ClinicalTrials.gov v2 record and comparison of the returned nctId against the id stored on this object on 2026-08-19.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
@@ -1189,13 +1125,8 @@ The outcome pooled is Recurrent symptomatic venous thromboembolism -- nonfatal d
 <li><code>results.by_outcome</code></li>
 <li><code>config.confidence_level</code></li>
 </ol></details>
-<h3 id="paper-reporting-guidelines">Reporting guidelines</h3>
-<p>This review reports against PRISMA 2020. A screening record is held on this object and the flow it supports is shown in the Methods. The completed PRISMA checklist and FLOW diagram are not held here: the venue requires them deposited in an approved repository with a DOI cited in the Data Availability Statement, and minting that DOI is an author action rather than a build step.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
-<li><code>screening</code></li>
-</ol></details>
 <h3 id="paper-note-on-registration">Note on registration</h3>
-<p>Protocol status. Prespecified: False. A protocol specified before data collection is a historical fact about the past and cannot be created retrospectively. Writing one now and calling it prespecified would invalidate every other refusal on this page, because a reader who caught it would be right to disbelieve all of them.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
+<p>A protocol specified before data collection is a historical fact about the past and cannot be created retrospectively. Writing one now and calling it prespecified would invalidate every other refusal on this page, because a reader who caught it would be right to disbelieve all of them.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
 <p>Eligibility criteria were derived post hoc when `apixaban-vte` was split in two on 2026-08-19, after the parent object&#x27;s included set existed. The derivation is recorded element by element in `screening.eligibility`, and the criterion that separates this review from its sibling is stated in full at `screening.boundary_criterion`.<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
 <p>Authority: Mecir R107 permits post-hoc eligibility criteria provided they are declared as such. They are declared, here and on the page.<sup class='prov-ref' title='source 3 for this section'>3</sup></p>
 <p>No PROSPERO registration or protocol record is held on this object. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.<sup class='prov-ref' title='source 4 for this section'>4</sup></p>
@@ -1215,22 +1146,14 @@ The outcome pooled is Recurrent symptomatic venous thromboembolism -- nonfatal d
 </table></div>
 <div class='tscroll'><table><caption>Methods guidance and software, with what each is cited for<sup class='prov-ref' title='source 2 for this section'>2</sup></caption>
 <tr><th>Cited for</th><th>Reference</th></tr>
-<tr><td>risk of bias in the included results</td><td>Sterne JAC, Savovic J, Page MJ, et al. RoB 2: a revised tool for assessing risk of bias in randomised trials. BMJ. 2019;366:l4898. doi:10.1136/bmj.l4898</td></tr>
-<tr><td>certainty of the evidence</td><td>Schunemann HJ, Higgins JPT, Vist GE, et al. Chapter 14: Completing &#x27;Summary of findings&#x27; tables and grading the certainty of the evidence. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5. Cochrane; 2024.</td></tr>
-<tr><td>the model fitted, as R 4.6.0 with metafor 5.0.1</td><td>Viechtbauer W. Conducting meta-analyses in R with the metafor package. J Stat Softw. 2010;36(3):1-48. doi:10.18637/jss.v036.i03</td></tr>
-<tr><td>the reporting guideline this manuscript is written against</td><td>Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71</td></tr>
+<tr><td>risk of bias in the included results</td><td>Sterne JAC, Savovic J, Page MJ, et al. RoB 2: a revised tool for assessing risk of bias in randomised trials.</td></tr>
+<tr><td>certainty of the evidence</td><td>Schunemann HJ, Higgins JPT, Vist GE, et al. Chapter 14: Completing &#x27;Summary of findings&#x27; tables and grading the certainty of the evidence. In: Cochrane Handbook for Systematic Reviews of Interventions version 6.5.</td></tr>
+<tr><td>the model fitted, as R 4.6.0 with metafor 5.0.1</td><td>Conducting meta-analyses in R with the metafor package.</td></tr>
+<tr><td>the reporting guideline this manuscript is written against</td><td>Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews.</td></tr>
 </table></div>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
 <li><code>manuscript.references</code></li>
 <li><code>manuscript.references</code></li>
-</ol></details>
-<h3 id="paper-figure-legends">Figure legends</h3>
-<div class='tscroll'><table><caption>Figures, and what each one shows<sup class='prov-ref' title='source 1 for this section'>1</sup></caption>
-<tr><th>Outcome</th><th>Figure</th><th>What it shows</th></tr>
-<tr><td>Recurrent symptomatic venous thromboembolism -- nonfatal deep vein thrombosis or nonfatal pulmonary embolism -- with NO death term</td><td>Forest plot</td><td>risk ratio 0.776 (0.344 to 1.75) across 3 trials</td></tr>
-</table></div>
-<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
-<li><code>results.by_outcome</code></li>
 </ol></details>
 <h3 id="paper-figures">Figures</h3>
 <figure>
@@ -1278,86 +1201,14 @@ The outcome pooled is Recurrent symptomatic venous thromboembolism -- nonfatal d
 </ol></details>
 <h3 id="paper-trial-characteristics">Trial characteristics</h3>
 <div class='tscroll'><table><caption>Characteristics of every trial contributing to this review<sup class='prov-ref' title='source 1 for this section'>1</sup></caption>
-<tr><th>Registration</th><th>Trial</th><th>Arms</th><th>Participants</th></tr>
-<tr><td>NCT01780987</td><td>Japanese acute DVT/PE study</td><td>Apixaban (treatment, n=38) vs active -- heparin/vitamin-K antagonist (control, n=40)  [+2 further fields recorded on the object]</td><td>not extracted</td></tr>
-<tr><td>NCT02829957</td><td>RAMBLE</td><td>not recorded on this object</td><td>not extracted</td></tr>
-<tr><td>NCT03045406</td><td>CARAVAGGIO</td><td>Apixaban (treatment, n=576) vs active -- LMWH (control, n=579)  [+2 further fields recorded on the object]</td><td>not extracted</td></tr>
-<tr><td>NCT03266783</td><td>COBRRA</td><td>Apixaban (treatment, n=1345) vs active -- another direct oral anticoagulant (control, n=1355)  [+2 further fields recorded on the object]</td><td>not extracted</td></tr>
+<tr><th>Registration</th><th>Trial</th><th>Participants</th><th>Randomised</th><th>Design</th></tr>
+<tr><td>NCT01780987</td><td>Japanese acute DVT/PE study</td><td>not recorded</td><td>78</td><td>apixaban vs unfractionated heparin followed by warfarin.</td></tr>
+<tr><td>NCT02829957</td><td>RAMBLE</td><td>not recorded</td><td>19</td><td>randomised, rivaroxaban against apixaban in heavy menstrual bleeding on anticoagulation; Both arms typed ACTIVE_COMPARATOR, so apixaban is not the declared intervention.</td></tr>
+<tr><td>NCT03045406</td><td>CARAVAGGIO</td><td>not recorded</td><td>1155</td><td>apixaban vs dalteparin, cancer-associated VTE.</td></tr>
+<tr><td>NCT03266783</td><td>COBRRA</td><td>not recorded</td><td>2700</td><td>apixaban vs rivaroxaban, acute VTE.</td></tr>
 </table></div>
 <details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
 <li><code>inputs.trials</code></li>
-</ol></details>
-<h3 id="paper-extended-data-statistical-output-quoted-ve">Extended data: statistical output, quoted verbatim</h3>
-<p><sup class='prov-ref' title='source 1 for this section'>1</sup>[R 4.6.0 with metafor 5.0.1] call: Rscript ssot/fit_from_per_trial.R apixaban-vte-treatment recurrent_vte -- R version 4.6.0 (2026-04-24 ucrt) 
-metafor 5.0.1 
-run_utc 2026-08-21
-
-================================================================
-topic   apixaban-vte-treatment
-outcome recurrent_vte
-stored rr 0.7763 (0.3437 to 1.7530), k = 3, random-effects / REML inputs read from the object (log scale, SE derived from the published interval):
-   Caravaggio       0.6993 (0.4521 to 1.0816)  yi=-0.357675  sei=0.222528
-   cobrra           1.0794 (0.5231 to 2.2274)  yi=+0.076405  sei=0.369603
-   Japanese acute DVT/PE study 0.3504 (0.0147 to 8.3465)  yi=-1.048680  sei=1.617823
-----------------------------------------------------------------
-call: rma(yi = yi, sei = sei, method = &quot;REML&quot;, test = &quot;knha&quot;)
-
-
-Random-Effects Model (k = 3; tau^2 estimator: REML)
-
-  logLik  deviance       aic bic      AICc   
- -1.5646    3.1292    7.1292    4.5155   19.1292   
-
-tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.1309)
-tau (square root of estimated tau^2 value):      0
-I^2 (total heterogeneity / total variability):   0.00%
-H^2 (total variability / sampling variability):  1.00
-
-Test for Heterogeneity:
-Q(df = 2) = 1.2575, p-val = 0.5333
-
-Model Results:
-
-estimate      se     zval    pval    ci.lb   ci.ub    
- -0.2532  0.1893  -1.3375  0.1811  -0.6243  0.1178    
-
----
-Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
-
-
---- same fit with hartung-knapp (test = &quot;knha&quot;) ---
-
-Random-Effects Model (k = 3; tau^2 estimator: REML)
-
-  logLik  deviance       aic bic      AICc   
- -1.5646    3.1292    7.1292    4.5155   19.1292   
-
-tau^2 (estimated amount of total heterogeneity): 0 (SE = 0.1309)
-tau (square root of estimated tau^2 value):      0
-I^2 (total heterogeneity / total variability):   0.00%
-H^2 (total variability / sampling variability):  1.00
-
-Test for Heterogeneity:
-Q(df = 2) = 1.2575, p-val = 0.5333
-
-Model Results:
-
-estimate      se     tval  df    pval    ci.lb   ci.ub    
- -0.2532  0.1501  -1.6868   2  0.2337  -0.8992  0.3927    
-
----
-Signif. codes:  0 &#x27;***&#x27; 0.001 &#x27;**&#x27; 0.01 &#x27;*&#x27; 0.05 &#x27;.&#x27; 0.1 &#x27; &#x27; 1
-
-
-BACK-TRANSFORMED:
-   unadjusted     0.7763 (0.5356 to 1.1251)
-   Hartung-Knapp  0.7763 (0.3437 to 1.7531)   [t crit 4.3027 on 2 df]  &lt;- house interval, inflation factor floored at 1 (raw 0.7929)
-   metafor raw    0.7763 (0.4069 to 1.4810)   [test=knha, unfloored]
-   tau^2 0.000000   Q 1.2575 on 2 df, p = 0.5333   I^2 0.00%
-
-agrees with the stored point to 4 dp: YES</p>
-<details class='prov-block'><summary class='prov-title'>Sources for this section (1)</summary><ol class='prov-list'>
-<li><code>results.by_outcome.recurrent_vte.r_output.verbatim</code></li>
 </ol></details>
 <h3 id="paper-submission-conformance">Submission conformance</h3>
 <p>This review was built to page standard 1.14.0-2026-08-19 (PAGE-STANDARD.md), by ssot/build_to_standard.py on 2026-08-19. A page built below the current standard is knowably below it rather than silently stale.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
@@ -1366,30 +1217,14 @@ agrees with the stored point to 4 dp: YES</p>
 <li><code>build_stamp.page_standard_version</code></li>
 <li><code>build_stamp.held</code></li>
 </ol></details>
-<h3 id="paper-notes-on-this-record-sections-not-written-">Notes on this record — sections not written, and why</h3>
-<p>This review refuses 3 of the page standard&#x27;s properties, by name: P18_restatement_is_reproducible, P6_analysis_output, P7_published_comparison. A refused property is a completed outcome with a stated reason, not an omission.<sup class='prov-ref' title='source 1 for this section'>1</sup></p>
-<p>Of the four properties this project requires of a completed topic, 3 are held (a GRADE certainty rating for each pooled outcome, the statistical model&#x27;s output, quoted as it was produced, a risk-of-bias judgement for each reported result) and 1 are refused with the obstacle named in the evidence (the number of published syntheses this review was compared against).<sup class='prov-ref' title='source 2 for this section'>2</sup></p>
-<details class='prov-block'><summary class='prov-title'>Sources for this section (2)</summary><ol class='prov-list'>
-<li><code>build_stamp.refusing</code></li>
-<li><code>bookkeeping_2026_08_21.which_limbs_this_review_refuses</code></li>
-</ol></details>
 <h3 id='paper-not-reported'>Not reported in this record</h3>
 <p>The items below were not written because the record does not hold what they would be composed from. They are named here so that an absence is not mistaken for an omission.</p>
 <div class='tscroll'><table><caption>Items not reported, and why</caption>
 <tr><th>Article area</th><th>Item not reported</th><th>Reason</th></tr>
 <tr><td>Abstract</td><td>The Background sentence of the abstract</td><td>Background is argument -- why this question matters -- and no arrangement of the quantities this object holds yields it. It is emitted only from an authored field and there is no composition path for it here</td></tr>
 <tr><td>Abstract</td><td>The Conclusions sentence of the abstract</td><td>A conclusion is argument -- what a reader should now believe -- and it is emitted only from an authored field. Composing one from the estimate would be this renderer telling the reader what to conclude, which no field supports</td></tr>
-<tr><td>Keywords</td><td>The keyword list</td><td>A content gap; no keywords are recorded and inventing them would be indexing this review under terms nobody chose</td></tr>
 <tr><td>Methods — synthesis</td><td>The claim that records were screened in duplicate</td><td>And this topic owes one rather than merely lacking one:</td></tr>
 <tr><td>Methods — synthesis</td><td>The claim that the review methods were prespecified before data collection</td><td>This refusal is permanent and is not a gap to be filled. A protocol specified before data collection is a historical fact about the past and cannot be created retrospectively. Writing one now and calling it prespecified would invalidate every other refusal on this page, because a reader who caught it would be right to disbelieve all of them. Eligibility criteria were derived post hoc when `apixaban-vte` was split in two on 2026-08-19, after the parent object&#x27;s included set existed. The derivation is recorded element by element in `screening.eligibility`, and the criterion that separates this review from its sibling is stated in full at `screening.boundary_criterion`. Mecir R107 permits post-hoc eligibility criteria provided they are declared as such. They are declared, here and on the page.</td></tr>
-<tr><td>Comparison with published syntheses</td><td>The comparison with published syntheses</td><td>No published synthesis is recorded for this topic, so no denominator can be given</td></tr>
-<tr><td>Disagreements between sources</td><td>The reconciliation against other sources</td><td>No further reason is recorded.</td></tr>
-<tr><td>Limitations</td><td>The limitations section</td><td>No further reason is recorded.</td></tr>
-<tr><td>Author contributions</td><td>The author-contributions statement</td><td>Who did what is a fact about people, and this object records none</td></tr>
-<tr><td>Competing interests</td><td>The competing-interests declaration</td><td>F1000Research requires this section on every article, and requires explicit text where there is nothing to declare. It is a statement about the author and not about the evidence: no field of this object implies it and none is invented here</td></tr>
-<tr><td>Grant information</td><td>The grant information</td><td>The venue requires each funder&#x27;s name, the grant number where applicable, and the person the grant was assigned to. None of that is derivable from a synthesis</td></tr>
-<tr><td>Funding and conflicts of interest</td><td>The funding and conflict-of-interest statement -- a content gap</td><td>A submission requires it and this object does not carry it; it is not inferable from anything held here</td></tr>
-<tr><td>Registration</td><td>The registration statement</td><td>No PROSPERO registration is recorded on this object. That is not the same as knowing the review was not registered, and neither claim is made here. Prospective registration cannot be added after the fact, so if none exists the honest statement is that the review was not prospectively registered -- which is a statement only the author can make</td></tr>
 </table></div>
 </div>  </section>
 <!--end-paper--> <section class="panel" id="pn-statistics">
@@ -1432,21 +1267,21 @@ agrees with the stored point to 4 dp: YES</p>
 })();
 </script>
 <div class='card'><h2>Page standard 1.14.0-2026-08-19</h2><p>Built 2026-08-19 by <code>ssot/build_to_standard.py</code> against <code>PAGE-STANDARD.md</code>. <strong>11 held, 3 refusing.</strong> A refusal is a complete outcome; nothing is generated to fill a slot.</p><div class='tscroll'><table>
-    <caption>Table 14. Page standard 1.14.0-2026-08-19</caption>
+    <caption>Table 13. Page standard 1.14.0-2026-08-19</caption>
 <tr><th>property</th><th>state</th><th>reason</th></tr><tr class='ok'><td>P1_executed_search</td><td><strong>HELD</strong></td><td>3 database queries recorded verbatim with dates and counts; PRISMA arithmetic reconciles and the 0-trial unscreened remainder is stated as a number rather than omitted.</td></tr><tr class='ok'><td>P2_k_cascade</td><td><strong>HELD</strong></td><td>k at every stage: surfaced 82, located 80, experimental 54, comparator 19, included 4, unscreened remainder 0.</td></tr><tr class='ok'><td>P3_inclusion_criteria</td><td><strong>HELD</strong></td><td>Criteria provenance block present with predefined=False on its face (state &#x27;DERIVED_POST_HOC&#x27;).</td></tr><tr class='ok'><td>P4_preconditions</td><td><strong>HELD</strong></td><td>All 8 recorded with verdict and cited authority: 1 FAIL, 3 NOT-ASSESSABLE. criteria_predefined is FAIL -- post hoc criteria, which R107 permits and C5/C7 does not satisfy.</td></tr><tr class='ok'><td>P5_extraction_table</td><td><strong>HELD</strong></td><td>14 cells: 11 READ with source path and verbatim text, 3 DERIVED with the method named.</td></tr><tr class='warn'><td>P6_analysis_output</td><td><strong>REFUSING</strong></td><td>No quotable model output exists: k=3 and the pool on this page was computed outside R, so there is a synthesis and no quotation. The absence is recorded as a finding with its cause and what would close it.</td></tr><tr class='warn'><td>P7_published_comparison</td><td><strong>REFUSING</strong></td><td>No denominator yet. Blocked on external registration-id resolution; citation-string matching explicitly refused rather than substituted.</td></tr><tr class='ok'><td>P8_registration_identity</td><td><strong>HELD</strong></td><td>4 of 4 trial(s) verified live against the registry.</td></tr><tr class='warn'><td>P18_restatement_is_reproducible</td><td><strong>REFUSING</strong></td><td>No restatement block on this cascade, so there is nothing to re-derive. This is NOT_ASSESSABLE dressed as a refusal rather than a pass: a topic that has never been restated has not demonstrated that a restatement of it would be checkable.</td></tr><tr class='ok'><td>P19_promotion_reaches_derived_blocks</td><td><strong>HELD</strong></td><td>inputs.trials, k_cascade.k_included_in_object and prisma_flow.included all say 4; no first-person field in published_comparison declares a k the pooled outcome(s) do not.</td></tr><tr class='ok'><td>P20_cascade_reconciles</td><td><strong>HELD</strong></td><td>k2_role_located=80 == k3+k4+k5, and k0_surfaced=82 == k3+k4+k5+kNA. Both checked, and every failing limb would be reported rather than the first.</td></tr><tr class='ok'><td>P21_ambiguous_question_split</td><td><strong>HELD</strong></td><td>Split from &#x27;apixaban-vte&#x27; into this review and 1 sibling(s) [&#x27;apixaban-vte-prophylaxis&#x27;], with the decision recorded at None. Nothing was dropped to resolve the ambiguity.</td></tr><tr class='ok'><td>P22_sharing_recorded</td><td><strong>HELD</strong></td><td>2 shared trial(s), each recorded with the topics holding it and why: NCT02829957 in [&#x27;apixaban-vte&#x27;]; NCT03045406 in [&#x27;doac-cancer-vte-review&#x27;]. The object also states that summing per-topic k double-counts.</td></tr><tr class='ok'><td>P23_recall_measured</td><td><strong>HELD</strong></td><td>All 3 recorded quer(ies) state their recall against this review&#x27;s own included set: [&#x27;1/1&#x27;, &#x27;1/1 for THIS review, 1/2 for the parent&#x27;, &#x27;NOT MEASURED&#x27;].</td></tr></table></div><h3>k at every stage</h3><div class='tscroll'><table>
-    <caption>Table 15. k at every stage</caption>
+    <caption>Table 14. k at every stage</caption>
 <tr><th>stage</th><th>k</th></tr><tr><td>k0_surfaced</td><td>82</td></tr><tr><td>k2_role_located</td><td>80</td></tr><tr><td>k3_experimental</td><td>54</td></tr><tr><td>k4_comparator</td><td>19</td></tr><tr><td>k5_background</td><td>7</td></tr><tr><td>kNA_not_assessable</td><td>2</td></tr><tr><td>k_candidate_pool</td><td>73</td></tr><tr><td>k_screened</td><td>73</td></tr><tr><td>k_excluded</td><td>48</td></tr><tr><td>k_eligible</td><td>25</td></tr><tr><td>k_eligible_no_results_yet</td><td>12</td></tr><tr><td>k_eligible_not_poolable</td><td>2</td></tr><tr><td>k_eligible_poolable</td><td>11</td></tr><tr><td>k_with_posted_results_reporting_a_recurrent_VTE_outcome</td><td>8</td></tr><tr><td>k_included_in_object</td><td>4</td></tr><tr><td>k_pooled</td><td>3</td></tr><tr><td>k_unscreened_remainder</td><td>0</td></tr><tr><td>reproduced_by</td><td>scripts/screen_apixaban_split_2026_08_19.py, scripts/adjudicate_apixaban_split_2026_08_19.py and scripts/repool_apixaban_treatment_2026_08_19.py.</td></tr><tr><td>reconciliation</td><td>82 surfaced = 54 experimental + 19 comparator + 7 background + 2 not-assessable; 80 of the 82 had a role located. 73 place apixaban in the randomised contrast and are this review&#x27;s candidate pool. 1 was in the parent object and 72 were screened, so k_screened = 73. 48 excluded + 25 eligible = 73. Of the 25 eligible, 12 have posted no results, 2 are eligible and not poolable, and 11 are eligible and poolable. REMAINDER ZERO.</td></tr><tr><td>why_the_remainder_is_now_ZERO_and_was_71</td><td>It was 71 when the split was recorded and the whole remainder has since been screened -- 39 excluded and 16 sent to adjudication mechanically, the 16 adjudicated by hand. A REMAINDER IS NOT A QUEUE TO BE DRAINED; screening it is what turned 71 into a disposition table, and the shape of that table is the finding: 48 of 73 fail a criterion, and 39 of the 48 fail on POPULATION -- 30 at the mechanical screen and all 9 of the adjudicated exclusions -- because they are thromboprophylaxis trials in patients who have never had a venous thromboembolism. The surfacing query reaches across the treatment/prevention boundary because ONE SEARCH OVER ONE DRUG NECESSARILY DOES; that is a fact about splitting a drug topic in two, not a criticism of the query, and the sibling review holds the trials this one excludes.</td></tr><tr><td>why_k_included_is_4_and_k_pooled_is_3</td><td>The object holds RAMBLE (NCT02829957), which the parent included and which cannot contribute -- n=19, both arms typed ACTIVE_COMPARATOR, registered primary a pictorial menstrual blood-loss chart -- together with the three trials that pool. It is kept and named rather than dropped, because a trial that fails only at the POOLING step is a fact about this review&#x27;s evidence base and dropping it would erase that fact. ELEVEN trials are eligible and poolable and only THREE contribute: the other eight post no arm-level count of the shared estimand, and each is named on the page.</td></tr><tr><td>keyed_on</td><td>registration id</td></tr></table></div><h3>Inclusion criteria — derived, post hoc</h3><p><strong>predefined: False &nbsp;|&nbsp; post_hoc: True</strong> — derived —</p><p><small>—</small></p><div class='tscroll'><table>
-    <caption>Table 16. Inclusion criteria — derived, post hoc</caption>
+    <caption>Table 15. Inclusion criteria — derived, post hoc</caption>
 <tr><th>limb</th><th>value</th><th>derived from</th></tr><tr><td>—</td><td>—</td><td><code>—</code></td></tr><tr><td>—</td><td>—</td><td><code>—</code></td></tr><tr><td>—</td><td>—</td><td><code>—</code></td></tr><tr><td>—</td><td>—</td><td><code>—</code></td></tr></table></div><h3>The withholding question, asked at every rank</h3><p><em>does each trial report a recurrent-VTE efficacy outcome at ANY registered rank -- primary, secondary or other -- before concluding which trials can be combined?</em></p><p><strong>YES AT EVERY RANK, AND THE ANSWER DOES NOT SETTLE POOLABILITY</strong></p><p>IT BOUGHT THE REVIEW ITS ENTIRE POOL. All three contributing results were found by asking at every rank: two of the three are SECONDARY outcomes in trials whose registered PRIMARY is a bleeding endpoint, so a review reading primaries only would have reported that they contribute nothing. IT DID NOT BUY POOLABILITY: eight trials answered yes and five of the eight still do not pool, each for a named reason. The prophylaxis half of this pair ran the identical discipline and its poolable set went 3 -&gt; 8. HERE IT WENT 8 -&gt; 3. THE METHOD HAS NO DIRECTION -- asking is not a way of finding more trials, it is a way of finding out.</p><p><small>—</small></p><div class='tscroll'><table>
-    <caption>Table 17. The withholding question, asked at every rank</caption>
+    <caption>Table 16. The withholding question, asked at every rank</caption>
 <tr><th>registration</th><th>trial</th><th>two-component</th><th>three-component</th></tr></table></div><div class='card warn'><h4>The same question, the opposite answer</h4><div class='tscroll'><table>
-    <caption>Table 18. The same question, the opposite answer</caption>
+    <caption>Table 17. The same question, the opposite answer</caption>
 <tr><th>review</th><th>poolable set</th><th>direction</th></tr><tr><td>apixaban-vte-treatment</td><td><strong>8 -&gt; 3</strong></td><td>DOWN -- the question DISSOLVED a pool</td></tr><tr><td>apixaban-vte-prophylaxis</td><td><strong>3 -&gt; 8</strong></td><td>UP -- the question RECOVERED a pool</td></tr></table></div><p>THE SAME QUESTION, ASKED THE SAME WAY, ON THE SAME DRUG, ON THE SAME NIGHT, MOVED ONE REVIEW&#x27;S POOLABLE SET UP AND THE OTHER&#x27;S DOWN. Every earlier instance in this corpus recovered a pool, and a check that has only ever returned the convenient answer cannot be told apart from no check at all. This pair is the refutation, and it arose on its own rather than being sought: it cost the treatment review the two largest trials in its field. Asking the withholding question is not a way of finding more trials. It is a way of finding out.</p><p><small>NOT that either pool is correct -- both were judged by reading endpoint definitions, and that judgement stands or falls on its own. NOT that the direction is unpredictable in general; two instances are two instances. What it establishes is narrow and it is the thing that was missing: THE PROCEDURE HAS NO BUILT-IN DIRECTION, demonstrated rather than asserted.</small></p></div><h3>Screening of the remainder — — screened, — included, — excluded, — not-assessable</h3><p>—</p><p><strong>k after screening: —.</strong> —</p><div class='tscroll'><table>
-    <caption>Table 19. Screening of the remainder — — screened, — included, — excluded, — not-assessable</caption>
+    <caption>Table 18. Screening of the remainder — — screened, — included, — excluded, — not-assessable</caption>
 <tr><th>failing limb</th><th>n</th><th>registrations</th></tr></table></div><h4>The withholding question, asked at every rank</h4><p><em>—</em></p><p><small>—</small></p><div class='tscroll'><table>
-    <caption>Table 20. The withholding question, asked at every rank</caption>
+    <caption>Table 19. The withholding question, asked at every rank</caption>
 <tr><th>registration</th><th>rank</th><th>matching outcome</th></tr></table></div><h4>Every trial, with its reason</h4><div class='tscroll'><table>
-    <caption>Table 21. Every trial, with its reason</caption>
+    <caption>Table 20. Every trial, with its reason</caption>
 <tr><th>registration</th><th>verdict</th><th>limb</th><th>reason</th></tr></table></div><h3>Analysis output — recurrent_vte (quoted verbatim)</h3><p><small>— &nbsp;|&nbsp; call: <code>Rscript ssot/fit_from_per_trial.R apixaban-vte-treatment recurrent_vte</code></small></p><pre style='overflow-x:auto'>R version 4.6.0 (2026-04-24 ucrt) 
 metafor 5.0.1 
 run_utc 2026-08-21
@@ -1517,7 +1352,7 @@ BACK-TRANSFORMED:
 
 AGREES WITH THE STORED POINT TO 4 dp: YES
 </pre><h3>Published-meta comparison — PENDING_EXTERNAL_RESOLUTION</h3><p><strong>Denominator: —.</strong> Not established, and the obstacle is that no candidate synthesis has been identified for this estimand at all. The PubMed search at search.databases[2] reported 439 record(s) and retrieved 50; 389 were not retrieved and none of the 50 retrieved has been screened for whether it synthesises recurrent VTE on apixaban. There is therefore nothing yet to form a denominator over -- not a synthesis whose included set is unresolved, but no identified synthesis.</p><p><small><strong>Explicitly not done:</strong> CITATION-STRING MATCHING. It would produce a comparison-shaped answer tonight and it is not identity: two syntheses citing the same trial under different labels would read as different, and the same label on different trials as the same. That is the substitution class this project audits for.</small></p><p><small>Blocked on: lane 2 registration-id resolution</small></p><h3>Preconditions</h3><p><small>Authority: Cochrane Handbook for Systematic Reviews of Interventions 6.5, 2024, verified 2026-08-19. Publishable: True.</small></p><div class='tscroll'><table>
-    <caption>Table 22. Preconditions</caption>
+    <caption>Table 21. Preconditions</caption>
 <tr><th>precondition</th><th>verdict</th><th>reason</th><th>authority</th></tr><tr><td>population_stated</td><td><strong>PASS</strong></td><td><small>present: question carries 228 characters</small></td><td><small>MECIR C62 &#x27;Ensuring meta-analyses are meaningful&#x27; (Mandatory, READ 2026-08-19): &#x27;Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be s</small></td></tr><tr><td>arm_role_resolved</td><td><strong>NOT-ASSESSABLE</strong></td><td><small>cannot assess: inputs.trials has 1 trial(s) with no readable arms [&#x27;NCT02829957&#x27;] and 0 with a blank arm role []. Absent role data is not a wrong role.</small></td><td><small>MECIR C62 (Mandatory), &#x27;interventions&#x27; limb -- this is a PRECONDITION FOR ASSESSING C62, not an enforcement of it: you cannot judge whether interventions are &#x27;sufficiently similar&#x27; without knowing whi</small></td></tr><tr><td>comparators_identified</td><td><strong>PASS</strong></td><td><small>every outcome names a comparator type [&#x27;active&#x27;]; none declares &#x27;mixed&#x27;. Within-outcome consistency is visible only through the declared type, and cross-outcome differences are not judged.</small></td><td><small>MECIR C62 (Mandatory), &#x27;comparisons&#x27; limb -- a synthesis pools one contrast. NOT cited to C7: C7 governs PREDEFINITION, and this check reads recorded comparator fields and tests them for consistency.</small></td></tr><tr><td>estimand_named</td><td><strong>PASS</strong></td><td><small>outcomes.estimand: all 1 outcome(s) name a quantity</small></td><td><small>MECIR C8 &#x27;Clarifying role of outcomes&#x27; (Mandatory, READ 2026-08-19); MECIR C62 (Mandatory), &#x27;outcomes&#x27; limb</small></td></tr><tr><td>criteria_stated</td><td><strong>PASS</strong></td><td><small>present: screening.eligibility carries 890 characters</small></td><td><small>MECIR R29 &#x27;Eligibility criteria for types of participants&#x27;, R30 &#x27;...types of interventions&#x27;, R31 &#x27;Role of outcomes&#x27; -- ALL Mandatory REPORTING standards (READ 2026-08-19). Their verb is STATE. A block</small></td></tr><tr><td>criteria_predefined</td><td><strong>FAIL</strong></td><td><small>screening.eligibility_provenance.predefined is false: the criteria were DERIVED post hoc from this object&#x27;s own question and recorded exclusions. That is auditable (R29/R30/R31) and is not pre-specification (C5/C7). This</small></td><td><small>MECIR C5 &#x27;Predefining unambiguous criteria for participants&#x27; AND C7 &#x27;...for interventions and comparators&#x27;, BOTH Mandatory (READ 2026-08-19): &#x27;Predefined, unambiguous eligibility criteria are a fundam</small></td></tr><tr><td>eligibility_met</td><td><strong>NOT-ASSESSABLE</strong></td><td><small>cannot assess: criteria are stated, but sources is an empty dict -- no full text was available this pass, and inclusion logic is conditional prose</small></td><td><small>MECIR C5/C7 (Mandatory) with C6 &#x27;Predefining a strategy for studies with a subset of eligible participants&#x27; (Highly desirable, READ 2026-08-19) -- eligibility is assessed against the full report</small></td></tr><tr><td>contributes_a_randomised_contrast</td><td><strong>NOT-ASSESSABLE</strong></td><td><small>cannot assess: 1 of 4 trial(s) carry no readable arm roles [&#x27;NCT02829957&#x27;]</small></td><td><small>Handbook 6.5 s23.3.4 &#x27;How to include multiple groups from one study&#x27; (READ 2026-08-19) and s23.3.6 &#x27;Factorial trials&#x27;; MECIR C7 &#x27;Predefining unambiguous criteria for interventions and comparators&#x27; (Ma</small></td></tr></table></div><p><small>This page is stamped to the standard version above. If the standard rises, this page is below it and knowably so. No page is grandfathered; arni-hfref is presently unstamped and is therefore unknown-version, not compliant.</small></p></div>
 <p><small>Every number on this page is projected from a single canonical object,
 and each measured cell names the source analysis it was read from. That is what is
