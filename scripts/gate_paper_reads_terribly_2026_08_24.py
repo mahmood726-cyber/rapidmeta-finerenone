@@ -118,7 +118,21 @@ def head_slots(html):
     return slots
 
 
-def findings_for(path, html, slug_hint):
+def slugs_of(page_name):
+    """The slug tokens a delivered page belongs to, as a SET.
+
+    A REAL COLLECTION, NOT A STRING. This took a bare string until the pre-commit linter
+    `lint_string_where_collection_expected.py` refused the commit and named the exact call
+    site. It was right: `owner in "attr-pn-review-page.html"` is a SUBSTRING test, so a
+    one-character owner would have matched everything and an owner that merely appears
+    inside a longer topic name would have silently suppressed a real finding. Exact set
+    membership cannot fail in either direction.
+    """
+    stem = os.path.splitext(os.path.basename(page_name))[0].lower().replace("_", "-")
+    return {stem, stem.replace("-auto-full-review", "").replace("-review", "")}
+
+
+def findings_for(path, html, page_slugs):
     out = []
     text = visible_text(html)
 
@@ -140,7 +154,7 @@ def findings_for(path, html, slug_hint):
             out.append(("VERDICT_AS_TITLE", "%s: %s" % (slot, val[:100])))
 
     for owner, rx in FOREIGN_EXAMPLES:
-        if owner in slug_hint:
+        if owner in page_slugs:
             continue                      # the page it was written about may carry it
         if rx.search(text):
             out.append(("FOREIGN_TOPIC", "carries the %s worked example" % owner))
@@ -177,7 +191,7 @@ CONTROLS = (
 def run_controls():
     ok = True
     for cls, must_fire, fragment in CONTROLS:
-        fired = any(c == cls for c, _ in findings_for("<control>", fragment, "control-topic"))
+        fired = any(c == cls for c, _ in findings_for("<control>", fragment, {"control-topic"}))
         if fired != must_fire:
             print("  CONTROL FAILED  %-18s expected fire=%s, got %s"
                   % (cls, must_fire, fired))
@@ -201,7 +215,7 @@ def main():
         except Exception as exc:
             print("  unreadable %s: %s" % (p, exc))
             continue
-        f = findings_for(p, html, os.path.basename(p).lower().replace("_", "-"))
+        f = findings_for(p, html, slugs_of(p))
         if f:
             blocked[os.path.basename(p)] = f
 

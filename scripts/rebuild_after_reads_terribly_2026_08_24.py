@@ -41,19 +41,34 @@ def main():
     only = [a for a in sys.argv[1:] if not a.startswith("-")]
     pages = sorted(only) if only else sorted(page_map)
 
+    # THE POSITIVE PROPERTY, ASSERTED ONCE, BEFORE THE LOOP.
+    #
+    # This began as `if not os.path.exists(obj): continue` inside the loop, and the
+    # pre-commit gate `audit_exclusion_by_absence.py` refused the commit for it. It was
+    # right, and the reason is this repo's own history: a per-item skip states a NEGATIVE
+    # property ("this one had no object") once per item, where the thing worth knowing is
+    # the POSITIVE one -- EVERY page in PAGE_MAP resolves to an object that exists. A run
+    # that skips four pages and reports 153 OK looks identical to a run that covered
+    # everything, which is how a coverage gap survives a green report.
+    #
+    # Asserted here it fails LOUDLY and BEFORE any build, naming every unresolved page.
+    unresolved = [p for p in pages
+                  if not os.path.exists(os.path.join(REPO, page_map[p].replace("/", os.sep)))]
+    if unresolved:
+        sys.exit("REFUSED: %d of %d pages in PAGE_MAP name an object that does not exist "
+                 "on disk. Nothing has been built.\n    %s"
+                 % (len(unresolved), len(pages), "\n    ".join(unresolved)))
+    print("  precondition: all %d pages resolve to an object on disk." % len(pages))
+
     rows = []
     t0 = time.time()
     for i, page in enumerate(pages, 1):
         obj = os.path.join(REPO, page_map[page].replace("/", os.sep))
         dst = os.path.join(REPO, page)
-        if not os.path.exists(obj):
-            rows.append({"page": page, "state": "OBJECT_MISSING"})
-            print("  [%3d/%d] %-52s OBJECT MISSING" % (i, len(pages), page))
-            continue
         if os.path.exists(dst):
             shutil.copy2(dst, os.path.join(BACKUP, page))
         before = GATE.findings_for(dst, open(dst, encoding="utf-8", errors="replace").read(),
-                                   page.lower().replace("_", "-")) if os.path.exists(dst) else []
+                                   GATE.slugs_of(page)) if os.path.exists(dst) else []
         r = subprocess.run([sys.executable, "build_tabbed.py", obj, dst],
                            cwd=SSOT, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         if r.returncode != 0:
@@ -62,7 +77,7 @@ def main():
             print("  [%3d/%d] %-52s BUILD FAILED" % (i, len(pages), page))
             continue
         after = GATE.findings_for(dst, open(dst, encoding="utf-8", errors="replace").read(),
-                                  page.lower().replace("_", "-"))
+                                  GATE.slugs_of(page))
         rows.append({"page": page, "state": "OK" if not after else "STILL_BLOCKED",
                      "before": [c for c, _ in before], "after": [c for c, _ in after]})
         print("  [%3d/%d] %-52s %2d -> %2d  %s"
@@ -73,7 +88,7 @@ def main():
 
     ok = sum(1 for r in rows if r["state"] == "OK")
     still = [r for r in rows if r["state"] == "STILL_BLOCKED"]
-    bad = [r for r in rows if r["state"] in ("BUILD_FAILED", "OBJECT_MISSING")]
+    bad = [r for r in rows if r["state"] == "BUILD_FAILED"]
     fixed = sum(1 for r in rows if r.get("before") and not r.get("after"))
     print("\nrebuilt %d pages in %d min" % (len(rows), (time.time() - t0) / 60))
     print("  clean after rebuild : %d" % ok)

@@ -1,107 +1,277 @@
 {
-  "app_id": "cvncov-covid19",
-  "schema_version": 2,
-  "title": "Cvncov COVID-19",
-  "built": "2026-08-18",
-  "build_mode": "verdict-only",
-  "topic_state": "NOT POOLABLE -- decided from the registrations",
-  "which_limb_fails": "OUTCOME",
-  "verification_basis": "Every seeded registration read from ClinicalTrials.gov on 2026-08-18: brief title, registered primary outcome measures, secondary count, and arm groups with types.",
-  "inputs": {
-    "trials": [
+ "app_id": "cvncov-covid19",
+ "schema_version": 2,
+ "title": "CVnCoV vaccine in adults with COVID-19 versus placebo",
+ "built": "2026-08-18",
+ "build_mode": "verdict-only",
+ "topic_state": "NOT POOLABLE -- decided from the registrations",
+ "which_limb_fails": "OUTCOME",
+ "verification_basis": "Every seeded registration read from ClinicalTrials.gov on 2026-08-18: brief title, registered primary outcome measures, secondary count, and arm groups with types.",
+ "inputs": {
+  "trials": [
+   {
+    "id": "NCT04652102",
+    "nct": "NCT04652102",
+    "registration": "NCT04652102",
+    "registry": "ClinicalTrials.gov",
+    "label": "A Phase 2b/3, Randomized, Observer-Blinded, Placebo-Controlled, Multicenter Clinical Study Evaluating the Efficacy and Safety of Investigational SARS-CoV-2 mRNA Vaccine CVnCoV in Adults 18 Years of Age and Older",
+    "ranks_read": [
+     "primary"
+    ],
+    "registered_primaries": [
+     "Number of Participants Who Experienced a First Episode of Virologically-confirmed {Reverse Transcription Polymerase Chain Reaction (RT-PCR) Positive} Case of COVID-19 of Any Severity",
+     "Number of Participants Who Experienced One or More Medically-attended Adverse Events (AE)",
+     "Number of Participants Who Experienced One or More Serious AE (SAE)",
+     "Intensity of SAEs as Per Investigator Assessment",
+     "Number of Participants Who Experienced One or More Adverse Event of Special Interest (AESI)",
+     "Number of Participants Who Experienced a Fatal SAE",
+     "Phase 2b Participants Only: Number of Participants Who Experienced One or More Solicited AE",
+     "Phase 2b Participants Only: Intensity of Solicited AEs as Per Investigator Assessment",
+     "Phase 2b Participants Only: Duration of Solicited AEs",
+     "Phase 2b Participants Only: Number of Participants Who Experienced One or More Unsolicited AE",
+     "Phase 2b Participants Only: Intensity of Unsolicited AEs as Per Investigator Assessment",
+     "Number of Participants Who Experienced One or More AEs Leading to Vaccine Withdrawal or Trial Discontinuation"
+    ],
+    "registered_secondary_count": 10,
+    "arms_as_registered": [
+     {
+      "type": "EXPERIMENTAL",
+      "interventions": "Biological: CVnCoV Randomized Observer-blinded Phase 2b: CVnCoV vaccine"
+     },
+     {
+      "type": "PLACEBO_COMPARATOR",
+      "interventions": "Biological: Placebo Randomized Observer-blinded Phase 2b: Placebo"
+     },
+     {
+      "type": "EXPERIMENTAL",
+      "interventions": "Biological: CVnCoV Randomized Observer-blinded Phase 3: CVnCoV vaccine"
+     },
+     {
+      "type": "PLACEBO_COMPARATOR",
+      "interventions": "Biological: Placebo Randomized Observer-blinded Phase 3: Placebo"
+     },
+     {
+      "type": "EXPERIMENTAL",
+      "interventions": "Biological: Authorized/licensed vaccines for preventing COVID-19 (AV) as standard of care through their national vaccination program Open-label Phase"
+     }
+    ],
+    "source_url": "https://clinicaltrials.gov/study/NCT04652102",
+    "read_utc": "2026-08-18"
+   },
+   {
+    "id": "NCT04674189",
+    "nct": "NCT04674189",
+    "registration": "NCT04674189",
+    "registry": "ClinicalTrials.gov",
+    "label": "A Study to Evaluate the Safety and Immunogenicity of Vaccine CVnCoV in Healthy Adults in Germany for COVID-19",
+    "ranks_read": [
+     "primary"
+    ],
+    "registered_primaries": [
+     "Number of Participants Who Experienced a Medically Attended Adverse Event (AE) Occurring in the Following 6 Months After Dose 2",
+     "Number of Participants Who Experienced a Serious Adverse Event (SAE)",
+     "Intensity of SAEs Per the Investigator's Assessment",
+     "Number of Participants Who Experienced an Adverse Event of Special Interest (AESI) Occurring in the Following 1 Year After Dose 2",
+     "Number of Participants Who Experienced Death Due to SAE",
+     "Number of Participants Who Experienced an AE Leading to Vaccine Withdrawal Occurring in the Following 1 Year After Dose 2",
+     "Number of Participants Who Experienced an AE Leading to Trial Discontinuation Occurring in the Following 1 Year After Dose 2",
+     "Number of Participants Who Experienced an Unsolicited AE Occurring on the Day of Vaccination and the Following 28 Days After Any Dose",
+     "Intensity of Unsolicited AEs Per the Investigator's Assessment Occurring on the Day of Vaccination and the Following 28 Days After Any Dose",
+     "Occurrence of Seroconversion for SARS-CoV-2 Receptor-Binding Domain (RBD) of Spike Protein Antibodies (IgG) on Day 29 and Day 43",
+     "SARS-CoV-2 RBD of Spike Protein Antibody (IgG) Levels on Days 1, 29 and 43"
+    ],
+    "registered_secondary_count": 2,
+    "arms_as_registered": [
+     {
+      "type": "EXPERIMENTAL",
+      "interventions": "Biological: CVnCoV Vaccine CVnCoV: Group 1, Lot 1"
+     },
+     {
+      "type": "EXPERIMENTAL",
+      "interventions": "Biological: CVnCoV Vaccine CVnCoV: Group 2, Lot 2"
+     },
+     {
+      "type": "PLACEBO_COMPARATOR",
+      "interventions": "Drug: Placebo Placebo"
+     }
+    ],
+    "source_url": "https://clinicaltrials.gov/study/NCT04674189",
+    "read_utc": "2026-08-18"
+   }
+  ]
+ },
+ "outcomes": [
+  {
+   "id": "primary",
+   "type": "primary",
+   "name": "each trial's own registered primary outcome",
+   "definition": "Recorded per trial in inputs.trials[].registered_primaries.",
+   "measure": "not applicable",
+   "measure_note": "THE GENERATOR'S OWN IDIOM FOR ABSENCE. This topic publishes no estimate, so there is no measure it was expressed in. Not a borrowed value: sibling objects whose estimate was WITHDRAWN legitimately carry the withdrawn measure, which is a different case.",
+   "comparator": null,
+   "comparator_type": "not applicable",
+   "definition_note": "Registered endpoint definitions are recorded per trial on this object."
+  }
+ ],
+ "results": {
+  "by_outcome": {
+   "primary": {
+    "k": 0,
+    "poolable": false,
+    "poolable_reason": "2 TRIALS, AND NO TWO SHARE A REGISTERED PRIMARY OUTCOME FAMILY. Registrations read from ClinicalTrials.gov on 2026-08-18: NCT04652102, NCT04674189. Their registered primaries are recorded per trial on this object and do not reduce to a common quantity, so there is nothing for two of them to estimate in common. AUTHORITY: MECIR Box 10.10.a C62 -- 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.' -- and Handbook 6.5 section 10.10.3, 'A systematic review need not contain any meta-analyses.'",
+    "pooled": {
+     "point": null,
+     "ci_low": null,
+     "ci_high": null,
+     "withdrawn": true,
+     "withdrawn_reason": "2 TRIALS, AND NO TWO SHARE A REGISTERED PRIMARY OUTCOME FAMILY. Registrations read from ClinicalTrials.gov on 2026-08-18: NCT04652102, NCT04674189. Their registered primaries are recorded per trial on this object and do not reduce to a common quantity, so there is nothing for two of them to estimate in common. AUTHORITY: MECIR Box 10.10.a C62 -- 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.' -- and Handbook 6.5 section 10.10.3, 'A systematic review need not contain any meta-analyses.'",
+     "withdrawn_utc": "2026-08-18"
+    },
+    "per_trial": [],
+    "what_this_verdict_does_not_establish": "NOT that any trial here is poor -- each is registered and reports its own primary. NOT that the drug or intervention is ineffective. NOT that no poolable question exists in this area: only that the question this page's title asks cannot be answered by pooling the trials this page carries. THE CRITICISM IS OF THE POOLING AND OF NOTHING ELSE -- a trial that registers the endpoints it was designed to measure is behaving correctly. The registry is a live document and this reads its contents on the date recorded; a later amendment could change it. If a further eligible trial is identified, this verdict should be revisited.",
+    "model": "random-effects",
+    "estimator_used": "not applicable",
+    "source_page_pooled": false,
+    "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+    "estimand_established": null,
+    "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
+    "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+   }
+  }
+ },
+ "risk_of_bias_verdict": "Not assessed. A risk-of-bias assessment grades trials contributing to a pooled result; this page publishes none.",
+ "handbook_authority": {
+  "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+  "version": "Version 6.5, 2024",
+  "verified_on": "2026-08-18",
+  "sections": "10.10.3; MECIR Box 10.10.a (C62)",
+  "c62": "'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.'",
+  "need_not_pool": "'A systematic review need not contain any meta-analyses.'"
+ },
+ "carried_contrasts": [],
+ "sources": {},
+ "question": "In CVnCoV vaccine in adults with COVID-19 versus placebo, what is the effect on each trial's own registered primary outcome?",
+ "generator_schema_patch_2026_08_18": {
+  "relocations": "SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our schema wrote it elsewhere on the same object. A relocation, not a new claim.",
+  "genuinely_empty": "GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is empty on acs-antiplatelet-review, which builds.",
+  "rule": "Every field added falls into RELOCATION, GENUINELY EMPTY, or DERIVED FROM RECORDED CONTENT. A field falling into none was REFUSED. Adding a key to satisfy a generator is not the same as adding the content that key should hold.",
+  "fields": [
+   "carried_contrasts=[] (empty)",
+   "sources={} (empty)",
+   "question (derived)"
+  ]
+ },
+ "absorbed_topics": {
+  "cvncov-sarscov2": {
+   "retired_utc": "2026-08-19",
+   "why": "identical trial set; the surviving object holds more structure (search, cascade, PRISMA, screening, outcomes, corrections, provenance) or, where neither did, the better-stated question",
+   "authorised_by": "Mahmood, 2026-08-19",
+   "its_question_as_an_alternative_reading": "Cvncov Sarscov2: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?",
+   "its_title": "Cvncov Sarscov2: NOT POOLABLE -- OUTCOME",
+   "THE_WHOLE_OBJECT_VERBATIM": {
+    "app_id": "cvncov-sarscov2",
+    "schema_version": 2,
+    "title": "Cvncov Sarscov2: NOT POOLABLE -- OUTCOME",
+    "built": "2026-08-18",
+    "build_mode": "verdict-only",
+    "topic_state": "NOT POOLABLE -- decided from the registrations",
+    "which_limb_fails": "OUTCOME",
+    "verification_basis": "Every seeded registration read from ClinicalTrials.gov on 2026-08-18: brief title, registered primary outcome measures, secondary count, and arm groups with types.",
+    "inputs": {
+     "trials": [
       {
-        "id": "NCT04652102",
-        "nct": "NCT04652102",
-        "registration": "NCT04652102",
-        "registry": "ClinicalTrials.gov",
-        "label": "A Phase 2b/3, Randomized, Observer-Blinded, Placebo-Controlled, Multicenter Clinical Study Evaluating the Efficacy and Safety of Investigational SARS-CoV-2 mRNA Vaccine CVnCoV in Adults 18 Years of Age and Older",
-        "ranks_read": [
-          "primary"
-        ],
-        "registered_primaries": [
-          "Number of Participants Who Experienced a First Episode of Virologically-confirmed {Reverse Transcription Polymerase Chain Reaction (RT-PCR) Positive} Case of COVID-19 of Any Severity",
-          "Number of Participants Who Experienced One or More Medically-attended Adverse Events (AE)",
-          "Number of Participants Who Experienced One or More Serious AE (SAE)",
-          "Intensity of SAEs as Per Investigator Assessment",
-          "Number of Participants Who Experienced One or More Adverse Event of Special Interest (AESI)",
-          "Number of Participants Who Experienced a Fatal SAE",
-          "Phase 2b Participants Only: Number of Participants Who Experienced One or More Solicited AE",
-          "Phase 2b Participants Only: Intensity of Solicited AEs as Per Investigator Assessment",
-          "Phase 2b Participants Only: Duration of Solicited AEs",
-          "Phase 2b Participants Only: Number of Participants Who Experienced One or More Unsolicited AE",
-          "Phase 2b Participants Only: Intensity of Unsolicited AEs as Per Investigator Assessment",
-          "Number of Participants Who Experienced One or More AEs Leading to Vaccine Withdrawal or Trial Discontinuation"
-        ],
-        "registered_secondary_count": 10,
-        "arms_as_registered": [
-          {
-            "type": "EXPERIMENTAL",
-            "interventions": "Biological: CVnCoV Randomized Observer-blinded Phase 2b: CVnCoV vaccine"
-          },
-          {
-            "type": "PLACEBO_COMPARATOR",
-            "interventions": "Biological: Placebo Randomized Observer-blinded Phase 2b: Placebo"
-          },
-          {
-            "type": "EXPERIMENTAL",
-            "interventions": "Biological: CVnCoV Randomized Observer-blinded Phase 3: CVnCoV vaccine"
-          },
-          {
-            "type": "PLACEBO_COMPARATOR",
-            "interventions": "Biological: Placebo Randomized Observer-blinded Phase 3: Placebo"
-          },
-          {
-            "type": "EXPERIMENTAL",
-            "interventions": "Biological: Authorized/licensed vaccines for preventing COVID-19 (AV) as standard of care through their national vaccination program Open-label Phase"
-          }
-        ],
-        "source_url": "https://clinicaltrials.gov/study/NCT04652102",
-        "read_utc": "2026-08-18"
+       "id": "NCT04652102",
+       "nct": "NCT04652102",
+       "registration": "NCT04652102",
+       "registry": "ClinicalTrials.gov",
+       "label": "A Phase 2b/3, Randomized, Observer-Blinded, Placebo-Controlled, Multicenter Clinical Study Evaluating the Efficacy and Safety of Investigational SARS-CoV-2 mRNA Vaccine CVnCoV in Adults 18 Years of Age and Older",
+       "ranks_read": [
+        "primary"
+       ],
+       "registered_primaries": [
+        "Number of Participants Who Experienced a First Episode of Virologically-confirmed {Reverse Transcription Polymerase Chain Reaction (RT-PCR) Positive} Case of COVID-19 of Any Severity",
+        "Number of Participants Who Experienced One or More Medically-attended Adverse Events (AE)",
+        "Number of Participants Who Experienced One or More Serious AE (SAE)",
+        "Intensity of SAEs as Per Investigator Assessment",
+        "Number of Participants Who Experienced One or More Adverse Event of Special Interest (AESI)",
+        "Number of Participants Who Experienced a Fatal SAE",
+        "Phase 2b Participants Only: Number of Participants Who Experienced One or More Solicited AE",
+        "Phase 2b Participants Only: Intensity of Solicited AEs as Per Investigator Assessment",
+        "Phase 2b Participants Only: Duration of Solicited AEs",
+        "Phase 2b Participants Only: Number of Participants Who Experienced One or More Unsolicited AE",
+        "Phase 2b Participants Only: Intensity of Unsolicited AEs as Per Investigator Assessment",
+        "Number of Participants Who Experienced One or More AEs Leading to Vaccine Withdrawal or Trial Discontinuation"
+       ],
+       "registered_secondary_count": 10,
+       "arms_as_registered": [
+        {
+         "type": "EXPERIMENTAL",
+         "interventions": "Biological: CVnCoV Randomized Observer-blinded Phase 2b: CVnCoV vaccine"
+        },
+        {
+         "type": "PLACEBO_COMPARATOR",
+         "interventions": "Biological: Placebo Randomized Observer-blinded Phase 2b: Placebo"
+        },
+        {
+         "type": "EXPERIMENTAL",
+         "interventions": "Biological: CVnCoV Randomized Observer-blinded Phase 3: CVnCoV vaccine"
+        },
+        {
+         "type": "PLACEBO_COMPARATOR",
+         "interventions": "Biological: Placebo Randomized Observer-blinded Phase 3: Placebo"
+        },
+        {
+         "type": "EXPERIMENTAL",
+         "interventions": "Biological: Authorized/licensed vaccines for preventing COVID-19 (AV) as standard of care through their national vaccination program Open-label Phase"
+        }
+       ],
+       "source_url": "https://clinicaltrials.gov/study/NCT04652102",
+       "read_utc": "2026-08-18"
       },
       {
-        "id": "NCT04674189",
-        "nct": "NCT04674189",
-        "registration": "NCT04674189",
-        "registry": "ClinicalTrials.gov",
-        "label": "A Study to Evaluate the Safety and Immunogenicity of Vaccine CVnCoV in Healthy Adults in Germany for COVID-19",
-        "ranks_read": [
-          "primary"
-        ],
-        "registered_primaries": [
-          "Number of Participants Who Experienced a Medically Attended Adverse Event (AE) Occurring in the Following 6 Months After Dose 2",
-          "Number of Participants Who Experienced a Serious Adverse Event (SAE)",
-          "Intensity of SAEs Per the Investigator's Assessment",
-          "Number of Participants Who Experienced an Adverse Event of Special Interest (AESI) Occurring in the Following 1 Year After Dose 2",
-          "Number of Participants Who Experienced Death Due to SAE",
-          "Number of Participants Who Experienced an AE Leading to Vaccine Withdrawal Occurring in the Following 1 Year After Dose 2",
-          "Number of Participants Who Experienced an AE Leading to Trial Discontinuation Occurring in the Following 1 Year After Dose 2",
-          "Number of Participants Who Experienced an Unsolicited AE Occurring on the Day of Vaccination and the Following 28 Days After Any Dose",
-          "Intensity of Unsolicited AEs Per the Investigator's Assessment Occurring on the Day of Vaccination and the Following 28 Days After Any Dose",
-          "Occurrence of Seroconversion for SARS-CoV-2 Receptor-Binding Domain (RBD) of Spike Protein Antibodies (IgG) on Day 29 and Day 43",
-          "SARS-CoV-2 RBD of Spike Protein Antibody (IgG) Levels on Days 1, 29 and 43"
-        ],
-        "registered_secondary_count": 2,
-        "arms_as_registered": [
-          {
-            "type": "EXPERIMENTAL",
-            "interventions": "Biological: CVnCoV Vaccine CVnCoV: Group 1, Lot 1"
-          },
-          {
-            "type": "EXPERIMENTAL",
-            "interventions": "Biological: CVnCoV Vaccine CVnCoV: Group 2, Lot 2"
-          },
-          {
-            "type": "PLACEBO_COMPARATOR",
-            "interventions": "Drug: Placebo Placebo"
-          }
-        ],
-        "source_url": "https://clinicaltrials.gov/study/NCT04674189",
-        "read_utc": "2026-08-18"
+       "id": "NCT04674189",
+       "nct": "NCT04674189",
+       "registration": "NCT04674189",
+       "registry": "ClinicalTrials.gov",
+       "label": "A Study to Evaluate the Safety and Immunogenicity of Vaccine CVnCoV in Healthy Adults in Germany for COVID-19",
+       "ranks_read": [
+        "primary"
+       ],
+       "registered_primaries": [
+        "Number of Participants Who Experienced a Medically Attended Adverse Event (AE) Occurring in the Following 6 Months After Dose 2",
+        "Number of Participants Who Experienced a Serious Adverse Event (SAE)",
+        "Intensity of SAEs Per the Investigator's Assessment",
+        "Number of Participants Who Experienced an Adverse Event of Special Interest (AESI) Occurring in the Following 1 Year After Dose 2",
+        "Number of Participants Who Experienced Death Due to SAE",
+        "Number of Participants Who Experienced an AE Leading to Vaccine Withdrawal Occurring in the Following 1 Year After Dose 2",
+        "Number of Participants Who Experienced an AE Leading to Trial Discontinuation Occurring in the Following 1 Year After Dose 2",
+        "Number of Participants Who Experienced an Unsolicited AE Occurring on the Day of Vaccination and the Following 28 Days After Any Dose",
+        "Intensity of Unsolicited AEs Per the Investigator's Assessment Occurring on the Day of Vaccination and the Following 28 Days After Any Dose",
+        "Occurrence of Seroconversion for SARS-CoV-2 Receptor-Binding Domain (RBD) of Spike Protein Antibodies (IgG) on Day 29 and Day 43",
+        "SARS-CoV-2 RBD of Spike Protein Antibody (IgG) Levels on Days 1, 29 and 43"
+       ],
+       "registered_secondary_count": 2,
+       "arms_as_registered": [
+        {
+         "type": "EXPERIMENTAL",
+         "interventions": "Biological: CVnCoV Vaccine CVnCoV: Group 1, Lot 1"
+        },
+        {
+         "type": "EXPERIMENTAL",
+         "interventions": "Biological: CVnCoV Vaccine CVnCoV: Group 2, Lot 2"
+        },
+        {
+         "type": "PLACEBO_COMPARATOR",
+         "interventions": "Drug: Placebo Placebo"
+        }
+       ],
+       "source_url": "https://clinicaltrials.gov/study/NCT04674189",
+       "read_utc": "2026-08-18"
       }
-    ]
-  },
-  "outcomes": [
-    {
+     ]
+    },
+    "outcomes": [
+     {
       "id": "primary",
       "type": "primary",
       "name": "each trial's own registered primary outcome",
@@ -111,307 +281,137 @@
       "comparator": null,
       "comparator_type": "not applicable",
       "definition_note": "Registered endpoint definitions are recorded per trial on this object."
-    }
-  ],
-  "results": {
-    "by_outcome": {
+     }
+    ],
+    "results": {
+     "by_outcome": {
       "primary": {
-        "k": 0,
-        "poolable": false,
-        "poolable_reason": "2 TRIALS, AND NO TWO SHARE A REGISTERED PRIMARY OUTCOME FAMILY. Registrations read from ClinicalTrials.gov on 2026-08-18: NCT04652102, NCT04674189. Their registered primaries are recorded per trial on this object and do not reduce to a common quantity, so there is nothing for two of them to estimate in common. AUTHORITY: MECIR Box 10.10.a C62 -- 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.' -- and Handbook 6.5 section 10.10.3, 'A systematic review need not contain any meta-analyses.'",
-        "pooled": {
-          "point": null,
-          "ci_low": null,
-          "ci_high": null,
-          "withdrawn": true,
-          "withdrawn_reason": "2 TRIALS, AND NO TWO SHARE A REGISTERED PRIMARY OUTCOME FAMILY. Registrations read from ClinicalTrials.gov on 2026-08-18: NCT04652102, NCT04674189. Their registered primaries are recorded per trial on this object and do not reduce to a common quantity, so there is nothing for two of them to estimate in common. AUTHORITY: MECIR Box 10.10.a C62 -- 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.' -- and Handbook 6.5 section 10.10.3, 'A systematic review need not contain any meta-analyses.'",
-          "withdrawn_utc": "2026-08-18"
-        },
-        "per_trial": [],
-        "what_this_verdict_does_not_establish": "NOT that any trial here is poor -- each is registered and reports its own primary. NOT that the drug or intervention is ineffective. NOT that no poolable question exists in this area: only that the question this page's title asks cannot be answered by pooling the trials this page carries. THE CRITICISM IS OF THE POOLING AND OF NOTHING ELSE -- a trial that registers the endpoints it was designed to measure is behaving correctly. The registry is a live document and this reads its contents on the date recorded; a later amendment could change it. If a further eligible trial is identified, this verdict should be revisited.",
-        "model": "random-effects",
-        "estimator_used": "not applicable",
-        "source_page_pooled": false,
-        "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
-        "estimand_established": null,
-        "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass.",
-        "estimand_established_does_not_cover_the_contrast_2026_08_20": "READ THIS BESIDE `estimand_established`. That flag records that every contributing trial measures the SAME QUANTITY. It records NOTHING about what that quantity was measured AGAINST -- whether the comparators are of one kind, whether each comparison was randomised, whether it was concurrent. The two questions were never separated. Named as P48 in PAGE-STANDARD.md v1.21.0 and swept by scripts/audit_mixed_contrast_pools.py."
+       "k": 0,
+       "poolable": false,
+       "poolable_reason": "2 TRIALS, AND NO TWO SHARE A REGISTERED PRIMARY OUTCOME FAMILY. Registrations read from ClinicalTrials.gov on 2026-08-18: NCT04652102, NCT04674189. Their registered primaries are recorded per trial on this object and do not reduce to a common quantity, so there is nothing for two of them to estimate in common. AUTHORITY: MECIR Box 10.10.a C62 -- 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.' -- and Handbook 6.5 section 10.10.3, 'A systematic review need not contain any meta-analyses.'",
+       "pooled": {
+        "point": null,
+        "ci_low": null,
+        "ci_high": null,
+        "withdrawn": true,
+        "withdrawn_reason": "2 TRIALS, AND NO TWO SHARE A REGISTERED PRIMARY OUTCOME FAMILY. Registrations read from ClinicalTrials.gov on 2026-08-18: NCT04652102, NCT04674189. Their registered primaries are recorded per trial on this object and do not reduce to a common quantity, so there is nothing for two of them to estimate in common. AUTHORITY: MECIR Box 10.10.a C62 -- 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.' -- and Handbook 6.5 section 10.10.3, 'A systematic review need not contain any meta-analyses.'",
+        "withdrawn_utc": "2026-08-18"
+       },
+       "per_trial": [],
+       "what_this_verdict_does_not_establish": "NOT that any trial here is poor -- each is registered and reports its own primary. NOT that the drug or intervention is ineffective. NOT that no poolable question exists in this area: only that the question this page's title asks cannot be answered by pooling the trials this page carries. THE CRITICISM IS OF THE POOLING AND OF NOTHING ELSE -- a trial that registers the endpoints it was designed to measure is behaving correctly. The registry is a live document and this reads its contents on the date recorded; a later amendment could change it. If a further eligible trial is identified, this verdict should be revisited.",
+       "model": "random-effects",
+       "estimator_used": "not applicable",
+       "source_page_pooled": false,
+       "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
+       "estimand_established": null,
+       "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass."
       }
-    }
-  },
-  "risk_of_bias_verdict": "Not assessed. A risk-of-bias assessment grades trials contributing to a pooled result; this page publishes none.",
-  "handbook_authority": {
-    "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
-    "version": "Version 6.5, 2024",
-    "verified_on": "2026-08-18",
-    "sections": "10.10.3; MECIR Box 10.10.a (C62)",
-    "c62": "'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.'",
-    "need_not_pool": "'A systematic review need not contain any meta-analyses.'"
-  },
-  "carried_contrasts": [],
-  "sources": {},
-  "question": "In Cvncov COVID-19, what is the effect on each trial's own registered primary outcome?",
-  "generator_schema_patch_2026_08_18": {
-    "relocations": "SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our schema wrote it elsewhere on the same object. A relocation, not a new claim.",
-    "genuinely_empty": "GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is empty on acs-antiplatelet-review, which builds.",
-    "rule": "Every field added falls into RELOCATION, GENUINELY EMPTY, or DERIVED FROM RECORDED CONTENT. A field falling into none was REFUSED. Adding a key to satisfy a generator is not the same as adding the content that key should hold.",
-    "fields": [
+     }
+    },
+    "risk_of_bias_verdict": "Not assessed. A risk-of-bias assessment grades trials contributing to a pooled result; this page publishes none.",
+    "handbook_authority": {
+     "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
+     "version": "Version 6.5, 2024",
+     "verified_on": "2026-08-18",
+     "sections": "10.10.3; MECIR Box 10.10.a (C62)",
+     "c62": "'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.'",
+     "need_not_pool": "'A systematic review need not contain any meta-analyses.'"
+    },
+    "carried_contrasts": [],
+    "sources": {},
+    "question": "Cvncov Sarscov2: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?",
+    "generator_schema_patch_2026_08_18": {
+     "relocations": "SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our schema wrote it elsewhere on the same object. A relocation, not a new claim.",
+     "genuinely_empty": "GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is empty on acs-antiplatelet-review, which builds.",
+     "rule": "Every field added falls into RELOCATION, GENUINELY EMPTY, or DERIVED FROM RECORDED CONTENT. A field falling into none was REFUSED. Adding a key to satisfy a generator is not the same as adding the content that key should hold.",
+     "fields": [
       "carried_contrasts=[] (empty)",
       "sources={} (empty)",
       "question (derived)"
-    ]
-  },
-  "absorbed_topics": {
-    "cvncov-sarscov2": {
-      "retired_utc": "2026-08-19",
-      "why": "identical trial set; the surviving object holds more structure (search, cascade, PRISMA, screening, outcomes, corrections, provenance) or, where neither did, the better-stated question",
-      "authorised_by": "Mahmood, 2026-08-19",
-      "its_question_as_an_alternative_reading": "Cvncov Sarscov2: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?",
-      "its_title": "Cvncov Sarscov2: NOT POOLABLE -- OUTCOME",
-      "THE_WHOLE_OBJECT_VERBATIM": {
-        "app_id": "cvncov-sarscov2",
-        "schema_version": 2,
-        "title": "Cvncov Sarscov2: NOT POOLABLE -- OUTCOME",
-        "built": "2026-08-18",
-        "build_mode": "verdict-only",
-        "topic_state": "NOT POOLABLE -- decided from the registrations",
-        "which_limb_fails": "OUTCOME",
-        "verification_basis": "Every seeded registration read from ClinicalTrials.gov on 2026-08-18: brief title, registered primary outcome measures, secondary count, and arm groups with types.",
-        "inputs": {
-          "trials": [
-            {
-              "id": "NCT04652102",
-              "nct": "NCT04652102",
-              "registration": "NCT04652102",
-              "registry": "ClinicalTrials.gov",
-              "label": "A Phase 2b/3, Randomized, Observer-Blinded, Placebo-Controlled, Multicenter Clinical Study Evaluating the Efficacy and Safety of Investigational SARS-CoV-2 mRNA Vaccine CVnCoV in Adults 18 Years of Age and Older",
-              "ranks_read": [
-                "primary"
-              ],
-              "registered_primaries": [
-                "Number of Participants Who Experienced a First Episode of Virologically-confirmed {Reverse Transcription Polymerase Chain Reaction (RT-PCR) Positive} Case of COVID-19 of Any Severity",
-                "Number of Participants Who Experienced One or More Medically-attended Adverse Events (AE)",
-                "Number of Participants Who Experienced One or More Serious AE (SAE)",
-                "Intensity of SAEs as Per Investigator Assessment",
-                "Number of Participants Who Experienced One or More Adverse Event of Special Interest (AESI)",
-                "Number of Participants Who Experienced a Fatal SAE",
-                "Phase 2b Participants Only: Number of Participants Who Experienced One or More Solicited AE",
-                "Phase 2b Participants Only: Intensity of Solicited AEs as Per Investigator Assessment",
-                "Phase 2b Participants Only: Duration of Solicited AEs",
-                "Phase 2b Participants Only: Number of Participants Who Experienced One or More Unsolicited AE",
-                "Phase 2b Participants Only: Intensity of Unsolicited AEs as Per Investigator Assessment",
-                "Number of Participants Who Experienced One or More AEs Leading to Vaccine Withdrawal or Trial Discontinuation"
-              ],
-              "registered_secondary_count": 10,
-              "arms_as_registered": [
-                {
-                  "type": "EXPERIMENTAL",
-                  "interventions": "Biological: CVnCoV Randomized Observer-blinded Phase 2b: CVnCoV vaccine"
-                },
-                {
-                  "type": "PLACEBO_COMPARATOR",
-                  "interventions": "Biological: Placebo Randomized Observer-blinded Phase 2b: Placebo"
-                },
-                {
-                  "type": "EXPERIMENTAL",
-                  "interventions": "Biological: CVnCoV Randomized Observer-blinded Phase 3: CVnCoV vaccine"
-                },
-                {
-                  "type": "PLACEBO_COMPARATOR",
-                  "interventions": "Biological: Placebo Randomized Observer-blinded Phase 3: Placebo"
-                },
-                {
-                  "type": "EXPERIMENTAL",
-                  "interventions": "Biological: Authorized/licensed vaccines for preventing COVID-19 (AV) as standard of care through their national vaccination program Open-label Phase"
-                }
-              ],
-              "source_url": "https://clinicaltrials.gov/study/NCT04652102",
-              "read_utc": "2026-08-18"
-            },
-            {
-              "id": "NCT04674189",
-              "nct": "NCT04674189",
-              "registration": "NCT04674189",
-              "registry": "ClinicalTrials.gov",
-              "label": "A Study to Evaluate the Safety and Immunogenicity of Vaccine CVnCoV in Healthy Adults in Germany for COVID-19",
-              "ranks_read": [
-                "primary"
-              ],
-              "registered_primaries": [
-                "Number of Participants Who Experienced a Medically Attended Adverse Event (AE) Occurring in the Following 6 Months After Dose 2",
-                "Number of Participants Who Experienced a Serious Adverse Event (SAE)",
-                "Intensity of SAEs Per the Investigator's Assessment",
-                "Number of Participants Who Experienced an Adverse Event of Special Interest (AESI) Occurring in the Following 1 Year After Dose 2",
-                "Number of Participants Who Experienced Death Due to SAE",
-                "Number of Participants Who Experienced an AE Leading to Vaccine Withdrawal Occurring in the Following 1 Year After Dose 2",
-                "Number of Participants Who Experienced an AE Leading to Trial Discontinuation Occurring in the Following 1 Year After Dose 2",
-                "Number of Participants Who Experienced an Unsolicited AE Occurring on the Day of Vaccination and the Following 28 Days After Any Dose",
-                "Intensity of Unsolicited AEs Per the Investigator's Assessment Occurring on the Day of Vaccination and the Following 28 Days After Any Dose",
-                "Occurrence of Seroconversion for SARS-CoV-2 Receptor-Binding Domain (RBD) of Spike Protein Antibodies (IgG) on Day 29 and Day 43",
-                "SARS-CoV-2 RBD of Spike Protein Antibody (IgG) Levels on Days 1, 29 and 43"
-              ],
-              "registered_secondary_count": 2,
-              "arms_as_registered": [
-                {
-                  "type": "EXPERIMENTAL",
-                  "interventions": "Biological: CVnCoV Vaccine CVnCoV: Group 1, Lot 1"
-                },
-                {
-                  "type": "EXPERIMENTAL",
-                  "interventions": "Biological: CVnCoV Vaccine CVnCoV: Group 2, Lot 2"
-                },
-                {
-                  "type": "PLACEBO_COMPARATOR",
-                  "interventions": "Drug: Placebo Placebo"
-                }
-              ],
-              "source_url": "https://clinicaltrials.gov/study/NCT04674189",
-              "read_utc": "2026-08-18"
-            }
-          ]
-        },
-        "outcomes": [
-          {
-            "id": "primary",
-            "type": "primary",
-            "name": "each trial's own registered primary outcome",
-            "definition": "Recorded per trial in inputs.trials[].registered_primaries.",
-            "measure": "not applicable",
-            "measure_note": "THE GENERATOR'S OWN IDIOM FOR ABSENCE. This topic publishes no estimate, so there is no measure it was expressed in. Not a borrowed value: sibling objects whose estimate was WITHDRAWN legitimately carry the withdrawn measure, which is a different case.",
-            "comparator": null,
-            "comparator_type": "not applicable",
-            "definition_note": "Registered endpoint definitions are recorded per trial on this object."
-          }
-        ],
-        "results": {
-          "by_outcome": {
-            "primary": {
-              "k": 0,
-              "poolable": false,
-              "poolable_reason": "2 TRIALS, AND NO TWO SHARE A REGISTERED PRIMARY OUTCOME FAMILY. Registrations read from ClinicalTrials.gov on 2026-08-18: NCT04652102, NCT04674189. Their registered primaries are recorded per trial on this object and do not reduce to a common quantity, so there is nothing for two of them to estimate in common. AUTHORITY: MECIR Box 10.10.a C62 -- 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.' -- and Handbook 6.5 section 10.10.3, 'A systematic review need not contain any meta-analyses.'",
-              "pooled": {
-                "point": null,
-                "ci_low": null,
-                "ci_high": null,
-                "withdrawn": true,
-                "withdrawn_reason": "2 TRIALS, AND NO TWO SHARE A REGISTERED PRIMARY OUTCOME FAMILY. Registrations read from ClinicalTrials.gov on 2026-08-18: NCT04652102, NCT04674189. Their registered primaries are recorded per trial on this object and do not reduce to a common quantity, so there is nothing for two of them to estimate in common. AUTHORITY: MECIR Box 10.10.a C62 -- 'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.' -- and Handbook 6.5 section 10.10.3, 'A systematic review need not contain any meta-analyses.'",
-                "withdrawn_utc": "2026-08-18"
-              },
-              "per_trial": [],
-              "what_this_verdict_does_not_establish": "NOT that any trial here is poor -- each is registered and reports its own primary. NOT that the drug or intervention is ineffective. NOT that no poolable question exists in this area: only that the question this page's title asks cannot be answered by pooling the trials this page carries. THE CRITICISM IS OF THE POOLING AND OF NOTHING ELSE -- a trial that registers the endpoints it was designed to measure is behaving correctly. The registry is a live document and this reads its contents on the date recorded; a later amendment could change it. If a further eligible trial is identified, this verdict should be revisited.",
-              "model": "random-effects",
-              "estimator_used": "not applicable",
-              "source_page_pooled": false,
-              "poolable_DEPRECATED_note": "`poolable` MEANT ONLY 'the source page pooled these trials'. It was never a judgement that the pool was sound, and the renderer read it as permission to assert 'pooled on the X scale'. RENAMED to source_page_pooled, which is what it says. `poolable` is retained so nothing breaks, and it is DEPRECATED: read source_page_pooled for what the source did, and estimand_established for whether the pool is defensible. A PAGE SHOULD DISPLAY A POOLED ESTIMATE BECAUSE ITS ESTIMAND WAS ESTABLISHED, NOT BECAUSE SOMEONE ONCE POOLED IT.",
-              "estimand_established": null,
-              "estimand_established_means": "TRUE only where every contributing trial has been READ and shown to measure the same quantity, or the same construct with a variance stated. FALSE where that was checked and failed. NULL where it was never checked -- AN ABSENT ASSERTION AND A NEGATIVE ONE ARE DIFFERENT STATES and null is not a pass."
-            }
-          }
-        },
-        "risk_of_bias_verdict": "Not assessed. A risk-of-bias assessment grades trials contributing to a pooled result; this page publishes none.",
-        "handbook_authority": {
-          "handbook": "Cochrane Handbook for Systematic Reviews of Interventions",
-          "version": "Version 6.5, 2024",
-          "verified_on": "2026-08-18",
-          "sections": "10.10.3; MECIR Box 10.10.a (C62)",
-          "c62": "'Undertake (or display) a meta-analysis only if participants, interventions, comparisons and outcomes are judged to be sufficiently similar to ensure an answer that is clinically meaningful.'",
-          "need_not_pool": "'A systematic review need not contain any meta-analyses.'"
-        },
-        "carried_contrasts": [],
-        "sources": {},
-        "question": "Cvncov Sarscov2: NOT POOLABLE -- OUTCOME on each trial's own registered primary outcome?",
-        "generator_schema_patch_2026_08_18": {
-          "relocations": "SAME VALUE, PLACED WHERE THE CONSUMER LOOKS. The generator reads this key; our schema wrote it elsewhere on the same object. A relocation, not a new claim.",
-          "genuinely_empty": "GENUINELY EMPTY for this topic, not emptied to pass a check. The same field is empty on acs-antiplatelet-review, which builds.",
-          "rule": "Every field added falls into RELOCATION, GENUINELY EMPTY, or DERIVED FROM RECORDED CONTENT. A field falling into none was REFUSED. Adding a key to satisfy a generator is not the same as adding the content that key should hold.",
-          "fields": [
-            "carried_contrasts=[] (empty)",
-            "sources={} (empty)",
-            "question (derived)"
-          ]
-        }
-      }
+     ]
     }
-  },
-  "manuscript": {
-    "references": {
-      "_what": "A reference list, assembled from this object's own fields. Distinct from `sources`, which records the provenance LAYER each fact was read at; this is what a reader would look up.",
-      "included_studies": [
-        {
-          "registration": "NCT04652102",
-          "label": "A Phase 2b/3, Randomized, Observer-Blinded, Placebo-Controlled, Multicenter Clinical Study Evaluating the Efficacy and Safety of Investigational SARS-CoV-2 mRNA Vaccine CVnCoV in Adults 18 Years of Age and Older",
-          "registry": "ClinicalTrials.gov",
-          "url": "https://clinicaltrials.gov/study/NCT04652102",
-          "read_utc": "2026-08-18"
-        },
-        {
-          "registration": "NCT04674189",
-          "label": "A Study to Evaluate the Safety and Immunogenicity of Vaccine CVnCoV in Healthy Adults in Germany for COVID-19",
-          "registry": "ClinicalTrials.gov",
-          "url": "https://clinicaltrials.gov/study/NCT04674189",
-          "read_utc": "2026-08-18"
-        }
-      ],
-      "published_syntheses_compared_against": [],
-      "_published_syntheses_note": "No published synthesis is listed here. The comparison section states its own denominator and why nothing citable was appraised. ",
-      "methods_guidance_and_software": [
-        {
-          "cited_for": "the reporting guideline this manuscript is written against",
-          "citation": "Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71"
-        }
-      ]
-    },
-    "introduction": "This review asks: In Cvncov COVID-19, what is the effect on each trial's own registered primary outcome?\n\nIt identifies no trial that can be pooled.\n\nThe outcome sought is each trial's own registered primary outcome.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace."
-  },
-  "bookkeeping_2026_08_21": {
-    "_what": "The five reporting claims a PRISMA-2020 manuscript needs that are FETCHABLE rather than argued -- each derived from a field here, or stated as an honest absence.",
-    "which_limbs_this_review_refuses": "Of the four properties this project requires of a completed topic, 0 are held (none) and 4 are refused with the obstacle named in the evidence (comparison denominator, grade per pool, model output verbatim, rob per result).",
-    "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 2 included trials were identified by reading named registrations on 2026-08-18. Every seeded registration read from ClinicalTrials.gov on 2026-08-18: brief title, registered primary outcome measures, secondary count, and arm groups with types.",
-    "whether_this_review_was_prospectively_registered": "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.",
-    "that_two_assessors_disagreed_and_where": "NO SECOND, INDEPENDENT RISK-OF-BIAS ASSESSMENT IS RECORDED FOR THIS TOPIC. The judgements were made once. Stated so that single assessment is not mistaken for agreement between two."
-  },
-  "display_change_announced": [
+   }
+  }
+ },
+ "manuscript": {
+  "references": {
+   "_what": "A reference list, assembled from this object's own fields. Distinct from `sources`, which records the provenance LAYER each fact was read at; this is what a reader would look up.",
+   "included_studies": [
     {
-      "date": "2026-08-21",
-      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-      "what_changed": "references built, introduction written, bookkeeping claims 4",
-      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+     "registration": "NCT04652102",
+     "label": "A Phase 2b/3, Randomized, Observer-Blinded, Placebo-Controlled, Multicenter Clinical Study Evaluating the Efficacy and Safety of Investigational SARS-CoV-2 mRNA Vaccine CVnCoV in Adults 18 Years of Age and Older",
+     "registry": "ClinicalTrials.gov",
+     "url": "https://clinicaltrials.gov/study/NCT04652102",
+     "read_utc": "2026-08-18"
     },
     {
-      "date": "2026-08-21",
-      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-      "what_changed": "references built, introduction written, bookkeeping claims 4",
-      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-    },
-    {
-      "date": "2026-08-21",
-      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-      "what_changed": "references built, introduction written, bookkeeping claims 4",
-      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-    },
-    {
-      "date": "2026-08-21",
-      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-      "what_changed": "references built, introduction written, bookkeeping claims 4",
-      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-    },
-    {
-      "date": "2026-08-21",
-      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-      "what_changed": "references built, introduction written, bookkeeping claims 4",
-      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
-    },
-    {
-      "date": "2026-08-21",
-      "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
-      "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
-      "what_changed": "references built, introduction written, bookkeeping claims 4",
-      "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+     "registration": "NCT04674189",
+     "label": "A Study to Evaluate the Safety and Immunogenicity of Vaccine CVnCoV in Healthy Adults in Germany for COVID-19",
+     "registry": "ClinicalTrials.gov",
+     "url": "https://clinicaltrials.gov/study/NCT04674189",
+     "read_utc": "2026-08-18"
     }
-  ]
+   ],
+   "published_syntheses_compared_against": [],
+   "_published_syntheses_note": "No published synthesis is listed here. The comparison section states its own denominator and why nothing citable was appraised. ",
+   "methods_guidance_and_software": [
+    {
+     "cited_for": "the reporting guideline this manuscript is written against",
+     "citation": "Page MJ, McKenzie JE, Bossuyt PM, et al. The PRISMA 2020 statement: an updated guideline for reporting systematic reviews. BMJ. 2021;372:n71. doi:10.1136/bmj.n71"
+    }
+   ]
+  },
+  "introduction": "This review asks: In Cvncov COVID-19, what is the effect on each trial's own registered primary outcome?\n\nIt identifies no trial that can be pooled.\n\nThe outcome sought is each trial's own registered primary outcome.\n\nEverything in this paragraph is derived from stored fields and none of it is authored. The interpretive sentences that follow are marked as drafts and are the author's to replace."
+ },
+ "bookkeeping_2026_08_21": {
+  "_what": "The five reporting claims a PRISMA-2020 manuscript needs that are FETCHABLE rather than argued -- each derived from a field here, or stated as an honest absence.",
+  "which_limbs_this_review_refuses": "Of the four properties this project requires of a completed topic, 0 are held (none) and 4 are refused with the obstacle named in the evidence (comparison denominator, grade per pool, model output verbatim, rob per result).",
+  "the_search_its_date_and_its_databases": "PRIMARY TRIALS. NO BIBLIOGRAPHIC SEARCH FOR PRIMARY TRIALS WAS RUN. The 2 included trials were identified by reading named registrations on 2026-08-18. Every seeded registration read from ClinicalTrials.gov on 2026-08-18: brief title, registered primary outcome measures, secondary count, and arm groups with types.",
+  "whether_this_review_was_prospectively_registered": "NO PROSPERO REGISTRATION OR PROTOCOL RECORD IS HELD ON THIS OBJECT. That is not the same as knowing this review was not registered, and neither claim is made. It is recorded here as an absence so that a reader does not have to infer it from silence.",
+  "that_two_assessors_disagreed_and_where": "NO SECOND, INDEPENDENT RISK-OF-BIAS ASSESSMENT IS RECORDED FOR THIS TOPIC. The judgements were made once. Stated so that single assessment is not mistaken for agreement between two."
+ },
+ "display_change_announced": [
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 4",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 4",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 4",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 4",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 4",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  },
+  {
+   "date": "2026-08-21",
+   "change": "references, the Introduction's factual half, and the five fetchable bookkeeping claims assembled from stored fields",
+   "values_moved": "NONE -- no estimate, judgement, rating or certainty is touched",
+   "what_changed": "references built, introduction written, bookkeeping claims 4",
+   "why": "A paper with no reference list and a 47-character Introduction is incomplete in ways that are pure assembly. Nothing interpretive is written: the four judgement claims are named as owed."
+  }
+ ]
 }

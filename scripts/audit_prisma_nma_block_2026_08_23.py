@@ -1,0 +1,143 @@
+"""The PRISMA-NMA checklist block: which rows are projected and which are constants.
+
+# no-control: routed through require_controls. POSITIVE is the transitivity row -- "all
+# obesity/overweight adults", established false by hand on ANTIAMYLOID_AD (Alzheimer's),
+# BTKI_CLL (leukaemia) and CFTR_MODULATORS (cystic fibrosis) -- which must classify CONSTANT
+# and factual. NEGATIVE is `#nma-consistency-summary`, which the engine rewrites at runtime and
+# must therefore NOT be counted as a delivered constant.
+
+THE SAME CLASS AS TABLE 1, IN A DIFFERENT GENERATOR. `generate_living_ma_v13.py` -- not the
+SSOT projector -- emits a four-row PRISMA-NMA block, byte-identical on every page it touches.
+Two of the four assert FACTS about the review they sit on:
+
+    Network geometry     "Star topology -- all treatments connected via common comparator"
+    Transitivity         "Similar patient populations across trials (all obesity/overweight
+                          adults)"
+
+THE TRANSITIVITY ROW IS THE WORST OF THE TWO AND POSSIBLY OF THE WEEK. Transitivity is the
+assumption that LICENSES COMBINING TRIALS AT ALL: it is the claim that patients in one trial
+could have been randomised in another. A constant string there is a fabricated justification
+for the method's central premise, and it says "obesity/overweight adults" on pages about
+Alzheimer's disease, chronic lymphocytic leukaemia, cystic fibrosis, HER2 breast cancer and
+venous thromboembolism.
+
+THE GEOMETRY ROW HAS A SECOND TRAP. Where the constant happens to be RIGHT -- most of these
+networks are stars -- it reads as a disclosure while being a constant. A reader who checks is
+reassured by a string that would say the same thing on a fully connected network, and does on
+the two that have loops. SO A COMPUTED TOPOLOGY LINE MUST REPLACE IT, NOT SIT BESIDE IT.
+
+COUNTS FIRST, FIX AFTER -- the order that mattered on Table 1, where a page-read had found six
+rows and the AST enumeration found seven, differently composed.
+"""
+from __future__ import annotations
+
+import ast
+import glob
+import io
+import json
+import os
+import re
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from instrument_controls import require_controls          # noqa: E402
+
+REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+GEN = os.path.join(REPO, "generate_living_ma_v13.py")
+OUT = os.path.join(REPO, "outputs", "prisma_nma_block_2026_08_23.json")
+
+ROW = re.compile(r"<strong>([^<]+):</strong>\s*(.*?)</div>", re.S)
+# A row is RUNTIME-FILLED when its div carries an id the engine writes to.
+RUNTIME_ID = re.compile(r'id="(nma-[a-z-]+)"')
+# A factual claim states something about THIS review; a procedural one names a method or a
+# deferred action.
+FACTUAL = re.compile(r"(?i)(topology|connected via|similar patient populations|adults|"
+                     r"all treatments|common comparator|populations across trials)")
+
+
+def block_literals():
+    """Every string constant in the generator, so the block is read from source not a page."""
+    tree = ast.parse(io.open(GEN, encoding="utf-8", errors="replace").read())
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Constant) and isinstance(node.value, str) \
+                and "PRISMA-NMA Checklist Items" in node.value:
+            return node.value
+    return ""
+
+
+def rows_of(block):
+    out = []
+    for m in ROW.finditer(block):
+        label = m.group(1).strip()
+        body = re.sub(r"<[^>]+>", "", m.group(2))
+        body = re.sub(r"\s+", " ", body).replace("&mdash;", "--").strip()
+        seg = block[max(0, m.start() - 200):m.end()]
+        rid = RUNTIME_ID.search(seg)
+        out.append({"row": label, "text": body,
+                    "runtime_filled": bool(rid and "summary" in rid.group(1)),
+                    "factual": bool(FACTUAL.search(body))})
+    return out
+
+
+def main():
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    block = block_literals()
+    if not block:
+        sys.exit("REFUSED: the PRISMA-NMA block was not found in %s" % os.path.basename(GEN))
+    rows = rows_of(block)
+    by = {r["row"]: r for r in rows}
+
+    require_controls(
+        "prisma_nma_block",
+        ("the Transitivity row is a factual CONSTANT -- it says 'all obesity/overweight "
+         "adults' on Alzheimer's, leukaemia and cystic fibrosis pages (got %s)"
+         % ({k: (v["factual"], v["runtime_filled"]) for k, v in by.items()}),
+         bool(by.get("Transitivity assumption", {}).get("factual"))
+         and not by.get("Transitivity assumption", {}).get("runtime_filled"), True),
+        # THE NEGATIVE SLOT MEANS "MUST NOT BE TRUE", and my first version passed the
+        # Consistency row's `runtime_filled` -- which IS true in a correct run, so the control
+        # refused a working instrument. The negative must name something a correct run leaves
+        # FALSE. `Ranking` describes a method ("P-scores with uncertainty") and asserts no fact
+        # about this review, so classifying it as factual would be over-flagging -- which is
+        # the direction this slot exists to catch.
+        ("the Ranking row names a method and asserts no fact -- flagging it factual would be "
+         "the over-accusation this control exists to catch",
+         bool(by.get("Ranking", {}).get("factual")), True))
+
+    pages = [os.path.basename(p) for p in sorted(glob.glob(os.path.join(REPO, "*.html")))
+             if "Star topology" in io.open(p, encoding="utf-8", errors="replace").read()]
+    pm = set(json.load(io.open(os.path.join(REPO, "ssot", "PAGE_MAP.json"), encoding="utf-8")))
+
+    fact = [r for r in rows if r["factual"] and not r["runtime_filled"]]
+    proc = [r for r in rows if not r["factual"] and not r["runtime_filled"]]
+    live = [r for r in rows if r["runtime_filled"]]
+
+    print("")
+    print("PRISMA-NMA CHECKLIST BLOCK (%s), %d rows" % (os.path.basename(GEN), len(rows)))
+    print("")
+    print("   CONSTANT and asserting a FACT about this review   %d   <- can be false" % len(fact))
+    print("   CONSTANT and procedural                           %d" % len(proc))
+    print("   filled at runtime by the engine                   %d" % len(live))
+    print("")
+    for r in rows:
+        kind = ("runtime" if r["runtime_filled"]
+                else "CONSTANT/FACT" if r["factual"] else "constant/proc")
+        print("   %-24s %-14s %s" % (r["row"][:24], kind, r["text"][:78]))
+    print("")
+    print("PAGES CARRYING THE BLOCK: %d" % len(pages))
+    print("   of those in ssot/PAGE_MAP (the SSOT projector's set): %d"
+          % len([p for p in pages if p in pm]))
+    print("   -> a DIFFERENT GENERATOR. The SSOT rollout cannot reach these.")
+    print("")
+    print("THE TRANSITIVITY ROW IS THE ASSUMPTION THAT LICENSES COMBINING TRIALS AT ALL --")
+    print("that a patient in one trial could have been randomised in another. A constant there")
+    print("is a fabricated justification for the method's central premise.")
+    json.dump({"rows": rows, "pages": pages,
+               "pages_in_page_map": [p for p in pages if p in pm]},
+              io.open(OUT, "w", encoding="utf-8"), indent=1)
+    print("")
+    print("written: %s" % os.path.relpath(OUT, REPO))
+
+
+if __name__ == "__main__":
+    main()
