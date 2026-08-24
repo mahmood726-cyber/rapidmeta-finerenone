@@ -82,6 +82,16 @@ FOREIGN_EXAMPLES = (
         r"patisiran against its own saline placebo", re.I)),
 )
 
+# AN ABSENCE MARKER SPLICED INTO A SENTENCE. Acceptable standing alone in its own table
+# cell -- a reader understands "not recorded" there. A defect when a sentence is composed
+# AROUND it, because the sentence then asserts something the marker means was never
+# recorded. Anchored on a preceding lower-case word or comma so a marker that opens its own
+# cell or sentence is left alone: that is the whole distinction, and 366 legitimate own-slot
+# uses depend on it.
+SENTINEL_SPLICE = re.compile(
+    r"[a-z,] +(?:not recorded|not available|not stated|no record|not established|"
+    r"not captured) on the page this object was (?:extracted|built) from")
+
 EMPTY_REFUSAL = re.compile(r"<strong>\s*Refused:\s*</strong>\s*(?:<sup[^>]*>.*?</sup>)?\s*"
                            r"(?:</div>|<)", re.I)
 
@@ -145,6 +155,12 @@ def findings_for(path, html, page_slugs):
         if c:
             out.append(("HOLLOW_NOUN", "%r x%d" % (hollow, c)))
 
+    n = len(SENTINEL_SPLICE.findall(text))
+    if n:
+        m2 = SENTINEL_SPLICE.search(text)
+        out.append(("SENTINEL_SPLICE", "x%d, e.g. %r"
+                    % (n, re.sub(r"\s+", " ", text[max(0, m2.start() - 70):m2.end()])[-110:])))
+
     m = CIRCULAR.search(text)
     if m:
         out.append(("CIRCULAR", re.sub(r"\s+", " ", m.group(0))[:110]))
@@ -181,6 +197,19 @@ CONTROLS = (
      "<title>Posaconazole Fungal: NOT POOLABLE -- no registration declares an endpoint</title>"),
     ("VERDICT_AS_TITLE", False,
      "<title>Posaconazole in invasive fungal prophylaxis</title>"),
+    ("SENTINEL_SPLICE", True,
+     "<p>It identifies no trial that can be pooled, against not recorded on the page "
+     "this object was extracted from.</p>"),
+    ("SENTINEL_SPLICE", False,
+     "<td>not recorded on the page this object was extracted from</td>"),
+    # THE FALSE POSITIVE THE FIRST DRAFT PRODUCED, KEPT AS A CONTROL. A header cell and its
+    # value cell are adjacent in the markup; strip the tags and "Comparator" runs straight
+    # into the marker on the next line. The first pattern used `\s+`, which matches a
+    # NEWLINE, so it read six own-slot table rows as spliced sentences on one page. It now
+    # requires a literal space, so a cell boundary breaks the match and only prose matches.
+    ("SENTINEL_SPLICE", False,
+     "<tr><th>Comparator</th><td>not recorded on the page this object was extracted from"
+     "</td></tr>"),
     ("FOREIGN_TOPIC", True,
      "<p>the pool combines patisiran against its own saline placebo, and more.</p>"),
     ("FOREIGN_TOPIC", False,

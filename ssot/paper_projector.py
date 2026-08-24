@@ -521,11 +521,29 @@ def _lead_in_has_value(v):
     Widening `_is_value` to catch them would change what counts as a backed claim for pooling,
     which is not a presentation decision and is not this change's to make. So the wider test is
     scoped to this one use.
+
+    SCOPING IT WAS RIGHT ABOUT `_is_value` AND WRONG ABOUT ITSELF. Keeping the wider test away
+    from POOLING was correct. Keeping it away from every other PROSE site was not: the
+    identical defect was live at four more composition sites and reached a reader 138 times
+    across 38 delivered pages -- 76 of them Methods sentences reading "Methodological
+    decisions follow not recorded on the page this object was built from, version not
+    recorded on the page this object was built from", which is a claim to have followed
+    guidance whose name and version are both absence markers.
+
+    EVERY ONE OF THOSE GUARDS WAS A TRUTHINESS TEST -- `if ma.get("reference")` -- and a
+    sentinel STRING is truthy, so the guard passed and the sentence was composed around the
+    marker. That is fixing the instance and leaving the class. The predicate below is
+    unchanged; it is now reachable by a name that says what it is for, from every prose site.
     """
     if not _is_value(v):
         return False
     s = str(v).strip().lower()
     return not any(s.startswith(p) for p in _NOT_RECORDED)
+
+
+# The same predicate under the name that says what it is for. `_lead_in_has_value` stays
+# because its callers use it; a new prose site should say what it means.
+_prose_has_value = _lead_in_has_value
 
 
 def _lead_in(key, value):
@@ -1787,11 +1805,15 @@ def project(obj, journal="generic", length="standard"):
         s.paras.append(("Intervals are %s%% confidence intervals." % cl,
                         ["config.confidence_level"]))
     ma = get(obj, "methodological_authority")
-    if isinstance(ma, dict) and ma.get("reference"):
+    # `_prose_has_value`, NOT truthiness. `ma.get("reference")` is true for the string
+    # "not recorded on the page this object was built from", which is how 76 pages came to
+    # claim they followed guidance that was never recorded.
+    if isinstance(ma, dict) and _prose_has_value(ma.get("reference")):
         s.paras.append(("Methodological decisions follow %s%s, and the sections relied on are "
                         "listed in the object rather than cited generically."
                         % (ma["reference"],
-                           (", version %s" % ma["version"]) if ma.get("version") else ""),
+                           (", version %s" % ma["version"])
+                           if _prose_has_value(ma.get("version")) else ""),
                         ["methodological_authority.reference"]))
     # DUPLICATE SCREENING -- stated only in the form that is true.
     ds = get(obj, "screening.duplicate_screening")
@@ -1968,7 +1990,7 @@ def project(obj, journal="generic", length="standard"):
             blk.get("k", "an unstated number of"))
         comparator = (next((o.get("comparator") for o in (obj.get("outcomes") or [])
                             if isinstance(o, dict) and o.get("id") == oid), None))
-        if comparator:
+        if _prose_has_value(comparator):
             txt += ", against %s" % comparator
             f.append("outcomes[id=%s].comparator" % oid)
         txt += "."
@@ -2303,7 +2325,7 @@ def project(obj, journal="generic", length="standard"):
             _mparts.append("%s were searched" % _and_list(_names))
             _mfields.append("search.databases")
     _elig = get(obj, "screening.eligibility")
-    if _elig is not None:
+    if _prose_has_value(_elig):
         _ep = _phrase(_elig, 18)
         if _ep:
             _mparts.append("eligibility was %s" % _ep)

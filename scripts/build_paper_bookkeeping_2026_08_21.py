@@ -327,8 +327,16 @@ def introduction(obj):
         base = "It identifies no trial that can be pooled"
     if n:
         base += " comprising %s participants as registered" % format(n, ",")
-    if comp and str(comp).strip().lower() not in (
-            "", "none", "not applicable", "n/a", "not recorded", "unknown"):
+    # PREFIX, NOT EXACT MEMBERSHIP. This list held the exact string "not recorded" and the
+    # corpus writes "not recorded on the page this object was extracted from" -- 20 pages
+    # long, so `not in (...)` called it present and spliced it in as the comparator:
+    # "It identifies no trial that can be pooled, against not recorded on the page this
+    # object was extracted from." An exact-match blocklist against a corpus that writes
+    # sentences is a blocklist that matches nothing.
+    _absent = ("", "none", "not applicable", "n/a", "not recorded", "unknown",
+               "not available", "not stated", "no record", "not established", "not captured")
+    _c = str(comp).strip().lower() if comp else ""
+    if comp and not any(_c.startswith(a) for a in _absent if a) and _c:
         base += ", against %s" % comp
     parts.append(base + ".")
     if names:
