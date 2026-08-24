@@ -89,8 +89,21 @@ def _cache_path(svg, workdir):
     So this is not a shortcut bolted onto a fragile path. It is the safer naming, which
     happens also to be fast.
     """
+    # ONE CACHE FOR THE WHOLE REPOSITORY, NOT ONE PER OUTPUT DIRECTORY.
+    #
+    # Keyed on `workdir` first, which is `<dirname of the page>/figs`, this cached nothing
+    # useful the moment a page was built anywhere else: a verification pass building the
+    # same 74 pages into `outputs/_shrink_check/` got a cold cache for every figure and ran
+    # at 2.5 minutes a page -- three hours to check work that took minutes to do.
+    #
+    # A content-addressed entry is safe to share across every output directory BY
+    # CONSTRUCTION: the filename is the SHA-256 of the SVG that produced it, so two builds
+    # collide only when they are drawing byte-identical pictures. Scoping it per directory
+    # bought nothing and cost the entire benefit.
     sha = hashlib.sha256(svg.encode("utf-8")).hexdigest()[:32]
-    cdir = os.path.join(workdir, "_raster_cache")
+    cdir = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                        "..", "figs", "_raster_cache")
+    cdir = os.path.normpath(cdir)
     try:
         os.makedirs(cdir, exist_ok=True)
     except OSError:

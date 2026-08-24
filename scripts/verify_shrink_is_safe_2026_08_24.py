@@ -73,6 +73,22 @@ def rebuilt_paper_text(src, page):
     """
     scratch = os.path.join(REPO, "outputs", "_shrink_check", page)
     os.makedirs(os.path.dirname(scratch), exist_ok=True)
+    # DELETE LAST RUN'S COPY FIRST, or this check silently measures its own history.
+    #
+    # `build_tabbed` refuses to overwrite a delivered manuscript that would shrink past 5%.
+    # On the SECOND run of this check the scratch file left by the FIRST run IS that
+    # "delivered manuscript", so the build refuses, the stale file survives, and the
+    # comparison reports the previous build's content as though it were the new one. It made
+    # a budget fix look like it had changed nothing on 51 pages when it had in fact restored
+    # whole sections on all of them.
+    #
+    # Fourth time tonight an instrument measured something adjacent to what it claimed to
+    # measure and reported it with full confidence.
+    if os.path.exists(scratch):
+        try:
+            os.remove(scratch)
+        except OSError:
+            return None
     r = subprocess.run([sys.executable, os.path.join(REPO, "ssot", "build_tabbed.py"),
                         src, scratch],
                        cwd=REPO, capture_output=True, timeout=900)
@@ -96,7 +112,19 @@ def main():
 
     checked = skipped = safe = 0
     unsafe = []
+    # SCOPED TO THE PAGES THE REBUILD REFUSED, when that list exists. Comparing a page the
+    # rebuild already REWROTE means comparing the new build against itself: guaranteed
+    # identical, informative about nothing, and it costs a full build to learn it. The
+    # refused pages are the only ones where the delivered copy is still the OLD one, so
+    # they are the only ones where this comparison has two different things to compare.
+    only = None
+    _list = os.path.join(REPO, "outputs", "_refused_pages.txt")
+    if os.path.exists(_list):
+        only = {x.strip() for x in io.open(_list, encoding="utf-8") if x.strip()}
+        print("scoped to %d refused pages" % len(only))
     for page in sorted(pmap):
+        if only is not None and page not in only:
+            continue
         src = os.path.join(REPO, pmap[page].replace("/", os.sep))
         dst = os.path.join(REPO, page)
         old = delivered_paper_text(dst)

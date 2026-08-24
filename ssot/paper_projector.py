@@ -2164,7 +2164,30 @@ def _short_names(obj):
 # multiplier gives a full panel room to be fuller than an abstract while staying in the
 # right order of magnitude -- roughly 600-1,200 words for a typical topic here, against
 # 7,241 today.
-_BUDGET_MULTIPLIER = 2.0
+# THE BUDGET WAS CALIBRATED FOR A DIFFERENT READER, AND THE READER HAS CHANGED.
+#
+# 2.0 was derived from published anchors -- Zelniker (Lancet 2018), Stern (Cochrane 2017) --
+# to make these pages the length of a published review, because the acceptance test then was
+# "does this read like one". That test is retired. Mahmood: "the idea is that you write the
+# manuscript and then we check and rewrite it ... a lot of people doing are med students so
+# unfamiliar." The output is a WORKING DRAFT a novice will check and rewrite.
+#
+# A journal imposes a word count. A working draft has no such constraint, and brevity in one
+# actively harms the thing it is for: a student who cannot check a claim because the section
+# supporting it was cut to hit a length target is a student being asked to trust us.
+#
+# THE OLD VALUE WAS EVICTING REAL SECTIONS. Measured page-to-page against the delivered
+# corpus: 51 of 59 rebuilt pages lost numbers, and the losses were not the false placeholders
+# I had assumed -- they were whole sections that step 4 dropped for length. ABLATION_AF lost
+# Disagreements between sources, Reporting guidelines, Figure legends and Notes on this
+# record; ACS_ANTIPLATELET the same four. Those are exactly the sections that tell an
+# unfamiliar editor where the record disagrees with itself and what was not written.
+#
+# So the multiplier now buys room for the content the projection debt restored -- the
+# participants table, the per-trial estimates on unpooled outcomes, the clinician-gaps
+# paragraph -- rather than forcing them to displace it. Step 2 still drops draft scaffolding
+# and validation narrative, which is OUR workings and not article content at any length.
+_BUDGET_MULTIPLIER = 5.0
 
 
 def _length_budget(obj):
