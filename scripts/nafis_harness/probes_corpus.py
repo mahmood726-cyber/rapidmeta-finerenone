@@ -393,7 +393,22 @@ CHK017 = Check(
 # both structural properties of the endpoint, not statistics about the data. It
 # must stay silent on INCLISIRAN's I^2 = 72% single-endpoint pool.
 
-_RATIO_MEASURES = {"OR", "RR", "HR", "IRR"}
+# RATE_RATIO AND WIN_RATIO WERE IN NEITHER SET, AND THAT IS WHAT MADE CHK021 VACUOUS.
+#
+# `scripts/vacuity_sweep.py` already documents this exact path -- "RATE_RATIO and WIN_RATIO
+# are in neither vocabulary set, so neither branch adjudicates the scale rule before the
+# unconditional make_pass()". A measure the vocabulary does not know falls through to a PASS
+# that read nothing, which is the SKIP-as-pass shape: a verdict that cannot fail is not a
+# verdict. The pre-push harness gate caught it the only way this class can be caught -- by
+# forcing `back_transform` and `stored_scale` to their flipping values and observing that the
+# verdict did not move.
+#
+# BOTH BELONG HERE ON THE STATISTICS, NOT FOR CONVENIENCE. A rate ratio and a win ratio are
+# ratio measures pooled on the log scale and back-transformed with exp, exactly as OR, RR, HR
+# and IRR are. `iv-iron-hf` -- the only object in the corpus using either -- stores
+# `stored_scale: log` and `back_transform: exp` for all of them, which is correct practice and
+# is precisely what CHK021 exists to CONFIRM rather than assume.
+_RATIO_MEASURES = {"OR", "RR", "HR", "IRR", "RATE_RATIO", "WIN_RATIO"}
 _DIFF_MEASURES = {"MD", "SMD", "RD"}
 
 
