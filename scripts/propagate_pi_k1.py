@@ -4,9 +4,33 @@ curated REVIEW dashboards that still use IntHout 2016's t_{k-2}.
 The fix is a single substitution per file:
     tCritPI = tQuantile(..., k - 2)    -> tCritPI = tQuantile(..., k - 1)
 
-Sentinel rule "Prediction interval still uses t_{k-2} (IntHout 2016) instead
-of t_{k-1} (Cochrane v6.5)" flagged this across 213 curated dashboards (per
-scripts/scan_stat_engine_violations.py).
+Sentinel rule R-PI-k-1 ("Prediction interval still uses t_{k-2} (IntHout 2016)
+instead of t_{k-1} (Cochrane v6.5)") HAD flagged 213 curated dashboards when this
+script was written. THAT NUMBER IS HISTORICAL AND IS NOT REPRODUCIBLE FROM THIS TREE.
+
+It was written in the present tense, attributed to a live source -- "flagged this
+across 213 curated dashboards (per scripts/scan_stat_engine_violations.py)" -- and a
+reader who ran that scanner got 0 and had every reason to conclude the docstring was
+lying. A past-tense fact wearing a live citation is a false provenance string: the
+number was true once, the attribution points at something that no longer produces it,
+and nothing in the sentence says which part is stale.
+
+WHAT IS TRUE NOW, verified 2026-08-24 rather than recalled:
+
+  - The scanner reports R-PI-k-1: 0 across 397 curated REVIEW files.
+  - A direct grep over the 745 files carrying a tCritPI assignment finds 1,448
+    occurrences of `k-1` in the df slot and ZERO of `k-2`. The propagation is complete.
+  - THE ZERO IS A REAL ZERO, not a blind rule. Planted: `tCritPI=k>=2?tQuantile(...,
+    k-2)` written into VITILIGO_REVIEW.html in the exact ternary form the corpus uses;
+    the scanner reported R-PI-k-1: 1 and named the file. Restored, and it returned to 0
+    with git status blank.
+
+That plant was worth doing for a second reason. Reading only the first line of the
+rule's regex -- which requires a bare `tCritPI = tQuantile(` the corpus never writes --
+I had concluded the rule could not fire and was about to report it as broken. The backslash
+continuation on the next line carries a second alternative that matches the ternary.
+Same family as accusing `sys.exit(main())` on a regex that stops at the first close
+paren: a false alarm in the DISMISSING direction, and the plant is what caught it.
 
 Methodology rationale, since the project's own advanced-stats.md previously
 recommended t_{k-2}:

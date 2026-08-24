@@ -71,6 +71,73 @@ Asserted, in the same way an instrument's controls are asserted:
 4. **Record the packet.** A finding cannot be re-adjudicated later without the evidence the
    reviewer actually saw. Keep it beside the review.
 
+## The same assertion failed three times, at three different layers
+
+Written the day of the first failure, this document treated packet completeness as a
+property of ASSEMBLY: name the fields the text relies on, assert each is present, refuse to
+send if one is missing. That was the right rule for the failure in front of it. Within
+twenty-four hours the identical claim -- *nothing is withheld* -- failed twice more, in
+places the assembly rule cannot see.
+
+**Layer 1, ASSEMBLY. The packet was built from a chosen field list and certified complete.**
+Eleven reviewers rejected sound work by reasoning correctly from what they were given: "the
+provided evidence contains none of these registry strings." The strings were on the object,
+outside the field list. Fixed by sending the whole object.
+
+**Layer 2, PROPAGATION. The fix was applied to the producer while the queue still held the
+old form.** The enqueuer was corrected; 158 prompts already written to disk and waiting were
+not. 56 of them were still carrying the superseded assertion and would have made a claim
+their author had already retracted. Nothing about the corrected producer was visible in
+those files. Fixed by rewriting the queued payloads in place, membership untouched.
+
+**Layer 3, DELIVERY. The packet was complete when sent and truncated in flight.** 487,175
+bytes written, `<truncated 295594 bytes>` in the reply, 191,581 delivered -- the same
+191,581 on both affected lanes, so a cap rather than a hiccup. The sender's file was
+complete and verifiable at any time; the reader's copy was not. Fixed by refusing to assert
+completeness above the largest size observed to arrive whole.
+
+### The general form
+
+> **An assertion about a payload must be made about the payload AS RECEIVED. Every layer
+> between the assertion and the reader is a place where it can stop being true, and each
+> layer is invisible from the one above it.**
+
+The assembly rule cannot see the queue. The queue cannot see the wire. The wire cannot see
+what the reader rendered. An author checking their own work checks the layer they are
+standing on, which is why all three of these passed inspection at the moment they were
+written. The only reliable check is one taken from the reader's side -- what came back, what
+size arrived, what the reply says it saw.
+
+### What each layer's check actually is
+
+| Layer | The claim | What can falsify it | The check that lives there |
+|---|---|---|---|
+| Assembly | every field the text relies on is present | a field quoted from outside the list | scan the text for paths and quoted strings, refuse on a miss |
+| Propagation | the payload on the queue matches the current rule | a producer fixed after the queue was written | rewrite queued payloads in place; never trust producer version alone |
+| Delivery | the reader received what was sent | a transport cap, silent or announced | compare sent size against the largest size OBSERVED to arrive whole |
+| Reading | the answer was written over a complete input | a truncation marker in the reply | refuse to classify the answer at all -- see below |
+
+### The response to a truncated input is refusal, not a warning
+
+A returned answer written over a cut packet is not a weak result, it is not a result. One of
+the two truncated lanes contained the word ACCEPT further up its own text; classified on its
+tail it would have been banked as evidence that the object is sound. **A transport failure
+counted as a clean read is worse than a missed defect, because it closes the question.**
+
+The control for this is two lanes with byte-identical text where only the truncation marker
+differs. `CLEAN` and `INPUT_TRUNCATED`. If a classifier returns the same verdict for both,
+it is reading the answer and not the conditions the answer was written under.
+
+### The honest residue
+
+Nineteen further lanes carried packets above the observed cap and answered without
+mentioning truncation. Whether they were cut silently is **COULD NOT DETERMINE**. The
+largest, at 776,959 bytes, cites a JSON path sitting at byte 755,310 -- past any cap -- but
+that path is composable from the prompt's own header, so it is evidence in neither
+direction. The probe that would settle it (an early and a late canary either side of the
+boundary, both requested back) is written and blocked behind a vendor quota. The delivery
+rule above does not depend on settling it, which is why it did not wait.
+
 ## Why this belongs in the two-assessor standard specifically
 
 The standard exists so that a judgement is made twice, independently, and adjudicated. Its
