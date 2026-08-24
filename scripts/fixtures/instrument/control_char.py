@@ -1,0 +1,1 @@
+PATTERN = r"\bword\b"

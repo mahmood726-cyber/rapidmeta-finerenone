@@ -793,6 +793,28 @@ def _projected_paper_html(canon):
     Returns "" when the object supports no section, so the caller falls through to the
     absent-state banner rather than printing an empty manuscript.
     """
+    # A TOPIC WITH NOTHING POOLABLE DOES NOT GET A MANUSCRIPT AT ALL.
+    #
+    # Not a manuscript with its declines rearranged -- a DIFFERENT ARTEFACT. Eight blind
+    # reviewers across two model families read the collapsed version and still called it a
+    # debug dump; both families independently prescribed stating only the clinical facts
+    # that exist, "even if that reduces the entire paper to three sentences".
+    #
+    # THE PREDICATE IS THE ONE THE CENSUS COUNTS WITH, imported rather than restated, so a
+    # page and the split it was reported under cannot drift apart. A withdrawn pool is
+    # deliberately NOT routed here: those topics hold readable per-trial estimates and a
+    # recorded reason the pool was retracted, and a four-sentence statement would say
+    # "nothing was found" where the truth is "this was found and deliberately not combined".
+    try:
+        import statement as _stmt
+        if _stmt.holds_no_poolable_evidence(canon):
+            return _stmt.statement_html(canon, e)
+    except Exception as exc:                       # noqa: BLE001 - reported, never silent
+        return ("<div class='absent-state' role='note'><strong>Not assessable.</strong> "
+                "The summary could not be composed for this topic (%s: %s). Reported "
+                "rather than shown as an absent summary.</div>"
+                % (e(type(exc).__name__), _v(exc, limit=200)))
+
     try:
         import paper_projector as ppj
         secs = ppj.project(canon)
